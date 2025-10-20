@@ -9,7 +9,7 @@ const accessToken = cookies.get("sb-access-token");
 const refreshToken = cookies.get("sb-refresh-token");
 
 if (!accessToken || !refreshToken) {
-  return redirect ("/sign-in");
+  return redirect("/sign-in");
 }
 
 await supabase.auth.setSession({
@@ -55,13 +55,107 @@ const themeJson = formulario.tema_json;
 </head>
 <body>
     <input type="hidden" id="modal_form_id" value={formulario?.form_id} />
+    
+    <!-- Selector de idioma flotante -->
+<div class="fixed top-4 right-4 z-50 bg-white p-3 rounded-lg shadow-md border border-gray-200">
+    <label for="languageSelector" class="text-sm font-medium text-gray-700 mr-2">🌐 Idioma:</label>
+    <select id="languageSelector" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2">
+        <option value="es">Español</option>
+        <option value="en">English</option>
+    </select>
+</div>
+    
     <div id="surveyContainer" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; min-height: 100%; height:100%"></div>
 </body>
 </html>
 <script type="module" define:vars={{ jsonConfig, themeJson }}>
+  // === CONFIGURACIÓN DE TRADUCCIÓN ===
+  // Traducciones al español
+  const spanishTranslations = {
+    pagePrevText: "Anterior",
+    pageNextText: "Siguiente",
+    completeText: "Completar",
+    otherItemText: "Otro (especificar)",
+    noneItemText: "Ninguno",
+    selectAllItemText: "Seleccionar todos",
+    progressText: "Página {0} de {1}",
+    emptyRowsText: "No hay filas",
+    requiredError: "Este campo es obligatorio",
+    requiredInAllRowsError: "Todos los campos son obligatorios",
+    numericError: "Debe ser un número",
+    textMinLength: "Debe tener al menos {0} caracteres",
+    textMaxLength: "No debe exceder {0} caracteres",
+    textMinMaxLength: "Debe tener entre {0} y {1} caracteres",
+    minRowCountError: "Debe tener al menos {0} filas",
+    minSelectError: "Seleccione al menos {0} opciones",
+    maxSelectError: "No seleccione más de {0} opciones",
+    numericMinMax: "Debe ser entre {0} y {1}",
+    numericMin: "Debe ser al menos {0}",
+    numericMax: "No debe exceder {0}",
+    invalidEmail: "Ingrese un email válido",
+    invalidExpression: "La expresión {0} debe devolver 'verdadero'",
+    loadingFile: "Cargando...",
+    chooseFile: "Seleccionar archivo(s)...",
+    noFileChosen: "No se seleccionó archivo",
+    confirmDelete: "¿Está seguro de que desea eliminar?",
+    keyDuplicationError: "Este valor debe ser único",
+    addRow: "Agregar fila",
+    removeRow: "Eliminar",
+    addPanel: "Agregar nuevo",
+    removePanel: "Eliminar",
+    choices_Item: "opción",
+    savingData: "Guardando...",
+    savingDataError: "Ocurrió un error al guardar",
+    savingDataSuccess: "Datos guardados exitosamente",
+    timerLimitPage: "Tiempo en esta página: {0} de {1}.",
+    timerLimitSurvey: "Tiempo total: {0} de {1}.",
+    clearCaption: "Limpiar",
+    signaturePlaceHolder: "Firme aquí",
+    chooseCaption: "Seleccionar",
+    removeFileCaption: "Eliminar archivo"
+  };
+
+  // Registrar traducciones
+  Survey.surveyLocalization.locales["es"] = spanishTranslations;
+  
+  // Idioma por defecto (puedes cambiarlo a "en" si prefieres inglés por defecto)
+  Survey.surveyLocalization.currentLocale = "es";
+
   // Crear Survey
   const survey = new Survey.Model(jsonConfig);
+  survey.locale = "es"; // Español por defecto
+  
   if (typeof themeJson !== "undefined") survey.applyTheme(themeJson);
+
+  // === SELECTOR DE IDIOMA ===
+  const languageSelector = document.getElementById('languageSelector');
+  
+  // Establecer valor inicial
+  languageSelector.value = survey.locale;
+  
+  // Manejar cambio de idioma
+  languageSelector.addEventListener('change', function() {
+    const selectedLanguage = this.value;
+    survey.locale = selectedLanguage;
+    
+    // Opcional: Guardar preferencia en localStorage
+    try {
+      localStorage.setItem('survey-language-preference', selectedLanguage);
+    } catch (e) {
+      console.warn('No se pudo guardar preferencia de idioma:', e);
+    }
+  });
+
+  // Opcional: Cargar preferencia guardada
+  try {
+    const savedLanguage = localStorage.getItem('survey-language-preference');
+    if (savedLanguage && (savedLanguage === 'es' || savedLanguage === 'en')) {
+      survey.locale = savedLanguage;
+      languageSelector.value = savedLanguage;
+    }
+  } catch (e) {
+    console.warn('No se pudo cargar preferencia de idioma:', e);
+  }
 
   // ID del form (para cache y backend)
   const formId =

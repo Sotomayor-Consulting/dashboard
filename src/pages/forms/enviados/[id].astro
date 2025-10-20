@@ -62,13 +62,6 @@ const apellido = envio.usuarios?.apellido;
 const schemaSnapshot = envio.schema_snapshot ?? {};
 const answers = envio.data_json ?? {};
 
-function fmtLocalYmd(iso: string) {
-  const d = new Date(iso);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}/${m}/${day}`;
-}
 ---
 
 
@@ -82,7 +75,7 @@ function fmtLocalYmd(iso: string) {
     <script type="text/javascript" src="https://unpkg.com/survey-js-ui@2.3.9/survey-js-ui.min.js"></script>
     
 </head>
-<body class="bg-slate-500">
+<body class="bg-neutral-700">
   <section class="max-w-4xl mx-auto p-4 space-y-2">
     <h1 class="text-2xl font-semibold text-white">
       {
