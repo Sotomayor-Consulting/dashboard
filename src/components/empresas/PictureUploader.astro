@@ -1,0 +1,82 @@
+---
+import { supabase } from '../lib/supabase';
+
+// ⚡ Restaurar sesión desde cookies
+const accessToken = Astro.cookies.get('sb-access-token');
+const refreshToken = Astro.cookies.get('sb-refresh-token');
+
+if (accessToken && refreshToken) {
+	await supabase.auth.setSession({
+		access_token: accessToken.value,
+		refresh_token: refreshToken.value,
+	});
+}
+
+const {
+	data: { user },
+} = await supabase.auth.getUser();
+
+let imagen = null;
+if (user) {
+	const { data } = await supabase
+		.from('usuarios')
+		.select('avatar_url')
+		.eq('user_id', user.id)
+		.single();
+	imagen = data;
+}
+
+interface Props {
+	title: string;
+}
+const { title } = Astro.props;
+---
+
+<img
+	class="mb-4 rounded-lg w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0"
+	src={imagen?.avatar_url}
+	alt="Jese picture"
+/>
+<div>
+	<h3 class="mb-1 text-xl font-bold text-gray-900 dark:text-white">
+		{title}
+	</h3>
+	<div class="mb-4 text-sm text-gray-500 dark:text-gray-400">
+		JPG, PNG o WEBP. tamaño maximo de 5M.
+	</div>
+	<div class="flex items-center space-x-4">
+		<form
+			method="post"
+			action="/api/update/update-avatar"
+			enctype="multipart/form-data"
+		>
+			<input
+				class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 mb-5"
+				type="file"
+				name="avatar"
+				accept="image/*"
+				required
+			/>
+			<button
+				type="submit"
+				class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+			>
+				<svg
+					class="w-4 h-4 mr-2 -ml-1"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+					><path
+						fill="currentColor"
+						d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h11.175q.4 0 .763.15t.637.425l2.85 2.85q.275.275.425.638t.15.762V19q0 .825-.587 1.413T19 21zm7-3q1.25 0 2.125-.875T15 15t-.875-2.125T12 12t-2.125.875T9 15t.875 2.125T12 18m-5-8h7q.425 0 .713-.288T15 9V7q0-.425-.288-.712T14 6H7q-.425 0-.712.288T6 7v2q0 .425.288.713T7 10"
+					></path></svg
+				>
+				Actualizar foto de perfil
+			</button>
+		</form>
+	</div>
+</div>
+
+<script>
+	// Upload handler...
+</script>

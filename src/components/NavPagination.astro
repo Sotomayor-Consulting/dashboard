@@ -1,0 +1,114 @@
+---
+const {
+	page = 1, // número de página actual (1-based)
+	total = 0, // total de resultados
+	pageSize = 20, // tamaño de página
+	searchParams, // pasa Astro.url.searchParams desde el padre
+} = Astro.props;
+
+const current = Math.max(1, Number(page));
+const totalPages = Math.max(1, Math.ceil(Number(total) / Number(pageSize)));
+
+const start = total === 0 ? 0 : (current - 1) * pageSize + 1;
+const end = Math.min(current * pageSize, total);
+
+function linkFor(p) {
+	const qs = new URLSearchParams(searchParams);
+	qs.set('page', String(p));
+	return `?${qs.toString()}`;
+}
+const hasPrev = current > 1;
+const hasNext = current < totalPages;
+const prevHref = hasPrev ? linkFor(current - 1) : '#';
+const nextHref = hasNext ? linkFor(current + 1) : '#';
+
+const baseBtn =
+	'inline-flex items-center justify-center flex-1 px-3 py-2 text-sm font-medium text-center rounded-lg';
+const enabled =
+	'text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800';
+const disabled =
+	'text-gray-400 bg-gray-200 dark:bg-neutral-700 cursor-not-allowed';
+---
+
+<nav
+	class="block sticky bottom-0 right-0 items-center w-full p-4 bg-white border-t border-gray-200 sm:flex sm:justify-between dark:bg-[#1d1d1d] dark:border-gray-700"
+>
+	<div class="flex items-center mb-4 sm:mb-0">
+		<!-- Flecha izq (icono) -->
+		<a
+			href={prevHref}
+			aria-disabled={!hasPrev}
+			class={`inline-flex justify-center p-1 rounded ${
+				hasPrev
+					? 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-neutral-700 dark:hover:text-white'
+					: 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+			}`}
+		>
+			<svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+				<path
+					fill-rule="evenodd"
+					d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+					clip-rule="evenodd"></path>
+			</svg>
+		</a>
+
+		<!-- Flecha der (icono) -->
+		<a
+			href={nextHref}
+			aria-disabled={!hasNext}
+			class={`inline-flex justify-center p-1 mr-2 rounded ${
+				hasNext
+					? 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-neutral-700 dark:hover:text-white'
+					: 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+			}`}
+		>
+			<svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20">
+				<path
+					fill-rule="evenodd"
+					d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+					clip-rule="evenodd"></path>
+			</svg>
+		</a>
+
+		<span class="text-sm font-normal text-gray-500 dark:text-gray-400">
+			Mostrando
+			<span class="font-semibold text-gray-900 dark:text-white"
+				>{start}-{end}</span
+			>
+			de
+			<span class="font-semibold text-gray-900 dark:text-white">{total}</span>
+		</span>
+	</div>
+
+	<div class="flex items-center space-x-3">
+		<!-- Botón Anterior -->
+		<a
+			href={prevHref}
+			aria-disabled={!hasPrev}
+			class={`${baseBtn} ${hasPrev ? enabled : disabled}`}
+		>
+			<svg class="w-5 h-5 mr-1 -ml-1" fill="currentColor" viewBox="0 0 20 20">
+				<path
+					fill-rule="evenodd"
+					d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+					clip-rule="evenodd"></path>
+			</svg>
+			Anterior
+		</a>
+
+		<!-- Botón Siguiente -->
+		<a
+			href={nextHref}
+			aria-disabled={!hasNext}
+			class={`${baseBtn} ${hasNext ? enabled : disabled}`}
+		>
+			Siguiente
+			<svg class="w-5 h-5 ml-1 -mr-1" fill="currentColor" viewBox="0 0 20 20">
+				<path
+					fill-rule="evenodd"
+					d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+					clip-rule="evenodd"></path>
+			</svg>
+		</a>
+	</div>
+</nav>

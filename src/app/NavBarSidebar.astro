@@ -1,0 +1,703 @@
+---
+/* eslint max-lines: 'off' */
+import { supabase } from '../lib/supabase';
+import { asset } from '../lib/data.js';
+const { cookies } = Astro;
+
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+
+import ColorModeSwitcher from '../components/ColorModeSwitcher.astro';
+import SearchInput from '../components/SearchInput.astro';
+const { data } = await supabase.auth.setSession({
+	refresh_token: refreshToken.value,
+	access_token: accessToken.value,
+});
+
+const {
+	data: { user },
+} = await supabase.auth.getUser();
+
+let imagen = null;
+if (user) {
+	const { data } = await supabase
+		.from('usuarios')
+		.select('avatar_url')
+		.eq('user_id', user.id)
+		.single();
+	imagen = data;
+}
+
+let testRow = null;
+if (user) {
+	const { data } = await supabase
+		.from('usuarios')
+		.select('nombre, apellido')
+		.eq('user_id', user.id)
+		.single();
+	testRow = data;
+}
+
+let isAdmin = false;
+if (user) {
+	// usa tu función SECURITY DEFINER
+	const { data: isAdminRes, error } = await supabase.rpc('is_admin', {
+		uid: user.id,
+	});
+	if (!error) isAdmin = Boolean(isAdminRes);
+}
+
+const email = data?.user?.email;
+---
+
+<nav
+	class="fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-neutral-800 dark:border-gray-700"
+>
+	<div class="px-3 py-3 lg:px-5 lg:pl-3">
+		<div class="flex items-center justify-between">
+			<div class="flex items-center justify-start">
+				<button
+					id="toggleSidebarMobile"
+					aria-expanded="true"
+					aria-controls="sidebar"
+					class="p-2 text-gray-600 rounded cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-neutral-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-neutral-700 dark:hover:text-white"
+				>
+					<svg
+						id="toggleSidebarMobileHamburger"
+						class="w-6 h-6"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+							clip-rule="evenodd"></path></svg
+					>
+					<svg
+						id="toggleSidebarMobileClose"
+						class="hidden w-6 h-6"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+				<a href="/" class="flex ml-2 md:mr-24">
+					<img
+						src="/src/assets/SC-INTER.png"
+						class="h-8 mr-3 hidden dark:block"
+						alt="SotoMayor consulting Logo"
+					/>
+					<img
+						src="/src/assets/SC-INTER-NG.png"
+						class="h-8 mr-3 dark:hidden block"
+						alt="SotoMayor consulting Logo"
+						class="dark:hidden block h-8 mr-3"
+					/>
+				</a>
+
+				<SearchInput />
+			</div>
+
+			<div class="flex items-center">
+				<!-- Search mobile -->
+				<button
+					id="toggleSidebarMobileSearch"
+					type="button"
+					class="p-2 text-gray-500 rounded-lg lg:hidden hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-neutral-700 dark:hover:text-white"
+				>
+					<span class="sr-only">Buscar</span>
+					<!-- Search icon -->
+					<svg
+						class="w-6 h-6"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+
+				<!-- Dropdown menu -->
+				<div
+					id="dropdownNavbar"
+					class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-neutral-700 dark:divide-gray-600"
+				>
+					<ul
+						class="py-2 text-sm text-gray-700 dark:text-gray-400"
+						aria-labelledby="dropdownNavbarButton"
+					>
+						<li>
+							<a
+								href="#"
+								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+								>Dashboard</a
+							>
+						</li>
+						<li>
+							<a
+								href="/settings/"
+								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+								>Settings</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+								>Earnings</a
+							>
+						</li>
+					</ul>
+					<div class="py-2">
+						<a
+							href="#"
+							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white"
+							>Sign out</a
+						>
+					</div>
+				</div>
+
+				<!-- Notifications -->
+				<button
+					type="button"
+					data-dropdown-toggle="notification-dropdown"
+					class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-neutral-700"
+				>
+					<span class="sr-only">View notifications</span>
+					<!-- Bell icon -->
+					<svg
+						class="w-6 h-6"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+						></path></svg
+					>
+				</button>
+				<!-- Dropdown menu -->
+				<div
+					class="z-20 z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 rounded shadow-lg dark:divide-gray-600 dark:bg-neutral-700"
+					id="notification-dropdown"
+				>
+					<div
+						class="block px-4 py-2 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-neutral-700 dark:text-gray-400"
+					>
+						Notificaciones
+					</div>
+					<div>
+						<a
+							href="#"
+							class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
+						>
+							<div class="flex-shrink-0">
+								<img
+									class="rounded-full w-11 h-11"
+									src={asset('images/users/bonnie-green.png')}
+									alt="Jese image"
+								/>
+								<div
+									class="absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 border border-white rounded-full bg-[#8c681d] dark:border-gray-700"
+								>
+									<svg
+										class="w-3 h-3 text-white"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											d="M8.707 7.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 00-1.414-1.414L11 7.586V3a1 1 0 10-2 0v4.586l-.293-.293z"
+										></path><path
+											d="M3 5a2 2 0 012-2h1a1 1 0 010 2H5v7h2l1 2h4l1-2h2V5h-1a1 1 0 110-2h1a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"
+										></path></svg
+									>
+								</div>
+							</div>
+							<div class="w-full pl-3">
+								<div
+									class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400"
+								>
+									New message from <span
+										class="font-semibold text-gray-900 dark:text-white"
+										>Bonnie Green</span
+									>: "Hey, what's up? All set for the presentation?"
+								</div>
+								<div
+									class="text-xs font-medium text-[#8c681d] dark:text-primary-400"
+								>
+									a few moments ago
+								</div>
+							</div>
+						</a>
+						<a
+							href="#"
+							class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
+						>
+							<div class="flex-shrink-0">
+								<img
+									class="rounded-full w-11 h-11"
+									src={asset('images/users/jese-leos.png')}
+									alt="Jese image"
+								/>
+								<div
+									class="absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 bg-gray-900 border border-white rounded-full dark:border-gray-700"
+								>
+									<svg
+										class="w-3 h-3 text-white"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"
+										></path></svg
+									>
+								</div>
+							</div>
+							<div class="w-full pl-3">
+								<div
+									class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400"
+								>
+									<span class="font-semibold text-gray-900 dark:text-white"
+										>Jese leos</span
+									> and <span class="font-medium text-gray-900 dark:text-white"
+										>5 others</span
+									> started following you.
+								</div>
+								<div
+									class="text-xs font-medium text-[#8c681d] dark:text-primary-400"
+								>
+									10 minutes ago
+								</div>
+							</div>
+						</a>
+						<a
+							href="#"
+							class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
+						>
+							<div class="flex-shrink-0">
+								<img
+									class="rounded-full w-11 h-11"
+									src={asset('images/users/joseph-mcfall.png')}
+									alt="Joseph image"
+								/>
+								<div
+									class="absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 bg-red-600 border border-white rounded-full dark:border-gray-700"
+								>
+									<svg
+										class="w-3 h-3 text-white"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+											clip-rule="evenodd"></path></svg
+									>
+								</div>
+							</div>
+							<div class="w-full pl-3">
+								<div
+									class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400"
+								>
+									<span class="font-semibold text-gray-900 dark:text-white"
+										>Joseph Mcfall</span
+									> and <span class="font-medium text-gray-900 dark:text-white"
+										>141 others</span
+									> love your story. See it and view more stories.
+								</div>
+								<div
+									class="text-xs font-medium text-[#8c681d] dark:text-primary-400"
+								>
+									44 minutes ago
+								</div>
+							</div>
+						</a>
+						<a
+							href="#"
+							class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
+						>
+							<div class="flex-shrink-0">
+								<img
+									class="rounded-full w-11 h-11"
+									src={asset('images/users/leslie-livingston.png')}
+									alt="Leslie image"
+								/>
+								<div
+									class="absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 bg-green-400 border border-white rounded-full dark:border-gray-700"
+								>
+									<svg
+										class="w-3 h-3 text-white"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z"
+											clip-rule="evenodd"></path></svg
+									>
+								</div>
+							</div>
+							<div class="w-full pl-3">
+								<div
+									class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400"
+								>
+									<span class="font-semibold text-gray-900 dark:text-white"
+										>Leslie Livingston</span
+									> mentioned you in a comment: <span
+										class="font-medium text-[#8c681d] dark:text-primary-500"
+										>@bonnie.green</span
+									> what do you say?
+								</div>
+								<div
+									class="text-xs font-medium text-[#8c681d] dark:text-primary-400"
+								>
+									1 hour ago
+								</div>
+							</div>
+						</a>
+						<a
+							href="#"
+							class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600"
+						>
+							<div class="flex-shrink-0">
+								<img
+									class="rounded-full w-11 h-11"
+									src={asset('images/users/robert-brown.png')}
+									alt="Robert image"
+								/>
+								<div
+									class="absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-700"
+								>
+									<svg
+										class="w-3 h-3 text-white"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"
+										></path></svg
+									>
+								</div>
+							</div>
+							<div class="w-full pl-3">
+								<div
+									class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400"
+								>
+									<span class="font-semibold text-gray-900 dark:text-white"
+										>Robert Brown</span
+									> posted a new video: Glassmorphism - learn how to implement the
+									new design trend.
+								</div>
+								<div
+									class="text-xs font-medium text-[#8c681d] dark:text-primary-400"
+								>
+									3 hours ago
+								</div>
+							</div>
+						</a>
+					</div>
+					<a
+						href="#"
+						class="block py-2 text-base font-normal text-center text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white dark:hover:underline"
+					>
+						<div class="inline-flex items-center">
+							<svg
+								class="w-5 h-5 mr-2"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path
+									fill-rule="evenodd"
+									d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+									clip-rule="evenodd"></path></svg
+							>
+							Ver todo
+						</div>
+					</a>
+				</div>
+				<!-- Apps -->
+				<button
+					type="button"
+					data-dropdown-toggle="apps-dropdown"
+					class="hidden p-2 text-gray-500 rounded-lg sm:flex hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-neutral-700"
+				>
+					<span class="sr-only">View notifications</span>
+					<!-- Icon -->
+					<svg
+						class="w-6 h-6"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+						></path></svg
+					>
+				</button>
+				<!-- Dropdown menu -->
+				<div
+					class="z-20 z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 rounded shadow-lg dark:bg-neutral-700 dark:divide-gray-600"
+					id="apps-dropdown"
+				>
+					<div
+						class="block px-4 py-2 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-neutral-700 dark:text-gray-400"
+					>
+						Apps
+					</div>
+					<div class="grid grid-cols-3 gap-4 p-4">
+						<a
+							href="#"
+							class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600"
+						>
+							<svg
+								class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 48 48"
+								><g
+									fill="none"
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="4"
+									><path d="m21 13l-10 7v24"></path><path
+										fill="currentColor"
+										fill-rule="evenodd"
+										d="m21 4l10 7v13l7 5v15H21z"
+										clip-rule="evenodd"></path><path d="M4 44h40"></path></g
+								></svg
+							>
+							<div class="text-sm font-medium text-gray-900 dark:text-white">
+								Crea una LLC
+							</div>
+						</a>
+						<a
+							href="#"
+							class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600"
+						>
+							<svg
+								class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 512 512"
+								><path
+									fill="currentColor"
+									fill-rule="evenodd"
+									d="M448 64H298.667v149.333H448zM234.667 85.333H85.333v149.334h149.334zm-149.334 192h149.334v149.334H85.333zm341.334 0H277.333v149.334h149.334z"
+									clip-rule="evenodd"></path></svg
+							>
+							<div class="text-sm font-medium text-gray-900 dark:text-white">
+								Tus companias
+							</div>
+						</a>
+						<a
+							href="#"
+							class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600"
+						>
+							<svg
+								class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+								><path
+									fill="currentColor"
+									d="M15 7h5.5L15 1.5zM8 0h8l6 6v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2M4 4v18h16v2H4a2 2 0 0 1-2-2V4z"
+								></path></svg
+							>
+							<div class="text-sm font-medium text-gray-900 dark:text-white">
+								Tus documentos
+							</div>
+						</a>
+						<a
+							href="#"
+							class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600"
+						>
+							<svg
+								class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+								><path
+									fill="currentColor"
+									d="m8.8 10.95l2.15-2.175l-1.4-1.425l-1.1 1.1l-1.4-1.4l1.075-1.1L7 4.825L4.825 7zm8.2 8.225L19.175 17l-1.125-1.125l-1.1 1.075l-1.4-1.4l1.075-1.1l-1.425-1.4l-2.15 2.15zm-.775-12.75l1.4 1.4l1.4-1.4L17.6 5zM7.25 21H3v-4.25l4.375-4.375L2 7l5-5l5.4 5.4l3.775-3.8q.3-.3.675-.45t.775-.15t.775.15t.675.45L20.4 4.95q.3.3.45.675T21 6.4t-.15.763t-.45.662l-3.775 3.8L22 17l-5 5l-5.375-5.375z"
+								></path></svg
+							>
+							<div class="text-sm font-medium text-gray-900 dark:text-white">
+								Otros Servicios
+							</div>
+						</a>
+						<a
+							href="#"
+							class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600"
+						>
+							<svg
+								class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+								><path
+									fill="currentColor"
+									d="M11 6h3l3.29-3.3a1 1 0 0 1 1.42 0l2.58 2.59a1 1 0 0 1 0 1.41L19 9h-8v2a1 1 0 0 1-1 1a1 1 0 0 1-1-1V8a2 2 0 0 1 2-2m-6 5v4l-2.29 2.29a1 1 0 0 0 0 1.41l2.58 2.59a1 1 0 0 0 1.42 0L11 17h4a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1h-7v1a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9Z"
+								></path></svg
+							>
+							<div class="text-sm font-medium text-gray-900 dark:text-white">
+								Partners
+							</div>
+						</a>
+
+						{
+							isAdmin && (
+								<a
+									href="#"
+									class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600"
+								>
+									<svg
+										class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400"
+										fill="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											fill="currentColor"
+											d="M16 17v2H2v-2s0-4 7-4s7 4 7 4m-3.5-9.5A3.5 3.5 0 1 0 9 11a3.5 3.5 0 0 0 3.5-3.5m3.44 5.5A5.32 5.32 0 0 1 18 17v2h4v-2s0-3.63-6.06-4M15 4a3.4 3.4 0 0 0-1.93.59a5 5 0 0 1 0 5.82A3.4 3.4 0 0 0 15 11a3.5 3.5 0 0 0 0-7"
+										/>
+									</svg>
+									<div class="text-sm font-medium text-gray-900 dark:text-white">
+										Clientes
+									</div>
+								</a>
+							)
+						}
+
+						{
+							isAdmin && (
+								<a
+									href="#"
+									class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600"
+								>
+									<svg
+										class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400"
+										fill="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											fill="currentColor"
+											d="M19 9q-1.425 0-2.475-.85T15.125 6H8.85q-.275 1.05-1.037 1.813T6 8.85v6.275q1.3.35 2.15 1.4T9 19q0 1.65-1.175 2.825T5 23t-2.825-1.175T1 19q0-1.425.85-2.475t2.15-1.4V8.85q-1.3-.35-2.15-1.4T1 5q0-1.65 1.175-2.825T5 1q1.4 0 2.45.85T8.85 4h6.275q.35-1.3 1.4-2.15T19 1q1.65 0 2.825 1.175T23 5t-1.175 2.825T19 9m0 14q-1.65 0-2.825-1.175T15 19t1.175-2.825T19 15t2.825 1.175T23 19t-1.175 2.825T19 23"
+										/>
+									</svg>
+									<div class="text-sm font-medium text-gray-900 dark:text-white">
+										Servicios
+									</div>
+								</a>
+							)
+						}
+						<a
+							href="/settings/"
+							class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600"
+						>
+							<svg
+								class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"
+									clip-rule="evenodd"></path></svg
+							>
+							<div class="text-sm font-medium text-gray-900 dark:text-white">
+								Ajustes
+							</div>
+						</a>
+						<form action="/api/auth/signout" class="w-full">
+							<button
+								type="submit"
+								class="w-full p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600"
+							>
+								<svg
+									class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+									xmlns="http://www.w3.org/2000/svg"
+									><path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+									></path></svg
+								>
+								<div class="text-sm font-medium text-gray-900 dark:text-white">
+									Cerrar
+								</div>
+							</button>
+						</form>
+					</div>
+				</div>
+
+				<ColorModeSwitcher />
+
+				<!-- Profile -->
+				<div class="flex items-center ml-3">
+					<div>
+						<button
+							type="button"
+							class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+							id="user-menu-button-2"
+							aria-expanded="false"
+							data-dropdown-toggle="dropdown-2"
+						>
+							<span class="sr-only">Open user menu</span>
+							<img
+								class="w-8 h-8 rounded-full"
+								src={imagen?.avatar_url}
+								alt="user photo"
+							/>
+						</button>
+					</div>
+					<!-- Dropdown menu -->
+					<div
+						class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-neutral-700 dark:divide-gray-600"
+						id="dropdown-2"
+					>
+						<div class="px-4 py-3" role="none">
+							<p class="text-sm text-gray-900 dark:text-white" role="none">
+								{testRow?.nombre ?? ''}
+								{testRow?.apellido ?? ''}
+							</p>
+							<p
+								class="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
+								role="none"
+							>
+								{email}
+							</p>
+						</div>
+						<ul class="py-1" role="none">
+							<li>
+								<a
+									href="/dashboard/"
+									class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+									role="menuitem">Dashboard</a
+								>
+							</li>
+							<li>
+								<a
+									href="/settings/"
+									class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+									role="menuitem">Configuraciones</a
+								>
+							</li>
+							<li>
+								<form action="/api/auth/signout">
+									<button
+										type="submit"
+										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+										role="menuitem">Cerrar sesión</button
+									>
+								</form>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</nav>

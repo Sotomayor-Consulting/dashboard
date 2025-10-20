@@ -1,0 +1,175 @@
+---
+import { supabase } from "../../../../lib/supabase";
+
+const { id } = Astro.params;
+
+const { cookies, redirect } = Astro;
+// 1) Restaurar sesión desde cookies
+const accessToken = cookies.get("sb-access-token");
+const refreshToken = cookies.get("sb-refresh-token");
+
+if (!accessToken || !refreshToken) {
+  return redirect ("/sign-in");
+}
+
+await supabase.auth.setSession({
+  access_token: accessToken.value,
+  refresh_token: refreshToken.value,
+});
+
+// 2) Obtener usuario
+const {
+  data: { user },
+  error: userErr,
+} = await supabase.auth.getUser();
+
+if (userErr || !user) {
+  return redirect ("/sign-in");
+};
+
+const { data: formulario, error } = await supabase
+  .from('formularios')
+  .select('form_id, titulo, descripcion, schema_json, tema_json')
+  .eq('form_id', id)
+  .single(); // .single() porque esperamos solo 1 resultado
+
+// Si no existe, redirigir
+if (error || !formulario) {
+  return Astro.redirect('/');
+}
+
+const jsonConfig = formulario.schema_json;
+const themeJson = formulario.tema_json;
+
+---
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{formulario?.titulo}</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/src/estilos/surveyjs.css" />
+    <script type="text/javascript" src="https://unpkg.com/survey-core@2.3.9/survey.core.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-js-ui@2.3.9/survey-js-ui.min.js"></script>
+    
+</head>
+<body>
+    <input type="hidden" id="modal_form_id" value={formulario?.form_id} />
+    <div id="surveyContainer" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; min-height: 100%; height:100%"></div>
+</body>
+</html>
+<script type="module" define:vars={{ jsonConfig, themeJson }}>
+  // Crear Survey
+  const survey = new Survey.Model(jsonConfig);
+  if (typeof themeJson !== "undefined") survey.applyTheme(themeJson);
+
+  // ID del form (para cache y backend)
+  const formId =
+    document.querySelector('#modal_form_id')?.value?.trim() ||
+    document.querySelector('input[name="service_id"]')?.value?.trim() ||
+    '';
+
+  // Valida UUID simple (evita requests con IDs inválidos)
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!UUID_RE.test(formId)) {
+    console.warn("[Survey] form_id inválido o ausente. No se harán requests al backend.", { formId });
+  }
+
+  // === CACHE LOCAL ===
+  const STORAGE_KEY = `survey:${formId || 'unknown'}:state`;
+
+  // Restaura estado si existe
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const state = JSON.parse(saved);
+      if (state?.data) survey.data = state.data;
+      if (Number.isInteger(state?.page)) survey.currentPageNo = state.page;
+    }
+  } catch { /* ignore */ }
+
+  // Guardado local (debounce sencillo)
+  const saveLocal = (() => {
+    let t;
+    return () => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        try {
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({ data: survey.data, page: survey.currentPageNo })
+          );
+        } catch (e) {
+          console.warn('No se pudo guardar en localStorage:', e);
+        }
+      }, 200);
+    };
+  })();
+
+  // === AUTOSAVE BACKEND (borrador) === -> /api/forms/envio
+  async function autosaveDraft() {
+    if (!UUID_RE.test(formId)) return; // evita 400 si no hay UUID
+    try {
+      const progress = survey.pages?.length
+        ? Math.round(((survey.currentPageNo + 1) / survey.pages.length) * 100)
+        : null;
+
+      await fetch("/api/forms/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          form_id: formId,
+          data: survey.data,          // solo respondidas hasta ahora
+          progress_percent: progress, // 0..100
+          finalize: false             // borrador
+        }),
+      });
+    } catch (e) {
+      console.warn("Autosave draft falló:", e);
+    }
+  }
+
+  // Guardar local en cada cambio de valor
+  survey.onValueChanged.add(saveLocal);
+
+  // Al cambiar de página: guarda local + autosave backend
+  survey.onCurrentPageChanged.add(() => {
+    saveLocal();
+    autosaveDraft();
+  });
+
+  // (opcional) limpiar invisibles al completar (default)
+  survey.clearInvisibleValues = "onComplete";
+
+  // Submit final -> /api/forms/envio con finalize:true
+  survey.onComplete.add(async (sender) => {
+    if (!UUID_RE.test(formId)) {
+      console.error("[Survey] form_id inválido: no se puede enviar.");
+      return;
+    }
+    const payload = { form_id: formId, data: sender.data, finalize: true };
+
+    try {
+      const res = await fetch("/api/forms/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || !out.ok) {
+        console.error("Submit error:", out);
+      } else {
+        console.log("OK submission_id:", out.id);
+        // limpiar cache local al final
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch (e) {
+      console.error("Submit falló:", e);
+    }
+  });
+
+  // Render
+  survey.render(document.getElementById("surveyContainer"));
+</script>
+
+

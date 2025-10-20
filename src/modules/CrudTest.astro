@@ -1,0 +1,711 @@
+---
+import { supabase } from '../lib/supabase';
+import NavPagination from '../components/NavPagination.astro';
+import Tablatest from '../components/tablaflowbite.astro';
+
+const { cookies, redirect } = Astro;
+// 1) Restaurar sesión desde cookies
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+
+if (!accessToken || !refreshToken) {
+	return redirect('/sign-in');
+}
+
+await supabase.auth.setSession({
+	access_token: accessToken.value,
+	refresh_token: refreshToken.value,
+});
+
+// 2) Obtener usuario
+const {
+	data: { user },
+	error: userErr,
+} = await supabase.auth.getUser();
+
+if (userErr || !user) {
+	return redirect('/sign-in');
+}
+
+// 3) Verificar si es admin (RPC a tu función is_admin)
+const { data: isAdminRes, error: rpcErr } = await supabase.rpc('is_admin', {
+	uid: user.id,
+});
+
+// si la RPC falla o no es admin → redirigir a /
+if (rpcErr || !isAdminRes) {
+	return redirect('/');
+}
+/* =========================
+   4) Búsqueda + paginación
+   ========================= */
+const q = (Astro.url.searchParams.get('q') || '').trim();
+const page = Math.max(1, Number(Astro.url.searchParams.get('page') || '1'));
+const pageSize = 20;
+const from = (page - 1) * pageSize;
+const to = from + pageSize - 1;
+
+let usuarios: any[] = [];
+let errorMsg = '';
+let total = 0;
+let totalPages = 1;
+
+let query = supabase
+	.from('usuarios')
+	.select(
+		`
+    user_id,
+    created_at,
+    nombre,
+    apellido,
+    correo,
+    pais_id,
+	pais: paises ( id, nombre_paises ),
+    ciudad,
+    direccion_linea1,
+    direccion_linea2,
+    telf,
+    fecha_nacimiento,
+    organizacion,
+    cargo,
+    departamento,
+    codigo_postal,
+    avatar_url,
+    rol_id,
+	rol: roles!usuarios_rol_id_fkey ( id, nombre ),
+    estado
+  `,
+		{ count: 'exact' },
+	)
+	.order('created_at', { ascending: false });
+
+if (q) {
+	const safe = q.replace(/,/g, ''); // .or usa comas para separar condiciones
+	query = query.or(
+		[
+			`nombre.ilike.%${safe}%`,
+			`apellido.ilike.%${safe}%`,
+			`correo.ilike.%${safe}%`,
+			`organizacion.ilike.%${safe}%`,
+			`cargo.ilike.%${safe}%`,
+			`ciudad.ilike.%${safe}%`,
+			`telf.ilike.%${safe}%`,
+			`estado.ilike.%${safe}%`,
+		].join(','),
+	);
+}
+
+// Ajusta el nombre de tu tabla y columnas
+const { data: roles } = await supabase
+	.from('roles') // por ejemplo
+	.select(
+		`
+    id,
+    nombre
+  `,
+	)
+	.order('id', { ascending: true });
+
+// Paginamos
+const { data, error, count } = await query.range(from, to);
+
+if (error) {
+	errorMsg = error.message;
+	console.error('Error leyendo usuarios:', error.message);
+} else {
+	usuarios = data ?? [];
+	total = count ?? 0;
+	totalPages = Math.max(1, Math.ceil(total / pageSize));
+}
+
+/* =========================
+   5) Alertas existentes
+   ========================= */
+const status = Astro.url.searchParams.get('status'); // "success" | "error"
+const msg = Astro.url.searchParams.get('msg') || '';
+const isSuccess = status === 'success';
+const variant = isSuccess
+	? 'text-green-800 border-green-300 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-neutral-800'
+	: 'text-red-800 border-red-300 bg-red-50 dark:text-red-400 dark:border-red-800 dark:bg-neutral-800';
+const display = msg ? 'flex' : 'hidden';
+---
+
+<div
+	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#1d1d1d] dark:border-gray-700"
+>
+	<!-- ALERTA FLOWBITE -->
+
+	<div
+		id="alert-feedback"
+		class={`absolute right-0 top-0.5 items-center p-4 mb-4 text-sm border rounded-lg mt-4 ${variant} ${display}`}
+		role="alert"
+		aria-live="polite"
+	>
+		<svg
+			class="shrink-0 inline w-4 h-4 me-3"
+			aria-hidden="true"
+			xmlns="http://www.w3.org/2000/svg"
+			fill="currentColor"
+			viewBox="0 0 20 20"
+		>
+			<path
+				d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+			></path>
+		</svg>
+		<div class="ms-3">
+			<span class="font-medium">{isSuccess ? '✅ ¡Éxito!' : '❌ Error:'}</span>
+			{' '}
+			{msg}
+		</div>
+		<!-- botón cerrar (opcional) -->
+		<button
+			type="button"
+			class="ms-auto -mx-1.5 -my-1.5 p-1.5 rounded hover:opacity-80"
+			aria-label="Close"
+			data-close
+		>
+			✕
+		</button>
+	</div>
+
+	<!-- Script: mostrar/ocultar y limpiar query -->
+	<script is:inline>
+		(function () {
+			const alertBox = document.getElementById('alert-feedback');
+			if (!alertBox) return;
+
+			const params = new URLSearchParams(window.location.search);
+			const hasMsg = params.has('msg');
+
+			// por si el SSR no lo dejó visible
+			if (hasMsg) {
+				alertBox.classList.remove('hidden');
+				alertBox.classList.add('flex');
+
+				// autocerrar a los 6s
+				const hide = () => {
+					alertBox.classList.add('hidden');
+					alertBox.classList.remove('flex');
+				};
+				const timer = setTimeout(hide, 6000);
+
+				// botón cerrar manual
+				const closeBtn = alertBox.querySelector('[data-close]');
+				if (closeBtn) {
+					closeBtn.addEventListener('click', () => {
+						clearTimeout(timer);
+						hide();
+					});
+				}
+
+				// limpiar query de la URL (para que no reaparezca al refrescar)
+				params.delete('msg');
+				params.delete('status');
+				const newUrl = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}${location.hash}`;
+				window.history.replaceState({}, '', newUrl);
+			} else {
+				// asegurar oculto si no hay mensaje
+				alertBox.classList.add('hidden');
+				alertBox.classList.remove('flex');
+			}
+		})();
+	</script>
+	<div class="w-full mb-1">
+		<div class="mb-4">
+			<nav class="flex mb-5" aria-label="Breadcrumb">
+				<ol
+					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
+				>
+					<li class="inline-flex items-center">
+						<a
+							href="#"
+							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
+						>
+							<svg
+								class="w-5 h-5 mr-2.5"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+								></path></svg
+							>
+							Inicio
+						</a>
+					</li>
+					<li>
+						<div class="flex items-center">
+							<svg
+								class="w-6 h-6 text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+									clip-rule="evenodd"></path></svg
+							>
+							<a
+								href="#"
+								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
+								>Usuarios</a
+							>
+						</div>
+					</li>
+				</ol>
+			</nav>
+			<h1
+				class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
+			>
+				Todos los usuarios
+			</h1>
+		</div>
+	</div>
+</div>
+
+<Tablatest />
+<!-- Edit User Modal -->
+<div
+	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	id="edit-user-modal"
+>
+	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+			<!-- Modal header -->
+			<div
+				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+			>
+				<h3 class="text-xl font-semibold dark:text-white">Editar usuario</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					data-modal-toggle="edit-user-modal"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/update/admin-update" method="post">
+				<div class="p-6 space-y-6">
+					<div class="grid grid-cols-6 gap-6">
+						<input type="hidden" name="user_id" id="modal_user_id" />
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="first-name"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Nombre</label
+							>
+							<input
+								type="text"
+								name="nombre"
+								value="Bonnie"
+								id="modal_nombre"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="Bonnie"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="last-name"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Apellido</label
+							>
+							<input
+								type="text"
+								name="apellido"
+								value="Green"
+								id="modal_apellido"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="Green"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="correo"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Correo</label
+							>
+							<input
+								type="email"
+								name="correo"
+								id="modal_correo"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="example@company.com"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="position"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Compania</label
+							>
+							<input
+								type="text"
+								name="compania"
+								value="React Developer"
+								id="modal_compania"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="e.g. React developer"
+							/>
+						</div>
+
+						<div class="col-span-6">
+							<h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
+								Añade un rol
+							</h3>
+							<ul
+								class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-[#1d1d1d] dark:border-gray-600 dark:text-white"
+							>
+								{
+									roles?.map((rol) => (
+										<li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+											<div class="flex items-center ps-3">
+												<input
+													id="modal_id_rol"
+													type="radio"
+													value={rol.id}
+													name="rol_id"
+													class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+												/>
+												<label
+													for="modal_id_rol"
+													class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+												>
+													{rol.nombre}
+												</label>
+											</div>
+										</li>
+									))
+								}
+							</ul>
+						</div>
+					</div>
+
+					<!-- Modal footer -->
+					<div
+						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+					>
+						<button
+							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							type="submit">Guardar</button
+						>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		// Tipar los botones como HTMLElement (con dataset)
+		const btns = document.querySelectorAll<HTMLElement>('[data-edit-user]');
+
+		// Helper para setear .value de inputs/textarea de forma segura
+		function setValue(id, val) {
+			const el = document.getElementById(id) as
+				| HTMLInputElement
+				| HTMLTextAreaElement
+				| null;
+			if (el) el.value = val ?? '';
+		}
+
+		btns.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const nombre = btn.dataset.nombre ?? '';
+				const apellido = btn.dataset.apellido ?? '';
+				const correo = btn.dataset.correo ?? '';
+				const rolId = btn.dataset.rolId ?? '';
+				const compania = btn.dataset.compania ?? '';
+				const userId = btn.dataset.userId ?? '';
+				const estado = btn.dataset.userestado ?? '';
+
+				setValue('modal_user_id', userId);
+				setValue('modal_nombre', nombre);
+				setValue('modal_apellido', apellido);
+				setValue('modal_correo', correo);
+				setValue('modal_compania', compania);
+
+				// Radios: tipar como HTMLInputElement
+				document
+					.querySelectorAll<HTMLInputElement>('input[name="rol_id"]')
+					.forEach((r) => {
+						r.checked = String(r.value) === String(rolId);
+					});
+
+				document
+					.querySelectorAll<HTMLInputElement>('input[name="estado"]')
+					.forEach((r) => {
+						r.checked = String(r.value) === String(estado);
+					});
+			});
+		});
+	});
+</script>
+<!-- Añadir usuario -->
+<div
+	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	id="add-user-modal"
+>
+	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+			<!-- Modal header -->
+			<div
+				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+			>
+				<h3 class="text-xl font-semibold dark:text-white">Invitar usuario</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					data-modal-toggle="add-user-modal"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/update/admin-invite" method="post">
+				<div class="p-6 space-y-6">
+					<div class="grid gap-6">
+						<div class="">
+							<label
+								for="email"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Correo</label
+							>
+							<input
+								type="email"
+								name="correo_create"
+								id="email"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="correo@ejemplo.com"
+								required
+							/>
+						</div>
+					</div>
+
+					<!-- Modal footer -->
+					<div
+						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+					>
+						<button
+							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							type="submit">Invitar Usuario</button
+						>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Añadir rol Modal -->
+<div
+	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	id="rol-modal-admin"
+>
+	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+			<!-- Modal header -->
+			<div
+				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+			>
+				<h3 class="text-xl font-semibold dark:text-white">Añadir Rol</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					data-modal-toggle="rol-modal-admin"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/create/admin-new-rol" method="post">
+				<div class="p-6 space-y-6">
+					<div class="grid gap-6">
+						<div class="">
+							<label
+								for="nombre_rol"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Añade el nombre del rol</label
+							>
+							<input
+								type="text"
+								name="nombre_rol"
+								id="rol-create"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="admin"
+								required
+							/>
+						</div>
+					</div>
+
+					<!-- Modal footer -->
+					<div
+						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+					>
+						<button
+							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							type="submit">Añadir rol</button
+						>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div
+	id="updaterol"
+	tabindex="-1"
+	aria-hidden="true"
+	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
+>
+	<div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
+		<!-- Modal content -->
+		<div
+			class="relative p-4 bg-white rounded-lg shadow dark:bg-neutral-700 sm:p-5"
+		>
+			<!-- Modal header -->
+			<div
+				class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600"
+			>
+				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+					Selecciona el estado del cliente
+				</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					data-modal-toggle="updaterol"
+				>
+					<svg
+						aria-hidden="true"
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span class="sr-only">Close modal</span>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/update/admin-update" method="post" id="updaterolForm">
+				<input type="hidden" name="user_id" id="updaterol_user_id" />
+				<div class="grid gap-4 mb-4">
+					<div>
+						<label
+							for="updaterol_estado"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Rol</label
+						>
+						<select
+							id="updaterol_estado"
+							name="estado"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						>
+							<option value="" disabled="" selected="">--</option>
+							{
+								[{ estado: 'activo' }, { estado: 'inactivo' }].map((u) => (
+									<option value={u.estado}> {u.estado}</option>
+								))
+							}
+						</select>
+					</div>
+				</div>
+				<div class="flex items-center space-x-4">
+					<button
+						type="submit"
+						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					>
+						Actualizar estado
+					</button>
+					<button
+						data-modal-toggle="updaterol"
+						type="button"
+						class="text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+					>
+						Cancelar
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		const form = document.getElementById('updaterolForm');
+		const uidInput = document.getElementById('updaterol_user_id');
+		const estadoSel = document.getElementById('updaterol_estado');
+		const nameSpan = document.getElementById('updaterolUserName');
+
+		// Botones que abren el modal (uno por fila/usuario)
+		const btns = document.querySelectorAll('[data-open-estado]');
+
+		btns.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const uid = btn.dataset.userId || '';
+				const uname = btn.dataset.userName || '';
+				const estCur = btn.dataset.userEstado || '';
+
+				// Inyecta user_id y muestra nombre
+				uidInput.value = uid;
+				nameSpan.textContent = uname ? ` · ${uname}` : '';
+
+				// Preselecciona estado si coincide; si no, deja "(sin cambio)"
+				const hasOption = Array.from(estadoSel.options).some(
+					(o) => o.value === estCur,
+				);
+				estadoSel.value = hasOption ? estCur : '';
+
+				// Endpoint + retorno a esta misma página
+				const back = location.pathname + location.search;
+				form.action = `/api/admin/usuarios/update?back=${encodeURIComponent(back)}`;
+			});
+		});
+
+		// Anti doble-submit (opcional)
+		form.addEventListener('submit', () => {
+			const submitBtn = form.querySelector('button[type="submit"]');
+			if (submitBtn) submitBtn.disabled = true;
+		});
+	});
+</script>
+
+<NavPagination
+	page={page}
+	total={total}
+	pageSize={20}
+	searchParams={Astro.url.searchParams}
+/>

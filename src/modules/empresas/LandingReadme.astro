@@ -1,0 +1,536 @@
+---
+import { supabase } from '../../lib/supabase';
+
+// 1) Restaurar sesión (RLS)
+const at = Astro.cookies.get('sb-access-token');
+const rt = Astro.cookies.get('sb-refresh-token');
+if (at && rt) {
+  await supabase.auth.setSession({
+    access_token: at.value,
+    refresh_token: rt.value,
+  });
+}
+
+// 2) Usuario actual
+const { data: { user } } = await supabase.auth.getUser();
+
+// 3) Slug de la ruta /empresa/[slug]/...
+const { slug } = Astro.params;
+
+// Variables para la vista
+let empresaId: string | null = null;
+let empresaNombre: string | null = null;
+let logoUrl: string | null = null;
+let slugSt: string | null = null;
+
+let role: string | null = null;
+let isAdmin = false;
+let isPartner = false;
+let isClient = false;
+
+// 4) Resolver empresa por slug
+if (slug) {
+  const { data: emp, error: empErr } = await supabase
+    .from('empresa')
+    .select('empresa_id, nombre, slug')
+    .eq('slug', slug)
+    .single();
+
+  if (!empErr && emp?.empresa_id) {
+    empresaId = emp.empresa_id as string;
+	slugSt = emp.slug as string;
+    empresaNombre = (emp.nombre as string) ?? null;
+
+    // 5) Traer logo desde empresa_settings (manteniendo tu config)
+    const { data: settings } = await supabase
+      .from('empresa_settings')
+      .select('logo_url, updated_at')
+      .eq('empresa_id', empresaId)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    logoUrl = settings?.logo_url ?? '/img/logo-fallback.svg';
+
+    // 6) Rol del usuario en esta empresa (si hay usuario autenticado)
+    if (user) {
+      const { data: ue } = await supabase
+        .from('usuarios_empresas')
+        .select('rol_en_empresa')
+        .eq('empresa_id', empresaId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      role = (ue?.rol_en_empresa ?? null)?.toString().trim().toLowerCase() ?? null;
+
+      // 7) Flags derivados (ajusta sinónimos si usas otros)
+      const isOneOf = (v: string | null, arr: string[]) => (v ? arr.includes(v) : false);
+      isAdmin   = isOneOf(role, ['admin', 'owner', 'creador']);
+      isPartner = isOneOf(role, ['partner', 'colaborador']);
+      isClient  = isOneOf(role, ['client', 'cliente']);
+    }
+  }
+}
+// 8) Exporta contexto para la vista
+const ctx = {
+  empresaId,
+  empresaNombre,
+  logoUrl,
+  role,
+  isAdmin,
+  isPartner,
+  isClient,
+  slugSt,
+};
+---
+
+<div
+	class="bg-slate-200 dark:bg-[#1d1d1d] dark:text-slate-100 mb-20 p-4 lg:p-16 shadow-xl shadow-slate-200 dark:shadow-neutral-900"
+>
+	<header
+		class="p-8 flex justify-center items-center flex-wrap flex-col w-full mt-5"
+	>
+		<div class="flex justify-center w-full">
+			<img
+				src={ctx?.logoUrl}
+				alt={ctx.empresaNombre ? `Logo de ${ctx.empresaNombre}` : 'Logo'}
+				class="w-80 h-auto dark:block hidden"
+			/>
+			<img
+				src={ctx?.logoUrl}
+				alt={ctx.empresaNombre ? `Logo de ${ctx.empresaNombre}` : 'Logo'}
+				class="w-80 h-auto dark:hidden block"
+			/>
+		</div>
+
+		<div class="format dark:format-invert lg:format-lg mt-5">
+			<p
+				class="text-4xl lg:text-7xl dark:text-slate-200 text-slate-600 leading-tight"
+			>
+				<span
+					class="font-bold text-transparent bg-clip-text bg-gradient-to-br from-neutral-800 to-[#ba8d34] dark:from-white dark:to-[#ba8d34] no-underline"
+					>Bienvenido</span
+				>
+			</p>
+		</div>
+	</header>
+	<article class="flex justify-center pt-20 pb-32">
+		<div
+			class="grid grid-flow-row grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 md:gap-10 gap-y-10 max-h-10"
+		>
+			{
+				isClient && (
+					<div class="flex justify-center items-center flex-col">
+						<a
+							href={`/empresas/${ctx.slugSt}/pages/pricing`}
+							data-tooltip-target="llc"
+							data-tooltip-placement="top"
+							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="48"
+								height="48"
+								viewBox="0 0 48 48"
+							>
+								<g
+									fill="none"
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="4"
+								>
+									<>
+										<path d="m21 13l-10 7v24" />
+										<path
+											fill="currentColor"
+											fill-rule="evenodd"
+											d="m21 4l10 7v13l7 5v15H21z"
+											clip-rule="evenodd"
+										/>
+										<path d="M4 44h40" />
+									</>
+								</g>
+							</svg>
+						</a>
+						<span class="pt-3 text-center max-w-[120px]">Crea una LLC</span>
+
+						<div
+							id="llc"
+							role="tooltip"
+							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-neutral-800 transition-all duration-300"
+						>
+							Crea una nueva LLC
+							<div class="tooltip-arrow" data-popper-arrow />
+						</div>
+					</div>
+				)
+			}
+			{
+				isClient && (
+					<div class="flex justify-center items-center flex-col">
+						<a
+							href=""
+							data-tooltip-target="companias"
+							data-tooltip-placement="top"
+							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="48"
+								height="48"
+								viewBox="0 0 512 512"
+							>
+								<path
+									fill="currentColor"
+									fill-rule="evenodd"
+									d="M448 64H298.667v149.333H448zM234.667 85.333H85.333v149.334h149.334zm-149.334 192h149.334v149.334H85.333zm341.334 0H277.333v149.334h149.334z"
+									clip-rule="evenodd"
+								/>
+							</svg>
+						</a>
+						<span class="pt-3 text-center max-w-[120px]">Tus companias</span>
+
+						<div
+							id="companias"
+							role="tooltip"
+							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-neutral-800 transition-all duration-300"
+						>
+							Mira tus companias y su estado
+							<div class="tooltip-arrow" data-popper-arrow />
+						</div>
+					</div>
+				)
+			}
+			{
+				isClient && (
+					<div class="flex justify-center items-center flex-col">
+						<a
+							href={`/empresas/${ctx.slugSt}/pages/tus-formularios`}
+							data-tooltip-target="documentos"
+							data-tooltip-placement="top"
+							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="48"
+								height="48"
+								viewBox="0 0 24 24"
+							>
+								<path
+									fill="currentColor"
+									d="M15 7h5.5L15 1.5zM8 0h8l6 6v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2M4 4v18h16v2H4a2 2 0 0 1-2-2V4z"
+								/>
+							</svg>
+						</a>
+						<span class="pt-3 text-center max-w-[120px]">Documentos</span>
+
+						<div
+							id="documentos"
+							role="tooltip"
+							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-neutral-800 transition-all duration-300"
+						>
+							Mira tus documentos y formularios
+							<div class="tooltip-arrow" data-popper-arrow />
+						</div>
+					</div>
+				)
+			}
+
+			{
+				isClient && (
+					<div
+						class="flex justify-center items-center flex-col"
+						
+					>
+						<a
+							href={`/empresas/${ctx.slugSt}/pages/tus-formularios/crear-empresa`}
+							data-tooltip-target="Dashboard"
+							data-tooltip-placement="top"
+							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="48"
+								height="48"
+								viewBox="0 0 24 24"
+							>
+								<path
+									fill="currentColor"
+									d="M11 4.68v3.88A2.44 2.44 0 0 1 8.56 11H4.68a2.38 2.38 0 0 1-1.72-.72a2.4 2.4 0 0 1-.71-1.72V4.69a2.44 2.44 0 0 1 2.43-2.44h3.88A2.46 2.46 0 0 1 11 4.68m10.75.01v3.87a2.45 2.45 0 0 1-1.498 2.252a2.4 2.4 0 0 1-.932.188h-3.88A2.42 2.42 0 0 1 13 8.56V4.69a2.4 2.4 0 0 1 .72-1.72a2.42 2.42 0 0 1 1.72-.72h3.88a2.44 2.44 0 0 1 2.43 2.44M11 15.45v3.87a2.44 2.44 0 0 1-2.44 2.43H4.68a2.42 2.42 0 0 1-2.43-2.43v-3.87A2.46 2.46 0 0 1 4.68 13h3.88A2.46 2.46 0 0 1 11 15.45m5.54 4.43a1.4 1.4 0 0 1-.53-.1a1.4 1.4 0 0 1-.45-.31l-1.64-1.64a.74.74 0 0 1 0-1.06a.75.75 0 0 1 1.06 0l1.56 1.57l3.23-3.24a.74.74 0 0 1 1.06 0a.75.75 0 0 1 0 1.06l-3.32 3.32a1.4 1.4 0 0 1-.45.3a1.3 1.3 0 0 1-.52.1"
+								/>
+							</svg>
+						</a>
+						<span class="pt-3 text-center max-w-[120px]">Dashboard</span>
+
+						<div
+							id="Dashboard"
+							role="tooltip"
+							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-neutral-800 transition-all duration-300"
+						>
+							Usa nuestro dashboard para tu empresa
+							<div class="tooltip-arrow" data-popper-arrow />
+						</div>
+					</div>
+				)
+			}
+
+			{
+				isClient && (
+					<div class="flex justify-center items-center flex-col">
+						<a
+							href=""
+							data-tooltip-target="Otros-servicios"
+							data-tooltip-placement="top"
+							type="button"
+							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="48"
+								height="48"
+								viewBox="0 0 24 24"
+							>
+								<path
+									fill="currentColor"
+									d="m8.8 10.95l2.15-2.175l-1.4-1.425l-1.1 1.1l-1.4-1.4l1.075-1.1L7 4.825L4.825 7zm8.2 8.225L19.175 17l-1.125-1.125l-1.1 1.075l-1.4-1.4l1.075-1.1l-1.425-1.4l-2.15 2.15zm-.775-12.75l1.4 1.4l1.4-1.4L17.6 5zM7.25 21H3v-4.25l4.375-4.375L2 7l5-5l5.4 5.4l3.775-3.8q.3-.3.675-.45t.775-.15t.775.15t.675.45L20.4 4.95q.3.3.45.675T21 6.4t-.15.763t-.45.662l-3.775 3.8L22 17l-5 5l-5.375-5.375z"
+								/>
+							</svg>
+						</a>
+						<span class="pt-3 text-center max-w-[120px]">Otros Servicios</span>
+
+						<div
+							id="Otros-servicios"
+							role="tooltip"
+							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-neutral-800 transition-all duration-300"
+						>
+							Explora mas servicios complementarios
+							<div class="tooltip-arrow" data-popper-arrow />
+						</div>
+					</div>
+				)
+			}
+
+			{
+				isPartner && (
+					<div class="flex justify-center items-center flex-col">
+						<a
+							href={`/empresas/${ctx.slugSt}/partners/datos-referidos/`}
+							data-tooltip-target="partners"
+							data-tooltip-placement="top"
+							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="48"
+								height="48"
+								viewBox="0 0 24 24"
+							>
+								<path
+									fill="currentColor"
+									d="M11 6h3l3.29-3.3a1 1 0 0 1 1.42 0l2.58 2.59a1 1 0 0 1 0 1.41L19 9h-8v2a1 1 0 0 1-1 1a1 1 0 0 1-1-1V8a2 2 0 0 1 2-2m-6 5v4l-2.29 2.29a1 1 0 0 0 0 1.41l2.58 2.59a1 1 0 0 0 1.42 0L11 17h4a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1h1a1 1 0 0 0 1-1v-1h-7v1a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9Z"
+								/>
+							</svg>
+						</a>
+						<span class="pt-3 text-center max-w-[120px]">Partners</span>
+
+						<div
+							id="partners"
+							role="tooltip"
+							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-neutral-800 transition-all duration-300"
+						>
+							Mira tus referidos
+							<div class="tooltip-arrow" data-popper-arrow />
+						</div>
+					</div>
+				)
+			}
+
+			{
+				isAdmin && (
+					<div
+						class="flex justify-center items-center flex-col"
+						
+					>
+						<a
+							href={`/empresas/${ctx.slugSt}/crud/users`}
+							data-tooltip-target="clientes"
+							data-tooltip-placement="top"
+							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="48"
+								height="48"
+								viewBox="0 0 24 24"
+							>
+								<path
+									fill="currentColor"
+									d="M16 17v2H2v-2s0-4 7-4s7 4 7 4m-3.5-9.5A3.5 3.5 0 1 0 9 11a3.5 3.5 0 0 0 3.5-3.5m3.44 5.5A5.32 5.32 0 0 1 18 17v2h4v-2s0-3.63-6.06-4M15 4a3.4 3.4 0 0 0-1.93.59a5 5 0 0 1 0 5.82A3.4 3.4 0 0 0 15 11a3.5 3.5 0 0 0 0-7"
+								/>
+							</svg>
+						</a>
+						<span class="pt-3 text-center max-w-[120px]">Clientes</span>
+
+						<div
+							id="clientes"
+							role="tooltip"
+							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-neutral-800 transition-all duration-300"
+						>
+							Mira y gestiona tus clientes
+							<div class="tooltip-arrow" data-popper-arrow />
+						</div>
+					</div>
+				)
+			}
+			{
+				isAdmin && (
+					<div
+						class="flex justify-center items-center flex-col"
+						
+					>
+						<a
+							href={`/empresas/${ctx.slugSt}/crud/services`}
+							data-tooltip-target="servicios"
+							data-tooltip-placement="top"
+							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="48"
+								height="48"
+								viewBox="0 0 24 24"
+							>
+								<path
+									fill="currentColor"
+									d="M19 9q-1.425 0-2.475-.85T15.125 6H8.85q-.275 1.05-1.037 1.813T6 8.85v6.275q1.3.35 2.15 1.4T9 19q0 1.65-1.175 2.825T5 23t-2.825-1.175T1 19q0-1.425.85-2.475t2.15-1.4V8.85q-1.3-.35-2.15-1.4T1 5q0-1.65 1.175-2.825T5 1q1.4 0 2.45.85T8.85 4h6.275q.35-1.3 1.4-2.15T19 1q1.65 0 2.825 1.175T23 5t-1.175 2.825T19 9m0 14q-1.65 0-2.825-1.175T15 19t1.175-2.825T19 15t2.825 1.175T23 19t-1.175 2.825T19 23"
+								/>
+							</svg>
+						</a>
+						<span class="pt-3 text-center max-w-[120px]">Servicios</span>
+
+						<div
+							id="servicios"
+							role="tooltip"
+							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-neutral-800 transition-all duration-300"
+						>
+							Gestiona los servicios
+							<div class="tooltip-arrow" data-popper-arrow />
+						</div>
+					</div>
+				)
+			}
+			{
+				isAdmin && (
+					<div
+						class="flex justify-center items-center flex-col"
+						
+					>
+						<a
+							href={`/empresas/${ctx.slugSt}/crud/formularios`}
+							data-tooltip-target="Formularios"
+							data-tooltip-placement="top"
+							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="48"
+								height="48"
+								viewBox="0 0 20 20"
+							>
+								<path
+									fill="currentColor"
+									d="M7 9.5a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0M6.5 14a.5.5 0 1 0 0-1a.5.5 0 0 0 0 1M3 6a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v3.6a5.5 5.5 0 0 0-2.5-.6h-5a.5.5 0 0 0 0 1h1.837A5.5 5.5 0 0 0 9 14.5c0 .9.216 1.75.6 2.5H6a3 3 0 0 1-3-3zm2.5-1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1zm1 6a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3M8 13.5a1.5 1.5 0 1 0-3 0a1.5 1.5 0 0 0 3 0m11 1a4.5 4.5 0 1 1-9 0a4.5 4.5 0 0 1 9 0m-4-2a.5.5 0 0 0-1 0V14h-1.5a.5.5 0 0 0 0 1H14v1.5a.5.5 0 0 0 1 0V15h1.5a.5.5 0 0 0 0-1H15z"
+								/>
+							</svg>
+						</a>
+						<span class="pt-3 text-center max-w-[120px]">Formularios</span>
+
+						<div
+							id="Formularios"
+							role="tooltip"
+							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-neutral-800 transition-all duration-300"
+						>
+							Crea y gestiona formularios
+							<div class="tooltip-arrow" data-popper-arrow />
+						</div>
+					</div>
+				)
+			}
+			{
+				isAdmin && (
+					<div
+						class="flex justify-center items-center flex-col"
+						
+					>
+						<a
+							href={`/empresas/${ctx.slugSt}/crud/formularios-enviados`}
+							data-tooltip-target="respuestas"
+							data-tooltip-placement="top"
+							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="48"
+								height="48"
+								viewBox="0 0 20 20"
+							>
+								<path
+									fill="currentColor"
+									d="m14.878.282l.348 1.071a2.2 2.2 0 0 0 1.399 1.397l1.071.348l.021.006a.423.423 0 0 1 0 .798l-1.071.348a2.2 2.2 0 0 0-1.399 1.397l-.348 1.07a.423.423 0 0 1-.798 0l-.349-1.07a2.2 2.2 0 0 0-.532-.867a2.2 2.2 0 0 0-.866-.536l-1.071-.348a.423.423 0 0 1 0-.798l1.071-.348a2.2 2.2 0 0 0 1.377-1.397l.348-1.07a.423.423 0 0 1 .799 0m4.905 7.931l-.766-.248a1.58 1.58 0 0 1-.998-.999l-.25-.764a.302.302 0 0 0-.57 0l-.248.764a1.58 1.58 0 0 1-.984.999l-.765.248a.303.303 0 0 0 0 .57l.765.249a1.58 1.58 0 0 1 1 1.002l.248.764a.302.302 0 0 0 .57 0l.249-.764a1.58 1.58 0 0 1 .999-.999l.765-.248a.303.303 0 0 0 0-.57zM6.5 10a.5.5 0 1 1 0-1a.5.5 0 0 1 0 1m.5 3.5a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0M6 3h4.105a1.5 1.5 0 0 0-.105.5a1.42 1.42 0 0 0 1 1.34l.489.16H5.5a.5.5 0 0 0 0 1h7.333l.317 1c.09.258.25.486.46.66q.2.148.44.21a1.3 1.3 0 0 0-.05.63a1.3 1.3 0 0 0 .099.5H9.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 .433-.25l.727.23q.122.05.22.14a.6.6 0 0 1 .14.23l.24.76a1.35 1.35 0 0 0 .74.79V14a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3m.5 8a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3M8 13.5a1.5 1.5 0 1 0-3 0a1.5 1.5 0 0 0 3 0m1.5-.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1z"
+								/>
+							</svg>
+						</a>
+						<span class="pt-3 text-center max-w-[120px]">Respuestas</span>
+
+						<div
+							id="respuestas"
+							role="tooltip"
+							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-neutral-800 transition-all duration-300"
+						>
+							Gestiona las respuestas y estados de formularios
+							<div class="tooltip-arrow" data-popper-arrow />
+						</div>
+					</div>
+				)
+			}
+			{
+				isAdmin && (
+					<div
+						class="flex justify-center items-center flex-col"
+					>
+						<a
+							href={`/empresas/${ctx.slugSt}/pages/convertidor`}
+							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="48"
+								height="48"
+								viewBox="0 0 24 24"
+							>
+								<path
+									fill="currentColor"
+									d="M13.343 2A6 6 0 0 0 21 9.657v11.35a.993.993 0 0 1-.993.993H3.993A1 1 0 0 1 3 20.993V8l6.003-6zM4.5 9H10V3.5zM18.53.33a.507.507 0 0 1 .94 0l.254.61a4.37 4.37 0 0 0 2.25 2.327l.718.32a.53.53 0 0 1 0 .962l-.76.338a4.36 4.36 0 0 0-2.218 2.25l-.247.566a.506.506 0 0 1-.934 0l-.246-.565a4.36 4.36 0 0 0-2.22-2.251l-.76-.338a.53.53 0 0 1 0-.963l.718-.32A4.37 4.37 0 0 0 18.276.942z"
+								/>
+							</svg>
+						</a>
+						<span class="pt-3 text-center max-w-[120px]">Covertidor</span>
+					</div>
+				)
+			}
+		</div>
+	</article>
+</div>
+
+<style>
+	/* Override in Markdown H1 title */
+	.readme :global(h1:nth-of-type(2)) {
+		display: none;
+	}
+
+	.svg-inline :global(svg) {
+		height: 100%;
+		width: 100%;
+	}
+</style>

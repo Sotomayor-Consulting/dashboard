@@ -1,0 +1,18 @@
+---
+import LayoutStacked from '../app/LayoutStackedDos.astro';
+import FormSignIn from '../modules/FormSignIn.astro';
+const { cookies, redirect } = Astro;
+
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+
+if (accessToken && refreshToken) {
+	return redirect('/');
+}
+---
+
+<LayoutStacked>
+	<div class="min-h-screen align-middle flex pb-[12vh]">
+		<FormSignIn />
+	</div>
+</LayoutStacked>

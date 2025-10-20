@@ -1,0 +1,1117 @@
+---
+import Popup from '../modules/Popup.astro';
+import Popup2 from './Popup2.astro';
+import Popup3 from './Popup3.astro';
+
+/* eslint max-lines: 'off' */
+---
+
+<div class="container px-4 pt-24 mx-auto md:pt-32 lg:px-0">
+	<h1
+		class="mb-3 text-3xl font-bold text-gray-900 sm:text-4xl sm:leading-none sm:tracking-tight dark:text-white"
+	>
+		Constituye tu LLC de forma rápida
+	</h1>
+	<p
+		class="mb-6 text-lg font-normal text-gray-500 sm:text-xl dark:text-gray-400"
+	>
+		Elige el plan que mejor se adapta a tu negocio y comienza a operar en EE.
+		UU. con respaldo legal y tributario.
+	</p>
+	<!-- Pricing Cards -->
+	<section
+		class="grid grid-cols-1 space-y-12 md:space-y-0 md:grid-cols-2 lg:grid-cols-3 md:gap-x-6 md:gap-6 pt-9"
+	>
+		<!-- Pricing Card -->
+		<div
+			class="flex flex-col max-w-lg p-6 mx-auto text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 xl:p-8 dark:bg-[#13344b] dark:text-white"
+		>
+			<h3 class="mb-4 text-2xl font-semibold">Plan Básico</h3>
+			<p class="font-light text-gray-500 sm:text-lg dark:text-gray-400">
+				Constituye tu LLC con lo esencial para operar legalmente.
+			</p>
+			<div class="flex items-baseline my-8">
+				<span class="mr-2 text-5xl font-extrabold">$350</span>
+			</div>
+			<!-- List -->
+			<ul role="list" class="mb-8 space-y-4 text-left">
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-red-500 dark:text-red-500"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Planificación y diseño de LLC.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Incorporación de la LLC frente al Estado.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Obtención del EIN (Número de Identificación Tributaria).</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span
+						>Team size: <span class="font-semibold"
+							>Agente Residente por un año.</span
+						></span
+					>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-red-500 dark:text-red-500"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span
+						>Servicio de acompañamiento para abrir tu cuenta bancaria Online.</span
+					>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-red-500 dark:text-red-500"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Elaboración del Acuerdo de Operación.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-red-500 dark:text-red-500"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Consultas ilimitadas por un año.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-red-500 dark:text-red-500"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Reporte BOI.</span>
+				</li>
+			</ul>
+			<button
+				id="openModal3"
+				class="text-white bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white dark:focus:ring-primary-900"
+				>Obtener paquete</button
+			>
+		</div>
+		<!-- Pricing Card -->
+		<div
+			class="flex flex-col max-w-lg p-6 mx-auto text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 xl:p-8 dark:bg-[#13344b] dark:text-white"
+		>
+			<h3 class="mb-4 text-2xl font-semibold">Plan Business</h3>
+			<p class="font-light text-gray-500 sm:text-lg dark:text-gray-400">
+				Estrategia fiscal y legal completa para tu LLC. Ideal para hacer las
+				cosas bien desde el inicio..
+			</p>
+			<div class="flex items-baseline my-8">
+				<span class="mr-2 text-5xl font-extrabold">$950</span>
+			</div>
+			<!-- List -->
+			<ul role="list" class="mb-8 space-y-4 text-left">
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Planificación y diseño de LLC.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span> Incorporación de la LLC frente al Estado.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span
+						>Servicio de acompañamiento para abrir tu cuenta bancaria Online.</span
+					>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Obtención del EIN (Número de Identificación Tributaria).</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Servicio de Agente Residente por un año.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Elaboración del Acuerdo de Operación.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Elaboración de Carta Bancaria.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Mailing Service (Un mes gratis)</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Reporte BOI</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Consultas ilimitadas por un año.</span>
+				</li>
+			</ul>
+			<button
+				id="openModal2"
+				class="text-white bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white dark:focus:ring-primary-900"
+				>Obtener paquete</button
+			>
+		</div>
+		<!-- Pricing Card -->
+		<div
+			class="flex flex-col max-w-lg p-6 mx-auto text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 xl:p-8 dark:bg-[#13344b] dark:text-white"
+		>
+			<h3 class="mb-4 text-2xl font-semibold">Plan Estándar</h3>
+			<p class="font-light text-gray-500 sm:text-lg dark:text-gray-400">
+				Incluye soporte legal y documentos clave para operar.
+			</p>
+			<div class="flex items-baseline my-8">
+				<span class="mr-2 text-5xl font-extrabold">$650</span>
+			</div>
+			<!-- List -->
+			<ul role="list" class="mb-8 space-y-4 text-left">
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-red-500 dark:text-red-500"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Planificación y diseño de LLC.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Incorporación de la LLC frente al Estado.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Obtención del EIN (Número de Identificación Tributaria).</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Agente Residente por un año.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Elaboración del Acuerdo de Operación.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Consultas ilimitadas por un año.</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-green-500 dark:text-green-400"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span>Reporte BOI</span>
+				</li>
+				<li class="flex items-center space-x-3">
+					<!-- Icon -->
+					<svg
+						class="flex-shrink-0 w-5 h-5 text-red-500 dark:text-red-500"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span
+						>Servicio de acompañamiento para abrir tu cuenta bancaria Online.</span
+					>
+				</li>
+			</ul>
+			<button
+				id="openModal"
+				class="text-white bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:text-white dark:focus:ring-primary-900 open-btn"
+				>Obtener paquete</button
+			>
+		</div>
+	</section>
+	<Popup />
+	<Popup2 />
+	<Popup3 />
+	<!-- Comparison Table 
+	<section class="flex flex-col pt-10 md:pt-20">
+		<div class="overflow-x-auto rounded-lg">
+			<div class="inline-block min-w-full align-middle">
+				<div class="overflow-hidden shadow sm:rounded-lg">
+					<table class="min-w-full">
+						<thead class="bg-gray-50 dark:bg-gray-900">
+							<tr>
+								<th scope="col" class="p-4 text-left"> </th>
+								<th
+									scope="col"
+									class="p-4 text-base font-semibold tracking-wider text-right text-gray-900 dark:text-white"
+								>
+									Freelancer
+								</th>
+								<th
+									scope="col"
+									class="p-4 text-base font-semibold tracking-wider text-right text-gray-900 dark:text-white"
+								>
+									Company
+								</th>
+								<th
+									scope="col"
+									class="p-4 text-base font-semibold tracking-wider text-right text-gray-900 dark:text-white"
+								>
+									Enterprise
+								</th>
+							</tr>
+						</thead>
+						<tbody class="bg-white dark:bg-[#13344b]">
+							<tr>
+								<td
+									class="p-4 text-base font-normal text-gray-500 rounded-l-lg whitespace-nowrap dark:text-gray-400"
+								>
+									Seperate business/personal
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4 rounded-r-lg">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+							</tr>
+							<tr class="bg-gray-50 dark:bg-gray-900">
+								<td
+									class="p-4 text-base font-normal text-gray-500 whitespace-nowrap dark:text-gray-400"
+								>
+									Estimate tax payments
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4 rounded-r-lg">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+							</tr>
+							<tr>
+								<td
+									class="p-4 text-base font-normal text-gray-500 rounded-l-lg whitespace-nowrap dark:text-gray-400"
+								>
+									Stock control
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4 rounded-r-lg">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+							</tr>
+							<tr class="bg-gray-50 dark:bg-gray-900">
+								<td
+									class="p-4 text-base font-normal text-gray-500 whitespace-nowrap dark:text-gray-400"
+								>
+									Create invoices & estimates
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-red-500"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4 rounded-r-lg">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+							</tr>
+							<tr>
+								<td
+									class="p-4 text-base font-normal text-gray-500 rounded-l-lg whitespace-nowrap dark:text-gray-400"
+								>
+									Manage bills & payments
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-red-500"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4 rounded-r-lg">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+							</tr>
+							<tr class="bg-gray-50 dark:bg-gray-900">
+								<td
+									class="p-4 text-base font-normal text-gray-500 whitespace-nowrap dark:text-gray-400"
+								>
+									Run payroll
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-red-500"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4 rounded-r-lg">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+							</tr>
+							<tr>
+								<td
+									class="p-4 text-base font-normal text-gray-500 rounded-l-lg whitespace-nowrap dark:text-gray-400"
+								>
+									Handle multiple currencies
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-red-500"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-red-500"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4 rounded-r-lg">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+							</tr>
+							<tr class="bg-gray-50 dark:bg-gray-900">
+								<td
+									class="p-4 text-base font-normal text-gray-500 whitespace-nowrap dark:text-gray-400"
+								>
+									Number of Users
+								</td>
+								<td class="p-4">
+									<div class="flex items-center justify-end space-x-1">
+										<svg
+											class="flex-shrink-0 w-5 h-5 text-gray-900 dark:text-white"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+											xmlns="http://www.w3.org/2000/svg"
+											><path
+												fill-rule="evenodd"
+												d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+												clip-rule="evenodd"></path></svg
+										>
+										<span
+											class="flex-shrink-0 text-xs font-medium text-gray-900 sm:text-sm md:text-base dark:text-white"
+											>1 User</span
+										>
+									</div>
+								</td>
+								<td class="p-4">
+									<div class="flex items-center justify-end space-x-1">
+										<svg
+											class="flex-shrink-0 w-5 h-5 text-gray-900 dark:text-white"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+											xmlns="http://www.w3.org/2000/svg"
+											><path
+												d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
+											></path></svg
+										>
+										<span
+											class="flex-shrink-0 text-xs font-medium text-gray-900 sm:text-sm md:text-base dark:text-white"
+											>5-10 Users</span
+										>
+									</div>
+								</td>
+								<td class="p-4 rounded-r-lg">
+									<div class="flex items-center justify-end space-x-1">
+										<svg
+											class="flex-shrink-0 w-5 h-5 text-gray-900 dark:text-white"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+											xmlns="http://www.w3.org/2000/svg"
+											><path
+												d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
+											></path></svg
+										>
+										<span
+											class="flex-shrink-0 text-xs font-medium text-gray-900 sm:text-sm md:text-base dark:text-white"
+											>20+ Users</span
+										>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td
+									class="p-4 text-base font-normal text-gray-500 rounded-l-lg whitespace-nowrap dark:text-gray-400"
+								>
+									Track deductible mileage
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-red-500"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-red-500"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4 rounded-r-lg">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+							</tr>
+							<tr class="bg-gray-50 dark:bg-gray-900">
+								<td
+									class="p-4 text-base font-normal text-gray-500 whitespace-nowrap dark:text-gray-400"
+								>
+									Track employee time
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-red-500"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-red-500"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4 rounded-r-lg">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+							</tr>
+							<tr>
+								<td
+									class="p-4 text-base font-normal text-gray-500 rounded-l-lg whitespace-nowrap dark:text-gray-400"
+								>
+									Multi-device
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-red-500"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4">
+									<svg
+										class="w-5 h-5 ml-auto text-red-500"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+								<td class="p-4 rounded-r-lg">
+									<svg
+										class="w-5 h-5 ml-auto text-green-400"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"></path></svg
+									>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</section> -->
+	<section class="pt-20">
+		<h2
+			class="mb-3 text-3xl font-bold text-gray-900 sm:text-4xl sm:leading-none sm:tracking-tight dark:text-white"
+		>
+			Preguntas frecuentes
+		</h2>
+		<p
+			class="mb-6 text-lg font-normal text-gray-500 sm:text-xl dark:text-gray-400"
+		>
+			Pregúntanos lo que quieras sobre nuestros servicios internacionales y
+			recibe respuestas precisas y personalizadas.
+		</p>
+		<hr class="my-6 border-gray-200 md:my-12 dark:border-[#13344b]" />
+		<div class="grid gap-8 lg:grid-cols-3">
+			<div>
+				<div class="mb-10">
+					<h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+						¿Qué es una LLC?
+					</h3>
+					<p class="text-gray-600 dark:text-gray-400">
+						Una LLC o Limited Liability Company es una estructura empresarial
+						estadounidense que ofrece la combinación ideal de protección de
+						patrimonio personal, al separarlo por completo de las deudas y
+						riesgos del negocio, y la flexibilidad fiscal y operativa de una
+						sociedad. Constituir esta empresa es la herramienta perfecta para
+						expandir tu negocio a nivel global, ya que facilita el acceso al
+						mercado internacional permitiéndote cobrar y realizar pagos a través
+						de plataformas como Stripe o PayPal, abrir una cuenta bancaria en
+						EE. UU. para gestionar finanzas con seguridad, e incluso operar en
+						el país para comprar propiedades o invertir. Todo esto se logra
+						mediante un proceso ágil y sencillo, sin trámites complicados, lo
+						que la convierte en la opción idónea para hacer crecer tu empresa y
+						proteger tu futuro financiero.
+					</p>
+				</div>
+				<div class="mb-10">
+					<h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+						¿Cuánto tiempo se tarda en abrir una LLC?
+					</h3>
+					<p class="mb-4 text-gray-600 dark:text-gray-400">
+						El tiempo total para establecer tu LLC completamente consta de dos
+						fases principales: primero, el registro de la empresa ante el
+						estado, que nuestro equipo gestiona y que suele completarse en un
+						plazo de 5 a 7 días hábiles (el tiempo varía según el estado
+						elegido); y segundo, la obtención del EIN (Número de Identificación
+						Tributaria), un trámite esencial para operar y abrir una cuenta
+						bancaria que, al ser gestionado por las autoridades federales, puede
+						demorar entre 2 y 6 semanas. Nosotros nos encargamos de todo el
+						proceso para garantizar que sea lo más ágil y libre de
+						complicaciones posible para ti.
+					</p>
+				</div>
+			</div>
+			<div>
+				<div class="mb-10">
+					<h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+						¿Cuáles son los costos para abrir una LLC?
+					</h3>
+					<p class="mb-4 text-gray-600 dark:text-gray-400">
+						Ofrecemos tres planes de servicio diseñados para adaptarse a tus
+						necesidades específicas: el Plan Básico ($350), ideal si ya tienes
+						todo preparado y deseas comenzar de inmediato, incluye la
+						constitución legal de tu LLC, la obtención del EIN (Número de
+						Identificación Tributaria) y agente residente por un año; el Plan
+						Estándar ($650), que añade a lo anterior el acuerdo de operación,
+						una carta bancaria y consultas ilimitadas; y el Plan Business
+						($950), nuestra opción más completa, creada para quienes requieren
+						una planificación personalizada y soporte integral para garantizar
+						que ningún detalle quede sin resolver. Con cualquiera de estas
+						opciones, podrás constituir tu LLC de forma rápida, segura y sin
+						necesidad de salir de tu país.
+					</p>
+				</div>
+				<div class="mb-10">
+					<h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+						¿Además de formar mi LLC en Estados Unidos, qué otros servicios
+						pueden ayudarme a operar y proteger mi negocio a nivel
+						internacional?
+					</h3>
+					<p class="mb-4 text-gray-600 dark:text-gray-400">
+						Ofrecemos una suite completa de servicios diseñados para
+						emprendedores globales. Una vez constituida su LLC, podemos actuar
+						como su Agente Residente, ayudarle a abrir una cuenta bancaria
+						(Banking Service), encargarnos de la presentación de impuestos ante
+						el IRS y hasta configurar una línea telefónica con número de EE.UU.
+						para darle una presencia profesional local. Además, brindamos
+						asesoría tributaria internacional y outsourcing contable para que su
+						operación sea compliant y eficiente desde el día uno.
+					</p>
+				</div>
+			</div>
+			<div>
+				<div class="mb-10">
+					<h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+						¿Cuáles son los requisitos para abrir una empresa?
+					</h3>
+					<p class="mb-4 text-gray-600 dark:text-gray-400">
+						Para constituir tu LLC con nosotros, los únicos requisitos
+						esenciales son el pasaporte vigente de todos los socios y un
+						comprobante de domicilio reciente, como una factura de un servicio
+						básico (agua, luz, etc.). Estos documentos te los solicitaremos de
+						manera progresiva a medida que avances en el llenado de nuestro
+						formulario de incorporación, para hacer el proceso más ágil. Nuestro
+						equipo te brindará orientación personalizada en cada etapa para
+						garantizar que cumplas con todos los requisitos de forma rápida y
+						sencilla.
+					</p>
+				</div>
+				<div class="mb-10">
+					<h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+						Mi estrategia requiere más que una empresa en EE.UU. ¿Pueden
+						asistirme en la constitución de compañías holding u operativas en
+						otras jurisdicciones?
+					</h3>
+					<p class="mb-4 text-gray-600 dark:text-gray-400">
+						Absolutamente. Nuestra expertise se extiende a la incorporación de
+						empresas en una red global de países clave. Ya sea para estructurar
+						activos, optimizar fiscalmente o expandir operaciones, gestionamos
+						la formación de sociedades en destinos como Reino Unido, Canadá,
+						Panamá, Portugal, Chile, México, Belice y jurisdicciones
+						especializadas como las Islas Vírgenes Británicas e Islas Marshall.
+						Lo guiamos en elegir la jurisdicción óptima para sus objetivos
+						específicos.
+					</p>
+				</div>
+			</div>
+		</div>
+	</section>
+</div>

@@ -1,0 +1,79 @@
+---
+
+---
+
+<!-- Modal -->
+<div
+	id="actionModal"
+	class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+>
+	<div
+		class="bg-white border border-gray-200 dark:border-gray-700 xl:p-8 dark:bg-[#13344b] dark:text-white rounded-xl p-6 m-4 max-w-md w-full relative shadow-2xl"
+	>
+		<div class="relative">
+			<h2
+				class="text-2xl font-bold text-gray-800 mb-6 text-center dark:text-white"
+			>
+				¿Qué deseas hacer?
+			</h2>
+
+			<div class="space-y-4">
+				<a
+					href="https://calendly.com/sotomayorconsulting/asesoria-con-sebastian-sotomayor"
+					class="block w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-center transition-colors duration-200 shadow-md hover:shadow-lg"
+				>
+					📅 Agendar Reunión Gratuita
+				</a>
+
+				<a
+					href="https://sotomayorconsulting.com/tu-empresa-en-estados-unidos/planes-de-incorporacion/?entry=%7B%22PlanDeServicio%22:%22Plan+Est%C3%A1ndar%22%7D"
+					class="block w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-center transition-colors duration-200 shadow-md hover:shadow-lg"
+				>
+					💳 Realizar Pago
+				</a>
+			</div>
+
+			<button
+				id="closeModal"
+				class="mt-6 w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200"
+			>
+				Cerrar
+			</button>
+		</div>
+	</div>
+</div>
+
+<script>
+	// Script simple para mostrar/ocultar el modal
+	document.addEventListener('DOMContentLoaded', function () {
+		const openButton = document.getElementById('openModal');
+		const closeButton = document.getElementById('closeModal');
+		const modal = document.getElementById('actionModal');
+
+		openButton.addEventListener('click', function () {
+			modal.classList.remove('hidden');
+			modal.classList.add('flex');
+		});
+
+		closeButton.addEventListener('click', function () {
+			modal.classList.remove('flex');
+			modal.classList.add('hidden');
+		});
+
+		// Cerrar al hacer clic fuera del contenido
+		modal.addEventListener('click', function (e) {
+			if (e.target === modal) {
+				modal.classList.remove('flex');
+				modal.classList.add('hidden');
+			}
+		});
+
+		// Cerrar con la tecla Escape
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape') {
+				modal.classList.remove('flex');
+				modal.classList.add('hidden');
+			}
+		});
+	});
+</script>

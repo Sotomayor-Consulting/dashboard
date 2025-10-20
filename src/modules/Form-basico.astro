@@ -1,0 +1,683 @@
+---
+/* =========================
+   5) Alertas existentes
+   ========================= */
+const status = Astro.url.searchParams.get('status'); // "success" | "error"
+const msg = Astro.url.searchParams.get('msg') || '';
+const isSuccess = status === 'success';
+const variant = isSuccess
+	? 'text-green-800 border-green-300 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-neutral-800'
+	: 'text-red-800 border-red-300 bg-red-50 dark:text-red-400 dark:border-red-800 dark:bg-neutral-800';
+const display = msg ? 'flex' : 'hidden';
+---
+
+<div
+	class=""
+>
+	<!-- ALERTA FLOWBITE -->
+	<div
+		id="alert-feedback"
+		class={`absolute right-0 top-0.5 items-center p-4 mb-4 text-sm border rounded-lg mt-4 ${variant} ${display}`}
+		role="alert"
+		aria-live="polite"
+	>
+		<svg
+			class="shrink-0 inline w-4 h-4 me-3"
+			aria-hidden="true"
+			xmlns="http://www.w3.org/2000/svg"
+			fill="currentColor"
+			viewBox="0 0 20 20"
+		>
+			<path
+				d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+			></path>
+		</svg>
+		<div class="ms-3">
+			<span class="font-medium">{isSuccess ? '✅ ¡Éxito!' : '❌ Error:'}</span>
+			{' '}
+			{msg}
+		</div>
+		<!-- botón cerrar (opcional) -->
+		<button
+			type="button"
+			class="ms-auto -mx-1.5 -my-1.5 p-1.5 rounded hover:opacity-80"
+			aria-label="Close"
+			data-close
+		>
+			✕
+		</button>
+	</div>
+
+	<!-- Script: mostrar/ocultar y limpiar query -->
+	<script is:inline>
+		(function () {
+			const alertBox = document.getElementById('alert-feedback');
+			if (!alertBox) return;
+			const params = new URLSearchParams(window.location.search);
+			const hasMsg = params.has('msg');
+			// por si el SSR no lo dejó visible
+			if (hasMsg) {
+				alertBox.classList.remove('hidden');
+				alertBox.classList.add('flex');
+
+				// autocerrar a los 6s
+				const hide = () => {
+					alertBox.classList.add('hidden');
+					alertBox.classList.remove('flex');
+				};
+				const timer = setTimeout(hide, 6000);
+
+				// botón cerrar manual
+				const closeBtn = alertBox.querySelector('[data-close]');
+				if (closeBtn) {
+					closeBtn.addEventListener('click', () => {
+						clearTimeout(timer);
+						hide();
+					});
+				}
+
+				// limpiar query de la URL (para que no reaparezca al refrescar)
+				params.delete('msg');
+				params.delete('status');
+				const newUrl = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}${location.hash}`;
+				window.history.replaceState({}, '', newUrl);
+			} else {
+				// asegurar oculto si no hay mensaje
+				alertBox.classList.add('hidden');
+				alertBox.classList.remove('flex');
+			}
+		})();
+	</script>
+</div>
+<section>
+	<div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+		<ul
+			class="flex flex-wrap -mb-px text-sm font-medium text-center"
+			id="default-styled-tab"
+		>
+			<li class="me-2" role="presentation">
+				<button
+					class="inline-block p-4 border-b-2 rounded-t-lg text-[#967432] hover:text-[#967432] dark:text-[#967432] dark:hover:text-[#967432] border-[#967432] dark:border-[#967432]"
+					id="profile-styled-tab"
+					data-tabs-target="#styled-profile"
+					type="button"
+					role="tab"
+					aria-controls="profile"
+					aria-selected="true">Detalles del plan</button
+				>
+			</li>
+			<li class="me-2" role="presentation">
+				<button
+					class="inline-block p-4 border-b-2 rounded-t-lg hover:border-gray-300 dark:border-transparent text-gray-500 hover:text-gray-600 dark:text-gray-400 border-gray-100 dark:border-gray-700 dark:hover:text-gray-300"
+					id="dashboard-styled-tab"
+					data-tabs-target="#styled-dashboard"
+					type="button"
+					role="tab"
+					aria-controls="dashboard"
+					aria-selected="false">Configura tu empresa</button
+				>
+			</li>
+		</ul>
+	</div>
+	<div id="default-styled-tab-content">
+		<div
+			class="p-4 rounded-lg"
+			id="styled-profile"
+			role="tabpanel"
+			aria-labelledby="profile-tab"
+		>
+			<div class="flex justify-center flex-col items-center lg:items-start">
+				<h2
+					class="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl text-left w-full"
+				>
+					Plan Dashboard
+				</h2>
+				<h3
+					class="text-lg font-normal text-gray-900 dark:text-gray-400 sm:text-lg lg:text-left"
+				>
+					Automatiza y haz crecer tu negocio con una plataforma centralizada y
+					poderosa, diseñada para simplificar tu día a día.
+				</h3>
+				<p class="text-gray-900 dark:text-gray-400 mt-10 w-full">
+					Con este plan, usted podrá:
+				</p>
+				<div class="flex flex-col lg:w-4/5 my-5 w-full">
+					<div
+						class="grid grid-cols-[auto,_1fr] gap-4 mb-5 place-items-center lg:justify-start lg:text-left lg:w-3/5"
+					>
+						<svg
+							class="w-7 text-[#967432] mr-4 lg:block hidden self-center"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill-rule="evenodd"
+								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+								clip-rule="evenodd"></path></svg
+						>
+						<h3 class="text-lg font-bold text-gray-900 dark:text-white">
+							Gestión Centralizada de Clientes:<span
+								class="italic text-base font-light"
+							>
+								Guarde toda la información de sus clientes (datos de contacto,
+								historial, etc.) de forma ordenada y segura.</span
+							>
+						</h3>
+					</div>
+					<div
+						class="grid grid-cols-[auto,_1fr] gap-4 mb-5 justify-center lg:justify-start lg:text-left lg:w-3/5"
+					>
+						<svg
+							class="w-7 text-[#967432] mr-4 lg:block hidden self-center"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill-rule="evenodd"
+								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+								clip-rule="evenodd"></path></svg
+						>
+						<h3 class="text-lg font-bold text-gray-900 dark:text-white">
+							Acceso y Edición Fácil:<span class="italic text-base font-light">
+								Agregue, edite o consulte la información de cualquier cliente en
+								segundos.</span
+							>
+						</h3>
+					</div>
+					<div
+						class="grid grid-cols-[auto,_1fr] gap-4 mb-5 justify-center lg:justify-start lg:text-left lg:w-3/5"
+					>
+						<svg
+							class="w-7 text-[#967432] mr-4 lg:block hidden self-center"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill-rule="evenodd"
+								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+								clip-rule="evenodd"></path></svg
+						>
+						<h3 class="text-lg font-bold text-gray-900 dark:text-white">
+							Archivos al Alcance:<span class="italic text-base font-light">
+								Genere y almacene documentos en PDF (como contratos o reportes)
+								directamente en el perfil de cada cliente.</span
+							>
+						</h3>
+					</div>
+					<div
+						class="grid grid-cols-[auto,_1fr] gap-4 mb-5 justify-center lg:justify-start lg:text-left lg:w-3/5"
+					>
+						<svg
+							class="w-7 text-[#967432] mr-4 lg:block hidden self-center"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill-rule="evenodd"
+								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+								clip-rule="evenodd"></path></svg
+						>
+						<h3 class="text-lg font-bold text-gray-900 dark:text-white">
+							Catálogo Digital:<span class="italic text-base font-light">
+								Cree y gestione su listado de servicios o productos con sus
+								descripciones y precios.</span
+							>
+						</h3>
+					</div>
+					<div
+						class="grid grid-cols-[auto,_1fr] gap-4 mb-5 justify-center lg:justify-start lg:text-left lg:w-3/5"
+					>
+						<svg
+							class="w-7 text-[#967432] mr-4 lg:block hidden self-center"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill-rule="evenodd"
+								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+								clip-rule="evenodd"></path></svg
+						>
+						<h3 class="text-lg font-bold text-gray-900 dark:text-white">
+							Formularios y Encuestas Interactivas:<span
+								class="italic text-base font-light"
+							>
+								Cree formularios personalizados para leads, cuestionarios de
+								satisfacción, evaluaciones o cualquier tipo de encuesta, sin
+								necesidad de un programador.</span
+							>
+						</h3>
+					</div>
+					<div
+						class="grid grid-cols-[auto,_1fr] gap-4 mb-5 justify-center lg:justify-start lg:text-left lg:w-3/5"
+					>
+						<svg
+							class="w-7 text-[#967432] mr-4 lg:block hidden self-center"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill-rule="evenodd"
+								d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+								clip-rule="evenodd"></path></svg
+						>
+						<h3 class="text-lg font-bold text-gray-900 dark:text-white">
+							Portal Exclusivo para sus Clientes:<span
+								class="italic text-base font-light"
+							>
+								Sus clientes podrán ver el historial de sus formularios
+								completados, consultar las respuestas y descargar sus documentos
+								(como PDFs de resultados o certificados) cuando lo necesiten,
+								liberándolo a usted de tener que enviarlos manualmente.</span
+							>
+						</h3>
+					</div>
+					<button
+						class="text-white bg-[#967432] hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] focus:outline-none dark:focus:ring-blue-800 w-fit mt-5"
+						type="button"
+						id="Btn-cambio">Continuar</button
+					>
+				</div>
+			</div>
+		</div>
+		<div
+			class="hidden p-4 rounded-lg w-full"
+			id="styled-dashboard"
+			role="tabpanel"
+			aria-labelledby="dashboard-tab"
+		>
+			<section class="py-8 antialiased md:py-8 w-full">
+				<div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
+					<div class="mx-auto max-w-5xl">
+						<h2
+							class="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl"
+						>
+							Configura tu empresa y empieza a usar nuestro Dashboard
+						</h2>
+						<h3
+							class="text-lg font-normal text-gray-900 dark:text-gray-400 sm:text-lg"
+						>
+							Nuestro Dashboard de Gestión Integral es la solución tecnológica
+							que consolida todas las herramientas que necesita en una sola
+							plataforma, segura y fácil de usar.
+						</h3>
+
+						<div class="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-12">
+							<form
+								action="/api/create/client-new-tenant"
+								method="post"
+								enctype="multipart/form-data"
+								class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-[#1d1d1d] sm:p-6 lg:max-w-xl lg:p-8"
+							>
+								<input type="hidden" name="estado" id="estado" value="active" />
+								<input type="hidden" name="rol_en_empresa" value="admin" />
+								<div class="mb-8">
+									<label
+										class="block mb-2 text-xl font-bold text-gray-900 dark:text-white"
+										>Datos de tu empresa</label
+									>
+									<label
+										class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
+										>Ingresa tus datos</label
+									>
+								</div>
+								<div class="my-5">
+									<label
+										for="nombre_empresa"
+										class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+										>Nombre de tu empresa</label
+									>
+									<input
+										type="text"
+										name="nombre_empresa"
+										id="nombre_empresa"
+										class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 mb-2"
+										placeholder="Sotomayor Consulting Internacional"
+										required
+									/>
+									<label
+										class="block my-2 text-xs italic text-gray-500 dark:text-gray-500"
+										>Escribe un el nombre de tu empresa, este aparecerá en tu
+										Dashboard</label
+									>
+								</div>
+								<div class="my-5">
+									<label
+										for="slug_empresa"
+										class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+										>Link de tu empresa</label
+									>
+									<div class="flex">
+										<input
+											type="text"
+											id="slug_empresa"
+											name="slug_empresa"
+											class="rounded-none rounded-s-lg bg-gray-50 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+											placeholder="mi-empresa-llc"
+											pattern="[a-z0-9-]+"
+											required
+										/>
+										<span
+											class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-s-0 border-gray-300 rounded-e-md dark:bg-neutral-600 dark:text-gray-200 dark:border-gray-600"
+										>
+											.sotomayorconsulting.app
+										</span>
+									</div>
+									<label
+										class="block my-2 text-xs italic text-gray-500 dark:text-gray-500"
+										>Escribe el link de tu empresa de forma legible</label
+									>
+								</div>
+
+								<div class="my-5">
+									<label
+										for="logo-empresa"
+										class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+										for="file_input">Sube un logo</label
+									>
+									<input
+										name="logo-empresa"
+										id="logo-empresa"
+										class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400"
+										aria-describedby="file_input_help"
+										accept="image/png,image/jpeg,image/webp"
+										type="file"
+										required
+									/>
+									<p
+										class="mt-1 text-sm text-gray-500 dark:text-gray-300"
+										id="file_input_help"
+									>
+										PNG, JPEG o WEBP (MAX. 800x400px).
+									</p>
+								</div>
+
+								<div class="flex items-center mb-4">
+									<input
+										id="toggleCheckbox"
+										type="checkbox"
+										value=""
+										class="w-4 h-4 text-[#967432] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#967432] dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-neutral-700 dark:border-gray-600"
+										required
+									/>
+									<label
+										for="checkbox-1"
+										class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+										>he leído y acepto los <a
+											href="#"
+											class="text-[#967432] hover:underline dark:text-[#967432]"
+											>términos y Condiciones</a
+										>.</label
+									>
+								</div>
+
+								<button
+									type="submit"
+									class="flex w-full items-center justify-center rounded-lg bg-[#8c681d] px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+									>Pay now</button
+								>
+							</form>
+
+							<div class="mt-6 grow sm:mt-8 lg:mt-0 hidden" id="targetElement">
+								<div
+									class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-[#1d1d1d]"
+								>
+									<div class="space-y-2">
+										<dl class="flex items-center justify-between gap-4">
+											<dt
+												class="text-base font-normal text-gray-500 dark:text-gray-400"
+											>
+												Original price
+											</dt>
+											<dd
+												class="text-base font-medium text-gray-900 dark:text-white"
+											>
+												$6,592.00
+											</dd>
+										</dl>
+
+										<dl class="flex items-center justify-between gap-4">
+											<dt
+												class="text-base font-normal text-gray-500 dark:text-gray-400"
+											>
+												Savings
+											</dt>
+											<dd class="text-base font-medium text-green-500">
+												-$299.00
+											</dd>
+										</dl>
+
+										<dl class="flex items-center justify-between gap-4">
+											<dt
+												class="text-base font-normal text-gray-500 dark:text-gray-400"
+											>
+												Store Pickup
+											</dt>
+											<dd
+												class="text-base font-medium text-gray-900 dark:text-white"
+											>
+												$99
+											</dd>
+										</dl>
+
+										<dl class="flex items-center justify-between gap-4">
+											<dt
+												class="text-base font-normal text-gray-500 dark:text-gray-400"
+											>
+												Tax
+											</dt>
+											<dd
+												class="text-base font-medium text-gray-900 dark:text-white"
+											>
+												$799
+											</dd>
+										</dl>
+									</div>
+
+									<dl
+										class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700"
+									>
+										<dt
+											class="text-base font-bold text-gray-900 dark:text-white"
+										>
+											Total
+										</dt>
+										<dd
+											class="text-base font-bold text-gray-900 dark:text-white"
+										>
+											$7,191.00
+										</dd>
+									</dl>
+								</div>
+
+								<div class="mt-6 flex items-center justify-center gap-8">
+									<img
+										class="h-8 w-auto dark:hidden"
+										src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/paypal.svg"
+										alt=""
+									/>
+									<img
+										class="hidden h-8 w-auto dark:flex"
+										src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/paypal-dark.svg"
+										alt=""
+									/>
+									<img
+										class="h-8 w-auto dark:hidden"
+										src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/visa.svg"
+										alt=""
+									/>
+									<img
+										class="hidden h-8 w-auto dark:flex"
+										src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/visa-dark.svg"
+										alt=""
+									/>
+									<img
+										class="h-8 w-auto dark:hidden"
+										src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/mastercard.svg"
+										alt=""
+									/>
+									<img
+										class="hidden h-8 w-auto dark:flex"
+										src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/mastercard-dark.svg"
+										alt=""
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	</div>
+</section>
+
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/datepicker.min.js"
+></script>
+<script>
+	const checkbox = document.getElementById('toggleCheckbox');
+	const target = document.getElementById('targetElement');
+	const cambio = document.getElementById('Btn-cambio');
+	const tablauno = document.getElementById('styled-profile');
+	const tablados = document.getElementById('styled-dashboard');
+	const boton1 = document.getElementById('profile-styled-tab');
+	const boton2 = document.getElementById('dashboard-styled-tab');
+
+	checkbox?.addEventListener('change', (event) => {
+		if (event.target?.checked) {
+			target?.classList.remove('hidden');
+			target?.classList.add('block');
+		} else {
+			target?.classList.remove('block');
+			target?.classList.add('hidden');
+		}
+	});
+
+	cambio?.addEventListener('click', () => {
+		tablauno?.classList.remove('block');
+		tablauno?.classList.add('hidden');
+		tablados?.classList.remove('hidden');
+		tablados?.classList.add('block');
+		boton2?.classList.add(
+			'text-[#967432]',
+			'hover:text-[#967432]',
+			'dark:text-[#967432]',
+			'dark:hover:text-[#967432]',
+			'border-[#967432]',
+			'dark:border-[#967432]',
+		);
+		boton2?.classList.remove(
+			'dark:border-transparent',
+			'text-gray-500',
+			'hover:text-gray-600',
+			'dark:text-gray-400',
+			'border-gray-100',
+			'hover:border-gray-300',
+			'dark:border-gray-700',
+			'dark:hover:text-gray-300',
+		);
+		boton1?.classList.remove(
+			'text-[#967432]',
+			'hover:text-[#967432]',
+			'dark:text-[#967432]',
+			'dark:hover:text-[#967432]',
+			'border-[#967432]',
+			'dark:border-[#967432]',
+		);
+		boton1?.classList.add(
+			'dark:border-transparent',
+			'text-gray-500',
+			'hover:text-gray-600',
+			'dark:text-gray-400',
+			'border-gray-100',
+			'hover:border-gray-300',
+			'dark:border-gray-700',
+			'dark:hover:text-gray-300',
+		);
+	});
+
+	boton1?.addEventListener('click', () => {
+		tablauno?.classList.remove('hidden');
+		tablauno?.classList.add('block');
+		tablados?.classList.remove('block');
+		tablados?.classList.add('hidden');
+		boton1?.classList.add(
+			'text-[#967432]',
+			'hover:text-[#967432]',
+			'dark:text-[#967432]',
+			'dark:hover:text-[#967432]',
+			'border-[#967432]',
+			'dark:border-[#967432]',
+		);
+		boton1?.classList.remove(
+			'dark:border-transparent',
+			'text-gray-500',
+			'hover:text-gray-600',
+			'dark:text-gray-400',
+			'border-gray-100',
+			'hover:border-gray-300',
+			'dark:border-gray-700',
+			'dark:hover:text-gray-300',
+		);
+		boton2?.classList.remove(
+			'text-[#967432]',
+			'hover:text-[#967432]',
+			'dark:text-[#967432]',
+			'dark:hover:text-[#967432]',
+			'border-[#967432]',
+			'dark:border-[#967432]',
+		);
+		boton2?.classList.add(
+			'dark:border-transparent',
+			'text-gray-500',
+			'hover:text-gray-600',
+			'dark:text-gray-400',
+			'border-gray-100',
+			'hover:border-gray-300',
+			'dark:border-gray-700',
+			'dark:hover:text-gray-300',
+		);
+	});
+
+	boton2?.addEventListener('click', () => {
+		tablauno?.classList.remove('block');
+		tablauno?.classList.add('hidden');
+		tablados?.classList.remove('hidden');
+		tablados?.classList.add('block');
+		boton2?.classList.add(
+			'text-[#967432]',
+			'hover:text-[#967432]',
+			'dark:text-[#967432]',
+			'dark:hover:text-[#967432]',
+			'border-[#967432]',
+			'dark:border-[#967432]',
+		);
+		boton2?.classList.remove(
+			'dark:border-transparent',
+			'text-gray-500',
+			'hover:text-gray-600',
+			'dark:text-gray-400',
+			'border-gray-100',
+			'hover:border-gray-300',
+			'dark:border-gray-700',
+			'dark:hover:text-gray-300',
+		);
+		boton1?.classList.remove(
+			'text-[#967432]',
+			'hover:text-[#967432]',
+			'dark:text-[#967432]',
+			'dark:hover:text-[#967432]',
+			'border-[#967432]',
+			'dark:border-[#967432]',
+		);
+		boton1?.classList.add(
+			'dark:border-transparent',
+			'text-gray-500',
+			'hover:text-gray-600',
+			'dark:text-gray-400',
+			'border-gray-100',
+			'hover:border-gray-300',
+			'dark:border-gray-700',
+			'dark:hover:text-gray-300',
+		);
+	});
+</script>

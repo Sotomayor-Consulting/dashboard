@@ -1,0 +1,120 @@
+---
+import LayoutSidebar from '../../../app/empresas/LayoutSidebar.astro';
+import LandingReadme from '../../../modules/empresas/LandingReadme.astro';
+import { supabase } from '../../../lib/supabase';
+
+const { cookies, redirect } = Astro;
+
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+
+if (!accessToken || !refreshToken) {
+	return redirect('/sign-in');
+}
+
+const { error } = await supabase.auth.setSession({
+	refresh_token: refreshToken.value,
+	access_token: accessToken.value,
+});
+
+if (error) {
+	cookies.delete('sb-access-token', {
+		path: '/',
+	});
+	cookies.delete('sb-refresh-token', {
+		path: '/',
+	});
+
+	return redirect('/sign-in');
+}
+
+const status = Astro.url.searchParams.get('status'); // "success" | "error"
+const msg = Astro.url.searchParams.get('msg') || '';
+const isSuccess = status === 'success';
+const variant = isSuccess
+	? 'text-green-800 border-green-300 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-[#1d1d1d]'
+	: 'text-red-800 border-red-300 bg-red-50 dark:text-red-400 dark:border-red-800 dark:bg-[#1d1d1d]';
+
+// visible si hay msg; si no, hidden
+const display = msg ? 'flex' : 'hidden';
+---
+
+<LayoutSidebar>
+	<!-- ALERTA FLOWBITE -->
+	<div
+		id="alert-feedback"
+		class={`absolute right-0 top-0.5 items-center p-4 mb-4 text-sm border rounded-lg mt-4 ${variant} ${display}`}
+		role="alert"
+		aria-live="polite"
+	>
+		<svg
+			class="shrink-0 inline w-4 h-4 me-3"
+			aria-hidden="true"
+			xmlns="http://www.w3.org/2000/svg"
+			fill="currentColor"
+			viewBox="0 0 20 20"
+		>
+			<path
+				d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+			></path>
+		</svg>
+		<div class="ms-3">
+			<span class="font-medium">{isSuccess ? '✅ ¡Éxito!' : '❌ Error:'}</span>
+			{' '}
+			{msg}
+		</div>
+		<!-- botón cerrar (opcional) -->
+		<button
+			type="button"
+			class="ms-auto -mx-1.5 -my-1.5 p-1.5 rounded hover:opacity-80"
+			aria-label="Close"
+			data-close
+		>
+			✕
+		</button>
+	</div>
+
+	<!-- Script: mostrar/ocultar y limpiar query -->
+	<script is:inline>
+		(function () {
+			const alertBox = document.getElementById('alert-feedback');
+			if (!alertBox) return;
+
+			const params = new URLSearchParams(window.location.search);
+			const hasMsg = params.has('msg');
+
+			// por si el SSR no lo dejó visible
+			if (hasMsg) {
+				alertBox.classList.remove('hidden');
+				alertBox.classList.add('flex');
+
+				// autocerrar a los 6s
+				const hide = () => {
+					alertBox.classList.add('hidden');
+					alertBox.classList.remove('flex');
+				};
+				const timer = setTimeout(hide, 6000);
+
+				// botón cerrar manual
+				const closeBtn = alertBox.querySelector('[data-close]');
+				if (closeBtn) {
+					closeBtn.addEventListener('click', () => {
+						clearTimeout(timer);
+						hide();
+					});
+				}
+
+				// limpiar query de la URL (para que no reaparezca al refrescar)
+				params.delete('msg');
+				params.delete('status');
+				const newUrl = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}${location.hash}`;
+				window.history.replaceState({}, '', newUrl);
+			} else {
+				// asegurar oculto si no hay mensaje
+				alertBox.classList.add('hidden');
+				alertBox.classList.remove('flex');
+			}
+		})();
+	</script>
+	<LandingReadme />
+</LayoutSidebar>
