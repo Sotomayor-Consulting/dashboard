@@ -2,47 +2,6 @@
 
 ---
 
-<!-- Modal 
-<div
-	id="actionModal"
-	class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
->
-	<div
-		class="bg-white border border-gray-200 dark:border-gray-700 xl:p-8 dark:bg-[#1d1d1d] dark:text-white rounded-xl p-6 m-4 max-w-md w-full relative shadow-2xl"
-	>
-		<div class="relative">
-			<h2
-				class="text-2xl font-bold text-gray-800 mb-6 text-center dark:text-white"
-			>
-				¿Qué deseas hacer?
-			</h2>
-
-			<div class="space-y-4">
-				<a
-					href="https://calendly.com/sotomayorconsulting/asesoria-con-sebastian-sotomayor"
-					class="block w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-center transition-colors duration-200 shadow-md hover:shadow-lg"
-				>
-					📅 Agendar Reunión Gratuita
-				</a>
-
-				<a
-					href="https://sotomayorconsulting.com/tu-empresa-en-estados-unidos/planes-de-incorporacion/?entry=%7B%22PlanDeServicio%22:%22Plan+Est%C3%A1ndar%22%7D"
-					class="block w-full px-4 py-3 bg-[#967432] hover:bg-[#8c681d] text-white font-medium rounded-lg text-center transition-colors duration-200 shadow-md hover:shadow-lg"
-				>
-					💳 Realizar Pago
-				</a>
-			</div>
-
-			<button
-				id="closeModal"
-				class="mt-6 w-full px-4 py-2 bg-red-600 hover:bg-gray-300 text-white font-medium rounded-lg transition-colors duration-200"
-			>
-				Cerrar
-			</button>
-		</div>
-	</div>
-</div>-->
-
 <div id="actionModal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 max-h-full bg-black bg-opacity-80">
     <div class="relative p-4 w-full max-w-md max-h-full">
         <!-- Modal content -->
@@ -63,23 +22,21 @@
             <div class="p-4 md:p-5">
                 <ul class="space-y-4 mb-4">
 					<li>
-                        <input type="radio" id="job-1" name="job" value="job-1" class="hidden peer" required />
-                        <label for="job-1" class="inline-flex items-center justify-between w-full p-5 text-gray-900 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-500 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 dark:peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-900 hover:bg-gray-100 dark:text-white dark:bg-gray-600 dark:hover:bg-gray-500">                           
+                        
+                        <a href="" class="inline-flex items-center justify-between w-full p-3 text-gray-900 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-500 dark:peer-checked:text-white peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d]peer-checked:text-blue-600 hover:text-gray-900 hover:bg-gray-100 dark:text-white dark:bg-neutral-800 dark:hover:bg-[#8c681d] transition-colors">                           
                             <div class="block w-full">
                                 <div class="w-full text-lg font-semibold text-center">Realizar Pago</div>
                             </div>
-                            <svg class="w-4 h-4 ms-3 rtl:rotate-180 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/></svg>
-                        </label>
+                        </a>
                     </li>
                     <li>
-                        <input type="radio" id="job-1" name="job" value="job-1" class="hidden peer" required />
-                        <label for="job-1" class="inline-flex items-center justify-between w-full p-5 text-gray-900 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-500 dark:peer-checked:text-blue-500 peer-checked:border-blue-600 dark:peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-900 hover:bg-gray-100 dark:text-white dark:bg-gray-600 dark:hover:bg-gray-500">                           
+                        
+                        <a href="" class="inline-flex items-center justify-between w-full p-5 text-gray-900 bg-white border border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-500 dark:peer-checked:text-white peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d]peer-checked:text-blue-600 hover:text-gray-900 hover:bg-gray-100 dark:text-white dark:bg-neutral-800 dark:hover:bg-[#8c681d] transition-colors" title="Asesorate previamente antes de obtener tu paquete">                           
                             <div class="block w-full">
                                 <div class="w-full text-lg font-semibold text-center">Agendar Reunión Gratuita</div>
                                 <div class="text-gray-500 dark:text-gray-400 text-sm italic text-center px-5">Asesorate previamente antes de obtener tu paquete</div>
                             </div>
-                            <svg class="w-4 h-4 ms-3 rtl:rotate-180 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/></svg>
-                        </label>
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -94,29 +51,29 @@
 		const closeButton = document.getElementById('closeModal');
 		const modal = document.getElementById('actionModal');
 
-		openButton.addEventListener('click', function () {
-			modal.classList.remove('hidden');
-			modal.classList.add('flex');
+		openButton?.addEventListener('click', function () {
+			modal?.classList.remove('hidden');
+			modal?.classList.add('flex');
 		});
 
-		closeButton.addEventListener('click', function () {
-			modal.classList.remove('flex');
-			modal.classList.add('hidden');
+		closeButton?.addEventListener('click', function () {
+			modal?.classList.remove('flex');
+			modal?.classList.add('hidden');
 		});
 
 		// Cerrar al hacer clic fuera del contenido
-		modal.addEventListener('click', function (e) {
+		modal?.addEventListener('click', function (e) {
 			if (e.target === modal) {
-				modal.classList.remove('flex');
-				modal.classList.add('hidden');
+				modal?.classList.remove('flex');
+				modal?.classList.add('hidden');
 			}
 		});
 
 		// Cerrar con la tecla Escape
 		document.addEventListener('keydown', function (e) {
 			if (e.key === 'Escape') {
-				modal.classList.remove('flex');
-				modal.classList.add('hidden');
+				modal?.classList.remove('flex');
+				modal?.classList.add('hidden');
 			}
 		});
 	});
