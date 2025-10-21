@@ -1,10 +1,10 @@
 ---
-import imagenfondo from '../assets/background-dark.jpg'
+
 ---
 
-<div class="w-full grid grid-cols-[auto,1fr] justify-center items-center">
-	<div class="w-full min-h-[700px]">
-		<div class="mt-5">
+<div class="w-full flex justify-center items-center my-8">
+	<div class="w-full lg:min-h-[700px] lg:flex lg:flex-col hidden">
+		<div class="mt-16">
 			<h3 class="text-white text-2xl">
 				Inicie su empresa en EE. UU. en minutos.
 			</h3>
@@ -34,8 +34,8 @@ import imagenfondo from '../assets/background-dark.jpg'
 										stroke="currentColor"
 										stroke-linecap="square"
 										stroke-width="2"
-										d="M12 19V4.5h-.5L9.5 6"></path></svg
-								>
+										d="M12 19V4.5h-.5L9.5 6"></path>
+								</svg>
 							</span>
 						</div>
 						<div class="flex items-start rounded-md justify-center flex-col">
@@ -141,7 +141,7 @@ import imagenfondo from '../assets/background-dark.jpg'
 			</li>
 		</ol>
 		<div
-            class="bg-neutral-800 rounded-lg w-4/5 flex justify-center flex-col items-center mt-5 h-full drop-shadow-md place-self-center bg-opacity-90 test"
+			class="rounded-lg w-full flex justify-center flex-col items-center mt-16 h-full drop-shadow-xl place-self-center test bg-center bg-cover bg-neutral-700 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-20 backdrop-saturate-100 backdrop-contrast-100 py-20"
 		>
 			<div class="text-center pb-10">
 				<h3 class="text-white text-3xl">Estructura de la empresa</h3>
@@ -152,7 +152,7 @@ import imagenfondo from '../assets/background-dark.jpg'
 			<div class="flex justify-center mb-3 w-full">
 				<a
 					href=""
-					class="border border-[#8c681d] rounded-md p-5 text-white bg-[#1d1d1d] flex flex-col text-xl w-3/5 hover:bg-neutral-800 hover:border-[#8c681d]"
+					class="border border-[#8c681d] rounded-md p-5 text-white bg-[#1d1d1d] flex flex-col text-xl w-4/5 md:w-3/5 hover:bg-neutral-800 hover:border-[#8c681d]"
 					>LLC <span class="text-sm text-gray-400 my-1"
 						>Tarifas mínimas + privacidad y flexibilidad inigualables.</span
 					></a
@@ -161,7 +161,7 @@ import imagenfondo from '../assets/background-dark.jpg'
 			<div class="flex justify-center mb-3 w-full">
 				<a
 					href=""
-					class="border border-[#8c681d] rounded-md p-5 text-white bg-[#1d1d1d] flex flex-col text-xl w-3/5 hover:bg-neutral-800 hover:border-[#8c681d]"
+					class="border border-[#8c681d] rounded-md p-5 text-white bg-[#1d1d1d] flex flex-col text-xl w-4/5 md:w-3/5 hover:bg-neutral-800 hover:border-[#8c681d]"
 					>C-corporation <span class="text-sm text-gray-400 my-1"
 						>Ideal para startups que planean buscar financiación externa.</span
 					></a
@@ -170,7 +170,7 @@ import imagenfondo from '../assets/background-dark.jpg'
 			<div class="flex justify-center mb-3 w-full">
 				<button
 					id="openBtn"
-					class="border border-[#8c681d] rounded-md p-5 text-white bg-[#1d1d1d] flex flex-col text-xl w-3/5 hover:bg-neutral-800 hover:border-[#8c681d] text-left"
+					class="border border-[#8c681d] rounded-md p-5 text-white bg-[#1d1d1d] flex flex-col text-xl w-4/5 md:w-3/5 hover:bg-neutral-800 hover:border-[#8c681d] text-left"
 					>Ayúdame a elegir <span class="text-sm text-gray-400 my-1"
 						>Agenda una consulta para obtener una recomendación personalizada</span
 					></button
@@ -186,18 +186,15 @@ import imagenfondo from '../assets/background-dark.jpg'
 <div
 	id="modalCard"
 	aria-hidden="true"
-	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-3rem)] max-h-full bg-neutral-800 bg-opacity-70"
+	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 max-h-full bg-neutral-800 bg-opacity-70"
 >
-	<div class="relative p-4 w-full max-w-2xl max-h-full">
+	<div class="relative p-4 w-full max-w-screen-lg">
 		<!-- Modal content -->
 		<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#1d1d1d]">
 			<!-- Modal header -->
 			<div
-				class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200"
+				class="flex items-center justify-between p-4 md:p-5 rounded-t dark:border-gray-600"
 			>
-				<h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-					Static modal
-				</h3>
 				<button
 					type="button"
 					id="closeBtn"
@@ -222,36 +219,54 @@ import imagenfondo from '../assets/background-dark.jpg'
 				</button>
 			</div>
 			<!-- Modal body -->
-			<div class="p-4 md:p-5 space-y-4">
-				<p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-					With less than a month to go before the European Union enacts new
-					consumer privacy laws for its citizens, companies around the world are
-					updating their terms of service agreements to comply.
+			<div
+				class="p-4 md:p-5 space-y-4 text-center flex-col justify-center items-center"
+			>
+				<h3
+					class="text-3xl font-semibold text-gray-900 dark:text-white text-center w-3/5 mx-auto mb-10"
+				>
+					Encuentre el tipo de entidad adecuado para su negocio
+				</h3>
+				<p
+					class="text-lg leading-relaxed text-gray-500 dark:text-gray-400 w-3/5 mx-auto my-10 text-justify"
+				>
+					La elección de tu entidad legal es el primer gran paso. Evita riesgos
+					fiscales y legales. Nuestros consultores te brindan una asesoría
+					gratuita para identificar la mejor opción para tu negocio, asegurando
+					un crecimiento sólido y protegido en EE. UU.
 				</p>
-				<p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-					The European Union’s General Data Protection Regulation (G.D.P.R.)
-					goes into effect on May 25 and is meant to ensure a common set of data
-					rights in the European Union. It requires organizations to notify
-					users as soon as possible of high-risk data breaches that could
-					personally affect them.
-				</p>
+				<div class="flex justify-center w-full h-full text-white mt-10">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="100"
+						height="100"
+						viewBox="0 0 24 24"
+						><g fill="none"
+							><path
+								fill="currentColor"
+								d="M2 9c0-1.886 0-2.828.586-3.414S4.114 5 6 5h12c1.886 0 2.828 0 3.414.586S22 7.114 22 9c0 .471 0 .707-.146.854C21.707 10 21.47 10 21 10H3c-.471 0-.707 0-.854-.146C2 9.707 2 9.47 2 9m0 9c0 1.886 0 2.828.586 3.414S4.114 22 6 22h12c1.886 0 2.828 0 3.414-.586S22 19.886 22 18v-5c0-.471 0-.707-.146-.854C21.707 12 21.47 12 21 12H3c-.471 0-.707 0-.854.146C2 12.293 2 12.53 2 13z"
+							></path><path
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-width="2"
+								d="M7 3v3m10-3v3"></path></g
+						></svg
+					>
+				</div>
 			</div>
 			<!-- Modal footer -->
 			<div
-				class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600"
+				class="flex items-center p-4 md:p-5 rounded-b dark:border-gray-600 justify-center"
 			>
-				<button
+				<a
 					type="button"
-					class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-					>I accept</button
-				>
-				<button
-					id="cerrar2"
-					type="button"
-					class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-					>Decline</button
+					href=""
+					class="text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-blue-800 w-3/5"
+					>Agendar una cita</a
 				>
 			</div>
+
+			<div class="h-[50px]"></div>
 		</div>
 	</div>
 </div>
@@ -260,7 +275,6 @@ import imagenfondo from '../assets/background-dark.jpg'
 	const boton = document.getElementById('openBtn');
 	const modal = document.getElementById('modalCard');
 	const cerrar = document.getElementById('closeBtn');
-	const cerrar2 = document.getElementById('cerrar2');
 
 	boton?.addEventListener('click', function () {
 		modal?.classList.remove('hidden');
@@ -271,15 +285,4 @@ import imagenfondo from '../assets/background-dark.jpg'
 		modal?.classList.add('hidden');
 		modal?.classList.remove('flex');
 	});
-
-	cerrar2?.addEventListener('click', function () {
-		modal?.classList.add('hidden');
-		modal?.classList.remove('flex');
-	});
 </script>
-
-<style>
-    .test{
-        background-image: url(../assets/);
-    }
-</style>
