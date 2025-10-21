@@ -1,267 +1,289 @@
 ---
-import { supabase } from "../../lib/supabase";
+import { supabase } from '../../lib/supabase';
 
 const { id } = Astro.params;
 
 const { cookies, redirect } = Astro;
 // 1) Restaurar sesión desde cookies
-const accessToken = cookies.get("sb-access-token");
-const refreshToken = cookies.get("sb-refresh-token");
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
 
 if (!accessToken || !refreshToken) {
-  return redirect("/sign-in");
+	return redirect('/sign-in');
 }
 
 await supabase.auth.setSession({
-  access_token: accessToken.value,
-  refresh_token: refreshToken.value,
+	access_token: accessToken.value,
+	refresh_token: refreshToken.value,
 });
 
 // 2) Obtener usuario
 const {
-  data: { user },
-  error: userErr,
+	data: { user },
+	error: userErr,
 } = await supabase.auth.getUser();
 
 if (userErr || !user) {
-  return redirect ("/sign-in");
-};
+	return redirect('/sign-in');
+}
 
 const { data: formulario, error } = await supabase
-  .from('formularios')
-  .select('form_id, titulo, descripcion, schema_json, tema_json')
-  .eq('form_id', id)
-  .single(); // .single() porque esperamos solo 1 resultado
+	.from('formularios')
+	.select('form_id, titulo, descripcion, schema_json, tema_json')
+	.eq('form_id', id)
+	.single(); // .single() porque esperamos solo 1 resultado
 
 // Si no existe, redirigir
 if (error || !formulario) {
-  return Astro.redirect('/');
+	return Astro.redirect('/');
 }
 
 const jsonConfig = formulario.schema_json;
 const themeJson = formulario.tema_json;
-
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <title>{formulario?.titulo}</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="/src/estilos/surveyjs.css" />
-    <script type="text/javascript" src="https://unpkg.com/survey-core@2.3.9/survey.core.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/survey-js-ui@2.3.9/survey-js-ui.min.js"></script>
-    
-</head>
-<body>
-    <input type="hidden" id="modal_form_id" value={formulario?.form_id} />
-    
-    <!-- Selector de idioma flotante -->
-<div class="fixed top-4 right-4 z-50 bg-neutral-800 p-3 rounded-lg shadow-md border border-gray-700">
-    <label for="languageSelector" class="text-sm font-medium text-white mr-2">🌐 Idioma:</label>
-    <select id="languageSelector" class="bg-gray-50 border border-gray-400 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2">
-        <option value="es">Español</option>
-        <option value="en">English</option>
-    </select>
-</div>
-    
-    <div id="surveyContainer" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; min-height: 100%; height:100%"></div>
-</body>
+	<head>
+		<title>{formulario?.titulo}</title>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" href="/src/estilos/surveyjs.css" />
+		<script
+			type="text/javascript"
+			src="https://unpkg.com/survey-core@2.3.9/survey.core.min.js"></script>
+		<script
+			type="text/javascript"
+			src="https://unpkg.com/survey-js-ui@2.3.9/survey-js-ui.min.js"></script>
+		<script>
+			import 'flowbite';
+		</script>
+	</head>
+	<body>
+		<input type="hidden" id="modal_form_id" value={formulario?.form_id} />
+
+		<!-- Selector de idioma flotante -->
+		<div
+			class="fixed top-4 right-4 z-50 bg-neutral-200 p-3 rounded-lg shadow-md border border-gray-700"
+		>
+			<label for="languageSelector" class="text-sm font-medium text-black mr-2"
+				>🌐 Idioma:</label
+			>
+			<select
+				id="languageSelector"
+				class="border border-gray-400 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 bg-neutral-200 text-black"
+			>
+				<option value="es">Español</option>
+				<option value="en">English</option>
+			</select>
+		</div>
+
+		<div
+			id="surveyContainer"
+			style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; min-height: 100%; height:100%"
+		>
+		</div>
+	</body>
 </html>
 <script type="module" define:vars={{ jsonConfig, themeJson }}>
-  // === CONFIGURACIÓN DE TRADUCCIÓN ===
-  // Traducciones al español
-  const spanishTranslations = {
-    pagePrevText: "Anterior",
-    pageNextText: "Siguiente",
-    completeText: "Completar",
-    otherItemText: "Otro (especificar)",
-    noneItemText: "Ninguno",
-    selectAllItemText: "Seleccionar todos",
-    progressText: "Página {0} de {1}",
-    emptyRowsText: "No hay filas",
-    requiredError: "Este campo es obligatorio",
-    requiredInAllRowsError: "Todos los campos son obligatorios",
-    numericError: "Debe ser un número",
-    textMinLength: "Debe tener al menos {0} caracteres",
-    textMaxLength: "No debe exceder {0} caracteres",
-    textMinMaxLength: "Debe tener entre {0} y {1} caracteres",
-    minRowCountError: "Debe tener al menos {0} filas",
-    minSelectError: "Seleccione al menos {0} opciones",
-    maxSelectError: "No seleccione más de {0} opciones",
-    numericMinMax: "Debe ser entre {0} y {1}",
-    numericMin: "Debe ser al menos {0}",
-    numericMax: "No debe exceder {0}",
-    invalidEmail: "Ingrese un email válido",
-    invalidExpression: "La expresión {0} debe devolver 'verdadero'",
-    loadingFile: "Cargando...",
-    chooseFile: "Seleccionar archivo(s)...",
-    noFileChosen: "No se seleccionó archivo",
-    confirmDelete: "¿Está seguro de que desea eliminar?",
-    keyDuplicationError: "Este valor debe ser único",
-    addRow: "Agregar fila",
-    removeRow: "Eliminar",
-    addPanel: "Agregar nuevo",
-    removePanel: "Eliminar",
-    choices_Item: "opción",
-    savingData: "Guardando...",
-    savingDataError: "Ocurrió un error al guardar",
-    savingDataSuccess: "Datos guardados exitosamente",
-    timerLimitPage: "Tiempo en esta página: {0} de {1}.",
-    timerLimitSurvey: "Tiempo total: {0} de {1}.",
-    clearCaption: "Limpiar",
-    signaturePlaceHolder: "Firme aquí",
-    chooseCaption: "Seleccionar",
-    removeFileCaption: "Eliminar archivo"
-  };
+	// === CONFIGURACIÓN DE TRADUCCIÓN ===
+	// Traducciones al español
+	const spanishTranslations = {
+		pagePrevText: 'Anterior',
+		pageNextText: 'Siguiente',
+		completeText: 'Completar',
+		otherItemText: 'Otro (especificar)',
+		noneItemText: 'Ninguno',
+		selectAllItemText: 'Seleccionar todos',
+		progressText: 'Página {0} de {1}',
+		emptyRowsText: 'No hay filas',
+		requiredError: 'Este campo es obligatorio',
+		requiredInAllRowsError: 'Todos los campos son obligatorios',
+		numericError: 'Debe ser un número',
+		textMinLength: 'Debe tener al menos {0} caracteres',
+		textMaxLength: 'No debe exceder {0} caracteres',
+		textMinMaxLength: 'Debe tener entre {0} y {1} caracteres',
+		minRowCountError: 'Debe tener al menos {0} filas',
+		minSelectError: 'Seleccione al menos {0} opciones',
+		maxSelectError: 'No seleccione más de {0} opciones',
+		numericMinMax: 'Debe ser entre {0} y {1}',
+		numericMin: 'Debe ser al menos {0}',
+		numericMax: 'No debe exceder {0}',
+		invalidEmail: 'Ingrese un email válido',
+		invalidExpression: "La expresión {0} debe devolver 'verdadero'",
+		loadingFile: 'Cargando...',
+		chooseFile: 'Seleccionar archivo(s)...',
+		noFileChosen: 'No se seleccionó archivo',
+		confirmDelete: '¿Está seguro de que desea eliminar?',
+		keyDuplicationError: 'Este valor debe ser único',
+		addRow: 'Agregar fila',
+		removeRow: 'Eliminar',
+		addPanel: 'Agregar nuevo',
+		removePanel: 'Eliminar',
+		choices_Item: 'opción',
+		savingData: 'Guardando...',
+		savingDataError: 'Ocurrió un error al guardar',
+		savingDataSuccess: 'Datos guardados exitosamente',
+		timerLimitPage: 'Tiempo en esta página: {0} de {1}.',
+		timerLimitSurvey: 'Tiempo total: {0} de {1}.',
+		clearCaption: 'Limpiar',
+		signaturePlaceHolder: 'Firme aquí',
+		chooseCaption: 'Seleccionar',
+		removeFileCaption: 'Eliminar archivo',
+	};
 
-  // Registrar traducciones
-  Survey.surveyLocalization.locales["es"] = spanishTranslations;
-  
-  // Idioma por defecto (puedes cambiarlo a "en" si prefieres inglés por defecto)
-  Survey.surveyLocalization.currentLocale = "es";
+	// Registrar traducciones
+	Survey.surveyLocalization.locales['es'] = spanishTranslations;
 
-  // Crear Survey
-  const survey = new Survey.Model(jsonConfig);
-  survey.locale = "es"; // Español por defecto
-  
-  if (typeof themeJson !== "undefined") survey.applyTheme(themeJson);
+	// Idioma por defecto (puedes cambiarlo a "en" si prefieres inglés por defecto)
+	Survey.surveyLocalization.currentLocale = 'es';
 
-  // === SELECTOR DE IDIOMA ===
-  const languageSelector = document.getElementById('languageSelector');
-  
-  // Establecer valor inicial
-  languageSelector.value = survey.locale;
-  
-  // Manejar cambio de idioma
-  languageSelector.addEventListener('change', function() {
-    const selectedLanguage = this.value;
-    survey.locale = selectedLanguage;
-    
-    // Opcional: Guardar preferencia en localStorage
-    try {
-      localStorage.setItem('survey-language-preference', selectedLanguage);
-    } catch (e) {
-      console.warn('No se pudo guardar preferencia de idioma:', e);
-    }
-  });
+	// Crear Survey
+	const survey = new Survey.Model(jsonConfig);
+	survey.locale = 'es'; // Español por defecto
 
-  // Opcional: Cargar preferencia guardada
-  try {
-    const savedLanguage = localStorage.getItem('survey-language-preference');
-    if (savedLanguage && (savedLanguage === 'es' || savedLanguage === 'en')) {
-      survey.locale = savedLanguage;
-      languageSelector.value = savedLanguage;
-    }
-  } catch (e) {
-    console.warn('No se pudo cargar preferencia de idioma:', e);
-  }
+	if (typeof themeJson !== 'undefined') survey.applyTheme(themeJson);
 
-  // ID del form (para cache y backend)
-  const formId =
-    document.querySelector('#modal_form_id')?.value?.trim() ||
-    document.querySelector('input[name="service_id"]')?.value?.trim() ||
-    '';
+	// === SELECTOR DE IDIOMA ===
+	const languageSelector = document.getElementById('languageSelector');
 
-  // Valida UUID simple (evita requests con IDs inválidos)
-  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  if (!UUID_RE.test(formId)) {
-    console.warn("[Survey] form_id inválido o ausente. No se harán requests al backend.", { formId });
-  }
+	// Establecer valor inicial
+	languageSelector.value = survey.locale;
 
-  // === CACHE LOCAL ===
-  const STORAGE_KEY = `survey:${formId || 'unknown'}:state`;
+	// Manejar cambio de idioma
+	languageSelector.addEventListener('change', function () {
+		const selectedLanguage = this.value;
+		survey.locale = selectedLanguage;
 
-  // Restaura estado si existe
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const state = JSON.parse(saved);
-      if (state?.data) survey.data = state.data;
-      if (Number.isInteger(state?.page)) survey.currentPageNo = state.page;
-    }
-  } catch { /* ignore */ }
+		// Opcional: Guardar preferencia en localStorage
+		try {
+			localStorage.setItem('survey-language-preference', selectedLanguage);
+		} catch (e) {
+			console.warn('No se pudo guardar preferencia de idioma:', e);
+		}
+	});
 
-  // Guardado local (debounce sencillo)
-  const saveLocal = (() => {
-    let t;
-    return () => {
-      clearTimeout(t);
-      t = setTimeout(() => {
-        try {
-          localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify({ data: survey.data, page: survey.currentPageNo })
-          );
-        } catch (e) {
-          console.warn('No se pudo guardar en localStorage:', e);
-        }
-      }, 200);
-    };
-  })();
+	// Opcional: Cargar preferencia guardada
+	try {
+		const savedLanguage = localStorage.getItem('survey-language-preference');
+		if (savedLanguage && (savedLanguage === 'es' || savedLanguage === 'en')) {
+			survey.locale = savedLanguage;
+			languageSelector.value = savedLanguage;
+		}
+	} catch (e) {
+		console.warn('No se pudo cargar preferencia de idioma:', e);
+	}
 
-  // === AUTOSAVE BACKEND (borrador) === -> /api/forms/envio
-  async function autosaveDraft() {
-    if (!UUID_RE.test(formId)) return; // evita 400 si no hay UUID
-    try {
-      const progress = survey.pages?.length
-        ? Math.round(((survey.currentPageNo + 1) / survey.pages.length) * 100)
-        : null;
+	// ID del form (para cache y backend)
+	const formId =
+		document.querySelector('#modal_form_id')?.value?.trim() ||
+		document.querySelector('input[name="service_id"]')?.value?.trim() ||
+		'';
 
-      await fetch("/api/forms/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          form_id: formId,
-          data: survey.data,          // solo respondidas hasta ahora
-          progress_percent: progress, // 0..100
-          finalize: false             // borrador
-        }),
-      });
-    } catch (e) {
-      console.warn("Autosave draft falló:", e);
-    }
-  }
+	// Valida UUID simple (evita requests con IDs inválidos)
+	const UUID_RE =
+		/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+	if (!UUID_RE.test(formId)) {
+		console.warn(
+			'[Survey] form_id inválido o ausente. No se harán requests al backend.',
+			{ formId },
+		);
+	}
 
-  // Guardar local en cada cambio de valor
-  survey.onValueChanged.add(saveLocal);
+	// === CACHE LOCAL ===
+	const STORAGE_KEY = `survey:${formId || 'unknown'}:state`;
 
-  // Al cambiar de página: guarda local + autosave backend
-  survey.onCurrentPageChanged.add(() => {
-    saveLocal();
-    autosaveDraft();
-  });
+	// Restaura estado si existe
+	try {
+		const saved = localStorage.getItem(STORAGE_KEY);
+		if (saved) {
+			const state = JSON.parse(saved);
+			if (state?.data) survey.data = state.data;
+			if (Number.isInteger(state?.page)) survey.currentPageNo = state.page;
+		}
+	} catch {
+		/* ignore */
+	}
 
-  // (opcional) limpiar invisibles al completar (default)
-  survey.clearInvisibleValues = "onComplete";
+	// Guardado local (debounce sencillo)
+	const saveLocal = (() => {
+		let t;
+		return () => {
+			clearTimeout(t);
+			t = setTimeout(() => {
+				try {
+					localStorage.setItem(
+						STORAGE_KEY,
+						JSON.stringify({ data: survey.data, page: survey.currentPageNo }),
+					);
+				} catch (e) {
+					console.warn('No se pudo guardar en localStorage:', e);
+				}
+			}, 200);
+		};
+	})();
 
-  // Submit final -> /api/forms/envio con finalize:true
-  survey.onComplete.add(async (sender) => {
-    if (!UUID_RE.test(formId)) {
-      console.error("[Survey] form_id inválido: no se puede enviar.");
-      return;
-    }
-    const payload = { form_id: formId, data: sender.data, finalize: true };
+	// === AUTOSAVE BACKEND (borrador) === -> /api/forms/envio
+	async function autosaveDraft() {
+		if (!UUID_RE.test(formId)) return; // evita 400 si no hay UUID
+		try {
+			const progress = survey.pages?.length
+				? Math.round(((survey.currentPageNo + 1) / survey.pages.length) * 100)
+				: null;
 
-    try {
-      const res = await fetch("/api/forms/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const out = await res.json().catch(() => ({}));
-      if (!res.ok || !out.ok) {
-        console.error("Submit error:", out);
-      } else {
-        console.log("OK submission_id:", out.id);
-        // limpiar cache local al final
-        localStorage.removeItem(STORAGE_KEY);
-      }
-    } catch (e) {
-      console.error("Submit falló:", e);
-    }
-  });
+			await fetch('/api/forms/submit', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					form_id: formId,
+					data: survey.data, // solo respondidas hasta ahora
+					progress_percent: progress, // 0..100
+					finalize: false, // borrador
+				}),
+			});
+		} catch (e) {
+			console.warn('Autosave draft falló:', e);
+		}
+	}
 
-  // Render
-  survey.render(document.getElementById("surveyContainer"));
+	// Guardar local en cada cambio de valor
+	survey.onValueChanged.add(saveLocal);
+
+	// Al cambiar de página: guarda local + autosave backend
+	survey.onCurrentPageChanged.add(() => {
+		saveLocal();
+		autosaveDraft();
+	});
+
+	// (opcional) limpiar invisibles al completar (default)
+	survey.clearInvisibleValues = 'onComplete';
+
+	// Submit final -> /api/forms/envio con finalize:true
+	survey.onComplete.add(async (sender) => {
+		if (!UUID_RE.test(formId)) {
+			console.error('[Survey] form_id inválido: no se puede enviar.');
+			return;
+		}
+		const payload = { form_id: formId, data: sender.data, finalize: true };
+
+		try {
+			const res = await fetch('/api/forms/submit', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload),
+			});
+			const out = await res.json().catch(() => ({}));
+			if (!res.ok || !out.ok) {
+				console.error('Submit error:', out);
+			} else {
+				console.log('OK submission_id:', out.id);
+				// limpiar cache local al final
+				localStorage.removeItem(STORAGE_KEY);
+			}
+		} catch (e) {
+			console.error('Submit falló:', e);
+		}
+	});
+
+	// Render
+	survey.render(document.getElementById('surveyContainer'));
 </script>
