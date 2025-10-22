@@ -19,7 +19,6 @@
 					type="button"
 					id="closeBtn"
 					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-					data-modal-hide="static-modal"
 				>
 					<svg
 						class="w-3 h-3"
@@ -81,7 +80,7 @@
 				<a
 					type="button"
 					href=""
-					class="text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-base px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-blue-800 w-3/5"
+					class="text-white focus:ring-4 focus:outline-none focus:ring-neutral-500 font-medium rounded-lg text-base px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-neutral-500 w-3/5"
 					>Agendar una cita</a
 				>
 			</div>
@@ -102,17 +101,20 @@
 			</p>
 		</div>
 		<ol class="overflow-hidden space-y-8 w-full mt-8">
-			<li 
-                id="stepli-1"
+			<li
+				id="stepli-1"
 				class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:bg-[#8c681d] after:inline-block after:absolute after:-bottom-11 after:left-1/4"
 			>
-				<div class="flex items-center justify-center gap-8 w-full max-w-sm">
+				<button
+					class="flex items-center justify-center gap-8 w-full max-w-sm"
+					id="paso1btn"
+				>
 					<div
-                        id="stepdiv1-1"
-						class="flex items-center gap-3.5 bg-neutral-800 p-3.5 rounded-xl relative z-10 border border-[#8c681d] w-full"
+						id="stepdiv1-1"
+						class="flex items-center gap-3.5 bg-neutral-800 p-3.5 rounded-xl relative z-10 border border-[#8c681d] w-full text-left"
 					>
 						<div
-                            id="stepdiv2-1"
+							id="stepdiv2-1"
 							class="rounded-lg bg-[#8c681d] flex items-center justify-center"
 						>
 							<span id="stepspan-1" class="text-white p-3">
@@ -131,7 +133,10 @@
 							</span>
 						</div>
 						<div class="flex items-start rounded-md justify-center flex-col">
-							<h6 id="steph6-1" class="text-base font-semibold text-white mb-0.5">
+							<h6
+								id="steph6-1"
+								class="text-base font-semibold text-white mb-0.5"
+							>
 								Tipo de empresa
 							</h6>
 							<p id="stepp-1" class="text-xs font-normal text-gray-400">
@@ -140,112 +145,116 @@
 							</p>
 						</div>
 					</div>
-					<li
-                        id="stepli-2"
-						class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:bg-gray-200 after:inline-block after:absolute after:-bottom-12 after:left-1/4"
+				</button>
+			</li>
+			<li
+				id="stepli-2"
+				class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:bg-gray-200 after:inline-block after:absolute after:-bottom-12 after:left-1/4"
+			>
+				<button
+					class="flex items-center justify-center gap-8 w-full max-w-sm text-left"
+					id="paso2btn"
+				>
+					<div
+						id="stepdiv1-2"
+						class="flex items-center gap-3.5 bg-[#1d1d1d] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
 					>
-						<div class="flex items-center justify-center gap-8 w-full max-w-sm">
-							<div
-                                id="stepdiv1-2"
-								class="flex items-center gap-3.5 bg-[#1d1d1d] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
+						<div
+							id="stepdiv2-2"
+							class="rounded-lg bg-neutral-800 group-hover:bg-[#8c681d] flex items-center justify-center transition-all"
+						>
+							<span
+								id="stepspan-2"
+								class="text-gray-600 p-3 group-hover:text-white transition-all"
 							>
-								<div
-                                    id="stepdiv2-2"
-									class="rounded-lg bg-neutral-800 group-hover:bg-[#8c681d] flex items-center justify-center transition-all"
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									><path
+										fill="none"
+										stroke="currentColor"
+										stroke-linecap="square"
+										stroke-width="2"
+										d="M16 19H8v-2.024a1 1 0 0 1 .37-.776l6.128-4.98A4.07 4.07 0 0 0 16 8.065V8a4 4 0 0 0-8 0"
+									></path></svg
 								>
-									<span
-                                        id="stepspan-2"
-										class="text-gray-600 p-3 group-hover:text-white transition-all"
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="24"
-											height="24"
-											viewBox="0 0 24 24"
-											><path
-												fill="none"
-												stroke="currentColor"
-												stroke-linecap="square"
-												stroke-width="2"
-												d="M16 19H8v-2.024a1 1 0 0 1 .37-.776l6.128-4.98A4.07 4.07 0 0 0 16 8.065V8a4 4 0 0 0-8 0"
-											></path></svg
-										>
-									</span>
-								</div>
-								<div
-									class="flex items-start rounded-md justify-center flex-col"
-								>
-									<h6
-                                        id="steph6-2"
-										class="text-base font-semibold text-gray-500 mb-0.5 group-hover:text-white transition-all"
-									>
-										Estado de registro
-									</h6>
-									<p
-                                        id="stepp-2"
-										class="text-xs font-normal text-gray-500 group-hover:text-gray-400 transition-all"
-									>
-										Elija su estado de registro
-									</p>
-								</div>
-							</div>
+							</span>
 						</div>
-					</li>
-					<li id="stepli-3" class="relative flex-1">
-						<div class="flex items-center justify-center gap-8 w-full max-w-sm">
-							<div
-                                id="stepdiv1-3"
-								class="flex items-center gap-3.5 bg-[#1d1d1d] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
+						<div class="flex items-start rounded-md justify-center flex-col">
+							<h6
+								id="steph6-2"
+								class="text-base font-semibold text-gray-500 mb-0.5 group-hover:text-white transition-all"
 							>
-								<div
-                                    id="stepdiv2-3"
-									class="rounded-lg bg-neutral-800 group-hover:bg-[#8c681d] flex items-center justify-center transition-all"
-								>
-									<span
-                                        id="stepspan-3"
-										class="text-gray-600 p-3 group-hover:text-white transition-all"
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="24"
-											height="24"
-											viewBox="0 0 24 24"
-											><path
-												fill="none"
-												stroke="currentColor"
-												stroke-linecap="square"
-												stroke-width="2"
-												d="M8.5 5h7v1.5l-5 3.5v1H12a4 4 0 0 1 0 8h-.5a4 4 0 0 1-4-4"
-											></path></svg
-										>
-									</span>
-								</div>
-								<div
-									class="flex items-start rounded-md justify-center flex-col"
-								>
-									<h6
-                                        id="steph6-3"
-										class="text-base font-semibold text-gray-500 mb-0.5 group-hover:text-white transition-all"
-									>
-										Revisar y pagar
-									</h6>
-									<p
-                                        id="stepp-3"
-										class="text-xs font-normal text-gray-500 group-hover:text-gray-400 transition-all"
-									>
-										Una vez realizado el pago, comenzaremos a formar su nueva
-										empresa
-									</p>
-								</div>
-							</div>
+								Estado de registro
+							</h6>
+							<p
+								id="stepp-2"
+								class="text-xs font-normal text-gray-500 group-hover:text-gray-400 transition-all"
+							>
+								Elija su estado de registro
+							</p>
 						</div>
-					</li>
-				</div>
+					</div>
+				</button>
+			</li>
+			<li id="stepli-3" class="relative flex-1">
+				<button
+					class="flex items-center justify-center gap-8 w-full max-w-sm text-left"
+					id="paso3btn"
+				>
+					<div
+						id="stepdiv1-3"
+						class="flex items-center gap-3.5 bg-[#1d1d1d] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
+					>
+						<div
+							id="stepdiv2-3"
+							class="rounded-lg bg-neutral-800 group-hover:bg-[#8c681d] flex items-center justify-center transition-all"
+						>
+							<span
+								id="stepspan-3"
+								class="text-gray-600 p-3 group-hover:text-white transition-all"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									><path
+										fill="none"
+										stroke="currentColor"
+										stroke-linecap="square"
+										stroke-width="2"
+										d="M8.5 5h7v1.5l-5 3.5v1H12a4 4 0 0 1 0 8h-.5a4 4 0 0 1-4-4"
+									></path></svg
+								>
+							</span>
+						</div>
+						<div class="flex items-start rounded-md justify-center flex-col">
+							<h6
+								id="steph6-3"
+								class="text-base font-semibold text-gray-500 mb-0.5 group-hover:text-white transition-all"
+							>
+								Revisar y pagar
+							</h6>
+							<p
+								id="stepp-3"
+								class="text-xs font-normal text-gray-500 group-hover:text-gray-400 transition-all"
+							>
+								Una vez realizado el pago, comenzaremos a formar su nueva
+								empresa
+							</p>
+						</div>
+					</div>
+				</button>
 			</li>
 		</ol>
-		<div
-			class="rounded-lg w-full flex justify-center flex-col items-center mt-16 h-full drop-shadow-xl place-self-center test bg-center bg-cover bg-neutral-700 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-20 backdrop-saturate-100 backdrop-contrast-100 py-20"
-		>
+	</div>
+	<div
+		class="rounded-lg w-full flex justify-center flex-col items-center mt-16 h-full drop-shadow-xl place-self-center test bg-center bg-cover bg-neutral-700 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-20 backdrop-saturate-100 backdrop-contrast-100 py-20"
+	>
+		<form action="" method="post">
 			<div id="paso1">
 				<div class="text-center pb-10">
 					<h3 class="text-white text-3xl">Estructura de la empresa</h3>
@@ -257,14 +266,14 @@
 					<li class="md:w-3/5 w-4/5">
 						<input
 							type="radio"
-							id="hosting-small"
-							name="hosting"
-							value="hosting-small"
+							id="LLC_radio_btn"
+							name="tipo_de_empresa"
+							value="LLC"
 							class="hidden peer"
 							required
 						/>
 						<label
-							for="hosting-small"
+							for="LLC_radio_btn"
 							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d]"
 						>
 							<div class="block">
@@ -292,13 +301,13 @@
 					<li class="md:w-3/5 w-4/5">
 						<input
 							type="radio"
-							id="hosting-big"
-							name="hosting"
-							value="hosting-big"
+							id="C_coorp_btn_radio"
+							name="tipo_de_empresa"
+							value="C-corporation"
 							class="hidden peer"
 						/>
 						<label
-							for="hosting-big"
+							for="C_coorp_btn_radio"
 							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d]"
 						>
 							<div class="block">
@@ -352,8 +361,128 @@
 						</button>
 					</li>
 				</ul>
+				<div class="w-full flex justify-center mt-8">
+					<button
+						type="button"
+						id="continuarBtn"
+						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 shadow-lg shadow-[#c9972e]/50 dark:shadow-lg dark:shadow-[#c9972e]/50 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
+						>Continuar</button
+					>
+				</div>
 			</div>
-		</div>
+			<div id="paso2" class="hidden">
+				<div class="text-center pb-10">
+					<h3 class="text-white text-3xl">Elija el estado de registro</h3>
+				</div>
+				<ul class="grid w-full gap-6 place-items-center">
+					<li class="md:w-3/5 w-4/5">
+						<input
+							type="radio"
+							id="LLC_radio_btn"
+							name="tipo_de_empresa"
+							value="LLC"
+							class="hidden peer"
+							required
+						/>
+						<label
+							for="LLC_radio_btn"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d]"
+						>
+							<div class="block">
+								<div class="w-full text-lg font-semibold">LLC</div>
+								<div class="w-full text-sm">
+									Tarifas mínimas + privacidad y flexibilidad inigualables.
+								</div>
+							</div>
+							<svg
+								class="w-5 h-5 ms-3 rtl:rotate-180"
+								aria-hidden="true"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 14 10"
+							>
+								<path
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+							</svg>
+						</label>
+					</li>
+					<li class="md:w-3/5 w-4/5">
+						<input
+							type="radio"
+							id="C_coorp_btn_radio"
+							name="tipo_de_empresa"
+							value="C-corporation"
+							class="hidden peer"
+						/>
+						<label
+							for="C_coorp_btn_radio"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d]"
+						>
+							<div class="block">
+								<div class="w-full text-lg font-semibold">C-corporation</div>
+								<div class="w-full text-sm">
+									Ideal para startups que planean buscar financiación externa.
+								</div>
+							</div>
+							<svg
+								class="w-5 h-5 ms-3 rtl:rotate-180"
+								aria-hidden="true"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 14 10"
+							>
+								<path
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+							</svg>
+						</label>
+					</li>
+					<li class="md:w-3/5 w-4/5">
+						<button
+							id="openBtn"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:focus:text-[#8c681d] focus:border-[#8c681d] dark:focus:border-[#8c681d] focus:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:focus:bg-[#1d1d1d] text-left"
+						>
+							<div class="block">
+								<div class="w-full text-lg font-semibold">Ayúdame a elegir</div>
+								<div class="w-full text-sm">
+									Responda nuestro cuestionario LLC vs. C Corp para obtener una
+									recomendación personalizada.
+								</div>
+							</div>
+							<svg
+								class="w-5 h-5 ms-3 rtl:rotate-180"
+								aria-hidden="true"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 14 10"
+							>
+								<path
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+							</svg>
+						</button>
+					</li>
+				</ul>
+				<div class="w-full flex justify-center mt-8">
+					<button
+						type="button"
+						id="continuarBtn"
+						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 shadow-lg shadow-[#c9972e]/50 dark:shadow-lg dark:shadow-[#c9972e]/50 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
+						>Continuar</button
+					>
+				</div>
+			</div>
+		</form>
 	</div>
 </div>
 
@@ -372,22 +501,216 @@
 		modal?.classList.remove('flex');
 	});
 
-    //logica del stepper
+	//logica del stepper
+	let pasoActual = 0;
 
-    // variables activas 
-    const activoli = "relative flex-1 after:content-[''] after:w-0.5 after:h-full after:bg-[#8c681d] after:inline-block after:absolute after:-bottom-11 after:left-1/4";
-    const activodiv1 = "flex items-center gap-3.5 bg-neutral-800 p-3.5 rounded-xl relative z-10 border border-[#8c681d] w-full";
-    const activodiv2 = "rounded-lg bg-[#8c681d] flex items-center justify-center";
-    const activospan = "text-white p-3";
-    const activoh6 = "text-base font-semibold text-white mb-0.5";
-    const activop = "text-xs font-normal text-gray-400"; 
+	// variables activas
+	const activoli = [
+		'relative',
+		'flex-1',
+		"after:content-['']",
+		'after:w-0.5',
+		'after:h-full',
+		'after:bg-[#8c681d]',
+		'after:inline-block',
+		'after:absolute',
+		'after:-bottom-11',
+		'after:left-1/4',
+	];
+	const activodiv1 = [
+		'flex',
+		'items-center',
+		'gap-3.5',
+		'bg-neutral-800',
+		'p-3.5',
+		'rounded-xl',
+		'relative',
+		'z-10',
+		'border',
+		'border-[#8c681d]',
+		'w-full',
+	];
+	const activodiv2 = [
+		'rounded-lg',
+		'bg-[#8c681d]',
+		'flex',
+		'items-center',
+		'justify-center',
+	];
+	const activospan = ['text-white', 'p-3'];
+	const activoh6 = ['text-base', 'font-semibold', 'text-white', 'mb-0.5'];
+	const activop = ['text-xs', 'font-normal', 'text-gray-400'];
 
-    // variables inactivas
-    const inactivoli = "relative flex-1 after:content-[''] after:w-0.5 after:h-full after:bg-gray-200 after:inline-block after:absolute after:-bottom-12 after:left-1/4";
-    const inactivodiv1 = "flex items-center gap-3.5 bg-[#1d1d1d] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group";
-    const inactivospan = "text-gray-600 p-3 group-hover:text-white transition-all";
-    const inactivoh6 = "text-base font-semibold text-gray-500 mb-0.5 group-hover:text-white transition-all";
-    const inactivop = "text-xs font-normal text-gray-500 group-hover:text-gray-400 transition-all";
+	// variables inactivas
+	const inactivoli = [
+		'relative',
+		'flex-1',
+		"after:content-['']",
+		'after:w-0.5',
+		'after:h-full',
+		'after:bg-gray-200',
+		'after:inline-block',
+		'after:absolute',
+		'after:-bottom-12',
+		'after:left-1/4',
+	];
+	const inactivodiv1 = [
+		'flex',
+		'items-center',
+		'gap-3.5',
+		'bg-[#1d1d1d]',
+		'p-3.5',
+		'rounded-xl',
+		'relative',
+		'z-10',
+		'border',
+		'hover:border-[#8c681d]',
+		'w-full',
+		'border-transparent',
+		'transition-all',
+		'group',
+	];
+	const inactivodiv2 = [
+		'rounded-lg',
+		'bg-neutral-800',
+		'group-hover:bg-[#8c681d]',
+		'flex',
+		'items-center',
+		'justify-center',
+		'transition-all',
+	];
+	const inactivospan = [
+		'text-gray-600',
+		'p-3',
+		'group-hover:text-white',
+		'transition-all',
+	];
+	const inactivoh6 = [
+		'text-base',
+		'font-semibold',
+		'text-gray-500',
+		'mb-0.5',
+		'group-hover:text-white',
+		'transition-all',
+	];
+	const inactivop = [
+		'text-xs',
+		'font-normal',
+		'text-gray-500',
+		'group-hover:text-gray-400',
+		'transition-all',
+	];
 
-    
+	//botones y elementos
+	const botonstep1 = document.getElementById('paso1btn');
+	const botonstep2 = document.getElementById('paso2btn');
+	const botonstep3 = document.getElementById('paso3btn');
+
+	const formstep1 = document.getElementById('paso1');
+	const formstep2 = document.getElementById('paso2');
+
+	//elementos
+	const elementos = [
+		{
+			li: document.getElementById('stepli-1'),
+			div1: document.getElementById('stepdiv1-1'),
+			div2: document.getElementById('stepdiv2-1'),
+			span: document.getElementById('stepspan-1'),
+			h6: document.getElementById('steph6-1'),
+			p: document.getElementById('stepp-1'),
+		},
+		{
+			li: document.getElementById('stepli-2'),
+			div1: document.getElementById('stepdiv1-2'),
+			div2: document.getElementById('stepdiv2-2'),
+			span: document.getElementById('stepspan-2'),
+			h6: document.getElementById('steph6-2'),
+			p: document.getElementById('stepp-2'),
+		},
+		{
+			li: document.getElementById('stepli-3'),
+			div1: document.getElementById('stepdiv1-3'),
+			div2: document.getElementById('stepdiv2-3'),
+			span: document.getElementById('stepspan-3'),
+			h6: document.getElementById('steph6-3'),
+			p: document.getElementById('stepp-3'),
+		},
+	];
+
+	function aplicarClases(elemento: HTMLElement | null, clases: string[]) {
+		if (elemento) {
+			elemento.classList.add(...clases);
+		}
+	}
+
+	function removerClases(elemento: HTMLElement | null, clases: string[]) {
+		if (elemento) {
+			elemento.classList.remove(...clases);
+		}
+	}
+
+	function activarPaso(pasoActivo: number) {
+		pasoActual = pasoActivo;
+		elementos.forEach((paso, index) => {
+			const esActivo = index === pasoActivo;
+
+			if (esActivo) {
+				// Aplicar clases activas
+				removerClases(paso.li, inactivoli);
+				removerClases(paso.div1, inactivodiv1);
+				removerClases(paso.div2, inactivodiv2);
+				removerClases(paso.span, inactivospan);
+				removerClases(paso.h6, inactivoh6);
+				removerClases(paso.p, inactivop);
+
+				aplicarClases(paso.li, activoli);
+				aplicarClases(paso.div1, activodiv1);
+				aplicarClases(paso.div2, activodiv2);
+				aplicarClases(paso.span, activospan);
+				aplicarClases(paso.h6, activoh6);
+				aplicarClases(paso.p, activop);
+			} else {
+				// Aplicar clases inactivas
+				removerClases(paso.li, activoli);
+				removerClases(paso.div1, activodiv1);
+				removerClases(paso.div2, activodiv2);
+				removerClases(paso.span, activospan);
+				removerClases(paso.h6, activoh6);
+				removerClases(paso.p, activop);
+
+				aplicarClases(paso.li, inactivoli);
+				aplicarClases(paso.div1, inactivodiv1);
+				aplicarClases(paso.div2, inactivodiv2);
+				aplicarClases(paso.span, inactivospan);
+				aplicarClases(paso.h6, inactivoh6);
+				aplicarClases(paso.p, inactivop);
+			}
+		});
+	}
+
+	// eventos
+	botonstep1?.addEventListener('click', () => activarPaso(0));
+	botonstep2?.addEventListener('click', () => activarPaso(1));
+	botonstep3?.addEventListener('click', () => activarPaso(2));
+
+	const botonContinuar = document.getElementById('continuarBtn');
+	botonContinuar?.addEventListener('click', function () {
+		const siguientePaso = (pasoActual + 1) % elementos.length;
+		activarPaso(siguientePaso);
+		formstep1?.classList.add('hidden');
+		formstep2?.classList.remove('hidden');
+	});
+
+	botonstep1?.addEventListener('click', function(){
+		formstep1?.classList.remove('hidden');
+		formstep2?.classList.add('hidden');
+	});
+
+	botonstep2?.addEventListener('click', function(){
+		formstep1?.classList.add('hidden');
+		formstep2?.classList.remove('hidden');
+	});
+
+	// Inicializar con el primer paso activo
+	activarPaso(0);
 </script>
