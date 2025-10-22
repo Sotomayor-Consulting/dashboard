@@ -378,99 +378,129 @@
 					<li class="md:w-3/5 w-4/5">
 						<input
 							type="radio"
-							id="LLC_radio_btn"
-							name="tipo_de_empresa"
-							value="LLC"
+							id="estado_empresa"
+							name="estado_de_empresa"
+							value="Delaware"
 							class="hidden peer"
 							required
 						/>
 						<label
-							for="LLC_radio_btn"
+							for="estado_empresa"
 							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d]"
 						>
 							<div class="block">
-								<div class="w-full text-lg font-semibold">LLC</div>
+								<div class="w-full text-lg font-semibold">Delaware</div>
 								<div class="w-full text-sm">
-									Tarifas mínimas + privacidad y flexibilidad inigualables.
+									Recomendado para corporaciones C debido a las sólidas
+									protecciones legales para los accionistas y las rigurosas
+									leyes comerciales. No paga impuesto estatal sobre la renta si
+									opera en otros estados.
 								</div>
 							</div>
-							<svg
-								class="w-5 h-5 ms-3 rtl:rotate-180"
-								aria-hidden="true"
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 14 10"
-							>
-								<path
-									stroke="currentColor"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-							</svg>
 						</label>
 					</li>
 					<li class="md:w-3/5 w-4/5">
 						<input
 							type="radio"
-							id="C_coorp_btn_radio"
-							name="tipo_de_empresa"
-							value="C-corporation"
+							id="estado_empresa_Wyoming"
+							name="estado_de_empresa"
+							value="Wyoming"
 							class="hidden peer"
 						/>
 						<label
-							for="C_coorp_btn_radio"
+							for="estado_empresa_Wyoming"
 							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d]"
 						>
 							<div class="block">
-								<div class="w-full text-lg font-semibold">C-corporation</div>
+								<div class="w-full text-lg font-semibold">Wyoming</div>
 								<div class="w-full text-sm">
-									Ideal para startups que planean buscar financiación externa.
+									Recomendado para sociedades de responsabilidad limitada (LLC)
+									por sus menores costos anuales y mayor flexibilidad. No hay
+									impuesto sobre la renta corporativa ni impuesto anual de
+									franquicia. Podemos constituir su empresa en cuestión de
+									minutos.
 								</div>
 							</div>
-							<svg
-								class="w-5 h-5 ms-3 rtl:rotate-180"
-								aria-hidden="true"
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 14 10"
-							>
-								<path
-									stroke="currentColor"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-							</svg>
 						</label>
 					</li>
 					<li class="md:w-3/5 w-4/5">
-						<button
-							id="openBtn"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:focus:text-[#8c681d] focus:border-[#8c681d] dark:focus:border-[#8c681d] focus:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:focus:bg-[#1d1d1d] text-left"
+						<input
+							type="radio"
+							id="estado_empresa_otros"
+							name="estado_de_empresa"
+							value="otros"
+							class="hidden peer"
+						/>
+						<label
+							id="btn-otros-estados"
+							for="estado_empresa_otros"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d]"
 						>
 							<div class="block">
-								<div class="w-full text-lg font-semibold">Ayúdame a elegir</div>
-								<div class="w-full text-sm">
-									Responda nuestro cuestionario LLC vs. C Corp para obtener una
-									recomendación personalizada.
-								</div>
+								<div class="w-full text-lg font-semibold">Otro estado</div>
+								<div class="w-full text-sm">Selecciona un estado</div>
 							</div>
-							<svg
-								class="w-5 h-5 ms-3 rtl:rotate-180"
-								aria-hidden="true"
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 14 10"
+						</label>
+						<div id="seleccionar" class="hidden mt-5">
+							<select
+								id="countries"
+								name="estado_de_empresa"
+								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-neutral-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 							>
-								<path
-									stroke="currentColor"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-							</svg>
-						</button>
+								<option value="Alabama">Alabama</option>
+								<option value="Alaska">Alaska</option>
+								<option value="Arizona">Arizona</option>
+								<option value="Arkansas">Arkansas</option>
+								<option value="California">California</option>
+								<option value="Colorado">Colorado</option>
+								<option value="Connecticut">Connecticut</option>
+								<option value="District Of Columbia"
+									>District Of Columbia</option
+								>
+								<option value="Florida">Florida</option>
+								<option value="Georgia">Georgia</option>
+								<option value="Hawaii">Hawaii</option>
+								<option value="Idaho">Idaho</option>
+								<option value="Illinois">Illinois</option>
+								<option value="Indiana">Indiana</option>
+								<option value="Iowa">Iowa</option>
+								<option value="Kansas">Kansas</option>
+								<option value="Kentucky">Kentucky</option>
+								<option value="Louisiana">Louisiana</option>
+								<option value="Maine">Maine</option>
+								<option value="Maryland">Maryland</option>
+								<option value="Massachusetts">Massachusetts</option>
+								<option value="Michigan">Michigan</option>
+								<option value="Minnesota">Minnesota</option>
+								<option value="Mississippi">Mississippi</option>
+								<option value="Missouri">Missouri</option>
+								<option value="Montana">Montana</option>
+								<option value="Nebraska">Nebraska</option>
+								<option value="Nevada">Nevada</option>
+								<option value="New Hampshire">New Hampshire</option>
+								<option value="New Jersey">New Jersey</option>
+								<option value="New Mexico">New Mexico</option>
+								<option value="New York">New York</option>
+								<option value="North Carolina">North Carolina</option>
+								<option value="North Dakota">North Dakota</option>
+								<option value="Ohio">Ohio</option>
+								<option value="Oklahoma">Oklahoma</option>
+								<option value="Oregon">Oregon</option>
+								<option value="Pennsylvania">Pennsylvania</option>
+								<option value="Rhode Island">Rhode Island</option>
+								<option value="South Carolina">South Carolina</option>
+								<option value="South Dakota">South Dakota</option>
+								<option value="Tennessee">Tennessee</option>
+								<option value="Texas">Texas</option>
+								<option value="Utah">Utah</option>
+								<option value="Vermont">Vermont</option>
+								<option value="Virginia">Virginia</option>
+								<option value="Washington">Washington</option>
+								<option value="West Virginia">West Virginia</option>
+								<option value="Wisconsin">Wisconsin</option>
+								<option value="Wyoming">Wyoming</option>
+							</select>
+						</div>
 					</li>
 				</ul>
 				<div class="w-full flex justify-center mt-8">
@@ -609,6 +639,11 @@
 	const formstep1 = document.getElementById('paso1');
 	const formstep2 = document.getElementById('paso2');
 
+	const botonselect = document.getElementById('btn-otros-estados');
+	const selecionador = document.getElementById('seleccionar');
+	const radiowyoming = document.getElementById('estado_empresa_Wyoming');
+	const radiodelawere = document.getElementById('estado_empresa');
+
 	//elementos
 	const elementos = [
 		{
@@ -701,14 +736,26 @@
 		formstep2?.classList.remove('hidden');
 	});
 
-	botonstep1?.addEventListener('click', function(){
+	botonstep1?.addEventListener('click', function () {
 		formstep1?.classList.remove('hidden');
 		formstep2?.classList.add('hidden');
 	});
 
-	botonstep2?.addEventListener('click', function(){
+	botonstep2?.addEventListener('click', function () {
 		formstep1?.classList.add('hidden');
 		formstep2?.classList.remove('hidden');
+	});
+
+	botonselect?.addEventListener('click', function () {
+		selecionador?.classList.remove('hidden');
+	});
+
+	radiowyoming?.addEventListener('click', function () {
+		selecionador?.remove();
+	});
+	
+	radiodelawere?.addEventListener('click', function () {
+		selecionador?.remove();
 	});
 
 	// Inicializar con el primer paso activo
