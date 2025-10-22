@@ -252,9 +252,9 @@
 		</ol>
 	</div>
 	<div
-		class="rounded-lg w-full flex justify-center flex-col items-center mt-16 h-full drop-shadow-xl place-self-center test bg-center bg-cover bg-neutral-700 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-20 backdrop-saturate-100 backdrop-contrast-100 py-20"
+		class="rounded-lg w-full flex justify-center flex-col items-center m-auto h-full drop-shadow-xl place-self-center test bg-center bg-cover bg-neutral-700 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-20 backdrop-saturate-100 backdrop-contrast-100 py-20"
 	>
-		<form action="" method="post">
+		<form action="" method="post" class="w-full">
 			<div id="paso1">
 				<div class="text-center pb-10">
 					<h3 class="text-white text-3xl">Estructura de la empresa</h3>
@@ -270,6 +270,7 @@
 							name="tipo_de_empresa"
 							value="LLC"
 							class="hidden peer"
+							checked
 							required
 						/>
 						<label
@@ -334,7 +335,8 @@
 					</li>
 					<li class="md:w-3/5 w-4/5">
 						<button
-							id="openBtn"
+							id="openBtnxd"
+							type="button"
 							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:focus:text-[#8c681d] focus:border-[#8c681d] dark:focus:border-[#8c681d] focus:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:focus:bg-[#1d1d1d] text-left"
 						>
 							<div class="block">
@@ -365,12 +367,31 @@
 					<button
 						type="button"
 						id="continuarBtn"
-						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 shadow-lg shadow-[#c9972e]/50 dark:shadow-lg dark:shadow-[#c9972e]/50 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
+						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
 						>Continuar</button
 					>
 				</div>
 			</div>
 			<div id="paso2" class="hidden">
+				<div class="relative">
+					<button
+						type="button"
+						id="atrasBtn"
+						class="text-neutral-500 focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium text-center flex items-center absolute left-5 bottom-10"
+						><span
+							><svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								><path
+									fill="currentColor"
+									d="M17 11H9.41l3.3-3.29a1 1 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33a1 1 0 0 0 0 .76a1 1 0 0 0 .21.33l5 5a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42L9.41 13H17a1 1 0 0 0 0-2"
+								></path></svg
+							></span
+						> atrás</button
+					>
+				</div>
 				<div class="text-center pb-5">
 					<h3 class="text-white text-3xl">Elija el estado de registro</h3>
 					<p class="text-gray-400">Estados populares</p>
@@ -396,6 +417,7 @@
 								id="estados"
 								name="estado_de_empresa"
 								class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-neutral-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] dark:focus:ring-neutral-600"
+								required
 							>
 								<option value="Alabama">Alabama</option>
 								<option value="Alaska">Alaska</option>
@@ -449,7 +471,7 @@
 								<option value="Washington">Washington</option>
 								<option value="West Virginia">West Virginia</option>
 								<option value="Wisconsin">Wisconsin</option>
-								<option value="Wyoming">Wyoming</option>
+								<option value="Wyoming" selected >Wyoming</option>
 							</select>
 						</div>
 					</li>
@@ -457,8 +479,52 @@
 				<div class="w-full flex justify-center mt-8">
 					<button
 						type="button"
-						id="continuarBtn"
-						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 shadow-lg shadow-[#c9972e]/50 dark:shadow-lg dark:shadow-[#c9972e]/50 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
+						id="continuarBtn2"
+						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
+						>Continuar</button
+					>
+				</div>
+			</div>
+			<div id="paso3" class="hidden">
+				<div class="relative">
+					<button
+						type="button"
+						id="atrasBtn2"
+						class="text-neutral-500 focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium text-center flex items-center absolute left-5 bottom-10"
+						><span
+							><svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								><path
+									fill="currentColor"
+									d="M17 11H9.41l3.3-3.29a1 1 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33a1 1 0 0 0 0 .76a1 1 0 0 0 .21.33l5 5a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42L9.41 13H17a1 1 0 0 0 0-2"
+								></path></svg
+							></span
+						> atrás</button
+					>
+				</div>
+				<div class="text-center pb-5">
+					<h3 class="text-white text-3xl">Revisar y pagar</h3>
+					<p class="text-gray-400 mt-1">Ya casi terminas. 🎉</p>
+					<p class="text-gray-400">Por favor revisa tu información y procede al pago.</p>
+				</div>
+				<ul class="grid w-full gap-3 place-items-center">
+					<li class="md:w-3/5 w-4/5">
+						<div id="respuestasradio" class="mt-5">
+							<div class="flex flex-col justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-neutral-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] dark:focus:ring-neutral-600">
+								<p class="text-gray-400 mt-1 text-sm">Tipo de empresa</p>
+								<h3 id="radioResultado" class="text-white text-xl">No has seleccionada nada</h3>
+							</div>
+						</div>
+					</li>
+				</ul>
+				<div class="w-full flex justify-center mt-8">
+					<button
+						type="button"
+						id="continuarBtn3"
+						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
 						>Continuar</button
 					>
 				</div>
@@ -468,7 +534,7 @@
 </div>
 
 <script>
-	const boton = document.getElementById('openBtn');
+	const boton = document.getElementById('openBtnxd');
 	const modal = document.getElementById('modalCard');
 	const cerrar = document.getElementById('closeBtn');
 
@@ -589,11 +655,9 @@
 
 	const formstep1 = document.getElementById('paso1');
 	const formstep2 = document.getElementById('paso2');
+	const formstep3 = document.getElementById('paso3');
 
-	const botonselect = document.getElementById('btn-otros-estados');
-	const selecionador = document.getElementById('seleccionar');
-	const radiowyoming = document.getElementById('estado_empresa_Wyoming');
-	const radiodelawere = document.getElementById('estado_empresa');
+
 
 	//elementos
 	const elementos = [
@@ -687,27 +751,68 @@
 		formstep2?.classList.remove('hidden');
 	});
 
+	const botonContinuar2 = document.getElementById('continuarBtn2');
+	botonContinuar2?.addEventListener('click', function () {
+		const siguientePaso = (pasoActual + 1) % elementos.length;
+		activarPaso(siguientePaso);
+		formstep2?.classList.add('hidden');
+		formstep3?.classList.remove('hidden');
+	});
+
+	const botonatras = document.getElementById('atrasBtn');
+	botonatras?.addEventListener('click', function () {
+		const siguientePaso = (pasoActual - 1) % elementos.length;
+		activarPaso(siguientePaso);
+		formstep2?.classList.add('hidden');
+		formstep1?.classList.remove('hidden');
+	});
+
+	const botonatras2 = document.getElementById('atrasBtn2');
+	botonatras2?.addEventListener('click', function () {
+		const siguientePaso = (pasoActual - 1) % elementos.length;
+		activarPaso(siguientePaso);
+		formstep3?.classList.add('hidden');
+		formstep2?.classList.remove('hidden');
+	});
+
 	botonstep1?.addEventListener('click', function () {
 		formstep1?.classList.remove('hidden');
 		formstep2?.classList.add('hidden');
+		formstep3?.classList.add('hidden');
 	});
 
 	botonstep2?.addEventListener('click', function () {
 		formstep1?.classList.add('hidden');
 		formstep2?.classList.remove('hidden');
+		formstep3?.classList.add('hidden');
 	});
 
-	botonselect?.addEventListener('click', function () {
-		selecionador?.classList.remove('hidden');
+	botonstep3?.addEventListener('click', function () {
+		formstep1?.classList.add('hidden');
+		formstep2?.classList.add('hidden');
+		formstep3?.classList.remove('hidden');
 	});
 
-	radiowyoming?.addEventListener('click', function () {
-		selecionador?.remove();
-	});
 
-	radiodelawere?.addEventListener('click', function () {
-		selecionador?.remove();
-	});
+    const radios = document.querySelectorAll('input[name="tipo_de_empresa"]');
+    const resultado = document.getElementById('radioResultado');
+
+    // Función para actualizar el título
+    function actualizarTitulo() {
+      const seleccionado = document.querySelector('input[name="tipo_de_empresa"]:checked');
+      if (seleccionado) {
+        resultado.textContent = seleccionado.value;
+      }
+    }
+
+    // Actualizar al cargar (por si ya hay uno preseleccionado)
+    actualizarTitulo();
+
+    // Escuchar cambios en cualquier radio
+    radios.forEach(radio => {
+      radio.addEventListener('change', actualizarTitulo);
+    });
+
 
 	// Inicializar con el primer paso activo
 	activarPaso(0);
