@@ -471,7 +471,7 @@
 								<option value="Washington">Washington</option>
 								<option value="West Virginia">West Virginia</option>
 								<option value="Wisconsin">Wisconsin</option>
-								<option value="Wyoming" selected >Wyoming</option>
+								<option value="Wyoming" selected>Wyoming</option>
 							</select>
 						</div>
 					</li>
@@ -508,14 +508,30 @@
 				<div class="text-center pb-5">
 					<h3 class="text-white text-3xl">Revisar y pagar</h3>
 					<p class="text-gray-400 mt-1">Ya casi terminas. 🎉</p>
-					<p class="text-gray-400">Por favor revisa tu información y procede al pago.</p>
+					<p class="text-gray-400">
+						Por favor revisa tu información y procede al pago.
+					</p>
 				</div>
 				<ul class="grid w-full gap-3 place-items-center">
 					<li class="md:w-3/5 w-4/5">
 						<div id="respuestasradio" class="mt-5">
-							<div class="flex flex-col justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-neutral-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] dark:focus:ring-neutral-600">
+							<div
+								class="flex flex-col justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-neutral-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] dark:focus:ring-neutral-600"
+							>
 								<p class="text-gray-400 mt-1 text-sm">Tipo de empresa</p>
-								<h3 id="radioResultado" class="text-white text-xl">No has seleccionada nada</h3>
+								<h3 id="radioResultado" class="text-white text-xl">
+									No has seleccionada nada
+								</h3>
+							</div>
+						</div>
+						<div id="respuesta_estado" class="mt-5">
+							<div
+								class="flex flex-col justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-neutral-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] dark:focus:ring-neutral-600"
+							>
+								<p class="text-gray-400 mt-1 text-sm">Estado en el cual se va a registrar</p>
+								<h3 id="selectResultado" class="text-white text-xl">
+									No has seleccionada nada
+								</h3>
 							</div>
 						</div>
 					</li>
@@ -657,8 +673,6 @@
 	const formstep2 = document.getElementById('paso2');
 	const formstep3 = document.getElementById('paso3');
 
-
-
 	//elementos
 	const elementos = [
 		{
@@ -793,26 +807,26 @@
 		formstep3?.classList.remove('hidden');
 	});
 
+	const radios = document.querySelectorAll('input[name="tipo_de_empresa"]');
+	const resultado = document.getElementById('radioResultado');
 
-    const radios = document.querySelectorAll('input[name="tipo_de_empresa"]');
-    const resultado = document.getElementById('radioResultado');
+	// Función para actualizar el título
+	function actualizarTitulo() {
+		const seleccionado = document.querySelector(
+			'input[name="tipo_de_empresa"]:checked',
+		);
+		if (seleccionado) {
+			resultado.textContent = seleccionado.value;
+		}
+	}
 
-    // Función para actualizar el título
-    function actualizarTitulo() {
-      const seleccionado = document.querySelector('input[name="tipo_de_empresa"]:checked');
-      if (seleccionado) {
-        resultado.textContent = seleccionado.value;
-      }
-    }
+	// Actualizar al cargar (por si ya hay uno preseleccionado)
+	actualizarTitulo();
 
-    // Actualizar al cargar (por si ya hay uno preseleccionado)
-    actualizarTitulo();
-
-    // Escuchar cambios en cualquier radio
-    radios.forEach(radio => {
-      radio.addEventListener('change', actualizarTitulo);
-    });
-
+	// Escuchar cambios en cualquier radio
+	radios.forEach((radio) => {
+		radio.addEventListener('change', actualizarTitulo);
+	});
 
 	// Inicializar con el primer paso activo
 	activarPaso(0);
