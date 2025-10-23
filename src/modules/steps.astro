@@ -528,7 +528,9 @@
 							<div
 								class="flex flex-col justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-neutral-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] dark:focus:ring-neutral-600"
 							>
-								<p class="text-gray-400 mt-1 text-sm">Estado en el cual se va a registrar</p>
+								<p class="text-gray-400 mt-1 text-sm">
+									Estado en el cual se va a registrar
+								</p>
 								<h3 id="selectResultado" class="text-white text-xl">
 									No has seleccionada nada
 								</h3>
@@ -808,25 +810,35 @@
 	});
 
 	const radios = document.querySelectorAll('input[name="tipo_de_empresa"]');
+	const selectEstado = document.querySelector(
+		'select[name="estado_de_empresa"]',
+	); // Cambiado a selector único
+	const resultadoEs = document.getElementById('selectResultado');
 	const resultado = document.getElementById('radioResultado');
 
-	// Función para actualizar el título
 	function actualizarTitulo() {
+		// Actualizar radio buttons
 		const seleccionado = document.querySelector(
 			'input[name="tipo_de_empresa"]:checked',
 		);
-		if (seleccionado) {
-			resultado.textContent = seleccionado.value;
-		}
+		resultado.textContent = seleccionado
+			? seleccionado.value
+			: 'No seleccionado';
+
+		// Actualizar select
+		resultadoEs.textContent = selectEstado.value || 'No seleccionado'; // Usamos el valor directo del select
 	}
 
-	// Actualizar al cargar (por si ya hay uno preseleccionado)
-	actualizarTitulo();
+	// Inicializar al cargar
+	document.addEventListener('DOMContentLoaded', actualizarTitulo);
 
-	// Escuchar cambios en cualquier radio
+	// Eventos para radios
 	radios.forEach((radio) => {
 		radio.addEventListener('change', actualizarTitulo);
 	});
+
+	// Evento para select (solo necesita uno)
+	selectEstado.addEventListener('change', actualizarTitulo);
 
 	// Inicializar con el primer paso activo
 	activarPaso(0);
