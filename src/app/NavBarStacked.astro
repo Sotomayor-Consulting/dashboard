@@ -1,5 +1,31 @@
 ---
-import { asset, url } from '../lib/data.js';
+import { url } from '../lib/data.js';
+import { supabase } from '../lib/supabase';
+
+// Verificar autenticación con Supabase
+const { cookies } = Astro;
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+let user = null;
+
+if (accessToken && refreshToken) {
+	const { data: sessionData, error } = await supabase.auth.setSession({
+		refresh_token: refreshToken.value,
+		access_token: accessToken.value,
+	});
+	if (!error && sessionData?.session) {
+		const { data: userData, error: userError } = await supabase.auth.getUser();
+		if (!userError) {
+			user = userData.user;
+		} else {
+			cookies.delete('sb-access-token', { path: '/' });
+			cookies.delete('sb-refresh-token', { path: '/' });
+		}
+	} else {
+		cookies.delete('sb-access-token', { path: '/' });
+		cookies.delete('sb-refresh-token', { path: '/' });
+	}
+}
 ---
 
 <nav
@@ -48,26 +74,39 @@ import { asset, url } from '../lib/data.js';
 			</div>
 
 			<div>
-				<a
-					href="/sign-in"
-					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
-				>
-					<svg
-						class="w-5 h-5 mr-2 -ml-1"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-						></path>
-					</svg>
-					Iniciar sesión
-				</a>
+				{
+					!user ? (
+						<a
+							href="/sign-in"
+							target="_blank"
+							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						>
+							<svg
+								class="w-5 h-5 mr-2 -ml-1"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+								/>
+							</svg>
+							Iniciar sesión
+						</a>
+					) : (
+						<div class="md:flex items-end md:flex-col hidden">
+							<span class="font-semibold text-wite dark:text-white">
+								{user.user_metadata?.full_name || 'Usuario'}
+							</span>
+							<span class="text-gray-600 text-sm">{user.email}</span>
+						</div>
+					)
+				}
+
 				<button
 					data-collapse-toggle="mobile-menu"
 					type="button"

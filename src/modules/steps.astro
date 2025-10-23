@@ -1,5 +1,30 @@
 ---
+import { supabase } from '../lib/supabase';
 
+// Verificar autenticación con Supabase
+const { cookies } = Astro;
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+let user = null;
+
+if (accessToken && refreshToken) {
+	const { data: sessionData, error } = await supabase.auth.setSession({
+		refresh_token: refreshToken.value,
+		access_token: accessToken.value,
+	});
+	if (!error && sessionData?.session) {
+		const { data: userData, error: userError } = await supabase.auth.getUser();
+		if (!userError) {
+			user = userData.user;
+		} else {
+			cookies.delete('sb-access-token', { path: '/' });
+			cookies.delete('sb-refresh-token', { path: '/' });
+		}
+	} else {
+		cookies.delete('sb-access-token', { path: '/' });
+		cookies.delete('sb-refresh-token', { path: '/' });
+	}
+}
 ---
 
 <!--Modal --><!-- Main modal -->
@@ -236,14 +261,56 @@
 								id="steph6-3"
 								class="text-base font-semibold text-gray-500 mb-0.5 group-hover:text-white transition-all"
 							>
-								Revisar y pagar
+								Elije tu plan
 							</h6>
 							<p
 								id="stepp-3"
 								class="text-xs font-normal text-gray-500 group-hover:text-gray-400 transition-all"
 							>
-								Una vez realizado el pago, comenzaremos a formar su nueva
-								empresa
+								Elije un plan que se adapte a tus necesidades.
+							</p>
+						</div>
+					</div>
+				</button>
+			</li>
+			<li id="stepli-4" class="relative flex-1">
+				<button
+					class="flex items-center justify-center gap-8 w-full max-w-sm text-left"
+				>
+					<div
+						class="flex items-center gap-3.5 bg-[#1d1d1d] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
+					>
+						<div
+							class="rounded-lg bg-neutral-800 group-hover:bg-[#8c681d] flex items-center justify-center transition-all"
+						>
+							<span
+								class="text-gray-600 p-3 group-hover:text-white transition-all"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									><path
+										fill="none"
+										stroke="currentColor"
+										stroke-linecap="square"
+										stroke-width="2"
+										d="M14.5 19v-4m0 0H7v-1l6.5-9h1zm0 0h2"></path></svg
+								>
+							</span>
+						</div>
+						<div class="flex items-start rounded-md justify-center flex-col">
+							<h6
+								class="text-base font-semibold text-gray-500 mb-0.5 group-hover:text-white transition-all"
+							>
+								Verifica tus datos y registraté
+							</h6>
+							<p
+								class="text-xs font-normal text-gray-500 group-hover:text-gray-400 transition-all"
+							>
+								Verifica los datos que seleccionaste y registrate para entrar a
+								nuestra plataforma.
 							</p>
 						</div>
 					</div>
@@ -486,6 +553,571 @@
 				</div>
 			</div>
 			<div id="paso3" class="hidden">
+				<div class="text-center pb-10">
+					<h3 class="text-white text-3xl">Escoge tu plan</h3>
+					<p class="text-gray-400">Elije el plan que mas se adapte a ti</p>
+				</div>
+				<ul
+					class="grid w-full gap-2 place-items-center grid-cols-3 p-5 grid-rows-2"
+				>
+					<li class="m-2 w-full h-full">
+						<input
+							type="radio"
+							id="basico_radio_btn"
+							name="plan"
+							value="Plan Basico"
+							class="hidden peer"
+							checked
+							required
+						/>
+						<label
+							for="basico_radio_btn"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] h-full"
+						>
+							<div class="block">
+								<div class="w-full text-lg font-semibold">Plan Básico</div>
+								<div class="w-full text-sm">
+									Constituye tu LLC con lo esencial para operar legalmente.
+								</div>
+							</div>
+							<button
+								class="flex items-end justify-end h-full"
+								data-popover-target="popover-description"
+								data-popover-placement="bottom-end"
+								type="button"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="20"
+									height="20"
+									viewBox="0 0 24 24"
+									><g fill="none"
+										><path
+											d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"
+										></path><path
+											fill="currentColor"
+											d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
+										></path></g
+									></svg
+								>
+							</button>
+
+							<div
+								data-popover
+								id="popover-description"
+								role="tooltip"
+								class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
+							>
+								<div class="p-3 space-y-2">
+									<h3 class="font-semibold text-gray-900 dark:text-white">
+										Este plan basico incluye
+									</h3>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										<span>Incorporación de la LLC frente al Estado.</span>
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Obtención del EIN (Número de Identificación Tributaria).
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Agente Residente por un año.
+									</p>
+									<h3 class="font-semibold text-gray-900 dark:text-white">
+										Precio del plan
+									</h3>
+									<p class="text-base">$ 350 dolares</p>
+								</div>
+								<div data-popper-arrow></div>
+							</div>
+						</label>
+					</li>
+					<li class="m-2 w-full h-full">
+						<input
+							type="radio"
+							id="Business"
+							name="plan"
+							value="Plan Business"
+							class="hidden peer"
+						/>
+						<label
+							for="Business"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] h-full"
+						>
+							<div class="block">
+								<div class="w-full text-lg font-semibold">Plan Business</div>
+								<div class="w-full text-sm">
+									Estrategia fiscal y legal completa para tu LLC. Ideal para
+									hacer las cosas bien desde el inicio.
+								</div>
+							</div>
+							<button
+								class="flex items-end justify-end h-full"
+								data-popover-target="popover-description2"
+								data-popover-placement="bottom-end"
+								type="button"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="20"
+									height="20"
+									viewBox="0 0 24 24"
+									><g fill="none"
+										><path
+											d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"
+										></path><path
+											fill="currentColor"
+											d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
+										></path></g
+									></svg
+								>
+							</button>
+
+							<div
+								data-popover
+								id="popover-description2"
+								role="tooltip"
+								class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
+							>
+								<div class="p-3 space-y-2">
+									<h3 class="font-semibold text-gray-900 dark:text-white">
+										Este plan business incluye
+									</h3>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="20"
+											height="20"
+											viewBox="0 0 24 24"
+											class="mr-2"
+											><path
+												fill="currentColor"
+												d="m12 17.275l-4.15 2.5q-.275.175-.575.15t-.525-.2t-.35-.437t-.05-.588l1.1-4.725L3.775 10.8q-.25-.225-.312-.513t.037-.562t.3-.45t.55-.225l4.85-.425l1.875-4.45q.125-.3.388-.45t.537-.15t.537.15t.388.45l1.875 4.45l4.85.425q.35.05.55.225t.3.45t.038.563t-.313.512l-3.675 3.175l1.1 4.725q.075.325-.05.588t-.35.437t-.525.2t-.575-.15z"
+											></path></svg
+										>
+										<span>Planificación y diseño de LLC.</span>
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Incorporación de la LLC frente al Estado.
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Asistencia para abrir tu cuenta bancaria online.
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Obtención del EIN.
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Servicio de Agente Residente por un año.
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Elaboración del Acuerdo de Operación.
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Elaboración de Carta Bancaria.
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Reporte BOI
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Consultas ilimitadas por un año.
+									</p>
+									<h3 class="font-semibold text-gray-900 dark:text-white">
+										Precio del plan
+									</h3>
+									<p class="text-base">$ 950 dolares</p>
+								</div>
+								<div data-popper-arrow></div>
+							</div>
+						</label>
+					</li>
+					<li class="m-2 w-full h-full">
+						<input
+							type="radio"
+							id="Business"
+							name="plan"
+							value="Plan Business"
+							class="hidden peer"
+						/>
+						<label
+							for="Business"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] h-full"
+						>
+							<div class="block">
+								<div class="w-full text-lg font-semibold">Plan Estándar</div>
+								<div class="w-full text-sm">
+									Incluye soporte legal y documentos clave para operar.
+								</div>
+							</div>
+							<button
+								class="flex items-end justify-end h-full"
+								data-popover-target="popover-description3"
+								data-popover-placement="bottom-end"
+								type="button"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="20"
+									height="20"
+									viewBox="0 0 24 24"
+									><g fill="none"
+										><path
+											d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"
+										></path><path
+											fill="currentColor"
+											d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
+										></path></g
+									></svg
+								>
+							</button>
+
+							<div
+								data-popover
+								id="popover-description3"
+								role="tooltip"
+								class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
+							>
+								<div class="p-3 space-y-2">
+									<h3 class="font-semibold text-gray-900 dark:text-white">
+										Este plan Estándar incluye
+									</h3>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										<span>Todos los beneficios del Plan Básico</span>
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Incorporación de la LLC frente al Estado.
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Obtención del EIN (Número de Identificación Tributaria).
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Agente Residente por un año.
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Elaboración del Acuerdo de Operación.
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Consultas ilimitadas por un año.
+									</p>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											width="16px"
+											height="16px"
+											class="mr-2"
+											viewBox="0 0 16 16"
+											><polyline
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="1.5"
+												points="2.75 8.75 6.25 12.25 13.25 4.75"
+											></polyline></svg
+										>
+										Reporte BOI
+									</p>
+									<h3 class="font-semibold text-gray-900 dark:text-white">
+										Precio del plan
+									</h3>
+									<p class="text-base">$ 600 dolares</p>
+								</div>
+								<div data-popper-arrow></div>
+							</div>
+						</label>
+					</li>
+					<li class="m-2 w-full col-span-3 h-full">
+						<button
+							id="openBtnxd"
+							type="button"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:focus:text-[#8c681d] focus:border-[#8c681d] dark:focus:border-[#8c681d] focus:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:focus:bg-[#1d1d1d] text-left h-full"
+						>
+							<div class="block">
+								<div class="w-full text-lg font-semibold">Ayúdame a elegir</div>
+								<div class="w-full text-sm">
+									Responda nuestro cuestionario LLC vs. C Corp para obtener una
+									recomendación personalizada.
+								</div>
+							</div>
+							<svg
+								class="w-5 h-5 ms-3 rtl:rotate-180"
+								aria-hidden="true"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 14 10"
+							>
+								<path
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+							</svg>
+						</button>
+					</li>
+				</ul>
+				<div class="w-full flex justify-center mt-8">
+					<button
+						type="button"
+						id="continuarBtn"
+						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
+						>Continuar</button
+					>
+				</div>
+			</div>
+			<div id="paso4" class="hidden">
 				<div class="relative">
 					<button
 						type="button"
@@ -579,13 +1211,209 @@
 				<div class="w-full flex justify-center mt-8">
 					<button
 						type="button"
-						id="continuarBtn3"
+						id="boton-pago"
 						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
-						>Continuar</button
+						>Ir a pago</button
 					>
 				</div>
 			</div>
 		</form>
+		<div
+			id="contenedor-registro"
+			class="w-full flex-col items-center justify-center px-6 pt-8 mx-auto pt:mt-0 hidden"
+		>
+			<!-- Card -->
+			<div
+				class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-gray-200 rounded-lg shadow dark:bg-[#1d1d1d]"
+			>
+				<a
+					href="#"
+					class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white"
+				>
+					<img
+						src="/src/assets/SC-INTER.png"
+						alt="Sotomayor Logo"
+						class="mr-4 h-11 dark:block hidden"
+					/>
+					<img
+						src="/src/assets/SC-INTER-NG.png"
+						alt="Sotomayor Logo"
+						class="mr-4 h-11 dark:hidden block"
+					/>
+				</a>
+				<h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+					Crea tu cuenta gratuita
+				</h2>
+				<form class="mt-8 space-y-6" id="form-registro">
+					<div class="grid grid-cols-2 gap-x-6 gap-y-8">
+						<div class="col">
+							<label
+								for="name"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Nombre</label
+							>
+							<input
+								type="text"
+								name="name"
+								id="name"
+								class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="Nombre"
+								required
+							/>
+						</div>
+						<div class="col">
+							<label
+								for="last-name"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Apellido</label
+							>
+							<input
+								type="text"
+								name="last-name"
+								id="last-name"
+								class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="Apellido"
+								required
+							/>
+						</div>
+					</div>
+					<div>
+						<label
+							for="email"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Tu correo</label
+						>
+						<input
+							type="email"
+							name="email"
+							id="email"
+							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							placeholder="correo@ejemplo.com"
+							required
+						/>
+					</div>
+					<div>
+						<label
+							for="password"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Contraseña</label
+						>
+						<input
+							type="password"
+							name="password"
+							minlength="8"
+							pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+							title="Mínimo 8 caracteres, una mayúscula, una minúscula y un número"
+							id="password"
+							placeholder="••••••••"
+							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							required
+						/>
+					</div>
+					<div>
+						<label
+							for="confirm-password"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Confirmar contraseña</label
+						>
+						<input
+							type="password"
+							name="confirm-password"
+							id="confirm-password"
+							placeholder="••••••••"
+							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							required
+						/>
+					</div>
+					<div class="flex items-start">
+						<div class="flex items-center h-5">
+							<input
+								id="remember"
+								aria-describedby="remember"
+								name="remember"
+								type="checkbox"
+								class="w-4 h-4 border-gray-500 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:bg-neutral-700 dark:border-gray-600"
+								required
+							/>
+						</div>
+						<div class="ml-3 text-sm">
+							<label
+								for="remember"
+								class="font-medium text-gray-900 dark:text-white"
+								>Al registrarte, estás creando una cuenta de Sotomayor
+								consulting y aceptas los <a
+									href="#"
+									class="text-[#8c681d] hover:underline dark:text-primary-500"
+									>Términos de uso y la Política de privacidad</a
+								> de Sotomayor Consulting.
+							</label>
+						</div>
+					</div>
+					<button
+						type="submit"
+						class="w-full px-5 py-3 text-base font-medium text-center text-white bg-[#8c681d] rounded-lg hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						>Crear una cuenta</button
+					>
+				</form>
+				<div>
+					<div class="inline-flex items-center justify-center w-full">
+						<hr
+							class="w-11/12 h-px my-2 border-0 dark:bg-neutral-700 bg-gray-300"
+						/>
+						<span
+							class="absolute px-5 font-medium text-gray-900 dark:text-white"
+						>
+							o
+						</span>
+					</div>
+				</div>
+				<div>
+					<form action="/api/auth/signin" method="post">
+						<button
+							class="w-full flex border dark:border-white border-gray-500 rounded-lg dark:text-white gap-2 items-center justify-center p-2.5 dark:hover:bg-slate-300/10 hover:bg-slate-700/10"
+							value="google"
+							name="provider"
+							type="submit"
+						>
+							<svg
+								class="w-6"
+								viewBox="0 0 21 20"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<g clip-path="url(#clip0_13183_10121)"
+									><path
+										d="M20.3081 10.2303C20.3081 9.55056 20.253 8.86711 20.1354 8.19836H10.7031V12.0492H16.1046C15.8804 13.2911 15.1602 14.3898 14.1057 15.0879V17.5866H17.3282C19.2205 15.8449 20.3081 13.2728 20.3081 10.2303Z"
+										fill="#3F83F8"></path><path
+										d="M10.7019 20.0006C13.3989 20.0006 15.6734 19.1151 17.3306 17.5865L14.1081 15.0879C13.2115 15.6979 12.0541 16.0433 10.7056 16.0433C8.09669 16.0433 5.88468 14.2832 5.091 11.9169H1.76562V14.4927C3.46322 17.8695 6.92087 20.0006 10.7019 20.0006V20.0006Z"
+										fill="#34A853"></path><path
+										d="M5.08857 11.9169C4.66969 10.6749 4.66969 9.33008 5.08857 8.08811V5.51233H1.76688C0.348541 8.33798 0.348541 11.667 1.76688 14.4927L5.08857 11.9169V11.9169Z"
+										fill="#FBBC04"></path><path
+										d="M10.7019 3.95805C12.1276 3.936 13.5055 4.47247 14.538 5.45722L17.393 2.60218C15.5852 0.904587 13.1858 -0.0287217 10.7019 0.000673888C6.92087 0.000673888 3.46322 2.13185 1.76562 5.51234L5.08732 8.08813C5.87733 5.71811 8.09302 3.95805 10.7019 3.95805V3.95805Z"
+										fill="#EA4335"></path></g
+								><defs
+									><clipPath id="clip0_13183_10121"
+										><rect
+											width="20"
+											height="20"
+											fill="white"
+											transform="translate(0.5)"></rect></clipPath
+									></defs
+								>
+							</svg>
+							<label for="">Regístrate con google</label>
+						</button>
+					</form>
+				</div>
+				<div class="text-sm font-medium text-gray-500 dark:text-gray-400">
+					¿Ya tienes una cuenta? <a
+						href="/sign-in"
+						class="text-[#8c681d] hover:underline dark:text-primary-500"
+						>Inicia sesión</a
+					>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -708,10 +1536,12 @@
 	const botonstep1 = document.getElementById('paso1btn');
 	const botonstep2 = document.getElementById('paso2btn');
 	const botonstep3 = document.getElementById('paso3btn');
+	const botonstep4 = document.getElementById('paso4btn');
 
 	const formstep1 = document.getElementById('paso1');
 	const formstep2 = document.getElementById('paso2');
 	const formstep3 = document.getElementById('paso3');
+	const formstep4 = document.getElementById('paso4');
 
 	//elementos
 	const elementos = [
@@ -738,6 +1568,14 @@
 			span: document.getElementById('stepspan-3'),
 			h6: document.getElementById('steph6-3'),
 			p: document.getElementById('stepp-3'),
+		},
+		{
+			li: document.getElementById('stepli-4'),
+			div1: document.getElementById('stepdiv1-4'),
+			div2: document.getElementById('stepdiv2-4'),
+			span: document.getElementById('stepspan-4'),
+			h6: document.getElementById('steph6-4'),
+			p: document.getElementById('stepp-4'),
 		},
 	];
 
@@ -796,6 +1634,7 @@
 	botonstep1?.addEventListener('click', () => activarPaso(0));
 	botonstep2?.addEventListener('click', () => activarPaso(1));
 	botonstep3?.addEventListener('click', () => activarPaso(2));
+	botonstep4?.addEventListener('click', () => activarPaso(3));
 
 	const botonContinuar = document.getElementById('continuarBtn');
 	botonContinuar?.addEventListener('click', function () {
@@ -829,6 +1668,22 @@
 		formstep2?.classList.remove('hidden');
 	});
 
+	const botonatras3 = document.getElementById('atrasBtn3');
+	botonatras3?.addEventListener('click', function () {
+		const siguientePaso = (pasoActual - 1) % elementos.length;
+		activarPaso(siguientePaso);
+		formstep3?.classList.add('hidden');
+		formstep2?.classList.remove('hidden');
+	});
+
+	const botonatras4 = document.getElementById('atrasBtn3');
+	botonatras3?.addEventListener('click', function () {
+		const siguientePaso = (pasoActual - 1) % elementos.length;
+		activarPaso(siguientePaso);
+		formstep3?.classList.add('hidden');
+		formstep2?.classList.remove('hidden');
+	});
+
 	const edicion1 = document.getElementById('editar1');
 	edicion1?.addEventListener('click', function () {
 		const siguientePaso = (pasoActual - 2) % elementos.length;
@@ -849,18 +1704,28 @@
 		formstep1?.classList.remove('hidden');
 		formstep2?.classList.add('hidden');
 		formstep3?.classList.add('hidden');
+		formstep4?.classList.add('hidden');
 	});
 
 	botonstep2?.addEventListener('click', function () {
 		formstep1?.classList.add('hidden');
 		formstep2?.classList.remove('hidden');
 		formstep3?.classList.add('hidden');
+		formstep4?.classList.add('hidden');
 	});
 
 	botonstep3?.addEventListener('click', function () {
 		formstep1?.classList.add('hidden');
 		formstep2?.classList.add('hidden');
 		formstep3?.classList.remove('hidden');
+		formstep4?.classList.add('hidden');
+	});
+
+	botonstep4?.addEventListener('click', function () {
+		formstep1?.classList.add('hidden');
+		formstep2?.classList.add('hidden');
+		formstep3?.classList.add('hidden');
+		formstep4?.classList.remove('hidden');
 	});
 
 	const radios = document.querySelectorAll('input[name="tipo_de_empresa"]');
@@ -896,4 +1761,151 @@
 
 	// Inicializar con el primer paso activo
 	activarPaso(0);
+</script>
+
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		const paymentPanel = document.getElementById('paso3');
+		const registerForm = document.getElementById('contenedor-registro');
+		const nextStep = document.getElementById('paso4');
+		const goToPaymentBtn = document.getElementById('boton-pago');
+		const registerFormElement = document.getElementById('form-registro');
+		const paymentError = document.getElementById('payment-error');
+		const registerError = document.getElementById('register-error');
+		const welcomeMessage = document.getElementById('welcome-message');
+
+		// Función para mostrar errores
+		function showError(element: HTMLElement | null, message: string) {
+			element.textContent = message;
+			element?.classList.remove('hidden');
+			setTimeout(() => {
+				element?.classList.add('hidden');
+			}, 5000);
+		}
+
+		// Función para verificar sesión
+		async function checkSession() {
+			try {
+				const response = await fetch('/api/auth/session-check');
+				const data = await response.json();
+				return data;
+			} catch (error) {
+				console.error('Error checking session:', error);
+				return { isAuthenticated: false };
+			}
+		}
+
+		// Función para manejar usuario autenticado
+		function handleAuthenticatedUser(userData: { name: any }) {
+			// Ocultar panel de pago
+			paymentPanel?.classList.add('hidden');
+			paymentPanel?.classList.remove('flex');
+
+			// Mostrar mensaje personalizado si tenemos datos del usuario
+			if (userData && userData.name) {
+				welcomeMessage.textContent = `¡Bienvenido ${userData.name}!`;
+			}
+
+			// Mostrar siguiente paso
+			nextStep?.classList.remove('hidden');
+			nextStep?.classList.add('block');
+		}
+
+		// Función para manejar usuario no autenticado
+		function handleUnauthenticatedUser() {
+			// Ocultar panel de pago
+			paymentPanel?.classList.add('hidden');
+			paymentPanel?.classList.remove('flex');
+
+			// Mostrar formulario de registro
+			registerForm?.classList.remove('hidden');
+			registerForm?.classList.add('flex');
+		}
+
+		// Evento del botón "Ir al pago"
+		goToPaymentBtn?.addEventListener('click', async () => {
+			try {
+				goToPaymentBtn.disabled = true;
+				goToPaymentBtn.textContent = 'Verificando...';
+
+				const sessionData = await checkSession();
+
+				if (sessionData.isAuthenticated) {
+					handleAuthenticatedUser(sessionData.user);
+				} else {
+					handleUnauthenticatedUser();
+				}
+			} catch (error) {
+				console.error('Error in payment flow:', error);
+				showError(
+					paymentError,
+					'Error al verificar tu sesión. Intenta nuevamente.',
+				);
+			} finally {
+				goToPaymentBtn.disabled = false;
+				goToPaymentBtn.textContent = 'Ir al pago';
+			}
+		});
+
+		// Evento del formulario de registro
+		registerFormElement?.addEventListener('submit', async (e) => {
+			e.preventDefault();
+
+			const submitButton = registerFormElement.querySelector(
+				'button[type="submit"]',
+			);
+			submitButton.disabled = true;
+			submitButton.textContent = 'Creando cuenta...';
+
+			try {
+				const formData = new FormData(registerFormElement);
+
+				const response = await fetch('/api/auth/register', {
+					method: 'POST',
+					body: formData,
+				});
+
+				if (response.ok) {
+					// Registro exitoso - ahora verificar la sesión
+					const sessionData = await checkSession();
+
+					if (sessionData.isAuthenticated) {
+						handleAuthenticatedUser(sessionData.user);
+					} else {
+						// Si el registro fue exitoso pero no hay sesión, esperar un momento y reintentar
+						setTimeout(async () => {
+							const retryData = await checkSession();
+							if (retryData.isAuthenticated) {
+								handleAuthenticatedUser(retryData.user);
+							} else {
+								showError(
+									registerError,
+									'Registro exitoso. Por favor, revisa tu email para confirmar tu cuenta.',
+								);
+							}
+						}, 1000);
+					}
+				} else {
+					const errorText = await response.text();
+					showError(
+						registerError,
+						errorText || 'Error en el registro. Intenta nuevamente.',
+					);
+				}
+			} catch (error) {
+				console.error('Registration error:', error);
+				showError(registerError, 'Error de conexión. Intenta nuevamente.');
+			} finally {
+				submitButton.disabled = false;
+				submitButton.textContent = 'Crear cuenta y continuar';
+			}
+		});
+
+		// Manejar el formulario de pago (ejemplo)
+		document.getElementById('payment-form')?.addEventListener('submit', (e) => {
+			e.preventDefault();
+			// Lógica de procesamiento de pago aquí
+			alert('Procesando pago...');
+		});
+	});
 </script>
