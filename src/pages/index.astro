@@ -116,5 +116,140 @@ const display = msg ? 'flex' : 'hidden';
 			}
 		})();
 	</script>
+	
+	<script is:inline>
+		(async function () {
+			const alertBox = document.getElementById('alert-feedback');
+			if (!alertBox) return;
+
+			const incorpData = localStorage.getItem('incorpData');
+			if (!incorpData) {
+				return;
+			}
+
+			try {
+				const data = JSON.parse(incorpData);
+
+				// VALIDACIÓN DE NOMBRES DE EMPRESA
+				const nombresEmpresa = [data.nombre_1, data.nombre_2, data.nombre_3];
+				const nombresValidos = nombresEmpresa.some(
+					(nombre) =>
+						nombre !== null && nombre !== undefined && nombre.trim() !== '',
+				);
+
+				if (!nombresValidos) {
+					// Redirección a /start/ en lugar de mostrar error
+					window.location.href = '/start/';
+					return; // Detener ejecución
+				}
+
+				const formData = new FormData();
+				formData.append('tipo_de_empresa', data.tipo_de_empresa);
+				formData.append('estado_de_empresa', data.estado_de_empresa);
+				formData.append('nombre_1', data.nombre_1 || '');
+				formData.append('nombre_2', data.nombre_2 || '');
+				formData.append('nombre_3', data.nombre_3 || '');
+				formData.append('estado_de', data.estado_de || '');
+
+				const response = await fetch('/api/incorp/save', {
+					method: 'POST',
+					body: formData,
+				});
+
+				if (response.ok) {
+					localStorage.removeItem('incorpData');
+					alertBox.querySelector('.ms-3').textContent =
+						'✅ ¡Éxito! Empresa registrada';
+					alertBox.classList.remove(
+						'hidden',
+						'text-red-800',
+						'border-red-300',
+						'bg-red-50',
+						'dark:text-red-400',
+						'dark:border-red-800',
+					);
+					alertBox.classList.add(
+						'flex',
+						'text-green-800',
+						'border-green-300',
+						'bg-green-50',
+						'dark:text-green-400',
+						'dark:border-green-800',
+					);
+				} else {
+					const errorText = await response.text();
+					alertBox.querySelector('.ms-3').textContent =
+						`❌ Error: ${errorText || 'No se pudo registrar la empresa'}`;
+					alertBox.classList.remove(
+						'hidden',
+						'text-green-800',
+						'border-green-300',
+						'bg-green-50',
+						'dark:text-green-400',
+						'dark:border-green-800',
+					);
+					alertBox.classList.add(
+						'flex',
+						'text-red-800',
+						'border-red-300',
+						'bg-red-50',
+						'dark:text-red-400',
+						'dark:border-red-800',
+					);
+				}
+
+				// Autocerrar a los 6s
+				const hide = () => {
+					alertBox.classList.add('hidden');
+					alertBox.classList.remove('flex');
+				};
+				const timer = setTimeout(hide, 6000);
+
+				// Botón cerrar manual
+				const closeBtn = alertBox.querySelector('[data-close]');
+				if (closeBtn) {
+					closeBtn.addEventListener('click', () => {
+						clearTimeout(timer);
+						hide();
+					});
+				}
+			} catch (error) {
+				alertBox.querySelector('.ms-3').textContent =
+					`❌ Error: ${error.message || 'Error de conexión'}`;
+				alertBox.classList.remove(
+					'hidden',
+					'text-green-800',
+					'border-green-300',
+					'bg-green-50',
+					'dark:text-green-400',
+					'dark:border-green-800',
+				);
+				alertBox.classList.add(
+					'flex',
+					'text-red-800',
+					'border-red-300',
+					'bg-red-50',
+					'dark:text-red-400',
+					'dark:border-red-800',
+				);
+
+				// Autocerrar a los 6s
+				const hide = () => {
+					alertBox.classList.add('hidden');
+					alertBox.classList.remove('flex');
+				};
+				const timer = setTimeout(hide, 6000);
+
+				// Botón cerrar manual
+				const closeBtn = alertBox.querySelector('[data-close]');
+				if (closeBtn) {
+					closeBtn.addEventListener('click', () => {
+						clearTimeout(timer);
+						hide();
+					});
+				}
+			}
+		})();
+	</script>
 	<LandingReadme />
 </LayoutSidebar>

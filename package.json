@@ -36,13 +36,13 @@
 		"start": "astro dev"
 	},
 	"dependencies": {
-		"@astrojs/sitemap": "^1.1.0",
+		"@astrojs/sitemap": "^3.6.0",
 		"@astrojs/tailwind": "^6.0.2",
 		"@faker-js/faker": "^7.6.0",
 		"@supabase/ssr": "^0.7.0",
 		"@supabase/supabase-js": "^2.57.0",
 		"apexcharts": "^3.37.2",
-		"astro": "^5.13.5",
+		"astro": "^5.15.1",
 		"carbone": "^3.5.6",
 		"datatables.net-plugins": "^2.3.2",
 		"docxtemplater": "^3.66.7",
@@ -55,7 +55,7 @@
 		"pizzip": "^3.2.0",
 		"puppeteer": "^24.24.1",
 		"shiki": "^0.14.1",
-		"simple-datatables": "^10.0.0",
+		"simple-datatables": "^10.2.0",
 		"survey-core": "^2.3.9",
 		"tailwind-scrollbar": "^3.0.0",
 		"tailwindcss": "^3.0.24"
