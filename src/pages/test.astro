@@ -1,0 +1,138 @@
+---
+import LayoutSidebar from '../app/LayoutSidebar.astro';
+---
+
+<LayoutSidebar>
+    <div id="grid-wrapper" class="bg-gray-800 rounded-lg shadow-lg p-4"></div>
+
+  <script>
+    import { Grid } from "gridjs";
+    import "gridjs/dist/theme/mermaid.css";
+    import { css } from "@emotion/css";
+
+    // ESTILOS MODO OSCURO CON @emotion/css
+    const styles = {
+      container: css`
+        * {
+          font-family: 'Tahoma', sans-serif;
+        }
+        .gridjs-container {
+          background-color: #1a1a1a;
+          border-radius: 0.75rem;
+          overflow: hidden;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+      `,
+      table: css`
+        background-color: #1f1f1f;
+        border-collapse: separate;
+        border-spacing: 0;
+
+        tr:hover td {
+          background-color: #2d2d2d !important;
+          color: #e0e0e0 !important;
+          transition: all 0.2s ease;
+        }
+      `,
+      th: css`
+        background-color: #2a2a2a !important;
+        color: #e0e0e0 !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        border-bottom: 2px solid #404040;
+        text-align: center;
+
+        &:hover {
+          background-color: #404040 !important;
+          color: #ffffff !important;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+      `,
+      td: css`
+        color: #b0b0b0;
+        padding: 0.75rem 1.5rem;
+        border-bottom: 1px solid #333;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        background-color: #333 !important;
+
+        &:hover {
+          color: #ffffff !important;
+          background-color: #333 !important;
+        }
+      `,
+      searchInput: css`
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+        border: 1px solid #404040;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        width: 100%;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+        transition: all 0.2s ease;
+
+        &::placeholder {
+          color: #888;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: #60a5fa;
+          box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+        }
+      `,
+      paginationButton: css`
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+        border: 1px solid #404040;
+        border-radius: 0.375rem;
+        padding: 0.25rem 0.75rem;
+        margin: 0 0.25rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: #404040;
+          border-color: #555;
+        }
+
+        &.gridjs-current {
+          background-color: #3b82f6;
+          color: white;
+          border-color: #3b82f6;
+        }
+      `
+    };
+
+    // GRID.JS EN MODO OSCURO
+    new Grid({
+      columns: ["Nombre", "País", "Edad", "Email"],
+      data: [
+        ["Ana López", "España", 28, "ana@example.com"],
+        ["Carlos Ruiz", "México", 34, "carlos@example.com"],
+        ["Lucía García", "Argentina", 29, "lucia@example.com"],
+        ["Pedro Sánchez", "Chile", 41, "pedro@example.com"],
+        ["María Torres", "Perú", 27, "maria@example.com"],
+        ["Juan Pérez", "Colombia", 35, "juan@example.com"],
+        ["Sofía Martínez", "Venezuela", 26, "sofia@example.com"]
+      ],
+      search: true,
+      pagination: { limit: 5 },
+      sort: true,
+
+      className: {
+        container: styles.container,
+        table: styles.table,
+        th: styles.th,
+        td: styles.td,
+        searchInput: styles.searchInput,
+        paginationButton: styles.paginationButton
+      }
+    }).render(document.getElementById("grid-wrapper"));
+  </script>
+</LayoutSidebar>

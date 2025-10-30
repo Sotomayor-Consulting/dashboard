@@ -1,0 +1,1152 @@
+---
+/* eslint max-lines: 'off' */
+
+const { id } = Astro.params; // ID dinámico de la URL
+const { redirect } = Astro;
+
+const {
+	data: { user },
+	error: userErr,
+} = await supabase.auth.getUser();
+if (userErr || !user) return redirect('/sign-in');
+
+import { supabase } from '../lib/supabase';
+
+const { data: empresa, error: empresaError } = await supabase
+	.from('empresas_incorporaciones')
+	.select('*')
+	.eq('empresa_incorporacion_id', id)
+	.eq('user_id', user.id) // Seguridad: solo empresas del usuario
+	.single();
+
+if (empresaError || !empresa) {
+	return redirect('/pages/empresas');
+}
+---
+
+<div class="px-4 pt-6">
+	<div
+		class="grid w-full grid-cols-1 gap-4 my-4 xl:grid-cols-2 2xl:grid-cols-3"
+	>
+		<div
+			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-neutral-700"
+		>
+			<div class="w-full">
+				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+					Nombre de tu empresa
+				</h3>
+				<span
+					class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white"
+					>{empresa.nombre_1}</span
+				>
+				<p
+					class="flex items-center text-base font-normal text-gray-500 dark:text-gray-400"
+				>
+					{empresa.estado_de_incorporacion}
+				</p>
+			</div>
+			<div class="w-full" style="min-height: 155px;" >
+				<div
+					id="apexchartskz97uayx"
+					class="cuadro_1"
+					style="width: 239px; height: 140px;"
+					
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						xmlns:data="ApexChartsNS"
+						xmlns:xhtml="http://www.w3.org/1999/xhtml"
+						id="SvgjsSvg1227"
+						width="239"
+						height="140"
+						class="apexcharts-svg"
+						version="1.1"
+						><foreignObject width="239" height="140" x="0" y="0"
+							><xhtml:div
+								bis_skin_checked="1"
+								class="apexcharts-legend"
+								style="max-height:70px"></xhtml:div><style type="text/css">
+								.apexcharts-legend {
+									display: flex;
+									overflow: auto;
+									padding: 0 10px;
+								}
+							</style></foreignObject
+						><g
+							id="SvgjsG1229"
+							class="apexcharts-inner apexcharts-graphical"
+							transform="translate(12 30)"
+							><defs id="SvgjsDefs1228"
+								><clipPath id="gridRectMaskkz97uayx"
+									><rect
+										id="SvgjsRect1237"
+										width="217"
+										height="78"
+										x="0"
+										y="0"
+										fill="#fff"
+										stroke="none"
+										stroke-dasharray="0"
+										stroke-width="0"
+										opacity="1"
+										rx="0"
+										ry="0"></rect></clipPath
+								><clipPath id="gridRectBarMaskkz97uayx"
+									><rect
+										id="SvgjsRect1238"
+										width="221"
+										height="82"
+										x="-2"
+										y="-2"
+										fill="#fff"
+										stroke="none"
+										stroke-dasharray="0"
+										stroke-width="0"
+										opacity="1"
+										rx="0"
+										ry="0"></rect></clipPath
+								><clipPath id="gridRectMarkerMaskkz97uayx"
+									><rect
+										id="SvgjsRect1239"
+										width="217"
+										height="78"
+										x="0"
+										y="0"
+										fill="#fff"
+										stroke="none"
+										stroke-dasharray="0"
+										stroke-width="0"
+										opacity="1"
+										rx="0"
+										ry="0"></rect></clipPath
+								><clipPath id="forecastMaskkz97uayx"></clipPath><clipPath
+									id="nonForecastMaskkz97uayx"></clipPath><linearGradient
+									id="SvgjsLinearGradient1232"
+									x1="0"
+									x2="0"
+									y1="0"
+									y2="1"
+									><stop
+										id="SvgjsStop1233"
+										offset="0"
+										stop-color="rgba(216,227,240,0.4)"
+										stop-opacity=".4"></stop><stop
+										id="SvgjsStop1234"
+										offset="1"
+										stop-color="rgba(190,209,230,0.5)"
+										stop-opacity=".5"></stop><stop
+										id="SvgjsStop1235"
+										offset="1"
+										stop-color="rgba(190,209,230,0.5)"
+										stop-opacity=".5"></stop></linearGradient
+								></defs
+							><rect
+								id="SvgjsRect1236"
+								width="7.75"
+								height="78"
+								x="42"
+								y="0"
+								fill="url(#SvgjsLinearGradient1232)"
+								fill-opacity=".9"
+								stroke-dasharray="3"
+								stroke-width="0"
+								class="apexcharts-xcrosshairs"
+								filter="none"
+								opacity="1"
+								rx="0"
+								ry="0"></rect><g id="SvgjsG1268" class="apexcharts-grid"
+								><path
+									id="SvgjsLine1276"
+									stroke="transparent"
+									stroke-dasharray="0"
+									stroke-linecap="butt"
+									d="M0 78h217"></path><path
+									id="SvgjsLine1275"
+									stroke="transparent"
+									stroke-dasharray="0"
+									stroke-linecap="butt"
+									d="M0 1v77"></path></g
+							><g
+								id="SvgjsG1242"
+								class="apexcharts-bar-series apexcharts-plot-series"
+								><g data:realIndex="0" id="SvgjsG1243" class="apexcharts-series"
+									><rect
+										id="SvgjsRect1247"
+										width="7.75"
+										height="78"
+										x="11.625"
+										y="0"
+										fill="#262626"
+										stroke="none"
+										stroke-dasharray="0"
+										stroke-width="0"
+										class="apexcharts-backgroundBar"
+										opacity="1"
+										rx="3"
+										ry="3"></rect><path
+										id="SvgjsPath1249"
+										fill="rgba(140,104,29,1)"
+										fill-opacity="1"
+										stroke-dasharray="0"
+										stroke-linecap="round"
+										stroke-opacity="1"
+										stroke-width="0"
+										d="M11.625 75.001V54.988c0-1.5 1.5-3 3-3h1.75c1.5 0 3 1.5 3 3v20.013c0 1.5-1.5 3-3 3h-1.75c-1.5 0-3-1.5-3-3"
+										class="apexcharts-bar-area undefined"
+										clip-path="url(#gridRectBarMaskkz97uayx)"></path><rect
+										id="SvgjsRect1250"
+										width="7.75"
+										height="78"
+										x="42.625"
+										y="0"
+										fill="#262626"
+										stroke="none"
+										stroke-dasharray="0"
+										stroke-width="0"
+										class="apexcharts-backgroundBar"
+										opacity="1"
+										rx="3"
+										ry="3"></rect><path
+										id="SvgjsPath1252"
+										fill="rgba(140,104,29,1)"
+										fill-opacity="1"
+										stroke-dasharray="0"
+										stroke-linecap="round"
+										stroke-opacity="1"
+										stroke-width="0"
+										d="M42.625 75.001V33.518c0-1.5 1.5-3 3-3h1.75c1.5 0 3 1.5 3 3v41.483c0 1.5-1.5 3-3 3h-1.75c-1.5 0-3-1.5-3-3"
+										class="apexcharts-bar-area undefined"
+										clip-path="url(#gridRectBarMaskkz97uayx)"></path><rect
+										id="SvgjsRect1253"
+										width="7.75"
+										height="78"
+										x="73.625"
+										y="0"
+										fill="#262626"
+										stroke="none"
+										stroke-dasharray="0"
+										stroke-width="0"
+										class="apexcharts-backgroundBar"
+										opacity="1"
+										rx="3"
+										ry="3"></rect><path
+										id="SvgjsPath1255"
+										fill="rgba(140,104,29,1)"
+										fill-opacity="1"
+										stroke-dasharray="0"
+										stroke-linecap="round"
+										stroke-opacity="1"
+										stroke-width="0"
+										d="M73.625 75.001V46.817c0-1.5 1.5-3 3-3h1.75c1.5 0 3 1.5 3 3v28.184c0 1.5-1.5 3-3 3h-1.75c-1.5 0-3-1.5-3-3"
+										class="apexcharts-bar-area undefined"
+										clip-path="url(#gridRectBarMaskkz97uayx)"></path><rect
+										id="SvgjsRect1256"
+										width="7.75"
+										height="78"
+										x="104.625"
+										y="0"
+										fill="#262626"
+										stroke="none"
+										stroke-dasharray="0"
+										stroke-width="0"
+										class="apexcharts-backgroundBar"
+										opacity="1"
+										rx="3"
+										ry="3"></rect><path
+										id="SvgjsPath1258"
+										fill="rgba(140,104,29,1)"
+										fill-opacity="1"
+										stroke-dasharray="0"
+										stroke-linecap="round"
+										stroke-opacity="1"
+										stroke-width="0"
+										d="M104.625 75.001V55.105c0-1.5 1.5-3 3-3h1.75c1.5 0 3 1.5 3 3v19.896c0 1.5-1.5 3-3 3h-1.75c-1.5 0-3-1.5-3-3"
+										class="apexcharts-bar-area undefined"
+										clip-path="url(#gridRectBarMaskkz97uayx)"></path><rect
+										id="SvgjsRect1259"
+										width="7.75"
+										height="78"
+										x="135.625"
+										y="0"
+										fill="#262626"
+										stroke="none"
+										stroke-dasharray="0"
+										stroke-width="0"
+										class="apexcharts-backgroundBar"
+										opacity="1"
+										rx="3"
+										ry="3"></rect><path
+										id="SvgjsPath1261"
+										fill="rgba(140,104,29,1)"
+										fill-opacity="1"
+										stroke-dasharray="0"
+										stroke-linecap="round"
+										stroke-opacity="1"
+										stroke-width="0"
+										d="M135.625 75.001V58.478c0-1.5 1.5-3 3-3h1.75c1.5 0 3 1.5 3 3v16.523c0 1.5-1.5 3-3 3h-1.75c-1.5 0-3-1.5-3-3"
+										class="apexcharts-bar-area undefined"
+										clip-path="url(#gridRectBarMaskkz97uayx)"></path><rect
+										id="SvgjsRect1262"
+										width="7.75"
+										height="78"
+										x="166.625"
+										y="0"
+										fill="#262626"
+										stroke="none"
+										stroke-dasharray="0"
+										stroke-width="0"
+										class="apexcharts-backgroundBar"
+										opacity="1"
+										rx="3"
+										ry="3"></rect><path
+										id="SvgjsPath1264"
+										fill="rgba(140,104,29,1)"
+										fill-opacity="1"
+										stroke-dasharray="0"
+										stroke-linecap="round"
+										stroke-opacity="1"
+										stroke-width="0"
+										d="M166.625 75.001V49.177c0-1.5 1.5-3 3-3h1.75c1.5 0 3 1.5 3 3v25.824c0 1.5-1.5 3-3 3h-1.75c-1.5 0-3-1.5-3-3"
+										class="apexcharts-bar-area undefined"
+										clip-path="url(#gridRectBarMaskkz97uayx)"></path><rect
+										id="SvgjsRect1265"
+										width="7.75"
+										height="78"
+										x="197.625"
+										y="0"
+										fill="#262626"
+										stroke="none"
+										stroke-dasharray="0"
+										stroke-width="0"
+										class="apexcharts-backgroundBar"
+										opacity="1"
+										rx="3"
+										ry="3"></rect><path
+										id="SvgjsPath1267"
+										fill="rgba(140,104,29,1)"
+										fill-opacity="1"
+										stroke-dasharray="0"
+										stroke-linecap="round"
+										stroke-opacity="1"
+										stroke-width="0"
+										d="M197.625 75.001V54.949c0-1.5 1.5-3 3-3h1.75c1.5 0 3 1.5 3 3v20.052c0 1.5-1.5 3-3 3h-1.75c-1.5 0-3-1.5-3-3"
+										class="apexcharts-bar-area undefined"
+										clip-path="url(#gridRectBarMaskkz97uayx)"></path></g
+								></g
+							></g
+						></svg
+					>
+				</div>
+			</div>
+		</div>
+
+		<div
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-neutral-700"
+		>
+			<div
+				class="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm sm:flex sm:p-6 dark:bg-neutral-700"
+			>
+				<div class="w-full">
+					<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+						Tipo de negocio
+					</h3>
+					<span
+						class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white"
+						>{empresa.tipo_de_negocio}</span
+					>
+				</div>
+				<div class="w-full" style="min-height: 155px;">
+					<div
+						id="apexchartskz97uayx"
+						class="cuadro_1"
+						style="width: 239px; height: 140px;"
+					>
+						<!--?xml version="1.0" encoding="UTF-8" standalone="no"?-->
+						<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+						<svg
+							viewBox="0 0 212.3251 80.717765"
+							class="w-full h-full"
+							version="1.1"
+							id="svg1"
+							inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+							sodipodi:docname="dibujo.svg"
+							xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+							xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+							xmlns:xlink="http://www.w3.org/1999/xlink"
+							xmlns="http://www.w3.org/2000/svg"
+							xmlns:svg="http://www.w3.org/2000/svg"
+						>
+							<sodipodi:namedview
+								id="namedview1"
+								pagecolor="#505050"
+								bordercolor="#eeeeee"
+								borderopacity="1"
+								inkscape:showpageshadow="0"
+								inkscape:pageopacity="0"
+								inkscape:pagecheckerboard="0"
+								inkscape:deskcolor="#505050"
+								inkscape:document-units="mm"
+								inkscape:zoom="0.76167929"
+								inkscape:cx="360.3879"
+								inkscape:cy="166.0804"
+								inkscape:window-width="1920"
+								inkscape:window-height="1057"
+								inkscape:window-x="-8"
+								inkscape:window-y="-8"
+								inkscape:window-maximized="1"
+								inkscape:current-layer="layer1"
+							>
+								<inkscape:page
+									x="0"
+									y="0"
+									width="212.3251"
+									height="80.717766"
+									id="page8"
+									margin="0 0 160.48421"
+									bleed="0"></inkscape:page>
+							</sodipodi:namedview>
+							<defs id="defs1">
+								<linearGradient id="linearGradient7" inkscape:collect="always">
+									<stop
+										style="stop-color:#967532;stop-opacity:1;"
+										offset="0"
+										id="stop7"></stop>
+									<stop
+										style="stop-color:#967532;stop-opacity:0;"
+										offset="1"
+										id="stop8"></stop>
+								</linearGradient>
+								<inkscape:path-effect
+									effect="bspline"
+									id="path-effect5"
+									is_visible="true"
+									lpeversion="1.3"
+									weight="33.333333"
+									steps="2"
+									helper_size="0"
+									apply_no_weight="true"
+									apply_with_weight="true"
+									only_selected="false"
+									uniform="false"></inkscape:path-effect>
+								<linearGradient id="linearGradient2" inkscape:collect="always">
+									<stop
+										style="stop-color:#967532;stop-opacity:1;"
+										offset="0"
+										id="stop2"></stop>
+									<stop
+										style="stop-color:#967532;stop-opacity:0;"
+										offset="1"
+										id="stop3"></stop>
+								</linearGradient>
+								<inkscape:path-effect
+									effect="bspline"
+									id="path-effect1"
+									is_visible="true"
+									lpeversion="1.3"
+									weight="33.333333"
+									steps="2"
+									helper_size="0"
+									apply_no_weight="true"
+									apply_with_weight="true"
+									only_selected="false"
+									uniform="false"></inkscape:path-effect>
+								<linearGradient
+									inkscape:collect="always"
+									xlink:href="#linearGradient2"
+									id="linearGradient3"
+									x1="120.5113"
+									y1="66.882011"
+									x2="120.5113"
+									y2="155.95459"
+									gradientUnits="userSpaceOnUse"
+									gradientTransform="matrix(1.0109964,0,0,1,0.01579746,0)"
+								></linearGradient>
+								<linearGradient
+									inkscape:collect="always"
+									xlink:href="#linearGradient7"
+									id="linearGradient8"
+									x1="126.78291"
+									y1="78.108849"
+									x2="126.78291"
+									y2="173.03099"
+									gradientUnits="userSpaceOnUse"
+									gradientTransform="matrix(0.95247866,0,0,1,1.0954552,-2.77864)"
+								></linearGradient>
+							</defs>
+							<g
+								inkscape:label="Capa 1"
+								inkscape:groupmode="layer"
+								id="layer1"
+								transform="translate(0,-55.231579)"
+							>
+								<path
+									d="m 180.35767,67.022266 c -1.41942,-0.05663 -2.8168,0.186883 -4.18899,0.773079 -10.97751,4.689564 -20.34199,31.319893 -31.93143,33.462045 C 132.64781,103.39954 118.83458,81.053128 108.0646,85.337427 97.294606,89.621726 89.568982,120.53599 79.501386,116.65696 69.43379,112.77794 57.02585,74.105861 43.387769,71.500545 29.749687,68.895229 14.882566,102.3578 5.9857977,120.82622 c -3.2002561,6.64327 -5.628042,11.34657 -7.4224025,14.99495 H 212.3241 c 7.3e-4,-0.32726 0.001,-0.65565 0.001,-0.98444 V 103.51616 97.610579 C 201.30927,82.514527 190.29354,67.418694 180.35767,67.022266 Z"
+									style="display:inline;opacity:0.5;fill:url(#linearGradient3);stroke:none;stroke-width:0.266034"
+									id="path2"></path>
+								<path
+									d="m 212.32502,135.82098 v -47.2488 c -2.77579,-8.189936 -7.11431,-10.708402 -11.82098,-10.124447 -6.06584,0.752587 -12.7429,6.657346 -22.69887,5.15214 -8.71148,-1.317056 -19.9327,-8.307708 -28.40189,-8.134387 -1.20988,0.02476 -2.36357,0.195759 -3.44578,0.550354 -8.65767,2.836754 -12.7381,17.426261 -20.94343,22.692155 -8.20533,5.265895 -20.53507,1.208041 -30.019868,-3.365686 -9.484807,-4.573726 -16.124064,-9.66313 -25.34419,-5.781559 -9.220125,3.881571 -21.020709,16.73385 -29.512927,21.59713 -8.492217,4.86329 -13.67565,1.7372 -19.859253,4.05298 -6.183605,2.31578 -13.3671823,10.07364 -18.8815348,17.59996 -0.73928962,1.00902 -1.44835896,2.01379 -2.06085612,3.01016 z"
+									style="display:inline;opacity:0.333;fill:url(#linearGradient8);stroke-width:0.25822"
+									id="path1"></path>
+							</g>
+						</svg>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div
+			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-neutral-700"
+		>
+			<div class="w-full">
+				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+					Porcentaje de incorporación
+				</h3>
+				<span
+					class="text-xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white"
+					>60 %</span
+				>
+			</div>
+			<div class="w-full" id="porcentaje-radio"></div>
+		</div>
+	</div>
+	<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+		<!-- Main widget -->
+		<div
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-neutral-700"
+		>
+			<div class="flex items-center justify-between mb-4">
+				<div class="flex-shrink-0">
+					<span
+						class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white"
+						>{empresa.estado_de_incorporacion}</span
+					>
+					<h3 class="text-base font-light text-gray-500 dark:text-gray-400">
+						Ubicacion de tu empresa
+					</h3>
+				</div>
+			</div>
+
+			<!-- NOTE: Charts could be extracted to a generic UI component -->
+			<div id="mapa-estados" class="h-96" data-empresa-id={id}></div>
+		</div>
+		<!--Tabs widget -->
+		<div
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-neutral-700"
+		>
+			<h3
+				class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white"
+			>
+				Acciones rapidas
+				<button
+					data-popover-target="popover-description"
+					data-popover-placement="bottom-end"
+					type="button"
+					><svg
+						class="w-4 h-4 ml-2 text-gray-400 hover:text-gray-500"
+						aria-hidden="true"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+							clip-rule="evenodd"></path></svg
+					><span class="sr-only">Ayuda</span></button
+				>
+			</h3>
+			<div
+				data-popover
+				id="popover-description"
+				role="tooltip"
+				class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-neutral-700 dark:border-gray-600 dark:text-gray-400"
+			>
+				<div class="p-3 space-y-2">
+					<h3 class="font-semibold text-gray-900 dark:text-white">
+						Acciones rapidas
+					</h3>
+					<p>
+						Encuentra links a tus documentos completados, bandeja de
+						notificaciones, formularios, email, y descarga plantillas de
+						documentos importantes.
+					</p>
+				</div>
+				<div data-popper-arrow></div>
+			</div>
+			<div class="border-t border-gray-200 dark:border-gray-600">
+				<div class="pt-4">
+					<ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+						<li class="py-3 sm:py-4">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center min-w-0">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-10 h-10 text-white hover:scale-105"
+										viewBox="0 0 24 24"
+										><g fill="currentColor"
+											><path
+												d="m12 2l.117.007a1 1 0 0 1 .876.876L13 3v4l.005.15a2 2 0 0 0 1.838 1.844L15 9h4l.117.007a1 1 0 0 1 .876.876L20 10v9a3 3 0 0 1-2.824 2.995L17 22H7a3 3 0 0 1-2.995-2.824L4 19V5a3 3 0 0 1 2.824-2.995L7 2z"
+											></path><path d="M19 7h-4l-.001-4.001z"></path></g
+										></svg
+									>
+									<div class="ml-3">
+										<p
+											class="font-medium text-gray-900 truncate dark:text-white"
+										>
+											Documentos completados
+										</p>
+									</div>
+								</div>
+								<a
+									target="_blank"
+									href="/pages/tus-formularios"
+									class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-3.5 h-3.5 me-2"
+										viewBox="0 0 16 16"
+										><path
+											fill="currentColor"
+											d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
+										></path><path
+											fill="currentColor"
+											d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
+										></path></svg
+									>
+									ir
+								</a>
+							</div>
+						</li>
+						<li class="py-3 sm:py-4">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center min-w-0">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-10 h-10 text-white hover:scale-105"
+										viewBox="0 0 48 48"
+										><g
+											fill="none"
+											stroke="currentColor"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="4"
+											><path d="m21 13l-10 7v24"></path><path
+												fill="currentColor"
+												fill-rule="evenodd"
+												d="m21 4l10 7v13l7 5v15H21z"
+												clip-rule="evenodd"></path><path d="M4 44h40"></path></g
+										></svg
+									>
+									<div class="ml-3">
+										<p
+											class="font-medium text-gray-900 truncate dark:text-white"
+										>
+											Crea una nueva empresa
+										</p>
+									</div>
+								</div>
+								<a
+									target="_blank"
+									href="/start/"
+									class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-3.5 h-3.5 me-2"
+										viewBox="0 0 16 16"
+										><path
+											fill="currentColor"
+											d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
+										></path><path
+											fill="currentColor"
+											d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
+										></path></svg
+									>
+									ir
+								</a>
+							</div>
+						</li>
+						<li class="py-3 sm:py-4">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center min-w-0">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-10 h-10 text-white hover:scale-105"
+										viewBox="0 0 24 24"
+										><path
+											fill="currentColor"
+											fill-rule="evenodd"
+											d="M2.07 5.258C2 5.626 2 6.068 2 6.95V14c0 3.771 0 5.657 1.172 6.828S6.229 22 10 22h4c3.771 0 5.657 0 6.828-1.172S22 17.771 22 14v-2.202c0-2.632 0-3.949-.77-4.804a3 3 0 0 0-.224-.225C20.151 6 18.834 6 16.202 6h-.374c-1.153 0-1.73 0-2.268-.153a4 4 0 0 1-.848-.352C12.224 5.224 11.816 4.815 11 4l-.55-.55c-.274-.274-.41-.41-.554-.53a4 4 0 0 0-2.18-.903C7.53 2 7.336 2 6.95 2c-.883 0-1.324 0-1.692.07A4 4 0 0 0 2.07 5.257M16.283 3c.365 0 .548 0 .702.02c1.018.14 1.828.943 2.014 1.98a5 5 0 0 0-.461-.081c-.64-.084-1.448-.084-2.45-.084h-.334c-.942 0-1.3-.005-1.625-.101a2.5 2.5 0 0 1-.542-.233c-.296-.17-.552-.428-1.218-1.118L12 3zM13 9.25a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5z"
+											clip-rule="evenodd"></path></svg
+									>
+									<div class="ml-3">
+										<p
+											class="font-medium text-gray-900 truncate dark:text-white"
+										>
+											Obtén documentos oficiales
+										</p>
+									</div>
+								</div>
+								<a
+									target="_blank"
+									href="/start/"
+									class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-3.5 h-3.5 me-2"
+										viewBox="0 0 16 16"
+										><path
+											fill="currentColor"
+											d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
+										></path><path
+											fill="currentColor"
+											d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
+										></path></svg
+									>
+									ir
+								</a>
+							</div>
+						</li>
+						<li class="py-3 sm:py-4">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center min-w-0">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-10 h-10 text-white hover:scale-105"
+										viewBox="0 0 24 24"
+										><g fill="none"
+											><g clip-path="url(#SVGXv8lpc2Y)"
+												><path
+													fill="currentColor"
+													fill-rule="evenodd"
+													d="M24 12c0 6.627-5.373 12-12 12S0 18.627 0 12S5.373 0 12 0s12 5.373 12 12M6 16.2h9V9.6a1.8 1.8 0 0 0-1.8-1.8h-9v6.6A1.8 1.8 0 0 0 6 16.2m10.2-2.4l3.6 2.4V7.8l-3.6 2.4z"
+													clip-rule="evenodd"></path></g
+											><defs
+												><clipPath id="SVGXv8lpc2Y"
+													><path fill="#fff" d="M0 0h24v24H0z"></path></clipPath
+												></defs
+											></g
+										></svg
+									>
+									<div class="ml-3">
+										<p
+											class="font-medium text-gray-900 truncate dark:text-white"
+										>
+											Obtener una cita con nosotros
+										</p>
+									</div>
+								</div>
+								<a
+									target="_blank"
+									href="/start/"
+									class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-3.5 h-3.5 me-2"
+										viewBox="0 0 16 16"
+										><path
+											fill="currentColor"
+											d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
+										></path><path
+											fill="currentColor"
+											d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
+										></path></svg
+									>
+									ir
+								</a>
+							</div>
+						</li>
+						<li class="py-3 sm:py-4">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center min-w-0">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-10 h-10 text-white hover:scale-105"
+										viewBox="0 0 24 24"
+										><path
+											fill="currentColor"
+											d="M19 9q-1.425 0-2.475-.85T15.125 6H8.85q-.275 1.05-1.037 1.813T6 8.85v6.275q1.3.35 2.15 1.4T9 19q0 1.65-1.175 2.825T5 23t-2.825-1.175T1 19q0-1.425.85-2.475t2.15-1.4V8.85q-1.3-.35-2.15-1.4T1 5q0-1.65 1.175-2.825T5 1q1.4 0 2.45.85T8.85 4h6.275q.35-1.3 1.4-2.15T19 1q1.65 0 2.825 1.175T23 5t-1.175 2.825T19 9m0 14q-1.65 0-2.825-1.175T15 19t1.175-2.825T19 15t2.825 1.175T23 19t-1.175 2.825T19 23"
+										></path></svg
+									>
+									<div class="ml-3">
+										<p
+											class="font-medium text-gray-900 truncate dark:text-white"
+										>
+											Mira más de nuestros servicios
+										</p>
+									</div>
+								</div>
+								<a
+									target="_blank"
+									href="/start/"
+									class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-3.5 h-3.5 me-2"
+										viewBox="0 0 16 16"
+										><path
+											fill="currentColor"
+											d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
+										></path><path
+											fill="currentColor"
+											d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
+										></path></svg
+									>
+									ir
+								</a>
+							</div>
+						</li>
+						<li class="py-3 sm:py-4">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center min-w-0">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-10 h-10 text-white hover:scale-105"
+										viewBox="0 0 640 512"
+										><path
+											fill="currentColor"
+											d="M488 192H336v56c0 39.7-32.3 72-72 72s-72-32.3-72-72V126.4l-64.9 39C107.8 176.9 96 197.8 96 220.2v47.3l-80 46.2C.7 322.5-4.6 342.1 4.3 357.4l80 138.6c8.8 15.3 28.4 20.5 43.7 11.7L231.4 448H368c35.3 0 64-28.7 64-64h16c17.7 0 32-14.3 32-32v-64h8c13.3 0 24-10.7 24-24v-48c0-13.3-10.7-24-24-24m147.7-37.4L555.7 16C546.9.7 527.3-4.5 512 4.3L408.6 64H306.4c-12 0-23.7 3.4-33.9 9.7L239 94.6c-9.4 5.8-15 16.1-15 27.1V248c0 22.1 17.9 40 40 40s40-17.9 40-40v-88h184c30.9 0 56 25.1 56 56v28.5l80-46.2c15.3-8.9 20.5-28.4 11.7-43.7"
+										></path></svg
+									>
+									<div class="ml-3">
+										<p
+											class="font-medium text-gray-900 truncate dark:text-white"
+										>
+											Conviertete en Partner
+										</p>
+									</div>
+								</div>
+								<a
+									target="_blank"
+									href="/start/"
+									class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-3.5 h-3.5 me-2"
+										viewBox="0 0 16 16"
+										><path
+											fill="currentColor"
+											d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
+										></path><path
+											fill="currentColor"
+											d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
+										></path></svg
+									>
+									ir
+								</a>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div
+		class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-neutral-700 my-4"
+	>
+		<!-- Card header -->
+		<div class="items-center justify-between lg:flex">
+			<div class="mb-4 lg:mb-0">
+				<h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+					Documentos
+				</h3>
+				<span class="text-base font-normal text-gray-500 dark:text-gray-400"
+					>Tu lista de documentos de la empresa</span
+				>
+			</div>
+		</div>
+		<!-- Table -->
+		<div class="flex flex-col mt-6">
+			<div class="overflow-x-auto rounded-lg">
+				<div class="inline-block min-w-full align-middle">
+					<div class="overflow-hidden shadow sm:rounded-lg">
+						<table
+							class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
+						>
+							<thead class="bg-gray-50 dark:bg-neutral-700">
+								<tr>
+									<th
+										scope="col"
+										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
+									>
+										Nombre del documento
+									</th>
+									<th
+										scope="col"
+										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
+									>
+										Fecha
+									</th>
+									<th
+										scope="col"
+										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
+									>
+										estado del documento
+									</th>
+									<th
+										scope="col"
+										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
+									>
+										Ver documento
+									</th>
+									<th
+										scope="col"
+										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
+									>
+										Descargar
+									</th>
+								</tr>
+							</thead>
+							<tbody class="bg-white dark:bg-neutral-700">
+								<tr>
+									<td
+										class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white"
+									>
+										Payment from <span class="font-semibold">Bonnie Green</span>
+									</td>
+									<td
+										class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400"
+									>
+										Apr 23 ,2021
+									</td>
+									<td class="p-4 whitespace-nowrap">
+										<span
+											class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:bg-neutral-700 dark:text-green-400 border border-green-100 dark:border-green-500 mx-auto"
+											>Completado</span
+										>
+									</td>
+									<td
+										class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-neutral-500"
+									>
+										<a
+											href="http://"
+											target="_blank"
+											rel="noopener noreferrer"
+											title="Ver documento"
+											><svg
+												xmlns="http://www.w3.org/2000/svg"
+												class="hover:text-white transition-colors"
+												width="24"
+												height="24"
+												viewBox="0 0 24 24"
+												><path
+													fill="currentColor"
+													d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"
+												></path></svg
+											></a
+										>
+									</td>
+									<td
+										class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-neutral-500"
+									>
+										<a href="" title="Descargar el documento">
+											<svg
+												class="hover:text-white transition-colors"
+												width="24"
+												height="24"
+												fill="currentColor"
+												viewBox="0 0 24 24"
+												xmlns="http://www.w3.org/2000/svg"
+												aria-hidden="true"
+												data-astro-cid-d52ol5io=""
+											>
+												<path
+													clip-rule="evenodd"
+													fill-rule="evenodd"
+													d="M12 2.25a.75.75 0 01.75.75v11.69l3.22-3.22a.75.75 0 111.06 1.06l-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 111.06-1.06l3.22 3.22V3a.75.75 0 01.75-.75zm-9 13.5a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5V16.5a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V16.5a.75.75 0 01.75-.75z"
+													data-astro-cid-d52ol5io=""></path>
+											</svg>
+										</a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Card Footer -->
+		<div class="flex items-center justify-between pt-3 sm:pt-6">
+			<div>
+				<button
+					class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+					type="button"
+					data-dropdown-toggle="transactions-dropdown"
+					>Last 7 days <svg
+						class="w-4 h-4 ml-2"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M19 9l-7 7-7-7"></path></svg
+					></button
+				>
+				<!-- Dropdown menu -->
+				<div
+					class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-neutral-700 dark:divide-gray-600"
+					id="transactions-dropdown"
+				>
+					<div class="px-4 py-3" role="none">
+						<p
+							class="text-sm font-medium text-gray-900 truncate dark:text-white"
+							role="none"
+						>
+							Sep 16, 2021 - Sep 22, 2021
+						</p>
+					</div>
+					<ul class="py-1" role="none">
+						<li>
+							<a
+								href="#"
+								class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+								role="menuitem">Yesterday</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+								role="menuitem">Today</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+								role="menuitem">Last 7 days</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+								role="menuitem">Last 30 days</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+								role="menuitem">Last 90 days</a
+							>
+						</li>
+					</ul>
+					<div class="py-1" role="none">
+						<a
+							href="#"
+							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
+							role="menuitem">Custom...</a
+						>
+					</div>
+				</div>
+			</div>
+			<div class="flex-shrink-0">
+				<a
+					href="#"
+					class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-[#8c681d] sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-neutral-700"
+				>
+					Transactions Report
+					<svg
+						class="w-4 h-4 ml-1 sm:w-5 sm:h-5"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M9 5l7 7-7 7"></path></svg
+					>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	import './DashBoardEmpresas.client.js';
+</script>
+
+<script>
+	import { renderizarMapaEstados } from '../pages/api/charts/mapa-empresas.client.ts';
+
+	document.addEventListener('DOMContentLoaded', function () {
+		setTimeout(() => {
+			const container = document.getElementById('mapa-estados');
+			if (container) {
+				// La variable 'id' debe estar disponible en este script.
+				// La forma más limpia en Astro es usar `data-` attributes.
+				const empresaId = container.dataset.empresaId;
+
+				console.log('Inicializando mapa para empresa ID:', empresaId);
+
+				// Uso directo de la función exportada:
+				renderizarMapaEstados('mapa-estados', '#967432', empresaId).catch(
+					(error) => {
+						console.error('Error al renderizar el mapa:', error);
+						container.innerHTML = `
+              <div style="color:red; text-align:center; padding:2rem;">
+                Error cargando el mapa: ${error.message}
+              </div>
+            `;
+					},
+				);
+			}
+		}, 100);
+	});
+</script>
+
+<style>
+	.cuadro_1 {
+		animation: aparecer 1.5s;
+	}
+	canvas {
+		animation: aparecer 1.5s;
+	}
+	@keyframes aparecer {
+		from {
+			opacity: 0%;
+		}
+		to {
+			opacity: 100%;
+		}
+	}
+</style>
+
+<style is:global>
+	/* chart styles */
+	.apexcharts-tooltip {
+		@apply bg-white dark:bg-neutral-700 text-gray-500 dark:text-gray-400 border-0 rounded-lg shadow-lg !important;
+	}
+
+	.apexcharts-tooltip .apexcharts-tooltip-title {
+		@apply py-2 px-4 bg-gray-100 dark:bg-gray-600 border-b border-gray-200 dark:border-gray-500 !important;
+	}
+
+	.apexcharts-xaxistooltip {
+		@apply text-gray-500 border-0 bg-white dark:bg-neutral-700 dark:text-gray-300 rounded-lg shadow-lg !important;
+	}
+
+	.apexcharts-tooltip .apexcharts-tooltip-text-y-value {
+		@apply dark:text-white;
+	}
+
+	.apexcharts-xaxistooltip-text {
+		@apply font-medium text-sm !important;
+	}
+
+	.apexcharts-xaxistooltip:before,
+	.apexcharts-xaxistooltip:after {
+		@apply border-0 !important;
+	}
+</style>

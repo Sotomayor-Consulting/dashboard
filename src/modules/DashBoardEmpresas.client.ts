@@ -156,91 +156,82 @@ if (document.getElementById('main-chart')) {
 	});
 }
 
-if (document.getElementById('new-products-chart')) {
+if (document.getElementById('porcentaje-radio')) {
 	const options = {
-		colors: ['#1A56DB', '#FDBA8C'],
-		series: [
-			{
-				name: 'Quantity',
-				color: '#8c681d',
-				data: [
-					{ x: '01 Feb', y: 170 },
-					{ x: '02 Feb', y: 180 },
-					{ x: '03 Feb', y: 164 },
-					{ x: '04 Feb', y: 145 },
-					{ x: '05 Feb', y: 194 },
-					{ x: '06 Feb', y: 170 },
-					{ x: '07 Feb', y: 155 },
-				],
-			},
-		],
+		series: [60],
+		colors: ['#8c681d'],
 		chart: {
-			type: 'bar',
-			height: '140px',
+			type: 'radialBar',
+			height: 200,
 			fontFamily: 'Inter, sans-serif',
-			foreColor: '#4B5563',
+			foreColor: '#fffff',
 			toolbar: {
 				show: false,
 			},
 		},
 		plotOptions: {
-			bar: {
-				columnWidth: '90%',
-				borderRadius: 3,
+			radialBar: {
+				startAngle: -135,
+				endAngle: 135,
+				hollow: {
+					margin: 0,
+					size: '70%',
+					background: 'transparent',
+				},
+				track: {
+					background: '#F3F4F6',
+					strokeWidth: '100%',
+					margin: 0,
+				},
+				dataLabels: {
+					show: true,
+					name: {
+						show: false,
+					},
+					value: {
+						show: true,
+						fontSize: '22px',
+						fontWeight: 'bold',
+						offsetY: 5,
+						color: '#ffffff',
+						formatter: function(val: number) {
+							return val + '%';
+						}
+					}
+				}
 			},
 		},
+		stroke: {
+			lineCap: 'round'
+		},
+		labels: ['Progreso'],
 		tooltip: {
-			shared: false,
-			intersect: false,
+			enabled: true,
+			fillSeriesColor: false,
+			theme: 'light',
 			style: {
 				fontSize: '14px',
 				fontFamily: 'Inter, sans-serif',
 			},
-		},
-		states: {
-			hover: {
-				filter: {
-					type: 'darken',
-					value: 1,
-				},
-			},
-		},
-		stroke: {
-			show: true,
-			width: 5,
-			colors: ['transparent'],
-		},
-		grid: {
-			show: false,
-		},
-		dataLabels: {
-			enabled: false,
-		},
-		legend: {
-			show: false,
-		},
-		xaxis: {
-			floating: false,
-			labels: {
-				show: false,
-			},
-			axisBorder: {
-				show: false,
-			},
-			axisTicks: {
-				show: false,
-			},
-		},
-		yaxis: {
-			show: false,
-		},
-		fill: {
-			opacity: 1,
-		},
+			y: {
+				formatter: function(val: number) {
+					// Mensaje personalizado basado en el porcentaje
+					if (val >= 80) {
+						return `${val}% completado - Casi listo`;
+					} else if (val >= 60) {
+						return `${val}% - Vamos por buen camino`;
+					} else if (val >= 40) {
+						return `${val}% - Continúa así`;
+					} else {
+						return `${val}% - Sigue adelante`;
+					}
+				}
+			}
+		}
 	};
 
 	const chart = new ApexCharts(
-		document.getElementById('new-products-chart'),
+		document.getElementById('porcentaje-radio'),
 		options,
 	);
 	chart.render();
@@ -437,25 +428,25 @@ const getSignupsChartOptions = () => {
 	if (document.documentElement.classList.contains('dark')) {
 		signupsChartColors = {
 			backgroundBarColors: [
-				'#374151',
-				'#374151',
-				'#374151',
-				'#374151',
-				'#374151',
-				'#374151',
-				'#374151',
+				'#262626',
+				'#262626',
+				'#262626',
+				'#262626',
+				'#262626',
+				'#262626',
+				'#262626',
 			],
 		};
 	} else {
 		signupsChartColors = {
 			backgroundBarColors: [
-				'#E5E7EB',
-				'#E5E7EB',
-				'#E5E7EB',
-				'#E5E7EB',
-				'#E5E7EB',
-				'#E5E7EB',
-				'#E5E7EB',
+				'#8c681d',
+				'#8c681d',
+				'#8c681d',
+				'#8c681d',
+				'#8c681d',
+				'#8c681d',
+				'#8c681d',
 			],
 		};
 	}
@@ -479,7 +470,7 @@ const getSignupsChartOptions = () => {
 		chart: {
 			type: 'bar',
 			height: '140px',
-			foreColor: '#4B5563',
+			foreColor: '#8c681d',
 			fontFamily: 'Inter, sans-serif',
 			toolbar: {
 				show: false,
@@ -488,7 +479,7 @@ const getSignupsChartOptions = () => {
 		theme: {
 			monochrome: {
 				enabled: true,
-				color: '#1A56DB',
+				color: '#8c681d',
 			},
 		},
 		plotOptions: {
@@ -516,14 +507,7 @@ const getSignupsChartOptions = () => {
 				show: false,
 			},
 		},
-		tooltip: {
-			shared: true,
-			intersect: false,
-			style: {
-				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif',
-			},
-		},
+		
 		states: {
 			hover: {
 				filter: {

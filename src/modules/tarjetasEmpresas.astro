@@ -1,0 +1,233 @@
+---
+import { supabase } from '../lib/supabase';
+const { cookies, redirect } = Astro;
+
+// 1) Restaurar sesión
+const at = cookies.get('sb-access-token');
+const rt = cookies.get('sb-refresh-token');
+if (!at || !rt) return redirect('/sign-in');
+
+await supabase.auth.setSession({
+	access_token: at.value,
+	refresh_token: rt.value,
+});
+
+// 2) Usuario
+const {
+	data: { user },
+	error: userErr,
+} = await supabase.auth.getUser();
+if (userErr || !user) return redirect('/sign-in');
+
+// 3) ¿Es admin?
+const { data: isAdmin, error: rpcErr } = await supabase.rpc('is_admin', {
+	uid: user.id,
+});
+
+// 4) Si es admin → no mostrar nada (ni consultar)
+let empresas: any[] = [];
+if (!rpcErr && !isAdmin) {
+	// 5) No admin → solo sus envíos
+	const { data } = await supabase
+		.from('empresas_incorporaciones')
+		.select(
+			`
+      user_id,
+      empresa_incorporacion_id,
+      tipo_de_negocio,
+      estado_de_incorporacion,
+      estado,
+      nombre_1,
+      nombre_2,
+      nombre_3,
+      updated_at
+    `,
+		)
+		.eq('user_id', user.id)
+		.order('updated_at', { ascending: true });
+
+	empresas = data ?? [];
+}
+---
+
+<div class="mb-10">
+	<div class="grid grid-cols-1 px-4 pt-6 xl:gap-4">
+		<div class="mb-4 col-span-full xl:mb-2">
+			<nav class="flex mb-5" aria-label="Breadcrumb">
+				<ol
+					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
+				>
+					<li class="inline-flex items-center">
+						<a
+							href="#"
+							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-primary-500"
+						>
+							<svg
+								class="w-5 h-5 mr-2.5"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+								></path></svg
+							>
+							Inicio
+						</a>
+					</li>
+					<li>
+						<div class="flex items-center">
+							<svg
+								class="w-6 h-6 text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+									clip-rule="evenodd"></path></svg
+							>
+							<a
+								href="#"
+								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-primary-500"
+								>Pages</a
+							>
+						</div>
+					</li>
+					<li>
+						<div class="flex items-center">
+							<svg
+								class="w-6 h-6 text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+									clip-rule="evenodd"></path></svg
+							>
+							<span
+								class="ml-1 text-gray-400 md:ml-2 dark:text-gray-500"
+								aria-current="page">empresas</span
+							>
+						</div>
+					</li>
+				</ol>
+			</nav>
+			<h1
+				class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
+			>
+				Tus empresas
+			</h1>
+			<h3 class="mt-5 text-gray-400 md:ml-2 dark:text-gray-300">empresas</h3>
+		</div>
+		<!-- Right Content -->
+		<div class="grid xl:grid-cols-3 md:grid-cols-2 gap-2">
+			{
+				(empresas?.length ?? 0) === 0 ? (
+					<div class="p-6 border rounded-lg text-center text-gray-600 dark:text-gray-300">
+						<h3 class="text-lg font-semibold mb-1">No tienes empresas aún</h3>
+					</div>
+				) : (
+					empresas?.map((fr) => (
+						<div class="flex flex-col items-end mb-4 bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-[#1d1d1d] dark:hover:bg-gray-700">
+							<a
+								href={`/dashboard/${fr.empresa_incorporacion_id}`}
+								target="_blank"
+								title={`ver datos de tu empresa ${fr.nombre_1}`}
+								class="grid w-full lg:grid-cols-[auto,1fr] min-h-full"
+							>
+								<div>
+									<img
+										class="object-cover w-full rounded-t-lg md:h-full md:w-48 md:rounded-none md:rounded-s-lg hidden lg:block"
+										src="https://img.freepik.com/foto-gratis/edificio-moderno-fachada-cristal_181624-5817.jpg?t=st=1761661811~exp=1761665411~hmac=5fd1963c2936afbf9d31b5d4625260238fd4245b53dea2d295b82076800a09a7&w=1480"
+										alt=""
+									/>
+								</div>
+								<div class="grid lg:grid-cols-[1fr,auto]">
+									<div class="flex flex-col p-4 leading-normal items-start justify-start lg:place-self-center">
+										<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+											{fr.nombre_1} - {fr.tipo_de_negocio}
+										</h5>
+										<p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
+											{fr.estado_de_incorporacion}
+										</p>
+									</div>
+									<div class="flex justify-end my-4">
+										{fr.estado === 'En proceso' ? (
+											<button
+												type="button"
+												data-popover-target={`tooltip-${fr.empresa_incorporacion_id}`}
+												data-popover-placement="bottom-end"
+												class="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-gray-400/20 dark:text-gray-300 flex justify-center items-center w-fit h-fit"
+											>
+												<div class="rounded-full bg-orange-500 w-2 h-2 mr-1 " />
+												{fr.estado}
+											</button>
+										) : (
+											<button
+												type="button"
+												class="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-gray-400/20 dark:text-gray-300 flex justify-center items-center w-fit h-fit"
+											>
+												<div class="rounded-full bg-green-500 w-2 h-2 mr-1 " />
+												{fr.estado}
+											</button>
+										)}
+									</div>
+									
+								</div>
+							</a>
+						</div>
+                        <div
+                            data-popover
+                            id={`tooltip-${fr.empresa_incorporacion_id}`}
+                            role="tooltip"
+                            class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400"
+                        >
+                            <div class="p-3 space-y-2">
+                                <h3 class="font-semibold text-gray-900 dark:text-white">
+                                    ¿Por qué mi empresa está en proceso?
+                                </h3>
+                                <p>Tu empresa está en proceso por estas razones:</p>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>
+                                        Tu empresa aún no está configurada al 100% y está pendiente el pago para
+                                        iniciar el proceso de constitución.
+                                    </li>
+                                    <li>
+                                        Tu empresa está en proceso de incorporación legal (si ya iniciaste el
+                                        proceso de pago). Te informaremos por notificaciones y correo el proceso
+                                        y etapa de incorporación legal.
+                                    </li>
+                                </ul>
+                                <a
+                                    href="#"
+                                    class="flex items-center font-medium text-blue-600 dark:text-blue-500 dark:hover:text-blue-600 hover:text-blue-700 hover:underline"
+                                >
+                                    Más información
+                                    <svg
+                                        class="w-2 h-2 ms-1.5 rtl:rotate-180"
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 6 10"
+                                    >
+                                        <path
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="m1 9 4-4-4-4"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                            <div data-popper-arrow></div>
+                        </div>
+					))
+				)
+			}
+		</div>
+	</div>
+	<hr
+		class="w-48 h-1 mx-auto my-4 bg-gray-100 border-0 rounded-sm md:my-10 dark:bg-gray-700"
+	/>
+</div>

@@ -1,0 +1,50 @@
+---
+import LayoutSidebar from '../../app/LayoutSidebar.astro';
+import DashBoard from '../../modules/DashBoardempresas.astro';
+import { supabase } from '../../lib/supabase';
+
+const { id } = Astro.params; // Este será el empresa_incorporacion_id
+
+const { cookies, redirect } = Astro;
+
+// 1) Restaurar sesión desde cookies
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+
+if (!accessToken || !refreshToken) {
+	return redirect('/sign-in');
+}
+
+await supabase.auth.setSession({
+	access_token: accessToken.value,
+	refresh_token: refreshToken.value,
+});
+
+// 2) Obtener usuario
+const {
+	data: { user },
+	error: userErr,
+} = await supabase.auth.getUser();
+
+if (userErr || !user) {
+	return redirect('/sign-in');
+}
+
+// 3) Consultar la empresa específica
+const { data: empresa, error: empresaError } = await supabase
+	.from('empresas_incorporaciones')
+	.select('*')
+	.eq('empresa_incorporacion_id', id)
+	.eq('user_id', user.id) // Asegurar que la empresa pertenece al usuario
+	.single();
+
+// Si no existe o no pertenece al usuario, redirigir
+if (empresaError || !empresa) {
+	return redirect('/pages/empresas');
+}
+
+---
+
+<LayoutSidebar>
+	<DashBoard />
+</LayoutSidebar>
