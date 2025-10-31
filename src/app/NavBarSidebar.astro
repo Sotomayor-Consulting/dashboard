@@ -1,7 +1,6 @@
 ---
 /* eslint max-lines: 'off' */
 import { supabase } from '../lib/supabase';
-import { asset } from '../lib/data.js';
 const { cookies } = Astro;
 
 const accessToken = cookies.get('sb-access-token');
@@ -48,6 +47,29 @@ if (user) {
 }
 
 const email = data?.user?.email;
+
+let notifications = [];
+let totalUnread = 0;
+if (user) {
+	// Consulta para las 5 notificaciones más recientes
+	const { data } = await supabase
+		.from('notifications')
+		.select('*')
+		.eq('user_id', user.id)
+		.order('created_at', { ascending: false })
+		.limit(5);
+	notifications = data || [];
+
+	// Contador de no leídas (opcional, para mostrar badge)
+	const { count } = await supabase
+		.from('notifications')
+		.select('*', { count: 'exact', head: true })
+		.eq('user_id', user.id)
+		.eq('is_read', false);
+	totalUnread = count || 0;
+}
+
+export { notifications, totalUnread, user };
 ---
 
 <nav
@@ -166,8 +188,9 @@ const email = data?.user?.email;
 				<!-- Notifications -->
 				<button
 					type="button"
+					id="notifications-toggle"
 					data-dropdown-toggle="notification-dropdown"
-					class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-neutral-700"
+					class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-neutral-700 relative"
 				>
 					<span class="sr-only">View notifications</span>
 					<!-- Bell icon -->
@@ -180,6 +203,13 @@ const email = data?.user?.email;
 							d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
 						></path></svg
 					>
+					{
+						totalUnread > 0 && (
+							<span class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900 animate-pulse">
+								{totalUnread}
+							</span>
+						)
+					}
 				</button>
 				<!-- Dropdown menu -->
 				<div
@@ -191,218 +221,61 @@ const email = data?.user?.email;
 					>
 						Notificaciones
 					</div>
-					<div>
-						<a
-							href="#"
-							class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
-						>
-							<div class="flex-shrink-0">
-								<img
-									class="rounded-full w-11 h-11"
-									src={asset('images/users/bonnie-green.png')}
-									alt="Jese image"
-								/>
-								<div
-									class="absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 border border-white rounded-full bg-[#8c681d] dark:border-gray-700"
-								>
-									<svg
-										class="w-3 h-3 text-white"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										xmlns="http://www.w3.org/2000/svg"
-										><path
-											d="M8.707 7.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l2-2a1 1 0 00-1.414-1.414L11 7.586V3a1 1 0 10-2 0v4.586l-.293-.293z"
-										></path><path
-											d="M3 5a2 2 0 012-2h1a1 1 0 010 2H5v7h2l1 2h4l1-2h2V5h-1a1 1 0 110-2h1a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"
-										></path></svg
+					<div id="notifications-list">
+						{
+							notifications.length === 0 ? (
+								<div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-600 dark:border-gray-600">
+									No hay notificaciones
+								</div>
+							) : (
+								notifications.map((notification) => (
+									<div
+										class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-700/5 dark:border-gray-600"
+										data-id={notification.id}
 									>
-								</div>
-							</div>
-							<div class="w-full pl-3">
-								<div
-									class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400"
-								>
-									New message from <span
-										class="font-semibold text-gray-900 dark:text-white"
-										>Bonnie Green</span
-									>: "Hey, what's up? All set for the presentation?"
-								</div>
-								<div
-									class="text-xs font-medium text-[#8c681d] dark:text-primary-400"
-								>
-									a few moments ago
-								</div>
-							</div>
-						</a>
-						<a
-							href="#"
-							class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
-						>
-							<div class="flex-shrink-0">
-								<img
-									class="rounded-full w-11 h-11"
-									src={asset('images/users/jese-leos.png')}
-									alt="Jese image"
-								/>
-								<div
-									class="absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 bg-gray-900 border border-white rounded-full dark:border-gray-700"
-								>
-									<svg
-										class="w-3 h-3 text-white"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										xmlns="http://www.w3.org/2000/svg"
-										><path
-											d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"
-										></path></svg
-									>
-								</div>
-							</div>
-							<div class="w-full pl-3">
-								<div
-									class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400"
-								>
-									<span class="font-semibold text-gray-900 dark:text-white"
-										>Jese leos</span
-									> and <span class="font-medium text-gray-900 dark:text-white"
-										>5 others</span
-									> started following you.
-								</div>
-								<div
-									class="text-xs font-medium text-[#8c681d] dark:text-primary-400"
-								>
-									10 minutes ago
-								</div>
-							</div>
-						</a>
-						<a
-							href="#"
-							class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
-						>
-							<div class="flex-shrink-0">
-								<img
-									class="rounded-full w-11 h-11"
-									src={asset('images/users/joseph-mcfall.png')}
-									alt="Joseph image"
-								/>
-								<div
-									class="absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 bg-red-600 border border-white rounded-full dark:border-gray-700"
-								>
-									<svg
-										class="w-3 h-3 text-white"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										xmlns="http://www.w3.org/2000/svg"
-										><path
-											fill-rule="evenodd"
-											d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-											clip-rule="evenodd"></path></svg
-									>
-								</div>
-							</div>
-							<div class="w-full pl-3">
-								<div
-									class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400"
-								>
-									<span class="font-semibold text-gray-900 dark:text-white"
-										>Joseph Mcfall</span
-									> and <span class="font-medium text-gray-900 dark:text-white"
-										>141 others</span
-									> love your story. See it and view more stories.
-								</div>
-								<div
-									class="text-xs font-medium text-[#8c681d] dark:text-primary-400"
-								>
-									44 minutes ago
-								</div>
-							</div>
-						</a>
-						<a
-							href="#"
-							class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
-						>
-							<div class="flex-shrink-0">
-								<img
-									class="rounded-full w-11 h-11"
-									src={asset('images/users/leslie-livingston.png')}
-									alt="Leslie image"
-								/>
-								<div
-									class="absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 bg-green-400 border border-white rounded-full dark:border-gray-700"
-								>
-									<svg
-										class="w-3 h-3 text-white"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										xmlns="http://www.w3.org/2000/svg"
-										><path
-											fill-rule="evenodd"
-											d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z"
-											clip-rule="evenodd"></path></svg
-									>
-								</div>
-							</div>
-							<div class="w-full pl-3">
-								<div
-									class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400"
-								>
-									<span class="font-semibold text-gray-900 dark:text-white"
-										>Leslie Livingston</span
-									> mentioned you in a comment: <span
-										class="font-medium text-[#8c681d] dark:text-primary-500"
-										>@bonnie.green</span
-									> what do you say?
-								</div>
-								<div
-									class="text-xs font-medium text-[#8c681d] dark:text-primary-400"
-								>
-									1 hour ago
-								</div>
-							</div>
-						</a>
-						<a
-							href="#"
-							class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600"
-						>
-							<div class="flex-shrink-0">
-								<img
-									class="rounded-full w-11 h-11"
-									src={asset('images/users/robert-brown.png')}
-									alt="Robert image"
-								/>
-								<div
-									class="absolute flex items-center justify-center w-5 h-5 ml-6 -mt-5 bg-purple-500 border border-white rounded-full dark:border-gray-700"
-								>
-									<svg
-										class="w-3 h-3 text-white"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										xmlns="http://www.w3.org/2000/svg"
-										><path
-											d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"
-										></path></svg
-									>
-								</div>
-							</div>
-							<div class="w-full pl-3">
-								<div
-									class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400"
-								>
-									<span class="font-semibold text-gray-900 dark:text-white"
-										>Robert Brown</span
-									> posted a new video: Glassmorphism - learn how to implement the
-									new design trend.
-								</div>
-								<div
-									class="text-xs font-medium text-[#8c681d] dark:text-primary-400"
-								>
-									3 hours ago
-								</div>
-							</div>
-						</a>
+										<div class="flex-shrink-0">
+											<img
+												class="rounded-full w-11 h-11"
+												src="/src/assets/avatarSCI.png"
+												alt="Jese image"
+											/>
+										</div>
+										<div class="w-full pl-3">
+											<div class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400 flex flex-col">
+												<span class="font-semibold text-gray-900 dark:text-white">
+													{notification.message}
+												</span>
+												<a
+													href={notification.link}
+													target="_blank"
+													class="my-1 text-primary-400 hover:text-blue-500"
+												>
+													{notification.mensaje_link}
+												</a>
+											</div>
+											<div class="flex justify-between">
+												<span class="text-xs text-gray-400">
+													{new Date(
+														notification.created_at,
+													).toLocaleDateString()}
+												</span>
+												{!notification.is_read && (
+													<button
+														class="mark-as-read text-xs font-medium text-[#8c681d] dark:text-neutral-400 inline-flex hover:dark:text-primary-400"
+														data-id={notification.id}
+													>
+														Marcar como leída
+													</button>
+												)}
+											</div>
+										</div>
+									</div>
+								))
+							)
+						}
 					</div>
 					<a
-						href="#"
+						href="/notificaciones"
 						class="block py-2 text-base font-normal text-center text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white dark:hover:underline"
 					>
 						<div class="inline-flex items-center">
@@ -701,3 +574,112 @@ const email = data?.user?.email;
 		</div>
 	</div>
 </nav>
+<script>
+	import { createClient } from '@supabase/supabase-js';
+
+	// Configuración de Supabase
+	const supabaseUrl = 'https://tu-proyecto.supabase.co';
+	const supabaseAnonKey = 'tu-anon-key-public';
+	const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+	// Función para recargar notificaciones
+	async function reloadNotifications() {
+		try {
+			const { data: notifications } = await supabase
+				.from('notifications')
+				.select('*')
+				.eq('user_id', window.currentUserId)
+				.order('created_at', { ascending: false })
+				.limit(5);
+
+			if (notifications) {
+				updateNotificationsUI(notifications);
+			}
+		} catch (error) {
+			console.error('Error recargando notificaciones:', error);
+		}
+	}
+
+	// Función para actualizar la UI
+	function updateNotificationsUI(notifications) {
+		const container = document.getElementById('notifications-container');
+		if (!container) return;
+
+		container.innerHTML =
+			notifications.length === 0
+				? '<div class="p-4 text-center text-gray-500">No hay notificaciones</div>'
+				: notifications
+						.map(
+							(notification) => `
+      <div class="notification-item p-4 border-b ${notification.is_read ? 'bg-gray-50' : 'bg-blue-50'}" data-id="${notification.id}">
+        <p class="text-sm">${notification.message}</p>
+        <div class="flex justify-between items-center mt-2">
+          <span class="text-xs text-gray-500">
+            ${new Date(notification.created_at).toLocaleDateString()}
+          </span>
+          ${
+						!notification.is_read
+							? `<button onclick="markAsRead('${notification.id}')" class="text-xs bg-blue-500 hover:bg-blue-700 text-white px-2 py-1 rounded">
+              Marcar como leída
+            </button>`
+							: ''
+					}
+        </div>
+      </div>
+    `,
+						)
+						.join('');
+	}
+
+	// Función para marcar como leída
+	async function markAsRead(notificationId) {
+		try {
+			const { error } = await supabase
+				.from('notifications')
+				.update({
+					is_read: true,
+					leido_en: new Date().toISOString(),
+				})
+				.eq('id', notificationId);
+
+			if (!error) {
+				// Recargar después de marcar como leída
+				reloadNotifications();
+			}
+		} catch (error) {
+			console.error('Error marcando como leída:', error);
+		}
+	}
+
+	// Suscripción a cambios en tiempo real
+	function setupRealtimeNotifications() {
+		return supabase
+			.channel('notifications-changes')
+			.on(
+				'postgres_changes',
+				{
+					event: '*', // INSERT, UPDATE, DELETE
+					schema: 'public',
+					table: 'notifications',
+					filter: `user_id=eq.${window.currentUserId}`,
+				},
+				() => {
+					// Recargar cuando haya cualquier cambio
+					reloadNotifications();
+				},
+			)
+			.subscribe();
+	}
+
+	// Inicializar cuando el DOM esté listo
+	document.addEventListener('DOMContentLoaded', function () {
+		// Pasar el user_id desde Astro
+		window.currentUserId = document.getElementById('user-data')?.dataset.userId;
+
+		if (window.currentUserId) {
+			// Cargar notificaciones iniciales y suscribirse a cambios
+			reloadNotifications();
+			setupRealtimeNotifications();
+		}
+	});
+</script>
