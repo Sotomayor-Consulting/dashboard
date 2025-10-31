@@ -184,115 +184,117 @@ export { notifications, totalUnread, user };
 						>
 					</div>
 				</div>
-
-				<!-- Notifications -->
-				<button
-					type="button"
-					id="notifications-toggle"
-					data-dropdown-toggle="notification-dropdown"
-					class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-neutral-700 relative"
-				>
-					<span class="sr-only">View notifications</span>
-					<!-- Bell icon -->
-					<svg
-						class="w-6 h-6"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
-						></path></svg
+				<div>
+					<!-- Notifications -->
+					<button
+						type="button"
+						id="notifications-toggle"
+						data-dropdown-toggle="notification-dropdown"
+						class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-neutral-700 relative"
 					>
-					{
-						totalUnread > 0 && (
-							<span class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900 animate-pulse">
-								{totalUnread}
-							</span>
-						)
-					}
-				</button>
-				<!-- Dropdown menu -->
-				<div
-					class="z-20 z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 rounded shadow-lg dark:divide-gray-600 dark:bg-neutral-700"
-					id="notification-dropdown"
-				>
-					<div
-						class="block px-4 py-2 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-neutral-700 dark:text-gray-400"
-					>
-						Notificaciones
-					</div>
-					<div id="notifications-list">
+						<span class="sr-only">View notifications</span>
+						<!-- Bell icon -->
+						<svg
+							class="w-6 h-6"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+							></path></svg
+						>
 						{
-							notifications.length === 0 ? (
-								<div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-600 dark:border-gray-600">
-									No hay notificaciones
-								</div>
-							) : (
-								notifications.map((notification) => (
-									<div
-										class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-700/5 dark:border-gray-600"
-										data-id={notification.id}
-									>
-										<div class="flex-shrink-0">
-											<img
-												class="rounded-full w-11 h-11"
-												src="/src/assets/avatarSCI.png"
-												alt="Jese image"
-											/>
-										</div>
-										<div class="w-full pl-3">
-											<div class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400 flex flex-col">
-												<span class="font-semibold text-gray-900 dark:text-white">
-													{notification.message}
-												</span>
-												<a
-													href={notification.link}
-													target="_blank"
-													class="my-1 text-primary-400 hover:text-blue-500"
-												>
-													{notification.mensaje_link}
-												</a>
-											</div>
-											<div class="flex justify-between">
-												<span class="text-xs text-gray-400">
-													{new Date(
-														notification.created_at,
-													).toLocaleDateString()}
-												</span>
-												{!notification.is_read && (
-													<button
-														class="mark-as-read text-xs font-medium text-[#8c681d] dark:text-neutral-400 inline-flex hover:dark:text-primary-400"
-														data-id={notification.id}
-													>
-														Marcar como leída
-													</button>
-												)}
-											</div>
-										</div>
-									</div>
-								))
+							totalUnread > 0 && (
+								<span class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900 animate-pulse">
+									{totalUnread}
+								</span>
 							)
 						}
-					</div>
-					<a
-						href="/notificaciones"
-						class="block py-2 text-base font-normal text-center text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white dark:hover:underline"
+					</button>
+					<!-- Dropdown menu -->
+					<div
+						class="z-20 z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 rounded shadow-lg dark:divide-gray-600 dark:bg-neutral-700"
+						id="notification-dropdown"
 					>
-						<div class="inline-flex items-center">
-							<svg
-								class="w-5 h-5 mr-2"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-								xmlns="http://www.w3.org/2000/svg"
-								><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path
-									fill-rule="evenodd"
-									d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-									clip-rule="evenodd"></path></svg
-							>
-							Ver todo
+						<div
+							class="block px-4 py-2 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-neutral-700 dark:text-gray-400"
+						>
+							Notificaciones
 						</div>
-					</a>
+						<div id="notifications-list">
+							{
+								notifications.length === 0 ? (
+									<div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-600 dark:border-gray-600 dark:text-neutral-500 text-neutral-400">
+										No hay notificaciones
+									</div>
+								) : (
+									notifications.map((notification) => (
+										<div
+											class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-700/5 dark:border-gray-600"
+											data-id={notification.id}
+										>
+											<div class="flex-shrink-0">
+												<img
+													class="rounded-full w-11 h-11"
+													src="/src/assets/avatarSCI.png"
+													alt="Jese image"
+												/>
+											</div>
+											<div class="w-full pl-3">
+												<div class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400 flex flex-col">
+													<span class="font-semibold text-gray-900 dark:text-white">
+														{notification.message}
+													</span>
+													<a
+														href={notification.link}
+														target="_blank"
+														class="my-1 text-primary-400 hover:text-blue-500"
+													>
+														{notification.mensaje_link}
+													</a>
+												</div>
+												<div class="flex justify-between">
+													<span class="text-xs text-gray-400">
+														{new Date(
+															notification.created_at,
+														).toLocaleDateString()}
+													</span>
+													{!notification.is_read && (
+														<button
+															class="mark-as-read text-xs font-medium text-[#8c681d] dark:text-neutral-400 inline-flex hover:dark:text-primary-400"
+															data-id={notification.id}
+														>
+															Marcar como leída
+														</button>
+													)}
+												</div>
+											</div>
+										</div>
+									))
+								)
+							}
+						</div>
+						<a
+							href="/notificaciones"
+							class="block py-2 text-base font-normal text-center text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white dark:hover:underline"
+						>
+							<div class="inline-flex items-center">
+								<svg
+									class="w-5 h-5 mr-2"
+									fill="currentColor"
+									viewBox="0 0 20 20"
+									xmlns="http://www.w3.org/2000/svg"
+									><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path
+										fill-rule="evenodd"
+										d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+										clip-rule="evenodd"></path></svg
+								>
+								Ver todo
+							</div>
+						</a>
+					</div>
 				</div>
+
 				<!-- Apps -->
 				<button
 					type="button"
@@ -574,112 +576,197 @@ export { notifications, totalUnread, user };
 		</div>
 	</div>
 </nav>
-<script>
-	import { createClient } from '@supabase/supabase-js';
+<script
+	type="module"
+	define:vars={{
+		SB_URL: import.meta.env.SUPABASE_URL,
+		SB_ANON: import.meta.env.SUPABASE_ANON_KEY,
+		USER_ID: user?.id ?? '',
+	}}
+>
+	import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-	// Configuración de Supabase
-	const supabaseUrl = 'https://tu-proyecto.supabase.co';
-	const supabaseAnonKey = 'tu-anon-key-public';
-	const supabase = createClient(supabaseUrl, supabaseAnonKey);
+	if (!SB_URL || !SB_ANON) {
+		console.error('[Realtime] Faltan env PUBLIC_SUPABASE_*');
+	} else if (!USER_ID) {
+		console.info('[Realtime] Sin usuario; no suscribe.');
+	} else {
+		const supabase = createClient(SB_URL, SB_ANON, {
+			auth: { persistSession: true, autoRefreshToken: true },
+			realtime: { params: { eventsPerSecond: 10 } },
+		});
 
-	// Función para recargar notificaciones
-	async function reloadNotifications() {
-		try {
-			const { data: notifications } = await supabase
-				.from('notifications')
-				.select('*')
-				.eq('user_id', window.currentUserId)
-				.order('created_at', { ascending: false })
-				.limit(5);
+		// 🔽 NUEVO: si el token se refresca, actualiza el token de Realtime
+		supabase.auth.onAuthStateChange((_event, session) => {
+			supabase.realtime.setAuth(session?.access_token ?? null);
+		});
 
-			if (notifications) {
-				updateNotificationsUI(notifications);
-			}
-		} catch (error) {
-			console.error('Error recargando notificaciones:', error);
+		// Sincroniza sesión desde cookies si hace falta (para que Realtime tenga token)
+		const readCookie = (name) =>
+			document.cookie
+				.split('; ')
+				.find((c) => c.startsWith(name + '='))
+				?.split('=')[1];
+
+		const at = readCookie('sb-access-token');
+		const rt = readCookie('sb-refresh-token');
+		const { data: sess } = await supabase.auth.getSession();
+		if (!sess?.session && at && rt) {
+			await supabase.auth.setSession({ access_token: at, refresh_token: rt });
 		}
-	}
 
-	// Función para actualizar la UI
-	function updateNotificationsUI(notifications) {
-		const container = document.getElementById('notifications-container');
-		if (!container) return;
+		// 🔽 NUEVO: aseguramos que Realtime tenga el token ANTES de crear/subscribir el canal
+		await supabase.realtime.setAuth();
 
-		container.innerHTML =
-			notifications.length === 0
-				? '<div class="p-4 text-center text-gray-500">No hay notificaciones</div>'
-				: notifications
-						.map(
-							(notification) => `
-      <div class="notification-item p-4 border-b ${notification.is_read ? 'bg-gray-50' : 'bg-blue-50'}" data-id="${notification.id}">
-        <p class="text-sm">${notification.message}</p>
-        <div class="flex justify-between items-center mt-2">
-          <span class="text-xs text-gray-500">
-            ${new Date(notification.created_at).toLocaleDateString()}
-          </span>
-          ${
-						!notification.is_read
-							? `<button onclick="markAsRead('${notification.id}')" class="text-xs bg-blue-500 hover:bg-blue-700 text-white px-2 py-1 rounded">
-              Marcar como leída
-            </button>`
-							: ''
-					}
+		const topic = `user:${USER_ID}:notifications`;
+		let channel = supabase.channel(topic, {
+			config: { private: true, broadcast: { self: true, ack: true } },
+		});
+
+		// === TUS HANDLERS ===
+		const listEl = document.getElementById('notifications-list');
+		const badgeBtn = document.getElementById('notifications-toggle');
+
+		const getBadgeEl = () =>
+			badgeBtn?.querySelector('span.inline-flex.w-6.h-6');
+		const ensureBadge = () => {
+			let b = getBadgeEl();
+			if (!b) {
+				b = document.createElement('span');
+				b.className =
+					'absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900 animate-pulse';
+				b.textContent = '0';
+				badgeBtn?.appendChild(b);
+			}
+			return b;
+		};
+		const incrementBadge = (delta) => {
+			const badge = getBadgeEl() ?? ensureBadge();
+			const current = parseInt(badge.textContent || '0', 10) || 0;
+			const next = Math.max(0, current + delta);
+			badge.textContent = String(next);
+			if (next === 0) badge.remove();
+		};
+
+		const parsePayload = (p) => ({
+			rec: p?.new ?? p?.record ?? p?.payload?.new ?? p?.data ?? null,
+			old: p?.old ?? p?.payload?.old ?? null,
+		});
+		const formatDate = (iso) => {
+			try {
+				return new Date(iso).toLocaleDateString();
+			} catch {
+				return '';
+			}
+		};
+		const renderItem = (n) =>
+			`
+      <div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-700/5 dark:border-gray-600" data-id="${n.id}">
+        <div class="flex-shrink-0">
+          <img class="rounded-full w-11 h-11" src="/src/assets/avatarSCI.png" alt="Avatar"/>
+        </div>
+        <div class="w-full pl-3">
+          <div class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400 flex flex-col">
+            <span class="font-semibold text-gray-900 dark:text-white">${n.message ?? ''}</span>
+            ${n.link ? `<a href="${n.link}" target="_blank" class="my-1 text-primary-400 hover:text-blue-500">${n.mensaje_link ?? 'Abrir'}</a>` : ''}
+          </div>
+          <div class="flex justify-between">
+            <span class="text-xs text-gray-400">${formatDate(n.created_at ?? new Date().toISOString())}</span>
+            ${!n.is_read ? `<button class="mark-as-read text-xs font-medium text-[#8c681d] dark:text-neutral-400 inline-flex hover:dark:text-primary-400" data-id="${n.id}">Marcar como leída</button>` : ''}
+          </div>
         </div>
       </div>
-    `,
-						)
-						.join('');
-	}
+    `.trim();
 
-	// Función para marcar como leída
-	async function markAsRead(notificationId) {
-		try {
+		// Delegación: marcar como leída
+		listEl?.addEventListener('click', async (e) => {
+			const btn = e.target.closest('.mark-as-read');
+			if (!btn) return;
+			const id = btn.getAttribute('data-id');
+			btn.remove();
+			incrementBadge(-1);
 			const { error } = await supabase
 				.from('notifications')
-				.update({
-					is_read: true,
-					leido_en: new Date().toISOString(),
-				})
-				.eq('id', notificationId);
-
-			if (!error) {
-				// Recargar después de marcar como leída
-				reloadNotifications();
+				.update({ is_read: true })
+				.eq('id', id)
+				.eq('user_id', USER_ID);
+			if (error) {
+				console.error('[notifications] Error al marcar como leída:', error);
+				incrementBadge(+1);
 			}
-		} catch (error) {
-			console.error('Error marcando como leída:', error);
-		}
-	}
+		});
 
-	// Suscripción a cambios en tiempo real
-	function setupRealtimeNotifications() {
-		return supabase
-			.channel('notifications-changes')
-			.on(
-				'postgres_changes',
-				{
-					event: '*', // INSERT, UPDATE, DELETE
-					schema: 'public',
-					table: 'notifications',
-					filter: `user_id=eq.${window.currentUserId}`,
-				},
-				() => {
-					// Recargar cuando haya cualquier cambio
-					reloadNotifications();
-				},
+		// 🔽 NUEVO: logs de depuración para ver si llegan eventos realmente
+		channel
+			.on('broadcast', { event: 'notification_created' }, (payload) => {
+				console.log('[RT] notification_created', payload); // <-- DEBUG
+				const { rec } = parsePayload(payload) || {};
+				if (!rec?.id) return;
+				const html = renderItem(rec);
+				listEl?.insertAdjacentHTML('afterbegin', html);
+				const empty = listEl?.querySelector(
+					'.dark\\:text-neutral-500.text-neutral-400',
+				);
+				empty?.remove();
+				const rows = listEl?.querySelectorAll('[data-id]');
+				if (rows && rows.length > 5) rows[rows.length - 1].remove();
+				if (rec.is_read === false) incrementBadge(+1);
+			})
+			.on('broadcast', { event: 'notification_status_changed' }, (payload) => {
+				console.log('[RT] notification_status_changed', payload); // <-- DEBUG
+				const { rec } = parsePayload(payload) || {};
+				if (!rec?.id) return;
+				const row = listEl?.querySelector(`[data-id="${rec.id}"]`);
+				row?.querySelector('.mark-as-read')?.remove();
+			})
+			.on('broadcast', { event: 'notification_updated' }, (payload) => {
+				console.log('[RT] notification_updated', payload); // <-- DEBUG
+				const { rec } = parsePayload(payload) || {};
+				if (!rec?.id) return;
+				const row = listEl?.querySelector(`[data-id="${rec.id}"]`);
+				if (!row) return;
+				if (rec.message != null)
+					row.querySelector('span.font-semibold').textContent = rec.message;
+				if (rec.link != null)
+					row.querySelector('a[href]')?.setAttribute('href', rec.link);
+				if (rec.mensaje_link != null) {
+					const a = row.querySelector('a[href]');
+					if (a) a.textContent = rec.mensaje_link;
+				}
+			})
+			.on('broadcast', { event: 'notification_deleted' }, (payload) => {
+				console.log('[RT] notification_deleted', payload); // <-- DEBUG
+				const { old } = parsePayload(payload) || {};
+				const id = old?.id;
+				const row = id && listEl?.querySelector(`[data-id="${id}"]`);
+				row?.remove();
+			})
+
+			// 🔽 NUEVO: handlers extra por si tu trigger estuviera emitiendo tg_op (INSERT/UPDATE/DELETE)
+			.on('broadcast', { event: 'INSERT' }, (p) =>
+				console.log('[RT] INSERT (fallback)', p),
 			)
-			.subscribe();
+			.on('broadcast', { event: 'UPDATE' }, (p) =>
+				console.log('[RT] UPDATE (fallback)', p),
+			)
+			.on('broadcast', { event: 'DELETE' }, (p) =>
+				console.log('[RT] DELETE (fallback)', p),
+			);
+
+		await channel.subscribe((state, err) => {
+			if (state === 'SUBSCRIBED')
+				console.info('[notifications] Realtime conectado');
+			if (state === 'CHANNEL_ERROR')
+				console.error('[notifications] Error:', err);
+			if (state === 'CLOSED') console.info('[notifications] Canal cerrado');
+		});
+
+		// Cleanup en navegación
+		window.addEventListener('beforeunload', () => {
+			if (channel) {
+				supabase.removeChannel(channel);
+				channel = null;
+			}
+		});
 	}
-
-	// Inicializar cuando el DOM esté listo
-	document.addEventListener('DOMContentLoaded', function () {
-		// Pasar el user_id desde Astro
-		window.currentUserId = document.getElementById('user-data')?.dataset.userId;
-
-		if (window.currentUserId) {
-			// Cargar notificaciones iniciales y suscribirse a cambios
-			reloadNotifications();
-			setupRealtimeNotifications();
-		}
-	});
 </script>
