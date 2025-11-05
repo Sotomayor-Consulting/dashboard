@@ -110,12 +110,12 @@ export { notifications, totalUnread, user };
 				<a href="/" class="flex ml-2 md:mr-24">
 					<img
 						src="/src/assets/SC-INTER.png"
-						class="h-8 mr-3 hidden dark:block"
+						class="h-5 md:h-8 mr-3 hidden dark:block"
 						alt="SotoMayor consulting Logo"
 					/>
 					<img
 						src="/src/assets/SC-INTER-NG.png"
-						class="h-8 mr-3 dark:hidden block"
+						class="h-5 md:h-8 mr-3 dark:hidden block"
 						alt="SotoMayor consulting Logo"
 						class="dark:hidden block h-8 mr-3"
 					/>
@@ -687,7 +687,7 @@ export { notifications, totalUnread, user };
 
       const { error } = await supabase
         .from('notifications')
-        .update({ is_read: true })
+        .update({ is_read: true, leido_en: new Date().toISOString() })
         .eq('id', id)
         .eq('user_id', USER_ID)
 

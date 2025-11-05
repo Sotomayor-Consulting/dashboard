@@ -1,0 +1,137 @@
+---
+// src/components/BannerProceso.astro
+import { supabase } from '../lib/supabase'; // Asegúrate de que esta ruta es correcta
+import type { User } from '@supabase/supabase-js';
+
+// 1. Acceso a las cookies y tokens
+const { cookies } = Astro;
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+
+let user: User | null = null;
+let shouldShowBanner = false;
+
+// 2. Definición de la Condición
+const CONDITION_STATUS = 'En proceso';
+const TARGET_TABLE = 'empresas_incorporaciones';
+
+// Datos fijos para el banner
+const BANNER_PROPS = {
+	title: 'Tu compañía está registrada, pero aún no operativa. Desbloquea sus beneficios.',
+	btnId: 'dismiss-incorp-banner',
+	btnTitle: 'Continuar al Paso Final',
+	url: '/pages/estado-proceso', // Ajusta esta URL
+};
+
+// 3. Proceso de Autenticación y Consulta (SSR)
+if (accessToken && refreshToken) {
+	try {
+		// 3a. Establecer la sesión para que las consultas tengan el contexto del usuario
+		await supabase.auth.setSession({
+			refresh_token: refreshToken.value,
+			access_token: accessToken.value,
+		});
+
+		// 3b. Obtener el objeto de usuario actual
+		const {
+			data: { user: currentUser },
+		} = await supabase.auth.getUser();
+		user = currentUser;
+
+		if (user) {
+			// 3c. Consulta a la tabla adaptada: 'empresas_incorporaciones'
+			const { data: incorporaciones, error } = await supabase
+				.from(TARGET_TABLE)
+				.select('estado') // Solo necesitamos la columna 'estado'
+				.eq('user_id', user.id); // Filtrar por el usuario actual
+
+			if (error) {
+				console.error(
+					`[Banner] Error al obtener estado de ${TARGET_TABLE}:`,
+					error,
+				);
+			} else if (incorporaciones && incorporaciones.length > 0) {
+				// 3d. Verificar la condición: ¿Alguna está 'En proceso'?
+				shouldShowBanner = incorporaciones.some(
+					(c) => c.estado === CONDITION_STATUS,
+				);
+			}
+		}
+	} catch (e) {
+		console.error('[Banner] Error de sesión o conexión con Supabase:', e);
+	}
+}
+---
+
+{
+	shouldShowBanner && (
+		<astro-banner btnId={BANNER_PROPS.btnId}>
+			<div
+				id="marketing-banner"
+				tabindex="-1"
+				class="fixed z-50 flex flex-col md:flex-row justify-between w-[calc(100%-1rem)] md:w-[50%] p-4 bg-white border border-gray-100 rounded-lg shadow-xs lg:max-w-7xl md:right-6 bottom-6 dark:bg-gray-700 dark:border-gray-600 right-0"
+			>
+				<div class="flex flex-col items-start mb-3 me-4 md:items-center md:flex-row md:mb-0">
+					<a
+						href="/"
+						class="flex items-center mb-2 border-gray-200 md:pe-4 md:me-4 md:border-e md:mb-0 dark:border-gray-600"
+					>
+						<img
+							src="/src/assets/SC-INTER.png"
+							class="h-6 me-2"
+							alt="Sotomayor consulting Logo"
+						/>
+					</a>
+					<p class="flex items-center text-base font-normal text-white dark:text-white">
+						{BANNER_PROPS.title}
+					</p>
+				</div>
+				<div class="flex items-center shrink-0">
+					<a
+						href={BANNER_PROPS.url}
+						class="px-5 py-2 me-2 text-base font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+					>
+						{BANNER_PROPS.btnTitle}
+					</a>
+					<button
+						data-dismiss-target="#marketing-banner"
+						type="button"
+						class="shrink-0 inline-flex justify-center w-7 h-7 items-center text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 dark:hover:bg-gray-600 dark:hover:text-white"
+					>
+						<svg
+							class="w-3 h-3"
+							aria-hidden="true"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 14 14"
+						>
+							<path
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+							/>
+						</svg>
+						<span class="sr-only">Close banner</span>
+					</button>
+				</div>
+			</div>
+		</astro-banner>
+	)
+}
+
+<style>
+    #marketing-banner{
+        animation: aparecer 1s ease-in-out;
+    }
+
+    @keyframes aparecer {
+        from{
+            opacity: 0%;
+        }
+        to{
+            opacity: 100%;
+        }
+    }
+</style>
