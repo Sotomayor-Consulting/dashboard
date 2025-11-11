@@ -1,875 +1,481 @@
-<div class="md:flex w-full my-5">
-	<section
-		class="bg-white py-8 antialiased md:py-16 w-full bg-gray-500 bg-clip-padding backdrop-filter backdrop-blur bg-opacity-10 backdrop-saturate-100 backdrop-contrast-100 rounded-lg"
-		id="default-tab-content"
-	>
-		<div id="planes" role="tabpanel" aria-labelledby="pago-tab">
-			<div class="text-center pb-10">
-				<h3 class="text-white text-3xl">Escoge tu plan</h3>
-				<p class="text-gray-400">Elije el plan que mas se adapte a ti</p>
-			</div>
-			<ul class="w-full gap-2 place-items-center p-5">
-				<li class="m-2 w-full h-full">
-					<input
-						type="radio"
-						id="basico_radio_btn"
-						name="plan"
-						value="Plan Basico"
-						class="hidden peer"
-						checked
-						required
-					/>
-					<label
-						for="basico_radio_btn"
-						class="items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] h-full grid grid-cols-[1fr,auto] place-content-center"
-					>
-						<div class="block">
-							<div class="w-full text-lg font-semibold">Plan Básico</div>
-							<div class="w-full text-sm">
-								Constituye tu LLC con lo esencial para operar legalmente.
-							</div>
-						</div>
-						<div class="w-full text-lg font-semibold self-start">
-							$ 350 dolares
-						</div>
-						<div class="col-span-2">
-							<button
-								class="flex items-end justify-end h-full place-self-end"
-								data-popover-target="popover-description"
-								data-popover-placement="bottom-end"
-								type="button"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="20"
-									height="20"
-									viewBox="0 0 24 24"
-									><g fill="none"
-										><path
-											d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"
-										></path><path
-											fill="currentColor"
-											d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
-										></path></g
-									></svg
-								>
-							</button>
-						</div>
+---
 
-						<div
-							data-popover
-							id="popover-description"
-							role="tooltip"
-							class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
-						>
-							<div class="p-3 space-y-2">
-								<h3 class="font-semibold text-gray-900 dark:text-white">
-									Este plan básico incluye
-								</h3>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									<span>Incorporación de la LLC frente al Estado.</span>
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Obtención del EIN (Número de Identificación Tributaria).
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Agente Residente por un año.
-								</p>
-								<h3 class="font-semibold text-gray-900 dark:text-white">
-									Precio del plan
-								</h3>
-								<p class="text-base">$ 350 dolares</p>
-							</div>
-							<div data-popper-arrow></div>
-						</div>
-					</label>
-				</li>
-				<li class="m-2 w-full h-full">
-					<input
-						type="radio"
-						id="Business"
-						name="plan"
-						value="Plan Business"
-						class="hidden peer"
-						required
-					/>
+---
+
+<!-- ========== MAIN CONTENT ========== -->
+<main id="content">
+	<div class="overflow-hidden">
+		<!-- Hero -->
+		<div class="relative">
+			<div class="max-w-[85rem] px-4 pt-10 sm:px-6 lg:px-8 lg:pt-14 mx-auto">
+				<!-- Title -->
+				<div class="max-w-2xl mx-auto text-center mb-10">
+					<h3 class="text-white text-3xl">Escoge tu plan</h3>
+					<p class="mt-2 lg:text-lg text-gray-800 dark:text-neutral-200">
+						Elije el plan que mas se adapte a tu negocio y necesidades
+					</p>
+				</div>
+				<!-- End Title -->
+
+				<!--Boton de ocultar -->
+				<div class="flex justify-center items-center gap-x-3 col-span-3">
 					<label
-						for="Business"
-						class="items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] h-full grid grid-cols-[1fr,auto] place-content-center"
+						for="pricing-switch"
+						class="text-sm text-gray-800 dark:text-neutral-200">Planes</label
 					>
-						<div class="block">
-							<div class="w-full text-lg font-semibold">Plan Business</div>
-							<div class="w-full text-sm">
+					<label
+						for="pricing-switch"
+						class="relative inline-block w-11 h-6 cursor-pointer"
+					>
+						<input
+							type="checkbox"
+							id="pricing-switch"
+							class="peer sr-only"
+							data-show="divInactivo"
+							data-hide="divActivo"
+						/>
+						<span
+							class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-[#8c681d] dark:bg-neutral-700 dark:peer-checked:bg-[#8c681d] peer-disabled:opacity-50 peer-disabled:pointer-events-none"
+						></span>
+						<span
+							class="absolute top-1/2 start-0.5 -translate-y-1/2 size-5 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"
+						></span>
+					</label>
+					<label
+						for="pricing-switch"
+						class="text-sm text-gray-800 dark:text-neutral-200"
+						>Plan de diseño</label
+					>
+				</div>
+				<!--Boton de ocultar -->
+
+				<!-- Grid -->
+				<div
+					class="mt-6 md:mt-12 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 lg:gap-3 xl:gap-6 lg:items-center hidden"
+					id="divActivo"
+				>
+					<div class="tarjeta-1">
+						<!-- Card -->
+						<input
+							type="radio"
+							id="Basico"
+							name="plan"
+							value="350"
+							class="hidden peer"
+							required
+						/>
+						<label
+							for="Basico"
+							class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d]"
+						>
+							<h4
+								class="font-medium text-lg text-gray-800 dark:text-neutral-200"
+							>
+								Plan Básico
+							</h4>
+							<span
+								class="mt-7 font-bold text-3xl md:text-4xl xl:text-5xl text-gray-800 dark:text-neutral-200"
+								>$350</span
+							>
+							<p class="mt-2 text-sm text-gray-500 dark:text-neutral-500">
+								Constituye tu LLC con lo esencial para operar legalmente.
+							</p>
+
+							<ul class="mt-7 space-y-2.5 text-sm">
+								<li class="flex gap-x-2">
+									<svg
+										class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										><polyline points="20 6 9 17 4 12"></polyline></svg
+									>
+									<span class="text-gray-800 dark:text-neutral-400 text-left">
+										Incorporación de la LLC frente al Estado.
+									</span>
+								</li>
+
+								<li class="flex gap-x-2">
+									<svg
+										class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										><polyline points="20 6 9 17 4 12"></polyline></svg
+									>
+									<span class="text-gray-800 dark:text-neutral-400 text-left">
+										Obtención del EIN (Número de Identificación Tributaria).
+									</span>
+								</li>
+
+								<li class="flex gap-x-2">
+									<svg
+										class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										><polyline points="20 6 9 17 4 12"></polyline></svg
+									>
+									<span class="text-gray-800 dark:text-neutral-400 text-left">
+										Agente Residente por un año.
+									</span>
+								</li>
+							</ul>
+						</label>
+						<!-- End Card -->
+					</div>
+
+					<div class="tarjeta-2">
+						<!-- Card -->
+						<input
+							type="radio"
+							id="business"
+							name="plan"
+							value="950"
+							class="hidden peer"
+							required
+							checked
+						/>
+						<label
+							for="business"
+							class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d]"
+						>
+							<p class="mb-3">
+								<span
+									class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs uppercase font-semibold bg-violet-100 text-[#8c681d] dark:bg-[#8c681d] dark:text-white animate-pulse"
+									>Más popular</span
+								>
+							</p>
+							<h4
+								class="font-medium text-lg text-gray-800 dark:text-neutral-200"
+							>
+								Plan Business
+							</h4>
+							<span
+								class="mt-7 font-bold text-3xl md:text-4xl xl:text-5xl text-gray-800 dark:text-neutral-200"
+								>$950</span
+							>
+							<p class="mt-2 text-sm text-gray-500 dark:text-neutral-500">
 								Estrategia fiscal y legal completa para tu LLC. Ideal para hacer
 								las cosas bien desde el inicio.
-							</div>
-						</div>
-						<div class="w-full text-lg font-semibold self-start ">
-							$ 950 dolares
-						</div>
-						<div class="col-span-2">
-							<button
-								class="flex items-end justify-end h-full place-self-end"
-								data-popover-target="popover-description2"
-								data-popover-placement="bottom-end"
-								type="button"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="20"
-									height="20"
-									viewBox="0 0 24 24"
-									><g fill="none"
-										><path
-											d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"
-										></path><path
-											fill="currentColor"
-											d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
-										></path></g
-									></svg
-								>
-							</button>
-						</div>
+							</p>
 
-						<div
-							data-popover
-							id="popover-description2"
-							role="tooltip"
-							class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
+							<ul class="mt-7 space-y-2.5 text-sm">
+								<li class="flex gap-x-2">
+									<span class="text-gray-800 dark:text-neutral-300 text-left">
+										Los beneficios del plan básico y Los beneficios del plan
+										estándar, más:
+									</span>
+								</li>
+								<li class="flex gap-x-2">
+									<svg
+										class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+										viewBox="0 0 24 24"
+										fill="currentColor"
+										clip-rule="evenodd"
+										fill-rule="evenodd"
+										><title></title><path
+											d="m12 17.275l-4.15 2.5q-.275.175-.575.15t-.525-.2t-.35-.437t-.05-.588l1.1-4.725L3.775 10.8q-.25-.225-.312-.513t.037-.562t.3-.45t.55-.225l4.85-.425l1.875-4.45q.125-.3.388-.45t.537-.15t.537.15t.388.45l1.875 4.45l4.85.425q.35.05.55.225t.3.45t.038.563t-.313.512l-3.675 3.175l1.1 4.725q.075.325-.05.588t-.35.437t-.525.2t-.575-.15z"
+											class=""></path></svg
+									>
+									<span class="text-gray-800 dark:text-neutral-400 text-left">
+										Planificación y diseño de LLC
+									</span>
+								</li>
+
+								<li class="flex gap-x-2">
+									<svg
+										class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+										viewBox="0 0 16 16"
+										fill="currentColor"
+										clip-rule="evenodd"
+										fill-rule="evenodd"
+										><title></title><path
+											d="M7.194 2.101a.9.9 0 0 1 1.614 0l1.521 3.082l3.401.495a.9.9 0 0 1 .5 1.535l-2.462 2.399l.581 3.387a.9.9 0 0 1-1.306.949l-3.042-1.6l-3.042 1.6a.9.9 0 0 1-1.306-.949l.58-3.387l-2.46-2.4a.9.9 0 0 1 .499-1.534l3.4-.495zM8 2.726L6.546 5.673a.9.9 0 0 1-.677.492l-3.253.473L4.97 8.932a.9.9 0 0 1 .258.797l-.555 3.24l2.91-1.53a.9.9 0 0 1 .837 0l2.91 1.53l-.556-3.24a.9.9 0 0 1 .258-.797l2.354-2.294l-3.253-.473a.9.9 0 0 1-.677-.492z"
+											class=""></path></svg
+									>
+									<span class="text-gray-800 dark:text-neutral-400 text-left">
+										Servicio de acompañamiento para abrir tu cuenta bancaria
+										Online.
+									</span>
+								</li>
+							</ul>
+						</label>
+						<!-- End Card -->
+					</div>
+
+					<div class="tarjeta-3">
+						<!-- Card -->
+						<input
+							type="radio"
+							id="estandar"
+							name="plan"
+							value="600"
+							class="hidden peer"
+							required
+						/>
+						<label
+							for="estandar"
+							class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d]"
 						>
-							<div class="p-3 space-y-2">
-								<h3 class="font-semibold text-gray-900 dark:text-white">
-									Este plan business incluye
-								</h3>
-								<p class="grid grid-cols-[auto,1fr] items-center">
+							<h4
+								class="font-medium text-lg text-gray-800 dark:text-neutral-200"
+							>
+								Plan Estándar
+							</h4>
+							<span
+								class="mt-7 font-bold text-3xl md:text-4xl xl:text-5xl text-gray-800 dark:text-neutral-200"
+								>$600</span
+							>
+							<p class="mt-2 text-sm text-gray-500 dark:text-neutral-500">
+								Incluye soporte legal y documentos clave para operar.
+							</p>
+
+							<ul class="mt-7 space-y-2.5 text-sm">
+								<li class="flex gap-x-2">
+									<span class="text-gray-800 dark:text-neutral-300 text-left">
+										Los beneficios del Plan Básico más:
+									</span>
+								</li>
+
+								<li class="flex gap-x-2">
+									<svg
+										class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										><polyline points="20 6 9 17 4 12"></polyline></svg
+									>
+									<span class="text-gray-800 dark:text-neutral-400 text-left">
+										Elaboración del Acuerdo de Operación.
+									</span>
+								</li>
+
+								<li class="flex gap-x-2">
+									<svg
+										class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										><polyline points="20 6 9 17 4 12"></polyline></svg
+									>
+									<span class="text-gray-800 dark:text-neutral-400 text-left">
+										Consultas ilimitadas por un año.
+									</span>
+								</li>
+								<li class="flex gap-x-2">
+									<svg
+										class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										><polyline points="20 6 9 17 4 12"></polyline></svg
+									>
+									<span class="text-gray-800 dark:text-neutral-400 text-left">
+										Reporte BOI
+									</span>
+								</li>
+							</ul>
+						</label>
+						<!-- End Card -->
+					</div>
+				</div>
+				<!-- End Grid -->
+
+				<div
+					class="mt-6 md:mt-12 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 lg:gap-3 xl:gap-6 lg:items-center diseño-contenedor hidden"
+					id="divInactivo"
+				>
+					<div class="col-start-2 tarjeta-4">
+						<!-- Card -->
+						<input
+							type="radio"
+							id="diseño"
+							name="plan"
+							value="350"
+							class="hidden peer"
+							required
+						/>
+						<label
+							for="diseño"
+							class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d]"
+						>
+							<div class="col-span-2 mt-2">
+								<button
+									class="flex items-end justify-end h-full place-self-end dark:text-white text-neutral-700"
+									data-popover-target="popover-description4"
+									data-popover-placement="bottom-end"
+									type="button"
+								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										width="20"
 										height="20"
 										viewBox="0 0 24 24"
-										class="mr-2"
-										><path
-											fill="currentColor"
-											d="m12 17.275l-4.15 2.5q-.275.175-.575.15t-.525-.2t-.35-.437t-.05-.588l1.1-4.725L3.775 10.8q-.25-.225-.312-.513t.037-.562t.3-.45t.55-.225l4.85-.425l1.875-4.45q.125-.3.388-.45t.537-.15t.537.15t.388.45l1.875 4.45l4.85.425q.35.05.55.225t.3.45t.038.563t-.313.512l-3.675 3.175l1.1 4.725q.075.325-.05.588t-.35.437t-.525.2t-.575-.15z"
-										></path></svg
+										><g fill="none"
+											><path
+												d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"
+											></path><path
+												fill="currentColor"
+												d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
+											></path></g
+										></svg
 									>
-									<span>Planificación y diseño de LLC.</span>
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Incorporación de la LLC frente al Estado.
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Asistencia para abrir tu cuenta bancaria online.
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Obtención del EIN.
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Servicio de Agente Residente por un año.
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Elaboración del Acuerdo de Operación.
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Elaboración de Carta Bancaria.
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Reporte BOI
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Consultas ilimitadas por un año.
-								</p>
-								<h3 class="font-semibold text-gray-900 dark:text-white">
-									Precio del plan
-								</h3>
-								<p class="text-base">$ 950 dolares</p>
+								</button>
 							</div>
-							<div data-popper-arrow></div>
-						</div>
-					</label>
-				</li>
-				<li class="m-2 w-full h-full">
-					<input
-						type="radio"
-						id="Estandar"
-						name="plan"
-						value="Plan Estándar"
-						class="hidden peer"
-						required
-					/>
-					<label
-						for="Estandar"
-						class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] h-full"
-					>
-						<div class="block">
-							<div class="w-full text-lg font-semibold">Plan Estándar</div>
-							<div class="w-full text-sm">
-								Incluye soporte legal y documentos clave para operar.
-							</div>
-						</div>
-						<button
-							class="flex items-end justify-end h-full"
-							data-popover-target="popover-description3"
-							data-popover-placement="bottom-end"
-							type="button"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="20"
-								height="20"
-								viewBox="0 0 24 24"
-								><g fill="none"
-									><path
-										d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"
-									></path><path
-										fill="currentColor"
-										d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
-									></path></g
-								></svg
-							>
-						</button>
 
-						<div
-							data-popover
-							id="popover-description3"
-							role="tooltip"
-							class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
-						>
-							<div class="p-3 space-y-2">
-								<h3 class="font-semibold text-gray-900 dark:text-white">
-									Este plan Estándar incluye
-								</h3>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									<span>Todos los beneficios del Plan Básico</span>
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Incorporación de la LLC frente al Estado.
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Obtención del EIN (Número de Identificación Tributaria).
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Agente Residente por un año.
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Elaboración del Acuerdo de Operación.
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Consultas ilimitadas por un año.
-								</p>
-								<p class="grid grid-cols-[auto,1fr] items-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
-									>
-									Reporte BOI
-								</p>
-								<h3 class="font-semibold text-gray-900 dark:text-white">
-									Precio del plan
-								</h3>
-								<p class="text-base">$ 600 dolares</p>
+							<div
+								data-popover
+								id="popover-description4"
+								role="tooltip"
+								class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
+							>
+								<div class="p-3 space-y-2">
+									<h3 class="font-semibold text-gray-900 dark:text-white">
+										¿Que es el plan de diseño - upgrade?
+									</h3>
+									<p class="grid grid-cols-[auto,1fr] items-center">
+										<span
+											>Este plan está meticulosamente creado para las empresas
+											que requieren una LLC totalmente personalizada, recibiendo
+											asesoría experta que alinea su estructura con su modelo de
+											negocio y sus requerimientos específicos. Además, su
+											diseño permite escalar o actualizar a otros planes
+											superiores, facilitando la construcción progresiva y paso
+											a paso de su estructura de LLC.</span
+										>
+									</p>
+								</div>
+								<div data-popper-arrow></div>
 							</div>
-							<div data-popper-arrow></div>
-						</div>
-					</label>
-				</li>
-				<li class="m-2 w-full h-full">
-					<input
-						type="radio"
-						id="Upgrade"
-						name="plan"
-						value="Plan Diseño - upgrade"
-						class="hidden peer"
-						required
-					/>
-					<label
-						for="Upgrade"
-						class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white dark:border-gray-700 dark:peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:bg-neutral-800 dark:hover:bg-[#1d1d1d] dark:peer-checked:bg-[#1d1d1d] h-full"
-					>
-						<div class="block">
-							<div class="w-full text-lg font-semibold">
+							<h4
+								class="font-medium text-lg text-gray-800 dark:text-neutral-200"
+							>
 								Plan Diseño - upgrade
-							</div>
-							<div class="w-full text-sm">
+							</h4>
+							<span
+								class="mt-7 font-bold text-3xl md:text-4xl xl:text-5xl text-gray-800 dark:text-neutral-200"
+								>$350</span
+							>
+							<p class="mt-2 text-sm text-gray-500 dark:text-neutral-500">
 								Planificación estratégica y de diseño de la LLC, ideal para
 								aquellos que quieren ir paso a paso.
-							</div>
-						</div>
-						<button
-							class="flex items-end justify-end h-full"
-							data-popover-target="popover-description4"
-							data-popover-placement="bottom-end"
-							type="button"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="20"
-								height="20"
-								viewBox="0 0 24 24"
-								><g fill="none"
-									><path
-										d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"
-									></path><path
-										fill="currentColor"
-										d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
-									></path></g
-								></svg
-							>
-						</button>
+							</p>
 
-						<div
-							data-popover
-							id="popover-description4"
-							role="tooltip"
-							class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
-						>
-							<div class="p-3 space-y-2">
-								<h3 class="font-semibold text-gray-900 dark:text-white">
-									Este de diseño - upgrade incluye
-								</h3>
-								<p class="grid grid-cols-[auto,1fr] items-center">
+							<ul class="mt-7 space-y-2.5 text-sm">
+								<li class="flex gap-x-2">
 									<svg
+										class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
 										xmlns="http://www.w3.org/2000/svg"
-										width="16px"
-										height="16px"
-										class="mr-2"
-										viewBox="0 0 16 16"
-										><polyline
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="1.5"
-											points="2.75 8.75 6.25 12.25 13.25 4.75"></polyline></svg
+										width="24"
+										height="24"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										><polyline points="20 6 9 17 4 12"></polyline></svg
 									>
-									<span>Planificación y diseño de LLC.</span>
-								</p>
-
-								<h3 class="font-semibold text-gray-900 dark:text-white">
-									Precio del plan
-								</h3>
-								<p class="text-base">$ 300 dolares</p>
-							</div>
-							<div data-popper-arrow></div>
-						</div>
-					</label>
-				</li>
-			</ul>
-			<div class="w-full flex justify-center mt-8">
-				<button
-					type="button"
-					id="continuarBtn3"
-					class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
-					>Continuar</button
-				>
-			</div>
-		</div>
-
-		<div class="mx-auto max-w-screen-xl px-4 2xl:px-0">
-			<div
-				class="mx-auto max-w-5xl hidden"
-				id="pago"
-				role="tabpanel"
-				aria-labelledby="pago-tab"
-			>
-				<h2
-					class="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl"
-				>
-					Pagos
-				</h2>
-
-				<div class="mt-6 sm:mt-8 lg:flex lg:items-start lg:gap-12">
-					<form
-						action="#"
-						class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6 lg:max-w-xl lg:p-8"
-					>
-						<div class="mb-6 grid grid-cols-2 gap-4">
-							<div class="col-span-2 sm:col-span-1">
-								<label
-									for="full_name"
-									class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>
-									Full name (as displayed on card)*
-								</label>
-								<input
-									type="text"
-									id="full_name"
-									class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-									placeholder="Bonnie Green"
-									required
-								/>
-							</div>
-
-							<div class="col-span-2 sm:col-span-1">
-								<label
-									for="card-number-input"
-									class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>
-									Card number*
-								</label>
-								<input
-									type="text"
-									id="card-number-input"
-									class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pe-10 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-									placeholder="xxxx-xxxx-xxxx-xxxx"
-									pattern="^4[0-9]{12}(?:[0-9]{3})?$"
-									required
-								/>
-							</div>
-
-							<div>
-								<label
-									for="card-expiration-input"
-									class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-									>Card expiration*
-								</label>
-								<div class="relative">
-									<div
-										class="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5"
-									>
-										<svg
-											class="h-4 w-4 text-gray-500 dark:text-gray-400"
-											aria-hidden="true"
-											xmlns="http://www.w3.org/2000/svg"
-											width="24"
-											height="24"
-											fill="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
-												clip-rule="evenodd"></path>
-										</svg>
-									</div>
-									<input
-										datepicker
-										datepicker-format="mm/yy"
-										id="card-expiration-input"
-										type="text"
-										class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 ps-9 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-										placeholder="12/23"
-										required
-									/>
-								</div>
-							</div>
-							<div>
-								<label
-									for="cvv-input"
-									class="mb-2 flex items-center gap-1 text-sm font-medium text-gray-900 dark:text-white"
-								>
-									CVV*
-									<button
-										data-tooltip-target="cvv-desc"
-										data-tooltip-trigger="hover"
-										class="text-gray-400 hover:text-gray-900 dark:text-gray-500 dark:hover:text-white"
-									>
-										<svg
-											class="h-4 w-4"
-											aria-hidden="true"
-											xmlns="http://www.w3.org/2000/svg"
-											fill="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
-												clip-rule="evenodd"></path>
-										</svg>
-									</button>
-									<div
-										id="cvv-desc"
-										role="tooltip"
-										class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-gray-700"
-									>
-										The last 3 digits on back of card
-										<div class="tooltip-arrow" data-popper-arrow></div>
-									</div>
-								</label>
-								<input
-									type="number"
-									id="cvv-input"
-									aria-describedby="helper-text-explanation"
-									class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500"
-									placeholder="•••"
-									required
-								/>
-							</div>
-						</div>
-
-						<button
-							type="submit"
-							class="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-							>Pay now</button
-						>
-					</form>
-
-					<div class="mt-6 grow sm:mt-8 lg:mt-0">
-						<div
-							class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800"
-						>
-							<div class="space-y-2">
-								<dl class="flex items-center justify-between gap-4">
-									<dt
-										class="text-base font-normal text-gray-500 dark:text-gray-400"
-									>
-										Original price
-									</dt>
-									<dd
-										class="text-base font-medium text-gray-900 dark:text-white"
-									>
-										$6,592.00
-									</dd>
-								</dl>
-
-								<dl class="flex items-center justify-between gap-4">
-									<dt
-										class="text-base font-normal text-gray-500 dark:text-gray-400"
-									>
-										Savings
-									</dt>
-									<dd class="text-base font-medium text-green-500">-$299.00</dd>
-								</dl>
-
-								<dl class="flex items-center justify-between gap-4">
-									<dt
-										class="text-base font-normal text-gray-500 dark:text-gray-400"
-									>
-										Store Pickup
-									</dt>
-									<dd
-										class="text-base font-medium text-gray-900 dark:text-white"
-									>
-										$99
-									</dd>
-								</dl>
-
-								<dl class="flex items-center justify-between gap-4">
-									<dt
-										class="text-base font-normal text-gray-500 dark:text-gray-400"
-									>
-										Tax
-									</dt>
-									<dd
-										class="text-base font-medium text-gray-900 dark:text-white"
-									>
-										$799
-									</dd>
-								</dl>
-							</div>
-
-							<dl
-								class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700"
-							>
-								<dt class="text-base font-bold text-gray-900 dark:text-white">
-									Total
-								</dt>
-								<dd class="text-base font-bold text-gray-900 dark:text-white">
-									$7,191.00
-								</dd>
-							</dl>
-						</div>
-
-						<div class="mt-6 flex items-center justify-center gap-8">
-							<img
-								class="h-8 w-auto dark:hidden"
-								src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/paypal.svg"
-								alt=""
-							/>
-							<img
-								class="hidden h-8 w-auto dark:flex"
-								src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/paypal-dark.svg"
-								alt=""
-							/>
-							<img
-								class="h-8 w-auto dark:hidden"
-								src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/visa.svg"
-								alt=""
-							/>
-							<img
-								class="hidden h-8 w-auto dark:flex"
-								src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/visa-dark.svg"
-								alt=""
-							/>
-							<img
-								class="h-8 w-auto dark:hidden"
-								src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/mastercard.svg"
-								alt=""
-							/>
-							<img
-								class="hidden h-8 w-auto dark:flex"
-								src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/brand-logos/mastercard-dark.svg"
-								alt=""
-							/>
-						</div>
+									<span class="text-gray-800 dark:text-neutral-400 text-left">
+										Planificación y diseño de LLC
+									</span>
+								</li>
+							</ul>
+						</label>
+						<!-- End Card -->
 					</div>
 				</div>
 
-				<p
-					class="mt-6 text-center text-gray-500 dark:text-gray-400 sm:mt-8 lg:text-left"
+				<!-- Title -->
+				<div
+					class="w-2/3 sm:w-1/2 lg:w-1/3 mx-auto text-center mt-10 md:mt-14 mb-6 lg:mt-24"
 				>
-					Payment processed by <a
-						href="#"
-						title=""
-						class="font-medium text-primary-700 underline hover:no-underline dark:text-primary-500"
-						>Paddle</a
-					> for <a
-						href="#"
-						title=""
-						class="font-medium text-primary-700 underline hover:no-underline dark:text-primary-500"
-						>Flowbite LLC</a
+					<button
+						type="button"
+						class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-[#8c681d] text-white hover:bg-[#8c681d]/80 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none"
 					>
-					- United States Of America
-				</p>
+						Continuar con el pago
+					</button>
+				</div>
+				<!-- End Title -->
 			</div>
 		</div>
-	</section>
-</div>
+		<!-- End Hero -->
+	</div>
+</main>
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		const checkbox = document.querySelector('input[type="checkbox"]');
+
+		// Función para manejar la visibilidad
+		function toggleDivs() {
+			const showDiv = document.getElementById(checkbox.dataset.show);
+			const hideDiv = document.getElementById(checkbox.dataset.hide);
+
+			if (checkbox.checked) {
+				// Mostrar un div y ocultar el otro
+				if (showDiv) {
+					showDiv.classList.remove('hidden');
+					showDiv.classList.add('grid');
+				}
+				if (hideDiv) {
+					hideDiv.classList.add('hidden');
+					hideDiv.classList.remove('grid');
+				}
+			} else {
+				// Estado desactivado - revertir
+				if (showDiv) {
+					showDiv.classList.add('hidden');
+					showDiv.classList.remove('grid');
+				}
+				if (hideDiv) {
+					hideDiv.classList.remove('hidden');
+					hideDiv.classList.add('grid');
+				}
+			}
+		}
+
+		// Verificar el estado inicial
+		toggleDivs();
+
+		// Añadir event listener para cambios
+		checkbox.addEventListener('change', toggleDivs);
+	});
+</script>
