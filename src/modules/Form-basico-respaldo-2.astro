@@ -1,41 +1,72 @@
 ---
 import { supabase } from '../lib/supabase';
-const { cookies, redirect } = Astro;
-const STRIPE_PUBLISHABLE_KEY = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY;
+const { cookies } = Astro;
 
-// 1) Restaurar sesión
+let userId = null;
+let empresas = [];
+
+// 1) Intentar restaurar sesión si hay cookies disponibles
 const at = cookies.get('sb-access-token');
 const rt = cookies.get('sb-refresh-token');
-if (!at || !rt) {
-	return redirect('/sign-in');
+
+if (at && rt) {
+	await supabase.auth.setSession({
+		access_token: at.value,
+		refresh_token: rt.value,
+	});
+
+	// 2) Obtener el usuario si existe sesión
+	const {
+		data: { user },
+		error: userErr,
+	} = await supabase.auth.getUser();
+
+	if (!userErr && user) {
+		userId = user.id; // Este es el user_id (UUID) que necesitas
+
+		// 3) Verificar si es admin
+		const { data: isAdmin, error: rpcErr } = await supabase.rpc('is_admin', {
+			uid: user.id,
+		});
+
+		// 4) Si NO es admin → cargar sus empresas con estado "En proceso"
+		if (!rpcErr && !isAdmin) {
+			const { data } = await supabase
+				.from('empresas_incorporaciones')
+				.select(
+					`
+					user_id,
+					empresa_incorporacion_id,
+					tipo_de_negocio,
+					estado_de_incorporacion,
+					estado,
+					nombre_1,
+					nombre_2,
+					nombre_3,
+					updated_at
+				`,
+				)
+				.eq('user_id', user.id)
+				.eq('estado', 'En proceso') // <- Filtro para mostrar solo "En proceso"
+				.order('updated_at', { ascending: true });
+
+			empresas = data ?? [];
+		}
+	}
 }
 
-await supabase.auth.setSession({
-	access_token: at.value,
-	refresh_token: rt.value,
-});
-
-// 2) Usuario
-const {
-	data: { user },
-	error: userErr,
-} = await supabase.auth.getUser();
-if (userErr || !user) {
-	return redirect('/sign-in');
-}
-
-// 3) Traer todos los servicios activos
+// 5) Obtener los servicios activos (siempre se ejecuta, con o sin usuario)
 const { data: servicios, error: serviciosErr } = await supabase
 	.from('servicios')
 	.select(
 		`
-    id_servicios,
-    nombre,
-    precio,
-    descripcion,
-    categoria,
-    servicio_activo
-  `,
+		id_servicios,
+		nombre,
+		precio,
+		descripcion,
+		categoria,
+		servicio_activo
+	`,
 	)
 	.eq('servicio_activo', true);
 
@@ -43,8 +74,10 @@ if (serviciosErr) {
 	console.error('Error cargando servicios:', serviciosErr);
 }
 
-// 4) Asignar cada servicio a una tarjeta específica
+// Convertir a array seguro para usar con .map()
+const empresasArray = empresas || [];
 
+// 6) Asignar cada servicio a una tarjeta específica
 const planBasico = servicios?.find((s) => s.nombre === 'Plan Básico');
 const planEstandar = servicios?.find((s) => s.nombre === 'Plan Estándar');
 const planBusiness = servicios?.find((s) => s.nombre === 'Plan Business');
@@ -52,11 +85,49 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 ---
 
 <!-- ========== MAIN CONTENT ========== -->
-<main id="content">
+<main id="content" class={userId}>
 	<div class="overflow-hidden">
-		<!-- Hero -->
-		<div class="relative">
-			<div class="max-w-[85rem] px-4 pt-10 sm:px-6 lg:px-8 lg:pt-14 mx-auto" id="step-plans">
+		<div
+			class="pt-5 relative flex flex-col justify-center items-center"
+			id="panel1"
+		>
+			<div class="max-w-2xl mx-auto text-center mb-10">
+				<h3 class="text-white text-3xl">Selecciona la empresa a incorporar</h3>
+			</div>
+			<div
+				class="flex flex-col bg-white border border-gray-200 rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 w-1/2 items-center"
+			>
+				<p
+					class="mt-2 lg:text-lg text-gray-800 dark:text-neutral-200 mb-5 text-left w-full"
+				>
+					Lista de empresas
+				</p>
+				<select
+					name="empresa"
+					id="empresas_select"
+					class="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 mb-5"
+				>
+					{
+						empresasArray?.map((empresa) => (
+							<option value={empresa.empresa_incorporacion_id}>
+								{empresa.nombre_1}
+							</option>
+						))
+					}
+				</select>
+				<button
+					id="btn-paso1"
+					class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-[#8c681d] text-white hover:bg-[#8c681d]/80 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none text-center w-fit"
+				>
+					continuar</button
+				>
+			</div>
+		</div>
+		<div class="relative hidden" id="panel2">
+			<div
+				class="max-w-[85rem] px-4 pt-5 sm:px-6 lg:px-8 lg:pt-14 mx-auto"
+				id="step-plans"
+			>
 				<!-- Title -->
 				<div class="max-w-2xl mx-auto text-center mb-10">
 					<h3 class="text-white text-3xl">Escoge tu plan</h3>
@@ -64,12 +135,10 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 						Elije el plan que mas se adapte a tu negocio y necesidades
 					</p>
 				</div>
-				<!-- End Title -->
 
-				<!-- Grid -->
 				<div
-				class="mt-6 md:mt-12 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 lg:gap-3 xl:gap-6 lg:items-center grid"
-				id="divActivo"
+					class="mt-6 md:mt-12 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 lg:gap-3 xl:gap-6 lg:items-center grid"
+					id="divActivo"
 				>
 					{
 						planBasico && (
@@ -85,7 +154,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 								/>
 								<label
 									for={planBasico.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d]"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
 									<h4 class="font-medium text-lg text-gray-800 dark:text-neutral-200">
 										{planBasico.nombre}
@@ -177,7 +246,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 								/>
 								<label
 									for={planBusiness.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d]"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
 									<p class="mb-3">
 										<span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs uppercase font-semibold bg-violet-100 text-[#8c681d] dark:bg-[#8c681d] dark:text-white animate-pulse">
@@ -239,7 +308,8 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 												</>
 											</svg>
 											<span class="text-gray-800 dark:text-neutral-400 text-left">
-												Servicio de acompañamiento para abrir tu cuenta bancaria Online.
+												Servicio de acompañamiento para abrir tu cuenta bancaria
+												Online.
 											</span>
 										</li>
 									</ul>
@@ -262,7 +332,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 								/>
 								<label
 									for={planEstandar.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d]"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
 									<h4 class="font-medium text-lg text-gray-800 dark:text-neutral-200">
 										{planEstandar.nombre}
@@ -346,123 +416,118 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 					}
 				</div>
 
-					<!-- End Grid -->
-
-					<div
-						class="mt-6 md:mt-12 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 lg:gap-3 xl:gap-6 lg:items-center diseño-contenedor grid"
-						id="divInactivo"
-					>
-
+				<div
+					class="mt-6 md:mt-12 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 lg:gap-3 xl:gap-6 lg:items-center diseño-contenedor grid"
+					id="divInactivo"
+				>
 					{
 						planDiseno && (
-						<div class="col-start-2 tarjeta-4">
-							<input
-								type="radio"
-								id={planDiseno.id_servicios}
-								name="plan"
-								value={planDiseno.id_servicios}
-								class="hidden peer"
-								required
-								data-price={planDiseno.precio}
-								
-							/>
-							<label
-								for={planDiseno.id_servicios}
-								class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d]"
-							>
-								<div class="col-span-2 mt-2">
-									<button
-										class="flex items-end justify-end h-full place-self-end dark:text-white text-neutral-700"
-										data-popover-target="popover-description4"
-										data-popover-placement="bottom-end"
-										type="button"
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="20"
-											height="20"
-											viewBox="0 0 24 24"
-											><g fill="none"
-												><path
-													d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"
-												></path><path
-													fill="currentColor"
-													d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
-												></path></g
-											></svg
-										>
-									</button>
-								</div>
-
-								<div
-									data-popover
-									id="popover-description4"
-									role="tooltip"
-									class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
+							<div class="col-start-2 tarjeta-4">
+								<input
+									type="radio"
+									id={planDiseno.id_servicios}
+									name="plan"
+									value={planDiseno.id_servicios}
+									class="hidden peer"
+									required
+									data-price={planDiseno.precio}
+								/>
+								<label
+									for={planDiseno.id_servicios}
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
-									<div class="p-3 space-y-2">
-										<h3 class="font-semibold text-gray-900 dark:text-white">
-											¿Que es el plan de diseño - upgrade?
-										</h3>
-										<p class="grid grid-cols-[auto,1fr] items-center">
-											<span
-												>Este plan está meticulosamente creado para las empresas
-												que requieren una LLC totalmente personalizada, recibiendo
-												asesoría experta que alinea su estructura con su modelo de
-												negocio y sus requerimientos específicos. Además, su
-												diseño permite escalar o actualizar a otros planes
-												superiores, facilitando la construcción progresiva y paso
-												a paso de su estructura de LLC.</span
+									<div class="col-span-2 mt-2">
+										<button
+											class="flex items-end justify-end h-full place-self-end dark:text-white text-neutral-700"
+											data-popover-target="popover-description4"
+											data-popover-placement="bottom-end"
+											type="button"
+										>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="20"
+												height="20"
+												viewBox="0 0 24 24"
 											>
-										</p>
+												<g fill="none">
+													<>
+														<path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
+														<path
+															fill="currentColor"
+															d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
+														/>
+													</>
+												</g>
+											</svg>
+										</button>
 									</div>
-									<div data-popper-arrow></div>
-								</div>
-								<h4
-									class="font-medium text-lg text-gray-800 dark:text-neutral-200"
-								>
-									{planDiseno.nombre}
-								</h4>
-								<span
-									class="mt-7 font-bold text-3xl md:text-4xl xl:text-5xl text-gray-800 dark:text-neutral-200"
-									>${planDiseno.precio}</span
-								>
-								<p class="mt-2 text-sm text-gray-500 dark:text-neutral-500">
-									{planDiseno.descripcion}
-								</p>
 
-								<ul class="mt-7 space-y-2.5 text-sm">
-									<li class="flex gap-x-2">
-										<svg
-											class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
-											xmlns="http://www.w3.org/2000/svg"
-											width="24"
-											height="24"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="2"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											><polyline points="20 6 9 17 4 12"></polyline></svg
-										>
-										<span class="text-gray-800 dark:text-neutral-400 text-left">
-											Planificación y diseño de LLC
-										</span>
-									</li>
-								</ul>
-							</label>
-							<!-- End Card -->
-						</div>  
+									<div
+										data-popover
+										id="popover-description4"
+										role="tooltip"
+										class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
+									>
+										<div class="p-3 space-y-2">
+											<h3 class="font-semibold text-gray-900 dark:text-white">
+												¿Que es el plan de diseño - upgrade?
+											</h3>
+											<p class="grid grid-cols-[auto,1fr] items-center">
+												<span>
+													Este plan está meticulosamente creado para las
+													empresas que requieren una LLC totalmente
+													personalizada, recibiendo asesoría experta que alinea
+													su estructura con su modelo de negocio y sus
+													requerimientos específicos. Además, su diseño permite
+													escalar o actualizar a otros planes superiores,
+													facilitando la construcción progresiva y paso a paso
+													de su estructura de LLC.
+												</span>
+											</p>
+										</div>
+										<div data-popper-arrow />
+									</div>
+									<h4 class="font-medium text-lg text-gray-800 dark:text-neutral-200">
+										{planDiseno.nombre}
+									</h4>
+									<span class="mt-7 font-bold text-3xl md:text-4xl xl:text-5xl text-gray-800 dark:text-neutral-200">
+										${planDiseno.precio}
+									</span>
+									<p class="mt-2 text-sm text-gray-500 dark:text-neutral-500">
+										{planDiseno.descripcion}
+									</p>
+
+									<ul class="mt-7 space-y-2.5 text-sm">
+										<li class="flex gap-x-2">
+											<svg
+												class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											>
+												<polyline points="20 6 9 17 4 12" />
+											</svg>
+											<span class="text-gray-800 dark:text-neutral-400 text-left">
+												Planificación y diseño de LLC
+											</span>
+										</li>
+									</ul>
+								</label>
+							</div>
 						)
 					}
-						
-					</div>
+				</div>
 
-					<!-- Title -->
-					<div
-						class="w-2/3 sm:w-1/2 lg:w-1/3 mx-auto text-center mt-10 md:mt-14 mb-6 lg:mt-24"
-					>
+				<div
+					class="w-2/3 sm:w-1/2 lg:w-1/3 mx-auto text-center mt-10 md:mt-14 mb-6"
+				>
+					<div class="mb-3">
 						<button
 							type="button"
 							id="btn-continue"
@@ -471,23 +536,36 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 							Continuar con el pago
 						</button>
 					</div>
-					<!-- End Title -->
+					<div>
+						<button
+							type="button"
+							id="btn-atras"
+							class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-zinc-500 text-white hover:bg-zinc-600 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none"
+						>
+							Regresar
+						</button>
+					</div>
 				</div>
-                <!-- PASO 2: Pago con Stripe -->
-            <div id="step-payment" class="hidden grid grid-cols-2" >
+			</div>
+
+			<div id="step-payment" class="hidden grid grid-cols-2">
 				<div
 					class="w-4/5 mx-auto mt-10 mb-16 bg-white/80 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm place-self-center justify-self-center"
 				>
 					<div
-					id="stripe-config"
-					data-pk={import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY}
-					class="hidden"
-					></div>
-					<h3 class="text-xl font-semibold text-gray-800 dark:text-neutral-100 mb-2">
+						id="stripe-config"
+						data-pk={import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY}
+						data-id={userId}
+						class="hidden"
+					>
+					</div>
+					<h3
+						class="text-xl font-semibold text-gray-800 dark:text-neutral-100 mb-2"
+					>
 						Completa tu pago
 					</h3>
 					<p
-						class="text-sm text-gray-600 dark:text-neutral-400 mb-4"
+						class="text-base text-gray-600 dark:text-neutral-400 mb-4"
 						id="selected-plan-summary"
 					>
 						Estás pagando el plan seleccionado.
@@ -521,8 +599,6 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 							Pagar ahora
 						</button>
 
-						
-
 						<button
 							type="button"
 							id="btn-back"
@@ -533,38 +609,69 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 					</form>
 				</div>
 
-				 <div class="grow mt-10 mb-16 w-3/5">
+				<div class="grow mt-10 mb-16 w-3/5">
 					<div
-					id="price-summary"
-					class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-neutral-900"
+						id="price-summary"
+						class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-neutral-900"
 					>
 						<div class="space-y-2">
 							<dl class="flex items-center justify-between gap-4">
-								<dt class="text-base font-normal text-gray-500 dark:text-gray-400">Precio del plan</dt>
-								<dd id="summary-base" class="text-base font-medium text-gray-900 dark:text-white">$0.00</dd>
+								<dt
+									class="text-base font-normal text-gray-500 dark:text-gray-400"
+								>
+									Precio del plan
+								</dt>
+								<dd
+									id="summary-base"
+									class="text-base font-medium text-gray-900 dark:text-white"
+								>
+									$0.00
+								</dd>
 							</dl>
 
 							<dl class="flex items-center justify-between gap-4">
-								<dt class="text-base font-normal text-gray-500 dark:text-gray-400">Tarifas de procesamiento</dt>
-								<dd id="summary-fee" class="text-base font-medium text-gray-900 dark:text-white">$0.00</dd>
+								<dt
+									class="text-base font-normal text-gray-500 dark:text-gray-400"
+								>
+									Tarifas de procesamiento
+								</dt>
+								<dd
+									id="summary-fee"
+									class="text-base font-medium text-gray-900 dark:text-white"
+								>
+									$0.00
+								</dd>
 							</dl>
 						</div>
 
-						<dl class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
-							<dt class="text-base font-bold text-gray-900 dark:text-white">Total</dt>
-							<dd id="summary-total" class="text-base font-bold text-gray-900 dark:text-white">$0.00</dd>
+						<dl
+							class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700"
+						>
+							<dt class="text-base font-bold text-gray-900 dark:text-white">
+								Total
+							</dt>
+							<dd
+								id="summary-total"
+								class="text-base font-bold text-gray-900 dark:text-white"
+							>
+								$0.00
+							</dd>
 						</dl>
 					</div>
 
 					<div class="mt-6 flex items-center justify-center gap-2">
-						<p class="text-base font-normal text-gray-500 dark:text-gray-400">Pago seguro gestionado por:</p>
-						<img class="hidden h-10 w-auto dark:flex" src="/src/assets/stripe.svg" alt="" />
-						
+						<p class="text-base font-normal text-gray-500 dark:text-gray-400">
+							Pago seguro gestionado por:
+						</p>
+						<img
+							class="hidden h-10 w-auto dark:flex"
+							src="/src/assets/stripe.svg"
+							alt=""
+						/>
 					</div>
-            	</div>
-            <!-- FIN PASO 2 -->
+				</div>
+			</div>
 		</div>
-		<!-- End Hero -->
 	</div>
 </main>
 
@@ -572,208 +679,275 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 
 <script>
 	document.addEventListener('DOMContentLoaded', () => {
-  // 1) Leer publishable key desde el div
-  const cfg = document.getElementById('stripe-config');
-  if (!cfg) {
-    console.error('Stripe config div not found');
-    return;
-  }
+		// 1) Leer publishable key desde el div
+		const cfg = document.getElementById('stripe-config');
+		if (!cfg) {
+			console.error('Stripe config div not found');
+			return;
+		}
 
-  const pk = cfg.dataset.pk;
-  if (!pk) {
-    console.error('Stripe publishable key missing (data-pk vacío)');
-    return;
-  }
+		const pk = cfg.dataset.pk;
+		const userId = cfg.dataset.id; // Obtener el user_id desde el dataset
 
-  // 2) Inicializar Stripe y Elements
-  const stripe = Stripe(pk);
-  const elements = stripe.elements();
-  const cardElement = elements.create('card', {
-    hidePostalCode: true,
-    style: {
-      base: {
-        color: '#f9fafb', // texto principal (casi blanco)
-        fontFamily:
-          '"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        fontSize: '14px',
-        '::placeholder': {
-          color: '#9ca3af', // placeholder gris claro
-        },
-        iconColor: '#facc15', // color de iconos (puedes usar tu dorado)
-      },
-      invalid: {
-        color: '#f97373', // rojo para errores
-        iconColor: '#f97373',
-      },
-    },
-  });
-  cardElement.mount('#card-element');
+		if (!pk || !userId) {
+			console.error('Stripe publishable key or user ID missing');
+			return;
+		}
 
-  // 3) Referencias al DOM
-  const btnContinue = document.getElementById('btn-continue');
-  const btnBack = document.getElementById('btn-back');
-  const stepPlans = document.getElementById('step-plans');
-  const stepPayment = document.getElementById('step-payment');
-  const paymentForm = document.getElementById('payment-form');
-  const cardErrors = document.getElementById('card-errors');
-  const statusMessage = document.getElementById('status-message');
-  const payButton = document.getElementById('pay-button');
-  const planSummary = document.getElementById('selected-plan-summary');
+		// 2) Inicializar Stripe y Elements
+		const stripe = Stripe(pk);
+		const elements = stripe.elements();
+		const cardElement = elements.create('card', {
+			hidePostalCode: true,
+			style: {
+				base: {
+					color: '#f9fafb', // texto principal (casi blanco)
+					fontFamily:
+						'"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+					fontSize: '14px',
+					'::placeholder': {
+						color: '#9ca3af', // placeholder gris claro
+					},
+					iconColor: '#facc15', // color de iconos
+				},
+				invalid: {
+					color: '#f97373', // rojo para errores
+					iconColor: '#f97373',
+				},
+			},
+		});
+		cardElement.mount('#card-element');
 
-  // Resumen de precios
-  const baseEl = document.getElementById('summary-base');
-  const feeEl = document.getElementById('summary-fee');
-  const totalEl = document.getElementById('summary-total');
+		// 3) Referencias al DOM
+		const btnContinue = document.getElementById('btn-continue');
+		const btnBack = document.getElementById('btn-back');
+		const stepPlans = document.getElementById('step-plans');
+		const stepPayment = document.getElementById('step-payment');
+		const paymentForm = document.getElementById('payment-form');
+		const cardErrors = document.getElementById('card-errors');
+		const statusMessage = document.getElementById('status-message');
+		const payButton = document.getElementById('pay-button');
+		const planSummary = document.getElementById('selected-plan-summary');
 
-  let currentClientSecret: null = null;
+		// Resumen de precios
+		const baseEl = document.getElementById('summary-base');
+		const feeEl = document.getElementById('summary-fee');
+		const totalEl = document.getElementById('summary-total');
 
-  // 4) Obtener el plan seleccionado (id_servicios)
-  function getSelectedPlan() {
-    const radio = document.querySelector('input[name="plan"]:checked');
-    if (!radio) return null;
+		let currentClientSecret: null = null;
 
-    const label = radio.closest('label') || radio.parentElement;
-    const titleEl = label?.querySelector('h4');
+		// 4) Obtener el plan seleccionado (id_servicios)
+		function getSelectedPlan() {
+			const radio = document.querySelector('input[name="plan"]:checked');
+			if (!radio) return null;
 
-    const rawPrice = radio.dataset.price;
-    const price = rawPrice ? parseFloat(rawPrice) : NaN;
+			const label = radio.closest('label') || radio.parentElement;
+			const titleEl = label ? label.querySelector('h4') : null;
 
-    return {
-      id: radio.value, // id_servicios (UUID)
-      label: titleEl ? titleEl.textContent.trim() : 'Plan seleccionado',
-      price, // precio en USD
-    };
-  }
+			const rawPrice = radio.dataset.price;
+			const price = rawPrice ? parseFloat(rawPrice) : NaN;
 
-  // 5) Función para actualizar el resumen de precios
-  function formatUSD(amount: unknown) {
-    if (!Number.isFinite(amount)) return '$0.00';
-    return '$' + amount.toFixed(2);
-  }
+			return {
+				id: radio.value, // id_servicios (UUID)
+				label: titleEl ? titleEl.textContent.trim() : 'Plan seleccionado',
+				price, // precio en USD
+			};
+		}
 
-  function updatePriceSummary(plan: { id?: any; label?: string; price: any; }) {
-    if (!plan || !Number.isFinite(plan.price)) {
-      baseEl.textContent = '$0.00';
-      feeEl.textContent = '$0.00';
-      totalEl.textContent = '$0.00';
-      return;
-    }
+		// 5) Función para actualizar el resumen de precios
+		function formatUSD(amount: unknown) {
+			if (!Number.isFinite(amount)) return '$0.00';
+			return '$' + amount.toFixed(2);
+		}
 
-    const base = plan.price;
-    const feePercent = 0.045;
-    const fee = base * feePercent;
-    const total = base + fee;
+		function updatePriceSummary(plan: {
+			id?: any;
+			label?: string;
+			price: any;
+		}) {
+			if (!plan || !Number.isFinite(plan.price)) {
+				baseEl.textContent = '$0.00';
+				feeEl.textContent = '$0.00';
+				totalEl.textContent = '$0.00';
+				return;
+			}
 
-    baseEl.textContent = formatUSD(base);
-    feeEl.textContent = formatUSD(fee);
-    totalEl.textContent = formatUSD(total);
-  }
+			const base = plan.price;
+			const feePercent = 0.045;
+			const fee = base * feePercent;
+			const total = base + fee;
 
-  // 6) Llamar al backend para crear el PaymentIntent
-  async function createPaymentIntent(planId: any) {
-    statusMessage.textContent = 'Preparando el pago...';
-    payButton.disabled = true;
+			baseEl.textContent = formatUSD(base);
+			feeEl.textContent = formatUSD(fee);
+			totalEl.textContent = formatUSD(total);
+		}
 
-    try {
-      const res = await fetch('/api/payment/payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId }),
-      });
+		// 6) Llamar al backend para crear el PaymentIntent
+		async function createPaymentIntent(planId: any, userId: string) {
+			statusMessage.textContent = 'Preparando el pago...';
+			payButton.disabled = true;
 
-      const data = await res.json();
+			try {
+				const res = await fetch('/api/payment/payment-intent', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ planId, userId }), // Enviar userId y planId
+				});
 
-      if (!res.ok || !data.clientSecret) {
-        throw new Error(data.error || 'Error al crear el pago');
-      }
+				const data = await res.json();
 
-      currentClientSecret = data.clientSecret;
-      statusMessage.textContent = 'Ingresa los datos de tu tarjeta.';
-    } catch (err) {
-      console.error(err);
-      statusMessage.textContent = 'No se pudo preparar el pago. Intenta nuevamente.';
-    } finally {
-      payButton.disabled = false;
-    }
-  }
+				if (!res.ok || !data.clientSecret) {
+					throw new Error(data.error || 'Error al crear el pago');
+				}
 
-  // 7) Click en "Continuar con el pago"
-  if (btnContinue) {
-    btnContinue.addEventListener('click', async () => {
-      const plan = getSelectedPlan();
-      if (!plan) {
-        alert('Por favor selecciona un plan antes de continuar.');
-        return;
-      }
+				currentClientSecret = data.clientSecret;
+				statusMessage.textContent = 'Ingresa los datos de tu tarjeta.';
+			} catch (err) {
+				console.error(err);
+				statusMessage.textContent =
+					'No se pudo preparar el pago. Intenta nuevamente.';
+			} finally {
+				payButton.disabled = false;
+			}
+		}
 
-      planSummary.textContent = `Estás pagando: ${plan.label}`;
-      
-      // Actualizar el resumen de precios
-      updatePriceSummary(plan);
+		// 7) Click en "Continuar con el pago"
+		if (btnContinue) {
+			btnContinue.addEventListener('click', async () => {
+				const plan = getSelectedPlan();
+				if (!plan) {
+					alert('Por favor selecciona un plan antes de continuar.');
+					return;
+				}
 
-      await createPaymentIntent(plan.id);
+				planSummary.textContent = `Estás pagando: ${plan.label}`;
 
-      // Mostrar step de pago y ocultar selección de plan
-      stepPlans.classList.add('hidden');
-      stepPayment.classList.remove('hidden');
-    });
-  }
+				// Actualizar el resumen de precios y crear el PaymentIntent
+				updatePriceSummary(plan);
+				await createPaymentIntent(plan.id, userId);
 
-  // 8) Volver a elegir plan
-  if (btnBack) {
-    btnBack.addEventListener('click', () => {
-      stepPayment.classList.add('hidden');
-      stepPlans.classList.remove('hidden');
-      statusMessage.textContent = '';
-      cardErrors.textContent = '';
-    });
-  }
+				// Mostrar step de pago y ocultar selección de plan
+				stepPlans.classList.add('hidden');
+				stepPayment.classList.remove('hidden');
+			});
+		}
 
-  // 9) Submit del formulario de pago
-  if (paymentForm) {
-    paymentForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
+		// 8) Volver a elegir plan
+		if (btnBack) {
+			btnBack.addEventListener('click', () => {
+				stepPayment.classList.add('hidden');
+				stepPlans.classList.remove('hidden');
+				statusMessage.textContent = '';
+				cardErrors.textContent = '';
+			});
+		}
 
-      if (!currentClientSecret) {
-        statusMessage.textContent = 'El pago no está listo. Vuelve a intentar (elige el plan de nuevo).';
-        return;
-      }
+		// 9) Submit del formulario de pago
+		if (paymentForm) {
+			paymentForm.addEventListener('submit', async (event) => {
+				event.preventDefault();
 
-      payButton.disabled = true;
-      statusMessage.textContent = 'Procesando pago...';
-      cardErrors.textContent = '';
+				if (!currentClientSecret) {
+					statusMessage.textContent =
+						'El pago no está listo. Vuelve a intentar (elige el plan de nuevo).';
+					return;
+				}
 
-      try {
-        const { error, paymentIntent } = await stripe.confirmCardPayment(currentClientSecret, {
-          payment_method: {
-            card: cardElement,
-          },
-        });
+				payButton.disabled = true;
+				statusMessage.textContent = 'Procesando pago...';
+				cardErrors.textContent = '';
 
-        if (error) {
-          console.error(error);
-          cardErrors.textContent = error.message || 'Error al procesar el pago.';
-          statusMessage.textContent = 'No se pudo completar el pago.';
-          payButton.disabled = false;
-          return;
-        }
+				try {
+					const { error, paymentIntent } = await stripe.confirmCardPayment(
+						currentClientSecret,
+						{
+							payment_method: {
+								card: cardElement,
+							},
+						},
+					);
 
-        if (paymentIntent && paymentIntent.status === 'succeeded') {
-          statusMessage.textContent = 'Pago realizado con éxito. Estamos iniciando el proceso de incorporación de tu LLC.';
-          // Redirigir a página de éxito
-          window.location.href = '/';
-        } else {
-          statusMessage.textContent = 'No se pudo completar el pago. Intenta nuevamente.';
-          payButton.disabled = false;
-        }
-      } catch (err) {
-        console.error(err);
-        statusMessage.textContent = 'Ocurrió un error al procesar el pago.';
-        payButton.disabled = false;
-      }
-    });
-  }
-});
+					if (error) {
+						console.error(error);
+						cardErrors.textContent =
+							error.message || 'Error al procesar el pago.';
+						statusMessage.textContent =
+							'No se pudo completar el pago. Intenta nuevamente.';
+						payButton.disabled = false;
+						return;
+					}
 
+					if (paymentIntent && paymentIntent.status === 'succeeded') {
+						// 1) Avisar al backend para registrar el pago en Supabase
+						statusMessage.textContent =
+							'Pago realizado con éxito. Registrando la información...';
+
+						try {
+							const res = await fetch('/api/payment/register', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({
+									paymentIntentId: paymentIntent.id, // ej. "pi_3SSNsjGrWNHrTulF1yZGfOQz"
+								}),
+							});
+
+							const data = await res.json();
+
+							if (!res.ok) {
+								console.error('Error registrando pago en BD:', data);
+								statusMessage.textContent =
+									'El pago se realizó, pero hubo un problema registrándolo internamente. Nuestro equipo lo revisará.';
+							} else {
+								console.log('Pago registrado en BD:', data);
+								statusMessage.textContent =
+									'Pago realizado con éxito. Estamos iniciando el proceso de incorporación de tu LLC.';
+							}
+						} catch (err) {
+							console.error('Error llamando a /api/payment/register:', err);
+							statusMessage.textContent =
+								'El pago se realizó, pero hubo un error al registrarlo internamente. Nuestro equipo lo revisará.';
+						}
+
+						// 2) Redirigir a página de éxito
+						window.location.href = '/';
+					} else {
+						statusMessage.textContent =
+							'No se pudo completar el pago. Intenta nuevamente.';
+						payButton.disabled = false;
+					}
+				} catch (err) {
+					console.error(err);
+					statusMessage.textContent = 'Ocurrió un error al procesar el pago.';
+					payButton.disabled = false;
+				}
+			});
+		}
+	});
 </script>
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		// Obtener el botón y el div por sus IDs
+		const boton = document.getElementById('btn-paso1');
+		const regresar = document.getElementById('btn-atras');
+		const div2 = document.getElementById('panel2');
+		const div1 = document.getElementById('panel1');
 
+		// Agregar event listener al botón
+		boton?.addEventListener('click', function () {
+			// Remover la clase 'hidden' y agregar 'visible'
+			div2?.classList.remove('hidden');
+			div2?.classList.add('visible');
+
+			div1?.classList.add('hidden');
+			div1?.classList.remove('visible');
+		});
+
+		regresar?.addEventListener('click', function() {
+			div1?.classList.remove('hidden');
+			div1?.classList.add('visible');
+
+			div2?.classList.add('hidden');
+			div2?.classList.remove('visible');
+		});
+	});
+</script>
