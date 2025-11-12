@@ -87,10 +87,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 <!-- ========== MAIN CONTENT ========== -->
 <main id="content" class={userId}>
 	<div class="overflow-hidden">
-		<div
-			class="pt-5 relative flex flex-col justify-center items-center"
-			id="panel1"
-		>
+		<div class="pt-5 relative flex flex-col items-center h-[110vh]" id="panel1">
 			<div class="max-w-2xl mx-auto text-center mb-10">
 				<h3 class="text-white text-3xl">Selecciona la empresa a incorporar</h3>
 			</div>
@@ -104,7 +101,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				</p>
 				<select
 					name="empresa"
-					id="empresas_select"
+					id="empresa-select"
 					class="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 mb-5"
 				>
 					{
@@ -119,7 +116,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 					id="btn-paso1"
 					class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-[#8c681d] text-white hover:bg-[#8c681d]/80 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none text-center w-fit"
 				>
-					continuar</button
+					Continuar</button
 				>
 			</div>
 		</div>
@@ -679,16 +676,14 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 
 <script>
 	document.addEventListener('DOMContentLoaded', () => {
-		// 1) Leer publishable key desde el div
+		// 1) Config Stripe
 		const cfg = document.getElementById('stripe-config');
 		if (!cfg) {
 			console.error('Stripe config div not found');
 			return;
 		}
-
 		const pk = cfg.dataset.pk;
-		const userId = cfg.dataset.id; // Obtener el user_id desde el dataset
-
+		const userId = cfg.dataset.id; // user_id del dataset
 		if (!pk || !userId) {
 			console.error('Stripe publishable key or user ID missing');
 			return;
@@ -701,24 +696,19 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 			hidePostalCode: true,
 			style: {
 				base: {
-					color: '#f9fafb', // texto principal (casi blanco)
+					color: '#f9fafb',
 					fontFamily:
 						'"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 					fontSize: '14px',
-					'::placeholder': {
-						color: '#9ca3af', // placeholder gris claro
-					},
-					iconColor: '#facc15', // color de iconos
+					'::placeholder': { color: '#9ca3af' },
+					iconColor: '#facc15',
 				},
-				invalid: {
-					color: '#f97373', // rojo para errores
-					iconColor: '#f97373',
-				},
+				invalid: { color: '#f97373', iconColor: '#f97373' },
 			},
 		});
 		cardElement.mount('#card-element');
 
-		// 3) Referencias al DOM
+		// 3) DOM refs
 		const btnContinue = document.getElementById('btn-continue');
 		const btnBack = document.getElementById('btn-back');
 		const stepPlans = document.getElementById('step-plans');
@@ -734,27 +724,40 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 		const feeEl = document.getElementById('summary-fee');
 		const totalEl = document.getElementById('summary-total');
 
+		// NEW: selector de empresa
+		const empresaSelect = document.getElementById('empresa-select');
+
+		// Nota: en JS puro no usamos anotaciones TS
 		let currentClientSecret: null = null;
 
-		// 4) Obtener el plan seleccionado (id_servicios)
+		// 4) Plan seleccionado (id_servicios)
 		function getSelectedPlan() {
 			const radio = document.querySelector('input[name="plan"]:checked');
 			if (!radio) return null;
-
 			const label = radio.closest('label') || radio.parentElement;
 			const titleEl = label ? label.querySelector('h4') : null;
-
 			const rawPrice = radio.dataset.price;
 			const price = rawPrice ? parseFloat(rawPrice) : NaN;
-
 			return {
 				id: radio.value, // id_servicios (UUID)
 				label: titleEl ? titleEl.textContent.trim() : 'Plan seleccionado',
-				price, // precio en USD
+				price, // USD
 			};
 		}
 
-		// 5) Función para actualizar el resumen de precios
+		function getSelectedEmpresaId() {
+			if (!empresaSelect) return null;
+			const v = empresaSelect.value;
+			return v && v.length ? v : null;
+		}
+
+		function getSelectedEmpresaLabel() {
+			if (!empresaSelect) return null;
+			const opt = empresaSelect.options[empresaSelect.selectedIndex];
+			return opt ? opt.textContent.trim() : null;
+		}
+
+		// 5) Resumen precios
 		function formatUSD(amount: unknown) {
 			if (!Number.isFinite(amount)) return '$0.00';
 			return '$' + amount.toFixed(2);
@@ -771,35 +774,33 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				totalEl.textContent = '$0.00';
 				return;
 			}
-
 			const base = plan.price;
 			const feePercent = 0.045;
 			const fee = base * feePercent;
 			const total = base + fee;
-
 			baseEl.textContent = formatUSD(base);
 			feeEl.textContent = formatUSD(fee);
 			totalEl.textContent = formatUSD(total);
 		}
 
-		// 6) Llamar al backend para crear el PaymentIntent
-		async function createPaymentIntent(planId: any, userId: string) {
+		// 6) Crear PaymentIntent (manda empresaId)
+		async function createPaymentIntent(
+			planId: any,
+			userId: string,
+			empresaId: any,
+		) {
 			statusMessage.textContent = 'Preparando el pago...';
 			payButton.disabled = true;
-
 			try {
 				const res = await fetch('/api/payment/payment-intent', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ planId, userId }), // Enviar userId y planId
+					body: JSON.stringify({ planId, userId, empresaId }), // 👈 enviamos empresaId
 				});
-
 				const data = await res.json();
-
 				if (!res.ok || !data.clientSecret) {
 					throw new Error(data.error || 'Error al crear el pago');
 				}
-
 				currentClientSecret = data.clientSecret;
 				statusMessage.textContent = 'Ingresa los datos de tu tarjeta.';
 			} catch (err) {
@@ -811,7 +812,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 			}
 		}
 
-		// 7) Click en "Continuar con el pago"
+		// 7) Continuar con el pago
 		if (btnContinue) {
 			btnContinue.addEventListener('click', async () => {
 				const plan = getSelectedPlan();
@@ -819,14 +820,20 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 					alert('Por favor selecciona un plan antes de continuar.');
 					return;
 				}
+				const empresaId = getSelectedEmpresaId();
+				if (!empresaId) {
+					alert('Por favor selecciona la empresa para la que vas a pagar.');
+					return;
+				}
+				const empresaLabel = getSelectedEmpresaLabel();
 
-				planSummary.textContent = `Estás pagando: ${plan.label}`;
+				// Muestra resumen (plan + empresa)
+				const empresaInfo = empresaLabel ? ` | Empresa: ${empresaLabel}` : '';
+				planSummary.textContent = `Estás pagando: ${plan.label}${empresaInfo}`;
 
-				// Actualizar el resumen de precios y crear el PaymentIntent
 				updatePriceSummary(plan);
-				await createPaymentIntent(plan.id, userId);
+				await createPaymentIntent(plan.id, userId, empresaId);
 
-				// Mostrar step de pago y ocultar selección de plan
 				stepPlans.classList.add('hidden');
 				stepPayment.classList.remove('hidden');
 			});
@@ -842,7 +849,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 			});
 		}
 
-		// 9) Submit del formulario de pago
+		// 9) Submit del pago
 		if (paymentForm) {
 			paymentForm.addEventListener('submit', async (event) => {
 				event.preventDefault();
@@ -861,9 +868,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 					const { error, paymentIntent } = await stripe.confirmCardPayment(
 						currentClientSecret,
 						{
-							payment_method: {
-								card: cardElement,
-							},
+							payment_method: { card: cardElement },
 						},
 					);
 
@@ -878,21 +883,17 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 					}
 
 					if (paymentIntent && paymentIntent.status === 'succeeded') {
-						// 1) Avisar al backend para registrar el pago en Supabase
 						statusMessage.textContent =
 							'Pago realizado con éxito. Registrando la información...';
 
+						// Registrar el pago en tu backend → Supabase (RPC)
 						try {
 							const res = await fetch('/api/payment/register', {
 								method: 'POST',
 								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									paymentIntentId: paymentIntent.id, // ej. "pi_3SSNsjGrWNHrTulF1yZGfOQz"
-								}),
+								body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
 							});
-
 							const data = await res.json();
-
 							if (!res.ok) {
 								console.error('Error registrando pago en BD:', data);
 								statusMessage.textContent =
@@ -908,7 +909,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 								'El pago se realizó, pero hubo un error al registrarlo internamente. Nuestro equipo lo revisará.';
 						}
 
-						// 2) Redirigir a página de éxito
+						// Redirigir
 						window.location.href = '/';
 					} else {
 						statusMessage.textContent =
@@ -924,6 +925,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 		}
 	});
 </script>
+
 <script>
 	document.addEventListener('DOMContentLoaded', function () {
 		// Obtener el botón y el div por sus IDs
@@ -942,7 +944,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 			div1?.classList.remove('visible');
 		});
 
-		regresar?.addEventListener('click', function() {
+		regresar?.addEventListener('click', function () {
 			div1?.classList.remove('hidden');
 			div1?.classList.add('visible');
 
