@@ -14,7 +14,8 @@ const { data: servicios, error: serviciosErr } = await supabase
 		categoria,
 		created_at
 	`)
-	.eq('estado', 'Activo'); // ← Filtro agregado aquí
+	.eq('estado', 'Activo')
+	.order('created_at', { ascending: false });
 
 if (serviciosErr) {
 	console.error('Error cargando servicios:', serviciosErr);
