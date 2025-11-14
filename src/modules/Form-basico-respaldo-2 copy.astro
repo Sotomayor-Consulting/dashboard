@@ -675,256 +675,249 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 <script src="https://js.stripe.com/v3/"></script>
 
 <script>
-	document.addEventListener('DOMContentLoaded', () => {
-		// 1) Config Stripe
-		const cfg = document.getElementById('stripe-config');
-		if (!cfg) {
-			console.error('Stripe config div not found');
-			return;
-		}
-		const pk = cfg.dataset.pk;
-		const userId = cfg.dataset.id; // user_id del dataset
-		if (!pk || !userId) {
-			console.error('Stripe publishable key or user ID missing');
-			return;
-		}
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1) Config Stripe
+    const cfg = document.getElementById('stripe-config');
+    if (!cfg) {
+      console.error('Stripe config div not found');
+      return;
+    }
+    const pk = cfg.dataset.pk;
+    const userId = cfg.dataset.id; // user_id del dataset
+    if (!pk || !userId) {
+      console.error('Stripe publishable key or user ID missing');
+      return;
+    }
 
-		// 2) Inicializar Stripe y Elements
-		const stripe = Stripe(pk);
-		const elements = stripe.elements();
-		const cardElement = elements.create('card', {
-			hidePostalCode: true,
-			style: {
-				base: {
-					color: '#f9fafb',
-					fontFamily:
-						'"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-					fontSize: '14px',
-					'::placeholder': { color: '#9ca3af' },
-					iconColor: '#facc15',
-				},
-				invalid: { color: '#f97373', iconColor: '#f97373' },
-			},
-		});
-		cardElement.mount('#card-element');
+    // 2) Inicializar Stripe y Elements
+    const stripe = Stripe(pk);
+    const elements = stripe.elements();
+    const cardElement = elements.create('card', {
+      hidePostalCode: true,
+      style: {
+        base: {
+          color: '#f9fafb',
+          fontFamily:
+            '"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          fontSize: '14px',
+          '::placeholder': { color: '#9ca3af' },
+          iconColor: '#facc15',
+        },
+        invalid: { color: '#f97373', iconColor: '#f97373' },
+      },
+    });
+    cardElement.mount('#card-element');
 
-		// 3) DOM refs
-		const btnContinue = document.getElementById('btn-continue');
-		const btnBack = document.getElementById('btn-back');
-		const stepPlans = document.getElementById('step-plans');
-		const stepPayment = document.getElementById('step-payment');
-		const paymentForm = document.getElementById('payment-form');
-		const cardErrors = document.getElementById('card-errors');
-		const statusMessage = document.getElementById('status-message');
-		const payButton = document.getElementById('pay-button');
-		const planSummary = document.getElementById('selected-plan-summary');
+    // 3) DOM refs
+    const btnContinue = document.getElementById('btn-continue');
+    const btnBack = document.getElementById('btn-back');
+    const stepPlans = document.getElementById('step-plans');
+    const stepPayment = document.getElementById('step-payment');
+    const paymentForm = document.getElementById('payment-form');
+    const cardErrors = document.getElementById('card-errors');
+    const statusMessage = document.getElementById('status-message');
+    const payButton = document.getElementById('pay-button');
+    const planSummary = document.getElementById('selected-plan-summary');
 
-		// Resumen de precios
-		const baseEl = document.getElementById('summary-base');
-		const feeEl = document.getElementById('summary-fee');
-		const totalEl = document.getElementById('summary-total');
+    // Resumen de precios
+    const baseEl = document.getElementById('summary-base');
+    const feeEl = document.getElementById('summary-fee');
+    const totalEl = document.getElementById('summary-total');
 
-		// NEW: selector de empresa
-		const empresaSelect = document.getElementById('empresa-select');
+    // Selector de empresa
+    const empresaSelect = document.getElementById('empresa-select');
 
-		// Nota: en JS puro no usamos anotaciones TS
-		let currentClientSecret: null = null;
+    // JS puro
+    let currentClientSecret = null;
 
-		// 4) Plan seleccionado (id_servicios)
-		function getSelectedPlan() {
-			const radio = document.querySelector('input[name="plan"]:checked');
-			if (!radio) return null;
-			const label = radio.closest('label') || radio.parentElement;
-			const titleEl = label ? label.querySelector('h4') : null;
-			const rawPrice = radio.dataset.price;
-			const price = rawPrice ? parseFloat(rawPrice) : NaN;
-			return {
-				id: radio.value, // id_servicios (UUID)
-				label: titleEl ? titleEl.textContent.trim() : 'Plan seleccionado',
-				price, // USD
-			};
-		}
+    // 4) Plan seleccionado (id_servicios)
+    function getSelectedPlan() {
+      const radio = document.querySelector('input[name="plan"]:checked');
+      if (!radio) return null;
+      const label = radio.closest('label') || radio.parentElement;
+      const titleEl = label ? label.querySelector('h4') : null;
+      const rawPrice = radio.dataset.price;
+      const price = rawPrice ? parseFloat(rawPrice) : NaN;
+      return {
+        id: radio.value, // id_servicios (UUID)
+        label: titleEl ? titleEl.textContent.trim() : 'Plan seleccionado',
+        price, // USD
+      };
+    }
 
-		function getSelectedEmpresaId() {
-			if (!empresaSelect) return null;
-			const v = empresaSelect.value;
-			return v && v.length ? v : null;
-		}
+    function getSelectedEmpresaId() {
+      if (!empresaSelect) return null;
+      const v = empresaSelect.value;
+      return v && v.length ? v : null;
+    }
 
-		function getSelectedEmpresaLabel() {
-			if (!empresaSelect) return null;
-			const opt = empresaSelect.options[empresaSelect.selectedIndex];
-			return opt ? opt.textContent.trim() : null;
-		}
+    function getSelectedEmpresaLabel() {
+      if (!empresaSelect) return null;
+      const opt = empresaSelect.options[empresaSelect.selectedIndex];
+      return opt ? opt.textContent.trim() : null;
+    }
 
-		// 5) Resumen precios
-		function formatUSD(amount: unknown) {
-			if (!Number.isFinite(amount)) return '$0.00';
-			return '$' + amount.toFixed(2);
-		}
+    // 5) Resumen precios
+    function formatUSD(amount) {
+      if (!Number.isFinite(amount)) return '$0.00';
+      return '$' + amount.toFixed(2);
+    }
 
-		function updatePriceSummary(plan: {
-			id?: any;
-			label?: string;
-			price: any;
-		}) {
-			if (!plan || !Number.isFinite(plan.price)) {
-				baseEl.textContent = '$0.00';
-				feeEl.textContent = '$0.00';
-				totalEl.textContent = '$0.00';
-				return;
-			}
-			const base = plan.price;
-			const feePercent = 0.045;
-			const fee = base * feePercent;
-			const total = base + fee;
-			baseEl.textContent = formatUSD(base);
-			feeEl.textContent = formatUSD(fee);
-			totalEl.textContent = formatUSD(total);
-		}
+    function updatePriceSummary(plan) {
+      if (!plan || !Number.isFinite(plan.price)) {
+        baseEl.textContent = '$0.00';
+        feeEl.textContent = '$0.00';
+        totalEl.textContent = '$0.00';
+        return;
+      }
+      const base = plan.price;
+      const feePercent = 0.045;
+      const fee = base * feePercent;
+      const total = base + fee;
+      baseEl.textContent = formatUSD(base);
+      feeEl.textContent = formatUSD(fee);
+      totalEl.textContent = formatUSD(total);
+    }
 
-		// 6) Crear PaymentIntent (manda empresaId)
-		async function createPaymentIntent(
-			planId: any,
-			userId: string,
-			empresaId: any,
-		) {
-			statusMessage.textContent = 'Preparando el pago...';
-			payButton.disabled = true;
-			try {
-				const res = await fetch('/api/payment/payment-intent', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ planId, userId, empresaId }), // 👈 enviamos empresaId
-				});
-				const data = await res.json();
-				if (!res.ok || !data.clientSecret) {
-					throw new Error(data.error || 'Error al crear el pago');
-				}
-				currentClientSecret = data.clientSecret;
-				statusMessage.textContent = 'Ingresa los datos de tu tarjeta.';
-			} catch (err) {
-				console.error(err);
-				statusMessage.textContent =
-					'No se pudo preparar el pago. Intenta nuevamente.';
-			} finally {
-				payButton.disabled = false;
-			}
-		}
+    // 6) Crear PaymentIntent (manda empresaId)
+    async function createPaymentIntent(planId, userId, empresaId) {
+      statusMessage.textContent = 'Preparando el pago...';
+      payButton.disabled = true;
+      try {
+        const res = await fetch('/api/payment/payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planId, userId, empresaId }), // 👈 enviamos empresaId
+        });
+        const data = await res.json();
+        if (!res.ok || !data.clientSecret) {
+          throw new Error(data.error || 'Error al crear el pago');
+        }
+        currentClientSecret = data.clientSecret;
+        statusMessage.textContent = 'Ingresa los datos de tu tarjeta.';
+      } catch (err) {
+        console.error(err);
+        statusMessage.textContent =
+          'No se pudo preparar el pago. Intenta nuevamente.';
+      } finally {
+        payButton.disabled = false;
+      }
+    }
 
-		// 7) Continuar con el pago
-		if (btnContinue) {
-			btnContinue.addEventListener('click', async () => {
-				const plan = getSelectedPlan();
-				if (!plan) {
-					alert('Por favor selecciona un plan antes de continuar.');
-					return;
-				}
-				const empresaId = getSelectedEmpresaId();
-				if (!empresaId) {
-					alert('Por favor selecciona la empresa para la que vas a pagar.');
-					return;
-				}
-				const empresaLabel = getSelectedEmpresaLabel();
+    // 7) Continuar con el pago
+    if (btnContinue) {
+      btnContinue.addEventListener('click', async () => {
+        const plan = getSelectedPlan();
+        if (!plan) {
+          alert('Por favor selecciona un plan antes de continuar.');
+          return;
+        }
+        const empresaId = getSelectedEmpresaId();
+        if (!empresaId) {
+          alert('Por favor selecciona la empresa para la que vas a pagar.');
+          return;
+        }
+        const empresaLabel = getSelectedEmpresaLabel();
 
-				// Muestra resumen (plan + empresa)
-				const empresaInfo = empresaLabel ? ` | Empresa: ${empresaLabel}` : '';
-				planSummary.textContent = `Estás pagando: ${plan.label}${empresaInfo}`;
+        // Muestra resumen (plan + empresa)
+        const empresaInfo = empresaLabel ? ` | Empresa: ${empresaLabel}` : '';
+        planSummary.textContent = `Estás pagando: ${plan.label}${empresaInfo}`;
 
-				updatePriceSummary(plan);
-				await createPaymentIntent(plan.id, userId, empresaId);
+        updatePriceSummary(plan);
+        await createPaymentIntent(plan.id, userId, empresaId);
 
-				stepPlans.classList.add('hidden');
-				stepPayment.classList.remove('hidden');
-			});
-		}
+        stepPlans.classList.add('hidden');
+        stepPayment.classList.remove('hidden');
+      });
+    }
 
-		// 8) Volver a elegir plan
-		if (btnBack) {
-			btnBack.addEventListener('click', () => {
-				stepPayment.classList.add('hidden');
-				stepPlans.classList.remove('hidden');
-				statusMessage.textContent = '';
-				cardErrors.textContent = '';
-			});
-		}
+    // 8) Volver a elegir plan
+    if (btnBack) {
+      btnBack.addEventListener('click', () => {
+        stepPayment.classList.add('hidden');
+        stepPlans.classList.remove('hidden');
+        statusMessage.textContent = '';
+        cardErrors.textContent = '';
+      });
+    }
 
-		// 9) Submit del pago
-		if (paymentForm) {
-			paymentForm.addEventListener('submit', async (event) => {
-				event.preventDefault();
+    // 9) Submit del pago
+    if (paymentForm) {
+      paymentForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-				if (!currentClientSecret) {
-					statusMessage.textContent =
-						'El pago no está listo. Vuelve a intentar (elige el plan de nuevo).';
-					return;
-				}
+        if (!currentClientSecret) {
+          statusMessage.textContent =
+            'El pago no está listo. Vuelve a intentar (elige el plan de nuevo).';
+          return;
+        }
 
-				payButton.disabled = true;
-				statusMessage.textContent = 'Procesando pago...';
-				cardErrors.textContent = '';
+        payButton.disabled = true;
+        statusMessage.textContent = 'Procesando pago...';
+        cardErrors.textContent = '';
 
-				try {
-					const { error, paymentIntent } = await stripe.confirmCardPayment(
-						currentClientSecret,
-						{
-							payment_method: { card: cardElement },
-						},
-					);
+        try {
+          const { error, paymentIntent } = await stripe.confirmCardPayment(
+            currentClientSecret,
+            { payment_method: { card: cardElement } }
+          );
 
-					if (error) {
-						console.error(error);
-						cardErrors.textContent =
-							error.message || 'Error al procesar el pago.';
-						statusMessage.textContent =
-							'No se pudo completar el pago. Intenta nuevamente.';
-						payButton.disabled = false;
-						return;
-					}
+          if (error) {
+            console.error(error);
+            cardErrors.textContent =
+              error.message || 'Error al procesar el pago.';
+            statusMessage.textContent =
+              'No se pudo completar el pago. Intenta nuevamente.';
+            payButton.disabled = false;
+            return;
+          }
 
-					if (paymentIntent && paymentIntent.status === 'succeeded') {
-						statusMessage.textContent =
-							'Pago realizado con éxito. Registrando la información...';
+          if (paymentIntent && paymentIntent.status === 'succeeded') {
+            statusMessage.textContent =
+              'Pago realizado con éxito. Registrando la información...';
 
-						// Registrar el pago en tu backend → Supabase (RPC)
-						try {
-							const res = await fetch('/api/payment/register', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
-							});
-							const data = await res.json();
-							if (!res.ok) {
-								console.error('Error registrando pago en BD:', data);
-								statusMessage.textContent =
-									'El pago se realizó, pero hubo un problema registrándolo internamente. Nuestro equipo lo revisará.';
-							} else {
-								console.log('Pago registrado en BD:', data);
-								statusMessage.textContent =
-									'Pago realizado con éxito. Estamos iniciando el proceso de incorporación de tu LLC.';
-							}
-						} catch (err) {
-							console.error('Error llamando a /api/payment/register:', err);
-							statusMessage.textContent =
-								'El pago se realizó, pero hubo un error al registrarlo internamente. Nuestro equipo lo revisará.';
-						}
+            // Registrar el pago en tu backend → Supabase (RPC)
+            try {
+              const res = await fetch('/api/payment/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
+              });
+              const data = await res.json();
 
-						// Redirigir
-						window.location.href = '/pages/companias';
-					} else {
-						statusMessage.textContent =
-							'No se pudo completar el pago. Intenta nuevamente.';
-						payButton.disabled = false;
-					}
-				} catch (err) {
-					console.error(err);
-					statusMessage.textContent = 'Ocurrió un error al procesar el pago.';
-					payButton.disabled = false;
-				}
-			});
-		}
-	});
+              if (!res.ok) {
+                console.error('Error registrando pago en BD:', data);
+                statusMessage.textContent =
+                  'El pago se realizó, pero hubo un problema registrándolo internamente. Nuestro equipo lo revisará.';
+                // ❌ NO redirigimos en caso de error interno
+              } else {
+                console.log('Pago registrado en BD:', data);
+                statusMessage.textContent =
+                  'Pago realizado con éxito. Estamos iniciando el proceso de incorporación de tu LLC.';
+                // ✅ Solo redirigimos si el registro fue exitoso
+                window.location.href = '/pages/companias';
+              }
+            } catch (err) {
+              console.error('Error llamando a /api/payment/register:', err);
+              statusMessage.textContent =
+                'El pago se realizó, pero hubo un error al registrarlo internamente. Nuestro equipo lo revisará.';
+              // ❌ NO redirigimos en caso de error de red
+            }
+          } else {
+            statusMessage.textContent =
+              'No se pudo completar el pago. Intenta nuevamente.';
+            payButton.disabled = false;
+          }
+        } catch (err) {
+          console.error(err);
+          statusMessage.textContent = 'Ocurrió un error al procesar el pago.';
+          payButton.disabled = false;
+        }
+      });
+    }
+  });
 </script>
+
 
 <script>
 	document.addEventListener('DOMContentLoaded', function () {

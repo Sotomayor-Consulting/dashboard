@@ -1,5 +1,24 @@
 ---
+import { supabase } from '../lib/supabase';
 
+const { data: servicios, error: serviciosErr } = await supabase
+	.from('servicio_extra')
+	.select(`
+		id,
+		servicio_ex_id,
+		nombre,
+		link,
+		link_imagen,
+		descripcion,
+		estado,
+		categoria,
+		created_at
+	`)
+	.eq('estado', 'Activo'); // ← Filtro agregado aquí
+
+if (serviciosErr) {
+	console.error('Error cargando servicios:', serviciosErr);
+}
 ---
 
 <div class="mx-4 my-6">
@@ -8,117 +27,93 @@
 	</h1>
 </div>
 <div
-	class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 items-stretch pb-6 mb-6 border-b mx-4 mt-6"
+	class="grid-cols-2 md:grid-cols-3 gap-4 items-stretch pb-6 mb-6 border-b mx-4 mt-6 border-neutral-600 hidden md:grid"
 	style="grid-auto-rows: minmax(110px, auto);"
 >
-	<a
-		class="h-full"
-		href="/dashboard/project/ceuofnjslxjoqtqxbfqt/integrations/cron/overview"
-		><div
-			class="overflow-hidden rounded-lg border bg-surface-100 text-card-foreground shadow-sm h-full"
-		>
-			<div
-				class="w-full h-24 bg-surface-400 rounded-t-md flex items-center justify-center overflow-hidden relative"
-			>
-				<img
-					alt="Cron integration"
-					loading="lazy"
-					decoding="async"
-					data-nimg="fill"
-					class="w-full h-full object-cover invert dark:invert-0"
-					sizes="100vw"
-					src="https://sotomayorconsulting.com/wp-content/uploads/elementor/thumbs/business-sales-consultant-discussing-in-data-documents-at-modern-office--r79ffa32natgi8s9luk89inx4rzdohvj0oum8djmtc.jpg"
-					style="position: absolute; height: 100%; width: 100%; inset: 0px; object-fit: cover; color: transparent;"
-				/>
-			</div><div class="border-b last:border-none p-6 px-4">
-				<div
-					class="flex-col justify-start items-center text-center gap-y-0.5 flex"
-				>
-					<h3 class="text-white">Cron</h3><p
-						class="text-foreground-light text-sm text-white"
-					>
-						Schedule recurring Jobs in Postgres
-					</p><div class="flex items-center gap-x-1 mt-4">
-						<div
-							class="inline-flex items-center rounded-full bg-opacity-10 bg-surface-200 text-foreground-light border border-strong px-2.5 py-0.5 text-xs text-white"
-						>
-							<span>Official</span>
+	{
+		servicios?.slice(0, 3).map((sr) => (
+			<a class="h-full" id={sr.servicio_ex_id} href={sr.link} target="_blank">
+				<div class="overflow-hidden rounded-lg border bg-surface-100 dark:text-white shadow-sm h-full border-neutral-600">
+					<div class="w-full h-24 bg-surface-400 rounded-t-md flex items-center justify-center overflow-hidden relative">
+						<img
+							alt="Cron integration"
+							loading="lazy"
+							decoding="async"
+							data-nimg="fill"
+							class="w-full h-full object-cover invert dark:invert-0"
+							sizes="100vw"
+							src={sr.link_imagen}
+							style="position: absolute; height: 100%; width: 100%; inset: 0px; object-fit: cover; color: transparent;"
+						/>
+					</div>
+					<div class="border-b last:border-none p-6 px-4">
+						<div class="flex-col justify-start items-center text-center gap-y-0.5 flex">
+							<h3 class="text-white">{sr.nombre}</h3>
+							<p class="text-foreground-light text-sm text-neutral-400">
+								{sr.descripcion}
+							</p>
+							<div class="flex items-center gap-x-1 mt-4">
+								<div class="inline-flex items-center rounded-full bg-opacity-10 bg-surface-200 text-foreground-light border border-strong px-2.5 py-0.5 text-xs">
+									<span>{sr.categoria}</span>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		</div></a
-	><a
-		class="h-full"
-		href="/dashboard/project/ceuofnjslxjoqtqxbfqt/integrations/queues/overview"
-		><div
-			class="overflow-hidden rounded-lg border bg-surface-100 text-card-foreground shadow-sm h-full"
-		>
-			<div
-				class="w-full h-24 bg-surface-400 rounded-t-md flex items-center justify-center overflow-hidden relative"
-			>
-				<img
-					alt="Queues integration"
-					loading="lazy"
-					decoding="async"
-					data-nimg="fill"
-					class="w-full h-full object-cover invert dark:invert-0"
-					sizes="100vw"
-					srcset="/dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fqueues-cover.png&w=640&q=75 640w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fqueues-cover.png&w=750&q=75 750w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fqueues-cover.png&w=828&q=75 828w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fqueues-cover.png&w=1080&q=75 1080w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fqueues-cover.png&w=1200&q=75 1200w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fqueues-cover.png&w=1920&q=75 1920w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fqueues-cover.png&w=2048&q=75 2048w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fqueues-cover.png&w=3840&q=75 3840w"
-					src="/dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fqueues-cover.png&w=3840&q=75"
-					style="position: absolute; height: 100%; width: 100%; inset: 0px; object-fit: cover; color: transparent;"
-				/>
-			</div><div class="border-b last:border-none p-6 px-4">
-				<div
-					class="flex-col justify-start items-center text-center gap-y-0.5 flex"
-				>
-					<h3>Queues</h3><p class="text-foreground-light text-sm">
-						Lightweight message queue in Postgres
-					</p><div class="flex items-center gap-x-1 mt-4">
-						<div
-							class="inline-flex items-center rounded-full bg-opacity-10 bg-surface-200 text-foreground-light border border-strong px-2.5 py-0.5 text-xs"
-						>
-							<span>Official</span>
+			</a>
+		))
+	}
+</div>
+<div class="grid lg:grid-cols-3 xl:grid-cols-4 gap-4 mx-4 mt-6">
+	{
+		servicios?.map((cards) => (
+			<a class="h-full" href={cards.link} target="_blank">
+				<div class="overflow-hidden rounded-lg border bg-surface-100 text-card-foreground shadow-sm h-full border-neutral-600">
+					<div class="border-b last:border-none flex flex-col p-4 @2xl:p-6 h-full">
+						<div class="flex items-start justify-between mb-4">
+							<div class="shrink-0 w-10 h-10 relative bg-white border rounded-md flex items-center justify-center border-neutral-600">
+								<img
+									src={cards.link_imagen}
+									class="inset-0 w-full h-full"
+									alt={`imagen de ${cards.nombre}`}
+								/>
+							</div>
+							<div class="flex items-center gap-x-1">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									class="text-[#3ECF8E]"
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									class="lucide lucide-badge-check text-brand"
+								>
+									<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" />
+									<path d="m9 12 2 2 4-4" />
+								</svg>
+								<span class="text-brand text-xs text-[#3ECF8E]">
+									{cards.estado}
+								</span>
+							</div>
+						</div>
+						<div class="flex-col justify-start items-start gap-y-0.5 flex flex-1 text-white">
+							<h3 class="text-foreground text-sm mb-1">{cards.nombre}</h3>
+							<p class="text-foreground-light text-xs flex-1 text-neutral-400">
+								{cards.descripcion}
+							</p>
+							<div class="flex items-center gap-x-1 mt-4">
+								<div class="inline-flex items-center rounded-full font-normal whitespace-nowrap bg-surface-75 text-foreground-light border border-strong px-2 py-0.5 text-xs border-neutral-600">
+									<span>{cards.categoria}</span>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		</div></a
-	><a
-		class="h-full"
-		href="/dashboard/project/ceuofnjslxjoqtqxbfqt/integrations/stripe_wrapper/overview"
-		><div
-			class="overflow-hidden rounded-lg border bg-surface-100 text-card-foreground shadow-sm h-full"
-		>
-			<div
-				class="w-full h-24 bg-surface-400 rounded-t-md flex items-center justify-center overflow-hidden relative"
-			>
-				<img
-					alt="Stripe Wrapper integration"
-					loading="lazy"
-					decoding="async"
-					data-nimg="fill"
-					class="w-full h-full object-cover invert dark:invert-0"
-					sizes="100vw"
-					srcset="/dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fstripe-cover.png&w=640&q=75 640w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fstripe-cover.png&w=750&q=75 750w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fstripe-cover.png&w=828&q=75 828w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fstripe-cover.png&w=1080&q=75 1080w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fstripe-cover.png&w=1200&q=75 1200w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fstripe-cover.png&w=1920&q=75 1920w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fstripe-cover.png&w=2048&q=75 2048w, /dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fstripe-cover.png&w=3840&q=75 3840w"
-					src="/dashboard/_next/image?url=%2Fdashboard%2Fimg%2Fintegrations%2Fcovers%2Fstripe-cover.png&w=3840&q=75"
-					style="position: absolute; height: 100%; width: 100%; inset: 0px; object-fit: cover; color: transparent;"
-				/>
-			</div><div class="border-b last:border-none p-6 px-4">
-				<div
-					class="flex-col justify-start items-center text-center gap-y-0.5 flex"
-				>
-					<h3>Stripe Wrapper</h3><p class="text-foreground-light text-sm">
-						Payment processing and subscription management
-					</p><div class="flex items-center gap-x-1 mt-4">
-						<div
-							class="inline-flex items-center rounded-full bg-opacity-10 bg-surface-200 text-foreground-light border border-strong px-2.5 py-0.5 text-xs"
-						>
-							<span>Official</span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div></a
-	>
+			</a>
+		))
+	}
 </div>

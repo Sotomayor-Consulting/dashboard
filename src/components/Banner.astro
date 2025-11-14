@@ -17,7 +17,7 @@ const TARGET_TABLE = 'empresas_incorporaciones';
 
 // Datos fijos para el banner
 const BANNER_PROPS = {
-	title: 'Tu compañía está registrada, pero aún no operativa. Desbloquea sus beneficios.',
+	title: 'Tu compañía esta pendiente a activación. Desbloquea sus beneficios.',
 	btnId: 'dismiss-incorp-banner',
 	btnTitle: 'Continuar al Paso Final',
 	url: '/incorporacion-y-pago', // Ajusta esta URL
@@ -69,7 +69,7 @@ if (accessToken && refreshToken) {
 			<div
 				id="marketing-banner"
 				tabindex="-1"
-				class="fixed z-50 flex flex-col md:flex-row justify-between w-[calc(100%-1rem)] md:w-[50%] p-4 bg-white border border-gray-100 rounded-lg shadow-xs lg:max-w-7xl md:right-6 bottom-6 dark:bg-neutral-700 dark:border-gray-600 right-0"
+				class="flex flex-col md:flex-row justify-between w-full p-4 bg-white border border-gray-100 shadow-xs top-20 dark:bg-neutral-700 dark:border-gray-600 right-4"
 			>
 				<div class="flex flex-col items-start mb-3 me-4 md:items-center md:flex-row md:mb-0">
 					<a
