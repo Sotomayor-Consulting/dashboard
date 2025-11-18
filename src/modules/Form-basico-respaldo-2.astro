@@ -3,7 +3,17 @@ import { supabase } from '../lib/supabase';
 const { cookies } = Astro;
 
 let userId = null;
-let empresas = [];
+let empresas: {
+	user_id: any;
+	empresa_incorporacion_id: any;
+	tipo_de_negocio: any;
+	estado_de_incorporacion: any;
+	estado: any;
+	nombre_1: any;
+	nombre_2: any;
+	nombre_3: any;
+	updated_at: any;
+}[] = [];
 
 // 1) Intentar restaurar sesión si hay cookies disponibles
 const at = cookies.get('sb-access-token');
@@ -74,6 +84,16 @@ if (serviciosErr) {
 	console.error('Error cargando servicios:', serviciosErr);
 }
 
+const { data: paises, error: paisesErr } = await supabase.from('paises').select(
+	`
+		*
+	`,
+);
+
+if (paisesErr) {
+	console.error('Error cargando países:', serviciosErr);
+}
+
 // Convertir a array seguro para usar con .map()
 const empresasArray = empresas || [];
 
@@ -92,7 +112,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				<h3 class="text-white text-3xl">Selecciona la empresa a incorporar</h3>
 			</div>
 			<div
-				class="flex flex-col bg-white border border-gray-200 rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 w-1/2 items-center"
+				class="flex flex-col bg-white border border-gray-200 rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 w-full md:w-1/2 items-center"
 			>
 				<p
 					class="mt-2 lg:text-lg text-gray-800 dark:text-neutral-200 mb-5 text-left w-full"
@@ -545,9 +565,9 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				</div>
 			</div>
 
-			<div id="step-payment" class="hidden grid grid-cols-2">
+			<div id="step-payment" class="hidden grid md:grid-cols-2">
 				<div
-					class="w-4/5 mx-auto mt-10 mb-16 bg-white/80 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm place-self-center justify-self-center"
+					class="md:w-4/5 w-full mx-auto mt-10 mb-16 bg-white/80 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm place-self-center justify-self-center md:row-start-1 row-start-2"
 				>
 					<div
 						id="stripe-config"
@@ -588,6 +608,265 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 						>
 						</p>
 
+						<div class="flex flex-col">
+							<div class="flex mb-2">
+								<div class="flex items-center h-5">
+									<input
+										id="factura-checkbox"
+										aria-describedby="helper-checkbox-text"
+										type="checkbox"
+										value="si"
+										class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft"
+									/>
+								</div>
+								<div
+									class="ms-2 text-sm select-none text-gray-700 dark:text-neutral-300"
+								>
+									<label for="factura-checkbox" class="font-medium text-heading"
+										>Incluir datos para facturación</label
+									>
+									<p
+										id="helper-checkbox-text"
+										class="text-xs font-normal text-body"
+									>
+										Selecciona esta opción si deseas que te emitamos una factura
+										con los datos que nos proporciones.
+									</p>
+								</div>
+							</div>
+							<div
+								id="contenedor-facturacion"
+								class="mt-2 border-t border-neutral-600 hidden"
+							>
+								<div class="text-gray-700 dark:text-neutral-300 mt-3">
+									<h4 class="text-lg font-bold">Datos de facturación</h4>
+									<p>Ingrese los datos que se incluirán en tu factura.</p>
+								</div>
+								<div
+									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-5"
+								>
+									<div class="mb-2">
+										<label class="block mb-2.5 text-sm text-heading font-bold"
+											>Personería</label
+										>
+									</div>
+									<div class="flex gap-5">
+										<div class="flex items-center mr-2">
+											<input
+												id="default-radio-1"
+												type="radio"
+												value=""
+												name="default-radio"
+												class="w-4 h-4 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"
+											/>
+											<label
+												for="default-radio-1"
+												class="select-none ms-2 text-sm font-medium text-heading"
+												>Persona Natural</label
+											>
+										</div>
+										<div>
+											<div class="flex items-center ml-2">
+												<input
+													checked
+													id="default-radio-2"
+													type="radio"
+													value=""
+													name="default-radio"
+													class="w-4 h-4 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"
+												/>
+												<label
+													for="default-radio-2"
+													class="select-none ms-2 text-sm font-medium text-heading"
+												>
+													Persona Jurídica</label
+												>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div
+									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
+								>
+									<div>
+										<label
+											for="name"
+											class="block mb-2.5 text-sm text-heading font-bold"
+											>Nombre o Razón Social</label
+										>
+										<input
+											type="text"
+											id="name"
+											class="bg-neutral-800 border text-heading text-sm rounded-md focus:ring-[#8c681d] focus:border-[#8c681d] w-full px-3 py-2.5 shadow-xs placeholder:text-neutral-500"
+											placeholder="Nombre y Apellido"
+											required
+										/>
+										<p class="text-xs">
+											Ingresa tu nombre o la razón social de tu empresa.
+										</p>
+									</div>
+								</div>
+								<div
+									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
+								>
+									<div>
+										<label
+											for="mail"
+											class="block mb-2.5 text-sm text-heading font-bold"
+											>Correo electrónico</label
+										>
+										<input
+											type="email"
+											id="mail"
+											class="bg-neutral-800 border text-heading text-sm rounded-md focus:ring-[#8c681d] focus:border-[#8c681d] w-full px-3 py-2.5 shadow-xs placeholder:text-neutral-500"
+											placeholder="ejemplo@email.com"
+											required
+										/>
+										<p class="text-xs">
+											Ingresa una dirección de correo electrónico válida. Se
+											usará para enviarte la factura.
+										</p>
+									</div>
+								</div>
+								<div
+									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
+								>
+									<div>
+										<label
+											for="phone"
+											class="block mb-2.5 text-sm text-heading font-bold"
+											>Teléfono</label
+										>
+										<div class="relative">
+											<input
+												type="text"
+												id="hs-inline-leading-select-label"
+												name="inline-add-on"
+												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 ps-40 focus:z-10 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-600"
+												placeholder="(000) 000-0000"
+												required
+											/>
+											<div
+												class="absolute inset-y-0 start-0 flex items-center ps-px text-gray-500 w-2/5"
+											>
+												<label
+													for="hs-inline-leading-select-country"
+													class="sr-only">País</label
+												>
+												<select
+													id="hs-inline-leading-select-country"
+													name="hs-inline-leading-select-country"
+													class="block rounded-lg border-transparent focus:border-[#ba8d34] focus:ring-[#ba8d34] dark:bg-neutral-800 dark:text-neutral-500 w-2/5 text-xs dark:border-neutral-700"
+												>
+													{
+														paises?.map((paises) => (
+															<option
+																data-countryCode={paises.iso}
+																value={`+${paises.codigo_telf}`}
+															>
+																{paises.nombre_paises}
+															</option>
+														))
+													}
+												</select>
+											</div>
+										</div>
+										<p class="text-xs">
+											Ingresa tu país y tu número de teléfono. Solo números, sin
+											espacios ni caracteres especiales
+										</p>
+									</div>
+								</div>
+								<div
+									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
+								>
+									<div>
+										<label
+											for="documento-identidad"
+											class="block mb-2.5 text-sm text-heading font-bold"
+											>Documento de Identidad</label
+										>
+										<div class="relative">
+											<input
+												type="text"
+												id="documento-identidad"
+												name="inline-add-on"
+												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 ps-36 focus:z-10 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-60"
+												required
+											/>
+											<div
+												class="absolute inset-y-0 start-0 flex items-center ps-px text-gray-500"
+											>
+												<label for="documento-identidad-ls" class="sr-only"
+													>tipo</label
+												>
+												<select
+													id="documento-identidad-ls"
+													name="documento-identidad-ls"
+													class="block w-fit rounded-lg border-transparent focus:border-[#ba8d34] focus:ring-[#ba8d34] dark:bg-neutral-800 dark:text-neutral-500 dark:border-neutral-700"
+												>
+													<option value="Cédula">Cédula</option>
+													<option value="RUC">RUC</option>
+													<option value="ID">ID</option>
+													<option value="Pasaporte">Pasaporte</option>
+													<option value="EIN">EIN</option>
+												</select>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div
+									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4 border-b border-neutral-600"
+								>
+									<div class="mb-5">
+										<label
+											for="direccion"
+											class="block mb-2.5 text-sm text-heading font-bold"
+											>Dirección</label
+										>
+										<div class="grid grid-cols-2 gap-3">
+											<input
+												type="text"
+												id="direccion"
+												name="direccion"
+												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-60 col-span-2"
+												placeholder="Dirección linea 1"
+												required
+											/>
+											<input
+												type="text"
+												id="cuidad"
+												name="cuidad"
+												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-60"
+												placeholder="Cuidad"
+												required
+											/>
+											<select
+												id="pais-direccion"
+												name="pais-direccion"
+												class="block rounded-lg border-transparent focus:border-[#ba8d34] focus:ring-[#ba8d34] dark:bg-neutral-800 dark:text-neutral-400 w-full text-sm dark:border-neutral-700"
+												required
+											>
+												<option value="" selected="" disabled>
+													Selecciona un pais
+												</option>
+												{
+													paises?.map((paises) => (
+														<option
+															data-countryCode={paises.iso}
+															value={paises.nombre_paises}
+														>
+															{paises.nombre_paises}
+														</option>
+													))
+												}
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
 						<button
 							type="submit"
 							id="pay-button"
@@ -606,7 +885,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 					</form>
 				</div>
 
-				<div class="grow mt-10 mb-16 w-3/5">
+				<div class="grow mt-10 mb-16 md:w-3/5 w-full">
 					<div
 						id="price-summary"
 						class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-neutral-900"
@@ -928,28 +1207,58 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 
 <script>
 	document.addEventListener('DOMContentLoaded', function () {
-		// Obtener el botón y el div por sus IDs
-		const boton = document.getElementById('btn-paso1');
-		const regresar = document.getElementById('btn-atras');
-		const div2 = document.getElementById('panel2');
-		const div1 = document.getElementById('panel1');
+    const boton = document.getElementById('btn-paso1');
+    const regresar = document.getElementById('btn-atras');
+    const div2 = document.getElementById('panel2');
+    const div1 = document.getElementById('panel1');
+    const checkbox = document.getElementById('factura-checkbox');
+    const facturacion = document.getElementById('contenedor-facturacion');
 
-		// Agregar event listener al botón
-		boton?.addEventListener('click', function () {
-			// Remover la clase 'hidden' y agregar 'visible'
-			div2?.classList.remove('hidden');
-			div2?.classList.add('visible');
+    boton?.addEventListener('click', function () {
+        div1?.classList.add('hidden');
+        div2?.classList.remove('hidden');
+    });
 
-			div1?.classList.add('hidden');
-			div1?.classList.remove('visible');
-		});
+    regresar?.addEventListener('click', function () {
+        div2?.classList.add('hidden');
+        div1?.classList.remove('hidden');
+    });
 
-		regresar?.addEventListener('click', function () {
-			div1?.classList.remove('hidden');
-			div1?.classList.add('visible');
+    // CORRECCIÓN para el checkbox - usar solo 'hidden'
+    checkbox?.addEventListener('change', function () {
+        if (this.checked) {
+            facturacion?.classList.remove('hidden');
+        } else {
+            facturacion?.classList.add('hidden');
+        }
+    });
+});
+</script>
+<script is:inline>
+	document.addEventListener('DOMContentLoaded', function () {
+		const countrySelect = document.getElementById(
+			'hs-inline-leading-select-country',
+		);
+		const phoneInput = document.getElementById(
+			'hs-inline-leading-select-label',
+		);
 
-			div2?.classList.add('hidden');
-			div2?.classList.remove('visible');
-		});
+		// Función para actualizar el código de país
+		function updateCountryCode() {
+			const selectedCountryCode = countrySelect.value;
+			const currentPhoneValue = phoneInput.value;
+
+			// Si el valor actual ya empieza con un código de país, lo eliminamos
+			const phoneWithoutCode = currentPhoneValue.replace(/^\+\d+\s?/, '');
+
+			// Añadimos el nuevo código de país
+			phoneInput.value = selectedCountryCode + ' ' + phoneWithoutCode;
+		}
+
+		// Actualizar cuando cambie la selección
+		countrySelect.addEventListener('change', updateCountryCode);
+
+		// Actualizar al cargar la página
+		updateCountryCode();
 	});
 </script>

@@ -116,168 +116,166 @@ const display = msg ? 'flex' : 'hidden';
 			}
 		})();
 	</script>
-	
+
 	<script is:inline>
 		(async function () {
-    const alertBox = document.getElementById('alert-feedback');
-    if (!alertBox) return;
+			const alertBox = document.getElementById('alert-feedback');
+			if (!alertBox) return;
 
-    const incorpData = localStorage.getItem('incorpData');
-    if (!incorpData) {
-        return;
-    }
+			const incorpData = localStorage.getItem('incorpData');
+			if (!incorpData) {
+				return;
+			}
 
-    // Definición de la URL de redirección
-    const REDIRECT_URL = '/pages/companias';
-    const REDIRECT_DELAY = 3000; // 3 segundos para que el usuario lea el mensaje
+			// Definición de la URL de redirección
+			const REDIRECT_URL = '/pages/companias';
+			const REDIRECT_DELAY = 3000; // 3 segundos para que el usuario lea el mensaje
 
-    try {
-        const data = JSON.parse(incorpData);
+			try {
+				const data = JSON.parse(incorpData);
 
-        // VALIDACIÓN DE NOMBRES DE EMPRESA (Se mantiene igual)
-        const nombresEmpresa = [data.nombre_1, data.nombre_2, data.nombre_3];
-        const nombresValidos = nombresEmpresa.some(
-            (nombre) =>
-                nombre !== null && nombre !== undefined && nombre.trim() !== '',
-        );
+				// VALIDACIÓN DE NOMBRES DE EMPRESA (Se mantiene igual)
+				const nombresEmpresa = [data.nombre_1, data.nombre_2, data.nombre_3];
+				const nombresValidos = nombresEmpresa.some(
+					(nombre) =>
+						nombre !== null && nombre !== undefined && nombre.trim() !== '',
+				);
 
-        if (!nombresValidos) {
-            window.location.href = '/start/';
-            return; 
-        }
+				if (!nombresValidos) {
+					window.location.href = '/start/';
+					return;
+				}
 
-        const formData = new FormData();
-        formData.append('tipo_de_empresa', data.tipo_de_empresa);
-        formData.append('estado_de_empresa', data.estado_de_empresa);
-        formData.append('nombre_1', data.nombre_1 || '');
-        formData.append('nombre_2', data.nombre_2 || '');
-        formData.append('nombre_3', data.nombre_3 || '');
-        formData.append('estado_de', data.estado_de || '');
+				const formData = new FormData();
+				formData.append('tipo_de_empresa', data.tipo_de_empresa);
+				formData.append('estado_de_empresa', data.estado_de_empresa);
+				formData.append('nombre_1', data.nombre_1 || '');
+				formData.append('nombre_2', data.nombre_2 || '');
+				formData.append('nombre_3', data.nombre_3 || '');
+				formData.append('estado_de', data.estado_de || '');
 
-        const response = await fetch('/api/incorp/save', {
-            method: 'POST',
-            body: formData,
-        });
+				const response = await fetch('/api/incorp/save', {
+					method: 'POST',
+					body: formData,
+				});
 
-        if (response.ok) {
-            // ----------------------------------------------------
-            // 💡 BLOQUE DE ÉXITO Y REDIRECCIÓN
-            // ----------------------------------------------------
-            localStorage.removeItem('incorpData');
-            
-            // 1. Actualizar el mensaje de éxito
-            alertBox.querySelector('.ms-3').textContent =
-                '✅ ¡Éxito! Empresa registrada. Redirigiendo a tus empresas...';
-                
-            // 2. Establecer clases para mensaje de éxito (Se mantiene igual)
-            alertBox.classList.remove(
-                'hidden',
-                'text-red-800',
-                'border-red-300',
-                'bg-red-50',
-                'dark:text-red-400',
-                'dark:border-red-800',
-            );
-            alertBox.classList.add(
-                'flex',
-                'text-green-800',
-                'border-green-300',
-                'bg-green-50',
-                'dark:text-green-400',
-                'dark:border-green-800',
-            );
+				if (response.ok) {
+					// ----------------------------------------------------
+					// 💡 BLOQUE DE ÉXITO Y REDIRECCIÓN
+					// ----------------------------------------------------
+					localStorage.removeItem('incorpData');
 
-            // 3. Redirección automática después del retraso
-            setTimeout(() => {
-                window.location.href = REDIRECT_URL; // Redirecciona a /pages/companias
-            }, REDIRECT_DELAY);
-            
-            // NO establecemos el autocierre ni el botón de cerrar aquí,
-            // ya que la página se va a redirigir en 3 segundos.
+					// 1. Actualizar el mensaje de éxito
+					alertBox.querySelector('.ms-3').textContent =
+						'✅ ¡Éxito! Empresa registrada. Redirigiendo a tus empresas...';
 
-        } else {
-            // ----------------------------------------------------
-            // BLOQUE DE ERROR (Se mantiene igual, solo reestructurado)
-            // ----------------------------------------------------
-            const errorText = await response.text();
-            alertBox.querySelector('.ms-3').textContent =
-                `❌ Error: ${errorText || 'No se pudo registrar la empresa'}`;
-            
-            // Remover clases de éxito y añadir clases de error
-            alertBox.classList.remove(
-                'hidden',
-                'text-green-800',
-                'border-green-300',
-                'bg-green-50',
-                'dark:text-green-400',
-                'dark:border-green-800',
-            );
-            alertBox.classList.add(
-                'flex',
-                'text-red-800',
-                'border-red-300',
-                'bg-red-50',
-                'dark:text-red-400',
-                'dark:border-red-800',
-            );
-            
-            // Lógica de autocerrar y botón de cerrar (Solo en caso de error)
-            const hide = () => {
-                alertBox.classList.add('hidden');
-                alertBox.classList.remove('flex');
-            };
-            const timer = setTimeout(hide, 6000);
+					// 2. Establecer clases para mensaje de éxito (Se mantiene igual)
+					alertBox.classList.remove(
+						'hidden',
+						'text-red-800',
+						'border-red-300',
+						'bg-red-50',
+						'dark:text-red-400',
+						'dark:border-red-800',
+					);
+					alertBox.classList.add(
+						'flex',
+						'text-green-800',
+						'border-green-300',
+						'bg-green-50',
+						'dark:text-green-400',
+						'dark:border-green-800',
+					);
 
-            const closeBtn = alertBox.querySelector('[data-close]');
-            if (closeBtn) {
-                closeBtn.addEventListener('click', () => {
-                    clearTimeout(timer);
-                    hide();
-                });
-            }
-        }
+					// 3. Redirección automática después del retraso
+					setTimeout(() => {
+						window.location.href = REDIRECT_URL; // Redirecciona a /pages/companias
+					}, REDIRECT_DELAY);
 
-    } catch (error) {
-        // ----------------------------------------------------
-        // BLOQUE CATCH (Manejo de errores de parseo/conexión)
-        // ----------------------------------------------------
-        alertBox.querySelector('.ms-3').textContent =
-            `❌ Error: ${error.message || 'Error de conexión'}`;
-        
-        // Manejo de clases de error
-        alertBox.classList.remove(
-            'hidden',
-            'text-green-800',
-            'border-green-300',
-            'bg-green-50',
-            'dark:text-green-400',
-            'dark:border-green-800',
-        );
-        alertBox.classList.add(
-            'flex',
-            'text-red-800',
-            'border-red-300',
-            'bg-red-50',
-            'dark:text-red-400',
-            'dark:border-red-800',
-        );
+					// NO establecemos el autocierre ni el botón de cerrar aquí,
+					// ya que la página se va a redirigir en 3 segundos.
+				} else {
+					// ----------------------------------------------------
+					// BLOQUE DE ERROR (Se mantiene igual, solo reestructurado)
+					// ----------------------------------------------------
+					const errorText = await response.text();
+					alertBox.querySelector('.ms-3').textContent =
+						`❌ Error: ${errorText || 'No se pudo registrar la empresa'}`;
 
-        // Lógica de autocerrar y botón de cerrar
-        const hide = () => {
-            alertBox.classList.add('hidden');
-            alertBox.classList.remove('flex');
-        };
-        const timer = setTimeout(hide, 6000);
+					// Remover clases de éxito y añadir clases de error
+					alertBox.classList.remove(
+						'hidden',
+						'text-green-800',
+						'border-green-300',
+						'bg-green-50',
+						'dark:text-green-400',
+						'dark:border-green-800',
+					);
+					alertBox.classList.add(
+						'flex',
+						'text-red-800',
+						'border-red-300',
+						'bg-red-50',
+						'dark:text-red-400',
+						'dark:border-red-800',
+					);
 
-        const closeBtn = alertBox.querySelector('[data-close]');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                clearTimeout(timer);
-                hide();
-            });
-        }
-    }
-})();
+					// Lógica de autocerrar y botón de cerrar (Solo en caso de error)
+					const hide = () => {
+						alertBox.classList.add('hidden');
+						alertBox.classList.remove('flex');
+					};
+					const timer = setTimeout(hide, 6000);
+
+					const closeBtn = alertBox.querySelector('[data-close]');
+					if (closeBtn) {
+						closeBtn.addEventListener('click', () => {
+							clearTimeout(timer);
+							hide();
+						});
+					}
+				}
+			} catch (error) {
+				// ----------------------------------------------------
+				// BLOQUE CATCH (Manejo de errores de parseo/conexión)
+				// ----------------------------------------------------
+				alertBox.querySelector('.ms-3').textContent =
+					`❌ Error: ${error.message || 'Error de conexión'}`;
+
+				// Manejo de clases de error
+				alertBox.classList.remove(
+					'hidden',
+					'text-green-800',
+					'border-green-300',
+					'bg-green-50',
+					'dark:text-green-400',
+					'dark:border-green-800',
+				);
+				alertBox.classList.add(
+					'flex',
+					'text-red-800',
+					'border-red-300',
+					'bg-red-50',
+					'dark:text-red-400',
+					'dark:border-red-800',
+				);
+
+				// Lógica de autocerrar y botón de cerrar
+				const hide = () => {
+					alertBox.classList.add('hidden');
+					alertBox.classList.remove('flex');
+				};
+				const timer = setTimeout(hide, 6000);
+
+				const closeBtn = alertBox.querySelector('[data-close]');
+				if (closeBtn) {
+					closeBtn.addEventListener('click', () => {
+						clearTimeout(timer);
+						hide();
+					});
+				}
+			}
+		})();
 	</script>
 	<LandingReadme />
 </LayoutSidebar>
