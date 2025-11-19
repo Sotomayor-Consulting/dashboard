@@ -16,8 +16,7 @@ export const POST: APIRoute = async ({ request }) => {
       userId,         
       persona,                // "natural" | "juridica"
       nombre_razon,
-      email,
-      telefono_codigo,        // ej. "+593"
+      email,    
       telefono_numero,        // ej. "0999999999"
       id_tipo,                // "Cedula" | "RUC" | "ID" | "Pasaporte" | "EIN"
       id_numero,
@@ -33,15 +32,12 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Armar telefono y documento
-    const telefono = [telefono_codigo, telefono_numero].filter(Boolean).join(' ');
-
     // Normalizar personería (usa exactamente el nombre de tu columna con tilde)
     const row: Record<string, any> = {
       user_id: userId,
       nombre_o_razon_social: nombre_razon || '',
       correo: email || '',
-      telefono: telefono || '',
+      telefono: telefono_numero || '',
       documento_de_identidad: id_numero || '',
       direccion_linea_1: direccion || '',
       ciudad: ciudad || '',
