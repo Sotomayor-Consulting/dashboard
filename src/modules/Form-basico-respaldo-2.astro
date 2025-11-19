@@ -84,11 +84,10 @@ if (serviciosErr) {
 	console.error('Error cargando servicios:', serviciosErr);
 }
 
-const { data: paises, error: paisesErr } = await supabase.from('paises').select(
-	`
-		*
-	`,
-);
+const { data: paises, error: paisesErr } = await supabase
+	.from('paises')
+	.select('*')
+	.order('nombre_paises', { ascending: true });
 
 if (paisesErr) {
 	console.error('Error cargando países:', serviciosErr);
@@ -622,9 +621,12 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 								<div
 									class="ms-2 text-sm select-none text-gray-700 dark:text-neutral-300"
 								>
-									<label for="factura-checkbox" class="font-medium text-heading"
-										>Incluir datos para facturación</label
+									<label
+										for="factura-checkbox"
+										class="font-medium text-heading"
 									>
+										Incluir datos para facturación
+									</label>
 									<p
 										id="helper-checkbox-text"
 										class="text-xs font-normal text-body"
@@ -634,6 +636,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 									</p>
 								</div>
 							</div>
+
 							<div
 								id="contenedor-facturacion"
 								class="mt-2 border-t border-neutral-600 hidden"
@@ -642,6 +645,8 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 									<h4 class="text-lg font-bold">Datos de facturación</h4>
 									<p>Ingrese los datos que se incluirán en tu factura.</p>
 								</div>
+
+								<!-- Personería -->
 								<div
 									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-5"
 								>
@@ -653,118 +658,123 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 									<div class="flex gap-5">
 										<div class="flex items-center mr-2">
 											<input
-												id="default-radio-1"
+												id="bill-legal-natural"
 												type="radio"
-												value="Persona Natural"
-												name="default-radio"
+												value="natural"
+												name="bill-legal-type"
+												data-billing="true"
 												class="w-4 h-4 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"
 											/>
 											<label
-												for="default-radio-1"
+												for="bill-legal-natural"
 												class="select-none ms-2 text-sm font-medium text-heading"
-												>Persona Natural</label
 											>
+												Persona Natural
+											</label>
 										</div>
-										<div>
-											<div class="flex items-center ml-2">
-												<input
-													checked
-													id="default-radio-2"
-													type="radio"
-													value="Persona Jurídica"
-													name="default-radio"
-													class="w-4 h-4 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"
-												/>
-												<label
-													for="default-radio-2"
-													class="select-none ms-2 text-sm font-medium text-heading"
-												>
-													Persona Jurídica</label
-												>
-											</div>
+										<div class="flex items-center ml-2">
+											<input
+												id="bill-legal-juridica"
+												type="radio"
+												value="juridica"
+												name="bill-legal-type"
+												data-billing="true"
+												checked
+												class="w-4 h-4 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"
+											/>
+											<label
+												for="bill-legal-juridica"
+												class="select-none ms-2 text-sm font-medium text-heading"
+											>
+												Persona Jurídica
+											</label>
 										</div>
 									</div>
 								</div>
+
+								<!-- Nombre/Razón social -->
 								<div
 									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
 								>
 									<div>
 										<label
-											for="name"
+											for="bill-razon"
 											class="block mb-2.5 text-sm text-heading font-bold"
-											>Nombre o Razón Social</label
 										>
+											Nombre o Razón Social
+										</label>
 										<input
 											type="text"
-											id="name"
+											id="bill-razon"
+											data-billing="true"
 											class="bg-neutral-800 border text-heading text-sm rounded-md focus:ring-[#8c681d] focus:border-[#8c681d] w-full px-3 py-2.5 shadow-xs placeholder:text-neutral-500"
-											placeholder="Nombre y Apellido"
-											required
+											placeholder="Nombre y Apellido o Razón Social"
 										/>
 										<p class="text-xs">
 											Ingresa tu nombre o la razón social de tu empresa.
 										</p>
 									</div>
 								</div>
+
+								<!-- Email -->
 								<div
 									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
 								>
 									<div>
 										<label
-											for="mail"
+											for="bill-email"
 											class="block mb-2.5 text-sm text-heading font-bold"
-											>Correo electrónico</label
 										>
+											Correo electrónico
+										</label>
 										<input
 											type="email"
-											id="mail"
+											id="bill-email"
+											data-billing="true"
 											class="bg-neutral-800 border text-heading text-sm rounded-md focus:ring-[#8c681d] focus:border-[#8c681d] w-full px-3 py-2.5 shadow-xs placeholder:text-neutral-500"
 											placeholder="ejemplo@email.com"
-											required
 										/>
-										<p class="text-xs">
-											Ingresa una dirección de correo electrónico válida. Se
-											usará para enviarte la factura.
-										</p>
+										<p class="text-xs">Se usará para enviarte la factura.</p>
 									</div>
 								</div>
+
+								<!-- Teléfono (código + número) -->
 								<div
 									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
 								>
 									<div>
 										<label
-											for="phone"
+											for="bill-phone"
 											class="block mb-2.5 text-sm text-heading font-bold"
-											>Teléfono</label
 										>
+											Teléfono
+										</label>
 										<div class="relative">
 											<input
 												type="text"
-												id="hs-inline-leading-select-label"
-												name="inline-add-on"
+												id="bill-phone"
+												data-billing="true"
 												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 ps-40 focus:z-10 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-600"
 												placeholder="(000) 000-0000"
-												required
 											/>
 											<div
-												class="absolute inset-y-0 start-0 flex items-center ps-px text-gray-500 w-2/5"
+												class="absolute inset-y-0 start-0 flex items-center ps-px text-gray-500 overflow-hidden w-1/5 p-1"
 											>
-												<label
-													for="hs-inline-leading-select-country"
-													class="sr-only">País</label
+												<label for="bill-phone-country" class="sr-only"
+													>País</label
 												>
 												<select
-													id="hs-inline-leading-select-country"
-													name="hs-inline-leading-select-country"
-													class="block rounded-lg border-transparent focus:border-[#ba8d34] focus:ring-[#ba8d34] dark:bg-neutral-800 dark:text-neutral-500 w-2/5 text-xs dark:border-neutral-700"
+													id="bill-phone-country"
+													data-billing="true"
+													class="block rounded-lg border-transparent focus:border-[#ba8d34] focus:ring-[#ba8d34] dark:bg-neutral-800 dark:text-neutral-500 w-full text-xs dark:border-neutral-700"
 												>
 													{
-														paises?.map((paises) => (
+														paises?.map((p) => (
 															<option
-																data-countryCode={paises.iso}
-																value={`+${paises.codigo_telf}`}
+																data-countrycode={p.iso}
+																value={`+${p.codigo_telf}`}
 															>
-																{paises.nombre_paises}
+																{p.nombre_paises}
 															</option>
 														))
 													}
@@ -772,40 +782,40 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 											</div>
 										</div>
 										<p class="text-xs">
-											Ingresa tu país y tu número de teléfono. Solo números, sin
-											espacios ni caracteres especiales
+											Solo números, sin espacios ni caracteres especiales.
 										</p>
 									</div>
 								</div>
+
+								<!-- Documento de identidad -->
 								<div
 									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
 								>
 									<div>
 										<label
-											for="documento-identidad"
+											for="bill-id-number"
 											class="block mb-2.5 text-sm text-heading font-bold"
-											>Documento de Identidad</label
 										>
+											Documento de Identidad
+										</label>
 										<div class="relative">
 											<input
 												type="text"
-												id="documento-identidad"
-												name="inline-add-on"
+												id="bill-id-number"
+												data-billing="true"
 												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 ps-36 focus:z-10 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-60"
-												required
+												placeholder="Número"
 											/>
 											<div
 												class="absolute inset-y-0 start-0 flex items-center ps-px text-gray-500"
 											>
-												<label for="documento-identidad-ls" class="sr-only"
-													>tipo</label
-												>
+												<label for="bill-id-type" class="sr-only">Tipo</label>
 												<select
-													id="documento-identidad-ls"
-													name="documento-identidad-ls"
+													id="bill-id-type"
+													data-billing="true"
 													class="block w-fit rounded-lg border-transparent focus:border-[#ba8d34] focus:ring-[#ba8d34] dark:bg-neutral-800 dark:text-neutral-500 dark:border-neutral-700"
 												>
-													<option value="Cédula">Cédula</option>
+													<option value="Cedula">Cédula</option>
 													<option value="RUC">RUC</option>
 													<option value="ID">ID</option>
 													<option value="Pasaporte">Pasaporte</option>
@@ -815,48 +825,49 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 										</div>
 									</div>
 								</div>
+
+								<!-- Dirección -->
 								<div
 									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4 border-b border-neutral-600"
 								>
 									<div class="mb-5">
 										<label
-											for="direccion"
+											for="bill-address1"
 											class="block mb-2.5 text-sm text-heading font-bold"
-											>Dirección</label
 										>
+											Dirección
+										</label>
 										<div class="grid grid-cols-2 gap-3">
 											<input
 												type="text"
-												id="direccion"
-												name="direccion"
+												id="bill-address1"
+												data-billing="true"
 												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-60 col-span-2"
-												placeholder="Dirección linea 1"
-												required
+												placeholder="Dirección línea 1"
 											/>
 											<input
 												type="text"
-												id="cuidad"
-												name="cuidad"
+												id="bill-city"
+												data-billing="true"
 												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-60"
-												placeholder="Cuidad"
-												required
+												placeholder="Ciudad"
 											/>
 											<select
-												id="pais-direccion"
-												name="pais-direccion"
+												id="bill-country"
+												data-billing="true"
 												class="block rounded-lg border-transparent focus:border-[#ba8d34] focus:ring-[#ba8d34] dark:bg-neutral-800 dark:text-neutral-400 w-full text-sm dark:border-neutral-700"
-												required
 											>
-												<option value="" selected="" disabled>
-													Selecciona un pais
-												</option>
+												<option value="" selected disabled
+													>Selecciona un país</option
+												>
 												{
-													paises?.map((paises) => (
+													paises?.map((p) => (
 														<option
-															data-countryCode={paises.iso}
-															value={paises.nombre_paises}
+															value={p.nombre_paises}
+															data-countryCode={p.iso}
+															data-dial={`+${p.codigo_telf}`}
 														>
-															{paises.nombre_paises}
+															{p.nombre_paises}
 														</option>
 													))
 												}
@@ -953,8 +964,33 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 
 <script src="https://js.stripe.com/v3/"></script>
 
-<script>
+<script is:inline>
 	document.addEventListener('DOMContentLoaded', () => {
+		// --- NUEVO: toggle de facturación (mostrar/ocultar y required) ---
+		const facturaCheckbox = document.getElementById('factura-checkbox');
+		const contFacturacion = document.getElementById('contenedor-facturacion');
+		function setBillingRequired(on) {
+			if (!contFacturacion) return;
+			const fields = contFacturacion.querySelectorAll(
+				'input, select, textarea',
+			);
+			fields.forEach((el) => {
+				el.required = !!on;
+			});
+		}
+		if (facturaCheckbox && contFacturacion) {
+			// estado inicial
+			contFacturacion.classList.toggle('hidden', !facturaCheckbox.checked);
+			setBillingRequired(facturaCheckbox.checked);
+			// cambio
+			facturaCheckbox.addEventListener('change', () => {
+				const on = facturaCheckbox.checked;
+				contFacturacion.classList.toggle('hidden', !on);
+				setBillingRequired(on);
+			});
+		}
+		// --- FIN NUEVO ---
+
 		// 1) Config Stripe
 		const cfg = document.getElementById('stripe-config');
 		if (!cfg) {
@@ -1003,13 +1039,12 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 		const feeEl = document.getElementById('summary-fee');
 		const totalEl = document.getElementById('summary-total');
 
-		// NEW: selector de empresa
+		// selector de empresa (ya existía)
 		const empresaSelect = document.getElementById('empresa-select');
 
-		// Nota: en JS puro no usamos anotaciones TS
-		let currentClientSecret: null = null;
+		let currentClientSecret = null;
 
-		// 4) Plan seleccionado (id_servicios)
+		// Helpers selección plan/empresa
 		function getSelectedPlan() {
 			const radio = document.querySelector('input[name="plan"]:checked');
 			if (!radio) return null;
@@ -1018,35 +1053,28 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 			const rawPrice = radio.dataset.price;
 			const price = rawPrice ? parseFloat(rawPrice) : NaN;
 			return {
-				id: radio.value, // id_servicios (UUID)
+				id: radio.value,
 				label: titleEl ? titleEl.textContent.trim() : 'Plan seleccionado',
-				price, // USD
+				price,
 			};
 		}
-
 		function getSelectedEmpresaId() {
 			if (!empresaSelect) return null;
 			const v = empresaSelect.value;
 			return v && v.length ? v : null;
 		}
-
 		function getSelectedEmpresaLabel() {
 			if (!empresaSelect) return null;
 			const opt = empresaSelect.options[empresaSelect.selectedIndex];
 			return opt ? opt.textContent.trim() : null;
 		}
 
-		// 5) Resumen precios
-		function formatUSD(amount: unknown) {
+		// Resumen precios
+		function formatUSD(amount) {
 			if (!Number.isFinite(amount)) return '$0.00';
 			return '$' + amount.toFixed(2);
 		}
-
-		function updatePriceSummary(plan: {
-			id?: any;
-			label?: string;
-			price: any;
-		}) {
+		function updatePriceSummary(plan) {
 			if (!plan || !Number.isFinite(plan.price)) {
 				baseEl.textContent = '$0.00';
 				feeEl.textContent = '$0.00';
@@ -1062,24 +1090,19 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 			totalEl.textContent = formatUSD(total);
 		}
 
-		// 6) Crear PaymentIntent (manda empresaId)
-		async function createPaymentIntent(
-			planId: any,
-			userId: string,
-			empresaId: any,
-		) {
+		// Crear PaymentIntent (manda empresaId)
+		async function createPaymentIntent(planId, userId, empresaId) {
 			statusMessage.textContent = 'Preparando el pago...';
 			payButton.disabled = true;
 			try {
 				const res = await fetch('/api/payment/payment-intent', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ planId, userId, empresaId }), // 👈 enviamos empresaId
+					body: JSON.stringify({ planId, userId, empresaId }),
 				});
 				const data = await res.json();
-				if (!res.ok || !data.clientSecret) {
+				if (!res.ok || !data.clientSecret)
 					throw new Error(data.error || 'Error al crear el pago');
-				}
 				currentClientSecret = data.clientSecret;
 				statusMessage.textContent = 'Ingresa los datos de tu tarjeta.';
 			} catch (err) {
@@ -1090,6 +1113,51 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				payButton.disabled = false;
 			}
 		}
+
+		// --- NUEVO: recolectar datos de facturación con TUS IDs actuales ---
+		function getBillingPayload() {
+			const personaEl = document.querySelector(
+				'input[name="bill-legal-type"]:checked',
+			);
+			return {
+				userId,
+				empresaId: getSelectedEmpresaId(),
+				persona: personaEl ? personaEl.value : '', // "natural" | "juridica"
+				nombre_razon:
+					document.getElementById('bill-razon')?.value?.trim() || '',
+				email: document.getElementById('bill-email')?.value?.trim() || '',
+				telefono_codigo:
+					document.getElementById('bill-phone-country')?.value || '', // ej. "+593"
+				telefono_numero:
+					document.getElementById('bill-phone')?.value?.trim() || '',
+				id_tipo: document.getElementById('bill-id-type')?.value || '', // "Cedula", "RUC", etc.
+				id_numero:
+					document.getElementById('bill-id-number')?.value?.trim() || '',
+				direccion:
+					document.getElementById('bill-address1')?.value?.trim() || '',
+				ciudad: document.getElementById('bill-city')?.value?.trim() || '',
+				pais: document.getElementById('bill-country')?.value || '', // ISO del país
+			};
+		}
+		async function enviarFacturacion(payload) {
+			try {
+				const res = await fetch('/api/facturacion/upsert', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(payload),
+				});
+				const data = await res.json();
+				if (!res.ok) {
+					console.error('[Billing] error:', data);
+					return false;
+				}
+				return true;
+			} catch (e) {
+				console.error('[Billing] network error:', e);
+				return false;
+			}
+		}
+		// --- FIN NUEVO ---
 
 		// 7) Continuar con el pago
 		if (btnContinue) {
@@ -1106,7 +1174,6 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				}
 				const empresaLabel = getSelectedEmpresaLabel();
 
-				// Muestra resumen (plan + empresa)
 				const empresaInfo = empresaLabel ? ` | Empresa: ${empresaLabel}` : '';
 				planSummary.textContent = `Estás pagando: ${plan.label}${empresaInfo}`;
 
@@ -1128,7 +1195,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 			});
 		}
 
-		// 9) Submit del pago
+		// 9) Submit del pago (facturación opcional, sin tocar tu verificación)
 		if (paymentForm) {
 			paymentForm.addEventListener('submit', async (event) => {
 				event.preventDefault();
@@ -1146,9 +1213,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				try {
 					const { error, paymentIntent } = await stripe.confirmCardPayment(
 						currentClientSecret,
-						{
-							payment_method: { card: cardElement },
-						},
+						{ payment_method: { card: cardElement } },
 					);
 
 					if (error) {
@@ -1165,6 +1230,20 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 						statusMessage.textContent =
 							'Pago realizado con éxito. Registrando la información...';
 
+						// --- NUEVO: si el checkbox está marcado, envía facturación (no bloquea) ---
+						if (facturaCheckbox && facturaCheckbox.checked) {
+							const billingPayload = getBillingPayload();
+							// añade el payment_intent_id para relacionar en tu tabla
+							billingPayload.payment_intent_id = paymentIntent.id;
+							const okBilling = await enviarFacturacion(billingPayload);
+							if (!okBilling) {
+								console.warn(
+									'No se pudo guardar la facturación (se continuará con el registro del pago).',
+								);
+							}
+						}
+						// --- FIN NUEVO ---
+
 						// Registrar el pago en tu backend → Supabase (RPC)
 						try {
 							const res = await fetch('/api/payment/register', {
@@ -1177,6 +1256,9 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 								console.error('Error registrando pago en BD:', data);
 								statusMessage.textContent =
 									'El pago se realizó, pero hubo un problema registrándolo internamente. Nuestro equipo lo revisará.';
+								// NO redirigir si hay error
+								payButton.disabled = false;
+								return;
 							} else {
 								console.log('Pago registrado en BD:', data);
 								statusMessage.textContent =
@@ -1186,9 +1268,11 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 							console.error('Error llamando a /api/payment/register:', err);
 							statusMessage.textContent =
 								'El pago se realizó, pero hubo un error al registrarlo internamente. Nuestro equipo lo revisará.';
+							payButton.disabled = false;
+							return; // NO redirigir
 						}
 
-						// Redirigir
+						// Redirigir solo si todo fue OK
 						window.location.href = '/pages/companias';
 					} else {
 						statusMessage.textContent =
@@ -1207,41 +1291,26 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 
 <script>
 	document.addEventListener('DOMContentLoaded', function () {
-    const boton = document.getElementById('btn-paso1');
-    const regresar = document.getElementById('btn-atras');
-    const div2 = document.getElementById('panel2');
-    const div1 = document.getElementById('panel1');
-    const checkbox = document.getElementById('factura-checkbox');
-    const facturacion = document.getElementById('contenedor-facturacion');
+		const boton = document.getElementById('btn-paso1');
+		const regresar = document.getElementById('btn-atras');
+		const div2 = document.getElementById('panel2');
+		const div1 = document.getElementById('panel1');
 
-    boton?.addEventListener('click', function () {
-        div1?.classList.add('hidden');
-        div2?.classList.remove('hidden');
-    });
+		boton?.addEventListener('click', function () {
+			div1?.classList.add('hidden');
+			div2?.classList.remove('hidden');
+		});
 
-    regresar?.addEventListener('click', function () {
-        div2?.classList.add('hidden');
-        div1?.classList.remove('hidden');
-    });
-
-    // CORRECCIÓN para el checkbox - usar solo 'hidden'
-    checkbox?.addEventListener('change', function () {
-        if (this.checked) {
-            facturacion?.classList.remove('hidden');
-        } else {
-            facturacion?.classList.add('hidden');
-        }
-    });
-});
+		regresar?.addEventListener('click', function () {
+			div2?.classList.add('hidden');
+			div1?.classList.remove('hidden');
+		});
+	});
 </script>
 <script is:inline>
 	document.addEventListener('DOMContentLoaded', function () {
-		const countrySelect = document.getElementById(
-			'hs-inline-leading-select-country',
-		);
-		const phoneInput = document.getElementById(
-			'hs-inline-leading-select-label',
-		);
+		const countrySelect = document.getElementById('bill-phone-country');
+		const phoneInput = document.getElementById('bill-phone');
 
 		// Función para actualizar el código de país
 		function updateCountryCode() {
