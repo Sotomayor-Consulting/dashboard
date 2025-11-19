@@ -1311,7 +1311,6 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 	document.addEventListener('DOMContentLoaded', function () {
 		const countrySelect = document.getElementById('bill-phone-country');
 		const phoneInput = document.getElementById('bill-phone');
-
 		// Función para actualizar el código de país
 		function updateCountryCode() {
 			const selectedCountryCode = countrySelect.value;
@@ -1323,10 +1322,8 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 			// Añadimos el nuevo código de país
 			phoneInput.value = selectedCountryCode + ' ' + phoneWithoutCode;
 		}
-
 		// Actualizar cuando cambie la selección
 		countrySelect.addEventListener('change', updateCountryCode);
-
 		// Actualizar al cargar la página
 		updateCountryCode();
 	});
