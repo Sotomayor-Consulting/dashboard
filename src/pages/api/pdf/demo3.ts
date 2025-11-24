@@ -14,9 +14,6 @@ async function ensureDir(p: string) {
 function findLibreOffice(): string {
   const possiblePaths = [
     "C:\\Program Files\\LibreOffice\\program\\soffice.exe",
-    "C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe",
-    "C:\\Program Files\\LibreOffice\\program\\soffice.com",
-    "C:\\Program Files (x86)\\LibreOffice\\program\\soffice.com",
   ];
 
   for (const officePath of possiblePaths) {
@@ -135,7 +132,7 @@ export const GET: APIRoute = async () => {
 
     console.log("PDF generado correctamente, tamaño:", pdfBuffer.length);
 
-    return new Response(pdfBuffer, {
+    return new Response(pdfBuffer as any, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
