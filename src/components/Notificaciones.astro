@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import logonotificaciones from '/src/assets/avatarSCI.png';
 import NavPagination from '../components/NavPagination.astro'; // si no lo usas, puedes quitarlo
 import { supabase } from '../lib/supabase';
 
@@ -309,11 +311,8 @@ const display = msg ? 'flex' : 'hidden';
 								<div>
 									<tr class="hover:bg-gray-100 dark:hover:bg-neutral-700">
 										<td class="w-4 pl-4">
-											<img
-												class="w-10 h-10 rounded-full"
-												src="/src/assets/avatarSCI.png"
-												alt="Icono Sotomayor Consulting"
-											/>
+									
+											<Image src={logonotificaciones} width="44" alt="Icono Sotomayor Consulting" class="rounded-full"/>
 										</td>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-gray-500 overflow-hidden truncate max-w-sm xl:max-w-xs">
 											#{user.id}

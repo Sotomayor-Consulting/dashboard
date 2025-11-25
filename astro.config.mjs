@@ -14,11 +14,11 @@ export default defineConfig({
     // **Añadimos el adaptador de Netlify aquí:**
     adapter: netlify(),
 
-    // Tus configuraciones de `site` y `base` se mantienen:
-    site: process.env.CI
-        ? 'https://themesberg.github.io'
-        : `http://localhost:${DEV_PORT}`,
-    base: process.env.CI ? '/flowbite-astro-admin-dashboard' : undefined,
+    // TUS CONFIGURACIONES CORREGIDAS:
+    // 1. `site`: Establecido como variable de entorno o URL por defecto para producción.
+    // 2. `base`: **Eliminado para producción** (deja el valor por defecto: '/').
+    site: process.env.PUBLIC_SITE_URL || 'https://dashboard-sotomayor-consulting.netlify.app/', // Puedes reemplazar por tu dominio
+    base: '/', // Asegura que la raíz sea '/'
 
     server: {
         port: DEV_PORT,
