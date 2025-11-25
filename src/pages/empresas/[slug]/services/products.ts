@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
 import { faker } from '@faker-js/faker';
-import { RANDOMIZE } from '../app/constants.js';
-import type { Products } from '../types/entities.js';
+import { RANDOMIZE } from '../../../../app/constants.js';
+import type { Products } from '../../../../types/entities.js';
 
-import productsStaticJSON from '../../data/products.json' assert { type: 'json' };
+import productsStaticJSON from '../../../../../data/products.json' assert { type: 'json' };
 
 const productsStaticData: Products = productsStaticJSON;
 
