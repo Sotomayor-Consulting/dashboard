@@ -1,7 +1,7 @@
 ---
-import LayoutSidebar from '../../app/LayoutSidebar.astro';
-import DashBoard from '../../modules/datos-referidos.astro';
-import { supabase } from "../../lib/supabase";
+import LayoutSidebar from '../../../../app/LayoutSidebar.astro';
+import DashBoard from '../../../../modules/datos-referidos.astro';
+import { supabase } from "../../../../lib/supabase";
 const at = Astro.cookies.get("sb-access-token");
 const rt = Astro.cookies.get("sb-refresh-token");
 if (!at || !rt) return Astro.redirect(`/login?next=${encodeURIComponent(Astro.url.pathname)}`);
