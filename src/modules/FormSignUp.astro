@@ -1,5 +1,7 @@
 ---
-
+import { Image } from 'astro:assets';
+import logo1 from '../assets/SC-INTER.png';
+import logo2 from '../assets/SC-INTER-NG.png';
 ---
 
 <div
@@ -16,16 +18,18 @@
 				href="#"
 				class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white"
 			>
-				<img
-					src="/src/assets/SC-INTER.png"
-					alt="Sotomayor Logo"
-					class="mr-4 h-11 dark:block hidden"
-				/>
-				<img
-					src="/src/assets/SC-INTER-NG.png"
-					alt="Sotomayor Logo"
-					class="mr-4 h-11 dark:hidden block"
-				/>
+				<Image
+				src={logo1}
+				alt="Sotomayor Logo"
+				height="44"
+				class="mr-4 dark:block hidden"
+			/>
+			<Image
+				src={logo2}
+				alt="Sotomayor Logo"
+				height="44"
+				class="mr-4 dark:hidden block"
+			/>
 			</a>
 			<h2 class="text-2xl font-bold text-gray-900 dark:text-white">
 				Crea tu cuenta gratuita

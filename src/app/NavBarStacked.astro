@@ -1,6 +1,9 @@
 ---
 import { url } from '../lib/data.js';
 import { supabase } from '../lib/supabase';
+import { Image } from 'astro:assets';
+import logo1 from '/src/assets/SC-INTER.png';
+import logo2 from '/src/assets/SC-INTER-NG.png';
 
 // Verificar autenticación con Supabase
 const { cookies } = Astro;
@@ -35,16 +38,8 @@ if (accessToken && refreshToken) {
 		<div class="flex items-center justify-between">
 			<div class="flex items-center justify-start">
 				<a href={url()} class="flex mr-4">
-					<img
-						src="/src/assets/SC-INTER.png"
-						class="h-8 mx-3 hidden dark:block"
-						alt="Sotomayor Logo"
-					/>
-					<img
-						src="/src/assets/SC-INTER-NG.png"
-						class="h-8 mx-3 dark:hidden block"
-						alt="Sotomayor Logo"
-					/>
+					<Image src={logo1} alt="Sotomayor Logo" class="mx-3 hidden dark:block" height="32"/>
+					<Image src={logo2} alt="Sotomayor Logo" class="mx-3 block dark:hidden" height="32"/>
 				</a>
 				<div class="hidden sm:flex sm:ml-6">
 					<ul class="flex space-x-8">
