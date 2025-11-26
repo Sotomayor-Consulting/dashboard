@@ -1,0 +1,71 @@
+---
+// src/components/PrintButton.astro
+---
+<input type="text" id="nombre"/>
+<button id="btn-generar" class="btn-primary">
+  📄 Generar y Descargar PDF
+</button>
+
+<script>
+  const btn = document.getElementById('btn-generar');
+  const nombre = document.getElementById('nombre');
+
+  btn?.addEventListener('click', async () => {
+    try {
+      // 2. Hacer la petición a tu API
+      const response = await fetch('/api/pdf/generar-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        // Aquí puedes enviar datos dinámicos si quieres
+        body: JSON.stringify({ nombre: `${nombre.value}` })
+      });
+
+      if (!response.ok) throw new Error('Error en la generación');
+
+      // 3. Convertir la respuesta a un Blob (archivo binario)
+      const blob = await response.blob();
+      
+      // 4. Crear un enlace invisible para forzar la descarga
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "reporte_carbone.pdf"; // Nombre del archivo que bajará el usuario
+      document.body.appendChild(a);
+      a.click();
+      
+      // 5. Limpieza
+      window.URL.revokeObjectURL(url);
+      a.remove();
+
+    } catch (error) {
+      console.error(error);
+      alert('Hubo un error al generar el PDF');
+    } finally {
+      // Restaurar botón
+      btn.innerText = "📄 Generar y Descargar PDF";
+      (btn as HTMLButtonElement).disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .btn-primary {
+    padding: 10px 20px;
+    background-color: #4F46E5; /* Indigo 600 */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover {
+    background-color: #4338CA;
+  }
+  .btn-primary:disabled {
+    background-color: #9CA3AF;
+    cursor: not-allowed;
+  }
+</style>

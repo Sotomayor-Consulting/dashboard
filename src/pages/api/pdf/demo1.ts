@@ -1,19 +1,19 @@
 // src/pages/api/pdf/envio.ts
-export const prerender = false;
-
 import type { APIRoute } from 'astro';
 import fs from 'node:fs/promises';
 import fssync from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { createRequire } from 'node:module';
+import carbone from 'carbone';
 
 // Usa el mismo cliente Supabase que en tu endpoint insert.ts
 import { supabase } from '../../../lib/supabase';
 
+export const prerender = false;
 const require = createRequire(import.meta.url);
-// @ts-ignore - carbone no trae tipos
-const carbone = require('carbone');
+
+
 
 // ============ Helpers ============
 
@@ -35,6 +35,7 @@ function findLibreOffice(): string {
 		'C:\\Program Files\\LibreOffice\\program\\soffice.com',
 	];
 
+	// eslint-disable-next-line no-restricted-syntax
 	for (const officePath of possiblePaths) {
 		if (fssync.existsSync(officePath)) {
 			return officePath;
