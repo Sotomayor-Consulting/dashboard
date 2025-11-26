@@ -1,5 +1,8 @@
 ---
-/* eslint max-lines: 'off' */
+import { Image } from 'astro:assets';
+import Logo1 from '/src/assets/SC-INTER.png';
+import Logo2 from '/src/assets/SC-INTER-NG.png';
+import logonotificaciones from '/src/assets/avatarSCI.png'
 import { supabase } from '../lib/supabase';
 const { cookies } = Astro;
 
@@ -108,16 +111,17 @@ export { notifications, totalUnread, user };
 					>
 				</button>
 				<a href="/" class="flex ml-2 md:mr-24">
-					<img
-						src="/src/assets/SC-INTER.png"
-						class="h-5 md:h-8 mr-3 hidden dark:block"
+					<Image
+						src={Logo1}
+						class="mr-3 hidden dark:block"
+						height="40"
 						alt="SotoMayor consulting Logo"
 					/>
-					<img
-						src="/src/assets/SC-INTER-NG.png"
-						class="h-5 md:h-8 mr-3 dark:hidden block"
+					<Image
+						src={Logo2}
+						class="dark:hidden block"
+						height="40"
 						alt="SotoMayor consulting Logo"
-						class="dark:hidden block h-8 mr-3"
 					/>
 				</a>
 
@@ -234,11 +238,8 @@ export { notifications, totalUnread, user };
 											data-id={notification.id}
 										>
 											<div class="flex-shrink-0">
-												<img
-													class="rounded-full w-11 h-11"
-													src="/src/assets/avatarSCI.png"
-													alt="Jese image"
-												/>
+												
+												<Image src={logonotificaciones} width="44" alt="Logo notificacion Sotomayor Consulting" class="rounded-full"/>
 											</div>
 											<div class="w-full pl-3">
 												<div class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400 flex flex-col">
@@ -577,63 +578,86 @@ export { notifications, totalUnread, user };
 	</div>
 </nav>
 <script
-  type="module"
-  define:vars={{
-    SB_URL: import.meta.env.SUPABASE_URL,
-    SB_ANON: import.meta.env.SUPABASE_ANON_KEY,
-    USER_ID: user?.id ?? '',
-  }}
+	type="module"
+	define:vars={{
+		SB_URL: import.meta.env.SUPABASE_URL,
+		SB_ANON: import.meta.env.SUPABASE_ANON_KEY,
+		USER_ID: user?.id ?? '',
+	}}
 >
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+	import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-  const start = async () => {
-    const listEl  = document.getElementById('notifications-list')
-    const bellBtn = document.getElementById('notifications-toggle')
-    if (!listEl || !bellBtn) return console.error('[notifications] Falta #notifications-list o #notifications-toggle')
-    if (!SB_URL || !SB_ANON) return console.error('[notifications] Faltan claves Supabase')
-    if (!USER_ID) return console.info('[notifications] Sin usuario; no suscribo')
+	const start = async () => {
+		const listEl = document.getElementById('notifications-list');
+		const bellBtn = document.getElementById('notifications-toggle');
+		if (!listEl || !bellBtn)
+			return console.error(
+				'[notifications] Falta #notifications-list o #notifications-toggle',
+			);
+		if (!SB_URL || !SB_ANON)
+			return console.error('[notifications] Faltan claves Supabase');
+		if (!USER_ID)
+			return console.info('[notifications] Sin usuario; no suscribo');
 
-    const supabase = createClient(SB_URL, SB_ANON, {
-      auth: { persistSession: true, autoRefreshToken: true },
-      realtime: { params: { eventsPerSecond: 10 } },
-    })
+		const supabase = createClient(SB_URL, SB_ANON, {
+			auth: { persistSession: true, autoRefreshToken: true },
+			realtime: { params: { eventsPerSecond: 10 } },
+		});
 
-    supabase.auth.onAuthStateChange((_e, s) => supabase.realtime.setAuth(s?.access_token ?? null))
-    const readCookie = (name) => (document.cookie.match(new RegExp('(^| )'+name+'=([^;]+)'))?.[2] ?? null)
-    const { data: s0 } = await supabase.auth.getSession()
-    if (!s0?.session) {
-      const at = readCookie('sb-access-token'), rt = readCookie('sb-refresh-token')
-      if (at && rt) await supabase.auth.setSession({ access_token: at, refresh_token: rt })
-    }
-    await supabase.realtime.setAuth()
+		supabase.auth.onAuthStateChange((_e, s) =>
+			supabase.realtime.setAuth(s?.access_token ?? null),
+		);
+		const readCookie = (name) =>
+			document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))?.[2] ??
+			null;
+		const { data: s0 } = await supabase.auth.getSession();
+		if (!s0?.session) {
+			const at = readCookie('sb-access-token'),
+				rt = readCookie('sb-refresh-token');
+			if (at && rt)
+				await supabase.auth.setSession({ access_token: at, refresh_token: rt });
+		}
+		await supabase.realtime.setAuth();
 
-    // ===== helpers =====
-    const escapeHtml = (str) =>
-      String(str ?? '')
-        .replaceAll('&','&amp;').replaceAll('<','&lt;')
-        .replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;')
-    const safeHref = (href) => (typeof href === 'string' && /^(\/|https?:\/\/)/i.test(href)) ? href : '#'
-    const fmt = (iso) => { try { return new Date(iso).toLocaleDateString() } catch { return '' } }
+		// ===== helpers =====
+		const escapeHtml = (str) =>
+			String(str ?? '')
+				.replaceAll('&', '&amp;')
+				.replaceAll('<', '&lt;')
+				.replaceAll('>', '&gt;')
+				.replaceAll('"', '&quot;')
+				.replaceAll("'", '&#39;');
+		const safeHref = (href) =>
+			typeof href === 'string' && /^(\/|https?:\/\/)/i.test(href) ? href : '#';
+		const fmt = (iso) => {
+			try {
+				return new Date(iso).toLocaleDateString();
+			} catch {
+				return '';
+			}
+		};
 
-    const getBadgeEl = () => bellBtn?.querySelector('span.inline-flex.w-6.h-6')
-    const ensureBadge = () => {
-      let b = getBadgeEl()
-      if (!b) {
-        b = document.createElement('span')
-        b.className = 'absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900 animate-pulse'
-        bellBtn.appendChild(b)
-      }
-      return b
-    }
-    const refreshBadgeFromDOM = () => {
-      const unread = listEl.querySelectorAll('.mark-as-read').length
-      const existing = getBadgeEl()
-      if (unread <= 0) return existing?.remove()
-      const b = existing ?? ensureBadge()
-      b.textContent = String(unread)
-    }
+		const getBadgeEl = () => bellBtn?.querySelector('span.inline-flex.w-6.h-6');
+		const ensureBadge = () => {
+			let b = getBadgeEl();
+			if (!b) {
+				b = document.createElement('span');
+				b.className =
+					'absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900 animate-pulse';
+				bellBtn.appendChild(b);
+			}
+			return b;
+		};
+		const refreshBadgeFromDOM = () => {
+			const unread = listEl.querySelectorAll('.mark-as-read').length;
+			const existing = getBadgeEl();
+			if (unread <= 0) return existing?.remove();
+			const b = existing ?? ensureBadge();
+			b.textContent = String(unread);
+		};
 
-    const itemHTML = (n) => `
+		const itemHTML = (n) =>
+			`
       <div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-700/5 dark:border-gray-600" data-id="${n.id}">
         <div class="flex-shrink-0">
           <img class="rounded-full w-11 h-11" src="/src/assets/avatarSCI.png" alt="Avatar"/>
@@ -649,120 +673,164 @@ export { notifications, totalUnread, user };
           </div>
         </div>
       </div>
-    `.trim()
+    `.trim();
 
-    // Reemplaza/inserta el nodo completo (robusto)
-    const upsertRowDOM = (rec) => {
-      if (!rec?.id) return
-      let row = listEl.querySelector(`[data-id="${rec.id}"]`)
-      if (!row) {
-        listEl.insertAdjacentHTML('afterbegin', itemHTML(rec))
-        // quitar placeholder
-        listEl.querySelector('.dark\\:text-neutral-500.text-neutral-400')?.remove()
-        // limitar a 5
-        const rows = listEl.querySelectorAll('[data-id]')
-        if (rows.length > 5) rows[rows.length - 1].remove()
-      } else {
-        // reemplazar el bloque entero
-        row.outerHTML = itemHTML(rec)
-      }
-      refreshBadgeFromDOM()
-    }
+		// Reemplaza/inserta el nodo completo (robusto)
+		const upsertRowDOM = (rec) => {
+			if (!rec?.id) return;
+			let row = listEl.querySelector(`[data-id="${rec.id}"]`);
+			if (!row) {
+				listEl.insertAdjacentHTML('afterbegin', itemHTML(rec));
+				// quitar placeholder
+				listEl
+					.querySelector('.dark\\:text-neutral-500.text-neutral-400')
+					?.remove();
+				// limitar a 5
+				const rows = listEl.querySelectorAll('[data-id]');
+				if (rows.length > 5) rows[rows.length - 1].remove();
+			} else {
+				// reemplazar el bloque entero
+				row.outerHTML = itemHTML(rec);
+			}
+			refreshBadgeFromDOM();
+		};
 
-    const removeRowDOM = (id) => {
-      const row = id && listEl.querySelector(`[data-id="${id}"]`)
-      row?.remove()
-      refreshBadgeFromDOM()
-    }
+		const removeRowDOM = (id) => {
+			const row = id && listEl.querySelector(`[data-id="${id}"]`);
+			row?.remove();
+			refreshBadgeFromDOM();
+		};
 
-    // Marcar como leída (optimista DOM + rollback)
-    listEl.addEventListener('click', async (e) => {
-      const btn = e.target.closest('.mark-as-read')
-      if (!btn) return
-      const id = btn.getAttribute('data-id')
+		// Marcar como leída (optimista DOM + rollback)
+		listEl.addEventListener('click', async (e) => {
+			const btn = e.target.closest('.mark-as-read');
+			if (!btn) return;
+			const id = btn.getAttribute('data-id');
 
-      // Optimista: quita botón
-      btn.remove()
-      refreshBadgeFromDOM()
+			// Optimista: quita botón
+			btn.remove();
+			refreshBadgeFromDOM();
 
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true, leido_en: new Date().toISOString() })
-        .eq('id', id)
-        .eq('user_id', USER_ID)
+			const { error } = await supabase
+				.from('notifications')
+				.update({ is_read: true, leido_en: new Date().toISOString() })
+				.eq('id', id)
+				.eq('user_id', USER_ID);
 
-      if (error) {
-        console.error('[notifications] marcar como leída error:', error)
-        // Rollback DOM: reponer botón
-        const actions = listEl.querySelector(`[data-id="${id}"] .flex.justify-between`)
-        if (actions) {
-          const mk = document.createElement('button')
-          mk.className = 'mark-as-read text-xs font-medium text-[#8c681d] dark:text-neutral-400 inline-flex hover:dark:text-primary-400'
-          mk.setAttribute('data-id', id)
-          mk.textContent = 'Marcar como leída'
-          actions.appendChild(mk)
-        }
-        refreshBadgeFromDOM()
-      }
-    })
+			if (error) {
+				console.error('[notifications] marcar como leída error:', error);
+				// Rollback DOM: reponer botón
+				const actions = listEl.querySelector(
+					`[data-id="${id}"] .flex.justify-between`,
+				);
+				if (actions) {
+					const mk = document.createElement('button');
+					mk.className =
+						'mark-as-read text-xs font-medium text-[#8c681d] dark:text-neutral-400 inline-flex hover:dark:text-primary-400';
+					mk.setAttribute('data-id', id);
+					mk.textContent = 'Marcar como leída';
+					actions.appendChild(mk);
+				}
+				refreshBadgeFromDOM();
+			}
+		});
 
-    // ===== Realtime =====
-    const topic = `user:${USER_ID}:notifications`
-    const channel = supabase.channel(topic, {
-      config: { private: true, broadcast: { self: true, ack: true } },
-    })
+		// ===== Realtime =====
+		const topic = `user:${USER_ID}:notifications`;
+		const channel = supabase.channel(topic, {
+			config: { private: true, broadcast: { self: true, ack: true } },
+		});
 
-    // 👇 AQUI el fix CLAVE: lee payload.payload.record / payload.payload.old_record
-    const recOf  = (p) => p?.payload?.record     ?? p?.record ?? p?.new ?? p?.payload?.new ?? p?.data ?? null
-    const oldOf  = (p) => p?.payload?.old_record ?? p?.old_record ?? p?.old ?? p?.payload?.old ?? null
-    const safeLog = (label, payload, fn) => {
-      try { console.log(label, JSON.stringify(payload)) } catch { console.log(label, payload) }
-      try { fn(payload) } catch (err) { console.error(`[notifications] Handler error ${label}:`, err) }
-    }
+		// 👇 AQUI el fix CLAVE: lee payload.payload.record / payload.payload.old_record
+		const recOf = (p) =>
+			p?.payload?.record ??
+			p?.record ??
+			p?.new ??
+			p?.payload?.new ??
+			p?.data ??
+			null;
+		const oldOf = (p) =>
+			p?.payload?.old_record ??
+			p?.old_record ??
+			p?.old ??
+			p?.payload?.old ??
+			null;
+		const safeLog = (label, payload, fn) => {
+			try {
+				console.log(label, JSON.stringify(payload));
+			} catch {
+				console.log(label, payload);
+			}
+			try {
+				fn(payload);
+			} catch (err) {
+				console.error(`[notifications] Handler error ${label}:`, err);
+			}
+		};
 
-    channel
-      .on('broadcast', { event: 'notification_created' }, (payload) =>
-        safeLog('[RT] notification_created', payload, (pl) => {
-          const rec = recOf(pl); if (rec) upsertRowDOM(rec)
-        }))
-      .on('broadcast', { event: 'notification_updated' }, (payload) =>
-        safeLog('[RT] notification_updated', payload, (pl) => {
-          const rec = recOf(pl); if (rec) upsertRowDOM(rec)
-        }))
-      .on('broadcast', { event: 'notification_status_changed' }, (payload) =>
-        safeLog('[RT] notification_status_changed', payload, (pl) => {
-          const rec = recOf(pl); if (rec) upsertRowDOM(rec)
-        }))
-      .on('broadcast', { event: 'notification_deleted' }, (payload) =>
-        safeLog('[RT] notification_deleted', payload, (pl) => {
-          const old = oldOf(pl); if (old?.id) removeRowDOM(old.id)
-        }))
-      // Fallback TG_OP, por si tu trigger envía INSERT/UPDATE/DELETE
-      .on('broadcast', { event: 'INSERT' }, (payload) =>
-        safeLog('[RT] INSERT', payload, (pl) => { const rec = recOf(pl); if (rec) upsertRowDOM(rec) }))
-      .on('broadcast', { event: 'UPDATE' }, (payload) =>
-        safeLog('[RT] UPDATE', payload, (pl) => { const rec = recOf(pl); if (rec) upsertRowDOM(rec) }))
-      .on('broadcast', { event: 'DELETE' }, (payload) =>
-        safeLog('[RT] DELETE', payload, (pl) => { const old = oldOf(pl); if (old?.id) removeRowDOM(old.id) }))
+		channel
+			.on('broadcast', { event: 'notification_created' }, (payload) =>
+				safeLog('[RT] notification_created', payload, (pl) => {
+					const rec = recOf(pl);
+					if (rec) upsertRowDOM(rec);
+				}),
+			)
+			.on('broadcast', { event: 'notification_updated' }, (payload) =>
+				safeLog('[RT] notification_updated', payload, (pl) => {
+					const rec = recOf(pl);
+					if (rec) upsertRowDOM(rec);
+				}),
+			)
+			.on('broadcast', { event: 'notification_status_changed' }, (payload) =>
+				safeLog('[RT] notification_status_changed', payload, (pl) => {
+					const rec = recOf(pl);
+					if (rec) upsertRowDOM(rec);
+				}),
+			)
+			.on('broadcast', { event: 'notification_deleted' }, (payload) =>
+				safeLog('[RT] notification_deleted', payload, (pl) => {
+					const old = oldOf(pl);
+					if (old?.id) removeRowDOM(old.id);
+				}),
+			)
+			// Fallback TG_OP, por si tu trigger envía INSERT/UPDATE/DELETE
+			.on('broadcast', { event: 'INSERT' }, (payload) =>
+				safeLog('[RT] INSERT', payload, (pl) => {
+					const rec = recOf(pl);
+					if (rec) upsertRowDOM(rec);
+				}),
+			)
+			.on('broadcast', { event: 'UPDATE' }, (payload) =>
+				safeLog('[RT] UPDATE', payload, (pl) => {
+					const rec = recOf(pl);
+					if (rec) upsertRowDOM(rec);
+				}),
+			)
+			.on('broadcast', { event: 'DELETE' }, (payload) =>
+				safeLog('[RT] DELETE', payload, (pl) => {
+					const old = oldOf(pl);
+					if (old?.id) removeRowDOM(old.id);
+				}),
+			);
 
-    await channel.subscribe((state, err) => {
-      if (state === 'SUBSCRIBED') console.info('[notifications] Realtime conectado')
-      if (state === 'CHANNEL_ERROR') console.error('[notifications] Realtime error:', err)
-      if (state === 'CLOSED') console.info('[notifications] Realtime cerrado')
-    })
+		await channel.subscribe((state, err) => {
+			if (state === 'SUBSCRIBED')
+				console.info('[notifications] Realtime conectado');
+			if (state === 'CHANNEL_ERROR')
+				console.error('[notifications] Realtime error:', err);
+			if (state === 'CLOSED') console.info('[notifications] Realtime cerrado');
+		});
 
-    window.addEventListener('beforeunload', () => supabase.removeChannel(channel))
-    // Badge inicial basado en SSR existente:
-    refreshBadgeFromDOM()
-  }
+		window.addEventListener('beforeunload', () =>
+			supabase.removeChannel(channel),
+		);
+		// Badge inicial basado en SSR existente:
+		refreshBadgeFromDOM();
+	};
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start)
-  } else {
-    start()
-  }
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', start);
+	} else {
+		start();
+	}
 </script>
-
-
-
-

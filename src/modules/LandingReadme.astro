@@ -1,6 +1,11 @@
 ---
 import { supabase } from '../lib/supabase';
 
+import { Image } from "astro:assets";
+
+import logo1 from "../assets/SC-INTER.png";
+import logo2 from "../assets/SC-INTER-NG.png";
+
 const at = Astro.cookies.get('sb-access-token');
 const rt = Astro.cookies.get('sb-refresh-token');
 if (at && rt) {
@@ -49,16 +54,10 @@ if (user) {
 		class="p-8 flex justify-center items-center flex-wrap flex-col w-full mt-5"
 	>
 		<div class="flex justify-center w-full">
-			<img
-				src="/src/assets/SC-INTER.png"
-				alt="Sotomayor Logo"
-				class="w-80 h-auto dark:block hidden"
-			/>
-			<img
-				src="/src/assets/SC-INTER-NG.png"
-				alt="Sotomayor Logo"
-				class="w-80 h-auto dark:hidden block"
-			/>
+
+			<Image src={logo1} width="320" alt="Sotomayor Logo" class="dark:block hidden" />
+			<Image src={logo2} width="320" alt="Sotomayor Logo" class="dark:hidden hidden sm:block" />
+			
 		</div>
 
 		<div class="format dark:format-invert lg:format-lg mt-5">

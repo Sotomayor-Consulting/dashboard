@@ -1,5 +1,6 @@
 ---
-// src/components/BannerProceso.astro
+import { Image } from 'astro:assets';
+import icono from '/src/assets/icono.png'
 import { supabase } from '../lib/supabase'; // Asegúrate de que esta ruta es correcta
 import type { User } from '@supabase/supabase-js';
 
@@ -76,11 +77,9 @@ if (accessToken && refreshToken) {
 						href="/"
 						class="flex items-center mb-2 border-gray-200 md:pe-4 md:me-4 md:border-e md:mb-0 dark:border-gray-600"
 					>
-						<img
-							src="/src/assets/icono.png"
-							class="h-8 me-2"
-							alt="Sotomayor consulting Logo"
-						/>
+						
+						<Image src={icono} width="32" alt="Sotomayor consulting Logo" class="me-2"/>
+
 					</a>
 					<p class="flex items-center text-base font-normal text-white dark:text-white">
 						{BANNER_PROPS.title}
