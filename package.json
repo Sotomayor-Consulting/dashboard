@@ -47,7 +47,6 @@
 		"@supabase/supabase-js": "^2.57.0",
 		"apexcharts": "^3.37.2",
 		"astro": "^5.16.0",
-		"carbone": "^3.5.6",
 		"chart.js": "^4.5.1",
 		"chartjs-chart-geo": "^4.3.6",
 		"chartjs-plugin-annotation": "^3.1.0",
