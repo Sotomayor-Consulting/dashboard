@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 // Obtenemos la URL del entorno
-const {RENDER_SERVER_URL} = import.meta.env;
+const RENDER_SERVER_URL = import.meta.env.RENDER_SERVER_URL as string;
 
 interface PdfOptions {
   templateName: string;
@@ -45,8 +45,18 @@ export const generatePdf = async ({ templateName, data }: PdfOptions): Promise<B
     const arrayBuffer = await response.arrayBuffer();
     return Buffer.from(arrayBuffer);
 
-  } catch (error) {
-    console.error('Fallo en la conexión con el servicio PDF:', error);
-    throw error;
+  } catch (error: unknown) {
+  // Verificamos si es un objeto Error real (lo más común)
+  if (error instanceof Error) {
+    throw new Error(error.message);
   }
+  // Si resulta ser un string
+  else if (typeof error === 'string') {
+    throw new Error(error);
+  }
+  // Si es otra cosa rara
+  else {
+    throw new Error('Error desconocido');
+  }
+}
 };

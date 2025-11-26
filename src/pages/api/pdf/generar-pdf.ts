@@ -5,7 +5,9 @@ import { generatePdf } from '../../../lib/carbone';
 export const POST: APIRoute = async ({ request }) => {
   try {
     // 1. Obtener datos del Frontend
-    const body = await request.json().catch(() => ({}));
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const rawBody = await request.json().catch(() => ({}));
+    const body = (rawBody || {}) as Record<string, unknown>; // Datos en blanco si el objeto llega vacío
 
     // Datos de ejemplo + datos que vengan del body
     const reportData = {
@@ -21,7 +23,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     // 3. Devolver el PDF al navegador
-    return new Response(pdfBuffer, {
+    return new Response(pdfBuffer as BodyInit, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
@@ -30,9 +32,11 @@ export const POST: APIRoute = async ({ request }) => {
       }
     });
 
-  } catch (error: any) {
-    return new Response(JSON.stringify({ 
-      error: error.message || 'Error interno generando el PDF' 
+  } catch (error: unknown) {
+    // Verificamos si es un objeto Error real para sacar el mensaje de forma segura
+    const message = error instanceof Error ? error.message : 'Error interno generando el PDF';
+    return new Response(JSON.stringify({
+      error: message
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }

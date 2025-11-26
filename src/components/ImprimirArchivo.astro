@@ -47,7 +47,7 @@
         window.URL.revokeObjectURL(url);
         a.remove();
 
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error en el frontend:", error);
         alert('Hubo un error al generar el PDF. Revisa la consola.');
       } finally {
