@@ -6,11 +6,12 @@ import path from 'node:path';
 const RENDER_SERVER_URL = import.meta.env.RENDER_SERVER_URL as string;
 
 interface PdfOptions {
+  reportName: string;
   templateName: string;
   data: Record<string, unknown>;
 }
 
-export const generatePdf = async ({ templateName, data }: PdfOptions): Promise<Buffer> => {
+export const generatePdf = async ({ templateName, data, reportName }: PdfOptions): Promise<Buffer> => {
   // leer plantilla
   const templatePath = path.resolve(process.cwd(), 'src/templates', templateName);
   
@@ -32,7 +33,8 @@ export const generatePdf = async ({ templateName, data }: PdfOptions): Promise<B
       },
       body: JSON.stringify({
         templateBase64,
-        data
+        data,
+        reportName
       }),
     });
 

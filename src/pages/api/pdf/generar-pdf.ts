@@ -10,16 +10,14 @@ export const POST: APIRoute = async ({ request }) => {
     const body = (rawBody || {}) as Record<string, unknown>; // Datos en blanco si el objeto llega vacío
 
     // Datos de ejemplo + datos que vengan del body
-    const reportData = {
-      fecha: new Date().toLocaleDateString('es-ES'),
-      nombre: 'test',
-      ...body
-    };
+    const { data, templateName, reportName } = body;
+
 
     // 2. Llamar a nuestro servicio externo
     const pdfBuffer = await generatePdf({
-      templateName: 'test.docx', // Asegúrate de que este archivo esté en /public/templates/
-      data: reportData
+      reportName: reportName,
+      templateName: templateName, // Asegúrate de que este archivo esté en /public/templates/
+      data: data
     });
 
     // 3. Devolver el PDF al navegador
@@ -28,7 +26,7 @@ export const POST: APIRoute = async ({ request }) => {
       headers: {
         'Content-Type': 'application/pdf',
         // 'attachment' fuerza la descarga, 'inline' lo abre en el navegador
-        'Content-Disposition': 'attachment; filename="reporte-generado.pdf"'
+        'Content-Disposition': `attachment; filename="report.pdf"`
       }
     });
 

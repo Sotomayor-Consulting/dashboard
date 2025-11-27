@@ -1,12 +1,43 @@
 ---
 import LayoutSidebar from '../../app/LayoutSidebar.astro';
+import ImprimirArchivo from '../../components/ImprimirArchivo.astro';
 import CuerpoFroms from '../../modules/cuerpoForms.astro';
 import { supabase } from '../../lib/supabase';
+import ImprimirContrato from '../../components/ImprimirContrato.astro';
 
 const { cookies, redirect } = Astro;
 
 const accessToken = cookies.get('sb-access-token');
 const refreshToken = cookies.get('sb-refresh-token');
+
+const { data: { user } } = await supabase.auth.getUser();
+
+let datosParaReporte = {};
+
+if (user) {
+    // 2. Consultamos la tabla que necesites (ejemplo: 'perfiles' o 'contratos')
+    const { data, error } = await supabase
+        .from('usuarios') // <--- CAMBIA ESTO por tu tabla real
+        .select('*')      // <--- O selecciona campos específicos: 'nombre, apellido, dni'
+        .eq('user_id', user.id)
+        .single();
+    
+    if (data) {
+        datosParaReporte = {
+			nombre: data.nombre,
+			correoElectronico: data.correo,
+			fullAddress: ([data.direccion_linea1, data.direccion_linea2]).join(" ")
+		};
+    }
+	console.log(datosParaReporte)
+}
+
+
+interface Props {
+  data: object;
+  templateName?: string;
+  reportName?: string;
+}
 
 if (!accessToken || !refreshToken) {
 	return redirect('/sign-in');
@@ -117,4 +148,8 @@ const display = msg ? 'flex' : 'hidden';
 </div>
 <LayoutSidebar>
     <CuerpoFroms />
+	<ImprimirContrato 
+		data={datosParaReporte}
+		reportName="CONTRATO DE PARTNERS.pdf"
+		templateName="CONTRATO_DE_PARTNERS.docx"/>
 </LayoutSidebar>
