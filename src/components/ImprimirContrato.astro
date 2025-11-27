@@ -1,6 +1,4 @@
 ---
-import { strictObject } from 'astro:schema';
-
 // src/components/ImprimirArchivo.astro
 
 interface Props {
@@ -33,9 +31,9 @@ const btnId = `btn-${crypto.randomUUID()}`;
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify({
-						data: data,
-						templateName: templateName,
-						reportName: reportName,
+						data,
+						templateName,
+						reportName,
 					}),
 				});
 
