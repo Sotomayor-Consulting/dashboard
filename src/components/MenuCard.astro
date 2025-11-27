@@ -1,0 +1,33 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  tooltipId: string;
+  tooltipText: string;
+}
+
+const { href, label, tooltipId, tooltipText } = Astro.props;
+---
+
+<div class="flex justify-center items-center flex-col">
+  <a
+    href={href}
+    data-tooltip-target={tooltipId}
+    data-tooltip-placement="top"
+    class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10 border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border text-slate-700 dark:text-slate-200"
+  >
+    <slot />
+  </a>
+  <span class="pt-3 text-center max-w-[120px] dark:text-slate-300">{label}</span>
+
+  <div
+    id={tooltipId}
+    role="tooltip"
+    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-neutral-800 transition-all duration-300"
+  >
+    {tooltipText}
+    <div class="tooltip-arrow" data-popper-arrow></div>
+  </div>
+</div>
+
+                

@@ -4,6 +4,8 @@ import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
 import netlify from '@astrojs/netlify'; // Importación del adaptador
 
+import icon from 'astro-icon';
+
 const DEV_PORT = 2121;
 
 // https://astro.build/config
@@ -14,10 +16,7 @@ export default defineConfig({
     // **Añadimos el adaptador de Netlify aquí:**
     adapter: netlify(),
 
-    // TUS CONFIGURACIONES CORREGIDAS:
-    // 1. `site`: Establecido como variable de entorno o URL por defecto para producción.
-    // 2. `base`: **Eliminado para producción** (deja el valor por defecto: '/').
-    site: process.env.PUBLIC_SITE_URL || 'https://dashboard-sotomayor-consulting.netlify.app/', // Puedes reemplazar por tu dominio
+    site: process.env.PUBLIC_SITE_URL || 'https://dashboard-sotomayor-consulting.netlify.app', 
     base: '/', // Asegura que la raíz sea '/'
 
     server: {
@@ -25,8 +24,5 @@ export default defineConfig({
     },
 
     // Tus integraciones se mantienen:
-    integrations: [
-        sitemap(),
-        tailwind(),
-    ],
+    integrations: [sitemap(), tailwind(), icon()],
 });
