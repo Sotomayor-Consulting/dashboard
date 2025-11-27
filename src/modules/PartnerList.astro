@@ -1,0 +1,38 @@
+<div id="partner-container" class="p-4 border rounded shadow-sm">
+  <h2 class="text-xl font-bold mb-4">Referidos</h2>
+  <div id="loading">Conectando con ERP...</div>
+  <div id="error" class="hidden text-red-500">Sistema ERP no disponible temporalmente.</div>
+  <ul id="list" class="hidden list-disc pl-5"></ul>
+</div>
+
+<script>
+  // Ejecución en cliente para no bloquear el SSR
+  fetch('../../api/odoo/referrals')
+    .then(res => res.json())
+    .then(({ success, data }) => {
+      const loading = document.getElementById('loading');
+      const list = document.getElementById('list');
+      const error = document.getElementById('error');
+
+      loading.style.display = 'none';
+
+      if (!success) {
+        // Fallo controlado: Odoo caído
+        error.classList.remove('hidden');
+        return;
+      }
+
+      // Éxito
+      list.classList.remove('hidden');
+      data.forEach((p) => {
+        const li = document.createElement('li');
+        li.textContent = `${p.name} - ${p.email || 'Sin email'} - ${p.create_date}`;
+        list.appendChild(li);
+      });
+    })
+    .catch(() => {
+        // Fallo de red local
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').classList.remove('hidden');
+    });
+</script>

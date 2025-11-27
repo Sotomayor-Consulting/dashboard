@@ -4,6 +4,7 @@ import ImprimirArchivo from '../../components/ImprimirArchivo.astro';
 import CuerpoFroms from '../../modules/cuerpoForms.astro';
 import { supabase } from '../../lib/supabase';
 import ImprimirContrato from '../../components/ImprimirContrato.astro';
+import PartnerList from '../../modules/PartnerList.astro';
 
 const { cookies, redirect } = Astro;
 
@@ -152,4 +153,5 @@ const display = msg ? 'flex' : 'hidden';
 		data={datosParaReporte}
 		reportName="CONTRATO DE PARTNERS.pdf"
 		templateName="CONTRATO_DE_PARTNERS.docx"/>
+	<PartnerList/>
 </LayoutSidebar>
