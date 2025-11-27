@@ -106,14 +106,38 @@ const menuItems = [
         href: '/crud/users',
         tooltip: 'Gestionar clientes',
         roles: ['admin'],
-        svgname: "ri:building-2-fill"
+        svgname: "ri:user-add-fill"
     },
     {
-        id: 'otros-servicios', // Cambié el ID para que sea único
+        id: 'crud-servicios',
+        label: 'Servicios',
+        href: '/crud/services',
+        tooltip: 'Gestionar servicios',
+        roles: ['admin'],
+        svgname: "ri:function-add-fill"
+    },
+    {
+        id: 'crud-formularios',
+        label: 'Formularios',
+        href: '/crud/formularios',
+        tooltip: 'Crea y gestiona formularios',
+        roles: ['admin'],
+        svgname: "ri:file-edit-fill"
+    },
+    {
+        id: 'crud-formularios-enviados',
+        label: 'Docs Enviados',
+        href: '/crud/formularios-enviados',
+        tooltip: 'Gestiona las respuestas y estados de documentos',
+        roles: ['admin'],
+        svgname: "ri:file-check-fill"
+    },
+    {
+        id: 'otros-servicios', 
         label: 'Otros servicios',
         href: '/pages/otros-servicios',
         tooltip: 'Explora otros servicios disponibles',
-        roles: ['all'], // Este item será visible para todos los roles
+        roles: ['all'], 
         svgname: "ri:dashboard-horizontal-fill"
     },
 ];

@@ -25,7 +25,7 @@ const btnId = `btn-${crypto.randomUUID()}`;
 			btn.innerText = "Generando contrato...";
 			btn.disabled = true;
 			try {
-				const response = await fetch('../api/pdf/generar-pdf', {
+				const response = await fetch('../../api/pdf/generar-pdf', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',

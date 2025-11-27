@@ -2,16 +2,27 @@
 import '../estilos/dropzone.css';
 import { supabase } from '../lib/supabase';
 import { Icon } from 'astro-icon/components';
+import ImprimirContrato from '../components/ImprimirContrato.astro';
+
+let datosParaReporte = {};
 
 // Con RLS, no necesitas filtrar manualmente por user_id
 const { data: usuario, error } = await supabase
 	.from('usuarios')
 	.select('*')
 	.single();
+if (usuario) {
+		datosParaReporte = {
+			nombre: [usuario.nombre, usuario.apellido].join(' '),
+			correoElectronico: usuario.correo,
+			fullAddress: [usuario.direccion_linea1, usuario.direccion_linea2].join(' '),
+		};
+	}
 
 if (error) {
 	console.error('Error cargando usuario:', error);
 }
+console.log('Usuario cargado:', datosParaReporte);
 
 const acciones = [
 	{
@@ -43,6 +54,11 @@ const acciones = [
 		icono: 'ri:customer-service-2-fill',
 	},
 ];
+interface Props {
+	data: object;
+	templateName?: string;
+	reportName?: string;
+}
 ---
 
 <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
@@ -180,26 +196,11 @@ const acciones = [
 						width="70"
 						height="70"
 					/>
-					<button
-						type="button"
-						class="inline-flex items-center px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg focus:z-10 focus:ring-2 focus:ring-[#8c681d] dark:border-gray-700 text-white dark:hover:text-white dark:focus:ring-[#8c681d] dark:focus:text-white h-fit bg-[#967432] hover:bg-[#967432]"
-					>
-						<svg
-							class="w-3 h-3 me-2"
-							aria-hidden="true"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-						>
-							<path
-								d="M14.707 7.793a1 1 0 0 0-1.414 0L11 10.086V1.5a1 1 0 0 0-2 0v8.586L6.707 7.793a1 1 0 1 0-1.414 1.414l4 4a1 1 0 0 0 1.416 0l4-4a1 1 0 0 0-.002-1.414Z"
-							></path>
-							<path
-								d="M18 12h-2.55l-2.975 2.975a3.5 3.5 0 0 1-4.95 0L4.55 12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
-							></path>
-						</svg>
-						Descargar
-					</button>
+					<ImprimirContrato
+						data={datosParaReporte}
+						reportName="CONTRATO DE PARTNERS.pdf"
+						templateName="CONTRATO_DE_PARTNERS.docx"
+					/>
 				</div>
 			</div>
 		</div>

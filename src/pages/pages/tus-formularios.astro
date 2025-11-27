@@ -11,33 +11,34 @@ const { cookies, redirect } = Astro;
 const accessToken = cookies.get('sb-access-token');
 const refreshToken = cookies.get('sb-refresh-token');
 
-const { data: { user } } = await supabase.auth.getUser();
+const {
+	data: { user },
+} = await supabase.auth.getUser();
 
 let datosParaReporte = {};
 
 if (user) {
-    // 2. Consultamos la tabla que necesites (ejemplo: 'perfiles' o 'contratos')
-    const { data, error } = await supabase
-        .from('usuarios') // <--- CAMBIA ESTO por tu tabla real
-        .select('*')      // <--- O selecciona campos específicos: 'nombre, apellido, dni'
-        .eq('user_id', user.id)
-        .single();
-    
-    if (data) {
-        datosParaReporte = {
+	// 2. Consultamos la tabla que necesites (ejemplo: 'perfiles' o 'contratos')
+	const { data, error } = await supabase
+		.from('usuarios') // <--- CAMBIA ESTO por tu tabla real
+		.select('*') // <--- O selecciona campos específicos: 'nombre, apellido, dni'
+		.eq('user_id', user.id)
+		.single();
+
+	if (data) {
+		datosParaReporte = {
 			nombre: data.nombre,
 			correoElectronico: data.correo,
-			fullAddress: ([data.direccion_linea1, data.direccion_linea2]).join(" ")
+			fullAddress: [data.direccion_linea1, data.direccion_linea2].join(' '),
 		};
-    }
-	console.log(datosParaReporte)
+	}
+	console.log(datosParaReporte);
 }
 
-
 interface Props {
-  data: object;
-  templateName?: string;
-  reportName?: string;
+	data: object;
+	templateName?: string;
+	reportName?: string;
 }
 
 if (!accessToken || !refreshToken) {
@@ -70,8 +71,9 @@ const variant = isSuccess
 // visible si hay msg; si no, hidden
 const display = msg ? 'flex' : 'hidden';
 ---
+
 <div>
-    <div
+	<div
 		id="alert-feedback"
 		class={`absolute right-0 top-0.5 items-center p-4 mb-4 text-sm border rounded-lg mt-4 ${variant} ${display}`}
 		role="alert"
@@ -148,10 +150,11 @@ const display = msg ? 'flex' : 'hidden';
 	</script>
 </div>
 <LayoutSidebar>
-    <CuerpoFroms />
-	<ImprimirContrato 
+	<CuerpoFroms />
+	<ImprimirContrato
 		data={datosParaReporte}
 		reportName="CONTRATO DE PARTNERS.pdf"
-		templateName="CONTRATO_DE_PARTNERS.docx"/>
-	<PartnerList/>
+		templateName="CONTRATO_DE_PARTNERS.docx"
+	/>
+	<PartnerList />
 </LayoutSidebar>
