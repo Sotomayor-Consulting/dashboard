@@ -12,12 +12,12 @@ const { data: usuario, error } = await supabase
 	.select('*')
 	.single();
 if (usuario) {
-		datosParaReporte = {
-			nombre: [usuario.nombre, usuario.apellido].join(' '),
-			correoElectronico: usuario.correo,
-			fullAddress: [usuario.direccion_linea1, usuario.direccion_linea2].join(' '),
-		};
-	}
+	datosParaReporte = {
+		nombre: [usuario.nombre, usuario.apellido].join(' '),
+		correoElectronico: usuario.correo,
+		fullAddress: [usuario.direccion_linea1, usuario.direccion_linea2].join(' '),
+	};
+}
 
 if (error) {
 	console.error('Error cargando usuario:', error);
@@ -61,7 +61,8 @@ interface Props {
 }
 ---
 
-<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js" is:inline
+></script>
 <div class="px-4 pt-6">
 	<div
 		class="grid gap-4 w-full grid-cols-1 my-4 xl:grid-cols-2 2xl:grid-cols-3"
@@ -228,13 +229,14 @@ interface Props {
 				<form
 					id="my-dropzone"
 					class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-neutral-800 dark:border-gray-600 w-full p-6 h-96 rounded-xl"
-					action="/"
+					action="/api/update/contrato-partner-upload"
 					method="post"
 					enctype="multipart/form-data"
 				>
 					<div class="dz-message dark:text-white w-full">
 						Arrastra tus archivos aquí o haz clic para subir.
 					</div>
+					<button type="submit">subir</button>
 				</form>
 			</div>
 		</div>
@@ -676,3 +678,39 @@ interface Props {
 		}
 	}
 </script>
+<script is:inline>
+	Dropzone.autoDiscover = false;
+
+	document.addEventListener('DOMContentLoaded', function () {
+		var form = document.getElementById('my-dropzone');
+		if (!form) return;
+
+		var dz = new Dropzone(form, {
+			url: form.getAttribute('action'),
+			method: 'post',
+			paramName: 'contract_file',
+			maxFiles: 1,
+			uploadMultiple: false,
+			acceptedFiles: 'application/pdf',
+			maxFilesize: 5,
+			addRemoveLinks: true,
+			dictDefaultMessage:
+				'Arrastra aquí tu contrato firmado o haz clic para subir.',
+			dictRemoveFile: 'Eliminar archivo',
+		});
+
+		dz.on('success', function (file) {
+			var xhr = file.xhr;
+			if (xhr && xhr.responseURL) {
+				window.location.href = xhr.responseURL;
+			}
+			console.log(file);
+		});
+
+		dz.on('error', function (file, errorMessage) {
+			console.error('Error al subir el contrato:', errorMessage);
+			alert('Hubo un error al subir el contrato. Intenta de nuevo.');
+		});
+	});
+</script>
+
