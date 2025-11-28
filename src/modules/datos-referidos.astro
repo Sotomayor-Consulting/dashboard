@@ -37,7 +37,6 @@ const referidos = (rows ?? []).map((r) => ({
 	fecha: r.created_at,
 	estado: r.referido?.estado,
 }));
-
 type Referral = {
   name: string;
   email?: string | null;
@@ -49,15 +48,27 @@ let errorMsg = "";
 let loading = true;
 
 try {
-  // Construye URL absoluta al endpoint /api/odoo/referrals
-  const apiUrl = new URL("../../api/odoo/referrals", Astro.request.url);
-  const res = await fetch(apiUrl);
-  const { success, data } = await res.json();
+  
+  const apiUrl = new URL("/api/odoo/referrals", Astro.request.url);
 
-  if (!success) {
+  // 2) Pasar las cookies del request actual al endpoint
+  const res = await fetch(apiUrl.toString(), {
+    headers: {
+      cookie: Astro.request.headers.get("cookie") ?? "",
+    },
+  });
+
+  if (!res.ok) {
+    
     errorMsg = "Sistema ERP no disponible temporalmente.";
   } else {
-    referrals = data ?? [];
+    const { success, data } = await res.json();
+
+    if (!success) {
+      errorMsg = "Sistema ERP no disponible temporalmente.";
+    } else {
+      referrals = data ?? [];
+    }
   }
 } catch (err) {
   errorMsg = "No se pudo conectar con el ERP.";
@@ -65,7 +76,7 @@ try {
   loading = false;
 }
 
-console.log(referrals)
+console.log(referrals);
 ---
 
 <div class="px-4 pt-6">
@@ -162,20 +173,20 @@ console.log(referrals)
 										<div class="flex-shrink-0">
 											<img
 												class="w-8 h-8 rounded-full"
-												src={r.avatar}
-												alt={r.nombre}
+												src={r.avatar_128}
+												alt={`Avatar de ${r.name}`}
 											/>
 										</div>
 										<div class="flex-1 min-w-0">
 											<p class="font-medium text-gray-900 truncate dark:text-white">
-												{r.nombre} {r.apellido}
+												{r.name}
 											</p>
 											<p class="text-sm text-gray-500 truncate dark:text-gray-400">
-												{r.correo}
+												{r.email}
 											</p>
 										</div>
 										<div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-											{r.estado}
+											{r.city}
 										</div>
 									</div>
 								</li>
