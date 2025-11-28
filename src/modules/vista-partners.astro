@@ -195,15 +195,16 @@ interface Props {
 									Contrato de partner
 								</h3>
 								<p>
-									Si tu estado es "En proceso", significa que hemos recibido tu contrato y esta pendiente de revisión. Te notificaremos una vez que haya sido aprobado.
+									Si tu estado es "En proceso", significa que hemos recibido tu
+									contrato y esta pendiente de revisión. Te notificaremos una
+									vez que haya sido aprobado.
 								</p>
 							</div>
 							<div data-popper-arrow></div>
 						</div>
 					</div>
-
 					{
-						documentos.estado === 'activo' ? (
+						documentos?.estado === 'activo' ? (
 							<span class="bg-green-100 text-green-800 text-lg font-medium me-5 px-5 py-2 rounded-full dark:bg-green-900 dark:text-green-300 flex justify-center items-center w-fit">
 								<span class="size-3 inline-block rounded-full bg-green-400 dark:bg-green-400 mr-2" />
 								Activo
