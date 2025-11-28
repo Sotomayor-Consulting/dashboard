@@ -5,9 +5,9 @@
   <ul id="list" class="hidden list-disc pl-5"></ul>
 </div>
 
-<script>
+<script is:inline>
   // Ejecución en cliente para no bloquear el SSR
-  fetch('../../api/odoo/referrals')
+  fetch('../../../api/odoo/referrals')
     .then(res => res.json())
     .then(({ success, data }) => {
       const loading = document.getElementById('loading');

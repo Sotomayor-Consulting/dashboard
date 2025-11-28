@@ -38,34 +38,7 @@ const referidos = (rows ?? []).map((r) => ({
 	estado: r.referido?.estado,
 }));
 
-type Referral = {
-  name: string;
-  email?: string | null;
-  create_date?: string;
-};
 
-let referrals: Referral[] = [];
-let errorMsg = "";
-let loading = true;
-
-try {
-  // Construye URL absoluta al endpoint /api/odoo/referrals
-  const apiUrl = new URL("../../api/odoo/referrals", Astro.request.url);
-  const res = await fetch(apiUrl);
-  const { success, data } = await res.json();
-
-  if (!success) {
-    errorMsg = "Sistema ERP no disponible temporalmente.";
-  } else {
-    referrals = data ?? [];
-  }
-} catch (err) {
-  errorMsg = "No se pudo conectar con el ERP.";
-} finally {
-  loading = false;
-}
-
-console.log(referrals)
 ---
 
 <div class="px-4 pt-6">
@@ -136,7 +109,21 @@ console.log(referrals)
 				<div class="p-3 space-y-2">
 					<h3 class="font-semibold text-gray-900 dark:text-white">Referidos</h3>
 					<p>Listado de todos los usuarios que usaron tu codigo de referido.</p>
-					
+					<!--<a
+						href="#"
+						class="flex items-center font-medium text-[#967432] dark:text-primary-500 dark:hover:text-[#967432] hover:text-[#8c681d]"
+						>Read more <svg
+							class="w-4 h-4 ml-1"
+							aria-hidden="true"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill-rule="evenodd"
+								d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+								clip-rule="evenodd"></path></svg
+						></a
+					> -->
 				</div>
 				<div data-popper-arrow></div>
 			</div>
@@ -156,7 +143,7 @@ console.log(referrals)
 				>
 					<ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
 						{
-							referrals?.map((r) => (
+							referidos?.map((r) => (
 								<li class="py-3 sm:py-4">
 									<div class="flex items-center space-x-4">
 										<div class="flex-shrink-0">

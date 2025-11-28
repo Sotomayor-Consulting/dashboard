@@ -1,19 +1,36 @@
 ---
 import LayoutSidebar from '../../app/LayoutSidebar.astro';
 import DashBoard from '../../modules/datos-referidos.astro';
-import { supabase } from "../../lib/supabase";
-const at = Astro.cookies.get("sb-access-token");
-const rt = Astro.cookies.get("sb-refresh-token");
-if (!at || !rt) return Astro.redirect(`/login?next=${encodeURIComponent(Astro.url.pathname)}`);
-await supabase.auth.setSession({ access_token: at.value, refresh_token: rt.value });
+import { supabase } from '../../lib/supabase';
+const at = Astro.cookies.get('sb-access-token');
+const rt = Astro.cookies.get('sb-refresh-token');
+if (!at || !rt)
+	return Astro.redirect(
+		`/login?next=${encodeURIComponent(Astro.url.pathname)}`,
+	);
+await supabase.auth.setSession({
+	access_token: at.value,
+	refresh_token: rt.value,
+});
 
-const { data: { user } } = await supabase.auth.getUser();
-if (!user) return Astro.redirect(`/login?next=${encodeURIComponent(Astro.url.pathname)}`);
+const {
+	data: { user },
+} = await supabase.auth.getUser();
+if (!user)
+	return Astro.redirect(
+		`/login?next=${encodeURIComponent(Astro.url.pathname)}`,
+	);
 
 // opcional: verifica que sea partner (rol_id = 2)
-const { data: me } = await supabase.from("usuarios").select("rol_id").eq("user_id", user.id).single();
+const { data: me } = await supabase
+	.from('usuarios')
+	.select('rol_id')
+	.eq('user_id', user.id)
+	.single();
 if (!me || Number(me.rol_id) !== 2) {
-  return Astro.redirect(`/?status=error&msg=${encodeURIComponent("Acceso solo para partners")}`);
+	return Astro.redirect(
+		`/?status=error&msg=${encodeURIComponent('Acceso solo para partners')}`,
+	);
 }
 ---
 
