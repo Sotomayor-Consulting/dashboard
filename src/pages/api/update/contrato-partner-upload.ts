@@ -92,10 +92,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
           nombre_archivo: fileName,
           url_archivo: filePath,
           estado: "subido",
-        },
-        {
-          onConflict: "user_id,tipo_documento",
-          ignoreDuplicates: false,
         }
       );
 

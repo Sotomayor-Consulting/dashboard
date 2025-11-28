@@ -24,6 +24,11 @@ if (error) {
 }
 console.log('Usuario cargado:', datosParaReporte);
 
+const { data: documentos } = await supabase
+	.from('documentos_usuarios')
+	.select('*')
+	.single();
+
 const acciones = [
 	{
 		nombre: 'Mira tus partners',
@@ -61,8 +66,6 @@ interface Props {
 }
 ---
 
-<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js" is:inline
-></script>
 <div class="px-4 pt-6">
 	<div
 		class="grid gap-4 w-full grid-cols-1 my-4 xl:grid-cols-2 2xl:grid-cols-3"
@@ -159,26 +162,59 @@ interface Props {
 				class="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm sm:flex sm:p-6 dark:bg-neutral-700"
 			>
 				<div class="w-full">
-					<h3
-						class="text-base font-normal text-gray-500 dark:text-gray-400 mb-5"
-					>
-						Estado de programa de partners
-					</h3>
+					<div class="flex items-center">
+						<h3
+							class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white"
+						>
+							Estado de tu contrato de partner:
+							<button
+								data-popover-target="popover-description-2"
+								data-popover-placement="bottom-end"
+								type="button"
+								><svg
+									class="w-4 h-4 ml-2 text-gray-400 hover:text-gray-500"
+									aria-hidden="true"
+									fill="currentColor"
+									viewBox="0 0 20 20"
+									xmlns="http://www.w3.org/2000/svg"
+									><path
+										fill-rule="evenodd"
+										d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+										clip-rule="evenodd"></path></svg
+								><span class="sr-only">Mostrar información</span></button
+							>
+						</h3>
+						<div
+							data-popover
+							id="popover-description-2"
+							role="tooltip"
+							class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-[#1d1d1d] dark:border-gray-600 dark:text-gray-400"
+						>
+							<div class="p-3 space-y-2">
+								<h3 class="font-semibold text-gray-900 dark:text-white">
+									Contrato de partner
+								</h3>
+								<p>
+									Si tu estado es "En proceso", significa que hemos recibido tu contrato y esta pendiente de revisión. Te notificaremos una vez que haya sido aprobado.
+								</p>
+							</div>
+							<div data-popper-arrow></div>
+						</div>
+					</div>
 
-					<span
-						class="bg-green-100 text-green-800 text-lg font-medium me-5 px-5 py-2 rounded-full dark:bg-green-900 dark:text-green-300 flex justify-center items-center w-fit"
-					>
-						<span
-							class="size-3 inline-block rounded-full bg-green-400 dark:bg-green-400 mr-2"
-						></span>Activo</span
-					>
-					<span
-						class="bg-yellow-100 text-yellow-800 text-lg font-medium me-5 px-5 py-2 rounded-full dark:bg-yellow-900 dark:text-yellow-300 flex justify-center items-center w-fit"
-					>
-						<span
-							class="size-3 inline-block rounded-full bg-yellow-400 dark:bg-yellow-400 mr-2"
-						></span>Proceso</span
-					>
+					{
+						documentos.estado === 'activo' ? (
+							<span class="bg-green-100 text-green-800 text-lg font-medium me-5 px-5 py-2 rounded-full dark:bg-green-900 dark:text-green-300 flex justify-center items-center w-fit">
+								<span class="size-3 inline-block rounded-full bg-green-400 dark:bg-green-400 mr-2" />
+								Activo
+							</span>
+						) : (
+							<span class="bg-yellow-100 text-yellow-800 text-lg font-medium me-5 px-5 py-2 rounded-full dark:bg-yellow-900 dark:text-yellow-300 flex justify-center items-center w-fit">
+								<span class="size-3 inline-block rounded-full bg-yellow-400 dark:bg-yellow-400 mr-2" />
+								En proceso
+							</span>
+						)
+					}
 				</div>
 			</div>
 		</div>
@@ -225,19 +261,44 @@ interface Props {
 				</div>
 			</div>
 
-			<div class="flex items-center justify-center w-full">
+			<div class="flex items-center justify-center w-full flex-col">
 				<form
 					id="my-dropzone"
-					class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-neutral-800 dark:border-gray-600 w-full p-6 h-96 rounded-xl"
+					class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-neutral-800 dark:border-gray-600 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80"
 					action="/api/update/contrato-partner-upload"
 					method="post"
 					enctype="multipart/form-data"
 				>
-					<div class="dz-message dark:text-white w-full">
-						Arrastra tus archivos aquí o haz clic para subir.
+					<div class="dz-message dark:text-white w-full flex flex-col">
+						<svg
+							class="w-h-14 h-14 mb-4 text-gray-500 dark:text-gray-400"
+							aria-hidden="true"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 20 16"
+						>
+							<path
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+							></path>
+						</svg>
+						Arrastra tu contrato aquí o haz clic para subir.
 					</div>
-					<button type="submit">subir</button>
 				</form>
+
+				<div class="mt-4 flex gap-3">
+					<button
+						type="button"
+						id="btn-confirm-upload"
+						class="px-4 py-2 rounded-lg bg-[#967432] hover:bg-[#967432] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+						disabled
+					>
+						Subir contrato
+					</button>
+				</div>
 			</div>
 		</div>
 		<!--Tabs widget -->
@@ -678,39 +739,101 @@ interface Props {
 		}
 	}
 </script>
+
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js" is:inline
+></script>
 <script is:inline>
 	Dropzone.autoDiscover = false;
-
+</script>
+<script is:inline>
 	document.addEventListener('DOMContentLoaded', function () {
+		if (typeof Dropzone === 'undefined') {
+			console.error('Dropzone no está definido.');
+			return;
+		}
+
+		Dropzone.autoDiscover = false;
+
 		var form = document.getElementById('my-dropzone');
-		if (!form) return;
+		var confirmBtn = document.getElementById('btn-confirm-upload');
+		var tempTimeoutId = null;
+
+		if (!form || !confirmBtn) return;
 
 		var dz = new Dropzone(form, {
 			url: form.getAttribute('action'),
 			method: 'post',
+
+			// 👇 IMPORTANTE: mismo nombre que lee tu endpoint: formData.get("contract_file")
 			paramName: 'contract_file',
+
+			autoProcessQueue: false, // ❗ NO subir automáticamente
 			maxFiles: 1,
 			uploadMultiple: false,
 			acceptedFiles: 'application/pdf',
-			maxFilesize: 5,
+			maxFilesize: 5, // MB
+
 			addRemoveLinks: true,
 			dictDefaultMessage:
-				'Arrastra aquí tu contrato firmado o haz clic para subir.',
+				'Arrastra aquí tu contrato firmado o haz clic para seleccionar.',
 			dictRemoveFile: 'Eliminar archivo',
 		});
 
+		// Habilitar botón cuando hay archivo
+		dz.on('addedfile', function (file) {
+			// Sólo queremos un archivo
+			if (dz.files.length > 1) {
+				dz.removeFile(dz.files[0]); // elimina el anterior
+			}
+
+			confirmBtn.disabled = false;
+
+			// Limpiar timeout previo si existe
+			if (tempTimeoutId) clearTimeout(tempTimeoutId);
+
+			// Programar expiración en 2 minutos (120000 ms)
+			tempTimeoutId = setTimeout(
+				function () {
+					dz.removeAllFiles(true);
+					confirmBtn.disabled = true;
+					alert('El archivo temporal ha expirado. Vuelve a subir el contrato.');
+				},
+				2 * 60 * 1000,
+			);
+		});
+
+		// Si el usuario elimina el archivo manualmente
+		dz.on('removedfile', function () {
+			confirmBtn.disabled = true;
+			if (tempTimeoutId) clearTimeout(tempTimeoutId);
+		});
+
+		// Botón de "Guardar contrato" → ahora sí hacemos POST
+		confirmBtn.addEventListener('click', function () {
+			if (dz.getQueuedFiles().length === 0) {
+				return;
+			}
+
+			confirmBtn.disabled = true;
+
+			dz.processQueue(); // 🔥 aquí recién se hace el POST al endpoint
+		});
+
+		// Manejo de éxito: seguir la redirección de tu endpoint
 		dz.on('success', function (file) {
+			if (tempTimeoutId) clearTimeout(tempTimeoutId);
+
 			var xhr = file.xhr;
 			if (xhr && xhr.responseURL) {
 				window.location.href = xhr.responseURL;
 			}
-			console.log(file);
 		});
 
 		dz.on('error', function (file, errorMessage) {
 			console.error('Error al subir el contrato:', errorMessage);
+			confirmBtn.disabled = false;
+			if (tempTimeoutId) clearTimeout(tempTimeoutId);
 			alert('Hubo un error al subir el contrato. Intenta de nuevo.');
 		});
 	});
 </script>
-
