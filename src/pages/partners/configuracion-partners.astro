@@ -1,6 +1,6 @@
 ---
 import LayoutSidebar from '../../app/LayoutSidebar.astro';
-import Main from '../../modules/vista-partners.astro';
+import MainContent from '../../modules/vista-partners.astro';
 import { supabase } from '../../lib/supabase';
 const at = Astro.cookies.get('sb-access-token');
 const rt = Astro.cookies.get('sb-refresh-token');
@@ -35,5 +35,5 @@ if (!me || Number(me.rol_id) !== 2) {
 ---
 
 <LayoutSidebar>
-	<Main />
+	<MainContent />
 </LayoutSidebar>

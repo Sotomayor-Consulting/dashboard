@@ -171,11 +171,19 @@ console.log(referrals);
 								<li class="py-3 sm:py-4">
 									<div class="flex items-center space-x-4">
 										<div class="flex-shrink-0">
-											<img
-												class="w-8 h-8 rounded-full"
-												src={r.avatar_128}
-												alt={`Avatar de ${r.name}`}
-											/>
+											{r.avatar === 'NULL' || !r.avatar ? (
+												<img
+													class="w-10 h-10 rounded-full"
+													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
+													alt={`Avatar de ${r.name}`}
+												/>
+											) : (
+												<img
+													class="w-10 h-10 rounded-full"
+													src={r.avatar}
+													alt={`Avatar de ${r.name}`}
+												/>
+											)}
 										</div>
 										<div class="flex-1 min-w-0">
 											<p class="font-medium text-gray-900 truncate dark:text-white">
