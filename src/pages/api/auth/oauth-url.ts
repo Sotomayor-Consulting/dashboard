@@ -21,7 +21,7 @@ export const POST: APIRoute = async ({ request }) => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider as Provider,
       options: {
-        redirectTo: "http://localhost:2121/api/auth/callback_start",
+        redirectTo: "/api/auth/callback_start",
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
