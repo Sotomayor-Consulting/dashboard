@@ -11,7 +11,7 @@ const DEV_PORT = 2121;
 // https://astro.build/config
 export default defineConfig({
     // La clave para SSR
-    output: 'server',
+    output: 'server', 
     
     // **El adaptador
     adapter: vercel(),
