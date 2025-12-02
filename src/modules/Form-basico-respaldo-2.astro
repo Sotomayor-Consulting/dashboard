@@ -78,7 +78,8 @@ const { data: servicios, error: serviciosErr } = await supabase
 		servicio_activo
 	`,
 	)
-	.eq('servicio_activo', true);
+	.eq('servicio_activo', true)
+	.in('id', [1,2,3,4]);
 
 if (serviciosErr) {
 	console.error('Error cargando servicios:', serviciosErr);
@@ -97,10 +98,15 @@ if (paisesErr) {
 const empresasArray = empresas || [];
 
 // 6) Asignar cada servicio a una tarjeta específica
+
 const planBasico = servicios?.find((s) => s.nombre === 'Plan Básico');
 const planEstandar = servicios?.find((s) => s.nombre === 'Plan Estándar');
 const planBusiness = servicios?.find((s) => s.nombre === 'Plan Business');
 const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade');
+
+const planesDeServicio = servicios?.filter(e => e.nombre !== 'Plan Diseño - upgrade');
+
+console.log('planesDeServicio :>> ', planesDeServicio);
 ---
 
 <!-- ========== MAIN CONTENT ========== -->
