@@ -16,7 +16,7 @@ export default defineConfig({
     // **Añadimos el adaptador de Netlify aquí:**
     adapter: netlify(),
 
-    site: process.env.PUBLIC_SITE_URL || 'https://dashboard-sotomayor-consulting.netlify.app', 
+    site: process.env.PUBLIC_SITE_URL || 'http://localhost:2121', 
     base: '/', // Asegura que la raíz sea '/'
 
     server: {
