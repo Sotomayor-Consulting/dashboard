@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
 import vercel from '@astrojs/vercel';  // ← Nuevo adapter
+import vercelServerless from '@astrojs/vercel/serverless';
 
 import icon from 'astro-icon';
 
@@ -11,10 +12,10 @@ const DEV_PORT = 2121;
 // https://astro.build/config
 export default defineConfig({
     // La clave para SSR
-    output: 'server', 
+    output: 'server',
     
     // **El adaptador
-    adapter: vercel(),
+    adapter: vercelServerless(),
 
     site: process.env.PUBLIC_SITE_URL || 'http://localhost:2121', 
     base: '/', 
