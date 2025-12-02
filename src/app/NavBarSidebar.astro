@@ -580,8 +580,8 @@ export { notifications, totalUnread, user };
 <script
 	type="module"
 	define:vars={{
-		SB_URL: import.meta.env.SUPABASE_URL,
-		SB_ANON: import.meta.env.SUPABASE_ANON_KEY,
+		SB_URL: import.meta.env.PUBLIC_SUPABASE_URL,
+		SB_ANON: import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
 		USER_ID: user?.id ?? '',
 	}}
 >

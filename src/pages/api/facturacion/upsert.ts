@@ -3,7 +3,7 @@ import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  import.meta.env.SUPABASE_URL as string,
+  import.meta.env.PUBLIC_SUPABASE_URL as string,
   import.meta.env.SUPABASE_SERVICE_ROLE_KEY as string // clave de backend (no exponer)
 );
 

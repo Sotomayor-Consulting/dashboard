@@ -7,8 +7,8 @@ const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY as string);
 
 // Supabase backend (SERVICE ROLE en backend; ANON como fallback)
 const supabase = createClient(
-  import.meta.env.SUPABASE_URL as string,
-  (import.meta.env.SUPABASE_SERVICE_ROLE_KEY as string) || (import.meta.env.SUPABASE_ANON_KEY as string),
+  import.meta.env.PUBLIC_SUPABASE_URL as string,
+  (import.meta.env.SUPABASE_SERVICE_ROLE_KEY as string) || (import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string),
 );
 
 export const POST: APIRoute = async ({ request }) => {

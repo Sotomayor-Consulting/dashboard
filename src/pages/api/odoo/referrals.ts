@@ -4,8 +4,8 @@ import { getReferralsByEmail } from "../../../services/partnerService";
 
 export const GET: APIRoute = async ({ cookies, request }) => {
   const supabase = createClient(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_ANON_KEY
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY
   );
 
   // 1) Leer cookies

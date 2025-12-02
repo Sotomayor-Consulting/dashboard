@@ -20,7 +20,7 @@ export const POST: APIRoute = async ({ request }) => {
   console.log('[register] using role:', jwtRole(serviceKey)); // debe imprimir "service_role"
 
   const supabaseAdmin = createClient(
-    import.meta.env.SUPABASE_URL as string,
+    import.meta.env.PUBLIC_SUPABASE_URL as string,
     serviceKey
   );
 

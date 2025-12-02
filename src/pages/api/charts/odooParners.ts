@@ -12,8 +12,8 @@ type Referral = {
 export const GET: APIRoute = async ({ cookies, request }) => {
   // 1) Supabase client
   const supabase = createClient(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_ANON_KEY
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY
   );
 
   const at = cookies.get("sb-access-token");

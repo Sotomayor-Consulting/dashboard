@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 
 import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
-import vercel from '@astrojs/vercel';  // ← Nuevo adapter
+import node from '@astrojs/node';
 
 import icon from 'astro-icon';
 
@@ -14,7 +14,9 @@ export default defineConfig({
     output: 'server', 
     
     // **El adaptador
-    adapter: vercel(),
+    adapter: node({
+    mode: 'standalone'
+  }),
 
     site: process.env.PUBLIC_SITE_URL || 'http://localhost:2121', 
     base: '/', 

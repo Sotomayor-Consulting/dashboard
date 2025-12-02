@@ -36,9 +36,9 @@
 		"start": "astro dev"
 	},
 	"dependencies": {
+		"@astrojs/node": "^9.5.1",
 		"@astrojs/sitemap": "^3.6.0",
 		"@astrojs/tailwind": "^6.0.2",
-		"@astrojs/vercel": "^8.0.4",
 		"@emotion/css": "^11.13.5",
 		"@faker-js/faker": "^7.6.0",
 		"@sparticuz/chromium": "^141.0.0",
