@@ -14,7 +14,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider as Provider,
       options: {
-        redirectTo: "/api/auth/callback"
+        redirectTo: "https://dashboard-sotomayor-consulting.netlify.app/api/auth/callback"
       },
     });
 

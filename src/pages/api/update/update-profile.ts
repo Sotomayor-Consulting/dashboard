@@ -49,6 +49,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
   const cargoRaw = form.get("cargo")?.toString().trim() ?? "";
   const departamentoRaw = form.get("departamento")?.toString().trim() ?? "";
   const codigo_postalRaw = form.get("codigo_postal")?.toString().trim() ?? "";
+  const tipo_identificacionRaw = form.get("tipo_de_documento")?.toString().trim() ?? "";
+  const numero_de_identificacionRaw = form.get("Numero_de_identificacion")?.toString().trim() ?? "";
+  const tipo_personaRaw = form.get("tipo_de_persona")?.toString().trim() ?? "";
 
 
   // 4) Payload dinámico: solo incluimos los campos con valor
@@ -67,6 +70,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
   if (cargoRaw) payload.cargo = cargoRaw;
   if (departamentoRaw) payload.departamento = departamentoRaw;
   if (codigo_postalRaw) payload.codigo_postal = codigo_postalRaw;
+  if (tipo_identificacionRaw) payload.tipo_identificacion = tipo_identificacionRaw;
+  if (numero_de_identificacionRaw) payload.numero_de_identificacion = numero_de_identificacionRaw;
+  if (tipo_personaRaw) payload.tipo_persona = tipo_personaRaw;
 
 
   // 5) Upsert por user_id (sin duplicar filas)

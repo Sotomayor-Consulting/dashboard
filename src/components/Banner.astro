@@ -21,8 +21,15 @@ const BANNER_PROPS = {
 	title: 'Tu compañía esta pendiente a activación. Desbloquea sus beneficios.',
 	btnId: 'dismiss-incorp-banner',
 	btnTitle: 'Continuar al Paso Final',
-	url: '/incorporacion-y-pago', // Ajusta esta URL
+	url: '/incorporacion-y-pago',
 };
+
+const BANNER_PROPS_2 = {
+	title: 'Actualiza tu información de perfil para completar tu contrato de partner.',
+	btnId: 'dismiss-profile-banner',
+	btnTitle: 'Actualizar Perfil',
+	url: '/settings/', 
+}
 
 // 3. Proceso de Autenticación y Consulta (SSR)
 if (accessToken && refreshToken) {
@@ -70,7 +77,7 @@ if (accessToken && refreshToken) {
 			<div
 				id="marketing-banner"
 				tabindex="-1"
-				class="flex flex-col md:flex-row justify-between w-full p-4 bg-white border border-gray-100 shadow-xs top-20 dark:bg-neutral-700 dark:border-gray-600 right-4"
+				class="flex flex-col md:flex-row justify-between w-full p-4 bg-white border border-gray-100 shadow-xs top-20 dark:bg-neutral-700 dark:border-gray-600 right-4 animate-fade-in"
 			>
 				<div class="flex flex-col items-start mb-3 me-4 md:items-center md:flex-row md:mb-0">
 					<a
@@ -121,16 +128,18 @@ if (accessToken && refreshToken) {
 }
 
 <style>
-    #marketing-banner{
-        animation: aparecer 1s ease-in-out;
+   @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
     }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-    @keyframes aparecer {
-        from{
-            opacity: 0%;
-        }
-        to{
-            opacity: 100%;
-        }
-    }
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
 </style>

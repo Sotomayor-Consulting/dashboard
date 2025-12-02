@@ -1,0 +1,192 @@
+---
+import { supabase } from '../lib/supabase';
+import type { User } from '@supabase/supabase-js';
+
+const { cookies } = Astro;
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+
+let user: User | null = null;
+let shouldShowBanner = false;
+let missingFields: string[] = [];
+
+// Campos requeridos para partners (rol_id = 2)
+const REQUIRED_FIELDS = [
+  'direccion_linea1',
+  'direccion_linea2',
+  'tipo_identificacion',
+  'numero_de_identificacion',
+  'tipo_persona',
+] as const;
+
+type RequiredFieldKey = (typeof REQUIRED_FIELDS)[number];
+
+type UsuarioPerfil = {
+  rol_id: number;
+} & Record<RequiredFieldKey, string | null>;
+
+// Mapeo de nombre técnico → etiqueta bonita
+const FIELD_LABELS: Record<RequiredFieldKey, string> = {
+  direccion_linea1: 'Dirección línea 1',
+  direccion_linea2: 'Dirección línea 2',
+  tipo_identificacion: 'Tipo de identificación',
+  numero_de_identificacion: 'Número de identificación',
+  tipo_persona: 'Tipo de persona',
+};
+
+const BANNER_PROPS = {
+  title: 'Completa tu información de perfil para continuar como partner.',
+  btnId: 'dismiss-profile-banner',
+  btnTitle: 'Actualizar Perfil',
+  url: '/settings/',
+};
+
+// Proceso de autenticación y consulta (SSR)
+if (accessToken?.value && refreshToken?.value) {
+  try {
+    // Establecer sesión
+    const { error: sessionErr } = await supabase.auth.setSession({
+      refresh_token: refreshToken.value,
+      access_token: accessToken.value,
+    });
+
+    if (!sessionErr) {
+      // Obtener usuario actual
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser();
+
+      user = currentUser;
+
+      if (user) {
+        const { data: userProfile, error: profileError } = await supabase
+          .from('usuarios')
+          .select(
+            'rol_id, direccion_linea1, direccion_linea2, tipo_identificacion, numero_de_identificacion, tipo_persona',
+          )
+          .eq('user_id', user.id)
+          .single<UsuarioPerfil>();
+
+        if (!profileError && userProfile && userProfile.rol_id === 2) {
+          missingFields = REQUIRED_FIELDS.filter((field) => {
+            const value = userProfile[field];
+            return value === null || value === undefined || value === '';
+          });
+
+          shouldShowBanner = missingFields.length > 0;
+        }
+      }
+    } else {
+      console.error('[Banner] Error setSession:', sessionErr);
+    }
+  } catch (e) {
+    console.error('[Banner] Error de sesión o conexión con Supabase:', e);
+  }
+}
+---
+
+{shouldShowBanner && (
+  <astro-banner btnId={BANNER_PROPS.btnId}>
+    <div
+      id="profile-banner"
+      tabindex="-1"
+      class="flex flex-col md:flex-row justify-between w-full p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg shadow-xs dark:from-yellow-900/20 dark:to-orange-900/20 dark:border-yellow-800 animate-fade-in mt-3"
+    >
+      <div class="flex flex-col items-start mb-3 me-4 md:items-center md:flex-row md:mb-0">
+        <div class="flex items-center mb-2 border-yellow-200 md:pe-4 md:me-4 md:border-e md:mb-0 dark:border-yellow-700">
+          <div class="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/50 me-2">
+            <svg class="w-4 h-4 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <span class="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+            Atención Partner
+          </span>
+        </div>
+        <div>
+          <p class="text-base font-medium text-gray-800 dark:text-gray-200">
+            {BANNER_PROPS.title}
+          </p>
+          {missingFields.length > 0 && (
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Campos incompletos:{' '}
+              <span class="font-medium text-yellow-700 dark:text-yellow-400">
+                {missingFields.map((f) => FIELD_LABELS[f] ?? f).join(', ')}
+              </span>
+            </p>
+          )}
+        </div>
+      </div>
+      <div class="flex items-center shrink-0 space-x-2">
+        <a
+          href={BANNER_PROPS.url}
+          class="px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-300 dark:bg-yellow-700 dark:hover:bg-yellow-800 focus:outline-none dark:focus:ring-yellow-900 transition-colors"
+        >
+          {BANNER_PROPS.btnTitle}
+        </a>
+        <button
+          id="close-profile-banner"
+          data-dismiss-target="#profile-banner"
+          type="button"
+          class="shrink-0 inline-flex justify-center w-7 h-7 items-center text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 dark:hover:bg-gray-600 dark:hover:text-white transition-colors"
+        >
+          <svg
+            class="w-3 h-3"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 14"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+            />
+          </svg>
+          <span class="sr-only">Cerrar banner</span>
+        </button>
+      </div>
+    </div>
+  </astro-banner>
+)}
+
+<script is:inline>
+  if (typeof window !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+      const profileBanner = document.getElementById('profile-banner');
+      const closeBtn = document.getElementById('close-profile-banner');
+
+      if (!profileBanner || !closeBtn) return;
+
+      // Solo oculta el banner en esta carga de página
+      closeBtn.addEventListener('click', () => {
+        profileBanner.style.display = 'none';
+      });
+    });
+  }
+</script>
+
+<style is:global>
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+
+  
+</style>

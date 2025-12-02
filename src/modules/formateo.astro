@@ -1,103 +1,72 @@
 {
-						planDiseno && (
-						<div class="col-start-2 tarjeta-4">
-							<input
-								type="radio"
-								id={planDiseno.id_servicios}
-								name="plan"
-								value={planDiseno.id_servicios}
-								class="hidden peer"
-								required
-								data-price={planDiseno.precio}
-								
-							/>
-							<label
-								for={planDiseno.id_servicios}
-								class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d]"
-							>
-								<div class="col-span-2 mt-2">
-									<button
-										class="flex items-end justify-end h-full place-self-end dark:text-white text-neutral-700"
-										data-popover-target="popover-description4"
-										data-popover-placement="bottom-end"
-										type="button"
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											width="20"
-											height="20"
-											viewBox="0 0 24 24"
-											><g fill="none"
-												><path
-													d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"
-												></path><path
-													fill="currentColor"
-													d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
-												></path></g
-											></svg
-										>
-									</button>
-								</div>
 
-								<div
-									data-popover
-									id="popover-description4"
-									role="tooltip"
-									class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
-								>
-									<div class="p-3 space-y-2">
-										<h3 class="font-semibold text-gray-900 dark:text-white">
-											¿Que es el plan de diseño - upgrade?
-										</h3>
-										<p class="grid grid-cols-[auto,1fr] items-center">
-											<span
-												>Este plan está meticulosamente creado para las empresas
-												que requieren una LLC totalmente personalizada, recibiendo
-												asesoría experta que alinea su estructura con su modelo de
-												negocio y sus requerimientos específicos. Además, su
-												diseño permite escalar o actualizar a otros planes
-												superiores, facilitando la construcción progresiva y paso
-												a paso de su estructura de LLC.</span
+										documentos?.map((documentos)=> (
+
+											<td
+											class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white"
 											>
-										</p>
-									</div>
-									<div data-popper-arrow></div>
-								</div>
-								<h4
-									class="font-medium text-lg text-gray-800 dark:text-neutral-200"
-								>
-									{planDiseno.nombre}
-								</h4>
-								<span
-									class="mt-7 font-bold text-3xl md:text-4xl xl:text-5xl text-gray-800 dark:text-neutral-200"
-									>${planDiseno.precio}</span
-								>
-								<p class="mt-2 text-sm text-gray-500 dark:text-neutral-500">
-									{planDiseno.descripcion}
-								</p>
-
-								<ul class="mt-7 space-y-2.5 text-sm">
-									<li class="flex gap-x-2">
-										<svg
-											class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
-											xmlns="http://www.w3.org/2000/svg"
-											width="24"
-											height="24"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											stroke-width="2"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											><polyline points="20 6 9 17 4 12"></polyline></svg
-										>
-										<span class="text-gray-800 dark:text-neutral-400 text-left">
-											Planificación y diseño de LLC
-										</span>
-									</li>
-								</ul>
-							</label>
-							<!-- End Card -->
-						</div>  
-						)
-					}
+												<span class="font-semibold"
+													>{documentos?.nombre_archivo}</span>
+											</td>
+											<td
+												class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400"
+											>
+												{documentos?.created_at}
+											</td>
+											<td class="p-4 whitespace-nowrap">
+												{
+													documentos?.estado === 'activo' ? (
+														<span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:bg-neutral-700 dark:text-green-400 border border-green-100 dark:border-green-500 mx-auto">
+															Completado
+														</span>
+													) : (
+														<span class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:bg-neutral-700 dark:text-yellow-400 border border-yellow-100 dark:border-yellow-500 mx-auto">
+															En proceso
+														</span>
+													)
+												}
+											</td>
+											<td
+												class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-neutral-500"
+											>
+												<a
+													href={`/api/documentos/contrato-partners?user_id=${documentos?.user_id}&filename=${documentos?.nombre_archivo}`}
+													target="_blank"
+													rel="noopener noreferrer"
+													title="Ver documento"
+													><svg
+														xmlns="http://www.w3.org/2000/svg"
+														class="hover:text-white transition-colors"
+														width="24"
+														height="24"
+														viewBox="0 0 24 24"
+														><path
+															fill="currentColor"
+															d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"
+														></path></svg>
+														</a>
+											</td>
+											<td
+												class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-neutral-500"
+											>
+												<a href={`/api/documentos/contrato-partners?user_id=${documentos?.user_id}&filename=${documentos?.nombre_archivo}&mode=download`} title="Descargar el documento" target="_blank" download={documentos?.nombre_archivo}>
+											
+													<svg
+														class="hover:text-white transition-colors"
+														width="24"
+														height="24"
+														fill="currentColor"
+														viewBox="0 0 24 24"
+														xmlns="http://www.w3.org/2000/svg"
+														aria-hidden="true"
+														
+													>
+														<path
+															clip-rule="evenodd"
+															fill-rule="evenodd"
+															d="M12 2.25a.75.75 0 01.75.75v11.69l3.22-3.22a.75.75 0 111.06 1.06l-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 111.06-1.06l3.22 3.22V3a.75.75 0 01.75-.75zm-9 13.5a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5V16.5a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V16.5a.75.75 0 01.75-.75z"
+															></path>
+													              </svg>
+												</a>
+											</td>
+										))}

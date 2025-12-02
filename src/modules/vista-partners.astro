@@ -29,7 +29,7 @@ const { data: documentos } = await supabase
 
 const acciones = [
 	{
-		nombre: 'Mira tus partners',
+		nombre: 'Mira tus referidos',
 		descripcion:
 			'Encuentra links a tus documentos completados, bandeja de notificaciones, formularios, email, y descarga plantillas de documentos importantes.',
 		link: '/partners/datos-referidos/',
@@ -223,7 +223,7 @@ interface Props {
 		>
 			<div class="w-full">
 				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
-					Plantilla de contrato:
+					Contrato de partner:
 				</h3>
 				<div class="flex justify-between mt-5 items-center flex-col">
 					<Icon
@@ -403,8 +403,7 @@ interface Props {
 					Documentos
 				</h3>
 				<span class="text-base font-normal text-gray-500 dark:text-gray-400"
-					>Tu lista de documentos de la empresa</span
-				>
+					>Tu lista de documentos de la empresa</span>
 			</div>
 		</div>
 		<!-- Table -->
@@ -454,14 +453,13 @@ interface Props {
 
 									{
 
-										documentos?.map((documentos)=>(
+										documentos?.map((documentos)=> (
 
 											<td
 											class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white"
 											>
 												<span class="font-semibold"
-													>{documentos?.nombre_archivo}</span
-												>
+													>{documentos?.nombre_archivo}</span>
 											</td>
 											<td
 												class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400"
@@ -498,9 +496,7 @@ interface Props {
 														><path
 															fill="currentColor"
 															d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"
-														></path></svg
-													></a
-												>
+														></path></svg></a>
 											</td>
 											<td
 												class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-neutral-500"
@@ -527,6 +523,7 @@ interface Props {
 											</td>
 										))
 									}
+								
 								</tr>
 							</tbody>
 						</table>
@@ -534,7 +531,7 @@ interface Props {
 				</div>
 			</div>
 		</div>
-		<!-- Card Footer -->
+		
 		<div class="flex items-center justify-between pt-3 sm:pt-6">
 			<div>
 				<button

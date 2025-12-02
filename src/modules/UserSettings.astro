@@ -23,7 +23,7 @@ if (user) {
 	const { data } = await supabase
 		.from('usuarios')
 		.select(
-			'nombre, apellido, pais_id, ciudad, direccion_linea1, direccion_linea2, telf, fecha_nacimiento, organizacion, cargo, departamento, codigo_postal',
+			'nombre, apellido, pais_id, ciudad, direccion_linea1, direccion_linea2, telf, fecha_nacimiento, organizacion, cargo, departamento, codigo_postal, tipo_identificacion, numero_de_identificacion, tipo_persona, user_id',
 		)
 		.eq('user_id', user.id)
 		.single();
@@ -35,6 +35,12 @@ const { data: paises } = await supabase
 	.select('id, iso, nombre_paises, codigo_telf')
 	.order('nombre_paises');
 
+const { data: facturacion } = await supabase
+	.from('datos_facturacion')
+	.select('*')
+	.eq('user_id', user?.id)
+	.single();
+
 const email = user?.email;
 const status = Astro.url.searchParams.get('status'); // "success" | "error"
 const msg = Astro.url.searchParams.get('msg') || '';
@@ -45,6 +51,29 @@ const variant = isSuccess
 
 // visible si hay msg; si no, hidden
 const display = msg ? 'flex' : 'hidden';
+
+type Opcion = {
+	value: string;
+	label: string;
+};
+
+const opcionesPerfil: Opcion[] = [
+	{ value: 'Cédula de identidad', label: 'Cédula de identidad' },
+	{ value: 'Pasaporte', label: 'Pasaporte' },
+];
+
+const TipoPersonaOptions: Opcion[] = [
+	{ value: 'Natural', label: 'Natural' },
+	{ value: 'Jurídica', label: 'Jurídica' },
+];
+
+const TipoIdentificacionOptions: Opcion[] = [
+	{ value: 'Cédula', label: 'Cédula' },
+	{ value: 'RUC', label: 'RUC' },
+	{ value: 'ID', label: 'ID' },
+	{ value: 'Pasaporte', label: 'Pasaporte' },
+	{ value: 'EIN', label: 'EIN' },
+];
 ---
 
 <div class="grid grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4">
@@ -189,7 +218,7 @@ const display = msg ? 'flex' : 'hidden';
 			<div class="mb-4">
 				<label
 					for=""
-					class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 					>{email}</label
 				>
 			</div>
@@ -197,7 +226,7 @@ const display = msg ? 'flex' : 'hidden';
 			<div>
 				<a
 					href="/"
-					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 					>Promover a cuenta de asociado</a
 				>
 			</div>
@@ -213,7 +242,7 @@ const display = msg ? 'flex' : 'hidden';
 					<input
 						type="text"
 						name="code"
-						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 						placeholder="Ejemplo: 9F2A7C4B"
 					/>
 				</div>
@@ -221,7 +250,7 @@ const display = msg ? 'flex' : 'hidden';
 				<div>
 					<button
 						type="submit"
-						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 						>Canjear</button
 					>
 				</div>
@@ -243,7 +272,7 @@ const display = msg ? 'flex' : 'hidden';
 				<select
 					id="settings-language"
 					name="countries"
-					class="bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					class="bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 				>
 					<option>English (US)</option>
 					<option>Italiano</option>
@@ -263,7 +292,7 @@ const display = msg ? 'flex' : 'hidden';
 				<select
 					id="settings-timezone"
 					name="countries"
-					class="bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					class="bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 				>
 					<option>GMT+0 Greenwich Mean Time (GMT)</option>
 					<option>GMT+1 Central European Time (CET)</option>
@@ -276,7 +305,7 @@ const display = msg ? 'flex' : 'hidden';
 			</div>
 			<div>
 				<button
-					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 					>Save all</button
 				>
 			</div>
@@ -313,7 +342,7 @@ const display = msg ? 'flex' : 'hidden';
 								</span>
 								<a
 									href="#"
-									class="block text-sm font-normal truncate text-[#8c681d] hover:underline dark:text-primary-500"
+									class="block text-sm font-normal truncate text-[#8c681d] hover:underline dark:text-[#8c681d]"
 								>
 									www.facebook.com/themesberg
 								</a>
@@ -353,7 +382,7 @@ const display = msg ? 'flex' : 'hidden';
 								</span>
 								<a
 									href="#"
-									class="block text-sm font-normal truncate text-[#8c681d] hover:underline dark:text-primary-500"
+									class="block text-sm font-normal truncate text-[#8c681d] hover:underline dark:text-[#8c681d]"
 								>
 									www.twitter.com/themesberg
 								</a>
@@ -400,7 +429,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center">
 								<a
 									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 									>Connect</a
 								>
 							</div>
@@ -439,7 +468,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center">
 								<a
 									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 									>Connect</a
 								>
 							</div>
@@ -448,7 +477,7 @@ const display = msg ? 'flex' : 'hidden';
 				</ul>
 				<div>
 					<button
-						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 						>Save all</button
 					>
 				</div>
@@ -479,7 +508,7 @@ const display = msg ? 'flex' : 'hidden';
 										Bonnie Green
 									</p>
 									<p
-										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-primary-500"
+										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-[#8c681d]"
 									>
 										New York, USA
 									</p>
@@ -518,7 +547,7 @@ const display = msg ? 'flex' : 'hidden';
 										Jese Leos
 									</p>
 									<p
-										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-primary-500"
+										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-[#8c681d]"
 									>
 										California, USA
 									</p>
@@ -557,7 +586,7 @@ const display = msg ? 'flex' : 'hidden';
 										Thomas Lean
 									</p>
 									<p
-										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-primary-500"
+										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-[#8c681d]"
 									>
 										Texas, USA
 									</p>
@@ -596,7 +625,7 @@ const display = msg ? 'flex' : 'hidden';
 										Lana Byrd
 									</p>
 									<p
-										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-primary-500"
+										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-[#8c681d]"
 									>
 										Texas, USA
 									</p>
@@ -619,7 +648,7 @@ const display = msg ? 'flex' : 'hidden';
 				</ul>
 				<div>
 					<button
-						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 						>Save all</button
 					>
 				</div>
@@ -646,7 +675,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="nombre"
 							value={testRow?.nombre ?? ''}
 							id="first-name"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="Juan"
 						/>
 					</div>
@@ -660,7 +689,7 @@ const display = msg ? 'flex' : 'hidden';
 							type="text"
 							name="apellido"
 							id="last-name"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="Green"
 							value={testRow?.apellido ?? ''}
 						/>
@@ -673,7 +702,7 @@ const display = msg ? 'flex' : 'hidden';
 						>
 						<select
 							name="pais"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 						>
 							<option value="" selected={!testRow?.pais_id}
 								>Seleccione un país</option
@@ -698,7 +727,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="ciudad"
 							value={testRow?.ciudad ?? ''}
 							id="city"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="ejem. San Francisco"
 							-
 						/>
@@ -714,14 +743,14 @@ const display = msg ? 'flex' : 'hidden';
 							name="direccion"
 							value={testRow?.direccion_linea1 ?? ''}
 							id="address"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="ejem. Av. Juan Molineros"
 							-
 						/>
 					</div>
 					<div class="col-span-6 sm:col-span-3">
 						<label
-							for="direccion"
+							for="direccion2"
 							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
 							>Dirección linea 2</label
 						>
@@ -730,10 +759,78 @@ const display = msg ? 'flex' : 'hidden';
 							name="direccion2"
 							value={testRow?.direccion_linea2 ?? ''}
 							id="address"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="ejem. y De los Guayacanes"
-							-
+							
 						/>
+					</div>
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="tipo_de_documento"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Tipo de documento</label
+						>
+						<select
+							name="tipo_de_documento"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						>
+							<option
+								value=""
+								selected={!testRow?.tipo_identificacion}
+								disabled
+								hidden>Seleccione un tipo de documento</option
+							>
+							{
+								opcionesPerfil?.map((p) => (
+									<option
+										value={p.value}
+										selected={testRow?.tipo_identificacion === p.value}
+									>
+										{p.label}
+									</option>
+								))
+							}
+						</select>
+					</div>
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="Numero_de_identificacion"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Numero de identificacion</label
+						>
+						<input
+							type="text"
+							name="Numero_de_identificacion"
+							value={testRow?.numero_de_identificacion ?? ''}
+							id="address"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							placeholder="1777745898"
+						/>
+					</div>
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="tipo_de_persona"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Tipo de persona</label
+						>
+						<select
+							name="tipo_de_persona"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						>
+							<option value="" selected={!testRow?.tipo_persona} disabled hidden
+								>Seleccione el tipo de persona</option
+							>
+							{
+								TipoPersonaOptions?.map((p) => (
+									<option
+										value={p.value}
+										selected={testRow?.tipo_persona === p.value}
+									>
+										{p.label}
+									</option>
+								))
+							}
+						</select>
 					</div>
 					<div class="col-span-6 sm:col-span-3">
 						<label
@@ -743,7 +840,7 @@ const display = msg ? 'flex' : 'hidden';
 						>
 						<label
 							for=""
-							class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							>{email}</label
 						>
 					</div>
@@ -758,7 +855,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="telefono"
 							id="phone-number"
 							value={testRow?.telf ?? ''}
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="ejem. +(12)3456 789"
 							-
 						/>
@@ -774,7 +871,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="fecha_nacimiento"
 							value={testRow?.fecha_nacimiento ?? ''}
 							id="birthday"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="15/08/1990"
 							-
 						/>
@@ -790,7 +887,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="organizacion"
 							value={testRow?.organizacion ?? ''}
 							id="organizacion"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="Ejem. Sotomayor Consulting Ecuador"
 							-
 						/>
@@ -806,7 +903,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="cargo"
 							value={testRow?.cargo ?? ''}
 							id="role"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="Ejem. Gerente General"
 							-
 						/>
@@ -822,7 +919,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="departamento"
 							value={testRow?.departamento ?? ''}
 							id="department"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="Development"
 							-
 						/>
@@ -838,7 +935,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="codigo_postal"
 							value={testRow?.codigo_postal ?? ''}
 							id="zip-code"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="123456"
 							-
 						/>
@@ -846,140 +943,242 @@ const display = msg ? 'flex' : 'hidden';
 
 					<div class="col-span-6 sm:col-full">
 						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 							type="submit">Guardar</button
 						>
 					</div>
 				</div>
 			</form>
 		</div>
-		<!--<div
+		<div
+			id="datos-facturacion"
 			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
 		>
 			<h3 class="mb-4 text-xl font-semibold dark:text-white">
-				Password information
+				Datos de facturación
 			</h3>
-			<form action="#">
+			<form method="post" action="/api/update/update-factura">
+				<input hidden value={user?.id} name="user_id_factura">
 				<div class="grid grid-cols-6 gap-6">
 					<div class="col-span-6 sm:col-span-3">
 						<label
-							for="current-password"
+							for="tipo_de_persona"
 							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-							>Current password</label
+							>Personería</label
+						>
+						<select
+							name="tipo_de_persona"
+							id="tipo_de_persona"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							required
+						>
+							<option
+								value=""
+								selected={!facturacion?.personería}
+								disabled
+								hidden>Seleccione el tipo de persona</option
+							>
+							{
+								TipoPersonaOptions?.map((p) => (
+									<option
+										value={p.value}
+										selected={facturacion?.personería === p.value}
+									>
+										{p.label}
+									</option>
+								))
+							}
+						</select>
+					</div>
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="razon_social"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Nombre o Razón Social</label
 						>
 						<input
+							name="razon_social"
+							value={facturacion?.nombre_o_razon_social ?? ''}
 							type="text"
-							name="current-password"
-							id="current-password"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-							placeholder="••••••••"
-							-
+							id="razon_social"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							placeholder="Ejem. Juan Perez o Comercial Perez S.A."
+							required
 						/>
 					</div>
 					<div class="col-span-6 sm:col-span-3">
 						<label
-							for="password"
+							for="correo_electronico_factura"
 							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-							>New password</label
+							>Correo electrónico para facturacion</label
 						>
 						<input
-							data-popover-target="popover-password"
-							data-popover-placement="bottom"
-							type="password"
-							id="password"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-							placeholder="••••••••"
-							-
+							type="email"
+							name="correo_electronico_factura"
+							value={facturacion?.correo ?? ''}
+							id="correo_electronico_factura"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							placeholder="ejemplo@gmail.com"
+							required
 						/>
-						<div
-							data-popover
-							id="popover-password"
-							role="tooltip"
-							class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-[#1d1d1d] dark:border-gray-600 dark:text-gray-400"
-						>
-							<div class="p-3 space-y-2">
-								<h3 class="font-semibold text-gray-900 dark:text-white">
-									Must have at least 6 characters
-								</h3>
-								<div class="grid grid-cols-4 gap-2">
-									<div class="h-1 bg-orange-300 dark:bg-orange-400"></div>
-									<div class="h-1 bg-orange-300 dark:bg-orange-400"></div>
-									<div class="h-1 bg-gray-200 dark:bg-gray-600"></div>
-									<div class="h-1 bg-gray-200 dark:bg-gray-600"></div>
-								</div>
-								<p>It’s better to have:</p>
-								<ul>
-									<li class="flex items-center mb-1">
-										<svg
-											class="w-4 h-4 mr-2 text-green-400 dark:text-green-500"
-											aria-hidden="true"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-											xmlns="http://www.w3.org/2000/svg"
-											><path
-												fill-rule="evenodd"
-												d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-												clip-rule="evenodd"></path></svg
-										>
-										Upper & lower case letters
-									</li>
-									<li class="flex items-center mb-1">
-										<svg
-											class="w-4 h-4 mr-2 text-gray-300 dark:text-gray-400"
-											aria-hidden="true"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-											xmlns="http://www.w3.org/2000/svg"
-											><path
-												fill-rule="evenodd"
-												d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-												clip-rule="evenodd"></path></svg
-										>
-										A symbol (#$&)
-									</li>
-									<li class="flex items-center">
-										<svg
-											class="w-4 h-4 mr-2 text-gray-300 dark:text-gray-400"
-											aria-hidden="true"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-											xmlns="http://www.w3.org/2000/svg"
-											><path
-												fill-rule="evenodd"
-												d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-												clip-rule="evenodd"></path></svg
-										>
-										A longer password (min. 12 chars.)
-									</li>
-								</ul>
+					</div>
+					<div class="col-span-6 sm:col-span-3">
+						<div class="relative">
+							<label
+								for="bill-phone"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Telefono</label
+							>
+							<input
+								type="text"
+								id="bill-phone"
+								name="bill-phone"
+								data-billing="true"
+								class="block w-full rounded-lg border-gray-200 px-4 py-2.5 lg:ps-44 md:ps-40 sm:ps-36 ps-36 focus:z-10 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-700 dark:text-white dark:focus:ring-neutral-600 shadow-sm dark:placeholder-gray-400"
+								placeholder="(000) 000-0000"
+								value={facturacion?.telefono ?? ''}
+								required
+							/>
+							<div
+								class="absolute top-7 start-1 flex items-center ps-px text-gray-500 overflow-hidden md:w-2/6 p-1 sm:w-2/6 w-4/12"
+							>
+								<label for="bill-phone-country" class="sr-only">País</label>
+								<select
+									id="bill-phone-country"
+									data-billing="true"
+									class="block w-full border-transparent dark:border-gray-600 rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] dark:text-neutral-500 dark:bg-neutral-700 text-sm"
+									
+								>
+									<option value="" disabled selected hidden>Pais</option>
+									{
+										paises?.map((p) => (
+											<option
+												data-countrycode={p.iso}
+												value={`+${p.codigo_telf}`}
+											>
+												{p.nombre_paises}
+											</option>
+										))
+									}
+								</select>
 							</div>
-							<div data-popper-arrow></div>
 						</div>
 					</div>
-					<div class="col-span-6 sm:col-span-3">
+					<div class="col-span-6">
 						<label
-							for="confirm-password"
+							for="direccion_factura"
 							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-							>Confirm password</label
+							>Dirección</label
 						>
 						<input
 							type="text"
-							name="confirm-password"
-							id="confirm-password"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-							placeholder="••••••••"
-							-
+							name="direccion_factura"
+							value={facturacion?.correo ?? ''}
+							id="direccion_factura"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							placeholder="Av. Siempre Viva 123 y Calle Alguna"
+							required
 						/>
 					</div>
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="pais_factura"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Pais</label
+						>
+						<select
+							name="pais_factura"
+							id="pais_factura"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							required
+						>
+							<option value="" selected={!facturacion?.pais} disabled hidden
+								>Seleccione un país</option
+							>
+							{
+								paises?.map((p) => (
+									<option value={p.nombre_paises} selected={facturacion?.pais === p.nombre_paises}>
+										{p.nombre_paises}
+									</option>
+								))
+							}
+						</select>
+					</div>
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="ciudad_factura"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Cuidad</label
+						>
+						<input
+							type="text"
+							name="ciudad_factura"
+							value={facturacion?.ciudad ?? ''}
+							id="ciudad_factura"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							placeholder="Av. Siempre Viva 123 y Calle Alguna"
+							required
+						/>
+					</div>
+					<div class="col-span-6">
+						<div class="w-full space-y-3">
+							<div>
+								<label
+									for="correo_electronico_factura"
+									class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+									>Tipo de documento</label
+								>
+								<div class="relative w-full">
+									<input
+										type="text"
+										id="documento_de_identidad"
+										value={facturacion?.documento_de_identidad ?? ''}
+										name="documento_de_identidad"
+										class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d] ps-56"
+										placeholder="171234567"
+										required
+									/>
+									<div
+										class="absolute inset-y-0 start-0 flex items-center text-gray-500 ps-px"
+									>
+										<label
+											for="tipo_de_documento"
+											class="sr-only">Tipo de documento</label
+										>
+										<select
+											id="tipo_de_documento"
+											name="tipo_de_documento"
+											class="block w-full border-transparent dark:border-gray-600 rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-neutral-700 text-sm dark:text-white"
+											required
+										>
+											<option value="" selected={facturacion?.tipo_de_documento} hidden>Tipo de documento</option
+											>
+											{
+												TipoIdentificacionOptions?.map((p) => (
+													<option
+														value={p.value}
+														selected={facturacion?.tipo_de_documento === p.value}
+													>
+														{p.label}
+													</option>
+												))
+											}
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
 					<div class="col-span-6 sm:col-full">
 						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
-							type="submit">Save all</button
+							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+							type="submit">Guardar datos</button
 						>
 					</div>
 				</div>
 			</form>
-		</div> -->
+		</div>
 		<!--<div
 			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
 		>
@@ -1065,7 +1264,7 @@ const display = msg ? 'flex' : 'hidden';
 				</ul>
 				<div>
 					<button
-						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 						>See more</button
 					>
 				</div>
@@ -1138,7 +1337,7 @@ const display = msg ? 'flex' : 'hidden';
 			</div>
 			<div class="mt-6">
 				<button
-					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 					>Save all</button
 				>
 			</div>
@@ -1204,10 +1403,31 @@ const display = msg ? 'flex' : 'hidden';
 			</div>
 			<div class="mt-6">
 				<button
-					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 					>Save all</button
 				>
 			</div>
 		</div>
 	</div>
 </div> -->
+<script is:inline>
+	document.addEventListener('DOMContentLoaded', function () {
+		const countrySelect = document.getElementById('bill-phone-country');
+		const phoneInput = document.getElementById('bill-phone');
+		// Función para actualizar el código de país
+		function updateCountryCode() {
+			const selectedCountryCode = countrySelect.value;
+			const currentPhoneValue = phoneInput.value;
+
+			// Si el valor actual ya empieza con un código de país, lo eliminamos
+			const phoneWithoutCode = currentPhoneValue.replace(/^\+\d+\s?/, '');
+
+			// Añadimos el nuevo código de país
+			phoneInput.value = selectedCountryCode + ' ' + phoneWithoutCode;
+		}
+		// Actualizar cuando cambie la selección
+		countrySelect.addEventListener('change', updateCountryCode);
+		// Actualizar al cargar la página
+		updateCountryCode();
+	});
+</script>

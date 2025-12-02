@@ -1,5 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
+import { supabase } from '../lib/supabase';
 
 interface Props {
 	data: object | null | undefined;
@@ -10,14 +11,79 @@ interface Props {
 const { data, templateName, reportName } = Astro.props;
 const btnId = `btn-${crypto.randomUUID()}`;
 
+
+const { cookies } = Astro;
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+
+let perfilCompleto = false;
+
+// Campos requeridos para partners (rol_id = 2)
+const REQUIRED_FIELDS = [
+  'direccion_linea1',
+  'direccion_linea2',
+  'tipo_identificacion', 
+  'numero_de_identificacion',
+  'tipo_persona',
+] as const;
+
+// Proceso de autenticación y consulta (SSR)
+if (accessToken?.value && refreshToken?.value) {
+  try {
+    // Establecer sesión
+    const { error: sessionErr } = await supabase.auth.setSession({
+      refresh_token: refreshToken.value,
+      access_token: accessToken.value,
+    });
+
+    if (!sessionErr) {
+      // Obtener usuario actual
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+
+      if (currentUser) {
+        const { data: userProfile, error: profileError } = await supabase
+          .from('usuarios')
+          .select('rol_id, direccion_linea1, direccion_linea2, tipo_identificacion, numero_de_identificacion, tipo_persona')
+          .eq('user_id', currentUser.id)
+          .single();
+
+        if (!profileError && userProfile && userProfile.rol_id === 2) {
+          // Verificar si todos los campos están completos
+          const camposFaltantes = REQUIRED_FIELDS.filter((field) => {
+            const value = userProfile[field];
+            return value === null || value === undefined || value === '';
+          });
+
+          perfilCompleto = camposFaltantes.length === 0;
+        }
+      }
+    }
+  } catch (e) {
+    console.error('[Botones] Error:', e);
+  }
+}
 ---
-<button
+{
+	perfilCompleto ? (
+		<button
 	id={btnId}
 	class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 >
 	<Icon name="ri:download-2-fill" class="me-2" />
 	Descargar contrato
 </button>
+	) : (
+		<button
+	id="boton-disabled"
+	class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] cursor-not-allowed"
+>
+	<Icon name="ri:spam-2-fill" class="me-2" />
+	Completa los datos para descargar el contrato
+</button>
+	)
+		
+}
+
 
 <script define:vars={{ btnId, data, templateName, reportName }} is:inline>
 	const btn = document.getElementById(btnId);
