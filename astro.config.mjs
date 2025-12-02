@@ -24,5 +24,5 @@ export default defineConfig({
     },
 
     // Tus integraciones se mantienen:
-    integrations: [sitemap(), tailwind(), icon()],
+    integrations: [sitemap(), tailwind(), icon()], 
 });
