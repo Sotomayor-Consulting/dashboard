@@ -49,7 +49,6 @@ export const GET: APIRoute = async ({ cookies, request }) => {
   } = await supabase.auth.getUser();
 
   if (userErr || !user || !user.email) {
-    console.error("[ODOO] Error getUser:", userErr);
     return new Response(
       JSON.stringify({ error: "Sesión inválida o sin email" }),
       {
