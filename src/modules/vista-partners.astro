@@ -16,6 +16,9 @@ if (usuario) {
 		nombre: [usuario.nombre, usuario.apellido].join(' '),
 		correoElectronico: usuario.correo,
 		fullAddress: [usuario.direccion_linea1, usuario.direccion_linea2].join(' '),
+		tipoIdentificacion: usuario.tipo_identificacion,
+		numeroIdentificacion: usuario.numero_de_identificacion,
+		tipoPersona: usuario.tipo_persona
 	};
 }
 
@@ -61,6 +64,61 @@ interface Props {
 	data: object;
 	templateName?: string;
 	reportName?: string;
+}
+
+const { cookies } = Astro;
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+
+let perfilCompleto = false;
+
+// Campos requeridos para partners (rol_id = 2)
+const REQUIRED_FIELDS = [
+	'direccion_linea1',
+	'direccion_linea2',
+	'tipo_identificacion',
+	'numero_de_identificacion',
+	'tipo_persona',
+] as const;
+
+// Proceso de autenticación y consulta (SSR)
+if (accessToken?.value && refreshToken?.value) {
+	try {
+		// Establecer sesión
+		const { error: sessionErr } = await supabase.auth.setSession({
+			refresh_token: refreshToken.value,
+			access_token: accessToken.value,
+		});
+
+		if (!sessionErr) {
+			// Obtener usuario actual
+			const {
+				data: { user: currentUser },
+			} = await supabase.auth.getUser();
+
+			if (currentUser) {
+				const { data: userProfile, error: profileError } = await supabase
+					.from('usuarios')
+					.select(
+						'rol_id, direccion_linea1, direccion_linea2, tipo_identificacion, numero_de_identificacion, tipo_persona',
+					)
+					.eq('user_id', currentUser.id)
+					.single();
+
+				if (!profileError && userProfile && userProfile.rol_id === 2) {
+					// Verificar si todos los campos están completos
+					const camposFaltantes = REQUIRED_FIELDS.filter((field) => {
+						const value = userProfile[field];
+						return value === null || value === undefined || value === '';
+					});
+
+					perfilCompleto = camposFaltantes.length === 0;
+				}
+			}
+		}
+	} catch (e) {
+		console.error('[Botones] Error:', e);
+	}
 }
 ---
 
@@ -261,43 +319,53 @@ interface Props {
 			</div>
 
 			<div class="flex items-center justify-center w-full flex-col">
-				<form
-					id="my-dropzone"
-					class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-neutral-800 dark:border-gray-600 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80"
-					action="/api/update/contrato-partner-upload"
-					method="post"
-					enctype="multipart/form-data"
-				>
-					<div class="dz-message dark:text-white w-full flex flex-col">
-						<svg
-							class="w-h-14 h-14 mb-4 text-gray-500 dark:text-gray-400"
-							aria-hidden="true"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 20 16"
+				{
+					perfilCompleto? (
+						<form
+							id="my-dropzone"
+							class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-neutral-800 dark:border-gray-600 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80"
+							action="/api/update/contrato-partner-upload"
+							method="post"
+							enctype="multipart/form-data"
 						>
-							<path
-								stroke="currentColor"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-							></path>
-						</svg>
-						Arrastra tu contrato aquí o haz clic para subir.
-					</div>
-				</form>
-
-				<div class="mt-4 flex gap-3">
-					<button
-						type="button"
-						id="btn-confirm-upload"
-						class="px-4 py-2 rounded-lg bg-[#967432] hover:bg-[#967432] text-white disabled:opacity-50 disabled:cursor-not-allowed"
-						disabled
-					>
-						Subir contrato
-					</button>
-				</div>
+							<div class="dz-message dark:text-white w-full flex flex-col">
+								<svg
+									class="w-h-14 h-14 mb-4 text-gray-500 dark:text-gray-400"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 20 16"
+								>
+									<path
+										stroke="currentColor"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+									></path>
+								</svg>
+								Arrastra tu contrato aquí o haz clic para subir.
+							</div>
+						</form>
+						<div class="mt-4 flex gap-3">
+							<button
+								type="button"
+								id="btn-confirm-upload"
+								class="px-4 py-2 rounded-lg bg-[#967432] hover:bg-[#967432] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+								disabled
+							>
+								Subir contrato
+							</button>
+						</div>
+					) : (
+						<div class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-neutral-800 dark:border-orange-500 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80 cursor-not-allowed">
+							<div class="text-white">
+								<i
+							</div>
+						</div>
+					)
+				}
+				
 			</div>
 		</div>
 		<!--Tabs widget -->
