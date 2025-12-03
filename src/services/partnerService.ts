@@ -30,10 +30,7 @@ export async function getReferralsByEmail(email: string): Promise<ServiceRespons
     return { success: true, data: referrals };
 
   } catch (error) {
-    // ¡AQUÍ ESTÁ LA MAGIA!
-    // Si Odoo está apagado, DNS falla, o timeout:
-    // Capturamos el error, lo logueamos internamente, pero...
-    // Devolvemos SUCCESS: FALSE y DATOS VACÍOS.
+
     
     console.error(`[Odoo Service Error] Fallo al conectar. Razón: ${(error as Error).message}`);
     

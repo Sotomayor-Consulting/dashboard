@@ -42,7 +42,7 @@ import logo2 from '../assets/SC-INTER-NG.png';
 					type="email"
 					name="email"
 					id="email"
-					class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 					placeholder="correo@ejemplo.com"
 					required
 				/>
@@ -58,7 +58,7 @@ import logo2 from '../assets/SC-INTER-NG.png';
 					name="password"
 					id="password"
 					placeholder="••••••••"
-					class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 					required
 				/>
 			</div>
@@ -80,19 +80,22 @@ import logo2 from '../assets/SC-INTER-NG.png';
 				</div>
 				<a
 					href="/forgot-password"
-					class="ml-auto mt-4 text-left text-sm text-[#8c681d] hover:underline dark:text-primary-500 w-full"
+					class="ml-auto mt-4 text-left text-sm text-[#8c681d] hover:underline dark:text-[#8c681d] w-full"
 					>Olvide mi contraseña</a
 				>
 			</div>
-			<button
-				type="submit"
-				class="w-full px-5 py-3 text-base font-medium text-center text-white bg-[#8c681d] rounded-lg hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
-				>Iniciar sesión</button
-			>
+			<div class="w-full flex">
+				<button
+					type="submit"
+					class="w-full px-5 py-3 text-base font-medium text-center text-white bg-[#8c681d] rounded-lg hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					>Iniciar sesión</button
+				>
+			</div>
+
 			<div class="text-sm font-medium text-gray-500 dark:text-gray-400">
 				¿No tienes una cuenta? <a
 					href="/sign-up"
-					class="text-[#8c681d] hover:underline dark:text-primary-500"
+					class="text-[#8c681d] hover:underline dark:text-[#8c681d]"
 					>Crear una cuenta</a
 				>
 			</div>
