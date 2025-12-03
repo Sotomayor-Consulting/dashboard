@@ -38,5 +38,5 @@ COPY --from=builder /app/dist ./dist
 # Exponemos el puerto interno del contenedor
 EXPOSE 3000
 
-# Comando que arranca tu app SSR de Astro
+# Comando que arranca tu app SSR de Astro 
 CMD ["node", "dist/server/entry.mjs"]
