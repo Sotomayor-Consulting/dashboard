@@ -28,6 +28,7 @@ if (empErr || !empresa) {
   throw new Error('Empresa no encontrada para el slug proporcionado.');
 }
 
+import icono from '../assets/icono.svg?url'
 ---
 
 <!doctype html>
@@ -40,7 +41,7 @@ if (empErr || !empresa) {
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={pkg.description} />
 		<meta name="" content={pkg.description} />
-		<link rel="icon" type="image/svg+xml" href="/src/assets/icono.svg" />
+		<link rel="icon" type="image/svg+xml" href={icono} />
 		<link
 			rel="sitemap"
 			type="application/xml"
