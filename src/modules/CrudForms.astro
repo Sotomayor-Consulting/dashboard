@@ -1010,7 +1010,7 @@ const display = msg ? "flex" : "hidden";
 		  });
 		});
 	</script>
-	<script>
+	<script is:inline>
 		document.addEventListener("DOMContentLoaded", () => {
 		  // Tipar los botones como HTMLElement (con dataset)
 		  const btns = document.querySelectorAll("[data-link-share]");
@@ -1043,7 +1043,7 @@ const display = msg ? "flex" : "hidden";
 		  });
 		});
 	  </script>
-	<script>
+	<script is:inline>
 		document.addEventListener("DOMContentLoaded", () => {
 		  const form       = document.getElementById("archivar_form");
 		  const uidInput   = document.getElementById("servicio_id");
@@ -1071,7 +1071,7 @@ const display = msg ? "flex" : "hidden";
 		  });
 		});
 	  </script>
-	  <script>
+	  <script is:inline>
 		document.addEventListener("DOMContentLoaded", () => {
 		  const form       = document.getElementById("desarchivar_form");
 		  const uidInput   = document.getElementById("des_servicio_id");

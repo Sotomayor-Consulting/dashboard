@@ -1,0 +1,936 @@
+---
+import Alerta from '../components/alertageneral.astro'
+import NavPagination from '../components/empresas/NavPagination.astro';
+import { supabase } from '../lib/supabase';
+
+/* =========================
+   4) Búsqueda + paginación
+   ========================= */
+const q = (Astro.url.searchParams.get('q') || '').trim();
+const page = Math.max(1, Number(Astro.url.searchParams.get('page') || '1'));
+const pageSize = 20;
+const from = (page - 1) * pageSize;
+const to = from + pageSize - 1;
+
+let usuarios: any[] = [];
+let errorMsg = '';
+let total = 0;
+let totalPages = 1;
+
+// LEFT JOIN (embeds) ⇒ no uses !inner
+let query = supabase
+  .from('usuarios')
+  .select(`
+    user_id,
+    created_at,
+    nombre,
+    apellido,
+    correo,
+    pais_id,
+    pais:paises ( id, nombre_paises ),
+    ciudad,
+    direccion_linea1,
+    direccion_linea2,
+    telf,
+    fecha_nacimiento,
+    organizacion,
+    cargo,
+    departamento,
+    codigo_postal,
+    avatar_url,
+    rol_id,
+    rol:roles!usuarios_rol_id_fkey ( id, nombre ),
+    estado,
+    usuarios_empresas (
+      empresa_id,
+      rol_en_empresa,
+      joined_at,
+      empresa:empresa (
+        nombre,
+        slug
+      )
+    )
+  `, { count: 'exact' })
+  .order('created_at', { ascending: false });
+
+if (q) {
+	const safe = q.replace(/,/g, ''); // .or usa comas para separar condiciones
+	query = query.or(
+		[
+			`nombre.ilike.%${safe}%`,
+			`apellido.ilike.%${safe}%`,
+			`correo.ilike.%${safe}%`,
+			`organizacion.ilike.%${safe}%`,
+			`cargo.ilike.%${safe}%`,
+			`ciudad.ilike.%${safe}%`,
+			`telf.ilike.%${safe}%`,
+			`estado.ilike.%${safe}%`,
+		].join(','),
+	);
+}
+
+// Ajusta el nombre de tu tabla y columnas
+const { data: roles } = await supabase
+	.from('roles') // por ejemplo
+	.select(
+		`
+    id,
+    nombre
+  `,
+	)
+	.order('id', { ascending: true });
+
+// Paginamos
+const { data, error, count } = await query.range(from, to);
+
+if (error) {
+	errorMsg = error.message;
+	console.error('Error leyendo usuarios:', error.message);
+} else {
+	usuarios = data ?? [];
+	total = count ?? 0;
+	totalPages = Math.max(1, Math.ceil(total / pageSize));
+}
+
+---
+
+<div
+	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#1d1d1d] dark:border-gray-700"
+>
+	<Alerta />
+	<div class="w-full mb-1">
+		<div class="mb-4">
+			<nav class="flex mb-5" aria-label="Breadcrumb">
+				<ol
+					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
+				>
+					<li class="inline-flex items-center">
+						<a
+							href="/"
+							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
+						>
+							<svg
+								class="w-5 h-5 mr-2.5"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+								></path></svg
+							>
+							Inicio
+						</a>
+					</li>
+					<li>
+						<div class="flex items-center">
+							<svg
+								class="w-6 h-6 text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+									clip-rule="evenodd"></path></svg
+							>
+							<a
+								href="/crud/mailing"
+								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
+								>Mailing</a
+							>
+						</div>
+					</li>
+				</ol>
+			</nav>
+			<h1
+				class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
+			>
+				Todos los usuarios
+			</h1>
+		</div>
+		<div class="sm:flex">
+			<div
+				class="items-center hidden mb-3 sm:flex sm:divide-x sm:divide-gray-100 sm:mb-0 dark:divide-gray-700"
+			>
+				<form class="lg:pr-3" method="GET">
+					<label for="users-search" class="sr-only">Buscar</label>
+					<div class="relative mt-1 lg:w-64 xl:w-96 flex">
+						<input
+							type="search"
+							name="q"
+							value={q}
+							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							placeholder="Buscar por nombre, correo, empresa…"
+						/>
+						<button
+							class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800 ml-2"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								><path
+									fill="currentColor"
+									d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0s.41-1.08 0-1.49zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14"
+								></path></svg
+							>
+							Buscar
+						</button>
+					</div>
+				</form>
+				<div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0">
+					<a
+						href="/crud/users"
+						type="button"
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					>
+						<svg
+							class="w-5 h-5 mr-2 -ml-1"
+							viewBox="0 0 1024 1024"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill="currentColor"
+								d="m899.1 869.6l-53-305.6H864c14.4 0 26-11.6 26-26V346c0-14.4-11.6-26-26-26H618V138c0-14.4-11.6-26-26-26H432c-14.4 0-26 11.6-26 26v182H160c-14.4 0-26 11.6-26 26v192c0 14.4 11.6 26 26 26h17.9l-53 305.6c-.3 1.5-.4 3-.4 4.4c0 14.4 11.6 26 26 26h723c1.5 0 3-.1 4.4-.4c14.2-2.4 23.7-15.9 21.2-30M204 390h272V182h72v208h272v104H204zm468 440V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H416V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H202.8l45.1-260H776l45.1 260z"
+							></path></svg
+						>
+						Limpiar busqueda
+					</a>
+				</div>
+			</div>
+			<div class="flex items-center ml-auto space-x-2 sm:space-x-3">
+				<!-- NOTE: Not implemented (see `./CrudProducts` for reference) -->
+				<!-- <button
+						type="button"
+						data-refresh
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					>
+						<svg
+							class="w-5 h-5 mr-2 -ml-1"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.5"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+							aria-hidden="true"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+							></path>
+						</svg>
+						Refresh
+					</button> -->
+				<button
+					type="button"
+					data-modal-target="add-user-modal"
+					data-modal-toggle="add-user-modal"
+					class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+				>
+					<svg
+						class="w-5 h-5 mr-2 -ml-1"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+							clip-rule="evenodd"></path></svg
+					>
+					Invitar usuario
+				</button>
+				<button
+					id="dropdownMenuIconButton"
+					data-dropdown-toggle="dropdownDots2"
+					class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-neutral-700 dark:hover:bg-neutral-700 dark:focus:ring-gray-600"
+					type="button"
+				>
+					<svg
+						class="w-5 h-5"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="currentColor"
+						viewBox="0 0 4 15"
+					>
+						<path
+							d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"
+						></path>
+					</svg>
+				</button>
+				<!-- Dropdown menu -->
+				<div
+					id="dropdownDots2"
+					class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-neutral-700 dark:divide-gray-600"
+				>
+					<ul
+						class="py-2 text-sm text-gray-700 dark:text-gray-200 text-start"
+						aria-labelledby="dropdownMenuIconButton"
+					>
+						<li>
+							<button
+								type="button"
+								data-modal-target="rol-modal-admin"
+								data-modal-toggle="rol-modal-admin"
+								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white w-full text-start"
+								>Añadir rol</button
+							>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="flex flex-col">
+	<div class="overflow-x-auto">
+		<div class="inline-block min-w-full align-middle">
+			<div class="overflow-hidden shadow">
+				<table
+					class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
+				>
+					<thead class="bg-gray-100 dark:bg-[#374151]">
+						<tr>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Foto
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Nombre
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Compania
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Cargo
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Pais
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Estado
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Rol
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Acciones
+							</th>
+						</tr>
+					</thead>
+					<tbody
+						class="bg-white divide-y divide-gray-200 dark:bg-[#1d1d1d] dark:divide-gray-700"
+					>
+						{
+							usuarios.map((user) => (
+								<div>
+									<tr class="hover:bg-gray-100 dark:hover:bg-neutral-700">
+										<td class="w-4 pl-4">
+											{user.avatar_url === 'NULL' || !user.avatar_url ? (
+												<img
+													class="w-10 h-10 rounded-full"
+													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
+													alt={`Avatar de ${user.nombre}`}
+												/>
+											) : (
+												<img
+													class="w-10 h-10 rounded-full"
+													src={user.avatar_url}
+													alt={`Avatar de ${user.nombre}`}
+												/>
+											)}
+										</td>
+										<td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
+											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+												<div class="text-base font-semibold text-gray-900 dark:text-white">
+													{user.nombre} {user.apellido}
+												</div>
+												<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+													{user.correo}
+												</div>
+											</div>
+										</td>
+										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+											{user.organizacion}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{user.cargo}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{user.pais?.nombre_paises ?? '—'}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											<div class="flex items-center">
+												{user.estado === 'activo' ? (
+													<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
+												) : (
+													<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
+												)}
+												{user.estado}
+											</div>
+										</td>
+										<td class="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
+											<div class="flex items-center">
+												{user.usuarios_empresas?.[0]?.rol_en_empresa ?? '—'}
+											</div>
+										</td>
+										<td class="p-4 space-x-2 whitespace-nowrap">
+											<button
+												type="button"
+												data-modal-target="edit-user-modal"
+												data-modal-toggle="edit-user-modal"
+												data-edit-user
+												data-user-id={user.user_id}
+												data-compania={user.organizacion || ''}
+												data-cargo={user.cargo || ''}
+												data-nombre={user.nombre || ''}
+												data-apellido={user.apellido || ''}
+												data-correo={user.correo || ''}
+												data-rol-id={user.rol_id ?? ''}
+												data-userestado={user.estado ?? ''}
+												class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+											>
+												<svg
+													class="w-4 h-4 mr-2"
+													fill="currentColor"
+													viewBox="0 0 20 20"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<>
+														<path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+														<path
+															fill-rule="evenodd"
+															d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+															clip-rule="evenodd"
+														/>
+													</>
+												</svg>
+												Editar usuario
+											</button>
+
+											<button
+												id={`dd-btn-${user.user_id}`}
+												data-dropdown-toggle={`dd-${user.user_id}`}
+												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-neutral-700 dark:hover:bg-neutral-700 dark:focus:ring-gray-600"
+												type="button"
+												aria-haspopup="true"
+												aria-expanded="false"
+											>
+												<svg
+													class="w-5 h-5"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													fill="currentColor"
+													viewBox="0 0 4 15"
+												>
+													<path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+												</svg>
+											</button>
+											<div
+												id={`dd-${user.user_id}`}
+												class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-neutral-700 dark:divide-gray-600"
+												role="menu"
+												aria-labelledby={`dd-btn-${user.user_id}`}
+												data-dropdown-placement="bottom-start"
+											>
+												<ul
+													class="py-2 text-sm text-gray-700 dark:text-gray-200"
+													role="none"
+												>
+													<li>
+														<button
+															type="button"
+															data-open-estado
+															data-user-id={user.user_id}
+															data-user-estado={user.estado || ''}
+															data-user-name={`${user.nombre} ${user.apellido}`.trim()}
+															data-modal-target="updaterol"
+															data-modal-toggle="updaterol"
+															class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+															role="menuitem"
+														>
+															Archivar
+														</button>
+													</li>
+												</ul>
+											</div>
+										</td>
+									</tr>
+								</div>
+							))
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Edit User Modal -->
+<div
+	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full" data-modal-placement="top-left" tabindex="-1"
+	id="edit-user-modal"
+>
+	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+			<!-- Modal header -->
+			<div
+				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+			>
+				<h3 class="text-xl font-semibold dark:text-white">Editar usuario</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					data-modal-toggle="edit-user-modal"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/update/admin-update" method="post">
+				<div class="p-6 space-y-6">
+					<div class="grid grid-cols-6 gap-6">
+						<input type="hidden" name="user_id" id="modal_user_id" />
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="first-name"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Nombre</label
+							>
+							<input
+								type="text"
+								name="nombre"
+								value="Bonnie"
+								id="modal_nombre"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="Bonnie"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="last-name"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Apellido</label
+							>
+							<input
+								type="text"
+								name="apellido"
+								value="Green"
+								id="modal_apellido"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="Green"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="correo"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Correo</label
+							>
+							<input
+								type="email"
+								name="correo"
+								id="modal_correo"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="example@company.com"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="position"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Compania</label
+							>
+							<input
+								type="text"
+								name="compania"
+								value="React Developer"
+								id="modal_compania"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="e.g. React developer"
+							/>
+						</div>
+
+						<div class="col-span-6">
+							<h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
+								Añade un rol
+							</h3>
+							<ul
+								class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-[#1d1d1d] dark:border-gray-600 dark:text-white"
+							>
+								{
+									roles?.map((rol) => (
+										<li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+											<div class="flex items-center ps-3">
+												<input
+													id="modal_id_rol"
+													type="radio"
+													value={rol.id}
+													name="rol_id"
+													class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+												/>
+												<label
+													for="modal_id_rol"
+													class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+												>
+													{rol.nombre}
+												</label>
+											</div>
+										</li>
+									))
+								}
+							</ul>
+						</div>
+					</div>
+
+					<!-- Modal footer -->
+					<div
+						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+					>
+						<button
+							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							type="submit">Guardar</button
+						>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		// Tipar los botones como HTMLElement (con dataset)
+		const btns = document.querySelectorAll<HTMLElement>('[data-edit-user]');
+
+		// Helper para setear .value de inputs/textarea de forma segura
+		function setValue(id: string, val: string) {
+			const el = document.getElementById(id) as
+				| HTMLInputElement
+				| HTMLTextAreaElement
+				| null;
+			if (el) el.value = val ?? '';
+		}
+
+		btns.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const nombre = btn.dataset.nombre ?? '';
+				const apellido = btn.dataset.apellido ?? '';
+				const correo = btn.dataset.correo ?? '';
+				const rolId = btn.dataset.rolId ?? '';
+				const compania = btn.dataset.compania ?? '';
+				const userId = btn.dataset.userId ?? '';
+				const estado = btn.dataset.userestado ?? '';
+
+				setValue('modal_user_id', userId);
+				setValue('modal_nombre', nombre);
+				setValue('modal_apellido', apellido);
+				setValue('modal_correo', correo);
+				setValue('modal_compania', compania);
+
+				// Radios: tipar como HTMLInputElement
+				document
+					.querySelectorAll<HTMLInputElement>('input[name="rol_id"]')
+					.forEach((r) => {
+						r.checked = String(r.value) === String(rolId);
+					});
+
+				document
+					.querySelectorAll<HTMLInputElement>('input[name="estado"]')
+					.forEach((r) => {
+						r.checked = String(r.value) === String(estado);
+					});
+			});
+		});
+	});
+</script>
+<!-- Añadir usuario -->
+<div
+	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	id="add-user-modal"
+>
+	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+			<!-- Modal header -->
+			<div
+				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+			>
+				<h3 class="text-xl font-semibold dark:text-white">Invitar usuario</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					data-modal-toggle="add-user-modal"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/update/admin-invite" method="post">
+				<div class="p-6 space-y-6">
+					<div class="grid gap-6">
+						<div class="">
+							<label
+								for="email"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Correo</label
+							>
+							<input
+								type="email"
+								name="correo_create"
+								id="email"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="correo@ejemplo.com"
+								required
+							/>
+						</div>
+					</div>
+
+					<!-- Modal footer -->
+					<div
+						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+					>
+						<button
+							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							type="submit">Invitar Usuario</button
+						>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Añadir rol Modal -->
+<div
+	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	id="rol-modal-admin"
+>
+	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+			<!-- Modal header -->
+			<div
+				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+			>
+				<h3 class="text-xl font-semibold dark:text-white">Añadir Rol</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					data-modal-toggle="rol-modal-admin"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/create/admin-new-rol" method="post">
+				<div class="p-6 space-y-6">
+					<div class="grid gap-6">
+						<div class="">
+							<label
+								for="nombre_rol"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Añade el nombre del rol</label
+							>
+							<input
+								type="text"
+								name="nombre_rol"
+								id="rol-create"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="admin"
+								required
+							/>
+						</div>
+					</div>
+
+					<!-- Modal footer -->
+					<div
+						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+					>
+						<button
+							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							type="submit">Añadir rol</button
+						>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div
+	id="updaterol"
+	tabindex="-1"
+	aria-hidden="true"
+	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
+>
+	<div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
+		<!-- Modal content -->
+		<div
+			class="relative p-4 bg-white rounded-lg shadow dark:bg-neutral-700 sm:p-5"
+		>
+			<!-- Modal header -->
+			<div
+				class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600"
+			>
+				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+					Selecciona el estado del cliente
+				</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					data-modal-toggle="updaterol"
+				>
+					<svg
+						aria-hidden="true"
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span class="sr-only">Close modal</span>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/update/admin-update" method="post" id="updaterolForm">
+				<input type="hidden" name="user_id" id="updaterol_user_id" />
+				<div class="grid gap-4 mb-4">
+					<div>
+						<label
+							for="updaterol_estado"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Rol</label
+						>
+						<select
+							id="updaterol_estado"
+							name="estado"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						>
+							<option value="" disabled="" selected="">--</option>
+							{
+								[{ estado: 'activo' }, { estado: 'inactivo' }].map((u) => (
+									<option value={u.estado}> {u.estado}</option>
+								))
+							}
+						</select>
+					</div>
+				</div>
+				<div class="flex items-center space-x-4">
+					<button
+						type="submit"
+						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					>
+						Actualizar estado
+					</button>
+					<button
+						data-modal-toggle="updaterol"
+						type="button"
+						class="text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+					>
+						Cancelar
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script is:inline>
+	document.addEventListener('DOMContentLoaded', () => {
+		const form = document.getElementById('updaterolForm');
+		const uidInput = document.getElementById('updaterol_user_id');
+		const estadoSel = document.getElementById('updaterol_estado');
+		const nameSpan = document.getElementById('updaterolUserName');
+
+		// Botones que abren el modal (uno por fila/usuario)
+		const btns = document.querySelectorAll('[data-open-estado]');
+
+		btns.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const uid = btn.dataset.userId || '';
+				const uname = btn.dataset.userName || '';
+				const estCur = btn.dataset.userEstado || '';
+
+				// Inyecta user_id y muestra nombre
+				uidInput.value = uid;
+				nameSpan.textContent = uname ? ` · ${uname}` : '';
+
+				// Preselecciona estado si coincide; si no, deja "(sin cambio)"
+				const hasOption = Array.from(estadoSel.options).some(
+					(o) => o.value === estCur,
+				);
+				estadoSel.value = hasOption ? estCur : '';
+
+				// Endpoint + retorno a esta misma página
+				const back = location.pathname + location.search;
+				form.action = `/api/admin/usuarios/update?back=${encodeURIComponent(back)}`;
+			});
+		});
+
+		// Anti doble-submit (opcional)
+		form?.addEventListener('submit', () => {
+			const submitBtn = form?.querySelector('button[type="submit"]');
+			if (submitBtn) submitBtn.disabled = true;
+		});
+	});
+</script>
+
+<NavPagination
+	page={page}
+	total={total}
+	pageSize={20}
+	searchParams={Astro.url.searchParams}
+/>
