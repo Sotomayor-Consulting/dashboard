@@ -18,7 +18,6 @@ export default defineConfig({
     mode: 'standalone'
   }),
 
-    site: 'https://app-sci-dashboard-5y8tpy-9087a2-84-247-189-80.traefik.me', 
     base: '/', 
 
     server: {
