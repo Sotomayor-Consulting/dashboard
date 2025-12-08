@@ -28,4 +28,4 @@ COPY --from=builder /app/server.mjs ./server.mjs
 
 EXPOSE 3000   
 
-CMD ["node", "server.mjs"]
+CMD ["node", "server.mjs"] 
