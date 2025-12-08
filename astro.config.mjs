@@ -11,5 +11,9 @@ export default defineConfig({
     mode: 'standalone',
   }),
   base: '/',
+  server: {
+    host: '0.0.0.0',
+    port: 3000,
+  },
   integrations: [sitemap(), tailwind(), icon()],
 });
