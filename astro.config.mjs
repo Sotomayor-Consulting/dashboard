@@ -1,29 +1,20 @@
 import { defineConfig } from 'astro/config';
-
 import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
 import node from '@astrojs/node';
-
 import icon from 'astro-icon';
 
-const DEV_PORT = 2121;
+const PORT = Number(process.env.PORT) || 3000;
 
-// https://astro.build/config
 export default defineConfig({
-    // La clave para SSR
-    output: 'server', 
-    
-    // **El adaptador
-    adapter: node({
-    mode: 'standalone'
+  output: 'server',
+  adapter: node({
+    mode: 'standalone',
   }),
-
-    base: '/', 
-
-    server: {
-        port: DEV_PORT,
-    },
-
-    // Tus integraciones se mantienen:
-    integrations: [sitemap(), tailwind(), icon()], 
+  base: '/',
+  server: {
+    port: PORT,
+    host: '0.0.0.0',
+  },
+  integrations: [sitemap(), tailwind(), icon()],
 });
