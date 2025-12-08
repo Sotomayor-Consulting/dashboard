@@ -3,12 +3,19 @@
 # -----------------------
 FROM node:22-alpine AS builder
 
+# Carpeta de trabajo dentro de la imagen
 WORKDIR /app
 
+# Copiamos solo los archivos de dependencias primero (para cache)
 COPY package*.json ./
+
+# Instalamos dependencias
 RUN npm install
 
+# Copiamos TODO el código del proyecto
 COPY . .
+
+# Hacemos el build de Astro (SSR)
 RUN npm run build
 
 # -----------------------
@@ -27,5 +34,4 @@ COPY --from=builder /app/dist ./dist
 
 EXPOSE 3000
 
-# Importante: dejamos que Astro tome PORT y HOST de env
-CMD ["node", "dist/server/entry.mjs"]
+CMD ["node", "dist/server/entry.mjs", "--host", "0.0.0.0"]
