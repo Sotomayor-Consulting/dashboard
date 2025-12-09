@@ -32,7 +32,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
       provider: provider as Provider,
       options: {
         redirectTo:
-          "http://dk084w80oo0w8o4o0k8s0wwo.86.48.18.24.sslip.io/api/auth/callback",
+          "https://dashboard.sotomayorconsulting.com/api/auth/callback",
       },
     });
 

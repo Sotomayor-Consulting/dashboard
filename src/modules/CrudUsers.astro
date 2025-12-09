@@ -84,98 +84,15 @@ if (error) {
 	totalPages = Math.max(1, Math.ceil(total / pageSize));
 }
 
-/* =========================
-   5) Alertas existentes
-   ========================= */
-const status = Astro.url.searchParams.get('status'); // "success" | "error"
-const msg = Astro.url.searchParams.get('msg') || '';
-const isSuccess = status === 'success';
-const variant = isSuccess
-	? 'text-green-800 border-green-300 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-neutral-800'
-	: 'text-red-800 border-red-300 bg-red-50 dark:text-red-400 dark:border-red-800 dark:bg-neutral-800';
-const display = msg ? 'flex' : 'hidden';
+const { data: paises } = await supabase
+	.from('paises')
+	.select('*')
+	.order('nombre_paises', { ascending: true });
 ---
 
 <div
 	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#1d1d1d] dark:border-gray-700"
 >
-	<!-- ALERTA FLOWBITE -->
-
-	<div
-		id="alert-feedback"
-		class={`absolute right-0 top-0.5 items-center p-4 mb-4 text-sm border rounded-lg mt-4 ${variant} ${display}`}
-		role="alert"
-		aria-live="polite"
-	>
-		<svg
-			class="shrink-0 inline w-4 h-4 me-3"
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
-			fill="currentColor"
-			viewBox="0 0 20 20"
-		>
-			<path
-				d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-			></path>
-		</svg>
-		<div class="ms-3">
-			<span class="font-medium">{isSuccess ? '✅ ¡Éxito!' : '❌ Error:'}</span>
-			{' '}
-			{msg}
-		</div>
-		<!-- botón cerrar (opcional) -->
-		<button
-			type="button"
-			class="ms-auto -mx-1.5 -my-1.5 p-1.5 rounded hover:opacity-80"
-			aria-label="Close"
-			data-close
-		>
-			✕
-		</button>
-	</div>
-
-	<!-- Script: mostrar/ocultar y limpiar query -->
-	<script is:inline>
-		(function () {
-			const alertBox = document.getElementById('alert-feedback');
-			if (!alertBox) return;
-
-			const params = new URLSearchParams(window.location.search);
-			const hasMsg = params.has('msg');
-
-			// por si el SSR no lo dejó visible
-			if (hasMsg) {
-				alertBox.classList.remove('hidden');
-				alertBox.classList.add('flex');
-
-				// autocerrar a los 6s
-				const hide = () => {
-					alertBox.classList.add('hidden');
-					alertBox.classList.remove('flex');
-				};
-				const timer = setTimeout(hide, 6000);
-
-				// botón cerrar manual
-				const closeBtn = alertBox.querySelector('[data-close]');
-				if (closeBtn) {
-					closeBtn.addEventListener('click', () => {
-						clearTimeout(timer);
-						hide();
-					});
-				}
-
-				// limpiar query de la URL (para que no reaparezca al refrescar)
-				params.delete('msg');
-				params.delete('status');
-				const newUrl = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}${location.hash}`;
-				window.history.replaceState({}, '', newUrl);
-			} else {
-				// asegurar oculto si no hay mensaje
-				alertBox.classList.add('hidden');
-				alertBox.classList.remove('flex');
-			}
-		})();
-	</script>
 	<div class="w-full mb-1">
 		<div class="mb-4">
 			<nav class="flex mb-5" aria-label="Breadcrumb">
@@ -237,11 +154,11 @@ const display = msg ? 'flex' : 'hidden';
 							type="search"
 							name="q"
 							value={q}
-							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							placeholder="Buscar por nombre, correo, empresa…"
 						/>
 						<button
-							class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800 ml-2"
+							class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] ml-2"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -261,7 +178,7 @@ const display = msg ? 'flex' : 'hidden';
 					<a
 						href="/crud/users"
 						type="button"
-						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 					>
 						<svg
 							class="w-5 h-5 mr-2 -ml-1"
@@ -281,7 +198,7 @@ const display = msg ? 'flex' : 'hidden';
 				<!-- <button
 						type="button"
 						data-refresh
-						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 					>
 						<svg
 							class="w-5 h-5 mr-2 -ml-1"
@@ -304,7 +221,7 @@ const display = msg ? 'flex' : 'hidden';
 					type="button"
 					data-modal-target="add-user-modal"
 					data-modal-toggle="add-user-modal"
-					class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 				>
 					<svg
 						class="w-5 h-5 mr-2 -ml-1"
@@ -481,7 +398,7 @@ const display = msg ? 'flex' : 'hidden';
 													</span>
 												) : user.rol_id === 2 ? (
 													<span
-														class="text-blue-600 font-medium"
+														class="text-[#8c681d] font-medium"
 														title="Partner"
 													>
 														Partner
@@ -510,7 +427,7 @@ const display = msg ? 'flex' : 'hidden';
 												data-correo={user.correo || ''}
 												data-rol-id={user.rol_id ?? ''}
 												data-userestado={user.estado ?? ''}
-												class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+												class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 											>
 												<svg
 													class="w-4 h-4 mr-2"
@@ -634,7 +551,7 @@ const display = msg ? 'flex' : 'hidden';
 								name="nombre"
 								value="Bonnie"
 								id="modal_nombre"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 								placeholder="Bonnie"
 							/>
 						</div>
@@ -649,7 +566,7 @@ const display = msg ? 'flex' : 'hidden';
 								name="apellido"
 								value="Green"
 								id="modal_apellido"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 								placeholder="Green"
 							/>
 						</div>
@@ -663,10 +580,11 @@ const display = msg ? 'flex' : 'hidden';
 								type="email"
 								name="correo"
 								id="modal_correo"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 								placeholder="example@company.com"
 							/>
 						</div>
+
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="position"
@@ -678,9 +596,153 @@ const display = msg ? 'flex' : 'hidden';
 								name="compania"
 								value="React Developer"
 								id="modal_compania"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-								placeholder="e.g. React developer"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="Sotomayor Consulting"
 							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="pais"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Pais</label
+							>
+							<select
+								id="pais"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							>
+								<option selected hidden disabled>Selecciona un pais</option>
+								{
+									paises?.map((paises) => (
+										<option value={paises.id}>{paises.nombre_paises}</option>
+									))
+								}
+							</select>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="cuidad"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Cuidad</label
+							>
+							<input
+								type="text"
+								name="cuidad"
+								value=""
+								id="cuidad"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="Quito"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="direccion_linea1"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Direccion linea 1</label
+							>
+							<input
+								type="text"
+								name="direccion_linea1"
+								value=""
+								id="direccion_linea1"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="Av Juan molineros"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="direccion_linea2"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Direccion linea 2</label
+							>
+							<input
+								type="text"
+								name="direccion_linea2"
+								value=""
+								id="direccion_linea2"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="Y de los Guayacanes"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="telefono"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Telefono</label
+							>
+							<input
+								type="tel"
+								name="telefono"
+								value=""
+								id="telefono"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="0912345678"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="fecha_nacimiento"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Fecha nacimiento</label
+							>
+							<input
+								type="date"
+								name="fecha_nacimiento"
+								value=""
+								id="fecha_nacimiento"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="0912345678"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="tipo_identificacion"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Tipo de identificacion</label
+							>
+							<select
+								id="tipo_identificacion"
+								name="tipo_identificacion"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							>
+								<option value="" hidden="">Tipo de documento</option>
+								<option value="Cédula"> Cédula </option><option value="RUC">
+									RUC
+								</option><option value="ID"> ID </option><option
+									value="Pasaporte"
+								>
+									Pasaporte
+								</option><option value="EIN"> EIN </option>
+							</select>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="numero_de_identificacion"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Numero de identificacion</label
+							>
+							<input
+								type="text"
+								name="numero_de_identificacion"
+								id="numero_de_identificacion"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="1712345678"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="tipo_persona"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Tipo de persona</label
+							>
+							<select
+								id="tipo_persona"
+								name="tipo_persona"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							>
+								<option value="" hidden="">Tipo de persona</option>
+								<option value="Natural"> Natural </option>
+								<option value="Jurídica"> Jurídica </option>
+							</select>
 						</div>
 
 						<div class="col-span-6">
@@ -699,7 +761,7 @@ const display = msg ? 'flex' : 'hidden';
 													type="radio"
 													value={rol.id}
 													name="rol_id"
-													class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+													class="w-4 h-4 text-[#8c681d] bg-gray-100 border-gray-300 focus:ring-[#8c681d] dark:focus:ring-[#8c681d] dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
 												/>
 												<label
 													for="modal_id_rol"
@@ -720,7 +782,7 @@ const display = msg ? 'flex' : 'hidden';
 						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 							type="submit">Guardar</button
 						>
 					</div>
@@ -819,7 +881,7 @@ const display = msg ? 'flex' : 'hidden';
 								type="email"
 								name="correo_create"
 								id="email"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 								placeholder="correo@ejemplo.com"
 								required
 							/>
@@ -831,7 +893,7 @@ const display = msg ? 'flex' : 'hidden';
 						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 							type="submit">Invitar Usuario</button
 						>
 					</div>
@@ -885,7 +947,7 @@ const display = msg ? 'flex' : 'hidden';
 								type="text"
 								name="nombre_rol"
 								id="rol-create"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 								placeholder="admin"
 								required
 							/>
@@ -897,7 +959,7 @@ const display = msg ? 'flex' : 'hidden';
 						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 							type="submit">Añadir rol</button
 						>
 					</div>
@@ -957,7 +1019,7 @@ const display = msg ? 'flex' : 'hidden';
 						<select
 							id="updaterol_estado"
 							name="estado"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 						>
 							<option value="" disabled="" selected="">--</option>
 							{
@@ -971,7 +1033,7 @@ const display = msg ? 'flex' : 'hidden';
 				<div class="flex items-center space-x-4">
 					<button
 						type="submit"
-						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 					>
 						Actualizar estado
 					</button>

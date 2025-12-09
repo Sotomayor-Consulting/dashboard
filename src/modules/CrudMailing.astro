@@ -1,5 +1,5 @@
 ---
-import Alerta from '../components/alertageneral.astro'
+import Alerta from '../components/alertageneral.astro';
 import NavPagination from '../components/empresas/NavPagination.astro';
 import { supabase } from '../lib/supabase';
 
@@ -19,8 +19,9 @@ let totalPages = 1;
 
 // LEFT JOIN (embeds) ⇒ no uses !inner
 let query = supabase
-  .from('usuarios')
-  .select(`
+	.from('usuarios')
+	.select(
+		`
     user_id,
     created_at,
     nombre,
@@ -50,8 +51,10 @@ let query = supabase
         slug
       )
     )
-  `, { count: 'exact' })
-  .order('created_at', { ascending: false });
+  `,
+		{ count: 'exact' },
+	)
+	.order('created_at', { ascending: false });
 
 if (q) {
 	const safe = q.replace(/,/g, ''); // .or usa comas para separar condiciones
@@ -91,7 +94,6 @@ if (error) {
 	total = count ?? 0;
 	totalPages = Math.max(1, Math.ceil(total / pageSize));
 }
-
 ---
 
 <div
@@ -397,38 +399,15 @@ if (error) {
 												{user.usuarios_empresas?.[0]?.rol_en_empresa ?? '—'}
 											</div>
 										</td>
-										<td class="p-4 space-x-2 whitespace-nowrap">
+										<td class="p-4 space-x-2 flex">
 											<button
+												data-modal-target="top-right-modal"
+												data-modal-toggle="top-right-modal"
+												data-user-mail={user.correo}
+												class="block w-full md:w-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 												type="button"
-												data-modal-target="edit-user-modal"
-												data-modal-toggle="edit-user-modal"
-												data-edit-user
-												data-user-id={user.user_id}
-												data-compania={user.organizacion || ''}
-												data-cargo={user.cargo || ''}
-												data-nombre={user.nombre || ''}
-												data-apellido={user.apellido || ''}
-												data-correo={user.correo || ''}
-												data-rol-id={user.rol_id ?? ''}
-												data-userestado={user.estado ?? ''}
-												class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
 											>
-												<svg
-													class="w-4 h-4 mr-2"
-													fill="currentColor"
-													viewBox="0 0 20 20"
-													xmlns="http://www.w3.org/2000/svg"
-												>
-													<>
-														<path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-														<path
-															fill-rule="evenodd"
-															d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-															clip-rule="evenodd"
-														/>
-													</>
-												</svg>
-												Editar usuario
+												Enviar correo
 											</button>
 
 											<button
@@ -489,147 +468,264 @@ if (error) {
 	</div>
 </div>
 
-<!-- Edit User Modal -->
+<!-- Top Right Modal -->
 <div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full" data-modal-placement="top-left" tabindex="-1"
-	id="edit-user-modal"
+	id="top-right-modal"
+	data-modal-placement="top-right"
+	tabindex="-1"
+	class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-full"
 >
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+	<div class="relative w-full max-w-2xl h-full">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+		<div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 h-full">
 			<!-- Modal header -->
 			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+				class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200"
 			>
-				<h3 class="text-xl font-semibold dark:text-white">Editar usuario</h3>
+				<h3 class="text-xl font-medium text-gray-900 dark:text-white">
+					Mensaje para el usuario
+				</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
-					data-modal-toggle="edit-user-modal"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					data-modal-hide="top-right-modal"
 				>
 					<svg
-						class="w-5 h-5"
-						fill="currentColor"
-						viewBox="0 0 20 20"
+						class="w-3 h-3"
+						aria-hidden="true"
 						xmlns="http://www.w3.org/2000/svg"
-						><path
-							fill-rule="evenodd"
-							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							clip-rule="evenodd"></path></svg
+						fill="none"
+						viewBox="0 0 14 14"
 					>
+						<path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
+					</svg>
+					<span class="sr-only">Cerrar modal</span>
 				</button>
 			</div>
 			<!-- Modal body -->
-			<form action="/api/update/admin-update" method="post">
-				<div class="p-6 space-y-6">
-					<div class="grid grid-cols-6 gap-6">
-						<input type="hidden" name="user_id" id="modal_user_id" />
-						<div class="col-span-6 sm:col-span-3">
+			<div class="p-4 md:p-5 space-y-4">
+				<form action="#">
+					<div class="grid gap-4 mb-4 sm:grid-cols-2">
+						<div>
 							<label
-								for="first-name"
+								for="email"
 								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-								>Nombre</label
-							>
-							<input
-								type="text"
-								name="nombre"
-								value="Bonnie"
-								id="modal_nombre"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-								placeholder="Bonnie"
-							/>
-						</div>
-						<div class="col-span-6 sm:col-span-3">
-							<label
-								for="last-name"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-								>Apellido</label
-							>
-							<input
-								type="text"
-								name="apellido"
-								value="Green"
-								id="modal_apellido"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-								placeholder="Green"
-							/>
-						</div>
-						<div class="col-span-6 sm:col-span-3">
-							<label
-								for="correo"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-								>Correo</label
+								>Para:</label
 							>
 							<input
 								type="email"
-								name="correo"
-								id="modal_correo"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-								placeholder="example@company.com"
+								name="email"
+								id="email"
+								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="Correo de"
+								value=""
+								disabled
+								required
 							/>
 						</div>
-						<div class="col-span-6 sm:col-span-3">
+						<div>
 							<label
-								for="position"
+								for="Asunto"
 								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-								>Compania</label
+								>Asunto</label
 							>
 							<input
 								type="text"
-								name="compania"
-								value="React Developer"
-								id="modal_compania"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-								placeholder="e.g. React developer"
+								name="Asunto"
+								id="Asunto"
+								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="Inserta el asunto del correo"
+								required=""
 							/>
 						</div>
 
-						<div class="col-span-6">
-							<h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
-								Añade un rol
-							</h3>
-							<ul
-								class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-[#1d1d1d] dark:border-gray-600 dark:text-white"
+						<div class="sm:col-span-2 h-full">
+							<label
+								for="description"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Cuerpo del correo</label
 							>
-								{
-									roles?.map((rol) => (
-										<li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
-											<div class="flex items-center ps-3">
-												<input
-													id="modal_id_rol"
-													type="radio"
-													value={rol.id}
-													name="rol_id"
-													class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-												/>
-												<label
-													for="modal_id_rol"
-													class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-												>
-													{rol.nombre}
-												</label>
-											</div>
-										</li>
-									))
-								}
-							</ul>
+							<textarea
+								id="description"
+								rows="29"
+								class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 h-full"
+								placeholder="Write product description here" required></textarea>
 						</div>
 					</div>
-
-					<!-- Modal footer -->
-					<div
-						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
-					>
-						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
-							type="submit">Guardar</button
-						>
-					</div>
-				</div>
-			</form>
+				</form>
+			</div>
+			<!-- Modal footer -->
+			<div
+				class="flex items-center p-4 md:p-5 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b dark:border-gray-600"
+			>
+				<button
+					data-modal-hide="top-right-modal"
+					type="button"
+					class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+					>Enviar correo</button
+				>
+				<button
+					data-modal-hide="top-right-modal"
+					type="button"
+					class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+					>Cancelar</button
+				>
+			</div>
 		</div>
 	</div>
 </div>
+
+<!-- Edit User Modal -->
+<div
+	id="drawer-update-product-default"
+	class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#1d1d1d]"
+	tabindex="-1"
+	aria-labelledby="drawer-label"
+	aria-hidden="true"
+>
+	<h5
+		id="drawer-label"
+		class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+	>
+		Actualizar Formulario
+	</h5>
+	<button
+		type="button"
+		data-drawer-dismiss="drawer-update-product-default"
+		aria-controls="drawer-update-product-default"
+		class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+	>
+		<svg
+			aria-hidden="true"
+			class="w-5 h-5"
+			fill="currentColor"
+			viewBox="0 0 20 20"
+			xmlns="http://www.w3.org/2000/svg"
+			><path
+				fill-rule="evenodd"
+				d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+				clip-rule="evenodd"></path></svg
+		>
+		<span class="sr-only">Cerrar menu</span>
+	</button>
+
+	<form action="/api/update/admin-update-forms" method="post">
+		<div class="space-y-4">
+			<input type="hidden" name="service_id" id="modal_form_id" value="" />
+			<div>
+				<label
+					for="nombre_update-service"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Titulo del formulario</label
+				>
+				<input
+					type="text"
+					name="titulo-form"
+					id="titulo-update-form"
+					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					value=""
+					placeholder="inserta el titulo del formulario"
+					required=""
+				/>
+			</div>
+			<div>
+				<label
+					for="categoria_service"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Categoria</label
+				>
+				<input
+					type="text"
+					name="categoria-form"
+					id="categoria-form-update"
+					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					value=""
+					placeholder="Añade la categoria del formulario"
+					required=""
+				/>
+			</div>
+			<div>
+				<label
+					for="precio-servicio"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Pega el JSON del formulario</label
+				>
+				<textarea
+					name="json-update"
+					id="json-form"
+					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Añade el Json del formulario"
+					required=""></textarea>
+			</div>
+			<div>
+				<label
+					for="descripcion-servicio"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Tema del form (opcional)</label
+				>
+				<textarea
+					id="tema-form"
+					name="tema-form-update"
+					rows="4"
+					class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Añade el codigo json del tema de tu formulario"
+				></textarea>
+			</div>
+			<div>
+				<label
+					for="descripcion-servicio"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Descripcion</label
+				>
+				<textarea
+					id="descripcion-form"
+					name="descripcion-form-update"
+					rows="4"
+					class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Añade una descripcion para el form"></textarea>
+			</div>
+			<div>
+				<label
+					for="updaterol_estado"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Estado</label
+				>
+				<select
+					id="update-form-estado"
+					name="estado"
+					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					<option value="" disabled="" selected="">--</option>
+					<option value="true">Activo</option>
+					<option value="false">Inactivo</option>
+				</select>
+			</div>
+		</div>
+		<div
+			class="bottom-0 left-0 flex justify-center w-full pb-4 mt-4 space-x-4 sm:absolute sm:px-4 sm:mt-0"
+		>
+			<button
+				type="submit"
+				class="w-full justify-center text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+			>
+				Actualizar
+			</button>
+			<button
+				data-drawer-hide="drawer-update-product-default"
+				type="button"
+				class="w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900 dark:bg-[#1d1d1d]"
+			>
+				Cancelar
+			</button>
+		</div>
+	</form>
+</div>
+
 <script>
 	document.addEventListener('DOMContentLoaded', () => {
 		// Tipar los botones como HTMLElement (con dataset)
