@@ -1,4 +1,4 @@
-import type { APIRoute } from "astro";
+import type { APIRoute } from "astro"; 
 import { supabase } from "../../../lib/supabase";
 
 // helper para redirigir con mensaje
