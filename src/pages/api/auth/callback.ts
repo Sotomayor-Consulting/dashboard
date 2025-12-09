@@ -1,9 +1,21 @@
-import type { APIRoute } from "astro"; 
+// src/pages/api/auth/callback.ts
+import type { APIRoute } from "astro";
 import { supabase } from "../../../lib/supabase";
 
 // helper para redirigir con mensaje
 function redirectWithMessage(
-  redirectFn: (location: string, status?: 301 | 302 | 303 | 307 | 308 | 300 | 304) => Response,
+  redirectFn: (
+    location: string,
+    status?:
+      | 301
+      | 302
+      | 303
+      | 307
+      | 308
+      | 300
+      | 304
+      | undefined,
+  ) => Response,
   msg: string,
   statusType: "success" | "error" = "error",
   route: string = "/sign-in",
@@ -46,7 +58,7 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
   // 3) Intercambiamos el código por la sesión
   const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
 
-  if (error || !data.session) {
+  if (error || !data?.session) {
     console.error("Error al intercambiar código por sesión:", error);
 
     return redirectWithMessage(
@@ -65,11 +77,12 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
     path: "/",
   });
 
-  // Puedes redirigir directo al dashboard o pasar por sign-in con mensaje
+  // Redirige donde quieras que caiga el usuario logueado.
+  // Aquí lo mando al home con mensaje de éxito:
   return redirectWithMessage(
     redirect,
     "Sesión iniciada correctamente con Google.",
     "success",
-    "/", // si prefieres ir directo al dashboard con el query (?status=success...)
+    "/", // → "/?status=success&msg=..."
   );
 };

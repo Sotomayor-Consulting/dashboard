@@ -1,4 +1,4 @@
-// src/pages/api/auth/login.ts (o como se llame)
+// src/pages/api/auth/login.ts
 import type { APIRoute } from "astro";
 import { supabase } from "../../../lib/supabase";
 import type { Provider } from "@supabase/supabase-js";
@@ -64,8 +64,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   if (error) {
     console.error("Error login email/password:", error);
 
-    // Puedes usar error.message, o poner algo más genérico:
-    // return redirectWithMessage(redirect, error.message);
     return redirectWithMessage(
       redirect,
       "Correo o contraseña incorrectos. Revisa tus datos e inténtalo nuevamente.",
@@ -82,5 +80,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   });
 
   // si quieres mostrar mensaje de éxito también:
-  return redirectWithMessage(redirect, "Sesión iniciada correctamente.", "success");
+  return redirectWithMessage(
+    redirect,
+    "Sesión iniciada correctamente.",
+    "success",
+  );
 };
