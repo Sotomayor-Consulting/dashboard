@@ -5,7 +5,7 @@ import type { Provider } from "@supabase/supabase-js";
 
 // helpercito para no repetir código
 function redirectWithMessage(
-  redirectFn: (location: string, status?: number) => Response,
+  redirectFn: (path: string, status?: 301 | 302 | 303 | 307 | 308 | 300 | 304 | undefined) => Response,
   msg: string,
   statusType: "success" | "error" = "error",
 ) {
@@ -81,6 +81,5 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     path: "/",
   });
 
-  // si quieres mostrar mensaje de éxito también:
   return redirectWithMessage(redirect, "Sesión iniciada correctamente.", "success");
 };

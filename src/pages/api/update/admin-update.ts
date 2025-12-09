@@ -49,16 +49,33 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
     const organizacion = form.get("compania")?.toString().trim();
     const rolIdRaw = form.get("rol_id")?.toString().trim();
     const estado = form.get("estado")?.toString().trim();
+    const pais = form.get("pais_modal")?.toString().trim();
+    const ciudad = form.get("ciudad_modal")?.toString().trim();
+    const direccion_linea1 = form.get("direccion_linea1")?.toString().trim();
+    const direccion_linea2 = form.get("direccion_linea2")?.toString().trim();
+    const modal_telefono = form.get("modal_telefono")?.toString().trim();
+    const fecha_nacimiento = form.get("fecha_nacimiento")?.toString().trim();
+    const tipo_identificacion = form.get("tipo_identificacion")?.toString().trim();
+    const numero_de_identificacion = form.get("numero_de_identificacion")?.toString().trim();
+    const tipo_persona = form.get("tipo_persona")?.toString().trim();
 
     // 4) Build payload (no sobrescribe con strings vacíos)
     const payload: Record<string, any> = {};
 
     if (nombre) payload.nombre = nombre;
     if (apellido) payload.apellido = apellido;
-    if (correo)  payload.correo = correo; // ⚠️ Esto NO cambia el email de auth.users, solo tu tabla
+    if (correo)  payload.correo = correo;
     if (organizacion) payload.organizacion = organizacion;
     if (estado) payload.estado = estado;
-    
+    if (pais) payload.pais_id = pais;
+    if (ciudad) payload.ciudad = ciudad;
+    if (direccion_linea1) payload.direccion_linea1 = direccion_linea1;
+    if (direccion_linea2) payload.direccion_linea2 = direccion_linea2;
+    if (modal_telefono) payload.telf = modal_telefono;
+    if (fecha_nacimiento) payload.fecha_nacimiento = fecha_nacimiento;
+    if (tipo_identificacion) payload.tipo_identificacion = tipo_identificacion;
+    if (numero_de_identificacion) payload.numero_de_identificacion = numero_de_identificacion;
+    if (tipo_persona) payload.tipo_persona = tipo_persona;
 
     // rol (admin puede cambiar)
     if (rolIdRaw !== undefined && rolIdRaw !== "") {

@@ -39,7 +39,10 @@ let query = supabase
     avatar_url,
     rol_id,
 	rol: roles!usuarios_rol_id_fkey ( id, nombre ),
-    estado
+    estado,
+	tipo_identificacion,
+	numero_de_identificacion,
+	tipo_persona
   `,
 		{ count: 'exact' },
 	)
@@ -427,6 +430,16 @@ const { data: paises } = await supabase
 												data-correo={user.correo || ''}
 												data-rol-id={user.rol_id ?? ''}
 												data-userestado={user.estado ?? ''}
+												data-pais={user.pais_id ?? ''}
+												data-ciudad={user.ciudad || ''}
+												data-linea1={user.direccion_linea1 || ''}
+												data-linea2={user.direccion_linea2 || ''}
+												data-telefono={user.telf || ''}
+												data-nacimiento={user.fecha_nacimiento || ''}
+												data-tipoidentificacion={user.tipo_identificacion || ''}
+												data-numeroidentidad={user.numero_de_identificacion || ''}
+												data-tipo={user.tipo_persona?? ''}
+
 												class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 											>
 												<svg
@@ -608,6 +621,7 @@ const { data: paises } = await supabase
 							>
 							<select
 								id="pais"
+								name="pais_modal"
 								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							>
 								<option selected hidden disabled>Selecciona un pais</option>
@@ -620,15 +634,15 @@ const { data: paises } = await supabase
 						</div>
 						<div class="col-span-6 sm:col-span-3">
 							<label
-								for="cuidad"
+								for="ciudad"
 								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-								>Cuidad</label
+								>ciudad</label
 							>
 							<input
 								type="text"
-								name="cuidad"
 								value=""
-								id="cuidad"
+								id="ciudad"
+								name="ciudad_modal"
 								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 								placeholder="Quito"
 							/>
@@ -665,15 +679,14 @@ const { data: paises } = await supabase
 						</div>
 						<div class="col-span-6 sm:col-span-3">
 							<label
-								for="telefono"
+								for="modal_telefono"
 								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
 								>Telefono</label
 							>
 							<input
 								type="tel"
-								name="telefono"
-								value=""
-								id="telefono"
+								id="modal_telefono"
+								name="modal_telefono"
 								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 								placeholder="0912345678"
 							/>
@@ -687,7 +700,6 @@ const { data: paises } = await supabase
 							<input
 								type="date"
 								name="fecha_nacimiento"
-								value=""
 								id="fecha_nacimiento"
 								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 								placeholder="0912345678"
@@ -704,7 +716,7 @@ const { data: paises } = await supabase
 								name="tipo_identificacion"
 								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
 							>
-								<option value="" hidden="">Tipo de documento</option>
+								<option value="" hidden disabled selected>Tipo de documento</option>
 								<option value="Cédula"> Cédula </option><option value="RUC">
 									RUC
 								</option><option value="ID"> ID </option><option
@@ -791,51 +803,77 @@ const { data: paises } = await supabase
 		</div>
 	</div>
 </div>
-<script>
+<script is:inline>
 	document.addEventListener('DOMContentLoaded', () => {
-		// Tipar los botones como HTMLElement (con dataset)
-		const btns = document.querySelectorAll<HTMLElement>('[data-edit-user]');
+    // Tipar los botones como HTMLElement (con dataset)
+    const btns = document.querySelectorAll('[data-edit-user]');
 
-		// Helper para setear .value de inputs/textarea de forma segura
-		function setValue(id, val) {
-			const el = document.getElementById(id) as
-				| HTMLInputElement
-				| HTMLTextAreaElement
-				| null;
-			if (el) el.value = val ?? '';
-		}
+    // Helper para setear .value de inputs/textarea de forma segura
+    function setValue(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.value = val ?? '';
+    }
 
-		btns.forEach((btn) => {
-			btn.addEventListener('click', () => {
-				const nombre = btn.dataset.nombre ?? '';
-				const apellido = btn.dataset.apellido ?? '';
-				const correo = btn.dataset.correo ?? '';
-				const rolId = btn.dataset.rolId ?? '';
-				const compania = btn.dataset.compania ?? '';
-				const userId = btn.dataset.userId ?? '';
-				const estado = btn.dataset.userestado ?? '';
+    // Helper específico para selects
+    function setSelectValue(id, val) {
+        const select = document.getElementById(id);
+        if (select && val) {
+            select.value = val;
+        }
+    }
 
-				setValue('modal_user_id', userId);
-				setValue('modal_nombre', nombre);
-				setValue('modal_apellido', apellido);
-				setValue('modal_correo', correo);
-				setValue('modal_compania', compania);
+    btns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const nombre = btn.dataset.nombre ?? '';
+            const apellido = btn.dataset.apellido ?? '';
+            const correo = btn.dataset.correo ?? '';
+            const rolId = btn.dataset.rolId ?? '';
+            const compania = btn.dataset.compania ?? '';
+            const userId = btn.dataset.userId ?? '';
+            const estado = btn.dataset.userestado ?? '';
+            const pais = btn.dataset.pais ?? '';
+            const ciudad = btn.dataset.ciudad ?? '';
+            const linea1 = btn.dataset.linea1 ?? '';
+            const linea2 = btn.dataset.linea2 ?? '';
+            const telefono = btn.dataset.telefono ?? '';
+            const nacimiento = btn.dataset.nacimiento ?? '';
+            const tipoidentificacion = btn.dataset.tipoidentificacion ?? '';
+            const identificacion = btn.dataset.numeroidentidad ?? '';
+            const tipo = btn.dataset.tipo ?? '';
 
-				// Radios: tipar como HTMLInputElement
-				document
-					.querySelectorAll<HTMLInputElement>('input[name="rol_id"]')
-					.forEach((r) => {
-						r.checked = String(r.value) === String(rolId);
-					});
+            // Inputs/Textareas
+            setValue('modal_user_id', userId);
+            setValue('modal_nombre', nombre);
+            setValue('modal_apellido', apellido);
+            setValue('modal_correo', correo);
+            setValue('modal_compania', compania);
+            setValue('ciudad', ciudad);
+            setValue('direccion_linea1', linea1);
+            setValue('direccion_linea2', linea2);
+            setValue('modal_telefono', telefono);
+            setValue('fecha_nacimiento', nacimiento);
+            setValue('numero_de_identificacion', identificacion);
 
-				document
-					.querySelectorAll<HTMLInputElement>('input[name="estado"]')
-					.forEach((r) => {
-						r.checked = String(r.value) === String(estado);
-					});
-			});
-		});
-	});
+            // Selects (pais, tipoidentificacion, tipo)
+            setSelectValue('pais', pais);
+            setSelectValue('tipo_identificacion', tipoidentificacion);
+            setSelectValue('tipo_persona', tipo);
+
+            // Radios
+            document
+                .querySelectorAll('input[name="rol_id"]')
+                .forEach((r) => {
+                    r.checked = String(r.value) === String(rolId);
+                });
+
+            document
+                .querySelectorAll('input[name="estado"]')
+                .forEach((r) => {
+                    r.checked = String(r.value) === String(estado);
+                });
+        });
+    });
+});
 </script>
 <!-- Añadir usuario -->
 <div
@@ -1049,7 +1087,7 @@ const { data: paises } = await supabase
 		</div>
 	</div>
 </div>
-<script>
+<script is:inline>
 	document.addEventListener('DOMContentLoaded', () => {
 		const form = document.getElementById('updaterolForm');
 		const uidInput = document.getElementById('updaterol_user_id');
