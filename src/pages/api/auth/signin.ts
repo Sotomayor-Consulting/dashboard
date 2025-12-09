@@ -81,5 +81,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     path: "/",
   });
 
+  // si quieres mostrar mensaje de éxito también:
   return redirectWithMessage(redirect, "Sesión iniciada correctamente.", "success");
 };
