@@ -1599,7 +1599,7 @@ const display = msg ? 'flex' : 'hidden';
 				return 'El tercer nombre de empresa es obligatorio';
 			}
 
-			return null; // Sin errores
+			return null; 
 		}
 
 		function saveBusinessData(formData: FormData) {
@@ -1704,6 +1704,7 @@ const display = msg ? 'flex' : 'hidden';
 			submitButton.textContent = 'Creando cuenta...';
 
 			try {
+				if (!(registerFormElement instanceof HTMLFormElement)) return;
 				const formData = new FormData(registerFormElement);
 				const response = await fetch('/api/auth/register_start', {
 					method: 'POST',

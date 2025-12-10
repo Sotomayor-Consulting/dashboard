@@ -1,9 +1,9 @@
 ---
-import Alerta from '../components/alertageneral.astro'
+import Alerta from '../components/alertageneral.astro';
+import Alertaempresas from '../components/alertaempresas.astro';
 import LayoutSidebar from '../app/LayoutSidebar.astro';
 import LandingReadme from '../modules/LandingReadme-copy.astro';
 import { supabase } from '../lib/supabase';
-
 
 const { cookies, redirect } = Astro;
 
@@ -11,7 +11,7 @@ const accessToken = cookies.get('sb-access-token');
 const refreshToken = cookies.get('sb-refresh-token');
 
 if (!accessToken || !refreshToken) {
-	return redirect ('/sign-in');
+	return redirect('/sign-in');
 }
 
 const { error } = await supabase.auth.setSession({
@@ -29,79 +29,128 @@ if (error) {
 
 	return redirect('/sign-in');
 }
-
-
-
 ---
 
 <LayoutSidebar>
+	<Alertaempresas />
 	<Alerta />
 
-	<!-- Script: mostrar/ocultar y limpiar query -->
 	<script is:inline>
-		(function () {
-			const alertBox = document.getElementById('alert-feedback');
-			if (!alertBox) return;
+		(async function () {
+			const toast = document.getElementById('toast-feedback');
+			const msgWrapper = toast?.querySelector('.ms-3'); // el div
+			const msgEl = msgWrapper?.querySelector('span.ms-3'); // el span interno
 
-			const params = new URLSearchParams(window.location.search);
-			const hasMsg = params.has('msg');
+			const iconWrapper = document.getElementById('toast-icon-wrapper');
+			const iconSuccess = document.getElementById('toast-icon-success');
+			const iconError = document.getElementById('toast-icon-error');
 
-			// por si el SSR no lo dejó visible
-			if (hasMsg) {
-				alertBox.classList.remove('hidden');
-				alertBox.classList.add('flex');
+			// 🔔 Helper para mostrar el toast
+			function showToast(message, options = {}) {
+				const {
+					isSuccess = false,
+					autoClose = true,
+					autoCloseMs = 6000,
+					redirectTo, // string | undefined
+					redirectDelayMs = 3000,
+				} = options;
 
-				// autocerrar a los 6s
+				if (!toast || !msgEl || !iconWrapper || !iconSuccess || !iconError) {
+					console.warn('[toast] Elementos del toast no encontrados');
+					if (redirectTo) {
+						setTimeout(() => {
+							window.location.href = redirectTo;
+						}, redirectDelayMs);
+					}
+					return;
+				}
+
+				// Texto
+				msgEl.textContent = message;
+
+				// Reset de clases base
+				toast.classList.remove('hidden');
+				toast.classList.add('flex');
+
+				// Colores de texto
+				toast.classList.remove(
+					'text-green-700',
+					'dark:text-green-300',
+					'text-red-700',
+					'dark:text-red-300',
+				);
+				toast.classList.add(
+					isSuccess ? 'text-green-700' : 'text-red-700',
+					isSuccess ? 'dark:text-green-300' : 'dark:text-red-300',
+				);
+
+				// Colores del icon wrapper
+				iconWrapper.classList.remove(
+					'bg-green-100',
+					'dark:bg-green-800',
+					'bg-red-100',
+					'dark:bg-red-800',
+				);
+				iconWrapper.classList.add(
+					isSuccess ? 'bg-green-100' : 'bg-red-100',
+					isSuccess ? 'dark:bg-green-800' : 'dark:bg-red-800',
+				);
+
+				// Mostrar solo el icono correcto
+				iconSuccess.classList.toggle('hidden', !isSuccess);
+				iconError.classList.toggle('hidden', isSuccess);
+
+				// Función para ocultar
 				const hide = () => {
-					alertBox.classList.add('hidden');
-					alertBox.classList.remove('flex');
+					toast.classList.add('hidden');
+					toast.classList.remove('flex');
 				};
-				const timer = setTimeout(hide, 6000);
 
-				// botón cerrar manual
-				const closeBtn = alertBox.querySelector('[data-close]');
+				let timer;
+				if (autoClose && !redirectTo) {
+					timer = setTimeout(hide, autoCloseMs);
+				}
+
+				// Botón cerrar (evitar múltiples listeners duplicados)
+				const closeBtn = toast.querySelector(
+					'[data-dismiss-target="#toast-feedback"]',
+				);
 				if (closeBtn) {
-					closeBtn.addEventListener('click', () => {
-						clearTimeout(timer);
+					const newCloseBtn = closeBtn.cloneNode(true);
+					closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+					newCloseBtn.addEventListener('click', () => {
+						if (timer) clearTimeout(timer);
 						hide();
 					});
 				}
 
-				// limpiar query de la URL (para que no reaparezca al refrescar)
-				params.delete('msg');
-				params.delete('status');
-				const newUrl = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}${location.hash}`;
-				window.history.replaceState({}, '', newUrl);
-			} else {
-				// asegurar oculto si no hay mensaje
-				alertBox.classList.add('hidden');
-				alertBox.classList.remove('flex');
+				// Redirección opcional
+				if (redirectTo) {
+					setTimeout(() => {
+						window.location.href = redirectTo;
+					}, redirectDelayMs);
+				}
 			}
-		})();
-	</script>
 
-	<script is:inline>
-		(async function () {
-			const alertBox = document.getElementById('alert-feedback');
-			if (!alertBox) return;
+			// ============================
+			//   LÓGICA PRINCIPAL
+			// ============================
 
 			const incorpData = localStorage.getItem('incorpData');
-			if (!incorpData) {
-				return;
-			}
+			if (!incorpData) return;
 
-			// Definición de la URL de redirección
 			const REDIRECT_URL = '/pages/companias';
-			const REDIRECT_DELAY = 3000; // 3 segundos para que el usuario lea el mensaje
 
 			try {
 				const data = JSON.parse(incorpData);
 
-				// VALIDACIÓN DE NOMBRES DE EMPRESA (Se mantiene igual)
+				// Validar nombres de empresa
 				const nombresEmpresa = [data.nombre_1, data.nombre_2, data.nombre_3];
 				const nombresValidos = nombresEmpresa.some(
 					(nombre) =>
-						nombre !== null && nombre !== undefined && nombre.trim() !== '',
+						nombre !== null &&
+						nombre !== undefined &&
+						String(nombre).trim() !== '',
 				);
 
 				if (!nombresValidos) {
@@ -110,8 +159,8 @@ if (error) {
 				}
 
 				const formData = new FormData();
-				formData.append('tipo_de_empresa', data.tipo_de_empresa);
-				formData.append('estado_de_empresa', data.estado_de_empresa);
+				formData.append('tipo_de_empresa', data.tipo_de_empresa || '');
+				formData.append('estado_de_empresa', data.estado_de_empresa || '');
 				formData.append('nombre_1', data.nombre_1 || '');
 				formData.append('nombre_2', data.nombre_2 || '');
 				formData.append('nombre_3', data.nombre_3 || '');
@@ -123,122 +172,45 @@ if (error) {
 				});
 
 				if (response.ok) {
-					// ----------------------------------------------------
-					// 💡 BLOQUE DE ÉXITO Y REDIRECCIÓN
-					// ----------------------------------------------------
+					// ✅ ÉXITO
 					localStorage.removeItem('incorpData');
 
-					// 1. Actualizar el mensaje de éxito
-					alertBox.querySelector('.ms-3').textContent =
-						'✅ ¡Éxito! Empresa registrada. Redirigiendo a tus empresas...';
-
-					// 2. Establecer clases para mensaje de éxito (Se mantiene igual)
-					alertBox.classList.remove(
-						'hidden',
-						'text-red-800',
-						'border-red-300',
-						'bg-red-50',
-						'dark:text-red-400',
-						'dark:border-red-800',
+					showToast(
+						'Empresa registrada correctamente. Redirigiendo a tus empresas...',
+						{
+							isSuccess: true,
+							autoClose: false, // no hace falta autocerrar, vamos a redirigir
+							redirectTo: REDIRECT_URL,
+							redirectDelayMs: 3000,
+						},
 					);
-					alertBox.classList.add(
-						'flex',
-						'text-green-800',
-						'border-green-300',
-						'bg-green-50',
-						'dark:text-green-400',
-						'dark:border-green-800',
-					);
-
-					// 3. Redirección automática después del retraso
-					setTimeout(() => {
-						window.location.href = REDIRECT_URL; // Redirecciona a /pages/companias
-					}, REDIRECT_DELAY);
-
-					// NO establecemos el autocierre ni el botón de cerrar aquí,
-					// ya que la página se va a redirigir en 3 segundos.
 				} else {
-					// ----------------------------------------------------
-					// BLOQUE DE ERROR (Se mantiene igual, solo reestructurado)
-					// ----------------------------------------------------
+					// ❌ ERROR HTTP
 					const errorText = await response.text();
-					alertBox.querySelector('.ms-3').textContent =
-						`❌ Error: ${errorText || 'No se pudo registrar la empresa'}`;
-
-					// Remover clases de éxito y añadir clases de error
-					alertBox.classList.remove(
-						'hidden',
-						'text-green-800',
-						'border-green-300',
-						'bg-green-50',
-						'dark:text-green-400',
-						'dark:border-green-800',
+					showToast(
+						errorText ||
+							'No se pudo registrar la empresa. Inténtalo nuevamente.',
+						{
+							isSuccess: false,
+							autoClose: true,
+							autoCloseMs: 6000,
+						},
 					);
-					alertBox.classList.add(
-						'flex',
-						'text-red-800',
-						'border-red-300',
-						'bg-red-50',
-						'dark:text-red-400',
-						'dark:border-red-800',
-					);
-
-					// Lógica de autocerrar y botón de cerrar (Solo en caso de error)
-					const hide = () => {
-						alertBox.classList.add('hidden');
-						alertBox.classList.remove('flex');
-					};
-					const timer = setTimeout(hide, 6000);
-
-					const closeBtn = alertBox.querySelector('[data-close]');
-					if (closeBtn) {
-						closeBtn.addEventListener('click', () => {
-							clearTimeout(timer);
-							hide();
-						});
-					}
 				}
 			} catch (error) {
-				// ----------------------------------------------------
-				// BLOQUE CATCH (Manejo de errores de parseo/conexión)
-				// ----------------------------------------------------
-				alertBox.querySelector('.ms-3').textContent =
-					`❌ Error: ${error.message || 'Error de conexión'}`;
-
-				// Manejo de clases de error
-				alertBox.classList.remove(
-					'hidden',
-					'text-green-800',
-					'border-green-300',
-					'bg-green-50',
-					'dark:text-green-400',
-					'dark:border-green-800',
+				console.error('[incorp-save] Error:', error);
+				showToast(
+					(error && error.message) ||
+						'Error de conexión. Inténtalo nuevamente.',
+					{
+						isSuccess: false,
+						autoClose: true,
+						autoCloseMs: 6000,
+					},
 				);
-				alertBox.classList.add(
-					'flex',
-					'text-red-800',
-					'border-red-300',
-					'bg-red-50',
-					'dark:text-red-400',
-					'dark:border-red-800',
-				);
-
-				// Lógica de autocerrar y botón de cerrar
-				const hide = () => {
-					alertBox.classList.add('hidden');
-					alertBox.classList.remove('flex');
-				};
-				const timer = setTimeout(hide, 6000);
-
-				const closeBtn = alertBox.querySelector('[data-close]');
-				if (closeBtn) {
-					closeBtn.addEventListener('click', () => {
-						clearTimeout(timer);
-						hide();
-					});
-				}
 			}
 		})();
 	</script>
+
 	<LandingReadme />
 </LayoutSidebar>
