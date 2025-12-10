@@ -10,7 +10,6 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
-  site: 'https://dashboard.sotomayorconsulting.com',
   base: '/',
   integrations: [sitemap(), tailwind(), icon()],
 });
