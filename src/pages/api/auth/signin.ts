@@ -39,7 +39,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
       provider: provider as Provider,
       options: {
         redirectTo:
-          "http://localhost:4321/api/auth/callback",
+          "https://dashboard.sotomayorconsulting.com/api/auth/callback",
       },
     });
 
