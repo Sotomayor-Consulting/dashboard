@@ -111,7 +111,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     path: "/",
     secure: process.env.NODE_ENV === "production",
     httpOnly: false,
-    sameSite: "None" as const,
+    sameSite: "none" as const,
     maxAge: 60 * 60 * 24 * 30, // 30 días
   };
 

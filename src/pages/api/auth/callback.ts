@@ -42,7 +42,6 @@ export const GET: APIRoute = async ({ url, cookies, redirect, request }) => {
   console.log("[callback] Método:", request.method);
 
   // 0) Log útil para debugging de cookies y origen
-  console.log("[callback] Cookies entrantes:", cookies.getAll());
   console.log("[callback] Host:", request.headers.get("host"));
   console.log("[callback] X-Forwarded-Proto:", request.headers.get("x-forwarded-proto"));
 
