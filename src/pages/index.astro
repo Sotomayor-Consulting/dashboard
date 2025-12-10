@@ -1,96 +1,37 @@
 ---
-import Alerta from "../components/alertageneral.astro";
-import LayoutSidebar from "../app/LayoutSidebar.astro";
-import LandingReadme from "../modules/LandingReadme-copy.astro";
-import { supabase } from "../lib/supabase";
-import { createSupabaseServerClient } from "../lib/supabase-ssr";
+import Alerta from '../components/alertageneral.astro'
+import LayoutSidebar from '../app/LayoutSidebar.astro';
+import LandingReadme from '../modules/LandingReadme-copy.astro';
+import { supabase } from '../lib/supabase';
 
-// 1) Primero: manejar el ?code=... (usar "/" como callback)
-const url = new URL(Astro.request.url);
-const code = url.searchParams.get("code");
-const statusFromQuery = url.searchParams.get("status");
-const msgFromQuery = url.searchParams.get("msg");
 
-if (code) {
-  console.log("[index] Detectado code en la URL:", code);
-
-  const supabaseSSR = createSupabaseServerClient({
-    headers: Astro.request.headers,
-    cookies: Astro.cookies,
-  });
-
-  const { data, error } = await supabaseSSR.auth.exchangeCodeForSession(code);
-
-  console.log("[index] Resultado exchangeCodeForSession -> error:", error);
-  console.log(
-    "[index] Resultado exchangeCodeForSession -> data.session existe?:",
-    !!data?.session,
-  );
-
-  if (!error && data?.session) {
-    const { access_token, refresh_token } = data.session;
-
-    console.log("[index] Seteando cookies sb-access-token / sb-refresh-token...");
-
-    Astro.cookies.set("sb-access-token", access_token, {
-      path: "/",
-    });
-
-    Astro.cookies.set("sb-refresh-token", refresh_token, {
-      path: "/",
-    });
-
-    console.log("[index] Cookies seteadas. Redirigiendo SIN code...");
-
-    // Redirigimos limpiando el ?code para no repetir el flujo
-    return Astro.redirect(
-      "/?status=success&msg=" +
-        encodeURIComponent("Sesión iniciada correctamente con Google."),
-    );
-  } else {
-    console.error("[index] Error al intercambiar code en /:", error);
-
-    return Astro.redirect(
-      "/sign-in?status=error&msg=" +
-        encodeURIComponent(
-          "No se pudo completar el inicio de sesión con Google. Inténtalo nuevamente.",
-        ),
-    );
-  }
-}
-
-// 2) Si NO hay ?code=..., ahora sí aplicamos tu guard normal
 const { cookies, redirect } = Astro;
 
-const accessToken = cookies.get("sb-access-token");
-const refreshToken = cookies.get("sb-refresh-token");
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
 
 if (!accessToken || !refreshToken) {
-  console.log("[index] No hay cookies de sesión, redirigiendo a /sign-in");
-  return redirect("/sign-in");
+	return redirect ('/sign-in');
 }
 
 const { error } = await supabase.auth.setSession({
-  refresh_token: refreshToken.value,
-  access_token: accessToken.value,
+	refresh_token: refreshToken.value,
+	access_token: accessToken.value,
 });
 
 if (error) {
-  console.error("[index] Error en setSession, limpiando cookies y redirigiendo:", error);
+	cookies.delete('sb-access-token', {
+		path: '/',
+	});
+	cookies.delete('sb-refresh-token', {
+		path: '/',
+	});
 
-  cookies.delete("sb-access-token", {
-    path: "/",
-  });
-  cookies.delete("sb-refresh-token", {
-    path: "/",
-  });
-
-  return redirect("/sign-in");
+	return redirect('/sign-in');
 }
 
-// 3) Ya sin code y con sesión válida, seguimos renderizando el home
-const status = statusFromQuery ?? null;
-const msg = msgFromQuery ?? null;
+
+
 ---
 
 <LayoutSidebar>
