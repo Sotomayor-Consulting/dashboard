@@ -1,6 +1,6 @@
 export const API_URL = `${import.meta.env.SITE}${import.meta.env.BASE_URL}api/`;
 
-export const REMOTE_ASSETS_BASE_URL = `https://flowbite-admin-dashboard.vercel.app`;
+export const REMOTE_ASSETS_BASE_URL = `https://dashboard.sotomayorconsulting.com`;
 
 export const SITE_TITLE = 'SOTOMAYOR CONSULTING DASHBOARD';
 

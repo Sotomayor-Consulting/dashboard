@@ -1,8 +1,8 @@
 {
-	"name": "flowbite-astro-admin-dashboard",
-	"version": "1.0.2",
+	"name": "dashboard-sotomayor-consulting",
+	"version": "1.0.1",
 	"private": "true",
-	"description": "A free and open-source admin dashboard template built with Tailwind CSS, Flowbite and Astro",
+	"description": "Dashboard de Sotomayor consulting para LLC's",
 	"keywords": [
 		"tailwind",
 		"tailwind css",

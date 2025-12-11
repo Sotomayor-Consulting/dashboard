@@ -1,6 +1,8 @@
 ---
 import { supabase } from "../lib/supabase";
 const { cookies, redirect } = Astro;
+import { Image } from 'astro:assets';
+import imagen from "../assets/imagen-no.png";
 
 // 1) Restaurar sesión
 const at = cookies.get("sb-access-token");
@@ -61,7 +63,7 @@ if (!rpcErr && !isAdmin) {
 				>
 					<li class="inline-flex items-center">
 						<a
-							href="#"
+							href="/"
 							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-primary-500"
 						>
 							<svg
@@ -75,25 +77,6 @@ if (!rpcErr && !isAdmin) {
 							>
 							Inicio
 						</a>
-					</li>
-					<li>
-						<div class="flex items-center">
-							<svg
-								class="w-6 h-6 text-gray-400"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-								xmlns="http://www.w3.org/2000/svg"
-								><path
-									fill-rule="evenodd"
-									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-									clip-rule="evenodd"></path></svg
-							>
-							<a
-								href="#"
-								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-primary-500"
-								>Pages</a
-							>
-						</div>
 					</li>
 					<li>
 						<div class="flex items-center">
@@ -126,10 +109,11 @@ if (!rpcErr && !isAdmin) {
 		<div class="grid xl:grid-cols-3 md:grid-cols-2 gap-2">
 			{
 				(formularios?.length ?? 0) === 0 ? (
-					<div class="p-6 border rounded-lg text-center text-gray-600 dark:text-gray-300">
-						<h3 class="text-lg font-semibold mb-1">
-							No tienes formularios aún
+					<div class="p-6 border rounded-lg text-center text-gray-600 dark:text-gray-300 col-span-3 flex flex-col items-center">
+						<h3 class="text-lg font-semibold mb-5 ">
+							No tienes formularios o documentos aún
 						</h3>
+						<Image src={imagen} alt="test" />
 					</div>
 				) : (
 					formularios?.map((fr) => (

@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import icono from '/src/assets/icono.png'
+import icono2 from '/src/assets/icono-negro.png'
 import { supabase } from '../lib/supabase'; // Asegúrate de que esta ruta es correcta
 import type { User } from '@supabase/supabase-js';
 
@@ -77,7 +78,7 @@ if (accessToken && refreshToken) {
 			<div
 				id="marketing-banner"
 				tabindex="-1"
-				class="flex flex-col md:flex-row justify-between w-full p-4 bg-white border border-gray-100 shadow-xs top-20 dark:bg-neutral-700 dark:border-gray-600 right-4 animate-fade-in"
+				class="flex flex-col md:flex-row justify-between w-full p-4 bg-neutral-300 border border-gray-100 shadow-xs top-28 dark:bg-neutral-700 dark:border-gray-600 right-4 animate-fade-in"
 			>
 				<div class="flex flex-col items-start mb-3 me-4 md:items-center md:flex-row md:mb-0">
 					<a
@@ -85,10 +86,11 @@ if (accessToken && refreshToken) {
 						class="flex items-center mb-2 border-gray-200 md:pe-4 md:me-4 md:border-e md:mb-0 dark:border-gray-600"
 					>
 						
-						<Image src={icono} width="32" alt="Sotomayor consulting Logo" class="me-2"/>
+						<Image src={icono} width="32" alt="Sotomayor consulting Logo" class="me-2 hidden dark:block"/>
+						<Image src={icono2} width="32" alt="Sotomayor consulting Logo" class="me-2 dark:hidden block"/>
 
 					</a>
-					<p class="flex items-center text-base font-normal text-white dark:text-white">
+					<p class="flex items-center text-base font-normal text-black dark:text-white">
 						{BANNER_PROPS.title}
 					</p>
 				</div>

@@ -37,7 +37,7 @@ if (error) {
 
 	<script is:inline>
 		(async function () {
-			const toast = document.getElementById('toast-feedback');
+			const toast = document.getElementById('toast-feedback-2');
 			const msgWrapper = toast?.querySelector('.ms-3'); // el div
 			const msgEl = msgWrapper?.querySelector('span.ms-3'); // el span interno
 
@@ -113,7 +113,7 @@ if (error) {
 
 				// Botón cerrar (evitar múltiples listeners duplicados)
 				const closeBtn = toast.querySelector(
-					'[data-dismiss-target="#toast-feedback"]',
+					'[data-dismiss-target="#toast-feedback-2"]',
 				);
 				if (closeBtn) {
 					const newCloseBtn = closeBtn.cloneNode(true);
