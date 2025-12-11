@@ -40,6 +40,7 @@ if (error || !formulario) {
 
 const jsonConfig = formulario.schema_json;
 const themeJson = formulario.tema_json;
+import '/src/estilos/surveyjs.css'
 ---
 
 <!doctype html>
@@ -47,7 +48,6 @@ const themeJson = formulario.tema_json;
 	<head>
 		<title>{formulario?.titulo}</title>
 		<meta charset="utf-8" />
-		<link rel="stylesheet" href="/src/estilos/surveyjs.css" />
 		<script
 			type="text/javascript"
 			src="https://unpkg.com/survey-core@2.3.9/survey.core.min.js"></script>

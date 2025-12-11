@@ -68,6 +68,7 @@ function fmtLocalYmd(iso: string) {
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}/${m}/${day}`;
 }
+import '/src/estilos/surveyjs.css'
 ---
 
 
@@ -76,7 +77,6 @@ function fmtLocalYmd(iso: string) {
 <head>
     <title>{envio.formularios?.titulo} Respuestas de {envio.usuarios?.nombre} {envio.usuarios?.apellido}</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="/src/estilos/surveyjs.css" />
     <script type="text/javascript" src="https://unpkg.com/survey-core@2.3.9/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-js-ui@2.3.9/survey-js-ui.min.js"></script>
     

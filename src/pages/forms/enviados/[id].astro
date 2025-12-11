@@ -62,6 +62,7 @@ const apellido = envio.usuarios?.apellido;
 const schemaSnapshot = envio.schema_snapshot ?? {};
 const answers = envio.data_json ?? {};
 
+import '/src/estilos/surveyjs.css'
 ---
 
 
@@ -70,7 +71,6 @@ const answers = envio.data_json ?? {};
 <head>
     <title>{titulo} Respuestas de {autorNombre} {apellido}</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="/src/estilos/surveyjs.css" />
     <script type="text/javascript" src="https://unpkg.com/survey-core@2.3.9/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-js-ui@2.3.9/survey-js-ui.min.js"></script>
     

@@ -313,11 +313,21 @@ export { notifications, totalUnread, user };
 							data-dropdown-toggle="dropdown-2"
 						>
 							<span class="sr-only">Open user menu</span>
-							<img
-								class="w-8 h-8 rounded-full"
-								src={imagen?.avatar_url}
-								alt="user photo"
-							/>
+							{
+								imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
+									<img
+										src={`https://api.dicebear.com/9.x/thumbs/svg?seed=`}
+										class="w-8 h-8 rounded-full"
+										alt="avatar"
+									/>
+								) : (
+									<img
+										class="w-8 h-8 rounded-full"
+										src={imagen?.avatar_url}
+										alt="user photo"
+									/>
+								)
+							}
 						</button>
 					</div>
 					<!-- Dropdown menu -->

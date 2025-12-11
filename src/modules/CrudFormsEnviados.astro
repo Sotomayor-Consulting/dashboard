@@ -2,9 +2,7 @@
 import NavPagination from '../components/NavPagination.astro';
 import { supabase } from "../lib/supabase";
 import Alerta from "../components/alertageneral.astro"
-/* =========================
-   4) Búsqueda + paginación (sin tocar BD)
-   ========================= */
+
 const q = (Astro.url.searchParams.get('q') || '').trim();
 const page = Math.max(1, Number(Astro.url.searchParams.get('page') || '1'));
 const pageSize = 20;
@@ -16,7 +14,7 @@ let errorMsg = '';
 let total = 0;
 let totalPages = 1;
 
-// JOINS para render (no filtra aquí)
+// JOINS para render
 let query = supabase
   .from('formularios_envios')
   .select(`
@@ -83,8 +81,6 @@ if (q) {
   // Si quieres buscar dentro del JSON como texto:
   // orParts.push(`data_json::text.ilike.*${safe}*`);
 
-  // Si por alguna razón no hay coincidencias en subconsultas,
-  // mantiene al menos el OR por status para no vaciar todo
   query = query.or(orParts.join(','));
 }
 
