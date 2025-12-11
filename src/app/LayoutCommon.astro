@@ -5,7 +5,6 @@ import { url } from '../lib/data.js';
 import { SITE_TITLE } from './constants.js';
 
 const { class: clazz } = Astro.props;
-
 ---
 
 <!doctype html>
@@ -26,7 +25,6 @@ const { class: clazz } = Astro.props;
 		/>
 
 		<meta name="author" content="Sotomayor Consulting" />
-		
 
 		<script is:inline>
 			if (
@@ -51,125 +49,6 @@ const { class: clazz } = Astro.props;
 		]}
 	>
 		<slot />
-		<script is:inline>
-			(function () {
-				// Caracteres típicos de texto roto: Ã, Â, â
-				const SUSPICIOUS_ANY = /[ÃÂâ]/;
-				const SUSPICIOUS_LATIN1 = /[ÃÂ]/;
-				const SUSPICIOUS_MOJIBAKE = /â/;
-
-				function fixCommonMojibake(str) {
-					if (!str || !SUSPICIOUS_ANY.test(str)) return str;
-
-					let out = str;
-
-					// 1) Mojibake clásico con "â..."
-					out = out
-						.replace(/â€”/g, '—') // em dash
-						.replace(/â€“/g, '–') // en dash
-						.replace(/â€¢/g, '•') // bullet
-						.replace(/â€˜/g, '‘') // opening single quote
-						.replace(/â€™/g, '’') // closing single quote
-						.replace(/â€œ/g, '“') // opening double quote
-						.replace(/â€\x9d/g, '”') // closing double quote (variante)
-						// fallback: cualquier "â€" suelto -> em dash
-						.replace(/â€/g, '—');
-
-					// 2) Casos típicos en español: ¡ y ¿ rotos
-					out = out
-						.replace(/Â¡/g, '¡') // inicio de exclamación
-						.replace(/Â¿/g, '¿'); // inicio de interrogación
-
-					// 3) Basura "Â" suelta (espacios no separables, soft hyphen, etc.)
-					// En tu contexto no usas la letra Â real, así que la quitamos
-					out = out.replace(/Â+/g, '');
-
-					return out;
-				}
-
-				function maybeFixLatin1Utf8(str) {
-					if (!str || !SUSPICIOUS_ANY.test(str)) return str;
-
-					let out = fixCommonMojibake(str);
-
-					// Si después de los reemplazos aún hay Ã o Â, intentamos Latin1 -> UTF-8
-					if (SUSPICIOUS_LATIN1.test(out)) {
-						try {
-							const bytes = new Uint8Array(out.length);
-							for (let i = 0; i < out.length; i++) {
-								bytes[i] = out.charCodeAt(i) & 0xff;
-							}
-
-							const decoded = new TextDecoder('utf-8').decode(bytes);
-
-							if (!SUSPICIOUS_ANY.test(decoded)) {
-								out = decoded;
-							}
-						} catch (e) {
-							// si falla, dejamos out como estaba
-						}
-					}
-
-					return out;
-				}
-
-				function fixTree(root) {
-					if (!root) return;
-
-					const walker = document.createTreeWalker(
-						root,
-						NodeFilter.SHOW_TEXT,
-						null,
-					);
-
-					let node;
-					while ((node = walker.nextNode())) {
-						const parent = node.parentElement;
-						// no tocar texto dentro de <script> o <style>
-						if (parent && parent.closest('script,style')) continue;
-
-						const original = node.nodeValue;
-						const fixed = maybeFixLatin1Utf8(original);
-						if (fixed !== original) {
-							node.nodeValue = fixed;
-						}
-					}
-				}
-
-				function runInitialFix() {
-					fixTree(document.body);
-				}
-
-				// 1) Corregir el DOM inicial
-				if (document.readyState === 'loading') {
-					document.addEventListener('DOMContentLoaded', runInitialFix);
-				} else {
-					runInitialFix();
-				}
-
-				// 2) Corregir cualquier texto NUEVO que se agregue (Supabase, etc.)
-				const observer = new MutationObserver((mutations) => {
-					for (const mutation of mutations) {
-						for (const node of mutation.addedNodes) {
-							if (node.nodeType === Node.TEXT_NODE) {
-								const original = node.nodeValue;
-								const fixed = maybeFixLatin1Utf8(original);
-								if (fixed !== original) {
-									node.nodeValue = fixed;
-								}
-							} else if (node.nodeType === Node.ELEMENT_NODE) {
-								fixTree(node);
-							}
-						}
-					}
-				});
-
-				observer.observe(document.body, {
-					childList: true,
-					subtree: true,
-				});
-			})();
-		</script>
 	</body>
 </html>
 
