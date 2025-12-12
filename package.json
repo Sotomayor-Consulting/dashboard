@@ -30,7 +30,7 @@
 	"type": "module",
 	"scripts": {
 		"astro": "astro",
-		"build": "astro build",
+		"build": "astro check && astro build --force",
 		"dev": "astro dev",
 		"preview": "astro preview",
 		"start": "astro dev"

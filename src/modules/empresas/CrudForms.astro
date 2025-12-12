@@ -1,12 +1,12 @@
 ---
 import NavPagination from '../../components/empresas/NavPagination.astro';
 import { supabase } from "../../lib/supabase";
+import Alerta from '../../components/alertageneral.astro'
 
 const { slug } = Astro.params;
 
-  /* =========================
-   4) Búsqueda + paginación
-   ========================= */
+  // 4) Búsqueda + paginación
+
 const rawQ = (Astro.url.searchParams.get("rawQ") || "").trim();
 const rawPage = parseInt(Astro.url.searchParams.get("page") || "1", 10);
 const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
@@ -15,7 +15,7 @@ const pageSize = 20;
 const from = (page - 1) * pageSize;
 const to = from + pageSize - 1;
 
-let servicio: any[] = []; // ✅ usa "servicios" (plural) para pintar
+let servicio: any[] = [];
 let errorMsg = "";
 let total = 0;
 let totalPages = 1;
@@ -56,96 +56,9 @@ if (error) {
   total = count ?? 0;
   totalPages = Math.max(1, Math.ceil(total / pageSize));
 }
-/* =========================
-   5) Alertas existentes
-   ========================= */
-   const status = Astro.url.searchParams.get("status"); // "success" | "error"
-const msg = Astro.url.searchParams.get("msg") || "";
-const isSuccess = status === "success";
-const variant =
-  isSuccess
-    ? "text-green-800 border-green-300 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-neutral-800"
-    : "text-red-800 border-red-300 bg-red-50 dark:text-red-400 dark:border-red-800 dark:bg-neutral-800";
-const display = msg ? "flex" : "hidden";
+
 ---
-<div
-	class=""
->
-	<!-- ALERTA FLOWBITE -->
-	<div
-		id="alert-feedback"
-		class={`absolute right-0 top-0.5 items-center p-4 mb-4 text-sm border rounded-lg mt-4 ${variant} ${display}`}
-		role="alert"
-		aria-live="polite"
-	>
-		<svg
-			class="shrink-0 inline w-4 h-4 me-3"
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
-			fill="currentColor"
-			viewBox="0 0 20 20"
-		>
-			<path
-				d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-			></path>
-		</svg>
-		<div class="ms-3">
-			<span class="font-medium">{isSuccess ? '✅ ¡Éxito!' : '❌ Error:'}</span>
-			{' '}
-			{msg}
-		</div>
-		<!-- botón cerrar (opcional) -->
-		<button
-			type="button"
-			class="ms-auto -mx-1.5 -my-1.5 p-1.5 rounded hover:opacity-80"
-			aria-label="Close"
-			data-close
-		>
-			✕
-		</button>
-	</div>
-
-	<!-- Script: mostrar/ocultar y limpiar query -->
-	<script is:inline>
-		(function () {
-			const alertBox = document.getElementById('alert-feedback');
-			if (!alertBox) return;
-			const params = new URLSearchParams(window.location.search);
-			const hasMsg = params.has('msg');
-			// por si el SSR no lo dejó visible
-			if (hasMsg) {
-				alertBox.classList.remove('hidden');
-				alertBox.classList.add('flex');
-
-				// autocerrar a los 6s
-				const hide = () => {
-					alertBox.classList.add('hidden');
-					alertBox.classList.remove('flex');
-				};
-				const timer = setTimeout(hide, 6000);
-
-				// botón cerrar manual
-				const closeBtn = alertBox.querySelector('[data-close]');
-				if (closeBtn) {
-					closeBtn.addEventListener('click', () => {
-						clearTimeout(timer);
-						hide();
-					});
-				}
-
-				// limpiar query de la URL (para que no reaparezca al refrescar)
-				params.delete('msg');
-				params.delete('status');
-				const newUrl = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}${location.hash}`;
-				window.history.replaceState({}, '', newUrl);
-			} else {
-				// asegurar oculto si no hay mensaje
-				alertBox.classList.add('hidden');
-				alertBox.classList.remove('flex');
-			}
-		})();
-	</script>
-</div>
+<Alerta />
 <div>
 	<div
 		class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#1d1d1d] dark:border-gray-700 w-full"
@@ -213,14 +126,18 @@ const display = msg ? "flex" : "hidden";
 								class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 								placeholder="Buscar por nombre, correo, empresa…"
 							/>
-							<button class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800 ml-2 mr-2"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0s.41-1.08 0-1.49zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14"></path></svg>
+							<button class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800 ml-2 mr-2"> 	
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0s.41-1.08 0-1.49zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14"></path></svg>
 								Buscar
-								</button>
+							</button>
 						</div>
 					</form>
-					<div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0"> <a href="/crud/formularios" type="button" class="inline-flex items-center justify-center sm:w-auto px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800 w-full"> <svg class="w-5 h-5 mr-2 -ml-1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="m899.1 869.6l-53-305.6H864c14.4 0 26-11.6 26-26V346c0-14.4-11.6-26-26-26H618V138c0-14.4-11.6-26-26-26H432c-14.4 0-26 11.6-26 26v182H160c-14.4 0-26 11.6-26 26v192c0 14.4 11.6 26 26 26h17.9l-53 305.6c-.3 1.5-.4 3-.4 4.4c0 14.4 11.6 26 26 26h723c1.5 0 3-.1 4.4-.4c14.2-2.4 23.7-15.9 21.2-30M204 390h272V182h72v208h272v104H204zm468 440V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H416V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H202.8l45.1-260H776l45.1 260z"></path></svg>
-						Limpiar busqueda
-						</a> </div>
+					<div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0">
+						<a href="/crud/formularios" type="button" class="inline-flex items-center justify-center sm:w-auto px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800 w-full">
+						 <svg class="w-5 h-5 mr-2 -ml-1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="m899.1 869.6l-53-305.6H864c14.4 0 26-11.6 26-26V346c0-14.4-11.6-26-26-26H618V138c0-14.4-11.6-26-26-26H432c-14.4 0-26 11.6-26 26v182H160c-14.4 0-26 11.6-26 26v192c0 14.4 11.6 26 26 26h17.9l-53 305.6c-.3 1.5-.4 3-.4 4.4c0 14.4 11.6 26 26 26h723c1.5 0 3-.1 4.4-.4c14.2-2.4 23.7-15.9 21.2-30M204 390h272V182h72v208h272v104H204zm468 440V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H416V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H202.8l45.1-260H776l45.1 260z"></path></svg>
+							Limpiar busqueda
+						</a>
+					</div>
 				</div>
 
 				<div class="flex items-center ml-auto space-x-2 sm:space-x-3">
@@ -362,7 +279,7 @@ const display = msg ? "flex" : "hidden";
 											<data value="price">{sr.revision}</data>
 										</td>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-											$<data value="price">{sr.updated_at}</data>
+											<data value="price">{sr.updated_at}</data>
 										</td>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
 											<data value="price">{sr.created_at}</data>
@@ -762,17 +679,17 @@ const display = msg ? "flex" : "hidden";
 			<button
 			type="submit"
 			class="text-white bg-emerald-500 hover:bg-emerald-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-emerald-500"
-		>
-			Si, estoy seguro
-		</button>
-		<button
-			class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-neutral-700 dark:focus:ring-gray-700"
-			type="button"
-			data-drawer-dismiss="desarchivar-menu"
-			aria-controls="desarchivar-menu"
-		>
-			No, cancelar
-		</button>
+			>
+				Si, estoy seguro
+			</button>
+			<button
+				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-neutral-700 dark:focus:ring-gray-700"
+				type="button"
+				data-drawer-dismiss="desarchivar-menu"
+				aria-controls="desarchivar-menu"
+			>
+				No, cancelar
+			</button>
 		</form>
 		
 		
