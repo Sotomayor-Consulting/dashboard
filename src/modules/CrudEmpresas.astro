@@ -1,0 +1,956 @@
+---
+import NavPagination from '../components/NavPagination.astro'; // si no lo usas, puedes quitarlo
+import { supabase } from '../lib/supabase';
+
+const q = (Astro.url.searchParams.get('q') || '').trim();
+const page = Math.max(1, Number(Astro.url.searchParams.get('page') || '1'));
+const pageSize = 20;
+const from = (page - 1) * pageSize;
+const to = from + pageSize - 1;
+
+let empresas: any[] = [];
+let errorMsg = '';
+let total = 0;
+let totalPages = 1;
+
+let query = supabase
+	.from('empresas_incorporaciones')
+	.select(
+		`
+    user_id,
+    empresa_incorporacion_id,
+    tipo_de_negocio,
+    estado_de_incorporacion,
+    estado,
+    nombre_1,
+    nombre_2,
+    nombre_3,
+    updated_at,
+	porcentaje_de_incorporacion,
+    usuarios:user_id (nombre, apellido)
+  `,
+		{ count: 'exact' },
+	)
+	.order('updated_at', { ascending: false });
+
+if (q) {
+	const safe = q.replace(/,/g, ''); // .or usa comas para separar condiciones
+	query = query.or(
+		[
+			`tipo_de_negocio.ilike.%${safe}%`,
+			`estado_de_incorporacion.ilike.%${safe}%`,
+			`estado.ilike.%${safe}%`,
+			`nombre_1.ilike.%${safe}%`,
+			`nombre_2.ilike.%${safe}%`,
+			`nombre_3.ilike.%${safe}%`,
+			`telf.ilike.%${safe}%`,
+			`updated_at.ilike.%${safe}%`,
+		].join(','),
+	);
+}
+
+const { data: socios } = await supabase
+	.from('Socios_validados') // por ejemplo
+	.select(
+		`
+    *
+  `,
+	)
+	.order('id', { ascending: true });
+
+// Paginamos
+const { data, error, count } = await query.range(from, to);
+
+if (error) {
+	errorMsg = error.message;
+	console.error('Error leyendo empresas:', error.message);
+} else {
+	empresas = data ?? [];
+	total = count ?? 0;
+	totalPages = Math.max(1, Math.ceil(total / pageSize));
+}
+---
+
+<div
+	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#1d1d1d] dark:border-gray-700"
+>
+	<div class="w-full mb-1">
+		<div class="mb-4">
+			<nav class="flex mb-5" aria-label="Breadcrumb">
+				<ol
+					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
+				>
+					<li class="inline-flex items-center">
+						<a
+							href="/"
+							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
+						>
+							<svg
+								class="w-5 h-5 mr-2.5"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+								></path></svg
+							>
+							Inicio
+						</a>
+					</li>
+					<li>
+						<div class="flex items-center">
+							<svg
+								class="w-6 h-6 text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+									clip-rule="evenodd"></path></svg
+							>
+							<a
+								href="/crud/empresas"
+								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
+								>Empresas</a
+							>
+						</div>
+					</li>
+				</ol>
+			</nav>
+			<h1
+				class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
+			>
+				Lista de empresas
+			</h1>
+		</div>
+		<div class="sm:flex">
+			<div
+				class="items-center hidden mb-3 sm:flex sm:divide-x sm:divide-gray-100 sm:mb-0 dark:divide-gray-700"
+			>
+				<form class="lg:pr-3" method="GET">
+					<label for="users-search" class="sr-only">Buscar</label>
+					<div class="relative mt-1 lg:w-64 xl:w-96 flex">
+						<input
+							type="search"
+							name="q"
+							value={q}
+							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							placeholder="Buscar por nombre, correo, empresa…"
+						/>
+						<button
+							class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] ml-2"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								><path
+									fill="currentColor"
+									d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0s.41-1.08 0-1.49zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14"
+								></path></svg
+							>
+							Buscar
+						</button>
+					</div>
+				</form>
+				<div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0">
+					<a
+						href="/crud/empresas"
+						type="button"
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+					>
+						<svg
+							class="w-5 h-5 mr-2 -ml-1"
+							viewBox="0 0 1024 1024"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill="currentColor"
+								d="m899.1 869.6l-53-305.6H864c14.4 0 26-11.6 26-26V346c0-14.4-11.6-26-26-26H618V138c0-14.4-11.6-26-26-26H432c-14.4 0-26 11.6-26 26v182H160c-14.4 0-26 11.6-26 26v192c0 14.4 11.6 26 26 26h17.9l-53 305.6c-.3 1.5-.4 3-.4 4.4c0 14.4 11.6 26 26 26h723c1.5 0 3-.1 4.4-.4c14.2-2.4 23.7-15.9 21.2-30M204 390h272V182h72v208h272v104H204zm468 440V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H416V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H202.8l45.1-260H776l45.1 260z"
+							></path></svg
+						>
+						Limpiar busqueda
+					</a>
+				</div>
+			</div>
+			<div class="flex items-center ml-auto space-x-2 sm:space-x-3">
+				<!-- NOTE: Not implemented (see `./CrudProducts` for reference) -->
+				<!-- <button
+						type="button"
+						data-refresh
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+					>
+						<svg
+							class="w-5 h-5 mr-2 -ml-1"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.5"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+							aria-hidden="true"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+							></path>
+						</svg>
+						Refresh
+					</button> -->
+				<button
+					type="button"
+					data-modal-target="add-user-modal"
+					data-modal-toggle="add-user-modal"
+					class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+				>
+					<svg
+						class="w-5 h-5 mr-2 -ml-1"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+							clip-rule="evenodd"></path></svg
+					>
+					Invitar usuario
+				</button>
+				<button
+					id="dropdownMenuIconButton"
+					data-dropdown-toggle="dropdownDots2"
+					class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-neutral-700 dark:hover:bg-neutral-700 dark:focus:ring-gray-600"
+					type="button"
+				>
+					<svg
+						class="w-5 h-5"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="currentColor"
+						viewBox="0 0 4 15"
+					>
+						<path
+							d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"
+						></path>
+					</svg>
+				</button>
+				<!-- Dropdown menu -->
+				<div
+					id="dropdownDots2"
+					class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-neutral-700 dark:divide-gray-600"
+				>
+					<ul
+						class="py-2 text-sm text-gray-700 dark:text-gray-200 text-start"
+						aria-labelledby="dropdownMenuIconButton"
+					>
+						<li>
+							<button
+								type="button"
+								data-modal-target="rol-modal-admin"
+								data-modal-toggle="rol-modal-admin"
+								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white w-full text-start"
+								>Añadir empresa</button
+							>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="flex flex-col">
+	<div class="overflow-x-auto">
+		<div class="inline-block min-w-full align-middle">
+			<div class="overflow-hidden shadow">
+				<table
+					class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
+				>
+					<thead class="bg-gray-100 dark:bg-neutral-700">
+						<tr>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								id
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Usuario que la creo
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								tipo de negocio
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Estado de incorporación
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Estado
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Estado
+							</th>
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+							>
+								Creado en
+							</th>
+						</tr>
+					</thead>
+					<tbody
+						class="bg-white divide-y divide-gray-200 dark:bg-[#1d1d1d] dark:divide-gray-700"
+					>
+						{
+							empresas.map((empresa) => (
+								<div>
+									<tr
+										class="hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer"
+										onclick={`window.open('/crud/empresa/${empresa.empresa_incorporacion_id}', '_blank')`}
+									>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.nombre_1}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.usuarios.nombre} {empresa.usuarios.apellido}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.tipo_de_negocio}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.porcentaje_de_incorporacion}%
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.estado_de_incorporacion}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											<div class="flex items-center">
+												{empresa.estado === 'activo' ? (
+													<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
+												) : (
+													<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
+												)}
+												{empresa.estado}
+											</div>
+										</td>
+										<td class="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.updated_at &&
+												new Date(empresa.updated_at)
+													.toLocaleDateString('es-ES', {
+														day: '2-digit',
+														month: '2-digit',
+														year: 'numeric',
+													})
+													.replace(/\//g, '-')}
+										</td>
+									</tr>
+								</div>
+							))
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Edit User Modal -->
+<div
+	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	id="edit-user-modal"
+>
+	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+			<!-- Modal header -->
+			<div
+				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+			>
+				<h3 class="text-xl font-semibold dark:text-white">Editar usuario</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					data-modal-toggle="edit-user-modal"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/update/admin-update" method="post">
+				<div class="p-6 space-y-6">
+					<div class="grid grid-cols-6 gap-6">
+						<input type="hidden" name="user_id" id="modal_user_id" />
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="first-name"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Nombre</label
+							>
+							<input
+								type="text"
+								name="nombre"
+								value="Bonnie"
+								id="modal_nombre"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="Bonnie"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="last-name"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Apellido</label
+							>
+							<input
+								type="text"
+								name="apellido"
+								value="Green"
+								id="modal_apellido"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="Green"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="correo"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Correo</label
+							>
+							<input
+								type="email"
+								name="correo"
+								id="modal_correo"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="example@company.com"
+							/>
+						</div>
+
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="position"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Compania</label
+							>
+							<input
+								type="text"
+								name="compania"
+								value="React Developer"
+								id="modal_compania"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="Sotomayor Consulting"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="pais"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Pais</label
+							>
+							<select
+								id="pais"
+								name="pais_modal"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							>
+								<option selected hidden disabled>Selecciona un pais</option>
+							</select>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="ciudad"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>ciudad</label
+							>
+							<input
+								type="text"
+								value=""
+								id="ciudad"
+								name="ciudad_modal"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="Quito"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="direccion_linea1"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Direccion linea 1</label
+							>
+							<input
+								type="text"
+								name="direccion_linea1"
+								value=""
+								id="direccion_linea1"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="Av Juan molineros"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="direccion_linea2"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Direccion linea 2</label
+							>
+							<input
+								type="text"
+								name="direccion_linea2"
+								value=""
+								id="direccion_linea2"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="Y de los Guayacanes"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="modal_telefono"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Telefono</label
+							>
+							<input
+								type="tel"
+								id="modal_telefono"
+								name="modal_telefono"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="0912345678"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="fecha_nacimiento"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Fecha nacimiento</label
+							>
+							<input
+								type="date"
+								name="fecha_nacimiento"
+								id="fecha_nacimiento"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="0912345678"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="tipo_identificacion"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Tipo de identificacion</label
+							>
+							<select
+								id="tipo_identificacion"
+								name="tipo_identificacion"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							>
+								<option value="" hidden disabled selected
+									>Tipo de documento</option
+								>
+								<option value="Cédula"> Cédula </option><option value="RUC">
+									RUC
+								</option><option value="ID"> ID </option><option
+									value="Pasaporte"
+								>
+									Pasaporte
+								</option><option value="EIN"> EIN </option>
+							</select>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="numero_de_identificacion"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Numero de identificacion</label
+							>
+							<input
+								type="text"
+								name="numero_de_identificacion"
+								id="numero_de_identificacion"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="1712345678"
+							/>
+						</div>
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="tipo_persona"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Tipo de persona</label
+							>
+							<select
+								id="tipo_persona"
+								name="tipo_persona"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							>
+								<option value="" hidden="">Tipo de persona</option>
+								<option value="Natural"> Natural </option>
+								<option value="Jurídica"> Jurídica </option>
+							</select>
+						</div>
+
+						<div class="col-span-6">
+							<h3 class="mb-4 font-semibold text-gray-900 dark:text-white">
+								Añade un rol
+							</h3>
+							<ul
+								class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-[#1d1d1d] dark:border-gray-600 dark:text-white"
+							>
+							</ul>
+						</div>
+					</div>
+
+					<!-- Modal footer -->
+					<div
+						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+					>
+						<button
+							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+							type="submit">Guardar</button
+						>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script is:inline>
+	document.addEventListener('DOMContentLoaded', () => {
+		// Tipar los botones como HTMLElement (con dataset)
+		const btns = document.querySelectorAll('[data-edit-user]');
+
+		// Helper para setear .value de inputs/textarea de forma segura
+		function setValue(id, val) {
+			const el = document.getElementById(id);
+			if (el) el.value = val ?? '';
+		}
+
+		// Helper específico para selects
+		function setSelectValue(id, val) {
+			const select = document.getElementById(id);
+			if (select && val) {
+				select.value = val;
+			}
+		}
+
+		btns.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const nombre = btn.dataset.nombre ?? '';
+				const apellido = btn.dataset.apellido ?? '';
+				const correo = btn.dataset.correo ?? '';
+				const rolId = btn.dataset.rolId ?? '';
+				const compania = btn.dataset.compania ?? '';
+				const userId = btn.dataset.userId ?? '';
+				const estado = btn.dataset.userestado ?? '';
+				const pais = btn.dataset.pais ?? '';
+				const ciudad = btn.dataset.ciudad ?? '';
+				const linea1 = btn.dataset.linea1 ?? '';
+				const linea2 = btn.dataset.linea2 ?? '';
+				const telefono = btn.dataset.telefono ?? '';
+				const nacimiento = btn.dataset.nacimiento ?? '';
+				const tipoidentificacion = btn.dataset.tipoidentificacion ?? '';
+				const identificacion = btn.dataset.numeroidentidad ?? '';
+				const tipo = btn.dataset.tipo ?? '';
+
+				// Inputs/Textareas
+				setValue('modal_user_id', userId);
+				setValue('modal_nombre', nombre);
+				setValue('modal_apellido', apellido);
+				setValue('modal_correo', correo);
+				setValue('modal_compania', compania);
+				setValue('ciudad', ciudad);
+				setValue('direccion_linea1', linea1);
+				setValue('direccion_linea2', linea2);
+				setValue('modal_telefono', telefono);
+				setValue('fecha_nacimiento', nacimiento);
+				setValue('numero_de_identificacion', identificacion);
+
+				// Selects (pais, tipoidentificacion, tipo)
+				setSelectValue('pais', pais);
+				setSelectValue('tipo_identificacion', tipoidentificacion);
+				setSelectValue('tipo_persona', tipo);
+
+				// Radios
+				document.querySelectorAll('input[name="rol_id"]').forEach((r) => {
+					r.checked = String(r.value) === String(rolId);
+				});
+
+				document.querySelectorAll('input[name="estado"]').forEach((r) => {
+					r.checked = String(r.value) === String(estado);
+				});
+			});
+		});
+	});
+</script>
+<!-- Añadir usuario -->
+<div
+	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	id="add-user-modal"
+>
+	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+			<!-- Modal header -->
+			<div
+				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+			>
+				<h3 class="text-xl font-semibold dark:text-white">Invitar usuario</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					data-modal-toggle="add-user-modal"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/update/admin-invite" method="post">
+				<div class="p-6 space-y-6">
+					<div class="grid gap-6">
+						<div class="">
+							<label
+								for="email"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Correo</label
+							>
+							<input
+								type="email"
+								name="correo_create"
+								id="email"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="correo@ejemplo.com"
+								required
+							/>
+						</div>
+					</div>
+
+					<!-- Modal footer -->
+					<div
+						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+					>
+						<button
+							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+							type="submit">Invitar Usuario</button
+						>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Añadir rol Modal -->
+<div
+	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	id="rol-modal-admin"
+>
+	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+			<!-- Modal header -->
+			<div
+				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+			>
+				<h3 class="text-xl font-semibold dark:text-white">Añadir Rol</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					data-modal-toggle="rol-modal-admin"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/create/admin-new-rol" method="post">
+				<div class="p-6 space-y-6">
+					<div class="grid gap-6">
+						<div class="">
+							<label
+								for="nombre_rol"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Añade el nombre del rol</label
+							>
+							<input
+								type="text"
+								name="nombre_rol"
+								id="rol-create"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								placeholder="admin"
+								required
+							/>
+						</div>
+					</div>
+
+					<!-- Modal footer -->
+					<div
+						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+					>
+						<button
+							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+							type="submit">Añadir rol</button
+						>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div
+	id="updaterol"
+	tabindex="-1"
+	aria-hidden="true"
+	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
+>
+	<div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
+		<!-- Modal content -->
+		<div
+			class="relative p-4 bg-white rounded-lg shadow dark:bg-neutral-700 sm:p-5"
+		>
+			<!-- Modal header -->
+			<div
+				class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600"
+			>
+				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+					Selecciona el estado del cliente
+				</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					data-modal-toggle="updaterol"
+				>
+					<svg
+						aria-hidden="true"
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+					<span class="sr-only">Close modal</span>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="/api/update/admin-update" method="post" id="updaterolForm">
+				<input type="hidden" name="user_id" id="updaterol_user_id" />
+				<div class="grid gap-4 mb-4">
+					<div>
+						<label
+							for="updaterol_estado"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Rol</label
+						>
+						<select
+							id="updaterol_estado"
+							name="estado"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						>
+							<option value="" disabled="" selected="">--</option>
+							{
+								[{ estado: 'activo' }, { estado: 'inactivo' }].map((u) => (
+									<option value={u.estado}> {u.estado}</option>
+								))
+							}
+						</select>
+					</div>
+				</div>
+				<div class="flex items-center space-x-4">
+					<button
+						type="submit"
+						class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+					>
+						Actualizar estado
+					</button>
+					<button
+						data-modal-toggle="updaterol"
+						type="button"
+						class="text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+					>
+						Cancelar
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script is:inline>
+	document.addEventListener('DOMContentLoaded', () => {
+		const form = document.getElementById('updaterolForm');
+		const uidInput = document.getElementById('updaterol_user_id');
+		const estadoSel = document.getElementById('updaterol_estado');
+		const nameSpan = document.getElementById('updaterolUserName');
+
+		// Botones que abren el modal (uno por fila/usuario)
+		const btns = document.querySelectorAll('[data-open-estado]');
+
+		btns.forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const uid = btn.dataset.userId || '';
+				const uname = btn.dataset.userName || '';
+				const estCur = btn.dataset.userEstado || '';
+
+				// Inyecta user_id y muestra nombre
+				uidInput.value = uid;
+				nameSpan.textContent = uname ? ` · ${uname}` : '';
+
+				// Preselecciona estado si coincide; si no, deja "(sin cambio)"
+				const hasOption = Array.from(estadoSel.options).some(
+					(o) => o.value === estCur,
+				);
+				estadoSel.value = hasOption ? estCur : '';
+
+				// Endpoint + retorno a esta misma página
+				const back = location.pathname + location.search;
+				form.action = `/api/admin/usuarios/update?back=${encodeURIComponent(back)}`;
+			});
+		});
+
+		// Anti doble-submit (opcional)
+		form?.addEventListener('submit', () => {
+			const submitBtn = form?.querySelector('button[type="submit"]');
+			if (submitBtn) submitBtn.disabled = true;
+		});
+	});
+</script>
+
+<NavPagination
+	page={page}
+	total={total}
+	pageSize={20}
+	searchParams={Astro.url.searchParams}
+/>

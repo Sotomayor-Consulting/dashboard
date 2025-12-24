@@ -25,13 +25,6 @@ const BANNER_PROPS = {
 	url: '/incorporacion-y-pago',
 };
 
-const BANNER_PROPS_2 = {
-	title: 'Actualiza tu información de perfil para completar tu contrato de partner.',
-	btnId: 'dismiss-profile-banner',
-	btnTitle: 'Actualizar Perfil',
-	url: '/settings/', 
-}
-
 // 3. Proceso de Autenticación y Consulta (SSR)
 if (accessToken && refreshToken) {
 	try {
@@ -80,10 +73,10 @@ if (accessToken && refreshToken) {
 				tabindex="-1"
 				class="flex flex-col md:flex-row justify-between w-full p-4 bg-neutral-300 border border-gray-100 shadow-xs top-28 dark:bg-neutral-700 dark:border-gray-600 right-4 animate-fade-in"
 			>
-				<div class="flex flex-col items-start mb-3 me-4 md:items-center md:flex-row md:mb-0">
+				<div class="flex mb-3 me-4 items-center flex-row md:mb-0">
 					<a
 						href="/"
-						class="flex items-center mb-2 border-gray-200 md:pe-4 md:me-4 md:border-e md:mb-0 dark:border-gray-600"
+						class="flex items-center mb-2 border-gray-200 pe-4 me-4 border-e md:mb-0 dark:border-gray-600"
 					>
 						
 						<Image src={icono} width="32" alt="Sotomayor consulting Logo" class="me-2 hidden dark:block"/>
@@ -93,11 +86,12 @@ if (accessToken && refreshToken) {
 					<p class="flex items-center text-base font-normal text-black dark:text-white">
 						{BANNER_PROPS.title}
 					</p>
+					
 				</div>
-				<div class="flex items-center shrink-0">
+				<div class="flex items-center shrink-0 justify-between">
 					<a
 						href={BANNER_PROPS.url}
-						class="px-5 py-2 me-2 text-base font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+						class="px-5 py-2 me-2 text-base font-medium text-white bg-[#8c681d] rounded-lg hover:bg-[#8c681d] focus:ring-4 focus:ring-blue-300 dark:bg-[#8c681d] dark:hover:bg-[#8c681d] focus:outline-none dark:focus:ring-[#8c681d]"
 					>
 						{BANNER_PROPS.btnTitle}
 					</a>

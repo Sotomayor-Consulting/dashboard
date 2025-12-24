@@ -31,10 +31,10 @@ export async function renderizarMapaEstados(
 
 	container.innerHTML = `<p style="text-align:center; padding:2rem; color:#666;">Cargando mapa...</p>`;
 
-	// === 1. API CON empresaId (CORREGIDO) ===
+	
 	let estadoDestacado: string | null = null;
 	try {
-		// Usa empresaId si existe, si no, usa el endpoint general
+		// Usa empresaId si existe
 		const url = empresaId
 			? `/api/generales/estado-incorporacion?empresaId=${empresaId}`
 			: '/api/generales/estado-incorporacion';

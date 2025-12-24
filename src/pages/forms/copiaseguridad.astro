@@ -4,12 +4,13 @@ import { supabase } from '../../lib/supabase';
 const { id } = Astro.params;
 
 const { cookies, redirect } = Astro;
+
 // 1) Restaurar sesión desde cookies
 const accessToken = cookies.get('sb-access-token');
 const refreshToken = cookies.get('sb-refresh-token');
 
 if (!accessToken || !refreshToken) {
-	return redirect ('/sign-in');
+	return redirect('/sign-in');
 }
 
 await supabase.auth.setSession({
@@ -40,7 +41,8 @@ if (error || !formulario) {
 
 const jsonConfig = formulario.schema_json;
 const themeJson = formulario.tema_json;
-import '/src/estilos/surveyjs.css'
+
+import '/src/estilos/surveyjs.css';
 ---
 
 <!doctype html>
@@ -84,9 +86,8 @@ import '/src/estilos/surveyjs.css'
 		</div>
 	</body>
 </html>
+
 <script type="module" define:vars={{ jsonConfig, themeJson }}>
-	// === CONFIGURACIÓN DE TRADUCCIÓN ===
-	// Traducciones al español
 	const spanishTranslations = {
 		pagePrevText: 'Anterior',
 		pageNextText: 'Siguiente',
@@ -131,14 +132,28 @@ import '/src/estilos/surveyjs.css'
 		removeFileCaption: 'Eliminar archivo',
 	};
 
-	// Registrar traducciones
 	Survey.surveyLocalization.locales['es'] = spanishTranslations;
-
-	// Idioma por defecto (puedes cambiarlo a "en" si prefieres inglés por defecto)
 	Survey.surveyLocalization.currentLocale = 'es';
 
-	// Crear Survey
 	const survey = new Survey.Model(jsonConfig);
+
+	survey.storeOthersAsComment = false;
+	survey.showQuestionNumbers = 'off';
+	survey.makeNamesUnique = true;
+
+	// Función para asegurar que se usen los names correctos
+	function ensureValueNames() {
+		survey.getAllQuestions().forEach((question) => {
+			// Si la pregunta tiene un name definido, forzar que se use como valueName
+			if (question.name && question.name !== question.title) {
+				question.valueName = question.name;
+			}
+		});
+	}
+
+	// Aplicar al inicio
+	ensureValueNames();
+
 	survey.locale = 'es'; // Español por defecto
 
 	if (typeof themeJson !== 'undefined') survey.applyTheme(themeJson);
@@ -154,6 +169,9 @@ import '/src/estilos/surveyjs.css'
 		const selectedLanguage = this.value;
 		survey.locale = selectedLanguage;
 
+		// Reforzar los valueNames después del cambio de idioma
+		setTimeout(ensureValueNames, 100);
+
 		// Opcional: Guardar preferencia en localStorage
 		try {
 			localStorage.setItem('survey-language-preference', selectedLanguage);
@@ -168,6 +186,8 @@ import '/src/estilos/surveyjs.css'
 		if (savedLanguage && (savedLanguage === 'es' || savedLanguage === 'en')) {
 			survey.locale = savedLanguage;
 			languageSelector.value = savedLanguage;
+			// Reforzar valueNames después de cargar idioma guardado
+			setTimeout(ensureValueNames, 100);
 		}
 	} catch (e) {
 		console.warn('No se pudo cargar preferencia de idioma:', e);
@@ -257,12 +277,57 @@ import '/src/estilos/surveyjs.css'
 	// (opcional) limpiar invisibles al completar (default)
 	survey.clearInvisibleValues = 'onComplete';
 
+	// === CORRECCIÓN FINAL DE DATOS ANTES DEL ENVÍO ===
+	survey.onCompleting.add((sender, options) => {
+		// Asegurar una última vez que todos los valueNames sean correctos
+		ensureValueNames();
+
+		// Verificar que los datos usen los names correctos
+		const correctedData = {};
+		let needsCorrection = false;
+
+		sender.getAllQuestions().forEach((question) => {
+			const correctName = question.name;
+			if (correctName) {
+				// Buscar el valor en los datos, puede estar bajo el title o bajo el name
+				let value = sender.data[correctName];
+				if (value === undefined) {
+					// Si no está bajo el name, buscar bajo el title (en cualquier idioma)
+					const possibleKeys = Object.keys(sender.data).filter(
+						(key) =>
+							key.includes(question.title.es) ||
+							key.includes(question.title.default || question.title),
+					);
+					if (possibleKeys.length > 0) {
+						value = sender.data[possibleKeys[0]];
+						needsCorrection = true;
+					}
+				}
+
+				if (value !== undefined) {
+					correctedData[correctName] = value;
+				}
+			}
+		});
+
+		// Si se detectó que necesitamos corregir, actualizar los datos
+		if (needsCorrection) {
+			// Mantener cualquier dato adicional que no esté en las preguntas
+			sender.data = { ...sender.data, ...correctedData };
+		}
+	});
+
 	// Submit final -> /api/forms/envio con finalize:true
 	survey.onComplete.add(async (sender) => {
 		if (!UUID_RE.test(formId)) {
 			console.error('[Survey] form_id inválido: no se puede enviar.');
 			return;
 		}
+
+		// DEBUG: Verificar los datos finales
+		console.log('Datos a enviar:', JSON.stringify(sender.data, null, 2));
+		console.log('Keys en los datos:', Object.keys(sender.data));
+
 		const payload = { form_id: formId, data: sender.data, finalize: true };
 
 		try {

@@ -69,6 +69,14 @@ const menuItems = [
         svgname: "ri:hand-coin-fill"
     },
     {
+        id: 'mantenimiento_anual',
+        label: 'mantenimiento',
+        href: '/pages/mantenimiento',
+        tooltip: 'Mira fechas de tu compania y su mantenimiento anual',
+        roles: ['client'],
+        svgname: "ri:time-zone-fill"
+    },
+    {
         id: 'documentos',
         label: 'Documentos',
         href: '/pages/tus-formularios',
@@ -123,6 +131,22 @@ const menuItems = [
         tooltip: 'Gestionar clientes',
         roles: ['admin'],
         svgname: "ri:user-add-fill"
+    },
+    {
+        id: 'crud-empresas',
+        label: 'Empresas',
+        href: '/crud/empresas',
+        tooltip: 'Gestionar clientes',
+        roles: ['admin'],
+        svgname: "ri:building-2-fill"
+    },
+    {
+        id: 'verificacion-formulario-incorp',
+        label: 'Incorporación',
+        href: '/crud/verficacion-incorporacion',
+        tooltip: 'Gestiona y verifica los datos del formulario de incorporación',
+        roles: ['admin'],
+        svgname: "ri:archive-stack-fill"
     },
     {
         id: 'crud-servicios',

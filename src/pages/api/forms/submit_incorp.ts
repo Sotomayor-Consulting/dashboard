@@ -10,11 +10,30 @@ type SaveBody = {
   data: Record<string, any>;      // respuestas SurveyJS (obligatorio)
   progress_percent?: number;      // 0..100 (opcional)
   finalize?: boolean;             // true => cambia a "submitted" (opcional)
+
+  // (opcional) fallback si no viene en link/referer
+  empresa_incorporacion_id?: string;
 };
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function sha256(obj: any) {
   const json = typeof obj === "string" ? obj : JSON.stringify(obj);
   return createHash("sha256").update(json).digest("hex");
+}
+
+// Intenta extraer ?empresa=... desde una URL (string)
+function extractEmpresaIdFromUrl(urlStr: string | null | undefined): string | null {
+  if (!urlStr) return null;
+  try {
+    const u = new URL(urlStr, "http://localhost"); // base por si viene relativa
+    const empresa = u.searchParams.get("empresa")?.trim();
+    if (empresa && UUID_RE.test(empresa)) return empresa;
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 export const POST: APIRoute = async ({ request, cookies }) => {
@@ -45,14 +64,50 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return j(400, { ok: false, error: "MISSING_or_INVALID_data" });
     }
 
+    // 3.1) Tomar empresa_incorporacion_id desde link (endpoint query, referer o body)
+    const empresaFromEndpointQuery = extractEmpresaIdFromUrl(request.url);
+    const empresaFromReferer = extractEmpresaIdFromUrl(request.headers.get("referer"));
+    const empresaFromBody = body?.empresa_incorporacion_id && UUID_RE.test(body.empresa_incorporacion_id)
+      ? body.empresa_incorporacion_id
+      : null;
+
+    const empresa_incorporacion_id =
+      empresaFromEndpointQuery || empresaFromReferer || empresaFromBody;
+
+    if (!empresa_incorporacion_id) {
+      return j(400, {
+        ok: false,
+        error: "MISSING_empresa_incorporacion_id",
+        detail:
+          "No se encontró ?empresa=... en la URL del endpoint ni en el referer, ni vino en el body.",
+      });
+    }
+
     const nowIso = new Date().toISOString();
 
-    // 4) Buscar envío existente del usuario para ese form (borrador o ya enviado)
+    // 3.2) Validación de seguridad: la empresa debe pertenecer al usuario y estar activa
+    const { data: empresaRow, error: empErr } = await supabase
+      .from("empresas_incorporaciones")
+      .select("empresa_incorporacion_id, user_id, estado")
+      .eq("empresa_incorporacion_id", empresa_incorporacion_id)
+      .eq("user_id", actor.id)
+      .maybeSingle();
+
+    if (empErr) return j(500, { ok: false, error: "EMPRESA_LOOKUP_ERROR", detail: empErr.message });
+    if (!empresaRow) return j(403, { ok: false, error: "EMPRESA_NOT_OWNED" });
+
+    const estado = (empresaRow.estado ?? "").toString().trim().toLowerCase();
+    if (estado !== "activo") {
+      return j(403, { ok: false, error: "EMPRESA_NOT_ACTIVE", detail: `estado=${empresaRow.estado}` });
+    }
+
+    // 4) Buscar envío existente del usuario para ese form + esa empresa (borrador o ya enviado)
     const { data: existingRow, error: findErr } = await supabase
       .from("formularios_envios")
       .select("*")
       .eq("form_id", form_id)
       .eq("user_id", actor.id)
+      .eq("empresa_incorporacion_id", empresa_incorporacion_id)
       .in("status", ["in_progress", "submitted"])
       .order("created_at", { ascending: false })
       .limit(1)
@@ -85,6 +140,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           submission_id: undefined, // dejar que Postgres genere
           form_id,
           user_id: actor.id,
+          empresa_incorporacion_id,
           status: "in_progress",
           data_json: data,
           schema_snapshot,
@@ -111,6 +167,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         progress_percent:
           typeof progress_percent === "number" ? progress_percent : existingRow.progress_percent ?? null,
         updated_at: nowIso,
+        // Mantener la empresa asociada (por si tu fila vieja no la tenía)
+        empresa_incorporacion_id,
         // Asegurar snapshot si no tenía
         ...(existingRow.schema_snapshot ? {} : { schema_snapshot, schema_hash }),
       };
@@ -127,7 +185,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         .from("formularios_envios")
         .update(updatePayload)
         .eq("submission_id", existingRow.submission_id)
-        .eq("user_id", actor.id);
+        .eq("user_id", actor.id)
+        .eq("empresa_incorporacion_id", empresa_incorporacion_id);
 
       if (updErr) return j(500, { ok: false, error: "UPDATE_ERROR", detail: updErr.message });
 
@@ -139,6 +198,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       submission_id: undefined, // default uuid
       form_id,
       user_id: actor.id,
+      empresa_incorporacion_id,
       status: desiredStatus,
       data_json: data,
       schema_snapshot,

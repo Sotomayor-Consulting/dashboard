@@ -1,5 +1,4 @@
 ---
-/* eslint max-lines: 'off' */
 
 const { id } = Astro.params; // ID dinámico de la URL
 const { redirect } = Astro;
@@ -504,10 +503,10 @@ if (empresaError || !empresa) {
 				</h3>
 				<span
 					class="text-xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white"
-					>{empresa.porcentaje_de_incorporacion}%</span
+					>60 %</span
 				>
 			</div>
-			<div class="w-full" id="porcentaje-radio" data-empresa-id={Astro.params.id} data-porcentaje={empresa.porcentaje_de_incorporacion}></div>
+			<div class="w-full" id="porcentaje-radio"></div>
 		</div>
 	</div>
 	<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">

@@ -62,6 +62,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
           nombre_2: nombre_2.trim() || null,
           nombre_3: nombre_3.trim() || null,
           estado: estado_de,
+          porcentaje_de_incorporacion: 1,
         },
       ]);
 

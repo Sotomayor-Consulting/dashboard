@@ -5,7 +5,7 @@ import Alerta from "../components/alertageneral.astro"
 
 const q = (Astro.url.searchParams.get('q') || '').trim();
 const page = Math.max(1, Number(Astro.url.searchParams.get('page') || '1'));
-const pageSize = 20;
+const pageSize = 10;
 const from = (page - 1) * pageSize;
 const to = from + pageSize - 1;
 
@@ -165,12 +165,12 @@ if (error) {
 								class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 								placeholder="Buscar por nombre, correo, empresa…"
 							/>
-							<button class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800 ml-2 mr-2"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0s.41-1.08 0-1.49zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14"></path></svg>
+							<button class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] ml-2 mr-2"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0s.41-1.08 0-1.49zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14"></path></svg>
 								Buscar
 							</button>
 						</div>
 					</form>
-					<div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0"> <a href="/crud/formularios-enviados" type="button" class="inline-flex items-center justify-center sm:w-auto px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800 w-full"> <svg class="w-5 h-5 mr-2 -ml-1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="m899.1 869.6l-53-305.6H864c14.4 0 26-11.6 26-26V346c0-14.4-11.6-26-26-26H618V138c0-14.4-11.6-26-26-26H432c-14.4 0-26 11.6-26 26v182H160c-14.4 0-26 11.6-26 26v192c0 14.4 11.6 26 26 26h17.9l-53 305.6c-.3 1.5-.4 3-.4 4.4c0 14.4 11.6 26 26 26h723c1.5 0 3-.1 4.4-.4c14.2-2.4 23.7-15.9 21.2-30M204 390h272V182h72v208h272v104H204zm468 440V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H416V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H202.8l45.1-260H776l45.1 260z"></path></svg>
+					<div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0"> <a href="/crud/formularios-enviados" type="button" class="inline-flex items-center justify-center sm:w-auto px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] w-full"> <svg class="w-5 h-5 mr-2 -ml-1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="m899.1 869.6l-53-305.6H864c14.4 0 26-11.6 26-26V346c0-14.4-11.6-26-26-26H618V138c0-14.4-11.6-26-26-26H432c-14.4 0-26 11.6-26 26v182H160c-14.4 0-26 11.6-26 26v192c0 14.4 11.6 26 26 26h17.9l-53 305.6c-.3 1.5-.4 3-.4 4.4c0 14.4 11.6 26 26 26h723c1.5 0 3-.1 4.4-.4c14.2-2.4 23.7-15.9 21.2-30M204 390h272V182h72v208h272v104H204zm468 440V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H416V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H202.8l45.1-260H776l45.1 260z"></path></svg>
 						Limpiar busqueda
 						</a> </div>
 				</div>
@@ -179,7 +179,7 @@ if (error) {
 					<a
 						href="/crud/formularios-enviados"
 						type="button"
-						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800 h-full"
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] h-full"
 					>
 						<svg
 							class="w-5 h-5 mr-2 -ml-1"
@@ -202,7 +202,7 @@ if (error) {
 						href="/crud/formularios"
 						target="_blank"
 						type="button"
-						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 					>
 						<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2 -ml-1" viewBox="0 0 24 24"><path fill="currentColor" d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6v2H5v12h12v-6zM13 3v2h4.586l-7.793 7.793l1.414 1.414L19 6.414V11h2V3z"/></svg>
 						Gestionar formularios
@@ -290,13 +290,47 @@ if (error) {
 											<data value="">% {sr.progress_percent ?? "0"}</data>
 										</td>
 										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<data value="">{sr.created_at}</data>
+											<data value="">
+												{
+													sr.created_at &&
+													new Date(sr.created_at)
+													.toLocaleDateString('es-ES', { 
+														day: '2-digit', 
+														month: '2-digit', 
+														year: 'numeric' 
+													})
+													.replace(/\//g, '-')
+												}
+											</data>
 										</td>
 										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<data value="">{sr.updated_at}</data>
+											<data value="">
+												{
+													sr.updated_at &&
+													new Date(sr.updated_at)
+													.toLocaleDateString('es-ES', { 
+														day: '2-digit', 
+														month: '2-digit', 
+														year: 'numeric' 
+													})
+													.replace(/\//g, '-')
+												}
+											</data>
 										</td>
 										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<data value="">{sr.submitted_at ?? "— sin fecha —"}</data>
+											<data value="">
+												{
+													(sr.submitted_at &&
+													new Date(sr.submitted_at)
+														.toLocaleDateString('es-ES', { 
+															day: '2-digit', 
+															month: '2-digit', 
+															year: 'numeric' 
+														})
+														.replace(/\//g, '-')
+													) ?? "— sin fecha —"
+												}
+											</data>
 										</td>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
 											<div class="flex items-center">
@@ -491,7 +525,7 @@ if (error) {
 			>
 				<button
 					type="submit"
-					class="w-full justify-center text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					class="w-full justify-center text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 				>
 					Actualizar
 				</button>
@@ -763,7 +797,7 @@ if (error) {
 				>
 					<button
 						type="submit"
-						class="text-white w-full justify-center bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="text-white w-full justify-center bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 					>
 						Añadir formulario
 					</button>
@@ -854,11 +888,10 @@ if (error) {
 	<NavPagination
 	page={page}
  	total={total}
-  	pageSize={20}               
+  	pageSize={10}               
   	searchParams={Astro.url.searchParams}
 	/>
 </div>
 
- </div>
 
 

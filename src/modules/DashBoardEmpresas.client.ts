@@ -1,641 +1,127 @@
 /* eslint-disable max-lines */
-
 import ApexCharts from 'apexcharts';
 
-const getMainChartOptions = () => {
-	let mainChartColors = {};
+console.log('[porcentaje-radio] script loaded ✅');
 
-	if (document.documentElement.classList.contains('dark')) {
-		mainChartColors = {
-			borderColor: '#374151',
-			labelColor: '#9CA3AF',
-			opacityFrom: 0,
-			opacityTo: 0.15,
-		};
-	} else {
-		mainChartColors = {
-			borderColor: '#F3F4F6',
-			labelColor: '#6B7280',
-			opacityFrom: 0.45,
-			opacityTo: 0,
-		};
-	}
+const clamp = (n: number, min = 0, max = 100) => Math.min(max, Math.max(min, n));
 
-	return {
-		chart: {
-			height: 420,
-			type: 'area',
-			fontFamily: 'Inter, sans-serif',
-			foreColor: mainChartColors.labelColor,
-			toolbar: {
-				show: false,
-			},
-		},
-		fill: {
-			type: 'gradient',
-			gradient: {
-				enabled: true,
-				opacityFrom: mainChartColors.opacityFrom,
-				opacityTo: mainChartColors.opacityTo,
-			},
-		},
-		dataLabels: {
-			enabled: false,
-		},
-		tooltip: {
-			style: {
-				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif',
-			},
-		},
-		grid: {
-			show: true,
-			borderColor: mainChartColors.borderColor,
-			strokeDashArray: 1,
-			padding: {
-				left: 35,
-				bottom: 15,
-			},
-		},
-		series: [
-			{
-				name: 'Revenue',
-				data: [7, 100, 257, 7, 47, 97, 7],
-				color: '#1A56DB',
-			}
-		],
-		markers: {
-			size: 5,
-			strokeColors: '#ffffff',
-			hover: {
-				size: undefined,
-				sizeOffset: 3,
-			},
-		},
-		xaxis: {
-			categories: [
-				'01 Feb',
-				'02 Feb',
-				'03 Feb',
-				'04 Feb',
-				'05 Feb',
-				'06 Feb',
-				'07 Feb',
-			],
-			labels: {
-				style: {
-					colors: [mainChartColors.labelColor],
-					fontSize: '14px',
-					fontWeight: 500,
-				},
-			},
-			axisBorder: {
-				color: mainChartColors.borderColor,
-			},
-			axisTicks: {
-				color: mainChartColors.borderColor,
-			},
-			crosshairs: {
-				show: true,
-				position: 'back',
-				stroke: {
-					color: mainChartColors.borderColor,
-					width: 1,
-					dashArray: 10,
-				},
-			},
-		},
-		yaxis: {
-			labels: {
-				style: {
-					colors: [mainChartColors.labelColor],
-					fontSize: '14px',
-					fontWeight: 500,
-				},
-				formatter(value) {
-					return `${value}`;
-				},
-			},
-		},
-		legend: {
-			fontSize: '14px',
-			fontWeight: 500,
-			fontFamily: 'Inter, sans-serif',
-			labels: {
-				colors: [mainChartColors.labelColor],
-			},
-			itemMargin: {
-				horizontal: 10,
-			},
-		},
-		responsive: [
-			{
-				breakpoint: 1024,
-				options: {
-					xaxis: {
-						labels: {
-							show: false,
-						},
-					},
-				},
-			},
-		],
-	};
-};
-
-if (document.getElementById('main-chart')) {
-	const chart = new ApexCharts(
-		document.getElementById('main-chart'),
-		getMainChartOptions(),
-	);
-	chart.render();
-
-	// init again when toggling dark mode
-	document.addEventListener('dark-mode', () => {
-		chart.updateOptions(getMainChartOptions());
-	});
+function parseNumeric(raw: unknown): number | null {
+  if (typeof raw === 'number' && !Number.isNaN(raw)) return raw;
+  if (typeof raw === 'string') {
+    const n = Number(raw);
+    return Number.isNaN(n) ? null : n;
+  }
+  return null;
 }
 
-if (document.getElementById('porcentaje-radio')) {
-	const options = {
-		series: [60],
-		colors: ['#8c681d'],
-		chart: {
-			type: 'radialBar',
-			height: 200,
-			fontFamily: 'Inter, sans-serif',
-			foreColor: '#fffff',
-			toolbar: {
-				show: false,
-			},
-		},
-		plotOptions: {
-			radialBar: {
-				startAngle: -135,
-				endAngle: 135,
-				hollow: {
-					margin: 0,
-					size: '70%',
-					background: 'transparent',
-				},
-				track: {
-					background: '#F3F4F6',
-					strokeWidth: '100%',
-					margin: 0,
-				},
-				dataLabels: {
-					show: true,
-					name: {
-						show: false,
-					},
-					value: {
-						show: true,
-						fontSize: '22px',
-						fontWeight: 'bold',
-						offsetY: 5,
-						color: '#ffffff',
-						formatter: function(val: number) {
-							return val + '%';
-						}
-					}
-				}
-			},
-		},
-		stroke: {
-			lineCap: 'round'
-		},
-		labels: ['Progreso'],
-		tooltip: {
-			enabled: true,
-			fillSeriesColor: false,
-			theme: 'light',
-			style: {
-				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif',
-			},
-			y: {
-				formatter: function(val: number) {
-					// Mensaje personalizado basado en el porcentaje
-					if (val >= 80) {
-						return `${val}% completado - Casi listo`;
-					} else if (val >= 60) {
-						return `${val}% - Vamos por buen camino`;
-					} else if (val >= 40) {
-						return `${val}% - Continúa así`;
-					} else {
-						return `${val}% - Sigue adelante`;
-					}
-				}
-			}
-		}
-	};
+function normalizePercent(raw: number): number {
+  // Si raw está entre 0 y 1, no lo multiplicamos por 100 (lo dejamos tal cual)
+  if (raw >= 0 && raw <= 1) return clamp(raw); // No multiplicamos por 100
 
-	const chart = new ApexCharts(
-		document.getElementById('porcentaje-radio'),
-		options,
-	);
-	chart.render();
+  // Si ya es mayor que 1, lo tratamos como porcentaje completo
+  return clamp(raw);
 }
 
-if (document.getElementById('sales-by-category')) {
-	const options = {
-		colors: ['#1A56DB', '#FDBA8C'],
-		series: [
-			{
-				name: 'Desktop PC',
-				color: '#1A56DB',
-				data: [
-					{ x: '01 Feb', y: 170 },
-					{ x: '02 Feb', y: 180 },
-					{ x: '03 Feb', y: 164 },
-					{ x: '04 Feb', y: 145 },
-					{ x: '05 Feb', y: 194 },
-					{ x: '06 Feb', y: 170 },
-					{ x: '07 Feb', y: 155 },
-				],
-			},
-			{
-				name: 'Phones',
-				color: '#FDBA8C',
-				data: [
-					{ x: '01 Feb', y: 120 },
-					{ x: '02 Feb', y: 294 },
-					{ x: '03 Feb', y: 167 },
-					{ x: '04 Feb', y: 179 },
-					{ x: '05 Feb', y: 245 },
-					{ x: '06 Feb', y: 182 },
-					{ x: '07 Feb', y: 143 },
-				],
-			},
-			{
-				name: 'Gaming/Console',
-				color: '#17B0BD',
-				data: [
-					{ x: '01 Feb', y: 220 },
-					{ x: '02 Feb', y: 194 },
-					{ x: '03 Feb', y: 217 },
-					{ x: '04 Feb', y: 279 },
-					{ x: '05 Feb', y: 215 },
-					{ x: '06 Feb', y: 263 },
-					{ x: '07 Feb', y: 183 },
-				],
-			},
-		],
-		chart: {
-			type: 'bar',
-			height: '420px',
-			fontFamily: 'Inter, sans-serif',
-			foreColor: '#4B5563',
-			toolbar: {
-				show: false,
-			},
-		},
-		plotOptions: {
-			bar: {
-				columnWidth: '90%',
-				borderRadius: 3,
-			},
-		},
-		tooltip: {
-			shared: true,
-			intersect: false,
-			style: {
-				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif',
-			},
-		},
-		states: {
-			hover: {
-				filter: {
-					type: 'darken',
-					value: 1,
-				},
-			},
-		},
-		stroke: {
-			show: true,
-			width: 5,
-			colors: ['transparent'],
-		},
-		grid: {
-			show: false,
-		},
-		dataLabels: {
-			enabled: false,
-		},
-		legend: {
-			show: false,
-		},
-		xaxis: {
-			floating: false,
-			labels: {
-				show: false,
-			},
-			axisBorder: {
-				show: false,
-			},
-			axisTicks: {
-				show: false,
-			},
-		},
-		yaxis: {
-			show: false,
-		},
-		fill: {
-			opacity: 1,
-		},
-	};
 
-	const chart = new ApexCharts(
-		document.getElementById('sales-by-category'),
-		options,
-	);
-	chart.render();
+function waitForElement(selector: string, timeoutMs = 8000): Promise<HTMLElement | null> {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const existing = document.querySelector(selector) as HTMLElement | null;
+    if (existing) return resolve(existing);
+
+    const obs = new MutationObserver(() => {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      if (el) {
+        obs.disconnect();
+        resolve(el);
+      } else if (Date.now() - start > timeoutMs) {
+        obs.disconnect();
+        resolve(null);
+      }
+    });
+
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+  });
 }
 
-const getVisitorsChartOptions = () => {
-	let visitorsChartColors = {};
+async function initPorcentajeRadioChart() {
+  console.log('[porcentaje-radio] init called');
 
-	if (document.documentElement.classList.contains('dark')) {
-		visitorsChartColors = {
-			fillGradientShade: 'dark',
-			fillGradientShadeIntensity: 0.45,
-		};
-	} else {
-		visitorsChartColors = {
-			fillGradientShade: 'light',
-			fillGradientShadeIntensity: 1,
-		};
-	}
+  if (document.readyState === 'loading') {
+    await new Promise((r) => document.addEventListener('DOMContentLoaded', r, { once: true }));
+  }
 
-	return {
-		series: [
-			{
-				name: 'Visitors',
-				data: [500, 590, 600, 520, 610, 550, 600],
-			},
-		],
-		labels: [
-			'01 Feb',
-			'02 Feb',
-			'03 Feb',
-			'04 Feb',
-			'05 Feb',
-			'06 Feb',
-			'07 Feb',
-		],
-		chart: {
-			type: 'area',
-			height: '305px',
-			fontFamily: 'Inter, sans-serif',
-			sparkline: {
-				enabled: true,
-			},
-			toolbar: {
-				show: false,
-			},
-		},
-		fill: {
-			type: 'gradient',
-			gradient: {
-				shade: visitorsChartColors.fillGradientShade,
-				shadeIntensity: visitorsChartColors.fillGradientShadeIntensity,
-			},
-		},
-		plotOptions: {
-			area: {
-				fillTo: 'end',
-			},
-		},
-		theme: {
-			monochrome: {
-				enabled: true,
-				color: '#1A56DB',
-			},
-		},
-		tooltip: {
-			style: {
-				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif',
-			},
-		},
-	};
-};
+  const el = await waitForElement('#porcentaje-radio', 8000);
+  if (!el) {
+    console.warn('[porcentaje-radio] No apareció #porcentaje-radio en 8s');
+    return;
+  }
 
-const getSignupsChartOptions = () => {
-	let signupsChartColors = {};
+  const empresaId = el.dataset.empresaId || el.getAttribute('data-empresa-id');
+  const rawPct = el.dataset.porcentaje || el.getAttribute('data-porcentaje');
 
-	if (document.documentElement.classList.contains('dark')) {
-		signupsChartColors = {
-			backgroundBarColors: [
-				'#262626',
-				'#262626',
-				'#262626',
-				'#262626',
-				'#262626',
-				'#262626',
-				'#262626',
-			],
-		};
-	} else {
-		signupsChartColors = {
-			backgroundBarColors: [
-				'#8c681d',
-				'#8c681d',
-				'#8c681d',
-				'#8c681d',
-				'#8c681d',
-				'#8c681d',
-				'#8c681d',
-			],
-		};
-	}
+  console.log('[porcentaje-radio] data-empresa-id:', empresaId);
+  console.log('[porcentaje-radio] data-porcentaje:', rawPct);
 
-	return {
-		series: [
-			{
-				name: 'Users',
-				data: [1334, 2435, 1753, 1328, 1155, 1632, 1336],
-			},
-		],
-		labels: [
-			'01 Feb',
-			'02 Feb',
-			'03 Feb',
-			'04 Feb',
-			'05 Feb',
-			'06 Feb',
-			'07 Feb',
-		],
-		chart: {
-			type: 'bar',
-			height: '140px',
-			foreColor: '#8c681d',
-			fontFamily: 'Inter, sans-serif',
-			toolbar: {
-				show: false,
-			},
-		},
-		theme: {
-			monochrome: {
-				enabled: true,
-				color: '#8c681d',
-			},
-		},
-		plotOptions: {
-			bar: {
-				columnWidth: '25%',
-				borderRadius: 3,
-				colors: {
-					backgroundBarColors: signupsChartColors.backgroundBarColors,
-					backgroundBarRadius: 3,
-				},
-			},
-			dataLabels: {
-				hideOverflowingLabels: false,
-			},
-		},
-		xaxis: {
-			floating: false,
-			labels: {
-				show: false,
-			},
-			axisBorder: {
-				show: false,
-			},
-			axisTicks: {
-				show: false,
-			},
-		},
-		
-		states: {
-			hover: {
-				filter: {
-					type: 'darken',
-					value: 0.8,
-				},
-			},
-		},
-		fill: {
-			opacity: 1,
-		},
-		yaxis: {
-			show: false,
-		},
-		grid: {
-			show: false,
-		},
-		dataLabels: {
-			enabled: false,
-		},
-		legend: {
-			show: false,
-		},
-	};
-};
+  const n = parseNumeric(rawPct);
+  const porcentaje = n === null ? 0 : normalizePercent(n);
 
-if (document.getElementById('week-signups-chart')) {
-	const chart = new ApexCharts(
-		document.getElementById('week-signups-chart'),
-		getSignupsChartOptions(),
-	);
-	chart.render();
+  const options = {
+    series: [0],
+    colors: ['#8c681d'],
+    chart: {
+      type: 'radialBar',
+      height: 200,
+      fontFamily: 'Inter, sans-serif',
+      foreColor: '#fffff',
+      toolbar: { show: false },
+    },
+    plotOptions: {
+      radialBar: {
+        startAngle: -135,
+        endAngle: 135,
+        hollow: { margin: 0, size: '70%', background: 'transparent' },
+        track: { background: '#F3F4F6', strokeWidth: '100%', margin: 0 },
+        dataLabels: {
+          show: true,
+          name: { show: false },
+          value: {
+            show: true,
+            fontSize: '22px',
+            fontWeight: 'bold',
+            offsetY: 5,
+            color: '#ffffff',
+            formatter: function (val: number) {
+              return val + '%';
+            },
+          },
+        },
+      },
+    },
+    stroke: { lineCap: 'round' },
+    labels: ['Progreso'],
+    tooltip: {
+      enabled: true,
+      fillSeriesColor: false,
+      theme: 'light',
+      style: { fontSize: '14px', fontFamily: 'Inter, sans-serif' },
+      y: {
+        formatter: function (val: number) {
+          if (val >= 80) return `${val}% completado - Casi listo`;
+          if (val >= 60) return `${val}% - Vamos por buen camino`;
+          if (val >= 40) return `${val}% - Continúa así`;
+          return `${val}% - Sigue adelante`;
+        },
+      },
+    },
+  };
 
-	// init again when toggling dark mode
-	document.addEventListener('dark-mode', () => {
-		chart.updateOptions(getSignupsChartOptions());
-	});
+  const chart = new ApexCharts(el, options);
+  await chart.render();
+
+  console.log('[porcentaje-radio] porcentaje final:', porcentaje);
+  chart.updateSeries([porcentaje], true);
 }
 
-const getTrafficChannelsChartOptions = () => {
-	let trafficChannelsChartColors = {};
-
-	if (document.documentElement.classList.contains('dark')) {
-		trafficChannelsChartColors = {
-			strokeColor: '#1f2937',
-		};
-	} else {
-		trafficChannelsChartColors = {
-			strokeColor: '#ffffff',
-		};
-	}
-
-	return {
-		series: [70, 5, 25],
-		labels: ['Desktop', 'Tablet', 'Phone'],
-		colors: ['#16BDCA', '#FDBA8C', '#1A56DB'],
-		chart: {
-			type: 'donut',
-			height: 400,
-			fontFamily: 'Inter, sans-serif',
-			toolbar: {
-				show: false,
-			},
-		},
-		responsive: [
-			{
-				breakpoint: 430,
-				options: {
-					chart: {
-						height: 300,
-					},
-				},
-			},
-		],
-		stroke: {
-			colors: [trafficChannelsChartColors.strokeColor],
-		},
-		states: {
-			hover: {
-				filter: {
-					type: 'darken',
-					value: 0.9,
-				},
-			},
-		},
-		tooltip: {
-			shared: true,
-			followCursor: false,
-			fillSeriesColor: false,
-			inverseOrder: true,
-			style: {
-				fontSize: '14px',
-				fontFamily: 'Inter, sans-serif',
-			},
-			x: {
-				show: true,
-				formatter(_, { seriesIndex, w }) {
-					const label = w.config.labels[seriesIndex];
-					return label;
-				},
-			},
-			y: {
-				formatter(value) {
-					return `${value}%`;
-				},
-			},
-		},
-		grid: {
-			show: false,
-		},
-		dataLabels: {
-			enabled: false,
-		},
-		legend: {
-			show: false,
-		},
-	};
-};
-
-if (document.getElementById('traffic-by-device')) {
-	const chart = new ApexCharts(
-		document.getElementById('traffic-by-device'),
-		getTrafficChannelsChartOptions(),
-	);
-	chart.render();
-
-	// init again when toggling dark mode
-	document.addEventListener('dark-mode', () => {
-		chart.updateOptions(getTrafficChannelsChartOptions());
-	});
-}
+initPorcentajeRadioChart();
+document.addEventListener('astro:page-load', () => initPorcentajeRadioChart());

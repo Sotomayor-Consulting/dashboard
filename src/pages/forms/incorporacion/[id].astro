@@ -1,5 +1,5 @@
 ---
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 
 const { id } = Astro.params;
 
@@ -202,11 +202,27 @@ import '/src/estilos/surveyjs.css';
 	// Valida UUID simple (evita requests con IDs inválidos)
 	const UUID_RE =
 		/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 	if (!UUID_RE.test(formId)) {
 		console.warn(
 			'[Survey] form_id inválido o ausente. No se harán requests al backend.',
 			{ formId },
 		);
+	}
+
+	// === EMPRESA_ID desde el link del form ===
+	// /forms/<form_id>?empresa=<empresa_incorporacion_id>
+	const empresaId = (() => {
+		try {
+			const v = new URLSearchParams(window.location.search).get('empresa')?.trim();
+			return v && UUID_RE.test(v) ? v : '';
+		} catch {
+			return '';
+		}
+	})();
+
+	if (!empresaId) {
+		console.warn('[Survey] No se encontró empresa válida en la URL (?empresa=...)');
 	}
 
 	// === CACHE LOCAL ===
@@ -242,15 +258,17 @@ import '/src/estilos/surveyjs.css';
 		};
 	})();
 
-	// === AUTOSAVE BACKEND (borrador) === -> /api/forms/envio
+	// === AUTOSAVE BACKEND (borrador) === -> /api/forms/submit_incorp
 	async function autosaveDraft() {
 		if (!UUID_RE.test(formId)) return; // evita 400 si no hay UUID
+		if (!empresaId) return; // evita enviar sin empresa
+
 		try {
 			const progress = survey.pages?.length
 				? Math.round(((survey.currentPageNo + 1) / survey.pages.length) * 100)
 				: null;
 
-			await fetch('/api/forms/submit', {
+			await fetch(`/api/forms/submit_incorp?empresa=${encodeURIComponent(empresaId)}`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -258,6 +276,7 @@ import '/src/estilos/surveyjs.css';
 					data: survey.data, // solo respondidas hasta ahora
 					progress_percent: progress, // 0..100
 					finalize: false, // borrador
+					empresa_incorporacion_id: empresaId, // fallback
 				}),
 			});
 		} catch (e) {
@@ -317,10 +336,14 @@ import '/src/estilos/surveyjs.css';
 		}
 	});
 
-	// Submit final -> /api/forms/envio con finalize:true
+	// submit_incorp final -> /api/forms/submit_incorp con finalize:true
 	survey.onComplete.add(async (sender) => {
 		if (!UUID_RE.test(formId)) {
 			console.error('[Survey] form_id inválido: no se puede enviar.');
+			return;
+		}
+		if (!empresaId) {
+			console.error('[Survey] empresa inválida: falta ?empresa= en la URL.');
 			return;
 		}
 
@@ -328,27 +351,33 @@ import '/src/estilos/surveyjs.css';
 		console.log('Datos a enviar:', JSON.stringify(sender.data, null, 2));
 		console.log('Keys en los datos:', Object.keys(sender.data));
 
-		const payload = { form_id: formId, data: sender.data, finalize: true };
+		const payload = {
+			form_id: formId,
+			data: sender.data,
+			finalize: true,
+			empresa_incorporacion_id: empresaId, // fallback
+		};
 
 		try {
-			const res = await fetch('/api/forms/submit', {
+			const res = await fetch(`/api/forms/submit_incorp?empresa=${encodeURIComponent(empresaId)}`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(payload),
 			});
 			const out = await res.json().catch(() => ({}));
 			if (!res.ok || !out.ok) {
-				console.error('Submit error:', out);
+				console.error('submit_incorp error:', out);
 			} else {
 				console.log('OK submission_id:', out.id);
 				// limpiar cache local al final
 				localStorage.removeItem(STORAGE_KEY);
 			}
 		} catch (e) {
-			console.error('Submit falló:', e);
+			console.error('submit_incorp falló:', e);
 		}
 	});
 
 	// Render
 	survey.render(document.getElementById('surveyContainer'));
 </script>
+

@@ -1,0 +1,176 @@
+---
+import '../estilos/datatables.css';
+import { supabase } from '../lib/supabase';
+
+const { data: formularios } = await supabase
+  .from('formularios_envios')
+  .select(
+    `
+    *,
+    formularios:formularios (form_id, titulo, slug, descripcion),
+    usuarios:usuarios (user_id, nombre, apellido)
+  `,
+  )
+  .eq('formularios.titulo', 'Formulario de incorporación')
+  .eq('status', 'submitted')
+  .eq('verificacion_operaciones', false)
+  .order('updated_at', { ascending: true });
+---
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+	<table
+		class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+		id="myTable"
+	>
+		<thead
+			class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-neutral-500 dark:text-gray-400"
+			id="test"
+		>
+			<tr>
+				{
+					[
+						'ID DE FORMULARIO',
+						'SUBIDO POR',
+						'PORCENTAJE DE PROGRESO',
+						'FECHA DE INICIO DEL FORMULARIO',
+						'FECHA DE ULTIMA ACTUALIZACION',
+						'FECHA DE ULTIMA SUBIDA',
+						'ESTADO'
+					].map((th) => (
+						<th
+							scope="col"
+							class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+						>
+							<span class="flex items-center">
+								{th}
+								<svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+									<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
+								</svg>
+							</span>
+						</th>
+					))
+				}
+			</tr>
+		</thead>
+		<tbody>
+			{
+				formularios?.map((formularios) => (
+					<tr class="bg-white border-b dark:bg-neutral-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-600 cursor-pointer"
+						onclick={`window.open('/crud/verficacion-incorporacion/${formularios.submission_id}', '_blank')`}
+					> 
+						<th
+							scope="row"
+							class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+						>
+							<div class="text-base font-semibold text-gray-900 dark:text-white">
+								<data value="name">
+									{formularios.formularios?.titulo ?? '— sin título —'}
+								</data>
+							</div>
+							<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+								<data value="category">
+									{formularios.formularios?.slug ?? '— sin ctaegoria —'}
+								</data>
+							</div>
+						</th>
+						<td class="px-6 py-4">
+							<data value="">
+								{formularios.usuarios.nombre} {formularios.usuarios.apellido}
+							</data>
+						</td>
+						<td class="px-6 py-4">
+							<data value="">% {formularios.progress_percent ?? '0'}</data>
+						</td>
+						<td class="px-6 py-4">
+							<data value="">
+								{formularios.created_at &&
+									new Date(formularios.created_at)
+										.toLocaleDateString('es-ES', {
+											day: '2-digit',
+											month: '2-digit',
+											year: 'numeric',
+										})
+										.replace(/\//g, '-')}
+							</data>
+						</td>
+						<td class="px-6 py-4">
+							<data value="">
+								{formularios.updated_at &&
+									new Date(formularios.updated_at)
+										.toLocaleDateString('es-ES', {
+											day: '2-digit',
+											month: '2-digit',
+											year: 'numeric',
+										})
+										.replace(/\//g, '-')}
+							</data>
+						</td>
+						<td class="px-6 py-4">
+							<data value="">
+								{(formularios.submitted_at &&
+									new Date(formularios.submitted_at)
+										.toLocaleDateString('es-ES', {
+											day: '2-digit',
+											month: '2-digit',
+											year: 'numeric',
+										})
+										.replace(/\//g, '-')) ??
+									'— sin fecha —'}
+							</data>
+						</td>
+						<td class="px-6 py-4">
+							<div class="flex items-center">
+								{formularios.status === 'submitted' ? (
+									<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div>
+									<span>Terminado</span>
+								) : (
+									<div class="h-2.5 w-2.5 rounded-full bg-orange-400 mr-2"></div>
+									<span>En progreso</span>
+								)}
+							</div>
+						</td>
+					</tr>
+				))
+			}
+		</tbody>
+	</table>
+</div>
+
+<script type="module">
+	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+
+	function initDT() {
+		const el = document.querySelector('#myTable');
+		if (!el) return;
+
+		// evita doble init con view transitions
+		if (el.dataset.dtInit === '1') return;
+
+		const dt = new DataTable(el, {
+			searchable: true,
+			perPage: 25,
+			perPageSelect: [5, 10, 25, 50],
+
+			// ✅ Textos en español
+			labels: {
+				placeholder: 'Buscar...',
+				perPage: 'Filas',
+				noRows: 'No hay más formularios pendientes de verificación',
+				noResults: 'No se encontraron resultados',
+				info: 'Mostrando {start} a {end} de {rows} registros',
+			},
+
+			// ✅ Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			layout: {
+				top: '{select}{search}',
+				bottom: '{info}{pager}',
+			},
+		});
+
+		el.dataset.dtInit = '1';
+		el.dataset.dtInstance = '1';
+	}
+
+	initDT();
+	document.addEventListener('astro:page-load', initDT);
+</script>

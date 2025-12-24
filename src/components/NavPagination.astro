@@ -25,7 +25,7 @@ const nextHref = hasNext ? linkFor(current + 1) : '#';
 const baseBtn =
 	'inline-flex items-center justify-center flex-1 px-3 py-2 text-sm font-medium text-center rounded-lg';
 const enabled =
-	'text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800';
+	'text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]';
 const disabled =
 	'text-gray-400 bg-gray-200 dark:bg-neutral-700 cursor-not-allowed';
 ---
@@ -51,7 +51,6 @@ const disabled =
 					clip-rule="evenodd"></path>
 			</svg>
 		</a>
-
 		<!-- Flecha der (icono) -->
 		<a
 			href={nextHref}
@@ -91,7 +90,9 @@ const disabled =
 				<path
 					fill-rule="evenodd"
 					d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-					clip-rule="evenodd"></path>
+					clip-rule="evenodd"
+				>
+				</path>
 			</svg>
 			Anterior
 		</a>
@@ -107,7 +108,9 @@ const disabled =
 				<path
 					fill-rule="evenodd"
 					d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-					clip-rule="evenodd"></path>
+					clip-rule="evenodd"
+				>
+				</path>
 			</svg>
 		</a>
 	</div>
