@@ -153,9 +153,18 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
     // Personas (socios) - guía mínima (por email)
     const peopleRows = socios
       .map((s: any) => ({
-        full_name: asString(s?.Nombres_completos) || null,
-        email: asString(s?.correoelectronico).toLowerCase() || null,
-        nacionalidad: asString(s?.nacionalidad) || null,
+        tipo_de_socio: asString(s?.tipo_socio) || null,
+        nombre_de_socio: asString(s?.Nombres_completos) || null,
+        correo: asString(s?.correoelectronico).toLowerCase() || null,
+        porcentaje: asString(s?.porcentaje) || null,
+        estado_civil: asString(s?.estado_civil) || null,
+        residente_fiscal: asString(s?.residente_fiscal_eeuu) || null,
+        numero_de_pasaporte: asString(s?.numero_pasaporte) || null,
+        nacionalidad: asString(s?.pais_de_nacionalidad) || null,
+        numero_de_seguro_social: asString(s?.ssn) || null,
+        numero_itin: asString(s?.itin) || null,
+        pais_planilla: asString(s?.pais_factura_servicio_basico) || null,
+        direccion_planilla: asString(s?.direccion_planilla_socio) || null,
         updated_at: nowIso,
       }))
       .filter((p: any) => p.email); // evita upserts con email null
