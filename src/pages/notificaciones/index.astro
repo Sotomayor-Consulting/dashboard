@@ -1,6 +1,6 @@
 ---
 import LayoutSidebar from '../../app/LayoutSidebar.astro';
-import Notificaciones from '../../components/Notificaciones.astro'
+import Notificaciones from '../../components/Notificaciones.astro';
 import { supabase } from '../../lib/supabase';
 
 const { cookies, redirect } = Astro;
@@ -30,5 +30,5 @@ if (error) {
 ---
 
 <LayoutSidebar>
-    <Notificaciones />
+	<Notificaciones />
 </LayoutSidebar>

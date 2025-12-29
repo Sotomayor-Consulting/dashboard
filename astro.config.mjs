@@ -5,12 +5,11 @@ import tailwind from '@astrojs/tailwind';
 import node from '@astrojs/node';
 import icon from 'astro-icon';
 
-
 export default defineConfig({
-  output: 'server',
-  adapter: node({
-    mode: 'standalone',
-  }),
-  base: '/',
-  integrations: [sitemap(), tailwind(), icon()],
+	output: 'server',
+	adapter: node({
+		mode: 'standalone',
+	}),
+	base: '/',
+	integrations: [sitemap(), tailwind(), icon()],
 });

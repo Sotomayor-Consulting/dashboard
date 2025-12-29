@@ -16,7 +16,7 @@ export function getProducts(randomize = RANDOMIZE) {
 				p.technology = faker.commerce.productName();
 				p.description = faker.commerce.productDescription();
 				return p;
-		  })
+			})
 		: productsStaticData;
 
 	return result;

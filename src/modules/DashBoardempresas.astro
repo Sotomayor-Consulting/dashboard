@@ -45,12 +45,11 @@ if (empresaError || !empresa) {
 					{empresa.estado_de_incorporacion}
 				</p>
 			</div>
-			<div class="w-full" style="min-height: 155px;" >
+			<div class="w-full" style="min-height: 155px;">
 				<div
 					id="apexchartskz97uayx"
 					class="cuadro_1"
 					style="width: 239px; height: 140px;"
-					
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -507,7 +506,13 @@ if (empresaError || !empresa) {
 					>{empresa.porcentaje_de_incorporacion}%</span
 				>
 			</div>
-			<div class="w-full" id="porcentaje-radio" data-empresa-id={Astro.params.id} data-porcentaje={empresa.porcentaje_de_incorporacion}></div>
+			<div
+				class="w-full"
+				id="porcentaje-radio"
+				data-empresa-id={Astro.params.id}
+				data-porcentaje={empresa.porcentaje_de_incorporacion}
+			>
+			</div>
 		</div>
 	</div>
 	<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
@@ -667,7 +672,7 @@ if (empresaError || !empresa) {
 								</a>
 							</div>
 						</li>
-						
+
 						<li class="py-3 sm:py-4">
 							<div class="flex items-center justify-between">
 								<div class="flex items-center min-w-0">

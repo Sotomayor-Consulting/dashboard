@@ -1,33 +1,34 @@
 ---
 // src/pages/envios/[id].astro
-import { supabase } from "../../../../../lib/supabase";
+import { supabase } from '../../../../../lib/supabase';
 
 // /envios/[id]  -> id = submission_id
 const { id } = Astro.params;
 const { cookies, redirect } = Astro;
 
 // 1) Sesión
-const at = cookies.get("sb-access-token");
-const rt = cookies.get("sb-refresh-token");
-if (!at || !rt) return redirect("/sign-in");
+const at = cookies.get('sb-access-token');
+const rt = cookies.get('sb-refresh-token');
+if (!at || !rt) return redirect('/sign-in');
 
 await supabase.auth.setSession({
-  access_token: at.value,
-  refresh_token: rt.value,
+	access_token: at.value,
+	refresh_token: rt.value,
 });
 
 // 2) Usuario
 const {
-  data: { user },
-  error: userErr,
+	data: { user },
+	error: userErr,
 } = await supabase.auth.getUser();
-if (userErr || !user) return redirect("/sign-in");
+if (userErr || !user) return redirect('/sign-in');
 
 // 3) Traer envío y verificar rol admin (en paralelo)
 const [envioRes, adminRes] = await Promise.all([
-  supabase
-    .from("formularios_envios")
-    .select(`
+	supabase
+		.from('formularios_envios')
+		.select(
+			`
       submission_id,
       form_id,
       user_id,
@@ -38,20 +39,21 @@ const [envioRes, adminRes] = await Promise.all([
       submitted_at,
       formularios:formularios ( titulo, tema_json ),
       usuarios:usuarios ( nombre, apellido )
-    `)
-    .eq("submission_id", id)
-    .single(),
-  supabase.rpc("is_admin", { uid: user.id }),
+    `,
+		)
+		.eq('submission_id', id)
+		.single(),
+	supabase.rpc('is_admin', { uid: user.id }),
 ]);
 
 const { data: envio, error: envioErr } = envioRes;
 const { data: isAdmin, error: rpcErr } = adminRes;
 
-if (envioErr || !envio) return redirect("/");
+if (envioErr || !envio) return redirect('/');
 
 // 4) Gate: dueño o admin
 const esAdmin = !rpcErr && !!isAdmin;
-if (!esAdmin && envio.user_id !== user.id) return redirect("/");
+if (!esAdmin && envio.user_id !== user.id) return redirect('/');
 
 // 5) Accesos directos
 const titulo = envio.formularios?.titulo;
@@ -62,47 +64,51 @@ const schemaSnapshot = envio.schema_snapshot ?? {};
 const answers = envio.data_json ?? {};
 
 function fmtLocalYmd(iso: string) {
-  const d = new Date(iso);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}/${m}/${day}`;
+	const d = new Date(iso);
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, '0');
+	const day = String(d.getDate()).padStart(2, '0');
+	return `${y}/${m}/${day}`;
 }
-import '/src/estilos/surveyjs.css'
+import '/src/estilos/surveyjs.css';
 ---
 
-
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <title>{envio.formularios?.titulo} Respuestas de {envio.usuarios?.nombre} {envio.usuarios?.apellido}</title>
-    <meta charset="utf-8">
-    <script type="text/javascript" src="https://unpkg.com/survey-core@2.3.9/survey.core.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/survey-js-ui@2.3.9/survey-js-ui.min.js"></script>
-    
-</head>
-<body class="bg-slate-500">
-  <section class="max-w-4xl mx-auto p-4 space-y-2">
-    <h1 class="text-2xl font-semibold text-white">
-      {
-        (envio.usuarios?.nombre || envio.usuarios?.apellido)
-          ? `Respuestas de ${(envio.usuarios?.nombre ?? "")} ${(envio.usuarios?.apellido ?? "")}`.trim()
-          : "Respuestas"
-      }
-    </h1>
-  </section>
-  
-  <div id="surveyContainer" class="max-w-4xl mx-auto p-4"></div>
-  
-</body>
+	<head>
+		<title>
+			{envio.formularios?.titulo} Respuestas de {envio.usuarios?.nombre}
+			{envio.usuarios?.apellido}
+		</title>
+		<meta charset="utf-8" />
+		<script
+			type="text/javascript"
+			src="https://unpkg.com/survey-core@2.3.9/survey.core.min.js"></script>
+		<script
+			type="text/javascript"
+			src="https://unpkg.com/survey-js-ui@2.3.9/survey-js-ui.min.js"></script>
+	</head>
+	<body class="bg-slate-500">
+		<section class="max-w-4xl mx-auto p-4 space-y-2">
+			<h1 class="text-2xl font-semibold text-white">
+				{
+					envio.usuarios?.nombre || envio.usuarios?.apellido
+						? `Respuestas de ${envio.usuarios?.nombre ?? ''} ${envio.usuarios?.apellido ?? ''}`.trim()
+						: 'Respuestas'
+				}
+			</h1>
+		</section>
+
+		<div id="surveyContainer" class="max-w-4xl mx-auto p-4"></div>
+	</body>
 </html>
 <script type="module" define:vars={{ schemaSnapshot, answers, themeJson }}>
-  const survey = new Survey.Model(schemaSnapshot);
-  survey.data = answers;
-  survey.mode = "display";
-  survey.showCompletedPage = false;
-  if (typeof themeJson !== "undefined" && themeJson) {
-    survey.applyTheme(themeJson);
-  }
-  survey.render(document.getElementById("surveyContainer"));
+	const survey = new Survey.Model(schemaSnapshot);
+	survey.data = answers;
+	survey.mode = 'display';
+	survey.showCompletedPage = false;
+	if (typeof themeJson !== 'undefined' && themeJson) {
+		survey.applyTheme(themeJson);
+	}
+	survey.render(document.getElementById('surveyContainer'));
 </script>

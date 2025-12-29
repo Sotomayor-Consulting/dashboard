@@ -5,14 +5,16 @@ import { supabase } from '../../lib/supabase';
 const at = Astro.cookies.get('sb-access-token');
 const rt = Astro.cookies.get('sb-refresh-token');
 if (at && rt) {
-  await supabase.auth.setSession({
-    access_token: at.value,
-    refresh_token: rt.value,
-  });
+	await supabase.auth.setSession({
+		access_token: at.value,
+		refresh_token: rt.value,
+	});
 }
 
 // 2) Usuario actual
-const { data: { user } } = await supabase.auth.getUser();
+const {
+	data: { user },
+} = await supabase.auth.getUser();
 
 // 3) Slug de la ruta /empresa/[slug]/...
 const { slug } = Astro.params;
@@ -30,57 +32,59 @@ let isClient = false;
 
 // 4) Resolver empresa por slug
 if (slug) {
-  const { data: emp, error: empErr } = await supabase
-    .from('empresa')
-    .select('empresa_id, nombre, slug')
-    .eq('slug', slug)
-    .single();
+	const { data: emp, error: empErr } = await supabase
+		.from('empresa')
+		.select('empresa_id, nombre, slug')
+		.eq('slug', slug)
+		.single();
 
-  if (!empErr && emp?.empresa_id) {
-    empresaId = emp.empresa_id as string;
-	slugSt = emp.slug as string;
-    empresaNombre = (emp.nombre as string) ?? null;
+	if (!empErr && emp?.empresa_id) {
+		empresaId = emp.empresa_id as string;
+		slugSt = emp.slug as string;
+		empresaNombre = (emp.nombre as string) ?? null;
 
-    // 5) Traer logo desde empresa_settings (manteniendo tu config)
-    const { data: settings } = await supabase
-      .from('empresa_settings')
-      .select('logo_url, updated_at')
-      .eq('empresa_id', empresaId)
-      .order('updated_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+		// 5) Traer logo desde empresa_settings (manteniendo tu config)
+		const { data: settings } = await supabase
+			.from('empresa_settings')
+			.select('logo_url, updated_at')
+			.eq('empresa_id', empresaId)
+			.order('updated_at', { ascending: false })
+			.limit(1)
+			.maybeSingle();
 
-    logoUrl = settings?.logo_url ?? '/img/logo-fallback.svg';
+		logoUrl = settings?.logo_url ?? '/img/logo-fallback.svg';
 
-    // 6) Rol del usuario en esta empresa (si hay usuario autenticado)
-    if (user) {
-      const { data: ue } = await supabase
-        .from('usuarios_empresas')
-        .select('rol_en_empresa')
-        .eq('empresa_id', empresaId)
-        .eq('user_id', user.id)
-        .maybeSingle();
+		// 6) Rol del usuario en esta empresa (si hay usuario autenticado)
+		if (user) {
+			const { data: ue } = await supabase
+				.from('usuarios_empresas')
+				.select('rol_en_empresa')
+				.eq('empresa_id', empresaId)
+				.eq('user_id', user.id)
+				.maybeSingle();
 
-      role = (ue?.rol_en_empresa ?? null)?.toString().trim().toLowerCase() ?? null;
+			role =
+				(ue?.rol_en_empresa ?? null)?.toString().trim().toLowerCase() ?? null;
 
-      // 7) Flags derivados (ajusta sinónimos si usas otros)
-      const isOneOf = (v: string | null, arr: string[]) => (v ? arr.includes(v) : false);
-      isAdmin   = isOneOf(role, ['admin', 'owner', 'creador']);
-      isPartner = isOneOf(role, ['partner', 'colaborador']);
-      isClient  = isOneOf(role, ['client', 'cliente']);
-    }
-  }
+			// 7) Flags derivados (ajusta sinónimos si usas otros)
+			const isOneOf = (v: string | null, arr: string[]) =>
+				v ? arr.includes(v) : false;
+			isAdmin = isOneOf(role, ['admin', 'owner', 'creador']);
+			isPartner = isOneOf(role, ['partner', 'colaborador']);
+			isClient = isOneOf(role, ['client', 'cliente']);
+		}
+	}
 }
 // 8) Exporta contexto para la vista
 const ctx = {
-  empresaId,
-  empresaNombre,
-  logoUrl,
-  role,
-  isAdmin,
-  isPartner,
-  isClient,
-  slugSt,
+	empresaId,
+	empresaNombre,
+	logoUrl,
+	role,
+	isAdmin,
+	isPartner,
+	isClient,
+	slugSt,
 };
 ---
 
@@ -239,10 +243,7 @@ const ctx = {
 
 			{
 				isClient && (
-					<div
-						class="flex justify-center items-center flex-col"
-						
-					>
+					<div class="flex justify-center items-center flex-col">
 						<a
 							href={`/empresas/${ctx.slugSt}/pages/tus-formularios/crear-empresa`}
 							data-tooltip-target="Dashboard"
@@ -348,10 +349,7 @@ const ctx = {
 
 			{
 				isAdmin && (
-					<div
-						class="flex justify-center items-center flex-col"
-						
-					>
+					<div class="flex justify-center items-center flex-col">
 						<a
 							href={`/empresas/${ctx.slugSt}/crud/users`}
 							data-tooltip-target="clientes"
@@ -385,10 +383,7 @@ const ctx = {
 			}
 			{
 				isAdmin && (
-					<div
-						class="flex justify-center items-center flex-col"
-						
-					>
+					<div class="flex justify-center items-center flex-col">
 						<a
 							href={`/empresas/${ctx.slugSt}/crud/services`}
 							data-tooltip-target="servicios"
@@ -422,10 +417,7 @@ const ctx = {
 			}
 			{
 				isAdmin && (
-					<div
-						class="flex justify-center items-center flex-col"
-						
-					>
+					<div class="flex justify-center items-center flex-col">
 						<a
 							href={`/empresas/${ctx.slugSt}/crud/formularios`}
 							data-tooltip-target="Formularios"
@@ -459,10 +451,7 @@ const ctx = {
 			}
 			{
 				isAdmin && (
-					<div
-						class="flex justify-center items-center flex-col"
-						
-					>
+					<div class="flex justify-center items-center flex-col">
 						<a
 							href={`/empresas/${ctx.slugSt}/crud/formularios-enviados`}
 							data-tooltip-target="respuestas"
@@ -496,9 +485,7 @@ const ctx = {
 			}
 			{
 				isAdmin && (
-					<div
-						class="flex justify-center items-center flex-col"
-					>
+					<div class="flex justify-center items-center flex-col">
 						<a
 							href={`/empresas/${ctx.slugSt}/pages/convertidor`}
 							class="backdrop-blur-[20px] backdrop-saturate-[100%] dark:bg-neutral-800 bg-slate-300 bg-opacity-10border border-opacity-20 border-neutral-800 rounded-md p-5 flex justify-center w-fit hover:-translate-y-[2px] transition-all duration-200 ease-in-out hover:border-slate-300 hover:border-opacity-20 border"

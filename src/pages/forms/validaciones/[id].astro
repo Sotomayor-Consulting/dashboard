@@ -37,6 +37,7 @@ const [envioRes, adminRes] = await Promise.all([
       schema_snapshot,
       created_at,
       submitted_at,
+      empresa_incorporacion_id,
       formularios:formularios ( titulo, tema_json ),
       usuarios:usuarios ( nombre, apellido )
     `,
@@ -53,6 +54,7 @@ if (envioErr || !envio) return redirect('/');
 
 // 4) Gate: dueño o admin
 const esAdmin = !rpcErr && !!isAdmin;
+const canEdit = esAdmin;
 if (!esAdmin && envio.user_id !== user.id) return redirect('/');
 
 // 5) Accesos directos
@@ -63,6 +65,7 @@ const apellido = envio.usuarios?.apellido;
 
 const schemaSnapshot = envio.schema_snapshot ?? {};
 const answers = envio.data_json ?? {};
+const empresa_id = envio.empresa_incorporacion_id;
 
 import '/src/estilos/surveyjs.css';
 ---
@@ -80,8 +83,8 @@ import '/src/estilos/surveyjs.css';
 			src="https://unpkg.com/survey-js-ui@2.3.9/survey-js-ui.min.js"></script>
 	</head>
 	<body class="bg-neutral-700">
-		<section class="max-w-4xl mx-auto p-4 space-y-2">
-			<h1 class="text-2xl font-semibold text-white">
+		<section class="mx-auto p-4 space-y-2">
+			<h1 class="text-2xl font-bold text-white">
 				{
 					autorNombre || apellido
 						? `Respuestas de ${autorNombre ?? ''} ${apellido ?? ''}`.trim()
@@ -90,16 +93,70 @@ import '/src/estilos/surveyjs.css';
 			</h1>
 		</section>
 
-		<div id="surveyContainer" class="max-w-4xl mx-auto p-4"></div>
+		<div id="surveyContainer" class="mx-auto p-4"></div>
 	</body>
 </html>
-<script type="module" define:vars={{ schemaSnapshot, answers, themeJson }}>
+<script
+	type="module"
+	define:vars={{ schemaSnapshot, answers, themeJson, id, empresa_id, canEdit }}
+>
 	const survey = new Survey.Model(schemaSnapshot);
-	survey.data = answers;
-	survey.mode = 'display';
+
+	survey.data = answers ?? {};
 	survey.showCompletedPage = false;
+
+	// Para Ops: no borres valores invisibles; backend decide qué aplica
+	survey.clearInvisibleValues = 'none';
+
 	if (typeof themeJson !== 'undefined' && themeJson) {
 		survey.applyTheme(themeJson);
 	}
+
+	if (!canEdit) {
+		survey.mode = 'display';
+	} else {
+		// editable
+		survey.mode = 'edit';
+		survey.completeText = 'Validar';
+	}
+
+	// Solo si puede editar, mandamos a endpoint
+	if (canEdit) {
+		survey.onComplete.add(async (sender) => {
+			const payload = {
+				submission_id: id,
+				empresa_id: empresa_id,
+				form_id: envio.form_id, // opcional pero útil si manejas distintos formularios
+				approved_data: sender.data,
+			};
+
+			try {
+				const res = await fetch(
+					'/api/operaciones/validacion_de_incorporacion',
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify(payload),
+					},
+				);
+
+				const out = await res.json().catch(() => ({}));
+
+				if (!res.ok || out.ok === false) {
+					console.error('Validation error:', out);
+					alert('No se pudo validar. Revise los errores.');
+					return;
+				}
+
+				alert('Validación enviada.');
+				// opcional: redirigir o refrescar
+				// window.location.reload();
+			} catch (e) {
+				console.error(e);
+				alert('Error enviando validación.');
+			}
+		});
+	}
+
 	survey.render(document.getElementById('surveyContainer'));
 </script>

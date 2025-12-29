@@ -42,7 +42,6 @@ const { data: empresa, error: empresaError } = await supabase
 if (empresaError || !empresa) {
 	return redirect('/pages/empresas');
 }
-
 ---
 
 <LayoutSidebar>

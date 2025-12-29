@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
-import icono from '/src/assets/icono.png'
-import icono2 from '/src/assets/icono-negro.png'
+import icono from '/src/assets/icono.png';
+import icono2 from '/src/assets/icono-negro.png';
 import { supabase } from '../lib/supabase'; // Asegúrate de que esta ruta es correcta
 import type { User } from '@supabase/supabase-js';
 
@@ -78,15 +78,22 @@ if (accessToken && refreshToken) {
 						href="/"
 						class="flex items-center mb-2 border-gray-200 pe-4 me-4 border-e md:mb-0 dark:border-gray-600"
 					>
-						
-						<Image src={icono} width="32" alt="Sotomayor consulting Logo" class="me-2 hidden dark:block"/>
-						<Image src={icono2} width="32" alt="Sotomayor consulting Logo" class="me-2 dark:hidden block"/>
-
+						<Image
+							src={icono}
+							width="32"
+							alt="Sotomayor consulting Logo"
+							class="me-2 hidden dark:block"
+						/>
+						<Image
+							src={icono2}
+							width="32"
+							alt="Sotomayor consulting Logo"
+							class="me-2 dark:hidden block"
+						/>
 					</a>
 					<p class="flex items-center text-base font-normal text-black dark:text-white">
 						{BANNER_PROPS.title}
 					</p>
-					
 				</div>
 				<div class="flex items-center shrink-0 justify-between">
 					<a
@@ -124,18 +131,18 @@ if (accessToken && refreshToken) {
 }
 
 <style>
-   @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
 
-  .animate-fade-in {
-    animation: fade-in 0.5s ease-out forwards;
-  }
+	.animate-fade-in {
+		animation: fade-in 0.5s ease-out forwards;
+	}
 </style>

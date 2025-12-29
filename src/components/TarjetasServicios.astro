@@ -3,7 +3,8 @@ import { supabase } from '../lib/supabase';
 
 const { data: servicios, error: serviciosErr } = await supabase
 	.from('servicio_extra')
-	.select(`
+	.select(
+		`
 		id,
 		servicio_ex_id,
 		nombre,
@@ -13,7 +14,8 @@ const { data: servicios, error: serviciosErr } = await supabase
 		estado,
 		categoria,
 		created_at
-	`)
+	`,
+	)
 	.eq('estado', 'Activo')
 	.order('created_at', { ascending: false });
 
@@ -102,7 +104,9 @@ if (serviciosErr) {
 							</div>
 						</div>
 						<div class="flex-col justify-start items-start gap-y-0.5 flex flex-1">
-							<h3 class="text-foreground text-sm mb-1 dark:text-white text-black">{cards.nombre}</h3>
+							<h3 class="text-foreground text-sm mb-1 dark:text-white text-black">
+								{cards.nombre}
+							</h3>
 							<p class="text-foreground-light text-xs flex-1 dark:text-neutral-400 text-neutral-600">
 								{cards.descripcion}
 							</p>

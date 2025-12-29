@@ -60,8 +60,8 @@ if (error) {
 	total = count ?? 0;
 	totalPages = Math.max(1, Math.ceil(total / pageSize));
 }
-
 ---
+
 <Alerta />
 <div class="flex flex-col">
 	<div class="overflow-x-auto">
@@ -119,8 +119,12 @@ if (error) {
 								<div>
 									<tr class="hover:bg-gray-100 dark:hover:bg-neutral-700">
 										<td class="w-4 pl-4">
-									
-											<Image src={logonotificaciones} width="44" alt="Icono Sotomayor Consulting" class="rounded-full"/>
+											<Image
+												src={logonotificaciones}
+												width="44"
+												alt="Icono Sotomayor Consulting"
+												class="rounded-full"
+											/>
 										</td>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-gray-500 overflow-hidden truncate max-w-sm xl:max-w-xs">
 											#{user.id}
@@ -210,31 +214,36 @@ if (error) {
 													<li>
 														{user.is_read === true ? (
 															<a
-                                                                href="/notificaciones"
-																class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-																role="menuitem"
-															>
-																Marcar como leído 
-															</a>
-                                                            
-														) : (
-															<form action="/api/update/update-notification" method="post">
-															<input
-																type="hidden"
-																value="true"
-																name="estado_lectura"
-															/>
-															<input type="hidden" value={user.id} name="id" />
-															<button
-																type="submit"
+																href="/notificaciones"
 																class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
 																role="menuitem"
 															>
 																Marcar como leído
-															</button>
-														</form>
+															</a>
+														) : (
+															<form
+																action="/api/update/update-notification"
+																method="post"
+															>
+																<input
+																	type="hidden"
+																	value="true"
+																	name="estado_lectura"
+																/>
+																<input
+																	type="hidden"
+																	value={user.id}
+																	name="id"
+																/>
+																<button
+																	type="submit"
+																	class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+																	role="menuitem"
+																>
+																	Marcar como leído
+																</button>
+															</form>
 														)}
-														
 													</li>
 												</ul>
 											</div>

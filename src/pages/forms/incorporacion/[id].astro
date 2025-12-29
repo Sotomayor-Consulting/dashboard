@@ -214,7 +214,9 @@ import '/src/estilos/surveyjs.css';
 	// /forms/<form_id>?empresa=<empresa_incorporacion_id>
 	const empresaId = (() => {
 		try {
-			const v = new URLSearchParams(window.location.search).get('empresa')?.trim();
+			const v = new URLSearchParams(window.location.search)
+				.get('empresa')
+				?.trim();
 			return v && UUID_RE.test(v) ? v : '';
 		} catch {
 			return '';
@@ -222,7 +224,9 @@ import '/src/estilos/surveyjs.css';
 	})();
 
 	if (!empresaId) {
-		console.warn('[Survey] No se encontró empresa válida en la URL (?empresa=...)');
+		console.warn(
+			'[Survey] No se encontró empresa válida en la URL (?empresa=...)',
+		);
 	}
 
 	// === CACHE LOCAL ===
@@ -268,17 +272,20 @@ import '/src/estilos/surveyjs.css';
 				? Math.round(((survey.currentPageNo + 1) / survey.pages.length) * 100)
 				: null;
 
-			await fetch(`/api/forms/submit_incorp?empresa=${encodeURIComponent(empresaId)}`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					form_id: formId,
-					data: survey.data, // solo respondidas hasta ahora
-					progress_percent: progress, // 0..100
-					finalize: false, // borrador
-					empresa_incorporacion_id: empresaId, // fallback
-				}),
-			});
+			await fetch(
+				`/api/forms/submit_incorp?empresa=${encodeURIComponent(empresaId)}`,
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						form_id: formId,
+						data: survey.data, // solo respondidas hasta ahora
+						progress_percent: progress, // 0..100
+						finalize: false, // borrador
+						empresa_incorporacion_id: empresaId, // fallback
+					}),
+				},
+			);
 		} catch (e) {
 			console.warn('Autosave draft falló:', e);
 		}
@@ -359,11 +366,14 @@ import '/src/estilos/surveyjs.css';
 		};
 
 		try {
-			const res = await fetch(`/api/forms/submit_incorp?empresa=${encodeURIComponent(empresaId)}`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(payload),
-			});
+			const res = await fetch(
+				`/api/forms/submit_incorp?empresa=${encodeURIComponent(empresaId)}`,
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(payload),
+				},
+			);
 			const out = await res.json().catch(() => ({}));
 			if (!res.ok || !out.ok) {
 				console.error('submit_incorp error:', out);
@@ -380,4 +390,3 @@ import '/src/estilos/surveyjs.css';
 	// Render
 	survey.render(document.getElementById('surveyContainer'));
 </script>
-

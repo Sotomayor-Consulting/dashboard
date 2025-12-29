@@ -79,7 +79,7 @@ const { data: servicios, error: serviciosErr } = await supabase
 	`,
 	)
 	.eq('servicio_activo', true)
-	.in('id', [1,2,3,4]);
+	.in('id', [1, 2, 3, 4]);
 
 if (serviciosErr) {
 	console.error('Error cargando servicios:', serviciosErr);
@@ -104,7 +104,9 @@ const planEstandar = servicios?.find((s) => s.nombre === 'Plan Estándar');
 const planBusiness = servicios?.find((s) => s.nombre === 'Plan Business');
 const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade');
 
-const planesDeServicio = servicios?.filter(e => e.nombre !== 'Plan Diseño - upgrade');
+const planesDeServicio = servicios?.filter(
+	(e) => e.nombre !== 'Plan Diseño - upgrade',
+);
 
 console.log('planesDeServicio :>> ', planesDeServicio);
 ---

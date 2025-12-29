@@ -1,45 +1,45 @@
 ---
 import LayoutSidebar from '../../app/LayoutSidebar.astro';
 import Crudverificacion from '../../modules/CrudVerificacion.astro';
-import { supabase } from "../../lib/supabase";
-import Alerta from '../../components/alertageneral.astro'
-
+import { supabase } from '../../lib/supabase';
+import Alerta from '../../components/alertageneral.astro';
 
 const { cookies, redirect } = Astro;
 // 1) Restaurar sesión desde cookies
-const accessToken = cookies.get("sb-access-token");
-const refreshToken = cookies.get("sb-refresh-token");
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
 
 if (!accessToken || !refreshToken) {
-  return redirect("/sign-in");
+	return redirect('/sign-in');
 }
 
 await supabase.auth.setSession({
-  access_token: accessToken.value,
-  refresh_token: refreshToken.value,
+	access_token: accessToken.value,
+	refresh_token: refreshToken.value,
 });
 
 // 2) Obtener usuario
 const {
-  data: { user },
-  error: userErr,
+	data: { user },
+	error: userErr,
 } = await supabase.auth.getUser();
 
 if (userErr || !user) {
-  return redirect("/sign-in");
+	return redirect('/sign-in');
 }
 
 // 3) Verificar si es admin (RPC a tu función is_admin)
-const { data: isAdminRes, error: rpcErr } = await supabase.rpc("is_admin", {
-  uid: user.id,
+const { data: isAdminRes, error: rpcErr } = await supabase.rpc('is_admin', {
+	uid: user.id,
 });
 
 // si la RPC falla o no es admin → redirigir a /
 if (rpcErr || !isAdminRes) {
-  return redirect("/");
+	return redirect('/');
 }
 ---
+
 <LayoutSidebar>
-    <Alerta />
-    <Crudverificacion />
+	<Alerta />
+	<Crudverificacion />
 </LayoutSidebar>

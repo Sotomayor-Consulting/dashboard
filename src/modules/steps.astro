@@ -37,84 +37,84 @@ const variant = isSuccess
 // visible si hay msg; si no, hidden
 const display = msg ? 'flex' : 'hidden';
 ---
+
 <!-- ALERTA FLOWBITE -->
-	<div
-		id="alert-feedback"
-		class={`absolute right-0 top-0.5 items-center p-4 mb-4 text-sm border rounded-lg mt-4 ${variant} ${display}`}
-		role="alert"
-		style="z-index: 50;"
-		aria-live="polite"
+<div
+	id="alert-feedback"
+	class={`absolute right-0 top-0.5 items-center p-4 mb-4 text-sm border rounded-lg mt-4 ${variant} ${display}`}
+	role="alert"
+	style="z-index: 50;"
+	aria-live="polite"
+>
+	<svg
+		class="shrink-0 inline w-4 h-4 me-3"
+		aria-hidden="true"
+		xmlns="http://www.w3.org/2000/svg"
+		fill="currentColor"
+		viewBox="0 0 20 20"
 	>
-		<svg
-			class="shrink-0 inline w-4 h-4 me-3"
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
-			fill="currentColor"
-			viewBox="0 0 20 20"
-		>
-			<path
-				d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-			></path>
-		</svg>
-		<div class="ms-3">
-			<span class="font-medium">{isSuccess ? '✅ ¡Éxito!' : '❌ Error:'}</span>
-			{' '}
-			{msg}
-		</div>
-		<!-- botón cerrar (opcional) -->
-		<button
-			type="button"
-			class="ms-auto -mx-1.5 -my-1.5 p-1.5 rounded hover:opacity-80"
-			aria-label="Close"
-			data-close
-		>
-			✕
-		</button>
+		<path
+			d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+		></path>
+	</svg>
+	<div class="ms-3">
+		<span class="font-medium">{isSuccess ? '✅ ¡Éxito!' : '❌ Error:'}</span>
+		{' '}
+		{msg}
 	</div>
+	<!-- botón cerrar (opcional) -->
+	<button
+		type="button"
+		class="ms-auto -mx-1.5 -my-1.5 p-1.5 rounded hover:opacity-80"
+		aria-label="Close"
+		data-close
+	>
+		✕
+	</button>
+</div>
 
-	<!-- Script: mostrar/ocultar y limpiar query -->
-	<script is:inline>
-		(function () {
-			const alertBox = document.getElementById('alert-feedback');
-			if (!alertBox) return;
+<!-- Script: mostrar/ocultar y limpiar query -->
+<script is:inline>
+	(function () {
+		const alertBox = document.getElementById('alert-feedback');
+		if (!alertBox) return;
 
-			const params = new URLSearchParams(window.location.search);
-			const hasMsg = params.has('msg');
+		const params = new URLSearchParams(window.location.search);
+		const hasMsg = params.has('msg');
 
-			// por si el SSR no lo dejó visible
-			if (hasMsg) {
-				alertBox.classList.remove('hidden');
-				alertBox.classList.add('flex');
+		// por si el SSR no lo dejó visible
+		if (hasMsg) {
+			alertBox.classList.remove('hidden');
+			alertBox.classList.add('flex');
 
-				// autocerrar a los 6s
-				const hide = () => {
-					alertBox.classList.add('hidden');
-					alertBox.classList.remove('flex');
-				};
-				const timer = setTimeout(hide, 6000);
-
-				// botón cerrar manual
-				const closeBtn = alertBox.querySelector('[data-close]');
-				if (closeBtn) {
-					closeBtn.addEventListener('click', () => {
-						clearTimeout(timer);
-						hide();
-					});
-				}
-
-				// limpiar query de la URL (para que no reaparezca al refrescar)
-				params.delete('msg');
-				params.delete('status');
-				const newUrl = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}${location.hash}`;
-				window.history.replaceState({}, '', newUrl);
-			} else {
-				// asegurar oculto si no hay mensaje
+			// autocerrar a los 6s
+			const hide = () => {
 				alertBox.classList.add('hidden');
 				alertBox.classList.remove('flex');
-			}
-		})();
-	</script>
+			};
+			const timer = setTimeout(hide, 6000);
 
+			// botón cerrar manual
+			const closeBtn = alertBox.querySelector('[data-close]');
+			if (closeBtn) {
+				closeBtn.addEventListener('click', () => {
+					clearTimeout(timer);
+					hide();
+				});
+			}
+
+			// limpiar query de la URL (para que no reaparezca al refrescar)
+			params.delete('msg');
+			params.delete('status');
+			const newUrl = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}${location.hash}`;
+			window.history.replaceState({}, '', newUrl);
+		} else {
+			// asegurar oculto si no hay mensaje
+			alertBox.classList.add('hidden');
+			alertBox.classList.remove('flex');
+		}
+	})();
+</script>
 
 <WhatsappBtn />
 <!--Modal --><!-- Main modal -->
@@ -1521,38 +1521,64 @@ const display = msg ? 'flex' : 'hidden';
 		const registerForm = document.getElementById('contenedor-registro');
 		const goToPaymentBtn = document.getElementById('boton-verificar');
 		const registerFormElement = document.getElementById('form-registro');
-		
+
 		// Elementos para la alerta Flowbite
 		const alertBox = document.getElementById('alert-feedback');
 		const alertMessage = alertBox?.querySelector('.ms-3');
 
 		function showFlowbiteAlert(message: string, isSuccess = false) {
 			if (!alertBox || !alertMessage) return;
-			
+
 			// Configurar el mensaje
 			const prefix = isSuccess ? '✅ ¡Éxito!' : '❌ Error:';
 			alertMessage.innerHTML = `<span class="font-medium">${prefix}</span> ${message}`;
-			
+
 			// Configurar estilos según tipo
 			if (isSuccess) {
-				alertBox.classList.remove('text-red-800', 'border-red-300', 'bg-red-50', 'dark:text-red-400', 'dark:border-red-800');
-				alertBox.classList.add('text-green-800', 'border-green-300', 'bg-green-50', 'dark:text-green-400', 'dark:border-green-800', 'z-50');
+				alertBox.classList.remove(
+					'text-red-800',
+					'border-red-300',
+					'bg-red-50',
+					'dark:text-red-400',
+					'dark:border-red-800',
+				);
+				alertBox.classList.add(
+					'text-green-800',
+					'border-green-300',
+					'bg-green-50',
+					'dark:text-green-400',
+					'dark:border-green-800',
+					'z-50',
+				);
 			} else {
-				alertBox.classList.remove('text-green-800', 'border-green-300', 'bg-green-50', 'dark:text-green-400', 'dark:border-green-800');
-				alertBox.classList.add('text-red-800', 'border-red-300', 'bg-red-50', 'dark:text-red-400', 'dark:border-red-800', 'z-50');
+				alertBox.classList.remove(
+					'text-green-800',
+					'border-green-300',
+					'bg-green-50',
+					'dark:text-green-400',
+					'dark:border-green-800',
+				);
+				alertBox.classList.add(
+					'text-red-800',
+					'border-red-300',
+					'bg-red-50',
+					'dark:text-red-400',
+					'dark:border-red-800',
+					'z-50',
+				);
 			}
-			
+
 			// Mostrar alerta
 			alertBox.classList.remove('hidden');
 			alertBox.classList.add('flex');
-			
+
 			// Configurar auto-cierre
 			const hide = () => {
 				alertBox.classList.add('hidden');
 				alertBox.classList.remove('flex');
 			};
 			const timer = setTimeout(hide, 6000);
-			
+
 			// Configurar botón cerrar
 			const closeBtn = alertBox.querySelector('[data-close]');
 			if (closeBtn) {
@@ -1563,7 +1589,7 @@ const display = msg ? 'flex' : 'hidden';
 					hide();
 				});
 			}
-			
+
 			// Limpiar parámetros URL si existen
 			const urlParams = new URLSearchParams(window.location.search);
 			if (urlParams.has('msg') || urlParams.has('status')) {
@@ -1574,7 +1600,16 @@ const display = msg ? 'flex' : 'hidden';
 			}
 		}
 
-		function showError(element: { textContent: any; classList: { remove: (arg0: string) => void; add: (arg0: string) => void; }; }, message: any) {
+		function showError(
+			element: {
+				textContent: any;
+				classList: {
+					remove: (arg0: string) => void;
+					add: (arg0: string) => void;
+				};
+			},
+			message: any,
+		) {
 			if (element) {
 				element.textContent = message;
 				element.classList.remove('hidden');
@@ -1599,7 +1634,7 @@ const display = msg ? 'flex' : 'hidden';
 				return 'El tercer nombre de empresa es obligatorio';
 			}
 
-			return null; 
+			return null;
 		}
 
 		function saveBusinessData(formData: FormData) {
@@ -1661,7 +1696,7 @@ const display = msg ? 'flex' : 'hidden';
 				}
 
 				const businessFormData = new FormData(businessForm);
-				
+
 				// VALIDACIÓN AGREGADA AQUÍ
 				const validationError = validateBusinessData(businessFormData);
 				if (validationError) {
@@ -1716,7 +1751,10 @@ const display = msg ? 'flex' : 'hidden';
 					if (sessionData.isAuthenticated) {
 						handleAuthenticatedUser();
 					} else {
-						showFlowbiteAlert('Registro exitoso. Revisa tu email para confirmar.', true);
+						showFlowbiteAlert(
+							'Registro exitoso. Revisa tu email para confirmar.',
+							true,
+						);
 					}
 				} else {
 					const errorText = await response.text();
@@ -1737,12 +1775,12 @@ const display = msg ? 'flex' : 'hidden';
 			handleUnauthenticatedUser();
 		} else if (urlParams.get('status') === 'error') {
 			showFlowbiteAlert(
-				decodeURIComponent(urlParams.get('msg') || 'Error desconocido')
+				decodeURIComponent(urlParams.get('msg') || 'Error desconocido'),
 			);
 		} else if (urlParams.get('status') === 'success') {
 			showFlowbiteAlert(
 				decodeURIComponent(urlParams.get('msg') || 'Operación exitosa'),
-				true
+				true,
 			);
 		}
 

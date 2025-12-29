@@ -13,8 +13,6 @@ import { supabase } from '../../../lib/supabase';
 export const prerender = false;
 const require = createRequire(import.meta.url);
 
-
-
 // ============ Helpers ============
 
 function debugStep(step: string, extra?: any) {

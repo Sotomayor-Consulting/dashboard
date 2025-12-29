@@ -2,180 +2,179 @@
    LIGHT (default)
    ========================= */
 .datatable-top {
-    display: flex;
-    justify-content: space-between;
-    padding: 2rem;
-    align-items: center;
+	display: flex;
+	justify-content: space-between;
+	padding: 2rem;
+	align-items: center;
 
-    /* invertido */
-    flex-direction: row-reverse;
-    gap: 1rem;
+	/* invertido */
+	flex-direction: row-reverse;
+	gap: 1rem;
 }
 
 .datatable-bottom {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: space-between;
-    align-items: center;
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .datatable-pagination {
-    color: black;
+	color: black;
 }
 
 html.dark .datatable-pagination {
-    color: white;
+	color: white;
 }
 
 .datatable-pagination-list {
-    display: flex;
+	display: flex;
 }
 
 .datatable-pagination-list-item-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    height: 2rem;
-    line-height: 1.25;
-    color: rgb(107 114 128);
-    background-color: rgb(255 255 255);
-    border: 1px solid rgb(209 213 219);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding-left: 0.75rem;
+	padding-right: 0.75rem;
+	height: 2rem;
+	line-height: 1.25;
+	color: rgb(107 114 128);
+	background-color: rgb(255 255 255);
+	border: 1px solid rgb(209 213 219);
 }
 
 .datatable-pagination-list-item-link:hover {
-    background-color: rgb(243 244 246);
-    color: rgb(55 65 81);
+	background-color: rgb(243 244 246);
+	color: rgb(55 65 81);
 }
 
 html.dark .datatable-pagination-list-item-link {
-    background-color: #262626;
-    border-color: rgb(55 65 81);
-    color: rgb(156 163 175);
+	background-color: #262626;
+	border-color: rgb(55 65 81);
+	color: rgb(156 163 175);
 }
 
 html.dark .datatable-pagination-list-item-link:hover {
-    background-color: #404040;
-    color: rgb(255 255 255);
+	background-color: #404040;
+	color: rgb(255 255 255);
 }
 
 .datatable-dropdown label {
-    color: #000000;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    flex-direction: row-reverse;
+	color: #000000;
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	flex-direction: row-reverse;
 }
 
 .datatable-selector {
-    display: block;
-    border-radius: 0.5rem;
-    border: 1px solid #967432;
-    background-color: #ffffff;
-    /* light */
-    padding: 0.625rem;
-    font-size: 0.875rem;
-    color: #000000;
+	display: block;
+	border-radius: 0.5rem;
+	border: 1px solid #967432;
+	background-color: #ffffff;
+	/* light */
+	padding: 0.625rem;
+	font-size: 0.875rem;
+	color: #000000;
 }
 
 .datatable-input {
-    display: block;
-    width: 100%;
-    padding-left: 2.5rem;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: #1c1c1c;
-    border: 1px solid rgb(209 213 219);
-    border-radius: 0.5rem;
-    background-color: rgb(249 250 251);
-    outline: 2px solid transparent;
-    outline-offset: 2px;
+	display: block;
+	width: 100%;
+	padding-left: 2.5rem;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	color: #1c1c1c;
+	border: 1px solid rgb(209 213 219);
+	border-radius: 0.5rem;
+	background-color: rgb(249 250 251);
+	outline: 2px solid transparent;
+	outline-offset: 2px;
 }
 
 .datatable-input:focus {
-    border-color: #967432;
-    box-shadow: 0 0 0 3px #967432;
+	border-color: #967432;
+	box-shadow: 0 0 0 3px #967432;
 }
 
 .datatable-info {
-    color: #404040;
-    padding: 2rem;
+	color: #404040;
+	padding: 2rem;
 }
 
 /* =========================
    DARK (cuando html tiene .dark)
    ========================= */
 html.dark .datatable-dropdown label {
-    color: #ffffff;
+	color: #ffffff;
 }
-
 
 /* Input en dark */
 html.dark .datatable-input {
-    background-color: #1c1c1c;
-    border-color: rgb(75 85 99);
-    color: rgb(255 255 255);
+	background-color: #1c1c1c;
+	border-color: rgb(75 85 99);
+	color: rgb(255 255 255);
 }
 
 html.dark .datatable-input::placeholder {
-    color: rgb(156 163 175);
+	color: rgb(156 163 175);
 }
 
 html.dark .datatable-input:focus {
-    border-color: #967432;
-    box-shadow: 0 0 0 3px #967432;
+	border-color: #967432;
+	box-shadow: 0 0 0 3px #967432;
 }
 
 /* Info en dark */
 html.dark .datatable-info {
-    color: #e5e5e5;
+	color: #e5e5e5;
 }
 
 .datatable-selector {
-    background-color: rgb(249 250 251);
-    border: 1px solid rgb(209 213 219);
-    color: #1c1c1c;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    border-radius: 0.5rem;
-    outline: 2px solid transparent;
-    outline-offset: 2px;
-    display: block;
-    width: 100%;
-    padding: 0.625rem;
+	background-color: rgb(249 250 251);
+	border: 1px solid rgb(209 213 219);
+	color: #1c1c1c;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	border-radius: 0.5rem;
+	outline: 2px solid transparent;
+	outline-offset: 2px;
+	display: block;
+	width: 100%;
+	padding: 0.625rem;
 }
 
 .datatable-selector:focus {
-    border-color: #967432;
-    box-shadow: 0 0 0 3px #967432;
+	border-color: #967432;
+	box-shadow: 0 0 0 3px #967432;
 }
 
 html.dark .datatable-selector {
-    background-color: #1c1c1c;
-    border-color: rgb(75 85 99);
-    color: rgb(255 255 255);
+	background-color: #1c1c1c;
+	border-color: rgb(75 85 99);
+	color: rgb(255 255 255);
 }
 
 html.dark .datatable-selector::placeholder {
-    color: rgb(156 163 175);
+	color: rgb(156 163 175);
 }
 
 html.dark .datatable-selector:focus {
-    border-color: #967432;
-    box-shadow: 0 0 0 3px #967432;
+	border-color: #967432;
+	box-shadow: 0 0 0 3px #967432;
 }
 
 thead {
-    background: #f3f4f6;
-    font-size: 0.75rem;
-    line-height: 1rem;
-    text-transform: uppercase;
-    border-radius: 0.5rem;
+	background: #f3f4f6;
+	font-size: 0.75rem;
+	line-height: 1rem;
+	text-transform: uppercase;
+	border-radius: 0.5rem;
 }
 
 html.dark thead {
-    background: #404040;
+	background: #404040;
 }
 
 .datatable-pagination .datatable-active a,
@@ -184,8 +183,8 @@ html.dark thead {
 .datatable-pagination .datatable-active button,
 .datatable-pagination .datatable-active button:focus,
 .datatable-pagination .datatable-active button:hover {
-    background-color: #c7c7c7;
-    cursor: default;
+	background-color: #c7c7c7;
+	cursor: default;
 }
 
 html.dark .datatable-pagination .datatable-active a,
@@ -194,11 +193,9 @@ html.dark .datatable-pagination .datatable-active a:hover,
 html.dark .datatable-pagination .datatable-active button,
 html.dark .datatable-pagination .datatable-active button:focus,
 html.dark .datatable-pagination .datatable-active button:hover {
-
-    background-color: #404040;
-
+	background-color: #404040;
 }
 .datatable-empty {
-    text-align: center;
-    padding: 2rem;
+	text-align: center;
+	padding: 2rem;
 }

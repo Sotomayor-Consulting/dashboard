@@ -1,43 +1,44 @@
 ---
 import LayoutSidebar from '../../../app/LayoutSidebar.astro';
 import Formularios from '../../../modules/FormulariosIncorp.astro';
-import Alerta from '../../../components/alertageneral.astro'
+import Alerta from '../../../components/alertageneral.astro';
 
-import { supabase } from "../../../lib/supabase";
+import { supabase } from '../../../lib/supabase';
 
-const accessToken = Astro.cookies.get("sb-access-token");
-const refreshToken = Astro.cookies.get("sb-refresh-token");
+const accessToken = Astro.cookies.get('sb-access-token');
+const refreshToken = Astro.cookies.get('sb-refresh-token');
 
 if (!accessToken || !refreshToken) {
-  return Astro.redirect("/sign-in");
+	return Astro.redirect('/sign-in');
 }
 
 let session;
 try {
-  session = await supabase.auth.setSession({
-    refresh_token: refreshToken.value,
-    access_token: accessToken.value,
-  });
-  if (session.error) {
-    Astro.cookies.delete("sb-access-token", {
-      path: "/",
-    });
-    Astro.cookies.delete("sb-refresh-token", {
-      path: "/",
-    });
-    return Astro.redirect("/sign-in");
-  }
+	session = await supabase.auth.setSession({
+		refresh_token: refreshToken.value,
+		access_token: accessToken.value,
+	});
+	if (session.error) {
+		Astro.cookies.delete('sb-access-token', {
+			path: '/',
+		});
+		Astro.cookies.delete('sb-refresh-token', {
+			path: '/',
+		});
+		return Astro.redirect('/sign-in');
+	}
 } catch (error) {
-  Astro.cookies.delete("sb-access-token", {
-    path: "/",
-  });
-  Astro.cookies.delete("sb-refresh-token", {
-    path: "/",
-  });
-  return Astro.redirect("/sign-in");
+	Astro.cookies.delete('sb-access-token', {
+		path: '/',
+	});
+	Astro.cookies.delete('sb-refresh-token', {
+		path: '/',
+	});
+	return Astro.redirect('/sign-in');
 }
 ---
-<LayoutSidebar >
+
+<LayoutSidebar>
 	<Alerta />
 	<Formularios />
 </LayoutSidebar>

@@ -31,14 +31,14 @@ export type PlaygroundAction = (typeof playgroundActions)[number];
 
 // src/types/carbone.d.ts
 declare module 'carbone' {
-  // Definimos una estructura básica para evitar errores de linting
-  export function render(
-    templatePath: string,
-    data: any,
-    options: any,
-    callback: (err: Error | null, result: string | Buffer) => void
-  ): void;
+	// Definimos una estructura básica para evitar errores de linting
+	export function render(
+		templatePath: string,
+		data: any,
+		options: any,
+		callback: (err: Error | null, result: string | Buffer) => void,
+	): void;
 
-  export function set(options: any): void;
-  // Puedes agregar más métodos si los necesitas
+	export function set(options: any): void;
+	// Puedes agregar más métodos si los necesitas
 }

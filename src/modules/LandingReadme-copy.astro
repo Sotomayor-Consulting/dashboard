@@ -1,221 +1,245 @@
 ---
 import { supabase } from '../lib/supabase';
 import { Icon } from 'astro-icon/components';
-import { Image } from "astro:assets";
+import { Image } from 'astro:assets';
 import MenuCard from '../components/MenuCard.astro'; // Importamos el componente
-import logo1 from "../assets/SC-INTER.png";
-import logo2 from "../assets/SC-INTER-NG.png";
+import logo1 from '../assets/SC-INTER.png';
+import logo2 from '../assets/SC-INTER-NG.png';
 
 // --- 1. Autenticación y Tokens ---
 const at = Astro.cookies.get('sb-access-token');
 const rt = Astro.cookies.get('sb-refresh-token');
 
 if (at && rt) {
-    await supabase.auth.setSession({
-        access_token: at.value,
-        refresh_token: rt.value,
-    });
+	await supabase.auth.setSession({
+		access_token: at.value,
+		refresh_token: rt.value,
+	});
 }
 
-const { data: { user } } = await supabase.auth.getUser();
+const {
+	data: { user },
+} = await supabase.auth.getUser();
 
 // --- 2. Lógica de Roles Optimizada (Una sola consulta) ---
 let userRole = 'guest'; // default
 
 if (user) {
-    // Verificamos Admin primero (RPC)
-    const { data: isAdminRes } = await supabase.rpc('is_admin', { uid: user.id });
-    
-    if (isAdminRes) {
-        userRole = 'admin';
-    } else {
-        // Si no es admin, consultamos la tabla usuarios UNA sola vez
-        const { data: userData } = await supabase
-            .from('usuarios')
-            .select('rol_id')
-            .eq('user_id', user.id)
-            .single();
-        
-        // Mapeamos ID numérico a string legible
-        const roleMap: Record<number, string> = {
-            2: 'partner',
-            3: 'client'
-        };
+	// Verificamos Admin primero (RPC)
+	const { data: isAdminRes } = await supabase.rpc('is_admin', { uid: user.id });
 
-        if (userData && userData.rol_id) {
-            userRole = roleMap[Number(userData.rol_id)] || 'authenticated';
-        }
-    }
+	if (isAdminRes) {
+		userRole = 'admin';
+	} else {
+		// Si no es admin, consultamos la tabla usuarios UNA sola vez
+		const { data: userData } = await supabase
+			.from('usuarios')
+			.select('rol_id')
+			.eq('user_id', user.id)
+			.single();
+
+		// Mapeamos ID numérico a string legible
+		const roleMap: Record<number, string> = {
+			2: 'partner',
+			3: 'client',
+		};
+
+		if (userData && userData.rol_id) {
+			userRole = roleMap[Number(userData.rol_id)] || 'authenticated';
+		}
+	}
 }
 
 // --- 3. Configuración del Menú (Data-Driven) ---
 // Definimos qué roles pueden ver qué items.
 // 'all' podría usarse para items públicos.
 const menuItems = [
-    {
-        id: 'llc',
-        label: 'Crea una LLC',
-        href: '/start/',
-        tooltip: 'Crea una nueva LLC',
-        roles: ['client'],
-        svgname: "ri:building-2-fill"
-    },
-    {
-        id: 'companias',
-        label: 'Tus compañias',
-        href: '/pages/companias',
-        tooltip: 'Mira tus compañias y su estado',
-        roles: ['client'],
-        svgname: "ri:hand-coin-fill"
-    },
-    {
-        id: 'mantenimiento_anual',
-        label: 'mantenimiento',
-        href: '/pages/mantenimiento',
-        tooltip: 'Mira fechas de tu compania y su mantenimiento anual',
-        roles: ['client'],
-        svgname: "ri:time-zone-fill"
-    },
-    {
-        id: 'documentos',
-        label: 'Documentos',
-        href: '/pages/tus-formularios',
-        tooltip: 'Mira tus documentos y formularios',
-        roles: ['client'],
-        svgname: "ri:file-copy-2-line"
-    },
-    {
-        id: 'partners-soporte',
-        label: 'Agendar',
-        href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
-        tooltip: 'Agenda una reunion con Sotomayor Consulting',
-        roles: ['client'],
-        svgname: "ri:calendar-fill"
-    },
-    {
-        id: 'partners',
-        label: 'Partners',
-        href: '/partners/datos-referidos/',
-        tooltip: 'Mira tus referidos',
-        roles: ['partner'],
-        svgname: "ri:shake-hands-fill"
-    },
-    {
-        id: 'partners-configuracion',
-        label: 'Configuracion',
-        href: '/partners/configuracion-partners/',
-        tooltip: 'Configuracion de partner',
-        roles: ['partner'],
-        svgname: "ri:settings-3-fill"
-    },
-    {
-        id: 'partners-configuracion-perfil',
-        label: 'Perfil',
-        href: '/settings/',
-        tooltip: 'Configure su perfil y datos',
-        roles: ['partner'],
-        svgname: "ri:account-circle-fill"
-    },
-    {
-        id: 'partners-soporte',
-        label: 'Agendar',
-        href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
-        tooltip: 'Agenda una reunion con Sotomayor Consulting',
-        roles: ['partner'],
-        svgname: "ri:calendar-fill"
-    },
-    {
-        id: 'crud-users',
-        label: 'Clientes',
-        href: '/crud/users',
-        tooltip: 'Gestionar clientes',
-        roles: ['admin'],
-        svgname: "ri:user-add-fill"
-    },
-    {
-        id: 'crud-empresas',
-        label: 'Empresas',
-        href: '/crud/empresas',
-        tooltip: 'Gestionar clientes',
-        roles: ['admin'],
-        svgname: "ri:building-2-fill"
-    },
-    {
-        id: 'verificacion-formulario-incorp',
-        label: 'Incorporación',
-        href: '/crud/verficacion-incorporacion',
-        tooltip: 'Gestiona y verifica los datos del formulario de incorporación',
-        roles: ['admin'],
-        svgname: "ri:archive-stack-fill"
-    },
-    {
-        id: 'crud-servicios',
-        label: 'Servicios',
-        href: '/crud/services',
-        tooltip: 'Gestionar servicios',
-        roles: ['admin'],
-        svgname: "ri:function-add-fill"
-    },
-    {
-        id: 'crud-formularios',
-        label: 'Formularios',
-        href: '/crud/formularios',
-        tooltip: 'Crea y gestiona formularios',
-        roles: ['admin'],
-        svgname: "ri:file-edit-fill"
-    },
-    {
-        id: 'crud-formularios-enviados',
-        label: 'Docs Enviados',
-        href: '/crud/formularios-enviados',
-        tooltip: 'Gestiona las respuestas y estados de documentos',
-        roles: ['admin'],
-        svgname: "ri:file-check-fill"
-    },
-    {
-        id: 'otros-servicios', 
-        label: 'Otros servicios',
-        href: '/pages/otros-servicios',
-        tooltip: 'Explora otros servicios disponibles',
-        roles: ['all'], 
-        svgname: "ri:dashboard-horizontal-fill"
-    },
+	{
+		id: 'llc',
+		label: 'Crea una LLC',
+		href: '/start/',
+		tooltip: 'Crea una nueva LLC',
+		roles: ['client'],
+		svgname: 'ri:building-2-fill',
+	},
+	{
+		id: 'companias',
+		label: 'Tus compañias',
+		href: '/pages/companias',
+		tooltip: 'Mira tus compañias y su estado',
+		roles: ['client'],
+		svgname: 'ri:hand-coin-fill',
+	},
+	{
+		id: 'mantenimiento_anual',
+		label: 'mantenimiento',
+		href: '/pages/mantenimiento',
+		tooltip: 'Mira fechas de tu compania y su mantenimiento anual',
+		roles: ['client'],
+		svgname: 'ri:time-zone-fill',
+	},
+	{
+		id: 'documentos',
+		label: 'Documentos',
+		href: '/pages/tus-formularios',
+		tooltip: 'Mira tus documentos y formularios',
+		roles: ['client'],
+		svgname: 'ri:file-copy-2-line',
+	},
+	{
+		id: 'partners-soporte',
+		label: 'Agendar',
+		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
+		tooltip: 'Agenda una reunion con Sotomayor Consulting',
+		roles: ['client'],
+		svgname: 'ri:calendar-fill',
+	},
+	{
+		id: 'partners',
+		label: 'Partners',
+		href: '/partners/datos-referidos/',
+		tooltip: 'Mira tus referidos',
+		roles: ['partner'],
+		svgname: 'ri:shake-hands-fill',
+	},
+	{
+		id: 'partners-configuracion',
+		label: 'Configuracion',
+		href: '/partners/configuracion-partners/',
+		tooltip: 'Configuracion de partner',
+		roles: ['partner'],
+		svgname: 'ri:settings-3-fill',
+	},
+	{
+		id: 'partners-configuracion-perfil',
+		label: 'Perfil',
+		href: '/settings/',
+		tooltip: 'Configure su perfil y datos',
+		roles: ['partner'],
+		svgname: 'ri:account-circle-fill',
+	},
+	{
+		id: 'partners-soporte',
+		label: 'Agendar',
+		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
+		tooltip: 'Agenda una reunion con Sotomayor Consulting',
+		roles: ['partner'],
+		svgname: 'ri:calendar-fill',
+	},
+	{
+		id: 'crud-users',
+		label: 'Clientes',
+		href: '/crud/users',
+		tooltip: 'Gestionar clientes',
+		roles: ['admin'],
+		svgname: 'ri:user-add-fill',
+	},
+	{
+		id: 'crud-empresas',
+		label: 'Empresas',
+		href: '/crud/empresas',
+		tooltip: 'Gestionar clientes',
+		roles: ['admin'],
+		svgname: 'ri:building-2-fill',
+	},
+	{
+		id: 'verificacion-formulario-incorp',
+		label: 'Incorporación',
+		href: '/crud/verficacion-incorporacion',
+		tooltip: 'Gestiona y verifica los datos del formulario de incorporación',
+		roles: ['admin'],
+		svgname: 'ri:archive-stack-fill',
+	},
+	{
+		id: 'crud-servicios',
+		label: 'Servicios',
+		href: '/crud/services',
+		tooltip: 'Gestionar servicios',
+		roles: ['admin'],
+		svgname: 'ri:function-add-fill',
+	},
+	{
+		id: 'crud-formularios',
+		label: 'Formularios',
+		href: '/crud/formularios',
+		tooltip: 'Crea y gestiona formularios',
+		roles: ['admin'],
+		svgname: 'ri:file-edit-fill',
+	},
+	{
+		id: 'crud-formularios-enviados',
+		label: 'Docs Enviados',
+		href: '/crud/formularios-enviados',
+		tooltip: 'Gestiona las respuestas y estados de documentos',
+		roles: ['admin'],
+		svgname: 'ri:file-check-fill',
+	},
+	{
+		id: 'otros-servicios',
+		label: 'Otros servicios',
+		href: '/pages/otros-servicios',
+		tooltip: 'Explora otros servicios disponibles',
+		roles: ['all'],
+		svgname: 'ri:dashboard-horizontal-fill',
+	},
 ];
 
 // Filtramos el menú antes de renderizar - ACTUALIZADO PARA INCLUIR 'all'
-const visibleMenu = menuItems.filter(item => 
-    item.roles.includes('all') || item.roles.includes(userRole)
+const visibleMenu = menuItems.filter(
+	(item) => item.roles.includes('all') || item.roles.includes(userRole),
 );
 ---
 
-<div class="bg-slate-200 dark:bg-[#1d1d1d] dark:text-slate-100 p-4 lg:p-16 h-full mb-20 mt-10">
-    <header class="p-8 flex justify-center items-center flex-wrap flex-col w-full mt-5">
-        <div class="flex justify-center w-full">
-            <Image src={logo1} width="320" alt="Sotomayor Logo" class="dark:block hidden" />
-            <Image src={logo2} width="320" alt="Sotomayor Logo" class="dark:hidden hidden sm:block" />
-        </div>
-        <div class="format dark:format-invert lg:format-lg mt-5">
-            <p class="text-4xl lg:text-7xl dark:text-slate-200 text-slate-600 leading-tight">
-                <span class="font-bold text-transparent bg-clip-text bg-gradient-to-br from-neutral-800 to-[#ba8d34] dark:from-white dark:to-[#ba8d34] no-underline">
-                    Bienvenido
-                </span>
-            </p>
-        </div>
-    </header>
+<div
+	class="bg-slate-200 dark:bg-[#1d1d1d] dark:text-slate-100 p-4 lg:p-16 h-full mb-20 mt-10"
+>
+	<header
+		class="p-8 flex justify-center items-center flex-wrap flex-col w-full mt-5"
+	>
+		<div class="flex justify-center w-full">
+			<Image
+				src={logo1}
+				width="320"
+				alt="Sotomayor Logo"
+				class="dark:block hidden"
+			/>
+			<Image
+				src={logo2}
+				width="320"
+				alt="Sotomayor Logo"
+				class="dark:hidden hidden sm:block"
+			/>
+		</div>
+		<div class="format dark:format-invert lg:format-lg mt-5">
+			<p
+				class="text-4xl lg:text-7xl dark:text-slate-200 text-slate-600 leading-tight"
+			>
+				<span
+					class="font-bold text-transparent bg-clip-text bg-gradient-to-br from-neutral-800 to-[#ba8d34] dark:from-white dark:to-[#ba8d34] no-underline"
+				>
+					Bienvenido
+				</span>
+			</p>
+		</div>
+	</header>
 
-    <article class="flex justify-center pt-20 pb-32 h-full">
-        <div class="grid grid-flow-row grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 md:gap-10 gap-y-10">
-            
-            {visibleMenu && visibleMenu.map((item) => (
-                <MenuCard 
-                    href={item.href} 
-                    label={item.label} 
-                    tooltipId={item.id} 
-                    tooltipText={item.tooltip}
-                >
-                   <Icon name={item.svgname}  class="text-5xl"/>
-                </MenuCard>
-            ))}
-        </div>
-    </article>
+	<article class="flex justify-center pt-20 pb-32 h-full">
+		<div
+			class="grid grid-flow-row grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 md:gap-10 gap-y-10"
+		>
+			{
+				visibleMenu &&
+					visibleMenu.map((item) => (
+						<MenuCard
+							href={item.href}
+							label={item.label}
+							tooltipId={item.id}
+							tooltipText={item.tooltip}
+						>
+							<Icon name={item.svgname} class="text-5xl" />
+						</MenuCard>
+					))
+			}
+		</div>
+	</article>
 </div>

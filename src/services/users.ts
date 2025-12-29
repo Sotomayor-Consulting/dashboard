@@ -17,7 +17,7 @@ export function getUsers(randomize = RANDOMIZE) {
 				p.position = faker.name.jobTitle();
 				p.country = faker.address.country();
 				return p;
-		  })
+			})
 		: usersStaticData;
 
 	return result;

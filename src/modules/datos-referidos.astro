@@ -38,44 +38,41 @@ const referidos = (rows ?? []).map((r) => ({
 	estado: r.referido?.estado,
 }));
 type Referral = {
-  name: string;
-  email?: string | null;
-  create_date?: string;
+	name: string;
+	email?: string | null;
+	create_date?: string;
 };
 
 let referrals: Referral[] = [];
-let errorMsg = "";
+let errorMsg = '';
 let loading = true;
 
 try {
-  
-  const apiUrl = new URL("/api/odoo/referrals", Astro.request.url);
+	const apiUrl = new URL('/api/odoo/referrals', Astro.request.url);
 
-  // 2) Pasar las cookies del request actual al endpoint
-  const res = await fetch(apiUrl.toString(), {
-    headers: {
-      cookie: Astro.request.headers.get("cookie") ?? "",
-    },
-  });
+	// 2) Pasar las cookies del request actual al endpoint
+	const res = await fetch(apiUrl.toString(), {
+		headers: {
+			cookie: Astro.request.headers.get('cookie') ?? '',
+		},
+	});
 
-  if (!res.ok) {
-    
-    errorMsg = "Sistema ERP no disponible temporalmente.";
-  } else {
-    const { success, data } = await res.json();
+	if (!res.ok) {
+		errorMsg = 'Sistema ERP no disponible temporalmente.';
+	} else {
+		const { success, data } = await res.json();
 
-    if (!success) {
-      errorMsg = "Sistema ERP no disponible temporalmente.";
-    } else {
-      referrals = data ?? [];
-    }
-  }
+		if (!success) {
+			errorMsg = 'Sistema ERP no disponible temporalmente.';
+		} else {
+			referrals = data ?? [];
+		}
+	}
 } catch (err) {
-  errorMsg = "No se pudo conectar con el ERP.";
+	errorMsg = 'No se pudo conectar con el ERP.';
 } finally {
-  loading = false;
+	loading = false;
 }
-
 ---
 
 <div class="px-4 pt-6">
@@ -146,7 +143,6 @@ try {
 				<div class="p-3 space-y-2">
 					<h3 class="font-semibold text-gray-900 dark:text-white">Referidos</h3>
 					<p>Listado de todos los usuarios que usaron tu codigo de referido.</p>
-					
 				</div>
 				<div data-popper-arrow></div>
 			</div>

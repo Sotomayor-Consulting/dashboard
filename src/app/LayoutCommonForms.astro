@@ -5,8 +5,6 @@ import { url } from '../lib/data.js';
 import { SITE_TITLE } from './constants.js';
 
 const { class: clazz } = Astro.props;
-
-
 ---
 
 <!doctype html>
@@ -26,10 +24,7 @@ const { class: clazz } = Astro.props;
 			href={url('sitemap-index.xml')}
 		/>
 
-		<meta
-			name="author"
-			content="Sotomayor Consulting Internacional"
-		/>
+		<meta name="author" content="Sotomayor Consulting Internacional" />
 
 		<script is:inline>
 			if (

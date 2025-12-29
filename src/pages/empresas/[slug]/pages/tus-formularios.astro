@@ -38,8 +38,9 @@ const variant = isSuccess
 // visible si hay msg; si no, hidden
 const display = msg ? 'flex' : 'hidden';
 ---
+
 <div>
-    <div
+	<div
 		id="alert-feedback"
 		class={`absolute right-0 top-0.5 items-center p-4 mb-4 text-sm border rounded-lg mt-4 ${variant} ${display}`}
 		role="alert"
@@ -116,5 +117,5 @@ const display = msg ? 'flex' : 'hidden';
 	</script>
 </div>
 <LayoutSidebar>
-    <CuerpoFroms />
+	<CuerpoFroms />
 </LayoutSidebar>

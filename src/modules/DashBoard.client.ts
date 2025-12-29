@@ -62,7 +62,7 @@ const getMainChartOptions = () => {
 				name: 'Revenue',
 				data: [7, 100, 257, 7, 47, 97, 7],
 				color: '#1A56DB',
-			}
+			},
 		],
 		markers: {
 			size: 5,

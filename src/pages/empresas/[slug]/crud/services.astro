@@ -1,62 +1,62 @@
 ---
 import LayoutSidebar from '../../../../app/empresas/LayoutSidebar.astro';
 import CrudProducts from '../../../../modules/empresas/CrudProducts.astro';
-import { supabase } from "../../../../lib/supabase";
+import { supabase } from '../../../../lib/supabase';
 
 const { slug } = Astro.params;
 const { cookies, redirect } = Astro;
 
 // 1) Restaurar sesión desde cookies
-const accessToken = cookies.get("sb-access-token");
-const refreshToken = cookies.get("sb-refresh-token");
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
 
 if (!accessToken || !refreshToken) {
-  return redirect("/sign-in");
+	return redirect('/sign-in');
 }
 
 await supabase.auth.setSession({
-  access_token: accessToken.value,
-  refresh_token: refreshToken.value,
+	access_token: accessToken.value,
+	refresh_token: refreshToken.value,
 });
 
 // 2) Obtener usuario
 const {
-  data: { user },
-  error: userErr,
+	data: { user },
+	error: userErr,
 } = await supabase.auth.getUser();
 
 if (userErr || !user) {
-  return redirect("/sign-in");
+	return redirect('/sign-in');
 }
 
 // 3) Obtener empresa por slug
 const { data: empresa, error: empErr } = await supabase
-  .from('empresa')
-  .select('empresa_id, nombre, slug')
-  .eq('slug', slug)
-  .single();
+	.from('empresa')
+	.select('empresa_id, nombre, slug')
+	.eq('slug', slug)
+	.single();
 
 // ✅ MODIFICADO: Si la empresa no existe, redirigir a crear empresa
 if (empErr || !empresa) {
-  return redirect("/crear-empresa?error=empresa_no_encontrada");
+	return redirect('/crear-empresa?error=empresa_no_encontrada');
 }
 
 // 4) Verificar rol del usuario en esta empresa específica
 const { data: ue } = await supabase
-  .from('usuarios_empresas')
-  .select('rol_en_empresa')
-  .eq('user_id', user.id)
-  .eq('empresa_id', empresa.empresa_id)
-  .limit(1)
-  .maybeSingle();
+	.from('usuarios_empresas')
+	.select('rol_en_empresa')
+	.eq('user_id', user.id)
+	.eq('empresa_id', empresa.empresa_id)
+	.limit(1)
+	.maybeSingle();
 
 const userRole = ue?.rol_en_empresa?.toLowerCase();
 const isAdmin = ['admin', 'owner', 'creador', 'fundador'].includes(userRole);
 
 // ✅ MODIFICADO: Redirección simple - solo al slug actual
 if (!isAdmin) {
-  // Usuario no es admin en ESTA empresa - redirigir al dashboard de ESTA empresa
-  return redirect(`/empresas/${slug}/`);
+	// Usuario no es admin en ESTA empresa - redirigir al dashboard de ESTA empresa
+	return redirect(`/empresas/${slug}/`);
 }
 ---
 

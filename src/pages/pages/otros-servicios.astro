@@ -1,6 +1,6 @@
 ---
 import LayoutSidebar from '../../app/LayoutSidebar.astro';
-import TarjetasServicios from '../../components/TarjetasServicios.astro'
+import TarjetasServicios from '../../components/TarjetasServicios.astro';
 import { supabase } from '../../lib/supabase';
 
 const { cookies, redirect } = Astro;
@@ -27,9 +27,8 @@ if (error) {
 
 	return redirect('/sign-in');
 }
-
 ---
 
 <LayoutSidebar>
-    <TarjetasServicios />
+	<TarjetasServicios />
 </LayoutSidebar>

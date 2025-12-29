@@ -5,35 +5,59 @@ const msg = Astro.url.searchParams.get('msg') || '';
 const isSuccess = status === 'success';
 
 const base =
-	"fixed right-4 top-20 z-50 flex items-center w-full max-w-sm p-4 text-sm rounded-lg shadow-sm transition-all";
+	'fixed right-4 top-20 z-50 flex items-center w-full max-w-sm p-4 text-sm rounded-lg shadow-sm transition-all';
 
 const variant = isSuccess
-	? "text-green-700 bg-neutral-400 dark:text-green-300 dark:bg-neutral-800"
-	: "text-red-700 bg-neutral-400 dark:text-red-300 dark:bg-neutral-800";
+	? 'text-green-700 bg-neutral-400 dark:text-green-300 dark:bg-neutral-800'
+	: 'text-red-700 bg-neutral-400 dark:text-red-300 dark:bg-neutral-800';
 
 const iconVariant = isSuccess
-	? "text-green-500 bg-green-100 dark:bg-green-800 dark:text-green-200"
-	: "text-red-500 bg-red-100 dark:bg-red-800 dark:text-red-200";
+	? 'text-green-500 bg-green-100 dark:bg-green-800 dark:text-green-200'
+	: 'text-red-500 bg-red-100 dark:bg-red-800 dark:text-red-200';
 
-const display = msg ? "" : "hidden";
+const display = msg ? '' : 'hidden';
 ---
 
-<div
-	id="toast-feedback"
-	class={`${base} ${variant} ${display}`}
-	role="alert"
->
-	<div class={`inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg ${iconVariant}`}>
-		{isSuccess ? (
-			<svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-			</svg>
-		) : (
-			<svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v5m0 3h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" />
-			</svg>
-		)}
-		<span class="sr-only">{isSuccess ? "Success icon" : "Error icon"}</span>
+<div id="toast-feedback" class={`${base} ${variant} ${display}`} role="alert">
+	<div
+		class={`inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg ${iconVariant}`}
+	>
+		{
+			isSuccess ? (
+				<svg
+					class="w-4 h-4"
+					aria-hidden="true"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M5 13l4 4L19 7"
+					/>
+				</svg>
+			) : (
+				<svg
+					class="w-4 h-4"
+					aria-hidden="true"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+				>
+					<path
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M12 8v5m0 3h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"
+					/>
+				</svg>
+			)
+		}
+		<span class="sr-only">{isSuccess ? 'Success icon' : 'Error icon'}</span>
 	</div>
 
 	<div class="ms-3 text-sm font-normal">
@@ -47,8 +71,19 @@ const display = msg ? "" : "hidden";
 		aria-label="Close"
 	>
 		<span class="sr-only">Cerrar</span>
-		<svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-			<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+		<svg
+			class="w-3 h-3"
+			aria-hidden="true"
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+			viewBox="0 0 14 14"
+		>
+			<path
+				stroke="currentColor"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="2"
+				d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
 		</svg>
 	</button>
 </div>

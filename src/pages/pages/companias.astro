@@ -2,7 +2,7 @@
 import LayoutSidebar from '../../app/LayoutSidebar.astro';
 import Tarjetas from '../../modules/tarjetasEmpresas.astro';
 import { supabase } from '../../lib/supabase';
-import Alerta from '../../components/alertageneral.astro'
+import Alerta from '../../components/alertageneral.astro';
 
 const { cookies, redirect } = Astro;
 
@@ -10,7 +10,7 @@ const accessToken = cookies.get('sb-access-token');
 const refreshToken = cookies.get('sb-refresh-token');
 
 if (!accessToken || !refreshToken) {
-	return redirect ('/sign-in');
+	return redirect('/sign-in');
 }
 
 const { error } = await supabase.auth.setSession({
@@ -28,7 +28,6 @@ if (error) {
 
 	return redirect('/sign-in');
 }
-
 ---
 
 <LayoutSidebar>

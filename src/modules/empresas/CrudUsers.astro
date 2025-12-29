@@ -18,8 +18,9 @@ let totalPages = 1;
 
 // LEFT JOIN (embeds) ⇒ no uses !inner
 let query = supabase
-  .from('usuarios')
-  .select(`
+	.from('usuarios')
+	.select(
+		`
     user_id,
     created_at,
     nombre,
@@ -49,8 +50,10 @@ let query = supabase
         slug
       )
     )
-  `, { count: 'exact' })
-  .order('created_at', { ascending: false });
+  `,
+		{ count: 'exact' },
+	)
+	.order('created_at', { ascending: false });
 
 if (q) {
 	const safe = q.replace(/,/g, ''); // .or usa comas para separar condiciones

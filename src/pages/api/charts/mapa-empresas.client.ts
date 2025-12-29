@@ -31,7 +31,6 @@ export async function renderizarMapaEstados(
 
 	container.innerHTML = `<p style="text-align:center; padding:2rem; color:#666;">Cargando mapa...</p>`;
 
-	
 	let estadoDestacado: string | null = null;
 	try {
 		// Usa empresaId si existe
@@ -172,12 +171,12 @@ export async function renderizarMapaEstados(
 		});
 		resizeObserver.observe(container);
 
-    // === OPCIONAL: Redibujar al cambiar ventana ===
-window.addEventListener('resize', () => {
-  if (chartInstance) {
-    chartInstance.resize();
-  }
-});
+		// === OPCIONAL: Redibujar al cambiar ventana ===
+		window.addEventListener('resize', () => {
+			if (chartInstance) {
+				chartInstance.resize();
+			}
+		});
 
 		// === ZOOM ===
 		setTimeout(() => {

@@ -10,7 +10,10 @@ import { supabase } from '../../lib/supabase';
 const at = Astro.cookies.get('sb-access-token');
 const rt = Astro.cookies.get('sb-refresh-token');
 if (at && rt) {
-  await supabase.auth.setSession({ access_token: at.value, refresh_token: rt.value });
+	await supabase.auth.setSession({
+		access_token: at.value,
+		refresh_token: rt.value,
+	});
 }
 
 // 1) Tomar el slug de la ruta dinámica /empresa/[slug]/...
@@ -18,17 +21,15 @@ const { slug } = Astro.params;
 
 // 2) Buscar la empresa por slug
 const { data: empresa, error: empErr } = await supabase
-  .from('empresa')
-  .select('empresa_id, nombre')
-  .eq('slug', slug)
-  .single();
+	.from('empresa')
+	.select('empresa_id, nombre')
+	.eq('slug', slug)
+	.single();
 
 if (empErr || !empresa) {
-  // Manejo simple de error / fallback
-  throw new Error('Empresa no encontrada para el slug proporcionado.');
+	// Manejo simple de error / fallback
+	throw new Error('Empresa no encontrada para el slug proporcionado.');
 }
-
-
 ---
 
 <!doctype html>

@@ -15,6 +15,7 @@ const { data: formularios } = await supabase
   .eq('status', 'submitted')
   .eq('verificacion_operaciones', false)
   .order('updated_at', { ascending: true });
+
 ---
 
 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -56,7 +57,7 @@ const { data: formularios } = await supabase
 			{
 				formularios?.map((formularios) => (
 					<tr class="bg-white border-b dark:bg-neutral-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-neutral-600 cursor-pointer"
-						onclick={`window.open('/crud/verficacion-incorporacion/${formularios.submission_id}', '_blank')`}
+						onclick={`window.open('/forms/validaciones/${formularios.submission_id}', '_blank')`}
 					> 
 						<th
 							scope="row"

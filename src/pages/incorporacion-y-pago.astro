@@ -1,41 +1,41 @@
 ---
 import LayoutStacked from '../app/LayoutStackedDos.astro';
-import Formpagos from '../modules/Form-basico-respaldo-2.astro'
-import { supabase } from "../lib/supabase";
+import Formpagos from '../modules/Form-basico-respaldo-2.astro';
+import { supabase } from '../lib/supabase';
 
-const accessToken = Astro.cookies.get("sb-access-token");
-const refreshToken = Astro.cookies.get("sb-refresh-token");
+const accessToken = Astro.cookies.get('sb-access-token');
+const refreshToken = Astro.cookies.get('sb-refresh-token');
 
 if (!accessToken || !refreshToken) {
-  return Astro.redirect("/signin");
+	return Astro.redirect('/signin');
 }
 
 let session;
 try {
-  session = await supabase.auth.setSession({
-    refresh_token: refreshToken.value,
-    access_token: accessToken.value,
-  });
-  if (session.error) {
-    Astro.cookies.delete("sb-access-token", {
-      path: "/",
-    });
-    Astro.cookies.delete("sb-refresh-token", {
-      path: "/",
-    });
-    return Astro.redirect("/signin");
-  }
+	session = await supabase.auth.setSession({
+		refresh_token: refreshToken.value,
+		access_token: accessToken.value,
+	});
+	if (session.error) {
+		Astro.cookies.delete('sb-access-token', {
+			path: '/',
+		});
+		Astro.cookies.delete('sb-refresh-token', {
+			path: '/',
+		});
+		return Astro.redirect('/signin');
+	}
 } catch (error) {
-  Astro.cookies.delete("sb-access-token", {
-    path: "/",
-  });
-  Astro.cookies.delete("sb-refresh-token", {
-    path: "/",
-  });
-  return Astro.redirect("/signin");
+	Astro.cookies.delete('sb-access-token', {
+		path: '/',
+	});
+	Astro.cookies.delete('sb-refresh-token', {
+		path: '/',
+	});
+	return Astro.redirect('/signin');
 }
 ---
 
 <LayoutStacked>
-    <Formpagos />
+	<Formpagos />
 </LayoutStacked>

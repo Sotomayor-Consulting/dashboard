@@ -11,7 +11,6 @@ const { slug } = Astro.params;
 const accessToken = cookies.get('sb-access-token');
 const refreshToken = cookies.get('sb-refresh-token');
 
-
 const { data } = await supabase.auth.setSession({
 	refresh_token: refreshToken.value,
 	access_token: accessToken.value,
@@ -42,40 +41,40 @@ if (user) {
 }
 
 const { data: empresa, error: empErr } = await supabase
-  .from('empresa')
-  .select('empresa_id, nombre, slug')
-  .eq('slug', slug)
-  .single();
+	.from('empresa')
+	.select('empresa_id, nombre, slug')
+	.eq('slug', slug)
+	.single();
 
 if (empErr || !empresa) {
-  // Manejo simple de error / fallback
-  throw new Error('Empresa no encontrada para el slug proporcionado.');
+	// Manejo simple de error / fallback
+	throw new Error('Empresa no encontrada para el slug proporcionado.');
 }
 
 // 3) Traer settings SOLO de esa empresa
 const { data: settings } = await supabase
-  .from('empresa_settings')
-  .select('logo_url, updated_at')
-  .eq('empresa_id', empresa.empresa_id)
-  .order('updated_at', { ascending: false })  // por si hay duplicados, toma el más reciente
-  .limit(1)
-  .maybeSingle(); // tolera 0 filas sin lanzar error
+	.from('empresa_settings')
+	.select('logo_url, updated_at')
+	.eq('empresa_id', empresa.empresa_id)
+	.order('updated_at', { ascending: false }) // por si hay duplicados, toma el más reciente
+	.limit(1)
+	.maybeSingle(); // tolera 0 filas sin lanzar error
 
 let isAdmin = false;
 if (user) {
-  const { data: ue, error: ueErr } = await supabase
-    .from('usuarios_empresas')
-    .select('rol_en_empresa')
-    .eq('user_id', user.id)
-    .eq('empresa_id', empresa.empresa_id)
-    .limit(1)
-    .maybeSingle();
+	const { data: ue, error: ueErr } = await supabase
+		.from('usuarios_empresas')
+		.select('rol_en_empresa')
+		.eq('user_id', user.id)
+		.eq('empresa_id', empresa.empresa_id)
+		.limit(1)
+		.maybeSingle();
 
-  if (!ueErr && ue?.rol_en_empresa) {
-    const role = String(ue.rol_en_empresa).trim().toLowerCase();
-    // Sinónimos aceptados como admin (ajusta si usas otros)
-    isAdmin = ['admin', 'owner', 'creador'].includes(role);
-  }
+	if (!ueErr && ue?.rol_en_empresa) {
+		const role = String(ue.rol_en_empresa).trim().toLowerCase();
+		// Sinónimos aceptados como admin (ajusta si usas otros)
+		isAdmin = ['admin', 'owner', 'creador'].includes(role);
+	}
 }
 
 const email = data?.user?.email;
