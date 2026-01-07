@@ -58,9 +58,9 @@ const sanitizeFileName = (name: string) => {
 };
 
 // ---------- JSON helpers ----------
-const jlog = (_debug_id: string, _step: string, _data?: any) => {
+const jlog = (debug_id: string, step: string, data?: any) => {
 	// En prod puedes bajar ruido: if (import.meta.env.DEV) ...
-	// console.log(`[validacion:${debug_id}] ${step}`, data ?? '');
+	console.log(`[validacion:${debug_id}] ${step}`, data ?? '');
 };
 
 const jerr = (debug_id: string, step: string, err: any, extra?: any) => {
@@ -255,7 +255,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 				.from(BUCKET)
 				.upload(storage_path, bytes, {
 					upsert: true,
-					contentType: type,
+					contentType: type || undefined,
 				});
 
 			if (upErr) {
@@ -637,16 +637,17 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 				managers_count: managers.length,
 			},
 		});
-} catch (e: any) {
-	// console.error(`[validacion:${debug_id}] FATAL`, { message: e?.message ?? String(e), stack: e?.stack ?? null });
-	return jsonOk(
-		{
-			ok: false,
-			debug_id,
-			step: 'catch',
-			error: { message: e?.message ?? String(e), stack: e?.stack ?? null },
-		},
-		500,
-	);
-}
+	} catch (e: any) {
+		const debug = { message: e?.message ?? String(e), stack: e?.stack ?? null };
+		console.error(`[validacion:${debug_id}] FATAL`, debug);
+		return jsonOk(
+			{
+				ok: false,
+				debug_id,
+				step: 'catch',
+				error: { message: 'Error inesperado', ...debug },
+			},
+			500,
+		);
+	}
 };

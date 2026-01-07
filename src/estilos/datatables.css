@@ -4,7 +4,7 @@
 .datatable-top {
 	display: flex;
 	justify-content: space-between;
-	padding: 2rem;
+	padding: 1rem;
 	align-items: center;
 
 	/* invertido */
@@ -79,6 +79,10 @@ html.dark .datatable-pagination-list-item-link:hover {
 	color: #000000;
 }
 
+.datatable-wrapper .datatable-search {
+	position: relative;
+}
+
 .datatable-input {
 	display: block;
 	width: 100%;
@@ -91,6 +95,21 @@ html.dark .datatable-pagination-list-item-link:hover {
 	background-color: rgb(249 250 251);
 	outline: 2px solid transparent;
 	outline-offset: 2px;
+}
+
+.datatable-search::before {
+	content: '';
+	position: absolute;
+	left: 0.75rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 1rem;
+	height: 1rem;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-size: contain;
+	pointer-events: none;
+	z-index: 1;
 }
 
 .datatable-input:focus {
@@ -124,6 +143,10 @@ html.dark .datatable-input::placeholder {
 html.dark .datatable-input:focus {
 	border-color: #967432;
 	box-shadow: 0 0 0 3px #967432;
+}
+
+html.dark .datatable-search::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
 }
 
 /* Info en dark */
@@ -169,7 +192,6 @@ thead {
 	background: #f3f4f6;
 	font-size: 0.75rem;
 	line-height: 1rem;
-	text-transform: uppercase;
 	border-radius: 0.5rem;
 }
 
@@ -195,7 +217,11 @@ html.dark .datatable-pagination .datatable-active button:focus,
 html.dark .datatable-pagination .datatable-active button:hover {
 	background-color: #404040;
 }
+
 .datatable-empty {
 	text-align: center;
-	padding: 2rem;
+	color: black;
+}
+html.dark .datatable-empty {
+	color: white;
 }
