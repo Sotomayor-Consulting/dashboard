@@ -7,10 +7,15 @@ import ImprimirContrato from '../components/ImprimirContrato.astro';
 let datosParaReporte = {};
 
 // Con RLS, no necesitas filtrar manualmente por user_id
-const { data: usuario, error } = await supabase
+let { data: usuario, error } = await supabase
 	.from('usuarios')
 	.select('*')
 	.single();
+
+// Si no se encontraron datos, usar el prop data como fallback
+if (!usuario && Astro.props.data) {
+	usuario = Astro.props.data;
+}
 if (usuario) {
 	datosParaReporte = {
 		nombre: [usuario.nombre, usuario.apellido].join(' '),
@@ -18,7 +23,7 @@ if (usuario) {
 		fullAddress: [usuario.direccion_linea1, usuario.direccion_linea2].join(' '),
 		tipoIdentificacion: usuario.tipo_identificacion,
 		numeroIdentificacion: usuario.numero_de_identificacion,
-		tipoPersona: usuario.tipo_persona
+		tipoPersona: usuario.tipo_persona,
 	};
 }
 
@@ -28,7 +33,7 @@ if (error) {
 
 const { data: documentos } = await supabase
 	.from('documentos_usuarios')
-	.select('*')
+	.select('*');
 
 const acciones = [
 	{
@@ -259,19 +264,24 @@ if (accessToken?.value && refreshToken?.value) {
 							<div data-popper-arrow></div>
 						</div>
 					</div>
-					{
-						documentos?.estado === 'activo' ? (
-							<span class="bg-green-100 text-green-800 text-lg font-medium me-5 px-5 py-2 rounded-full dark:bg-green-900 dark:text-green-300 flex justify-center items-center w-fit">
-								<span class="size-3 inline-block rounded-full bg-green-400 dark:bg-green-400 mr-2" />
-								Activo
-							</span>
-						) : (
-							<span class="bg-yellow-100 text-yellow-800 text-lg font-medium me-5 px-5 py-2 rounded-full dark:bg-yellow-900 dark:text-yellow-300 flex justify-center items-center w-fit">
-								<span class="size-3 inline-block rounded-full bg-yellow-400 dark:bg-yellow-400 mr-2" />
-								En proceso
-							</span>
-						)
-					}
+					<div>
+						{
+							documentos &&
+							Array.isArray(documentos) &&
+							documentos.length > 0 &&
+							documentos.find((d: any) => d.estado)?.estado === 'activo' ? (
+								<span class="bg-green-100 text-green-800 text-lg font-medium me-5 px-5 py-2 rounded-full dark:bg-green-900 dark:text-green-300 flex justify-center items-center w-fit">
+									<span class="size-3 inline-block rounded-full bg-green-400 dark:bg-green-400 mr-2" />
+									Activo
+								</span>
+							) : (
+								<span class="bg-yellow-100 text-yellow-800 text-lg font-medium me-5 px-5 py-2 rounded-full dark:bg-yellow-900 dark:text-yellow-300 flex justify-center items-center w-fit">
+									<span class="size-3 inline-block rounded-full bg-yellow-400 dark:bg-yellow-400 mr-2" />
+									En proceso
+								</span>
+							)
+						}
+					</div>
 				</div>
 			</div>
 		</div>
@@ -320,54 +330,65 @@ if (accessToken?.value && refreshToken?.value) {
 
 			<div class="flex items-center justify-center w-full flex-col">
 				{
-					perfilCompleto? (
-						<form
-							id="my-dropzone"
-							class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-neutral-800 dark:border-gray-600 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80"
-							action="/api/update/contrato-partner-upload"
-							method="post"
-							enctype="multipart/form-data"
-						>
-							<div class="dz-message dark:text-white w-full flex flex-col">
-								<svg
-									class="w-h-14 h-14 mb-4 text-gray-500 dark:text-gray-400"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 20 16"
-								>
-									<path
-										stroke="currentColor"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-									></path>
-								</svg>
-								Arrastra tu contrato aquí o haz clic para subir.
-							</div>
-						</form>
-						<div class="mt-4 flex gap-3">
-							<button
-								type="button"
-								id="btn-confirm-upload"
-								class="px-4 py-2 rounded-lg bg-[#967432] hover:bg-[#967432] text-white disabled:opacity-50 disabled:cursor-not-allowed"
-								disabled
+					perfilCompleto ? (
+						<>
+							<form
+								id="my-dropzone"
+								class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-neutral-800 dark:border-gray-600 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80"
+								action="/api/update/contrato-partner-upload"
+								method="post"
+								enctype="multipart/form-data"
 							>
-								Subir contrato
-							</button>
-						</div>
+								<div class="dz-message dark:text-white w-full flex flex-col">
+									<svg
+										class="w-h-14 h-14 mb-4 text-gray-500 dark:text-gray-400"
+										aria-hidden="true"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 20 16"
+									>
+										<path
+											stroke="currentColor"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth="2"
+											d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+										/>
+									</svg>
+									Arrastra tu contrato aquí o haz clic para subir.
+								</div>
+							</form>
+							<div class="mt-4 flex gap-3">
+								<button
+									type="button"
+									id="btn-confirm-upload"
+									class="px-4 py-2 rounded-lg bg-[#967432] hover:bg-[#967432] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+									disabled
+								>
+									Subir contrato
+								</button>
+							</div>
+						</>
 					) : (
 						<div class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-neutral-800 dark:border-orange-500 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80 cursor-not-allowed">
 							<div class="text-white flex flex-col">
-								<Icon name="ri:alert-fill" class="w-10 h-10"/>
-								<span>Completa tu información de perfil para subir el contrato de partner.</span>
-								<a href="/settings/" target="_blank" rel="noopener noreferrer" class="text-yellow-400 hover:text-white border border-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-yellow-300 dark:text-yellow-300 dark:hover:text-white dark:hover:bg-yellow-400 dark:focus:ring-yellow-900 mt-5">Ir a mi perfil</a>
+								<Icon name="ri:alert-fill" class="w-10 h-10" />
+								<span>
+									Completa tu información de perfil para subir el contrato de
+									partner.
+								</span>
+								<a
+									href="/settings/"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="text-yellow-400 hover:text-white border border-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-yellow-300 dark:text-yellow-300 dark:hover:text-white dark:hover:bg-yellow-400 dark:focus:ring-yellow-900 mt-5"
+								>
+									Ir a mi perfil
+								</a>
 							</div>
 						</div>
 					)
 				}
-				
 			</div>
 		</div>
 		<!--Tabs widget -->
@@ -473,7 +494,8 @@ if (accessToken?.value && refreshToken?.value) {
 					Documentos
 				</h3>
 				<span class="text-base font-normal text-gray-500 dark:text-gray-400"
-					>Tu lista de documentos de la empresa</span>
+					>Tu lista de documentos de la empresa</span
+				>
 			</div>
 		</div>
 		<!-- Table -->
@@ -486,47 +508,34 @@ if (accessToken?.value && refreshToken?.value) {
 						>
 							<thead class="bg-gray-50 dark:bg-neutral-700">
 								<tr>
-									<th
-										scope="col"
-										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
-									>
-										Nombre del documento
-									</th>
-									<th
-										scope="col"
-										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
-									>
-										Fecha
-									</th>
-									<th
-										scope="col"
-										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
-									>
-										estado del documento
-									</th>
-									<th
-										scope="col"
-										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
-									>
-										Ver documento
-									</th>
-									<th
-										scope="col"
-										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
-									>
-										Descargar
-									</th>
+									{
+										[
+											'Nombre del documento',
+											'Fecha',
+											'estado del documento',
+											'Ver documento',
+											'Descargar',
+										].map((th) => (
+											<th
+												scope="col"
+												class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
+											>
+												{th}
+											</th>
+										))
+									}
 								</tr>
 							</thead>
 							<tbody class="bg-white dark:bg-neutral-700">
 								<tr>
-
 									{
 										documentos && documentos.length > 0 ? (
 											documentos.map((documento) => (
 												<tr>
 													<td class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white">
-														<span class="font-semibold">{documento?.nombre_archivo}</span>
+														<span class="font-semibold">
+															{documento?.nombre_archivo}
+														</span>
 													</td>
 													<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
 														{documento?.created_at}
@@ -559,7 +568,7 @@ if (accessToken?.value && refreshToken?.value) {
 																<path
 																	fill="currentColor"
 																	d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"
-																></path>
+																/>
 															</svg>
 														</a>
 													</td>
@@ -583,7 +592,7 @@ if (accessToken?.value && refreshToken?.value) {
 																	clip-rule="evenodd"
 																	fill-rule="evenodd"
 																	d="M12 2.25a.75.75 0 01.75.75v11.69l3.22-3.22a.75.75 0 111.06 1.06l-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 111.06-1.06l3.22 3.22V3a.75.75 0 01.75-.75zm-9 13.5a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5 1.5V16.5a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V16.5a.75.75 0 01.75-.75z"
-																></path>
+																/>
 															</svg>
 														</a>
 													</td>
@@ -591,15 +600,24 @@ if (accessToken?.value && refreshToken?.value) {
 											))
 										) : (
 											<tr>
-												<td colspan="5" class="p-8 text-center text-gray-500 dark:text-gray-400">
-													<Icon name="ri:file-copy-2-fill" class="w-10 h-10 mx-auto" />
-													<p class="mt-4 text-lg font-medium">No hay documentos registrados</p>
-													<p class="text-sm">Cuando subas documentos, aparecerán aquí</p>
+												<td
+													colspan="5"
+													class="p-8 text-center text-gray-500 dark:text-gray-400"
+												>
+													<Icon
+														name="ri:file-copy-2-fill"
+														class="w-10 h-10 mx-auto"
+													/>
+													<p class="mt-4 text-lg font-medium">
+														No hay documentos registrados
+													</p>
+													<p class="text-sm">
+														Cuando subas documentos, aparecerán aquí
+													</p>
 												</td>
 											</tr>
 										)
 									}
-								
 								</tr>
 							</tbody>
 						</table>

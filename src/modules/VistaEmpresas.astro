@@ -1,4 +1,5 @@
 ---
+import '../estilos/datatables_v2.css';
 import { supabase } from '../lib/supabase';
 import { Icon } from 'astro-icon/components';
 
@@ -12,16 +13,7 @@ const { data: empresa, error } = await supabase
 	.from('empresas_incorporaciones')
 	.select(
 		`
-    user_id,
-    empresa_incorporacion_id,
-    tipo_de_negocio,
-    estado_de_incorporacion,
-    estado,
-    nombre_1,
-    nombre_2,
-    nombre_3,
-    updated_at,
-	porcentaje_de_incorporacion,
+    *,
     usuarios:user_id (nombre, apellido, correo)
   `,
 	)
@@ -34,9 +26,48 @@ if (error || !empresa) {
 }
 
 const { data: socios } = await supabase
-	.from('Socios_validados')
+	.from('socios_validados')
 	.select('*')
 	.eq('id_empresa', empresaId);
+
+const { data: managers } = await supabase
+	.from('managers_validados')
+	.select('*')
+	.eq('empresa_incorporacion_id', empresaId);
+
+const data_EEUU = [
+	{
+		titulo: 'Dirección operativa en EE.UU.',
+		value: `${empresa.direccion_eeuu}`,
+	},
+	{
+		titulo: 'Condado de EE.UU.',
+		value: `${empresa.condado_eeuu}`,
+	},
+	{
+		titulo: 'Ciudad de EE.UU.',
+		value: `${empresa.ciudad_eeuu}`,
+	},
+	{
+		titulo: 'Estado de EE.UU.',
+		value: `${empresa.estado_eeuu}`,
+	},
+	{
+		titulo: 'Codigo postal de EE.UU.',
+		value: `${empresa.codigo_postal_eeuu}`,
+	},
+];
+
+const data_estandar = [
+	{
+		titulo: 'Pais operativo',
+		value: `${empresa.Pais_operativo}`,
+	},
+	{
+		titulo: 'Dirección de la empresa',
+		value: `${empresa.direccion_empresa}`,
+	},
+];
 ---
 
 <div class="mt-5 mx-5">
@@ -71,6 +102,18 @@ const { data: socios } = await supabase
 					aria-selected="false">Socios</button
 				>
 			</li>
+			<!-- 
+			<li class="me-2" role="presentation">
+				<button
+					class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+					id="managers-tab"
+					data-tabs-target="#managers"
+					type="button"
+					role="tab"
+					aria-controls="managers"
+					aria-selected="false">Managers</button
+				>
+			</li>-->
 			<li class="me-2" role="presentation">
 				<button
 					class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
@@ -171,8 +214,6 @@ const { data: socios } = await supabase
 				<div class="flex gap-10 items-center">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
-						xmlns:mapsvg="http://mapsvg.com"
-						mapsvg:geoViewBox="-127.55272679845754 50.66828705652597 -64.54920772895363 24.335873369454947"
 						class="w-52 h-auto md:block hidden"
 						viewBox="477 421 593.378 318.287"
 						><path
@@ -259,6 +300,21 @@ const { data: socios } = await supabase
 					<div class="flex flex-col gap-5">
 						<div>
 							<p class="font-bold text-lg text-neutral-300 mb-2">
+								Estado de la empresa
+							</p>
+							<div class="flex gap-1 dark:text-neutral-400 items-center">
+								{
+									empresa.estado === 'Activo' ? (
+										<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2 animate-pulse" />
+									) : (
+										<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
+									)
+								}
+								{empresa.estado}
+							</div>
+						</div>
+						<div>
+							<p class="font-bold text-lg text-neutral-300 mb-2">
 								Creador de la empresa
 							</p>
 							<div class="flex gap-1 dark:text-neutral-400 flex-col">
@@ -268,6 +324,7 @@ const { data: socios } = await supabase
 								</p>
 							</div>
 						</div>
+
 						<div>
 							<p class="font-bold text-lg text-neutral-300 mb-2">Nombres</p>
 							<ul
@@ -278,6 +335,17 @@ const { data: socios } = await supabase
 								<li>{empresa.nombre_3}</li>
 							</ul>
 						</div>
+						<div>
+							<p class="font-bold text-lg text-neutral-300 mb-2">
+								Actividad de la compañia
+							</p>
+							<div class="flex gap-1 dark:text-neutral-400">
+								<p>
+									{empresa.actividad}
+								</p>
+							</div>
+						</div>
+						<!-- 
 						<div>
 							<p class="font-bold text-lg text-neutral-300 mb-2">
 								Ultima fecha de actualización
@@ -297,6 +365,15 @@ const { data: socios } = await supabase
 								</p>
 							</div>
 						</div>
+						-->
+						<div>
+							<p class="font-bold text-lg text-neutral-300 mb-2">
+								Forma de tributar
+							</p>
+							<p class="dark:text-neutral-400">
+								{empresa.forma_tributacion}
+							</p>
+						</div>
 						<div>
 							<p class="font-bold text-lg text-neutral-300 mb-2">
 								Porcentaje de incorporación
@@ -307,6 +384,73 @@ const { data: socios } = await supabase
 						</div>
 					</div>
 					<div class="flex flex-col gap-5">
+						<div>
+							<p class="font-bold text-lg text-neutral-300 mb-2">
+								Obtendrá ingresos desde EE.UU.
+							</p>
+							<div class="flex gap-1 dark:text-neutral-400">
+								<p>
+									{
+										empresa.Obtendra_ingresos_desde_eeuu === true
+											? 'Si obtendrá ingresos'
+											: 'No obtendrá ingresos'
+									}
+								</p>
+							</div>
+						</div>
+						<div>
+							<p class="font-bold text-lg text-neutral-300 mb-2">
+								Forma de administración
+							</p>
+							<div class="flex gap-1 dark:text-neutral-400">
+								<p>
+									{empresa.forma_administracion}
+								</p>
+							</div>
+						</div>
+						<div>
+							<p class="font-bold text-lg text-neutral-300 mb-2">
+								Dirección operativa EE.UU.
+							</p>
+							<div class="flex gap-1 dark:text-neutral-400">
+								<p>
+									{empresa.direccion_operativa_eeuu}
+								</p>
+							</div>
+						</div>
+						{
+							empresa && empresa.direccion_operativa_eeuu === 'Si' && (
+								<>
+									{data_EEUU.map((data) => (
+										<div>
+											<p class="font-bold text-lg text-neutral-300 mb-2">
+												{data.titulo}
+											</p>
+											<div class="flex gap-1 dark:text-neutral-400">
+												<p>{data.value}</p>
+											</div>
+										</div>
+									))}
+								</>
+							)
+						}
+						{
+							empresa && empresa.direccion_operativa_eeuu === 'No' && (
+								<>
+									{data_estandar.map((data) => (
+										<div>
+											<p class="font-bold text-lg text-neutral-300 mb-2">
+												{data.titulo}
+											</p>
+											<div class="flex gap-1 dark:text-neutral-400">
+												<p>{data.value}</p>
+											</div>
+										</div>
+									))}
+								</>
+							)
+						}
+
 						<div>
 							<p class="font-bold text-lg text-neutral-300 mb-2">
 								Lista de socios
@@ -329,6 +473,26 @@ const { data: socios } = await supabase
 								)
 							}
 						</div>
+						{
+							managers && managers.length > 0 && (
+								<div>
+									<p class="font-bold text-lg text-neutral-300 mb-2">
+										Lista de managers
+									</p>
+
+									<ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+										{managers?.map((s) => (
+											<li>
+												{s.Nombres_manager} -
+												<span class="dark:text-neutral-500">
+													{s.Correo_electronico_manager}
+												</span>
+											</li>
+										))}
+									</ul>
+								</div>
+							)
+						}
 					</div>
 				</div>
 				<hr class="h-px my-4 bg-gray-200 border-0 dark:bg-neutral-600" />
@@ -359,20 +523,48 @@ const { data: socios } = await supabase
 				<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 					<table
 						class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+						id="myTable"
 					>
 						<thead
 							class="text-xs text-gray-700 uppercase bg-neutral-400 dark:bg-neutral-800 dark:text-gray-400"
 						>
 							<tr>
-								<th scope="col" class="px-6 py-3"> Nombres </th>
-								<th scope="col" class="px-6 py-3"> Tipo de socio </th>
-								<th scope="col" class="px-6 py-3"> Correo </th>
-								<th scope="col" class="px-6 py-3"> Porcentaje </th>
-								<th scope="col" class="px-6 py-3"> Estado civil </th>
-								<th scope="col" class="px-6 py-3"> Residente fiscal </th>
-								<th scope="col" class="px-6 py-3"> Nacionalidad </th>
-								<th scope="col" class="px-6 py-3"> Fecha de creación </th>
-								<th scope="col" class="px-6 py-3"> Acciones </th>
+								{
+									[
+										'nombres',
+										'tipo de socio',
+										'Correo',
+										'Porcentaje',
+										'Estado civil',
+										'Residente fiscal',
+										'Nacionalidad',
+										'Fecha de creación',
+										'Acciones',
+									].map((th) => (
+										<th scope="col" class="px-6 py-3">
+											<span class="flex items-center uppercase">
+												{th}
+												<svg
+													class="w-4 h-4 ms-1"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													fill="none"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke="currentColor"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="m8 15 4 4 4-4m0-6-4-4-4 4"
+													/>
+												</svg>
+											</span>
+										</th>
+									))
+								}
 							</tr>
 						</thead>
 						<tbody>
@@ -434,6 +626,7 @@ const { data: socios } = await supabase
 				<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
 					<table
 						class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+						id="myTable"
 					>
 						<thead
 							class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
@@ -498,3 +691,39 @@ const { data: socios } = await supabase
 		</div>
 	</div>
 </div>
+<script type="module">
+	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+
+	function initDT() {
+		const el = document.querySelector('#myTable');
+		if (!el) return;
+		if (el.dataset.dtInit === '1') return;
+
+		const dt = new DataTable(el, {
+			searchable: true,
+			perPage: 25,
+			perPageSelect: [5, 10, 25, 50],
+
+			// Textos en español
+			labels: {
+				placeholder: 'Buscar...',
+				perPage: 'Filas',
+				noRows: 'No hay empresas',
+				noResults: 'No se encontraron resultados',
+				info: 'Mostrando {start} a {end} de {rows} registros',
+			},
+
+			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			layout: {
+				top: '{select}{search}',
+				bottom: '{info}{pager}',
+			},
+		});
+
+		el.dataset.dtInit = '1';
+		el.dataset.dtInstance = '1';
+	}
+
+	initDT();
+	document.addEventListener('astro:page-load', initDT);
+</script>

@@ -22,11 +22,9 @@ const { data: empresas } = await supabase
 	)
 	.order('updated_at', { ascending: false });
 ---
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-></script>
 
 <div
-	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#1d1d1d] dark:border-gray-700"
+	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#0E2637] dark:border-gray-700"
 >
 	<div class="w-full mb-1">
 		<div class="mb-4">
@@ -114,174 +112,43 @@ const { data: empresas } = await supabase
 				>
 					<thead class="bg-gray-100 dark:bg-neutral-700" id="test">
 						<tr>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								<span class="flex items-center uppercase">
-									id
-									<svg
-										class="w-4 h-4 ms-1"
-										aria-hidden="true"
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="none"
-										viewBox="0 0 24 24"
+							{
+								[
+									'id',
+									'Usuario que la creo',
+									'Tipo de Negocio',
+									'Estado de incorporación',
+									'Estado',
+									'Estado',
+									'Creado en',
+								].map((th) => (
+									<th
+										scope="col"
+										class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
 									>
-										<path
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-									</svg>
-								</span>
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								<span class="flex items-center uppercase">
-									Usuario que la creo
-									<svg
-										class="w-4 h-4 ms-1"
-										aria-hidden="true"
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="none"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-									</svg>
-								</span>
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								<span class="flex items-center uppercase">
-									tipo de negocio
-									<svg
-										class="w-4 h-4 ms-1"
-										aria-hidden="true"
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="none"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-									</svg>
-								</span>
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								<span class="flex items-center uppercase">
-									Estado de incorporación
-									<svg
-										class="w-4 h-4 ms-1"
-										aria-hidden="true"
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="none"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-									</svg>
-								</span>
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								<span class="flex items-center uppercase">
-									Estado
-									<svg
-										class="w-4 h-4 ms-1"
-										aria-hidden="true"
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="none"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-									</svg>
-								</span>
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								<span class="flex items-center uppercase">
-									Estado
-									<svg
-										class="w-4 h-4 ms-1"
-										aria-hidden="true"
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="none"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-									</svg>
-								</span>
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								<span class="flex items-center uppercase">
-									Creado en
-									<svg
-										class="w-4 h-4 ms-1"
-										aria-hidden="true"
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										fill="none"
-										viewBox="0 0 24 24"
-									>
-										<path
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-									</svg>
-								</span>
-							</th>
+										<span class="flex items-center uppercase">
+											{th}
+											<svg
+												class="w-4 h-4 ms-1"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												fill="none"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke="currentColor"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="m8 15 4 4 4-4m0-6-4-4-4 4"
+												/>
+											</svg>
+										</span>
+									</th>
+								))
+							}
 						</tr>
 					</thead>
 					<tbody
@@ -291,7 +158,7 @@ const { data: empresas } = await supabase
 							empresas?.map((empresa) => (
 								<div>
 									<tr
-										class="hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer"
+										class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-#1d313f] cursor-pointer"
 										onclick={`window.open('/crud/empresa/${empresa.empresa_incorporacion_id}', '_blank')`}
 									>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -311,7 +178,7 @@ const { data: empresas } = await supabase
 										</td>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
 											<div class="flex items-center">
-												{empresa.estado === 'activo' ? (
+												{empresa.estado === 'Activo' ? (
 													<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
 												) : (
 													<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
@@ -340,8 +207,6 @@ const { data: empresas } = await supabase
 	</div>
 </div>
 
-
-
 <!-- Edit User Modal -->
 <div
 	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
@@ -357,7 +222,7 @@ const { data: empresas } = await supabase
 				<h3 class="text-xl font-semibold dark:text-white">Editar usuario</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#223848] dark:hover:text-white"
 					data-modal-toggle="edit-user-modal"
 				>
 					<svg
@@ -603,80 +468,13 @@ const { data: empresas } = await supabase
 		</div>
 	</div>
 </div>
-<script is:inline>
-	document.addEventListener('DOMContentLoaded', () => {
-		// Tipar los botones como HTMLElement (con dataset)
-		const btns = document.querySelectorAll('[data-edit-user]');
 
-		// Helper para setear .value de inputs/textarea de forma segura
-		function setValue(id, val) {
-			const el = document.getElementById(id);
-			if (el) el.value = val ?? '';
-		}
-
-		// Helper específico para selects
-		function setSelectValue(id, val) {
-			const select = document.getElementById(id);
-			if (select && val) {
-				select.value = val;
-			}
-		}
-
-		btns.forEach((btn) => {
-			btn.addEventListener('click', () => {
-				const nombre = btn.dataset.nombre ?? '';
-				const apellido = btn.dataset.apellido ?? '';
-				const correo = btn.dataset.correo ?? '';
-				const rolId = btn.dataset.rolId ?? '';
-				const compania = btn.dataset.compania ?? '';
-				const userId = btn.dataset.userId ?? '';
-				const estado = btn.dataset.userestado ?? '';
-				const pais = btn.dataset.pais ?? '';
-				const ciudad = btn.dataset.ciudad ?? '';
-				const linea1 = btn.dataset.linea1 ?? '';
-				const linea2 = btn.dataset.linea2 ?? '';
-				const telefono = btn.dataset.telefono ?? '';
-				const nacimiento = btn.dataset.nacimiento ?? '';
-				const tipoidentificacion = btn.dataset.tipoidentificacion ?? '';
-				const identificacion = btn.dataset.numeroidentidad ?? '';
-				const tipo = btn.dataset.tipo ?? '';
-
-				// Inputs/Textareas
-				setValue('modal_user_id', userId);
-				setValue('modal_nombre', nombre);
-				setValue('modal_apellido', apellido);
-				setValue('modal_correo', correo);
-				setValue('modal_compania', compania);
-				setValue('ciudad', ciudad);
-				setValue('direccion_linea1', linea1);
-				setValue('direccion_linea2', linea2);
-				setValue('modal_telefono', telefono);
-				setValue('fecha_nacimiento', nacimiento);
-				setValue('numero_de_identificacion', identificacion);
-
-				// Selects (pais, tipoidentificacion, tipo)
-				setSelectValue('pais', pais);
-				setSelectValue('tipo_identificacion', tipoidentificacion);
-				setSelectValue('tipo_persona', tipo);
-
-				// Radios
-				document.querySelectorAll('input[name="rol_id"]').forEach((r) => {
-					r.checked = String(r.value) === String(rolId);
-				});
-
-				document.querySelectorAll('input[name="estado"]').forEach((r) => {
-					r.checked = String(r.value) === String(estado);
-				});
-			});
-		});
-	});
-</script>
 <!-- Añadir usuario -->
 <div
 	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
 	id="add-user-modal"
 >
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+	<div class="relative w-full px-4 md:h-auto">
 		<!-- Modal content -->
 		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
 			<!-- Modal header -->
@@ -686,7 +484,7 @@ const { data: empresas } = await supabase
 				<h3 class="text-xl font-semibold dark:text-white">Añadir empresa</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#223848] dark:hover:text-white"
 					data-modal-toggle="add-user-modal"
 				>
 					<svg
@@ -979,45 +777,6 @@ const { data: empresas } = await supabase
 	</div>
 </div>
 
-<script is:inline>
-	document.addEventListener('DOMContentLoaded', () => {
-		const form = document.getElementById('updaterolForm');
-		const uidInput = document.getElementById('updaterol_user_id');
-		const estadoSel = document.getElementById('updaterol_estado');
-		const nameSpan = document.getElementById('updaterolUserName');
-
-		// Botones que abren el modal (uno por fila/usuario)
-		const btns = document.querySelectorAll('[data-open-estado]');
-
-		btns.forEach((btn) => {
-			btn.addEventListener('click', () => {
-				const uid = btn.dataset.userId || '';
-				const uname = btn.dataset.userName || '';
-				const estCur = btn.dataset.userEstado || '';
-
-				// Inyecta user_id y muestra nombre
-				uidInput.value = uid;
-				nameSpan.textContent = uname ? ` · ${uname}` : '';
-
-				// Preselecciona estado si coincide; si no, deja "(sin cambio)"
-				const hasOption = Array.from(estadoSel.options).some(
-					(o) => o.value === estCur,
-				);
-				estadoSel.value = hasOption ? estCur : '';
-
-				// Endpoint + retorno a esta misma página
-				const back = location.pathname + location.search;
-				form.action = `/api/admin/usuarios/update?back=${encodeURIComponent(back)}`;
-			});
-		});
-
-		// Anti doble-submit (opcional)
-		form?.addEventListener('submit', () => {
-			const submitBtn = form?.querySelector('button[type="submit"]');
-			if (submitBtn) submitBtn.disabled = true;
-		});
-	});
-</script>
 <script type="module">
 	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
 

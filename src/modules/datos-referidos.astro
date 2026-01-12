@@ -27,20 +27,21 @@ const { data: rows, error } = await supabase
 
 if (error) console.error(error);
 
-const referidos = (rows ?? []).map((r) => ({
-	user_id: r.referido?.user_id,
-	nombre: r.referido?.nombre ?? '—',
-	apellido: r.referido?.apellido ?? '_',
-	correo: r.referido?.correo ?? '—',
+const referidosSupabase = (rows ?? []).map((r) => ({
+	name: `${r.referido?.nombre ?? ''} ${r.referido?.apellido ?? ''}`.trim() || '—',
+	email: r.referido?.correo ?? '—',
 	avatar: r.referido?.avatar_url ?? null,
 	code: r.code,
 	fecha: r.created_at,
 	estado: r.referido?.estado,
+	fuente: 'Supabase'
 }));
 type Referral = {
 	name: string;
 	email?: string | null;
 	create_date?: string;
+	avatar?: string | null;
+	fuente?: string;
 };
 
 let referrals: Referral[] = [];
@@ -73,13 +74,25 @@ try {
 } finally {
 	loading = false;
 }
+
+// Combinar datos de Odoo y Supabase
+const referidosOdoo = referrals.map(r => ({
+	name: r.name,
+	email: r.email,
+	avatar: r.avatar || null,
+	fecha: r.create_date,
+	fuente: 'Odoo'
+}));
+
+const referidosCombinados = [...referidosSupabase, ...referidosOdoo]
+	.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 ---
 
 <div class="px-4 pt-6">
 	<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
 		<!-- Main widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#223848]"
 		>
 			<div class="flex items-center justify-between mb-4">
 				<div class="flex-shrink-0">
@@ -111,7 +124,7 @@ try {
 		</div>
 		<!--Tabs widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#223848]"
 		>
 			<h3
 				class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white"
@@ -162,14 +175,14 @@ try {
 				>
 					<ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
 						{
-							referrals?.map((r) => (
+							referidosCombinados?.map((r) => (
 								<li class="py-3 sm:py-4">
 									<div class="flex items-center space-x-4">
 										<div class="flex-shrink-0">
-											{r.avatar === 'NULL' || !r.avatar ? (
+											{!r.avatar || r.avatar === 'NULL' ? (
 												<img
 													class="w-10 h-10 rounded-full"
-													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
+													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${r.name}`}
 													alt={`Avatar de ${r.name}`}
 												/>
 											) : (
@@ -188,9 +201,7 @@ try {
 												{r.email}
 											</p>
 										</div>
-										<div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-											{r.city}
-										</div>
+										
 									</div>
 								</li>
 							))

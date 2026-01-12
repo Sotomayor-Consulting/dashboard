@@ -32,8 +32,15 @@ if (!me || Number(me.rol_id) !== 2) {
 		`/?status=error&msg=${encodeURIComponent('Acceso solo para partners')}`,
 	);
 }
+
+// Obtener datos del usuario para pasar al componente
+const { data: usuarioData } = await supabase
+	.from('usuarios')
+	.select('*')
+	.eq('user_id', user.id)
+	.single();
 ---
 
 <LayoutSidebar>
-	<Vistapartner />
+	<Vistapartner data={usuarioData || {}} />
 </LayoutSidebar>

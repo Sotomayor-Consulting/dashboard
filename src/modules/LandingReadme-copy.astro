@@ -59,7 +59,7 @@ const menuItems = [
 		label: 'Crea una LLC',
 		href: '/start/',
 		tooltip: 'Crea una nueva LLC',
-		roles: ['client'],
+		roles: ['client', 'partner'],
 		svgname: 'ri:building-2-fill',
 	},
 	{
@@ -67,7 +67,7 @@ const menuItems = [
 		label: 'Tus compañias',
 		href: '/pages/companias',
 		tooltip: 'Mira tus compañias y su estado',
-		roles: ['client'],
+		roles: ['client', 'partner'],
 		svgname: 'ri:hand-coin-fill',
 	},
 	{
@@ -75,7 +75,7 @@ const menuItems = [
 		label: 'mantenimiento',
 		href: '/pages/mantenimiento',
 		tooltip: 'Mira fechas de tu compania y su mantenimiento anual',
-		roles: ['client'],
+		roles: ['client', 'partner'],
 		svgname: 'ri:time-zone-fill',
 	},
 	{
@@ -83,17 +83,10 @@ const menuItems = [
 		label: 'Documentos',
 		href: '/pages/tus-formularios',
 		tooltip: 'Mira tus documentos y formularios',
-		roles: ['client'],
+		roles: ['client', 'partner'],
 		svgname: 'ri:file-copy-2-line',
 	},
-	{
-		id: 'partners-soporte',
-		label: 'Agendar',
-		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
-		tooltip: 'Agenda una reunion con Sotomayor Consulting',
-		roles: ['client'],
-		svgname: 'ri:calendar-fill',
-	},
+
 	{
 		id: 'partners',
 		label: 'Partners',
@@ -110,21 +103,22 @@ const menuItems = [
 		roles: ['partner'],
 		svgname: 'ri:settings-3-fill',
 	},
-	{
-		id: 'partners-configuracion-perfil',
-		label: 'Perfil',
-		href: '/settings/',
-		tooltip: 'Configure su perfil y datos',
-		roles: ['partner'],
-		svgname: 'ri:account-circle-fill',
-	},
+
 	{
 		id: 'partners-soporte',
 		label: 'Agendar',
 		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
 		tooltip: 'Agenda una reunion con Sotomayor Consulting',
-		roles: ['partner'],
+		roles: ['client', 'partner'],
 		svgname: 'ri:calendar-fill',
+	},
+	{
+		id: 'partners-configuracion-perfil',
+		label: 'Perfil',
+		href: '/settings/',
+		tooltip: 'Configure su perfil y datos',
+		roles: ['all'],
+		svgname: 'ri:account-circle-fill',
 	},
 	{
 		id: 'crud-users',
@@ -184,6 +178,27 @@ const menuItems = [
 	},
 ];
 
+// --- 4. Consulta de formularios pendientes (solo para admin) ---
+let formularioPendientesCount = 0;
+
+if (userRole === 'admin') {
+	const { data: formularios } = await supabase
+		.from('formularios_envios')
+		.select(
+			`
+			*,
+			formularios:formularios (form_id, titulo, slug, descripcion),
+			usuarios:usuarios (user_id, nombre, apellido)
+		`,
+		)
+		.eq('formularios.titulo', 'Formulario de incorporación')
+		.eq('status', 'submitted')
+		.eq('verificacion_operaciones', false)
+		.order('updated_at', { ascending: true });
+
+	formularioPendientesCount = formularios?.length || 0;
+}
+
 // Filtramos el menú antes de renderizar - ACTUALIZADO PARA INCLUIR 'all'
 const visibleMenu = menuItems.filter(
 	(item) => item.roles.includes('all') || item.roles.includes(userRole),
@@ -191,7 +206,7 @@ const visibleMenu = menuItems.filter(
 ---
 
 <div
-	class="bg-slate-200 dark:bg-[#1d1d1d] dark:text-slate-100 p-4 lg:p-16 h-full mb-20 mt-10"
+	class="bg-slate-200 dark:bg-[#0E2637] dark:text-slate-100 p-4 lg:p-16 h-full mb-20 mt-10"
 >
 	<header
 		class="p-8 flex justify-center items-center flex-wrap flex-col w-full mt-5"
@@ -210,17 +225,6 @@ const visibleMenu = menuItems.filter(
 				class="dark:hidden hidden sm:block"
 			/>
 		</div>
-		<div class="format dark:format-invert lg:format-lg mt-5">
-			<p
-				class="text-4xl lg:text-7xl dark:text-slate-200 text-slate-600 leading-tight"
-			>
-				<span
-					class="font-bold text-transparent bg-clip-text bg-gradient-to-br from-neutral-800 to-[#ba8d34] dark:from-white dark:to-[#ba8d34] no-underline"
-				>
-					Bienvenido
-				</span>
-			</p>
-		</div>
 	</header>
 
 	<article class="flex justify-center pt-20 pb-32 h-full">
@@ -235,6 +239,12 @@ const visibleMenu = menuItems.filter(
 							label={item.label}
 							tooltipId={item.id}
 							tooltipText={item.tooltip}
+							badge={
+								item.id === 'verificacion-formulario-incorp' &&
+								formularioPendientesCount > 0
+									? formularioPendientesCount
+									: null
+							}
 						>
 							<Icon name={item.svgname} class="text-5xl" />
 						</MenuCard>

@@ -422,6 +422,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 			const manager_es_miembro = asBool(approved_data?.manager_es_miembro);
 
 			const companyRow = {
+				porcentaje_de_incorporacion: "10",
 				empresa_incorporacion_id: empresa_id,
 				Obtendra_ingresos_desde_eeuu: asBool(
 					approved_data?.ingresos_provenientes_de_Estados_Unidos,

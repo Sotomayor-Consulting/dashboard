@@ -1,23 +1,14 @@
 ---
-import NavPagination from '../components/NavPagination.astro';
-import { supabase } from "../lib/supabase";
-import Alerta from "../components/alertageneral.astro"
-
-const q = (Astro.url.searchParams.get('q') || '').trim();
-const page = Math.max(1, Number(Astro.url.searchParams.get('page') || '1'));
-const pageSize = 10;
-const from = (page - 1) * pageSize;
-const to = from + pageSize - 1;
-
-let formularios_envios: any[] = [];
-let errorMsg = '';
-let total = 0;
-let totalPages = 1;
+import '../estilos/datatables.css';
+import { supabase } from '../lib/supabase';
+import Alerta from '../components/alertageneral.astro';
+import { Icon } from 'astro-icon/components';
 
 // JOINS para render
-let query = supabase
-  .from('formularios_envios')
-  .select(`
+const { data: formularios_envios } = await supabase
+	.from('formularios_envios')
+	.select(
+		`
     submission_id,
     form_id,
     user_id,
@@ -31,76 +22,16 @@ let query = supabase
     schema_hash,
     formularios:formularios ( form_id, titulo, slug, descripcion ),
     usuarios:usuarios ( user_id, nombre, apellido )
-  `, { count: 'exact' })
-  .order('created_at', { ascending: false });
-
-if (q) {
-  const safe = q.replace(/,/g, '').trim();
-
-  // 1) Subconsulta: formularios que matchean por texto
-  let formIds: string[] = [];
-  {
-    const { data: fmatch, error: ferr } = await supabase
-      .from('formularios')
-      .select('form_id')
-      .or([
-        `titulo.ilike.*${safe}*`,
-        `slug.ilike.*${safe}*`,
-        `descripcion.ilike.*${safe}*`,
-      ].join(','));
-    if (ferr) console.warn('search formularios err:', ferr.message);
-    formIds = (fmatch ?? []).map(r => r.form_id);
-  }
-
-  // 2) Subconsulta: usuarios que matchean por texto
-  let userIds: string[] = [];
-  {
-    const { data: umatch, error: uerr } = await supabase
-      .from('usuarios')
-      .select('user_id')
-      .or([
-        `nombre.ilike.*${safe}*`,
-        `apellido.ilike.*${safe}*`,
-        // agrega más si quieres (correo, etc.)
-      ].join(','));
-    if (uerr) console.warn('search usuarios err:', uerr.message);
-    userIds = (umatch ?? []).map(r => r.user_id);
-  }
-
-  // 3) Armar OR top-level sobre la tabla base
-  const orParts: string[] = [`status.ilike.*${safe}*`];
-
-  if (formIds.length) {
-    // IN con uuids: in.(uuid1,uuid2,uuid3)
-    orParts.push(`form_id.in.(${formIds.join(',')})`);
-  }
-  if (userIds.length) {
-    orParts.push(`user_id.in.(${userIds.join(',')})`);
-  }
-
-  // Si quieres buscar dentro del JSON como texto:
-  // orParts.push(`data_json::text.ilike.*${safe}*`);
-
-  query = query.or(orParts.join(','));
-}
-
-// Paginamos
-const { data, error, count } = await query.range(from, to);
-
-if (error) {
-  errorMsg = error.message ?? 'Error desconocido';
-  console.error('Error leyendo formularios_envios:', errorMsg);
-} else {
-  formularios_envios = data ?? [];
-  total = count ?? 0;
-  totalPages = Math.max(1, Math.ceil(total / pageSize));
-}
-
+  `,
+		{ count: 'exact' },
+	)
+	.order('created_at', { ascending: false });
 ---
+
 <Alerta />
 <div>
 	<div
-		class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#1d1d1d] dark:border-gray-700 w-full"
+		class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#0E2637] w-full"
 	>
 		<div class="w-full mb-1">
 			<div class="mb-4">
@@ -110,7 +41,7 @@ if (error) {
 					>
 						<li class="inline-flex items-center">
 							<a
-								href="#"
+								href="/"
 								class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
 							>
 								<svg
@@ -138,13 +69,12 @@ if (error) {
 										clip-rule="evenodd"></path></svg
 								>
 								<a
-									href="#"
+									href="/crud/formularios-enviados"
 									class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
-									>servicios</a
+									>Formularios</a
 								>
 							</div>
 						</li>
-						
 					</ol>
 				</nav>
 				<h1
@@ -154,27 +84,6 @@ if (error) {
 				</h1>
 			</div>
 			<div class="items-center justify-between block sm:flex">
-				<div class="flex items-center mb-4 sm:mb-0">
-					<form class="lg:pr-3" method="GET">
-						<label for="users-search" class="sr-only">Buscar</label>
-						<div class="relative mt-1 lg:w-64 xl:w-96 flex">
-							<input
-								type="search"
-								name="q"
-								value={q}
-								class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-								placeholder="Buscar por nombre, correo, empresa…"
-							/>
-							<button class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] ml-2 mr-2"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0s.41-1.08 0-1.49zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14"></path></svg>
-								Buscar
-							</button>
-						</div>
-					</form>
-					<div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0"> <a href="/crud/formularios-enviados" type="button" class="inline-flex items-center justify-center sm:w-auto px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] w-full"> <svg class="w-5 h-5 mr-2 -ml-1" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="m899.1 869.6l-53-305.6H864c14.4 0 26-11.6 26-26V346c0-14.4-11.6-26-26-26H618V138c0-14.4-11.6-26-26-26H432c-14.4 0-26 11.6-26 26v182H160c-14.4 0-26 11.6-26 26v192c0 14.4 11.6 26 26 26h17.9l-53 305.6c-.3 1.5-.4 3-.4 4.4c0 14.4 11.6 26 26 26h723c1.5 0 3-.1 4.4-.4c14.2-2.4 23.7-15.9 21.2-30M204 390h272V182h72v208h272v104H204zm468 440V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H416V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H202.8l45.1-260H776l45.1 260z"></path></svg>
-						Limpiar busqueda
-						</a> </div>
-				</div>
-
 				<div class="flex items-center ml-auto space-x-2 sm:space-x-3">
 					<a
 						href="/crud/formularios-enviados"
@@ -204,7 +113,15 @@ if (error) {
 						type="button"
 						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 					>
-						<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2 -ml-1" viewBox="0 0 24 24"><path fill="currentColor" d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6v2H5v12h12v-6zM13 3v2h4.586l-7.793 7.793l1.414 1.414L19 6.414V11h2V3z"/></svg>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="w-5 h-5 mr-2 -ml-1"
+							viewBox="0 0 24 24"
+							><path
+								fill="currentColor"
+								d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6v2H5v12h12v-6zM13 3v2h4.586l-7.793 7.793l1.414 1.414L19 6.414V11h2V3z"
+							></path></svg
+						>
 						Gestionar formularios
 					</a>
 				</div>
@@ -218,21 +135,10 @@ if (error) {
 				<div class="overflow-hidden shadow">
 					<table
 						class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
+						id="myTable"
 					>
 						<thead class="bg-gray-100 dark:bg-neutral-700">
 							<tr>
-								<th scope="col" class="p-4">
-									<div class="flex items-center">
-										<input
-											id="checkbox-all"
-											aria-describedby="checkbox-1"
-											type="checkbox"
-											class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:bg-neutral-700 dark:border-gray-600"
-										/>
-										<label for="checkbox-all" class="sr-only">checkbox</label>
-									</div>
-								</th>
-
 								{
 									[
 										'id de formulario',
@@ -240,15 +146,34 @@ if (error) {
 										'Porcentaje de progreso',
 										'Fecha de inicio del formulario',
 										'Fecha de ultima actualizacion',
-                                        'Fecha de ultima subida',
+										'Fecha de ultima subida',
 										'estado',
-                                        'Acciones'
+										'Acciones',
 									].map((th) => (
 										<th
 											scope="col"
 											class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
 										>
-											{th}
+											<span class="flex items-center uppercase">
+												{th}
+												<svg
+													class="w-4 h-4 ms-1"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													fill="none"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke="currentColor"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="m8 15 4 4 4-4m0-6-4-4-4 4"
+													/>
+												</svg>
+											</span>
 										</th>
 									))
 								}
@@ -260,124 +185,102 @@ if (error) {
 						>
 							{
 								formularios_envios?.map((sr) => (
-									<tr class="hover:bg-gray-100 dark:hover:bg-neutral-700">
-										<td class="w-4 p-4">
-											<div class="flex items-center">
-												<input
-													id={`checkbox-${sr.form_id}`}
-													aria-describedby="checkbox-1"
-													type="checkbox"
-													class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:bg-neutral-700 dark:border-gray-600"
-												/>
-												<label for={`checkbox-${sr.form_id}`} class="sr-only">
-													checkbox
-												</label>
-											</div>
-										</td>
+									<tr class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-#1d313f]">
 										<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
 											<div class="text-base font-semibold text-gray-900 dark:text-white">
-												<data value="name">{sr.formularios?.titulo ?? "— sin título —"}</data>
+												<data value="name">
+													{sr.formularios?.titulo ?? '— sin título —'}
+												</data>
 											</div>
 											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-												<data value="category">{sr.formularios?.slug ?? "— sin ctaegoria —"}</data>
+												<data value="category">
+													{sr.formularios?.slug ?? '— sin ctaegoria —'}
+												</data>
 											</div>
 										</td>
-										
+
 										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-											<data value="">{sr.usuarios.nombre} {sr.usuarios.apellido}</data>
+											<data value="">
+												{sr.usuarios.nombre} {sr.usuarios.apellido}
+											</data>
 										</td>
 										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-											<data value="">% {sr.progress_percent ?? "0"}</data>
+											<data value="">% {sr.progress_percent ?? '0'}</data>
 										</td>
 										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
 											<data value="">
-												{
-													sr.created_at &&
+												{sr.created_at &&
 													new Date(sr.created_at)
-													.toLocaleDateString('es-ES', { 
-														day: '2-digit', 
-														month: '2-digit', 
-														year: 'numeric' 
-													})
-													.replace(/\//g, '-')
-												}
-											</data>
-										</td>
-										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<data value="">
-												{
-													sr.updated_at &&
-													new Date(sr.updated_at)
-													.toLocaleDateString('es-ES', { 
-														day: '2-digit', 
-														month: '2-digit', 
-														year: 'numeric' 
-													})
-													.replace(/\//g, '-')
-												}
-											</data>
-										</td>
-										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<data value="">
-												{
-													(sr.submitted_at &&
-													new Date(sr.submitted_at)
-														.toLocaleDateString('es-ES', { 
-															day: '2-digit', 
-															month: '2-digit', 
-															year: 'numeric' 
+														.toLocaleDateString('es-ES', {
+															day: '2-digit',
+															month: '2-digit',
+															year: 'numeric',
 														})
-														.replace(/\//g, '-')
-													) ?? "— sin fecha —"
-												}
+														.replace(/\//g, '-')}
+											</data>
+										</td>
+										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
+											<data value="">
+												{sr.updated_at &&
+													new Date(sr.updated_at)
+														.toLocaleDateString('es-ES', {
+															day: '2-digit',
+															month: '2-digit',
+															year: 'numeric',
+														})
+														.replace(/\//g, '-')}
+											</data>
+										</td>
+										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
+											<data value="">
+												{(sr.submitted_at &&
+													new Date(sr.submitted_at)
+														.toLocaleDateString('es-ES', {
+															day: '2-digit',
+															month: '2-digit',
+															year: 'numeric',
+														})
+														.replace(/\//g, '-')) ??
+													'— sin fecha —'}
 											</data>
 										</td>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
 											<div class="flex items-center">
-													{sr.status === 'submitted' ? (
+												{sr.status === 'submitted' ? (
+													<>
 														<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
 														<span>Terminado</span>
-													) : (
+													</>
+												) : (
+													<>
 														<div class="h-2.5 w-2.5 rounded-full bg-orange-400 mr-2" />
 														<span>En progreso</span>
-													)}
-													
+													</>
+												)}
 											</div>
 										</td>
 
-										<td class="p-4 space-x-2 whitespace-nowrap">
-											
-											<button
-													id={`dd-btn-${sr.submission_id}`}
-													data-dropdown-toggle={`dd-${sr.submission_id}`}
-													class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-neutral-700 dark:hover:bg-neutral-700 dark:focus:ring-gray-600"
-													type="button"
-													aria-haspopup="true"
-													aria-expanded="false"
-													>
-													<svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 4 15">
-														<path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/>
-													</svg>
-											</button>
-											<div
-											id={`dd-${sr.submission_id}`}
-											class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-neutral-700 dark:divide-gray-600"
-											role="menu"
-											aria-labelledby={`dd-btn-${sr.submission_id}`}
-											data-dropdown-placement="bottom-start"
-											>
-												<ul class="py-2 text-sm text-gray-700 dark:text-gray-200" role="none">
-													<li>
-														<a href={`/forms/enviados/${sr.submission_id}`} target="_blank" rel="noopener noreferrer" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-															Ver respuestas
-														</a>
-													</li>
-													<li>
-														<a href={`/api/pdf/demo1?submission_id=${sr.submission_id}`} target="_blank" rel="noopener noreferrer" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-															Descargar PDF
-														</a>
-													</li>
-												</ul>
+										<td class="p-4 space-x-2 whitespace-nowrap text-center">
+											<div class="h-full flex justify-center items-center gap-2">
+												<a
+													href={`/forms/enviados/${sr.submission_id}`}
+													target="_blank"
+													title="ver formulario"
+													data-tooltip-target={`tool-tip-${sr.submission_id}`}
+												>
+													<Icon
+														name="ri:eye-fill"
+														class="text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-300 text-2xl hover:scale-105"
+													/>
+												</a>
+												<div
+													id={`tool-tip-${sr.submission_id}`}
+													role="tooltip"
+													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-[#223848]"
+												>
+													Ver respuestas del formulario
+													<div class="tooltip-arrow" data-popper-arrow />
+												</div>
 											</div>
 										</td>
 									</tr>
@@ -426,7 +329,7 @@ if (error) {
 
 		<form action="/api/update/admin-update-forms" method="post">
 			<div class="space-y-4">
-				<input type="hidden" name="service_id" id="modal_form_id" value=""/>
+				<input type="hidden" name="service_id" id="modal_form_id" value="" />
 				<div>
 					<label
 						for="nombre_update-service"
@@ -470,8 +373,7 @@ if (error) {
 						id="json-form"
 						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						placeholder="Añade el Json del formulario"
-						required=""
-					/>
+						required=""></textarea>
 				</div>
 				<div>
 					<label
@@ -485,8 +387,7 @@ if (error) {
 						rows="4"
 						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						placeholder="Añade el codigo json del tema de tu formulario"
-						></textarea
-					>
+					></textarea>
 				</div>
 				<div>
 					<label
@@ -499,9 +400,7 @@ if (error) {
 						name="descripcion-form-update"
 						rows="4"
 						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-						placeholder="Añade una descripcion para el form"
-						></textarea
-					>
+						placeholder="Añade una descripcion para el form"></textarea>
 				</div>
 				<div>
 					<label
@@ -588,26 +487,29 @@ if (error) {
 		<h3 class="mb-6 text-lg text-gray-500 dark:text-gray-400">
 			¿Estas seguro de querer archivar este servicio?
 		</h3>
-		<form action="/api/update/admin-services-delete" id="archivar_form" method="post" class="flex">
-			<input type="hidden" name="servicio_id" id="servicio_id"/>
-			<input type="hidden" name="servicio_activo" value="false">
+		<form
+			action="/api/update/admin-services-delete"
+			id="archivar_form"
+			method="post"
+			class="flex"
+		>
+			<input type="hidden" name="servicio_id" id="servicio_id" />
+			<input type="hidden" name="servicio_activo" value="false" />
 			<button
-			type="submit"
-			class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-900"
-		>
-			Si, estoy seguro
-		</button>
-		<button
-			class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-neutral-700 dark:focus:ring-gray-700"
-			type="button"
-			data-drawer-dismiss="drawer-delete-product-default"
-			aria-controls="drawer-delete-product-default"
-		>
-			No, cancelar
-		</button>
+				type="submit"
+				class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-900"
+			>
+				Si, estoy seguro
+			</button>
+			<button
+				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848] dark:focus:ring-gray-700"
+				type="button"
+				data-drawer-dismiss="drawer-delete-product-default"
+				aria-controls="drawer-delete-product-default"
+			>
+				No, cancelar
+			</button>
 		</form>
-		
-		
 	</div>
 
 	<!-- desarchivar Product Drawer -->
@@ -643,31 +545,43 @@ if (error) {
 			>
 			<span class="sr-only">Cerrar menu</span>
 		</button>
-		
-		<svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mt-8 mb-4 text-emerald-500" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M12 21a9 9 0 0 0 7.51-13.961l-7.155 7.95a2 2 0 0 1-2.687.262L6.4 12.8a1 1 0 0 1 1.2-1.6l3.268 2.451l7.346-8.161A9 9 0 1 0 12 21" clip-rule="evenodd"/></svg>
+
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			class="w-10 h-10 mt-8 mb-4 text-emerald-500"
+			viewBox="0 0 24 24"
+			><path
+				fill="currentColor"
+				fill-rule="evenodd"
+				d="M12 21a9 9 0 0 0 7.51-13.961l-7.155 7.95a2 2 0 0 1-2.687.262L6.4 12.8a1 1 0 0 1 1.2-1.6l3.268 2.451l7.346-8.161A9 9 0 1 0 12 21"
+				clip-rule="evenodd"></path></svg
+		>
 		<h3 class="mb-6 text-lg text-gray-500 dark:text-gray-400">
 			¿Estas seguro de querer archivar este servicio?
 		</h3>
-		<form action="/api/update/admin-services-add" id="desarchivar_form" method="post" class="flex">
-			<input type="hidden" name="des_servicio_id" id="des_servicio_id"/>
-			<input type="hidden" name="des_servicio_activo" value="true">
+		<form
+			action="/api/update/admin-services-add"
+			id="desarchivar_form"
+			method="post"
+			class="flex"
+		>
+			<input type="hidden" name="des_servicio_id" id="des_servicio_id" />
+			<input type="hidden" name="des_servicio_activo" value="true" />
 			<button
-			type="submit"
-			class="text-white bg-emerald-500 hover:bg-emerald-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-emerald-500"
-		>
-			Si, estoy seguro
-		</button>
-		<button
-			class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-neutral-700 dark:focus:ring-gray-700"
-			type="button"
-			data-drawer-dismiss="desarchivar-menu"
-			aria-controls="desarchivar-menu"
-		>
-			No, cancelar
-		</button>
+				type="submit"
+				class="text-white bg-emerald-500 hover:bg-emerald-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-emerald-500"
+			>
+				Si, estoy seguro
+			</button>
+			<button
+				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848] dark:focus:ring-gray-700"
+				type="button"
+				data-drawer-dismiss="desarchivar-menu"
+				aria-controls="desarchivar-menu"
+			>
+				No, cancelar
+			</button>
 		</form>
-		
-		
 	</div>
 
 	<!-- Add Product Drawer -->
@@ -720,7 +634,6 @@ if (error) {
 						required=""
 					/>
 				</div>
-
 				<div>
 					<label
 						for="categoria-form"
@@ -791,7 +704,7 @@ if (error) {
 						<option value="false">Inactivo</option>
 					</select>
 				</div>
-				
+
 				<div
 					class="bottom-0 left-0 flex justify-center w-full pb-4 space-x-4 md:px-4 md:absolute"
 				>
@@ -827,71 +740,90 @@ if (error) {
 		</form>
 	</div>
 
-	<script>
-		document.addEventListener("DOMContentLoaded", () => {
-		  const form       = document.getElementById("archivar_form");
-		  const uidInput   = document.getElementById("servicio_id");
-		  
-	  
-		  // Botones que abren el modal (uno por fila/usuario)
-		  const btns = document.querySelectorAll("[data-open-estado]");
-	  
-		  btns.forEach((btn) => {
-			btn.addEventListener("click", () => {
-			  const uid = btn.dataset.formId || "";
-	  
-			  // Inyecta user_id y muestra nombre
-			  uidInput.value = uid;
-			  nameSpan.textContent = uname ? ` · ${uname}` : "";
-	  
-			  
-			});
-		  });
-	  
-		  // Anti doble-submit (opcional)
-		  form.addEventListener("submit", () => {
-			const submitBtn = form.querySelector('button[type="submit"]');
-			if (submitBtn) submitBtn.disabled = true;
-		  });
-		});
-	  </script>
-	  <script>
-		document.addEventListener("DOMContentLoaded", () => {
-		  const form       = document.getElementById("desarchivar_form");
-		  const uidInput   = document.getElementById("des_servicio_id");
-		  
-	  
-		  // Botones que abren el modal (uno por fila/usuario)
-		  const btns = document.querySelectorAll("[data-open-desarchivado]");
-	  
-		  btns.forEach((btn) => {
-			btn.addEventListener("click", () => {
-			  const uid = btn.dataset.formId || "";
-	  
-			  // Inyecta user_id y muestra nombre
-			  uidInput.value = uid;
-			  nameSpan.textContent = uname ? ` · ${uname}` : "";
-	  
-			  
-			});
-		  });
-	  
-		  // Anti doble-submit (opcional)
-		  form.addEventListener("submit", () => {
-			const submitBtn = form.querySelector('button[type="submit"]');
-			if (submitBtn) submitBtn.disabled = true;
-		  });
-		});
-	  </script>
-	
+	<script is:inline>
+		document.addEventListener('DOMContentLoaded', () => {
+			const form = document.getElementById('archivar_form');
+			const uidInput = document.getElementById('servicio_id');
 
-	<NavPagination
-	page={page}
- 	total={total}
-  	pageSize={10}               
-  	searchParams={Astro.url.searchParams}
-	/>
+			// Botones que abren el modal (uno por fila/usuario)
+			const btns = document.querySelectorAll('[data-open-estado]');
+
+			btns.forEach((btn) => {
+				btn.addEventListener('click', () => {
+					const uid = btn.dataset.formId || '';
+
+					// Inyecta user_id y muestra nombre
+					uidInput.value = uid;
+					nameSpan.textContent = uname ? ` · ${uname}` : '';
+				});
+			});
+
+			// Anti doble-submit (opcional)
+			form.addEventListener('submit', () => {
+				const submitBtn = form.querySelector('button[type="submit"]');
+				if (submitBtn) submitBtn.disabled = true;
+			});
+		});
+	</script>
+	<script is:inline>
+		document.addEventListener('DOMContentLoaded', () => {
+			const form = document.getElementById('desarchivar_form');
+			const uidInput = document.getElementById('des_servicio_id');
+
+			// Botones que abren el modal (uno por fila/usuario)
+			const btns = document.querySelectorAll('[data-open-desarchivado]');
+
+			btns.forEach((btn) => {
+				btn.addEventListener('click', () => {
+					const uid = btn.dataset.formId || '';
+
+					// Inyecta user_id y muestra nombre
+					uidInput.value = uid;
+					nameSpan.textContent = uname ? ` · ${uname}` : '';
+				});
+			});
+
+			// Anti doble-submit (opcional)
+			form.addEventListener('submit', () => {
+				const submitBtn = form.querySelector('button[type="submit"]');
+				if (submitBtn) submitBtn.disabled = true;
+			});
+		});
+	</script>
 </div>
+<script type="module">
+	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
 
+	function initDT() {
+		const el = document.querySelector('#myTable');
+		if (!el) return;
+		if (el.dataset.dtInit === '1') return;
 
+		const dt = new DataTable(el, {
+			searchable: true,
+			perPage: 25,
+			perPageSelect: [5, 10, 25, 50],
 
+			// Textos en español
+			labels: {
+				placeholder: 'Buscar...',
+				perPage: 'Filas',
+				noRows: 'No hay empresas',
+				noResults: 'No se encontraron resultados',
+				info: 'Mostrando {start} a {end} de {rows} registros',
+			},
+
+			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			layout: {
+				top: '{select}{search}',
+				bottom: '{info}{pager}',
+			},
+		});
+
+		el.dataset.dtInit = '1';
+		el.dataset.dtInstance = '1';
+	}
+
+	initDT();
+	document.addEventListener('astro:page-load', initDT);
+</script>

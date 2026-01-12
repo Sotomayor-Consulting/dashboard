@@ -1,5 +1,5 @@
 ---
-import NavPagination from '../components/NavPagination.astro'; // si no lo usas, puedes quitarlo
+import '../estilos/datatables.css';
 import { supabase } from '../lib/supabase';
 
 /* =========================
@@ -94,10 +94,10 @@ const { data: paises } = await supabase
 ---
 
 <div
-	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#1d1d1d] dark:border-gray-700"
+	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#0E2637] dark:border-gray-700"
 >
 	<div class="w-full mb-1">
-		<div class="mb-4">
+		<div class="">
 			<nav class="flex mb-5" aria-label="Breadcrumb">
 				<ol
 					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
@@ -147,55 +147,6 @@ const { data: paises } = await supabase
 			</h1>
 		</div>
 		<div class="sm:flex">
-			<div
-				class="items-center hidden mb-3 sm:flex sm:divide-x sm:divide-gray-100 sm:mb-0 dark:divide-gray-700"
-			>
-				<form class="lg:pr-3" method="GET">
-					<label for="users-search" class="sr-only">Buscar</label>
-					<div class="relative mt-1 lg:w-64 xl:w-96 flex">
-						<input
-							type="search"
-							name="q"
-							value={q}
-							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
-							placeholder="Buscar por nombre, correo, empresa…"
-						/>
-						<button
-							class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] ml-2"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="24"
-								height="24"
-								viewBox="0 0 24 24"
-								><path
-									fill="currentColor"
-									d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0s.41-1.08 0-1.49zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14"
-								></path></svg
-							>
-							Buscar
-						</button>
-					</div>
-				</form>
-				<div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0">
-					<a
-						href="/crud/users"
-						type="button"
-						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
-					>
-						<svg
-							class="w-5 h-5 mr-2 -ml-1"
-							viewBox="0 0 1024 1024"
-							xmlns="http://www.w3.org/2000/svg"
-							><path
-								fill="currentColor"
-								d="m899.1 869.6l-53-305.6H864c14.4 0 26-11.6 26-26V346c0-14.4-11.6-26-26-26H618V138c0-14.4-11.6-26-26-26H432c-14.4 0-26 11.6-26 26v182H160c-14.4 0-26 11.6-26 26v192c0 14.4 11.6 26 26 26h17.9l-53 305.6c-.3 1.5-.4 3-.4 4.4c0 14.4 11.6 26 26 26h723c1.5 0 3-.1 4.4-.4c14.2-2.4 23.7-15.9 21.2-30M204 390h272V182h72v208h272v104H204zm468 440V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H416V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H202.8l45.1-260H776l45.1 260z"
-							></path></svg
-						>
-						Limpiar busqueda
-					</a>
-				</div>
-			</div>
 			<div class="flex items-center ml-auto space-x-2 sm:space-x-3">
 				<!-- NOTE: Not implemented (see `./CrudProducts` for reference) -->
 				<!-- <button
@@ -241,7 +192,7 @@ const { data: paises } = await supabase
 				<button
 					id="dropdownMenuIconButton"
 					data-dropdown-toggle="dropdownDots2"
-					class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-neutral-700 dark:hover:bg-neutral-700 dark:focus:ring-gray-600"
+					class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-neutral-700 dark:hover:bg-[#223848] dark:focus:ring-gray-600"
 					type="button"
 				>
 					<svg
@@ -286,66 +237,57 @@ const { data: paises } = await supabase
 			<div class="overflow-hidden shadow">
 				<table
 					class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
+					id="myTable"
 				>
-					<thead class="bg-gray-100 dark:bg-[#374151]">
+					<thead class="bg-gray-100 dark:bg-[#0E2637]">
 						<tr>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								Foto
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								Nombre
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								Compania
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								Cargo
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								Pais
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								Estado
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								Rol
-							</th>
-							<th
-								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-							>
-								Acciones
-							</th>
+							{
+								[
+									'foto',
+									'nombre',
+									'compañia',
+									'cargo',
+									'pais',
+									'estado',
+									'rol',
+									'acciones',
+								].map((th) => (
+									<th
+										scope="col"
+										class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-white"
+									>
+										<span class="flex items-center">
+											{th}
+											<svg
+												class="w-4 h-4 ms-1"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												fill="none"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke="currentColor"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="m8 15 4 4 4-4m0-6-4-4-4 4"
+												/>
+											</svg>
+										</span>
+									</th>
+								))
+							}
 						</tr>
 					</thead>
 					<tbody
-						class="bg-white divide-y divide-gray-200 dark:bg-[#1d1d1d] dark:divide-gray-700"
+						class="bg-white divide-y divide-gray-200 dark:bg-[#223848] dark:divide-gray-700"
 					>
 						{
 							usuarios.map((user) => (
 								<div>
-									<tr class="hover:bg-gray-100 dark:hover:bg-neutral-700">
+									<tr class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-#1d313f]">
 										<td class="w-4 pl-4">
 											{user.avatar_url === 'NULL' || !user.avatar_url ? (
 												<img
@@ -464,7 +406,7 @@ const { data: paises } = await supabase
 											<button
 												id={`dd-btn-${user.user_id}`}
 												data-dropdown-toggle={`dd-${user.user_id}`}
-												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-neutral-700 dark:hover:bg-neutral-700 dark:focus:ring-gray-600"
+												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-neutral-700 dark:hover:bg-[#223848] dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
 												aria-expanded="false"
@@ -534,7 +476,7 @@ const { data: paises } = await supabase
 				<h3 class="text-xl font-semibold dark:text-white">Editar usuario</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#223848] dark:hover:text-white"
 					data-modal-toggle="edit-user-modal"
 				>
 					<svg
@@ -889,7 +831,7 @@ const { data: paises } = await supabase
 				<h3 class="text-xl font-semibold dark:text-white">Invitar usuario</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#223848] dark:hover:text-white"
 					data-modal-toggle="add-user-modal"
 				>
 					<svg
@@ -939,7 +881,6 @@ const { data: paises } = await supabase
 		</div>
 	</div>
 </div>
-
 <!-- Añadir rol Modal -->
 <div
 	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
@@ -955,7 +896,7 @@ const { data: paises } = await supabase
 				<h3 class="text-xl font-semibold dark:text-white">Añadir Rol</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-neutral-700 dark:hover:text-white"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#223848] dark:hover:text-white"
 					data-modal-toggle="rol-modal-admin"
 				>
 					<svg
@@ -1125,10 +1066,39 @@ const { data: paises } = await supabase
 		});
 	});
 </script>
+<script type="module">
+	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
 
-<NavPagination
-	page={page}
-	total={total}
-	pageSize={20}
-	searchParams={Astro.url.searchParams}
-/>
+	function initDT() {
+		const el = document.querySelector('#myTable');
+		if (!el) return;
+		if (el.dataset.dtInit === '1') return;
+
+		const dt = new DataTable(el, {
+			searchable: true,
+			perPage: 25,
+			perPageSelect: [5, 10, 25, 50],
+
+			// Textos en español
+			labels: {
+				placeholder: 'Buscar...',
+				perPage: 'Filas',
+				noRows: 'No hay empresas',
+				noResults: 'No se encontraron resultados',
+				info: 'Mostrando {start} a {end} de {rows} registros',
+			},
+
+			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			layout: {
+				top: '{select}{search}',
+				bottom: '{info}{pager}',
+			},
+		});
+
+		el.dataset.dtInit = '1';
+		el.dataset.dtInstance = '1';
+	}
+
+	initDT();
+	document.addEventListener('astro:page-load', initDT);
+</script>

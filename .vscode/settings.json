@@ -32,6 +32,7 @@
 	/* Add support for `prettier-plugin-astro` */
 	"prettier.documentSelectors": ["**/*.astro"],
 	"prettier.enableDebugLogs": true,
+	"prettier.trace.server": "verbose",
 	"[astro]": {
 		"editor.defaultFormatter": "astro-build.astro-vscode"
 	},

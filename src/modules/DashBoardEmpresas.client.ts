@@ -1,8 +1,6 @@
 /* eslint-disable max-lines */
 import ApexCharts from 'apexcharts';
 
-console.log('[porcentaje-radio] script loaded ✅');
-
 const clamp = (n: number, min = 0, max = 100) =>
 	Math.min(max, Math.max(min, n));
 
@@ -48,8 +46,6 @@ function waitForElement(
 }
 
 async function initPorcentajeRadioChart() {
-	console.log('[porcentaje-radio] init called');
-
 	if (document.readyState === 'loading') {
 		await new Promise((r) =>
 			document.addEventListener('DOMContentLoaded', r, { once: true }),
@@ -64,9 +60,6 @@ async function initPorcentajeRadioChart() {
 
 	const empresaId = el.dataset.empresaId || el.getAttribute('data-empresa-id');
 	const rawPct = el.dataset.porcentaje || el.getAttribute('data-porcentaje');
-
-	console.log('[porcentaje-radio] data-empresa-id:', empresaId);
-	console.log('[porcentaje-radio] data-porcentaje:', rawPct);
 
 	const n = parseNumeric(rawPct);
 	const porcentaje = n === null ? 0 : normalizePercent(n);
@@ -86,7 +79,7 @@ async function initPorcentajeRadioChart() {
 				startAngle: -135,
 				endAngle: 135,
 				hollow: { margin: 0, size: '70%', background: 'transparent' },
-				track: { background: '#F3F4F6', strokeWidth: '100%', margin: 0 },
+				track: { background: '#0e2637', strokeWidth: '100%', margin: 0 },
 				dataLabels: {
 					show: true,
 					name: { show: false },
@@ -95,7 +88,7 @@ async function initPorcentajeRadioChart() {
 						fontSize: '22px',
 						fontWeight: 'bold',
 						offsetY: 5,
-						color: '#ffffff',
+						color: '#8c681d',
 						formatter: function (val: number) {
 							return val + '%';
 						},
@@ -124,7 +117,6 @@ async function initPorcentajeRadioChart() {
 	const chart = new ApexCharts(el, options);
 	await chart.render();
 
-	console.log('[porcentaje-radio] porcentaje final:', porcentaje);
 	chart.updateSeries([porcentaje], true);
 }
 

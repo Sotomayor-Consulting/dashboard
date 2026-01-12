@@ -10,7 +10,6 @@ const accessToken = cookies.get('sb-access-token');
 const refreshToken = cookies.get('sb-refresh-token');
 
 import ColorModeSwitcher from '../components/ColorModeSwitcher.astro';
-import SearchInput from '../components/SearchInput.astro';
 const { data } = await supabase.auth.setSession({
 	refresh_token: refreshToken.value,
 	access_token: accessToken.value,
@@ -76,7 +75,7 @@ export { notifications, totalUnread, user };
 ---
 
 <nav
-	class="fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-neutral-800 dark:border-gray-700"
+	class="fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-[#0E2637] dark:border-gray-700"
 >
 	<div class="px-3 py-3 lg:px-5 lg:pl-3">
 		<div class="flex items-center justify-between">
@@ -85,7 +84,7 @@ export { notifications, totalUnread, user };
 					id="toggleSidebarMobile"
 					aria-expanded="true"
 					aria-controls="sidebar"
-					class="p-2 text-gray-600 rounded cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-neutral-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-neutral-700 dark:hover:text-white"
+					class="p-2 text-gray-600 rounded cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-neutral-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-[#223848] dark:hover:text-white"
 				>
 					<svg
 						id="toggleSidebarMobileHamburger"
@@ -124,31 +123,9 @@ export { notifications, totalUnread, user };
 						alt="SotoMayor consulting Logo"
 					/>
 				</a>
-
-				<SearchInput />
 			</div>
 
 			<div class="flex items-center">
-				<!-- Search mobile -->
-				<button
-					id="toggleSidebarMobileSearch"
-					type="button"
-					class="p-2 text-gray-500 rounded-lg lg:hidden hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-neutral-700 dark:hover:text-white"
-				>
-					<span class="sr-only">Buscar</span>
-					<!-- Search icon -->
-					<svg
-						class="w-6 h-6"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							fill-rule="evenodd"
-							d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-							clip-rule="evenodd"></path></svg
-					>
-				</button>
-
 				<!-- Dropdown menu -->
 				<div
 					id="dropdownNavbar"
@@ -194,7 +171,7 @@ export { notifications, totalUnread, user };
 						type="button"
 						id="notifications-toggle"
 						data-dropdown-toggle="notification-dropdown"
-						class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-neutral-700 relative"
+						class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-[#223848] relative"
 					>
 						<span class="sr-only">View notifications</span>
 						<!-- Bell icon -->
@@ -234,7 +211,7 @@ export { notifications, totalUnread, user };
 								) : (
 									notifications.map((notification) => (
 										<div
-											class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-700/5 dark:border-gray-600"
+											class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-[#223848]/5 dark:border-gray-600"
 											data-id={notification.id}
 										>
 											<div class="flex-shrink-0">
@@ -459,7 +436,7 @@ export { notifications, totalUnread, user };
 
 		const itemHTML = (n) =>
 			`
-      <div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-700/5 dark:border-gray-600" data-id="${n.id}">
+      <div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-[#223848]/5 dark:border-gray-600" data-id="${n.id}">
         <div class="flex-shrink-0">
           <img class="rounded-full w-11 h-11" src="/src/assets/avatarSCI.png" alt="Avatar"/>
         </div>

@@ -1,8 +1,9 @@
 /* eslint-disable max-lines */
 
 import ApexCharts from 'apexcharts';
+import { supabase } from '../lib/supabase';
 
-async function fetchChartData(params: Record<string, string> = {}) {
+async function fetchOdooData(params: Record<string, string> = {}) {
 	const url = new URL('/api/charts/odooParners', window.location.origin);
 	Object.entries(params).forEach(([k, v]) =>
 		url.searchParams.set(k, String(v)),
@@ -10,71 +11,165 @@ async function fetchChartData(params: Record<string, string> = {}) {
 	const res = await fetch(url.toString(), { credentials: 'same-origin' });
 	const json = await res.json();
 	if (!res.ok)
-		throw new Error(json?.error || 'No se pudieron cargar los datos');
-	// Debe devolver { categories: string[], series: number[] }
+		throw new Error(json?.error || 'No se pudieron cargar los datos de Odoo');
 	return json as { categories: string[]; series: number[] };
 }
 
-const getMainChartOptions = (categories: string[], seriesData: number[]) => {
+async function fetchSupabaseData() {
+	// Obtener usuario actual de Supabase
+	const { data: { user } } = await supabase.auth.getUser();
+	
+	if (!user) throw new Error('Usuario no autenticado');
+
+	// Consultar referidos filtrando por partner_id y agrupando por fecha
+	const { data: referidos, error } = await supabase
+		.from('referidos')
+		.select('created_at, partner_id')
+		.eq('partner_id', user.id);
+
+	if (error) throw new Error(error.message);
+
+	// Agrupar por fecha y contar cantidad
+	const groupedByDate: Record<string, number> = referidos?.reduce((acc: Record<string, number>, item: any) => {
+		const date = new Date(item.created_at).toISOString().split('T')[0]; // YYYY-MM-DD
+		if (date) {
+			acc[date] = (acc[date] || 0) + 1;
+		}
+		return acc;
+	}, {} as Record<string, number>) || {};
+
+	// Convertir a arrays para el gráfico
+	const categories = Object.keys(groupedByDate).sort();
+	const series = Object.values(groupedByDate);
+
+	return { categories, series };
+}
+
+async function fetchChartData(params: Record<string, string> = {}) {
+	const [odooData, supabaseData] = await Promise.all([
+		fetchOdooData(params),
+		fetchSupabaseData()
+	]);
+
+	// Combinar fechas únicas de ambas fuentes
+	const allCategories = [...new Set([...odooData.categories, ...supabaseData.categories])].sort();
+	
+	// Opción 1: Datasets separados (actual)
+	/*const combinedSeries = [
+		{
+			name: 'Datos Odoo',
+			data: allCategories.map(cat => [
+				new Date(cat).getTime(), 
+				odooData.series[odooData.categories.indexOf(cat)] || 0
+			]),
+			color: '#1A56DB'
+		},
+		{
+			name: 'Datos Supabase', 
+			data: allCategories.map(cat => [
+				new Date(cat).getTime(),
+				supabaseData.series[supabaseData.categories.indexOf(cat)] || 0
+			]),
+			color: '#10B981'
+		}
+	];*/
+
+	// Opción 2: Combinados (comentado - descomentar para usar)
+	
+	const combinedSeries = [
+		{
+			name: 'Total Referidos',
+			data: allCategories.map(cat => {
+				const odooValue = odooData.series[odooData.categories.indexOf(cat)] || 0;
+				const supabaseValue = supabaseData.series[supabaseData.categories.indexOf(cat)] || 0;
+				return [new Date(cat).getTime(), odooValue + supabaseValue];
+			}),
+			color: '#0059FF'
+		}
+	];
+	
+
+	return { categories: allCategories, series: combinedSeries };
+}
+
+const getMainChartOptions = (seriesData: any[]) => {
 	let mainChartColors: any = {};
 	if (document.documentElement.classList.contains('dark')) {
 		mainChartColors = {
 			borderColor: '#374151',
 			labelColor: '#9CA3AF',
-			opacityFrom: 0,
-			opacityTo: 0.15,
 		};
 	} else {
 		mainChartColors = {
 			borderColor: '#F3F4F6',
 			labelColor: '#6B7280',
-			opacityFrom: 0.45,
-			opacityTo: 0,
 		};
 	}
 
 	return {
 		chart: {
 			height: 420,
-			type: 'area',
+			type: 'bar',
 			fontFamily: 'Inter, sans-serif',
 			foreColor: mainChartColors.labelColor,
 			toolbar: { show: false },
 		},
-		fill: {
-			type: 'gradient',
-			gradient: {
-				enabled: true,
-				opacityFrom: mainChartColors.opacityFrom,
-				opacityTo: mainChartColors.opacityTo,
+		plotOptions: {
+			bar: {
+				borderRadius: 4,
+				horizontal: false,
+				columnWidth: '70%',
+				dataLabels: {
+					position: 'top',
+				},
 			},
 		},
-		dataLabels: { enabled: false },
-		tooltip: { style: { fontSize: '14px', fontFamily: 'Inter, sans-serif' } },
+		dataLabels: {
+			enabled: true,
+			offsetY: -20,
+			style: {
+				fontSize: '12px',
+				colors: [mainChartColors.labelColor],
+			},
+			formatter: function (val: number) {
+				return val.toString();
+			},
+		},
+		tooltip: { 
+			style: { fontSize: '14px', fontFamily: 'Inter, sans-serif' },
+			x: {
+				format: 'dd MMM yyyy'
+			},
+			y: {
+				formatter: function (val: number) {
+					return `${val} referidos`;
+				},
+			},
+		},
 		grid: {
 			show: true,
 			borderColor: mainChartColors.borderColor,
 			strokeDashArray: 1,
 			padding: { left: 35, bottom: 15 },
 		},
-		series: [{ name: 'Referidos por día', data: seriesData, color: '#1A56DB' }],
-		markers: { size: 5, strokeColors: '#ffffff', hover: { sizeOffset: 3 } },
+		series: seriesData,
 		xaxis: {
-			categories,
+			type: 'datetime',
 			labels: {
 				style: {
 					colors: [mainChartColors.labelColor],
 					fontSize: '14px',
 					fontWeight: 500,
 				},
+				datetimeFormatter: {
+					year: 'yyyy',
+					month: 'MMM yyyy',
+					day: 'dd MMM',
+					hour: 'HH:mm'
+				}
 			},
 			axisBorder: { color: mainChartColors.borderColor },
 			axisTicks: { color: mainChartColors.borderColor },
-			crosshairs: {
-				show: true,
-				position: 'back',
-				stroke: { color: mainChartColors.borderColor, width: 1, dashArray: 10 },
-			},
 		},
 		yaxis: {
 			labels: {
@@ -85,6 +180,14 @@ const getMainChartOptions = (categories: string[], seriesData: number[]) => {
 				},
 				formatter(v: number) {
 					return `${v}`;
+				},
+			},
+			title: {
+				text: 'Cantidad de Referidos',
+				style: {
+					color: mainChartColors.labelColor,
+					fontSize: '14px',
+					fontWeight: 500,
 				},
 			},
 		},
@@ -111,19 +214,18 @@ async function initMainChart() {
 	el.innerHTML = '<div style="padding:1rem;color:#6B7280;">Cargando…</div>';
 
 	try {
-		const { categories, series } = await fetchChartData(); // { from, to } si quieres
-		const cats = categories?.length ? categories : ['Sin datos'];
-		const data = series?.length ? series : [0];
+		const { series } = await fetchChartData();
+		const data = series?.length ? series : [{ name: 'Sin datos', data: [[Date.now(), 0]], color: '#1A56DB' }];
 
 		// ¡LIMPIA el contenedor antes de renderizar!
 		el.innerHTML = '';
 
-		chart = new ApexCharts(el, getMainChartOptions(cats, data));
+		chart = new ApexCharts(el, getMainChartOptions(data));
 		await chart.render();
 
 		// re-theme sin reconstruir
 		document.addEventListener('dark-mode', () => {
-			if (chart) chart.updateOptions(getMainChartOptions(cats, data));
+			if (chart) chart.updateOptions(getMainChartOptions(data));
 		});
 	} catch (e) {
 		console.error(e);

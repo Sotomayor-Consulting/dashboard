@@ -1,5 +1,6 @@
 ---
-/* eslint max-lines: 'off' */
+import '../estilos/datatables.css';
+import { Icon } from 'astro-icon/components';
 
 const { id } = Astro.params; // ID dinámico de la URL
 const { redirect } = Astro;
@@ -8,7 +9,9 @@ const {
 	data: { user },
 	error: userErr,
 } = await supabase.auth.getUser();
-if (userErr || !user) return redirect('/sign-in');
+if (userErr || !user) {
+	return redirect('/sign-in');
+}
 
 import { supabase } from '../lib/supabase';
 
@@ -16,12 +19,54 @@ const { data: empresa, error: empresaError } = await supabase
 	.from('empresas_incorporaciones')
 	.select('*')
 	.eq('empresa_incorporacion_id', id)
-	.eq('user_id', user.id) // Seguridad: solo empresas del usuario
+	.eq('user_id', user.id)
 	.single();
 
 if (empresaError || !empresa) {
 	return redirect('/pages/empresas');
 }
+
+// Obtener estado de incorporación para el mapa
+let estadoMapa = null;
+if (empresa.estado_de_incorporacion) {
+	const { data: estadoData, error: estadoError } = await supabase
+		.from('estados')
+		.select('abreviatura, Estado')
+		.eq('Estado', empresa.estado_de_incorporacion)
+		.single();
+
+	if (!estadoError && estadoData) {
+		estadoMapa = estadoData.abreviatura;
+	}
+}
+
+const acciones = [
+	{
+		title: 'Documentos completados',
+		icono: 'ri:file-check-fill',
+		link: '/pages/tus-formularios',
+	},
+	{
+		title: 'Crea una nueva empresa',
+		icono: 'ri:building-2-fill',
+		link: '/start/',
+	},
+	{
+		title: 'Obtener una cita con nosotros',
+		icono: 'ri:calendar-fill',
+		link: 'https://zcal.co/t/agendar-asesoria-llc/60min',
+	},
+	{
+		title: 'Mira más de nuestros servicios',
+		icono: 'ri:apps-ai-fill',
+		link: '/pages/otros-servicios',
+	},
+	{
+		title: 'Conviértete en Partner',
+		icono: 'ri:shake-hands-fill',
+		link: '',
+	},
+];
 ---
 
 <div class="px-4 pt-6">
@@ -29,7 +74,7 @@ if (empresaError || !empresa) {
 		class="grid w-full grid-cols-1 gap-4 my-4 xl:grid-cols-2 2xl:grid-cols-3"
 	>
 		<div
-			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-neutral-700"
+			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-[#223848]"
 		>
 			<div class="w-full">
 				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
@@ -53,8 +98,6 @@ if (empresaError || !empresa) {
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
-						xmlns:data="ApexChartsNS"
-						xmlns:xhtml="http://www.w3.org/1999/xhtml"
 						id="SvgjsSvg1227"
 						width="239"
 						height="140"
@@ -340,10 +383,10 @@ if (empresaError || !empresa) {
 		</div>
 
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-neutral-700"
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#223848]"
 		>
 			<div
-				class="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm sm:flex sm:p-6 dark:bg-neutral-700"
+				class="flex items-center justify-between p-4 rounded-lg shadow-sm sm:flex sm:p-6"
 			>
 				<div class="w-full">
 					<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
@@ -495,7 +538,7 @@ if (empresaError || !empresa) {
 		</div>
 
 		<div
-			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-neutral-700"
+			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-[#223848]"
 		>
 			<div class="w-full">
 				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
@@ -515,10 +558,12 @@ if (empresaError || !empresa) {
 			</div>
 		</div>
 	</div>
-	<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+	<div
+		class="grid w-full grid-cols-1 gap-4 my-4 xl:grid-cols-2 2xl:grid-cols-3"
+	>
 		<!-- Main widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-neutral-700"
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#223848]"
 		>
 			<div class="flex items-center justify-between mb-4">
 				<div class="flex-shrink-0">
@@ -531,13 +576,26 @@ if (empresaError || !empresa) {
 					</h3>
 				</div>
 			</div>
-
-			<!-- NOTE: Charts could be extracted to a generic UI component -->
-			<div id="mapa-estados" class="h-96" data-empresa-id={id}></div>
+			<div id="datamap-container" class="w-full h-full relative">
+				<!-- Loader animado -->
+				<div
+					class="map-loader absolute inset-0 flex items-center justify-center rounded-lg"
+				>
+					<div class="text-center">
+						<div
+							class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#967432] mx-auto mb-4"
+						>
+						</div>
+						<div class="text-gray-600 dark:text-gray-300 text-sm font-medium">
+							Cargando mapa...
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 		<!--Tabs widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-neutral-700"
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#223848]"
 		>
 			<h3
 				class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white"
@@ -581,237 +639,55 @@ if (empresaError || !empresa) {
 			<div class="border-t border-gray-200 dark:border-gray-600">
 				<div class="pt-4">
 					<ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
-						<li class="py-3 sm:py-4">
-							<div class="flex items-center justify-between">
-								<div class="flex items-center min-w-0">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="w-10 h-10 text-white hover:scale-105"
-										viewBox="0 0 24 24"
-										><g fill="currentColor"
-											><path
-												d="m12 2l.117.007a1 1 0 0 1 .876.876L13 3v4l.005.15a2 2 0 0 0 1.838 1.844L15 9h4l.117.007a1 1 0 0 1 .876.876L20 10v9a3 3 0 0 1-2.824 2.995L17 22H7a3 3 0 0 1-2.995-2.824L4 19V5a3 3 0 0 1 2.824-2.995L7 2z"
-											></path><path d="M19 7h-4l-.001-4.001z"></path></g
-										></svg
-									>
-									<div class="ml-3">
-										<p
-											class="font-medium text-gray-900 truncate dark:text-white"
+						{
+							acciones.map((data) => (
+								<li class="py-3 sm:py-4">
+									<div class="flex items-center justify-between">
+										<div class="flex items-center min-w-0">
+											<Icon
+												name={data.icono}
+												class="w-10 h-10 text-white hover:scale-105"
+											/>
+											<div class="ml-3">
+												<p class="font-medium text-gray-900 truncate dark:text-white">
+													{data.title}
+												</p>
+											</div>
+										</div>
+										<a
+											target="_blank"
+											href={data.link}
+											class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 										>
-											Documentos completados
-										</p>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												class="w-3.5 h-3.5 me-2"
+												viewBox="0 0 16 16"
+											>
+												<>
+													<path
+														fill="currentColor"
+														d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
+													/>
+													<path
+														fill="currentColor"
+														d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
+													/>
+												</>
+											</svg>
+											ir
+										</a>
 									</div>
-								</div>
-								<a
-									target="_blank"
-									href="/pages/tus-formularios"
-									class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="w-3.5 h-3.5 me-2"
-										viewBox="0 0 16 16"
-										><path
-											fill="currentColor"
-											d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
-										></path><path
-											fill="currentColor"
-											d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
-										></path></svg
-									>
-									ir
-								</a>
-							</div>
-						</li>
-						<li class="py-3 sm:py-4">
-							<div class="flex items-center justify-between">
-								<div class="flex items-center min-w-0">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="w-10 h-10 text-white hover:scale-105"
-										viewBox="0 0 48 48"
-										><g
-											fill="none"
-											stroke="currentColor"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="4"
-											><path d="m21 13l-10 7v24"></path><path
-												fill="currentColor"
-												fill-rule="evenodd"
-												d="m21 4l10 7v13l7 5v15H21z"
-												clip-rule="evenodd"></path><path d="M4 44h40"></path></g
-										></svg
-									>
-									<div class="ml-3">
-										<p
-											class="font-medium text-gray-900 truncate dark:text-white"
-										>
-											Crea una nueva empresa
-										</p>
-									</div>
-								</div>
-								<a
-									target="_blank"
-									href="/start/"
-									class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="w-3.5 h-3.5 me-2"
-										viewBox="0 0 16 16"
-										><path
-											fill="currentColor"
-											d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
-										></path><path
-											fill="currentColor"
-											d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
-										></path></svg
-									>
-									ir
-								</a>
-							</div>
-						</li>
-
-						<li class="py-3 sm:py-4">
-							<div class="flex items-center justify-between">
-								<div class="flex items-center min-w-0">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="w-10 h-10 text-white hover:scale-105"
-										viewBox="0 0 24 24"
-										><g fill="none"
-											><g clip-path="url(#SVGXv8lpc2Y)"
-												><path
-													fill="currentColor"
-													fill-rule="evenodd"
-													d="M24 12c0 6.627-5.373 12-12 12S0 18.627 0 12S5.373 0 12 0s12 5.373 12 12M6 16.2h9V9.6a1.8 1.8 0 0 0-1.8-1.8h-9v6.6A1.8 1.8 0 0 0 6 16.2m10.2-2.4l3.6 2.4V7.8l-3.6 2.4z"
-													clip-rule="evenodd"></path></g
-											><defs
-												><clipPath id="SVGXv8lpc2Y"
-													><path fill="#fff" d="M0 0h24v24H0z"></path></clipPath
-												></defs
-											></g
-										></svg
-									>
-									<div class="ml-3">
-										<p
-											class="font-medium text-gray-900 truncate dark:text-white"
-										>
-											Obtener una cita con nosotros
-										</p>
-									</div>
-								</div>
-								<a
-									target="_blank"
-									href="/start/"
-									class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="w-3.5 h-3.5 me-2"
-										viewBox="0 0 16 16"
-										><path
-											fill="currentColor"
-											d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
-										></path><path
-											fill="currentColor"
-											d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
-										></path></svg
-									>
-									ir
-								</a>
-							</div>
-						</li>
-						<li class="py-3 sm:py-4">
-							<div class="flex items-center justify-between">
-								<div class="flex items-center min-w-0">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="w-10 h-10 text-white hover:scale-105"
-										viewBox="0 0 24 24"
-										><path
-											fill="currentColor"
-											d="M19 9q-1.425 0-2.475-.85T15.125 6H8.85q-.275 1.05-1.037 1.813T6 8.85v6.275q1.3.35 2.15 1.4T9 19q0 1.65-1.175 2.825T5 23t-2.825-1.175T1 19q0-1.425.85-2.475t2.15-1.4V8.85q-1.3-.35-2.15-1.4T1 5q0-1.65 1.175-2.825T5 1q1.4 0 2.45.85T8.85 4h6.275q.35-1.3 1.4-2.15T19 1q1.65 0 2.825 1.175T23 5t-1.175 2.825T19 9m0 14q-1.65 0-2.825-1.175T15 19t1.175-2.825T19 15t2.825 1.175T23 19t-1.175 2.825T19 23"
-										></path></svg
-									>
-									<div class="ml-3">
-										<p
-											class="font-medium text-gray-900 truncate dark:text-white"
-										>
-											Mira más de nuestros servicios
-										</p>
-									</div>
-								</div>
-								<a
-									target="_blank"
-									href="/start/"
-									class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="w-3.5 h-3.5 me-2"
-										viewBox="0 0 16 16"
-										><path
-											fill="currentColor"
-											d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
-										></path><path
-											fill="currentColor"
-											d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
-										></path></svg
-									>
-									ir
-								</a>
-							</div>
-						</li>
-						<li class="py-3 sm:py-4">
-							<div class="flex items-center justify-between">
-								<div class="flex items-center min-w-0">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="w-10 h-10 text-white hover:scale-105"
-										viewBox="0 0 640 512"
-										><path
-											fill="currentColor"
-											d="M488 192H336v56c0 39.7-32.3 72-72 72s-72-32.3-72-72V126.4l-64.9 39C107.8 176.9 96 197.8 96 220.2v47.3l-80 46.2C.7 322.5-4.6 342.1 4.3 357.4l80 138.6c8.8 15.3 28.4 20.5 43.7 11.7L231.4 448H368c35.3 0 64-28.7 64-64h16c17.7 0 32-14.3 32-32v-64h8c13.3 0 24-10.7 24-24v-48c0-13.3-10.7-24-24-24m147.7-37.4L555.7 16C546.9.7 527.3-4.5 512 4.3L408.6 64H306.4c-12 0-23.7 3.4-33.9 9.7L239 94.6c-9.4 5.8-15 16.1-15 27.1V248c0 22.1 17.9 40 40 40s40-17.9 40-40v-88h184c30.9 0 56 25.1 56 56v28.5l80-46.2c15.3-8.9 20.5-28.4 11.7-43.7"
-										></path></svg
-									>
-									<div class="ml-3">
-										<p
-											class="font-medium text-gray-900 truncate dark:text-white"
-										>
-											Conviertete en Partner
-										</p>
-									</div>
-								</div>
-								<a
-									target="_blank"
-									href="/start/"
-									class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										class="w-3.5 h-3.5 me-2"
-										viewBox="0 0 16 16"
-										><path
-											fill="currentColor"
-											d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
-										></path><path
-											fill="currentColor"
-											d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
-										></path></svg
-									>
-									ir
-								</a>
-							</div>
-						</li>
+								</li>
+							))
+						}
 					</ul>
 				</div>
 			</div>
 		</div>
 	</div>
 	<div
-		class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-neutral-700 my-4"
+		class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#223848] my-4"
 	>
 		<!-- Card header -->
 		<div class="items-center justify-between lg:flex">
@@ -831,39 +707,26 @@ if (empresaError || !empresa) {
 					<div class="overflow-hidden shadow sm:rounded-lg">
 						<table
 							class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
+							id="myTable"
 						>
 							<thead class="bg-gray-50 dark:bg-neutral-700">
 								<tr>
-									<th
-										scope="col"
-										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
-									>
-										Nombre del documento
-									</th>
-									<th
-										scope="col"
-										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
-									>
-										Fecha
-									</th>
-									<th
-										scope="col"
-										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
-									>
-										estado del documento
-									</th>
-									<th
-										scope="col"
-										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
-									>
-										Ver documento
-									</th>
-									<th
-										scope="col"
-										class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
-									>
-										Descargar
-									</th>
+									{
+										[
+											'Nombre del documento',
+											'Fecha',
+											'estado del documento',
+											'Ver documento',
+											'Descargar',
+										].map((th) => (
+											<th
+												scope="col"
+												class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
+											>
+												{th}
+											</th>
+										))
+									}
 								</tr>
 							</thead>
 							<tbody class="bg-white dark:bg-neutral-700">
@@ -880,7 +743,7 @@ if (empresaError || !empresa) {
 									</td>
 									<td class="p-4 whitespace-nowrap">
 										<span
-											class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:bg-neutral-700 dark:text-green-400 border border-green-100 dark:border-green-500 mx-auto"
+											class="text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:text-green-400 border border-green-100 dark:border-green-500 mx-auto"
 											>Completado</span
 										>
 									</td>
@@ -934,140 +797,11 @@ if (empresaError || !empresa) {
 				</div>
 			</div>
 		</div>
-		<!-- Card Footer -->
-		<div class="flex items-center justify-between pt-3 sm:pt-6">
-			<div>
-				<button
-					class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-					type="button"
-					data-dropdown-toggle="transactions-dropdown"
-					>Last 7 days <svg
-						class="w-4 h-4 ml-2"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M19 9l-7 7-7-7"></path></svg
-					></button
-				>
-				<!-- Dropdown menu -->
-				<div
-					class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-neutral-700 dark:divide-gray-600"
-					id="transactions-dropdown"
-				>
-					<div class="px-4 py-3" role="none">
-						<p
-							class="text-sm font-medium text-gray-900 truncate dark:text-white"
-							role="none"
-						>
-							Sep 16, 2021 - Sep 22, 2021
-						</p>
-					</div>
-					<ul class="py-1" role="none">
-						<li>
-							<a
-								href="#"
-								class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-								role="menuitem">Yesterday</a
-							>
-						</li>
-						<li>
-							<a
-								href="#"
-								class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-								role="menuitem">Today</a
-							>
-						</li>
-						<li>
-							<a
-								href="#"
-								class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-								role="menuitem">Last 7 days</a
-							>
-						</li>
-						<li>
-							<a
-								href="#"
-								class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-								role="menuitem">Last 30 days</a
-							>
-						</li>
-						<li>
-							<a
-								href="#"
-								class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-								role="menuitem">Last 90 days</a
-							>
-						</li>
-					</ul>
-					<div class="py-1" role="none">
-						<a
-							href="#"
-							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-							role="menuitem">Custom...</a
-						>
-					</div>
-				</div>
-			</div>
-			<div class="flex-shrink-0">
-				<a
-					href="#"
-					class="inline-flex items-center p-2 text-xs font-medium uppercase rounded-lg text-[#8c681d] sm:text-sm hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-neutral-700"
-				>
-					Transactions Report
-					<svg
-						class="w-4 h-4 ml-1 sm:w-5 sm:h-5"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M9 5l7 7-7 7"></path></svg
-					>
-				</a>
-			</div>
-		</div>
 	</div>
 </div>
 
 <script>
 	import './DashBoardEmpresas.client.js';
-</script>
-
-<script>
-	import { renderizarMapaEstados } from '../pages/api/charts/mapa-empresas.client.ts';
-
-	document.addEventListener('DOMContentLoaded', function () {
-		setTimeout(() => {
-			const container = document.getElementById('mapa-estados');
-			if (container) {
-				// La variable 'id' debe estar disponible en este script.
-				// La forma más limpia en Astro es usar `data-` attributes.
-				const empresaId = container.dataset.empresaId;
-
-				console.log('Inicializando mapa para empresa ID:', empresaId);
-
-				// Uso directo de la función exportada:
-				renderizarMapaEstados('mapa-estados', '#967432', empresaId).catch(
-					(error) => {
-						console.error('Error al renderizar el mapa:', error);
-						container.innerHTML = `
-              <div style="color:red; text-align:center; padding:2rem;">
-                Error cargando el mapa: ${error.message}
-              </div>
-            `;
-					},
-				);
-			}
-		}, 100);
-	});
 </script>
 
 <style>
@@ -1114,3 +848,146 @@ if (empresaError || !empresa) {
 		@apply border-0 !important;
 	}
 </style>
+<script type="module">
+	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+
+	function initDT() {
+		const el = document.querySelector('#myTable');
+		if (!el) return;
+		if (el.dataset.dtInit === '1') return;
+
+		const dt = new DataTable(el, {
+			searchable: true,
+			perPage: 25,
+			perPageSelect: [5, 10, 25, 50],
+
+			// Textos en español
+			labels: {
+				placeholder: 'Buscar...',
+				perPage: 'Filas',
+				noRows: 'No hay documentos de tu empresa',
+				noResults: 'No se encontraron resultados',
+				info: 'Mostrando {start} a {end} de {rows} registros',
+			},
+
+			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			layout: {
+				top: '{select}{search}',
+				bottom: '{info}{pager}',
+			},
+		});
+
+		el.dataset.dtInit = '1';
+		el.dataset.dtInstance = '1';
+	}
+
+	initDT();
+	document.addEventListener('astro:page-load', initDT);
+</script>
+<!-- DataMaps dependencies -->
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"
+	is:inline></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"
+	is:inline></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.9/datamaps.usa.min.js"
+	is:inline></script>
+
+<script define:vars={{ estadoMapa }} is:inline>
+	document.addEventListener('DOMContentLoaded', function () {
+		setTimeout(function () {
+			try {
+				// Verificar que Datamap esté disponible
+				if (typeof Datamap === 'undefined') {
+					throw new Error(
+						'Datamap no está definido. Verifica que se cargaron las dependencias.',
+					);
+				}
+
+				// Obtener contenedor
+				const container = document.getElementById('datamap-container');
+				const loader = container.querySelector('.map-loader');
+
+				var map = new Datamap({
+					element: document.getElementById('datamap-container'),
+					responsive: true,
+					scope: 'usa',
+
+					geographyConfig: {
+						borderColor: '#b8860b',
+						highlightBorderColor: '#967432',
+						highlightBorderWidth: 2,
+						highlightFillColor: '#967432',
+						popupTemplate: function (geography, data) {
+							// Si es el estado de la empresa, mostrar mensaje personalizado
+							if (geography.id === estadoMapa) {
+								return (
+									'<div class="hoverinfo">' +
+									geography.properties.name +
+									': El estado de tu empresa</div>'
+								);
+							}
+							// Para otros estados, mostrar nombre normal
+							return (
+								'<div class="hoverinfo">' + geography.properties.name + '</div>'
+							);
+						},
+					},
+
+					fills: {
+						defaultFill: 'transparent',
+						highlightFill: '#967432',
+						activeFill: '#b8860b',
+					},
+					data: {
+						// Estado de incorporación desde Supabase
+						...(estadoMapa && { [estadoMapa]: { fillKey: 'activeFill' } }),
+					},
+				});
+
+				// Animación de entrada y ocultar loader
+				if (loader) {
+					setTimeout(() => {
+						loader.style.transition = 'opacity 0.3s ease-out';
+						loader.style.opacity = '0';
+						setTimeout(() => {
+							loader.style.display = 'none';
+						}, 300);
+					}, 100);
+
+					// Animar el mapa
+					const svgElement = container.querySelector('svg');
+					if (svgElement) {
+						svgElement.style.opacity = '0';
+						svgElement.style.transform = 'scale(0.95)';
+						svgElement.style.transition = 'all 0.5s ease-out';
+
+						setTimeout(() => {
+							svgElement.style.opacity = '1';
+							svgElement.style.transform = 'scale(1)';
+						}, 150);
+					}
+				}
+
+				// No mostrar labels para un look más limpio
+				// map.labels();
+
+				// Manejo responsive
+				window.addEventListener('resize', function () {
+					map.resize();
+				});
+			} catch (error) {
+				console.error('Error al inicializar DataMaps:', error);
+				const container = document.getElementById('datamap-container');
+				if (container) {
+					container.innerHTML =
+						'<div style="display:flex;align-items:center;justify-content:center;height:400px;color:#666;flex-direction:column;"><div style="margin-bottom:10px;">Error: ' +
+						error.message +
+						'</div><div style="font-size:12px;">Verificá que las dependencias se cargaron correctamente</div></div>';
+				}
+			}
+		}, 1500);
+	});
+</script>

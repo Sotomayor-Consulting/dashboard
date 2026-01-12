@@ -131,7 +131,7 @@ html.dark .datatable-dropdown label {
 
 /* Input en dark */
 html.dark .datatable-input {
-	background-color: #1f3443;
+	background-color: #1c1c1c;
 	border-color: rgb(75 85 99);
 	color: rgb(255 255 255);
 }
@@ -174,7 +174,7 @@ html.dark .datatable-info {
 }
 
 html.dark .datatable-selector {
-	background-color: #1f3443;
+	background-color: #1c1c1c;
 	border-color: rgb(75 85 99);
 	color: rgb(255 255 255);
 }
@@ -189,14 +189,14 @@ html.dark .datatable-selector:focus {
 }
 
 thead {
-	background: #f3f4f6;
+	background: #bebebe;
 	font-size: 0.75rem;
 	line-height: 1rem;
 	border-radius: 0.5rem;
 }
 
 html.dark thead {
-	background: #1b2e3c;
+	background: #262626;
 }
 
 .datatable-pagination .datatable-active a,
@@ -227,7 +227,4 @@ html.dark .datatable-pagination .datatable-active button:hover {
 html.dark .datatable-empty {
 	color: white;
 
-}
-.datatable-sorter{
-	text-transform: uppercase;
 }
