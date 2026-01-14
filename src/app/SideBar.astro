@@ -49,7 +49,7 @@ if (user) {
 	aria-label="Sidebar"
 >
 	<div
-		class="relative flex flex-col flex-1 min-h-0 pt-0 bg-white border-r border-gray-200 dark:bg-[#0E2637] dark:border-gray-700"
+		class="relative flex flex-col flex-1 min-h-0 pt-0 bg-neutral-200 border-r border-neutral-300 dark:bg-[#0E2637] dark:border-gray-700"
 	>
 		<div
 			class:list={[
@@ -60,7 +60,7 @@ if (user) {
 			]}
 		>
 			<div
-				class="flex-1 px-3 space-y-1 bg-white divide-y divide-gray-200 dark:bg-[#0E2637] dark:divide-gray-700"
+				class="flex-1 px-3 space-y-1 bg-neutral-200 divide-y divide-gray-200 dark:bg-[#0E2637] dark:divide-gray-700"
 			>
 				<ul class="pb-2 space-y-2">
 					<li>
@@ -177,7 +177,7 @@ if (user) {
 										<svg
 											width="1em"
 											height="1em"
-											class="text-5xl"
+											class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
 											data-icon="ri:calendar-fill"
 										>
 											{' '}
@@ -479,14 +479,14 @@ if (user) {
 			</div>
 		</div>
 		<div
-			class="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-white lg:flex dark:bg-[#0E2637]"
+			class="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-neutral-200 lg:flex dark:bg-[#0E2637]"
 			sidebar-bottom-menu
 		>
 			<form action="/api/auth/signout">
 				<button
 					type="submit"
 					data-tooltip-target="tooltip-cerrar"
-					class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-[#223848] dark:hover:text-red-600"
+					class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-red-600 hover:bg-gray-100 dark:hover:bg-[#223848] dark:hover:text-red-600"
 					role="menuitem"
 					><svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -502,7 +502,7 @@ if (user) {
 			<div
 				id="tooltip-cerrar"
 				role="tooltip"
-				class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-neutral-700"
+				class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-neutral-500 rounded-lg shadow-sm opacity-0 tooltip dark:bg-neutral-700"
 			>
 				Cerrar sesión
 				<div class="tooltip-arrow" data-popper-arrow></div>
@@ -527,16 +527,16 @@ if (user) {
 			<div
 				id="tooltip-settings"
 				role="tooltip"
-				class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-neutral-700"
+				class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-neutral-500 rounded-lg shadow-sm opacity-0 tooltip dark:bg-neutral-700"
 			>
-				Settings page
+				Configuracion 
 				<div class="tooltip-arrow" data-popper-arrow></div>
 			</div>
-
+			<!--Lenguaje selector-->
 			<button
 				type="button"
 				data-dropdown-toggle="language-dropdown"
-				class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-[#223848] dark:hover:text-white"
+				class=" justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-[#223848] dark:hover:text-white hidden"
 			>
 				<svg
 					class="h-5 w-5 rounded-full mt-0.5"
@@ -568,7 +568,7 @@ if (user) {
 			</button>
 			<!-- Dropdown -->
 			<div
-				class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-neutral-700"
+				class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-neutral-700 "
 				id="language-dropdown"
 			>
 				<ul class="py-1" role="none">

@@ -1,7 +1,7 @@
 ---
 import WhatsappBtn from '../components/WhatsappBtn.astro';
 import { supabase } from '../lib/supabase';
-import Alerta from '../components/alertageneral.astro'
+import Alerta from '../components/alertageneral.astro';
 
 // Verificar autenticación con Supabase
 const { cookies } = Astro;
@@ -30,7 +30,25 @@ if (accessToken && refreshToken) {
 
 const { data: estados } = await supabase.from('estados').select('Estado');
 
+const datosName = [
+	{
+		nombre: 'Nombre de tu empresa - (opcion #1)',
+		id: 'nombre-empresa-1',
+		name: 'nombre_1',
+	},
+	{
+		nombre: 'Nombre de tu empresa - (opcion #2)',
+		id: 'nombre-empresa-2',
+		name: 'nombre_2',
+	},
+	{
+		nombre: 'Nombre de tu empresa - (opcion #3)',
+		id: 'nombre-empresa-3',
+		name: 'nombre_3',
+	},
+];
 ---
+
 <Alerta />
 
 <WhatsappBtn />
@@ -42,7 +60,7 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 >
 	<div class="relative p-4 w-full max-w-screen-lg">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow-sm dark:bg-neutral-800">
+		<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#0e2637]">
 			<!-- Modal header -->
 			<div
 				class="flex items-center justify-between p-4 md:p-5 rounded-t dark:border-gray-600"
@@ -74,19 +92,21 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 				class="p-4 md:p-5 space-y-4 text-center flex-col justify-center items-center"
 			>
 				<h3
-					class="text-3xl font-semibold text-gray-900 dark:text-white text-center md:w-3/5 w-4/5 mx-auto mb-10"
+					class="text-3xl font-semibold text-neutral-900 dark:text-white text-center md:w-3/5 w-4/5 mx-auto mb-10"
 				>
 					Encuentre el tipo de entidad adecuado para su negocio
 				</h3>
 				<p
-					class="text-lg leading-relaxed text-gray-500 dark:text-gray-400 md:w-3/5 w-4/5 mx-auto my-10 text-justify"
+					class="text-lg leading-relaxed text-neutral-500 dark:text-gray-400 md:w-3/5 w-4/5 mx-auto my-10 text-justify"
 				>
 					La elección de tu entidad legal es el primer gran paso. Evita riesgos
 					fiscales y legales. Nuestros consultores te brindan una asesoría
 					gratuita para identificar la mejor opción para tu negocio, asegurando
 					un crecimiento sólido y protegido en EE. UU.
 				</p>
-				<div class="flex justify-center w-full h-full text-white mt-10">
+				<div
+					class="flex justify-center w-full h-full dark:text-white text-neutral-500 mt-10"
+				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width="100"
@@ -107,12 +127,20 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 			</div>
 			<!-- Modal footer -->
 			<div
-				class="flex items-center p-4 md:p-5 rounded-b dark:border-gray-600 justify-center"
+				class="flex items-center p-4 md:p-5 rounded-b dark:border-gray-600 justify-center gap-2 lg:flex-row flex-col"
 			>
 				<a
 					type="button"
-					href=""
-					class="text-white focus:ring-4 focus:outline-none focus:ring-neutral-500 font-medium rounded-lg text-base px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-neutral-500 w-3/5"
+					target="_blank"
+					href="https://sotomayorconsulting.com/diagnostico-llc/"
+					class="text-white focus:ring-4 focus:outline-none font-medium rounded-lg lg:text-base text-sm px-5 py-2.5 text-center bg-[#967432] hover:bg-[#8c681d] focus:ring-neutral-500 lg:w-2/5 w-full"
+					>Realiza un Diagnostico breve</a
+				>
+				<a
+					type="button"
+					target="_blank"
+					href="https://zcal.co/t/agendar-asesoria-llc/60min"
+					class="text-white focus:ring-4 focus:outline-none font-medium rounded-lg lg:text-base text-sm px-5 py-2.5 text-center bg-[#967432] hover:bg-[#8c681d] focus:ring-neutral-500 lg:w-2/5 w-full"
 					>Agendar una cita</a
 				>
 			</div>
@@ -167,7 +195,7 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 						<div class="flex items-start rounded-md justify-center flex-col">
 							<h6
 								id="steph6-1"
-								class="text-base font-semibold text-white mb-0.5"
+								class="text-base font-semibold dark:text-white text-neutral-700 mb-0.5"
 							>
 								Tipo de empresa
 							</h6>
@@ -332,14 +360,16 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 		</ol>
 	</div>
 	<div
-		class="rounded-lg w-full flex justify-center flex-col items-center m-auto h-full drop-shadow-xl place-self-center test bg-center bg-cover bg-[#0e2637] bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-20 backdrop-saturate-100 backdrop-contrast-100 py-20 md:mr-5 z-20"
+		class="rounded-lg w-full flex justify-center flex-col items-center m-auto h-full drop-shadow-xl place-self-center test bg-center bg-cover dark:bg-[#0e2637] bg-neutral-500 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-20 backdrop-saturate-100 backdrop-contrast-100 py-20 md:mr-5 z-20"
 	>
 		<form id="business-form" class="w-full">
 			<input type="hidden" name="estado_de" value="En proceso" />
 			<div id="paso1">
 				<div class="text-center pb-10">
-					<h3 class="text-white text-3xl">Estructura de la empresa</h3>
-					<p class="text-gray-400">
+					<h3 class="dark:text-white text-neutral-800 text-3xl">
+						Estructura de la empresa
+					</h3>
+					<p class="dark:text-gray-400 text-neutral-700">
 						Elija el tipo de entidad adecuada para su negocio.
 					</p>
 				</div>
@@ -356,7 +386,7 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 						/>
 						<label
 							for="LLC_radio_btn"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer hover:text-white border-gray-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] text-gray-400 bg-[#05121d] hover:bg-[#0e2637] peer-checked:bg-[#0e2637]"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-[#05121d] dark:hover:bg-[#0e2637] dark:peer-checked:bg-[#0e2637] peer-checked:bg-neutral-200"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">LLC</div>
@@ -391,7 +421,7 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 						/>
 						<label
 							for="C_coorp_btn_radio"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer hover:text-white border-gray-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] text-gray-400 bg-[#05121d] hover:bg-[#0e2637] peer-checked:bg-[#0e2637]"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-[#05121d] dark:hover:bg-[#0e2637] dark:peer-checked:bg-[#0e2637] peer-checked:bg-neutral-200"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">C-corporation</div>
@@ -419,7 +449,7 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 						<button
 							id="openBtnxd"
 							type="button"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer hover:text-white border-gray-700 focus:text-[#8c681d] focus:border-[#8c681d] text-gray-400 bg-[#05121d] hover:bg-[#05121d] focus:bg-[#0e2637] text-left"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 focus:text-[#8c681d] focus:border-[#8c681d] dark:text-gray-400 dark:bg-[#05121d] bg-neutral-400 dark:hover:bg-[#05121d] dark:focus:bg-[#0e2637] text-left text-neutral-500"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">Ayúdame a elegir</div>
@@ -459,7 +489,7 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 					<button
 						type="button"
 						id="atrasBtn"
-						class="text-neutral-500 focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium text-center flex items-center absolute left-5 bottom-10"
+						class="text-neutral-500 font-medium text-center flex items-center absolute left-5 bottom-10"
 						><span
 							><svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -475,18 +505,20 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 					>
 				</div>
 				<div class="text-center pb-5">
-					<h3 class="text-white text-3xl">Elija el estado de registro</h3>
-					<p class="text-gray-400">Estados populares</p>
+					<h3 class="dark:text-white text-neutral-800 text-3xl">
+						Elija el estado de registro
+					</h3>
+					<p class="dark:text-gray-400 text-neutral-700">Estados populares</p>
 					<ol class="mt-3 flex justify-center">
 						<li>
 							<span
-								class="bg-yellow-100 text-white text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-[#967432] dark:text-white"
+								class="bg-[#967432] text-white text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-[#967432] dark:text-white"
 								>Delaware</span
 							>
 						</li>
 						<li>
 							<span
-								class="bg-yellow-100 text-white text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-[#967432] dark:text-white"
+								class="bg-[#967432] text-white text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-[#967432] dark:text-white"
 								>Wyoming</span
 							>
 						</li>
@@ -498,7 +530,7 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 							<select
 								id="estados"
 								name="estado_de_empresa"
-								class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer hover:text-white border-[#967432] peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] text-gray-400 bg-[#05121d] hover:bg-[#0e2637] peer-checked:bg-[#05121d] focus:ring-[#967432]"
+								class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-800 border-[#967432] peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-700 dark:bg-[#05121d] bg-neutral-200 dark:hover:bg-[#0e2637] hover:bg-neutral-300 dark:peer-checked:bg-[#05121d] peer-checked:bg-neutral-700 focus:ring-[#967432]"
 								required
 							>
 								{
@@ -529,7 +561,7 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 					<button
 						type="button"
 						id="atrasBtn4"
-						class="text-neutral-500 focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium text-center flex items-center absolute left-5 bottom-10"
+						class="text-neutral-500 font-medium text-center flex items-center absolute left-5 bottom-10"
 						><span
 							><svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -545,126 +577,60 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 					>
 				</div>
 				<div class="text-center pb-10">
-					<h3 class="text-white text-3xl">Escoge el nombre de tu empresa</h3>
-					<p class="text-gray-400">
+					<h3 class="dark:text-white text-neutral-800 text-3xl">
+						Escoge el nombre de tu empresa
+					</h3>
+					<p class="dark:text-gray-400 text-neutral-700">
 						Elije los nombres que mas se adapten a tu empresa
 					</p>
 				</div>
 				<ul class="flex w-full gap-2 place-items-center flex-col px-10">
-					<li class="m-2 w-full md:w-3/5 h-full">
-						<label
-							for="nombre-empresa-1"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
-							>Nombre de tu empresa - (opcion #1)</label
-						>
-						<div class="flex">
-							<span
-								class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border rounded-e-0 border-gray-300 border-e-0 rounded-s-md dark:bg-[#8c681d] dark:text-gray-400 dark:border-gray-600"
-							>
-								<svg
-									class="w-4 h-4 text-white dark:text-white"
-									viewBox="0 0 48 48"
-									><g
-										fill="none"
-										stroke="currentColor"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="4"
-										><path
-											fill="currentColor"
-											fill-rule="evenodd"
-											d="M11 14L25 4v40H11z"
-											clip-rule="evenodd"></path><path
-											d="m25 13l14 10v21M4 44h40"></path></g
-									></svg
+					{
+						datosName.map((name) => (
+							<li class="m-2 w-full md:w-3/5 h-full">
+								<label
+									for={name.id}
+									class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
 								>
-							</span>
-							<input
-								type="text"
-								id="nombre-empresa-1"
-								name="nombre_1"
-								class="rounded-none rounded-e-lg border focus:ring-[#8c681d] focus:border-[#8c681d] min-w-10 w-full text-sm p-2.5 bg-[#0e2637] border-[#8c681d] placeholder-gray-500 text-white"
-								placeholder="Sotomayor Consulting"
-								required
-							/>
-						</div>
-					</li>
-					<li class="m-2 w-full md:w-3/5 h-full">
-						<label
-							for="nombre-empresa-2"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
-							>Nombre de tu empresa - (opcion #2)</label
-						>
-						<div class="flex">
-							<span
-								class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border rounded-e-0 border-gray-300 border-e-0 rounded-s-md dark:bg-[#8c681d] dark:text-gray-400 dark:border-gray-600"
-							>
-								<svg
-									class="w-4 h-4 text-white dark:text-white"
-									viewBox="0 0 48 48"
-									><g
-										fill="none"
-										stroke="currentColor"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="4"
-										><path
-											fill="currentColor"
-											fill-rule="evenodd"
-											d="M11 14L25 4v40H11z"
-											clip-rule="evenodd"></path><path
-											d="m25 13l14 10v21M4 44h40"></path></g
-									></svg
-								>
-							</span>
-							<input
-								type="text"
-								id="nombre-empresa-2"
-								name="nombre_2"
-								class="rounded-none rounded-e-lg border focus:ring-[#8c681d] focus:border-[#8c681d] min-w-10 w-full text-sm p-2.5 bg-[#0e2637] border-[#8c681d] placeholder-gray-500 text-white"
-								placeholder="Sotomayor Consulting Internacional"
-								required
-							/>
-						</div>
-					</li>
-					<li class="m-2 w-full md:w-3/5 h-full">
-						<label
-							for="nombre-empresa-3"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
-							>Nombre de tu empresa - (opcion #3)</label
-						>
-						<div class="flex">
-							<span
-								class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border rounded-e-0 border-gray-300 border-e-0 rounded-s-md dark:bg-[#8c681d] dark:text-gray-400 dark:border-gray-600"
-							>
-								<svg
-									class="w-4 h-4 text-white dark:text-white"
-									viewBox="0 0 48 48"
-									><g
-										fill="none"
-										stroke="currentColor"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="4"
-										><path
-											fill="currentColor"
-											fill-rule="evenodd"
-											d="M11 14L25 4v40H11z"
-											clip-rule="evenodd"></path><path
-											d="m25 13l14 10v21M4 44h40"></path></g
-									></svg
-								>
-							</span>
-							<input
-								type="text"
-								id="nombre-empresa-3"
-								name="nombre_3"
-								class="rounded-none rounded-e-lg border focus:ring-[#8c681d] focus:border-[#8c681d] min-w-10 w-full text-sm p-2.5 bg-[#0e2637] border-[#8c681d] placeholder-gray-500 text-white"
-								placeholder="Sotomayor"
-								required
-							/>
-						</div>
-					</li>
+									{name.nombre}
+								</label>
+								<div class="flex">
+									<span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border rounded-e-0 border-gray-300 border-e-0 rounded-s-md dark:bg-[#8c681d] dark:text-gray-400 dark:border-gray-600">
+										<svg
+											class="w-4 h-4 text-neutral-700 dark:text-white"
+											viewBox="0 0 48 48"
+										>
+											<g
+												fill="none"
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="4"
+											>
+												<>
+													<path
+														fill="currentColor"
+														fill-rule="evenodd"
+														d="M11 14L25 4v40H11z"
+														clip-rule="evenodd"
+													/>
+													<path d="m25 13l14 10v21M4 44h40" />
+												</>
+											</g>
+										</svg>
+									</span>
+									<input
+										type="text"
+										id={name.id}
+										name={name.name}
+										class="rounded-none rounded-e-lg border focus:ring-[#8c681d] focus:border-[#8c681d] min-w-10 w-full text-sm p-2.5 dark:bg-[#0e2637] bg-neutral-200 dark:border-[#8c681d] border-neutral-500/10 placeholder-gray-500 dark:text-white text-neutral-900"
+										placeholder="Sotomayor Consulting"
+										required
+									/>
+								</div>
+							</li>
+						))
+					}
 				</ul>
 				<div class="w-full flex justify-center mt-8">
 					<button
@@ -680,7 +646,7 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 					<button
 						type="button"
 						id="atrasBtn2"
-						class="text-neutral-500 focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium text-center flex items-center absolute left-5 bottom-10"
+						class="text-neutral-500 font-medium text-center flex items-center absolute left-5 bottom-10"
 						><span
 							><svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -696,9 +662,9 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 					>
 				</div>
 				<div class="text-center pb-5">
-					<h3 class="text-white text-3xl">Revisar e iniciar sesion</h3>
-					<p class="text-gray-400 mt-1">Ya casi terminas. 🎉</p>
-					<p class="text-gray-400">
+					<h3 class="dark:text-white text-neutral-800 text-3xl">Revisar e iniciar sesion</h3>
+					<p class="dark:text-gray-400 text-neutral-700">Ya casi terminas. 🎉</p>
+					<p class="dark:text-gray-400 text-neutral-700">
 						Por favor revisa tu información y procede a registrarte.
 					</p>
 				</div>
@@ -706,18 +672,18 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 					<li class="md:w-3/5 w-4/5">
 						<div id="respuestasradio" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg hover:text-white border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] text-gray-400 bg-[#05121d] peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#05121d] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
 							>
 								<div>
-									<p class="text-gray-400 mt-1 text-sm">Tipo de empresa</p>
-									<h3 id="radioResultado" class="text-white text-xl">
+									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">Tipo de empresa</p>
+									<h3 id="radioResultado" class="dark:text-white text-neutral-700 text-xl">
 										No has seleccionada nada
 									</h3>
 								</div>
 								<button
 									id="editar1"
 									type="button"
-									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer bg-[#0e2637] hover:bg-[#8c681d]"
+									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-[#0e2637] bg-neutral-400 dark:hover:bg-[#8c681d] hover:bg-[#8c681d]"
 									title="editar"
 								>
 									<svg
@@ -735,20 +701,20 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 						</div>
 						<div id="respuesta_estado" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg hover:text-white border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] text-gray-400 bg-[#05121d] peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#05121d] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
 							>
 								<div>
-									<p class="text-gray-400 mt-1 text-sm">
+									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">
 										Estado en el cual se va a registrar
 									</p>
-									<h3 id="selectResultado" class="text-white text-xl">
+									<h3 id="selectResultado" class="dark:text-white text-neutral-700 text-xl">
 										No has seleccionada nada
 									</h3>
 								</div>
 								<button
 									id="editar2"
 									type="button"
-									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer bg-[#0e2637] hover:bg-[#8c681d]"
+									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-[#0e2637] bg-neutral-400 dark:hover:bg-[#8c681d] hover:bg-[#8c681d]"
 									title="editar"
 								>
 									<svg
@@ -766,20 +732,20 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 						</div>
 						<div id="respuesta_plan" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg hover:text-white border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] text-gray-400 bg-[#05121d] peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#05121d] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
 							>
 								<div>
-									<p class="text-gray-400 mt-1 text-sm">
+									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">
 										El nombre que seleccionaste
 									</p>
-									<h3 id="ResultadoPlan" class="text-white text-xl">
+									<h3 id="ResultadoPlan" class="dark:text-white text-neutral-700 text-xl">
 										No has seleccionada nada
 									</h3>
 								</div>
 								<button
 									id="editar3"
 									type="button"
-									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer bg-[#0e2637] hover:bg-[#8c681d]"
+									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-[#0e2637] bg-neutral-400 dark:hover:bg-[#8c681d] hover:bg-[#8c681d]"
 									title="editar"
 								>
 									<svg
@@ -932,7 +898,7 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 								>Al registrarte, estás creando una cuenta de Sotomayor
 								consulting y aceptas los <a
 									href="#"
-									class="text-[#8c681d] hover:underline dark:text-primary-500"
+									class="text-[#8c681d] hover:underline dark:text-[#8c681d]"
 									>Términos de uso y la Política de privacidad</a
 								> de Sotomayor Consulting.
 							</label>
@@ -1034,7 +1000,8 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 		'flex',
 		'items-center',
 		'gap-3.5',
-		'bg-[#05121d]',
+		'dark:bg-[#05121d]',
+		'bg-neutral-200',
 		'p-3.5',
 		'rounded-xl',
 		'relative',
@@ -1051,8 +1018,13 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 		'justify-center',
 	];
 	const activospan = ['text-white', 'p-3'];
-	const activoh6 = ['text-base', 'font-semibold', 'text-white', 'mb-0.5'];
-	const activop = ['text-xs', 'font-normal', 'text-gray-400'];
+	const activoh6 = ['text-base', 'font-semibold', 'dark:text-white', 'mb-0.5'];
+	const activop = [
+		'text-xs',
+		'font-normal',
+		'dark:text-gray-400',
+		'text-neutral-600',
+	];
 
 	// variables inactivas
 	const inactivoli = [
@@ -1071,7 +1043,8 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 		'flex',
 		'items-center',
 		'gap-3.5',
-		'bg-[#05121d]',
+		'dark:bg-[#05121d]',
+		'bg-neutral-400',
 		'p-3.5',
 		'rounded-xl',
 		'relative',
@@ -1085,7 +1058,8 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 	];
 	const inactivodiv2 = [
 		'rounded-lg',
-		'bg-[#18384f]',
+		'dark:bg-[#18384f]',
+		'bg-neutral-500',
 		'group-hover:bg-[#8c681d]',
 		'flex',
 		'items-center',
@@ -1110,7 +1084,7 @@ const { data: estados } = await supabase.from('estados').select('Estado');
 		'text-xs',
 		'font-normal',
 		'text-gray-500',
-		'group-hover:text-gray-400',
+		'group-hover:text-white',
 		'transition-all',
 	];
 

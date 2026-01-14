@@ -646,7 +646,7 @@ const acciones = [
 										<div class="flex items-center min-w-0">
 											<Icon
 												name={data.icono}
-												class="w-10 h-10 text-white hover:scale-105"
+												class="w-10 h-10 dark:text-white text-[#967432] hover:scale-105"
 											/>
 											<div class="ml-3">
 												<p class="font-medium text-gray-900 truncate dark:text-white">
@@ -721,7 +721,7 @@ const acciones = [
 										].map((th) => (
 											<th
 												scope="col"
-												class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
+												class="p-4 text-xs font-medium tracking-wider text-left text-neutral-600 uppercase dark:text-white"
 											>
 												{th}
 											</th>
@@ -730,7 +730,7 @@ const acciones = [
 								</tr>
 							</thead>
 							<tbody class="bg-white dark:bg-neutral-700">
-								<tr>
+								<tr class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-[#1d313f] odd:bg-neutral-200 even:bg-[#d4d4d4] cursor-pointer">
 									<td
 										class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white"
 									>
@@ -743,7 +743,7 @@ const acciones = [
 									</td>
 									<td class="p-4 whitespace-nowrap">
 										<span
-											class="text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:text-green-400 border border-green-100 dark:border-green-500 mx-auto"
+											class="text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:text-green-400 border border-green-500 dark:border-green-500 mx-auto"
 											>Completado</span
 										>
 									</td>
@@ -757,7 +757,7 @@ const acciones = [
 											title="Ver documento"
 											><svg
 												xmlns="http://www.w3.org/2000/svg"
-												class="hover:text-white transition-colors"
+												class="dark:hover:text-white transition-colors hover:text-neutral-600 text-neutral-900 dark:text-neutral-500"
 												width="24"
 												height="24"
 												viewBox="0 0 24 24"
@@ -773,7 +773,7 @@ const acciones = [
 									>
 										<a href="" title="Descargar el documento">
 											<svg
-												class="hover:text-white transition-colors"
+												class="dark:hover:text-white text-neutral-700 transition-colors"
 												width="24"
 												height="24"
 												fill="currentColor"

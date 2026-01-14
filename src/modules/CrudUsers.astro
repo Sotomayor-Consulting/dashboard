@@ -2,21 +2,7 @@
 import '../estilos/datatables.css';
 import { supabase } from '../lib/supabase';
 
-/* =========================
-   4) Búsqueda + paginación
-   ========================= */
-const q = (Astro.url.searchParams.get('q') || '').trim();
-const page = Math.max(1, Number(Astro.url.searchParams.get('page') || '1'));
-const pageSize = 20;
-const from = (page - 1) * pageSize;
-const to = from + pageSize - 1;
-
-let usuarios: any[] = [];
-let errorMsg = '';
-let total = 0;
-let totalPages = 1;
-
-let query = supabase
+const {data:usuarios } = await supabase
 	.from('usuarios')
 	.select(
 		`
@@ -48,21 +34,7 @@ let query = supabase
 	)
 	.order('created_at', { ascending: false });
 
-if (q) {
-	const safe = q.replace(/,/g, ''); // .or usa comas para separar condiciones
-	query = query.or(
-		[
-			`nombre.ilike.%${safe}%`,
-			`apellido.ilike.%${safe}%`,
-			`correo.ilike.%${safe}%`,
-			`organizacion.ilike.%${safe}%`,
-			`cargo.ilike.%${safe}%`,
-			`ciudad.ilike.%${safe}%`,
-			`telf.ilike.%${safe}%`,
-			`estado.ilike.%${safe}%`,
-		].join(','),
-	);
-}
+
 
 // Ajusta el nombre de tu tabla y columnas
 const { data: roles } = await supabase
@@ -75,17 +47,6 @@ const { data: roles } = await supabase
 	)
 	.order('id', { ascending: true });
 
-// Paginamos
-const { data, error, count } = await query.range(from, to);
-
-if (error) {
-	errorMsg = error.message;
-	console.error('Error leyendo usuarios:', error.message);
-} else {
-	usuarios = data ?? [];
-	total = count ?? 0;
-	totalPages = Math.max(1, Math.ceil(total / pageSize));
-}
 
 const { data: paises } = await supabase
 	.from('paises')
@@ -94,7 +55,7 @@ const { data: paises } = await supabase
 ---
 
 <div
-	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#0E2637] dark:border-gray-700"
+	class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#0E2637] dark:border-gray-700"
 >
 	<div class="w-full mb-1">
 		<div class="">
@@ -285,9 +246,9 @@ const { data: paises } = await supabase
 						class="bg-white divide-y divide-gray-200 dark:bg-[#223848] dark:divide-gray-700"
 					>
 						{
-							usuarios.map((user) => (
+							usuarios?.map((user) => (
 								<div>
-									<tr class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-#1d313f]">
+									<tr class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-[#1d313f] odd:bg-neutral-200 even:bg-[#d4d4d4]">
 										<td class="w-4 pl-4">
 											{user.avatar_url === 'NULL' || !user.avatar_url ? (
 												<img
