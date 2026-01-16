@@ -40,5 +40,9 @@
 	/* —————————————————————————————— Misc. ———————————————————————————————— */
 
 	"markdown.extension.toc.levels": "2..6",
-	"cSpell.language": "es-ES"
+	"cSpell.language": "es-ES",
+	"cSpell.words": [
+		"Entregable",
+		"supabase"
+	]
 }

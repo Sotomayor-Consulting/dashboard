@@ -1,5 +1,7 @@
 ---
 import { supabase } from '../lib/supabase';
+import Stripelogo from '../assets/stripe.svg';
+import { Icon } from 'astro-icon/components';
 const { cookies } = Astro;
 
 let userId = null;
@@ -85,14 +87,10 @@ if (serviciosErr) {
 	console.error('Error cargando servicios:', serviciosErr);
 }
 
-const { data: paises, error: paisesErr } = await supabase
-	.from('paises')
+const { data: microservicios } = await supabase
+	.from('micro_servicios')
 	.select('*')
-	.order('nombre_paises', { ascending: true });
-
-if (paisesErr) {
-	console.error('Error cargando países:', serviciosErr);
-}
+	.eq('estado', true);
 
 // Convertir a array seguro para usar con .map()
 const empresasArray = empresas || [];
@@ -104,11 +102,14 @@ const planEstandar = servicios?.find((s) => s.nombre === 'Plan Estándar');
 const planBusiness = servicios?.find((s) => s.nombre === 'Plan Business');
 const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade');
 
-const planesDeServicio = servicios?.filter(
-	(e) => e.nombre !== 'Plan Diseño - upgrade',
-);
+// 7) Asignar microservicio por categorias
 
-console.log('planesDeServicio :>> ', planesDeServicio);
+const opcionesPopulares =
+	microservicios?.filter((item) => item.categoria === 'popular') || [];
+const opcionestec =
+	microservicios?.filter((item) => item.categoria === 'tecnología') || [];
+	const opcionesllc =
+	microservicios?.filter((item) => item.categoria === 'LLC') || [];
 ---
 
 <!-- ========== MAIN CONTENT ========== -->
@@ -116,10 +117,12 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 	<div class="overflow-hidden">
 		<div class="pt-5 relative flex flex-col items-center h-[110vh]" id="panel1">
 			<div class="max-w-2xl mx-auto text-center mb-10">
-				<h3 class="text-white text-3xl">Selecciona la empresa a incorporar</h3>
+				<h3 class="dark:text-white text-neutral-800 text-3xl">
+					Selecciona la empresa a incorporar
+				</h3>
 			</div>
 			<div
-				class="flex flex-col bg-white border border-gray-200 rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 w-full md:w-1/2 items-center"
+				class="flex flex-col bg-white border border-neutral-500 rounded-2xl p-4 md:p-8 dark:bg-[#0e2637] dark:border-neutral-800 w-full md:w-1/2 items-center"
 			>
 				<p
 					class="mt-2 lg:text-lg text-gray-800 dark:text-neutral-200 mb-5 text-left w-full"
@@ -129,7 +132,7 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 				<select
 					name="empresa"
 					id="empresa-select"
-					class="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 mb-5"
+					class="py-3 px-4 pe-9 block w-full border-neutral-600 rounded-lg text-sm focus:border-[#8c681d] focus:ring-[#8c681d] disabled:opacity-50 disabled:pointer-events-none bg-neutral-200 dark:bg-[#223848] dark:border-neutral-700 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 mb-5"
 				>
 					{
 						empresasArray?.map((empresa) => (
@@ -154,7 +157,9 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 			>
 				<!-- Title -->
 				<div class="max-w-2xl mx-auto text-center mb-10">
-					<h3 class="text-white text-3xl">Escoge tu plan</h3>
+					<h3 class="dark:text-white text-neutral-900 text-3xl">
+						Escoge tu plan
+					</h3>
 					<p class="mt-2 lg:text-lg text-gray-800 dark:text-neutral-200">
 						Elije el plan que mas se adapte a tu negocio y necesidades
 					</p>
@@ -178,7 +183,7 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 								/>
 								<label
 									for={planBasico.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-[#0e2637] dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
 									<h4 class="font-medium text-lg text-gray-800 dark:text-neutral-200">
 										{planBasico.nombre}
@@ -190,65 +195,31 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 										{planBasico.descripcion}
 									</p>
 									<ul class="mt-7 space-y-2.5 text-sm">
-										<li class="flex gap-x-2">
-											<svg
-												class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="2"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<polyline points="20 6 9 17 4 12" />
-											</svg>
-											<span class="text-gray-800 dark:text-neutral-400 text-left">
-												Incorporación de la LLC frente al Estado.
-											</span>
-										</li>
-
-										<li class="flex gap-x-2">
-											<svg
-												class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="2"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<polyline points="20 6 9 17 4 12" />
-											</svg>
-											<span class="text-gray-800 dark:text-neutral-400 text-left">
-												Obtención del EIN (Número de Identificación Tributaria).
-											</span>
-										</li>
-
-										<li class="flex gap-x-2">
-											<svg
-												class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="2"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<polyline points="20 6 9 17 4 12" />
-											</svg>
-											<span class="text-gray-800 dark:text-neutral-400 text-left">
-												Agente Residente por un año.
-											</span>
-										</li>
+										{[
+											'Incorporación de la LLC frente al Estado.',
+											'Obtención del EIN (Número de Identificación Tributaria).',
+											'Agente Residente por un año.',
+										].map((li) => (
+											<li class="flex gap-x-2">
+												<svg
+													class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<polyline points="20 6 9 17 4 12" />
+												</svg>
+												<span class="text-gray-800 dark:text-neutral-400 text-left">
+													{li}
+												</span>
+											</li>
+										))}
 									</ul>
 								</label>
 							</div>
@@ -270,10 +241,10 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 								/>
 								<label
 									for={planBusiness.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-[#0e2637] dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
 									<p class="mb-3">
-										<span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs uppercase font-semibold bg-violet-100 text-[#8c681d] dark:bg-[#8c681d] dark:text-white animate-pulse">
+										<span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs uppercase font-semibold bg-[#8c681d] text-white dark:bg-[#8c681d] dark:text-white animate-pulse">
 											Más popular
 										</span>
 									</p>
@@ -356,7 +327,7 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 								/>
 								<label
 									for={planEstandar.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-[#0e2637] dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
 									<h4 class="font-medium text-lg text-gray-800 dark:text-neutral-200">
 										{planEstandar.nombre}
@@ -374,65 +345,31 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 												Los beneficios del Plan Básico más:
 											</span>
 										</li>
-
-										<li class="flex gap-x-2">
-											<svg
-												class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="2"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<polyline points="20 6 9 17 4 12" />
-											</svg>
-											<span class="text-gray-800 dark:text-neutral-400 text-left">
-												Elaboración del Acuerdo de Operación.
-											</span>
-										</li>
-
-										<li class="flex gap-x-2">
-											<svg
-												class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="2"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<polyline points="20 6 9 17 4 12" />
-											</svg>
-											<span class="text-gray-800 dark:text-neutral-400 text-left">
-												Consultas ilimitadas por un año.
-											</span>
-										</li>
-										<li class="flex gap-x-2">
-											<svg
-												class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="2"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<polyline points="20 6 9 17 4 12" />
-											</svg>
-											<span class="text-gray-800 dark:text-neutral-400 text-left">
-												Reporte BOI
-											</span>
-										</li>
+										{[
+											'Elaboración del Acuerdo de Operación.',
+											'Consultas ilimitadas por un año.',
+											'Reporte BOI',
+										].map((li) => (
+											<li class="flex gap-x-2">
+												<svg
+													class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												>
+													<polyline points="20 6 9 17 4 12" />
+												</svg>
+												<span class="text-gray-800 dark:text-neutral-400 text-left">
+													{li}
+												</span>
+											</li>
+										))}
 									</ul>
 								</label>
 							</div>
@@ -458,13 +395,13 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 								/>
 								<label
 									for={planDiseno.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-neutral-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-[#0e2637] dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
 									<div class="col-span-2 mt-2">
 										<button
 											class="flex items-end justify-end h-full place-self-end dark:text-white text-neutral-700"
 											data-popover-target="popover-description4"
-											data-popover-placement="bottom-end"
+											data-popover-placement="right"
 											type="button"
 										>
 											<svg
@@ -490,22 +427,59 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 										data-popover
 										id="popover-description4"
 										role="tooltip"
-										class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-gray-600 dark:text-gray-400"
+										class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-96 dark:bg-[#223848] dark:border-gray-600 dark:text-gray-400"
 									>
 										<div class="p-3 space-y-2">
 											<h3 class="font-semibold text-gray-900 dark:text-white">
 												¿Que es el plan de diseño - upgrade?
 											</h3>
-											<p class="grid grid-cols-[auto,1fr] items-center">
+											<p class="grid grid-cols-[auto,1fr] text-left">
 												<span>
-													Este plan está meticulosamente creado para las
-													empresas que requieren una LLC totalmente
-													personalizada, recibiendo asesoría experta que alinea
-													su estructura con su modelo de negocio y sus
-													requerimientos específicos. Además, su diseño permite
-													escalar o actualizar a otros planes superiores,
-													facilitando la construcción progresiva y paso a paso
-													de su estructura de LLC.
+													No todas las LLC son iguales. Para que una LLC
+													realmente le sirva, debe diseñarse a medida según su
+													giro de negocio, nacionalidad, residencia fiscal y
+													número de socios.
+													<br />
+													En la práctica, hay 5 decisiones clave que determinan
+													cómo quedará estructurada su LLC:
+												</span>
+											</p>
+											<p class="text-left grid gap-2 ml-2">
+												{[
+													'- Estado de incorporación (50 jurisdicciones posibles).',
+													'- Tratamiento tributario federal que más le conviene (2 alternativas principales).',
+													'- Modelo administrativo y de gestión (2 esquemas típicos, según quién administre y cómo se tomen decisiones).',
+													'- Sistema contable que utilizará (2 bases contables usuales, según su operación y necesidades).',
+													'- Nivel de confidencialidad: si desea o no que terceros puedan identificar a los socios/beneficiarios en registros públicos (según lo permita la normativa aplicable).',
+												].map((items) => (
+													<span>{items}</span>
+												))}
+											</p>
+											<p class="text-left">
+												<span>
+													<b>
+														Para definir estas decisiones con criterio y evitar
+														errores costosos, es necesario asesorarse.
+													</b>
+												</span>
+											</p>
+											<p class="text-left">
+												<span>
+													<b>
+														El servicio de Planificación, Diseño y Legal de LLC
+														consiste en una o más reuniones con un abogado
+														tributario para analizar su caso y establecer la
+														estructura óptima.
+													</b>
+												</span>
+											</p>
+											<p class="text-left">
+												<span>
+													<b>*Entregable:</b> un informe técnico donde se
+													detallan, de forma clara y aplicada a su situación,
+													las características con las que recomendamos
+													incorporar su LLC y los lineamientos para
+													implementarlas correctamente.
 												</span>
 											</p>
 										</div>
@@ -547,7 +521,277 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 						)
 					}
 				</div>
+				<div class="flex justify-center items-center mt-10 gap-4 flex-col">
+					<button
+						id="btn-paso2"
+						class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-[#8c681d] text-white hover:bg-[#8c681d]/80 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none text-center w-fit"
+					>
+						Continuar</button
+					>
+					<button
+						type="button"
+						id="btn-atras"
+						class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-zinc-500 text-white hover:bg-zinc-600 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none w-fit"
+					>
+						Regresar
+					</button>
+				</div>
+			</div>
+		</div>
+		<div class="relative hidden" id="panel3">
+			<div
+				class="max-w-[85rem] px-4 pt-5 sm:px-6 lg:px-8 lg:pt-14 mx-auto"
+				id="step-microservicios"
+			>
+				<!-- Title -->
+				<div class="max-w-2xl mx-auto text-center mb-10">
+					<h3 class="dark:text-white text-neutral-900 text-3xl">
+						Complementa tu plan (Opcional)
+					</h3>
+					<p class="mt-2 lg:text-lg text-gray-800 dark:text-neutral-200">
+						Elije uno o varios servicios especializados para complementar tu
+						plan
+					</p>
+				</div>
+				<div>
+					<div
+						id="accordion-collapse"
+						data-accordion="collapse"
+						data-active-classes="bg-white dark:bg-[#0e2637] text-gray-900 dark:text-white"
+						data-inactive-classes="text-neutral-500 dark:text-gray-400"
+					>
+						<h2 id="accordion-collapse-heading-1">
+							<button
+								type="button"
+								class="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-neutral-700 border border-gray-200 rounded-xl dark:border-gray-700 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#223848] gap-3"
+								data-accordion-target="#accordion-collapse-body-1"
+								aria-expanded="true"
+								aria-controls="accordion-collapse-body-1"
+							>
+								<span>Servicios populares</span>
+								<svg
+									data-accordion-icon
+									class="w-3 h-3 rotate-180 shrink-0"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 10 6"
+								>
+									<path
+										stroke="currentColor"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M9 5 5 1 1 5"></path>
+								</svg>
+							</button>
+						</h2>
+						<div
+							id="accordion-collapse-body-1"
+							class="hidden"
+							aria-labelledby="accordion-collapse-heading-1"
+						>
+							<div
+								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-[#0e2637] bg-neutral-200"
+							>
+								<ul class="grid w-full gap-6 md:grid-cols-3">
+									{
+										opcionesPopulares.map((opciones) => (
+											<li>
+												<input
+													type="checkbox"
+													id={`opcion-popular-${opciones.id_micro_servicios}`}
+													value={opciones.precio}
+													data-price={opciones.precio}
+													data-id={opciones.id_micro_servicios}
+													data-name={opciones.nombre}
+													class="hidden peer microservicio-checkbox"
+												/>
+												<label
+													for={`opcion-popular-${opciones.id_micro_servicios}`}
+													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-[#223848] dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
+												>
+													<div class="block w-full">
+														<div class="flex items-center justify-between w-full">
+															<Icon
+																name={opciones.icono}
+																class="mb-2 dark:text-white text-neutral-700 w-7 h-7"
+															/>
+															<div class="text-lg font-semibold">
+																{opciones.precio}$
+															</div>
+														</div>
 
+														<div class="w-full text-lg font-semibold">
+															{opciones.nombre}
+														</div>
+														<div class="w-full text-sm">
+															{opciones.descripcion}
+														</div>
+													</div>
+												</label>
+											</li>
+										))
+									}
+								</ul>
+							</div>
+						</div>
+						<h2 id="accordion-collapse-heading-2">
+							<button
+								type="button"
+								class="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-neutral-700 border border-gray-200 rounded-xl dark:border-gray-700 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#223848] gap-3"
+								data-accordion-target="#accordion-collapse-body-2"
+								aria-expanded="false"
+								aria-controls="accordion-collapse-body-2"
+							>
+								<span>Microservicios LLC</span>
+								<svg
+									data-accordion-icon
+									class="w-3 h-3 rotate-180 shrink-0"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 10 6"
+								>
+									<path
+										stroke="currentColor"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M9 5 5 1 1 5"></path>
+								</svg>
+							</button>
+						</h2>
+						<div
+							id="accordion-collapse-body-2"
+							class="hidden"
+							aria-labelledby="accordion-collapse-heading-2"
+						>
+							<div
+								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-[#0e2637] bg-neutral-200"
+							>
+								<ul class="grid w-full gap-6 md:grid-cols-3">
+									{
+										opcionesllc.map((opciones) => (
+											<li>
+												<input
+													type="checkbox"
+													id={`opcion-llc-${opciones.id_micro_servicios}`}
+													value={opciones.precio}
+													data-price={opciones.precio}
+													data-id={opciones.id_micro_servicios}
+													data-name={opciones.nombre}
+													class="hidden peer microservicio-checkbox"
+												/>
+												<label
+													for={`opcion-llc-${opciones.id_micro_servicios}`}
+													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-[#223848] dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
+												>
+													<div class="block w-full">
+														<div class="flex items-center justify-between w-full">
+															<Icon
+																name={opciones.icono}
+																class="mb-2 dark:text-white text-neutral-700 w-7 h-7"
+															/>
+															<div class="text-lg font-semibold">
+																{opciones.precio}$
+															</div>
+														</div>
+
+														<div class="w-full text-lg font-semibold">
+															{opciones.nombre}
+														</div>
+														<div class="w-full text-sm">
+															{opciones.descripcion}
+														</div>
+													</div>
+												</label>
+											</li>
+										))
+									}
+								</ul>
+							</div>
+						</div>
+						<h2 id="accordion-collapse-heading-3">
+							<button
+								type="button"
+								class="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-neutral-700 border border-gray-200 rounded-xl dark:border-gray-700 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-[#223848] gap-3"
+								data-accordion-target="#accordion-collapse-body-3"
+								aria-expanded="false"
+								aria-controls="accordion-collapse-body-3"
+							>
+								<span
+									>Tecnologia</span
+								>
+								<svg
+									data-accordion-icon
+									class="w-3 h-3 rotate-180 shrink-0"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 10 6"
+								>
+									<path
+										stroke="currentColor"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M9 5 5 1 1 5"></path>
+								</svg>
+							</button>
+						</h2>
+						<div
+							id="accordion-collapse-body-3"
+							class="hidden"
+							aria-labelledby="accordion-collapse-heading-3"
+						>
+							<div
+								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-[#0e2637] bg-neutral-200"
+							>
+								<ul class="grid w-full gap-6 md:grid-cols-3">
+									{
+										opcionestec.map((opciones) => (
+											<li>
+												<input
+													type="checkbox"
+													id={`opcion-tec-${opciones.id_micro_servicios}`}
+													value={opciones.precio}
+													data-price={opciones.precio}
+													data-id={opciones.id_micro_servicios}
+													data-name={opciones.nombre}
+													class="hidden peer microservicio-checkbox"
+												/>
+												<label
+													for={`opcion-tec-${opciones.id_micro_servicios}`}
+													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-[#223848] dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
+												>
+													<div class="block w-full">
+														<div class="flex items-center justify-between w-full">
+															<Icon
+																name={opciones.icono}
+																class="mb-2 dark:text-white text-neutral-700 w-7 h-7"
+															/>
+															<div class="text-lg font-semibold">
+																{opciones.precio}$
+															</div>
+														</div>
+
+														<div class="w-full text-lg font-semibold">
+															{opciones.nombre}
+														</div>
+														<div class="w-full text-sm">
+															{opciones.descripcion}
+														</div>
+													</div>
+												</label>
+											</li>
+										))
+									}
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
 				<div
 					class="w-2/3 sm:w-1/2 lg:w-1/3 mx-auto text-center mt-10 md:mt-14 mb-6"
 				>
@@ -563,7 +807,7 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 					<div>
 						<button
 							type="button"
-							id="btn-atras"
+							id="btn-atras2"
 							class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-zinc-500 text-white hover:bg-zinc-600 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none"
 						>
 							Regresar
@@ -574,7 +818,7 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 
 			<div id="step-payment" class="hidden grid md:grid-cols-2">
 				<div
-					class="md:w-4/5 w-full mx-auto mt-10 mb-16 bg-white/80 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm place-self-center justify-self-center md:row-start-1 row-start-2"
+					class="md:w-4/5 w-full mx-auto mt-10 mb-16 bg-white/80 dark:bg-[#0e2637] border border-gray-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm place-self-center justify-self-center md:row-start-1 row-start-2"
 				>
 					<div
 						id="stripe-config"
@@ -604,287 +848,16 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 							</label>
 							<div
 								id="card-element"
-								class="p-3 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800"
+								class="p-3 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-[#223848] text-neutral-700"
 							>
 							</div>
 							<p id="card-errors" class="text-sm text-red-500 mt-2"></p>
 						</div>
 						<p
 							id="status-message"
-							class="text-sm text-gray-600 dark:text-neutral-300"
+							class="text-base text-gray-600 dark:text-neutral-300"
 						>
 						</p>
-
-						<div class="flex flex-col">
-							<div class="flex mb-2">
-								<div class="flex items-center h-5">
-									<input
-										id="factura-checkbox"
-										aria-describedby="helper-checkbox-text"
-										type="checkbox"
-										value="si"
-										class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft"
-									/>
-								</div>
-								<div
-									class="ms-2 text-sm select-none text-gray-700 dark:text-neutral-300"
-								>
-									<label
-										for="factura-checkbox"
-										class="font-medium text-heading"
-									>
-										Incluir datos para facturación
-									</label>
-									<p
-										id="helper-checkbox-text"
-										class="text-xs font-normal text-body"
-									>
-										Selecciona esta opción si deseas que te emitamos una factura
-										con los datos que nos proporciones.
-									</p>
-								</div>
-							</div>
-
-							<div
-								id="contenedor-facturacion"
-								class="mt-2 border-t border-neutral-600 hidden"
-							>
-								<div class="text-gray-700 dark:text-neutral-300 mt-3">
-									<h4 class="text-lg font-bold">Datos de facturación</h4>
-									<p>Ingrese los datos que se incluirán en tu factura.</p>
-								</div>
-
-								<!-- Personería -->
-								<div
-									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-5"
-								>
-									<div class="mb-2">
-										<label class="block mb-2.5 text-sm text-heading font-bold"
-											>Personería</label
-										>
-									</div>
-									<div class="flex gap-5">
-										<div class="flex items-center mr-2">
-											<input
-												id="bill-legal-natural"
-												type="radio"
-												value="natural"
-												name="bill-legal-type"
-												data-billing="true"
-												class="w-4 h-4 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"
-											/>
-											<label
-												for="bill-legal-natural"
-												class="select-none ms-2 text-sm font-medium text-heading"
-											>
-												Persona Natural
-											</label>
-										</div>
-										<div class="flex items-center ml-2">
-											<input
-												id="bill-legal-juridica"
-												type="radio"
-												value="juridica"
-												name="bill-legal-type"
-												data-billing="true"
-												checked
-												class="w-4 h-4 text-neutral-primary border-default-medium bg-neutral-secondary-medium rounded-full checked:border-brand focus:ring-2 focus:outline-none focus:ring-brand-subtle border border-default appearance-none"
-											/>
-											<label
-												for="bill-legal-juridica"
-												class="select-none ms-2 text-sm font-medium text-heading"
-											>
-												Persona Jurídica
-											</label>
-										</div>
-									</div>
-								</div>
-
-								<!-- Nombre/Razón social -->
-								<div
-									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
-								>
-									<div>
-										<label
-											for="bill-razon"
-											class="block mb-2.5 text-sm text-heading font-bold"
-										>
-											Nombre o Razón Social
-										</label>
-										<input
-											type="text"
-											id="bill-razon"
-											data-billing="true"
-											class="bg-neutral-800 border text-heading text-sm rounded-md focus:ring-[#8c681d] focus:border-[#8c681d] w-full px-3 py-2.5 shadow-xs placeholder:text-neutral-500"
-											placeholder="Nombre y Apellido o Razón Social"
-										/>
-										<p class="text-xs">
-											Ingresa tu nombre o la razón social de tu empresa.
-										</p>
-									</div>
-								</div>
-
-								<!-- Email -->
-								<div
-									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
-								>
-									<div>
-										<label
-											for="bill-email"
-											class="block mb-2.5 text-sm text-heading font-bold"
-										>
-											Correo electrónico
-										</label>
-										<input
-											type="email"
-											id="bill-email"
-											data-billing="true"
-											class="bg-neutral-800 border text-heading text-sm rounded-md focus:ring-[#8c681d] focus:border-[#8c681d] w-full px-3 py-2.5 shadow-xs placeholder:text-neutral-500"
-											placeholder="ejemplo@email.com"
-										/>
-										<p class="text-xs">Se usará para enviarte la factura.</p>
-									</div>
-								</div>
-
-								<!-- Teléfono (código + número) -->
-								<div
-									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
-								>
-									<div>
-										<label
-											for="bill-phone"
-											class="block mb-2.5 text-sm text-heading font-bold"
-										>
-											Teléfono
-										</label>
-										<div class="relative">
-											<input
-												type="text"
-												id="bill-phone"
-												data-billing="true"
-												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 ps-40 focus:z-10 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-600"
-												placeholder="(000) 000-0000"
-											/>
-											<div
-												class="absolute inset-y-0 start-0 flex items-center ps-px text-gray-500 overflow-hidden w-1/5 p-1"
-											>
-												<label for="bill-phone-country" class="sr-only"
-													>País</label
-												>
-												<select
-													id="bill-phone-country"
-													data-billing="true"
-													class="block rounded-lg border-transparent focus:border-[#ba8d34] focus:ring-[#ba8d34] dark:bg-neutral-800 dark:text-neutral-500 w-full text-xs dark:border-neutral-700"
-												>
-													{
-														paises?.map((p) => (
-															<option
-																data-countrycode={p.iso}
-																value={`+${p.codigo_telf}`}
-															>
-																{p.nombre_paises}
-															</option>
-														))
-													}
-												</select>
-											</div>
-										</div>
-										<p class="text-xs">
-											Solo números, sin espacios ni caracteres especiales.
-										</p>
-									</div>
-								</div>
-
-								<!-- Documento de identidad -->
-								<div
-									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4"
-								>
-									<div>
-										<label
-											for="bill-id-number"
-											class="block mb-2.5 text-sm text-heading font-bold"
-										>
-											Documento de Identidad
-										</label>
-										<div class="relative">
-											<input
-												type="text"
-												id="bill-id-number"
-												data-billing="true"
-												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 ps-36 focus:z-10 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-60"
-												placeholder="Número"
-											/>
-											<div
-												class="absolute inset-y-0 start-0 flex items-center ps-px text-gray-500"
-											>
-												<label for="bill-id-type" class="sr-only">Tipo</label>
-												<select
-													id="bill-id-type"
-													data-billing="true"
-													class="block w-fit rounded-lg border-transparent focus:border-[#ba8d34] focus:ring-[#ba8d34] dark:bg-neutral-800 dark:text-neutral-500 dark:border-neutral-700"
-												>
-													<option value="Cedula">Cédula</option>
-													<option value="RUC">RUC</option>
-													<option value="ID">ID</option>
-													<option value="Pasaporte">Pasaporte</option>
-													<option value="EIN">EIN</option>
-												</select>
-											</div>
-										</div>
-									</div>
-								</div>
-
-								<!-- Dirección -->
-								<div
-									class="flex text-gray-700 dark:text-neutral-300 flex-col mt-4 border-b border-neutral-600"
-								>
-									<div class="mb-5">
-										<label
-											for="bill-address1"
-											class="block mb-2.5 text-sm text-heading font-bold"
-										>
-											Dirección
-										</label>
-										<div class="grid grid-cols-2 gap-3">
-											<input
-												type="text"
-												id="bill-address1"
-												data-billing="true"
-												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-60 col-span-2"
-												placeholder="Dirección línea 1"
-											/>
-											<input
-												type="text"
-												id="bill-city"
-												data-billing="true"
-												class="block w-full rounded-lg border-gray-200 px-4 py-2.5 focus:border-[#ba8d34] focus:ring-[#ba8d34] disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-400 dark:focus:ring-neutral-60"
-												placeholder="Ciudad"
-											/>
-											<select
-												id="bill-country"
-												data-billing="true"
-												class="block rounded-lg border-transparent focus:border-[#ba8d34] focus:ring-[#ba8d34] dark:bg-neutral-800 dark:text-neutral-400 w-full text-sm dark:border-neutral-700"
-											>
-												<option value="" selected disabled
-													>Selecciona un país</option
-												>
-												{
-													paises?.map((p) => (
-														<option
-															value={p.nombre_paises}
-															data-countryCode={p.iso}
-															data-dial={`+${p.codigo_telf}`}
-														>
-															{p.nombre_paises}
-														</option>
-													))
-												}
-											</select>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
 
 						<button
 							type="submit"
@@ -897,7 +870,7 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 						<button
 							type="button"
 							id="btn-back"
-							class="w-full py-2 px-4 mt-2 inline-flex justify-center items-center gap-x-2 text-xs font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 dark:bg-neutral-900 dark:text-neutral-200 dark:border-neutral-700"
+							class="w-full py-2 px-4 mt-2 inline-flex justify-center items-center gap-x-2 text-xs font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 dark:bg-[#0e2637] dark:text-neutral-200 dark:border-neutral-700"
 						>
 							Volver a elegir plan
 						</button>
@@ -907,7 +880,7 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 				<div class="grow mt-10 mb-16 md:w-3/5 w-full">
 					<div
 						id="price-summary"
-						class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-neutral-900"
+						class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-[#0e2637]"
 					>
 						<div class="space-y-2">
 							<dl class="flex items-center justify-between gap-4">
@@ -918,6 +891,20 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 								</dt>
 								<dd
 									id="summary-base"
+									class="text-base font-medium text-gray-900 dark:text-white"
+								>
+									$0.00
+								</dd>
+							</dl>
+
+							<dl id="summary-microservicios-container" class="hidden flex items-center justify-between gap-4">
+								<dt
+									class="text-base font-normal text-gray-500 dark:text-gray-400"
+								>
+									Suma de Microservicios adicionales
+								</dt>
+								<dd
+									id="summary-microservicios"
 									class="text-base font-medium text-gray-900 dark:text-white"
 								>
 									$0.00
@@ -958,11 +945,7 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 						<p class="text-base font-normal text-gray-500 dark:text-gray-400">
 							Pago seguro gestionado por:
 						</p>
-						<img
-							class="hidden h-10 w-auto dark:flex"
-							src="/src/assets/stripe.svg"
-							alt=""
-						/>
+						<Stripelogo width={80} />
 					</div>
 				</div>
 			</div>
@@ -1019,7 +1002,7 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 			hidePostalCode: true,
 			style: {
 				base: {
-					color: '#f9fafb',
+					color: '#88898a',
 					fontFamily:
 						'"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
 					fontSize: '14px',
@@ -1034,7 +1017,7 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 		// 3) DOM refs
 		const btnContinue = document.getElementById('btn-continue');
 		const btnBack = document.getElementById('btn-back');
-		const stepPlans = document.getElementById('step-plans');
+		const stepPlans = document.getElementById('step-microservicios');
 		const stepPayment = document.getElementById('step-payment');
 		const paymentForm = document.getElementById('payment-form');
 		const cardErrors = document.getElementById('card-errors');
@@ -1051,6 +1034,18 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 		const empresaSelect = document.getElementById('empresa-select');
 
 		let currentClientSecret = null;
+
+		// Agregar event listeners a los checkboxes de microservicios
+		const microservicioCheckboxes = document.querySelectorAll('.microservicio-checkbox');
+		microservicioCheckboxes.forEach(checkbox => {
+			checkbox.addEventListener('change', () => {
+				// Actualizar el resumen si ya hay un plan seleccionado
+				const selectedPlan = getSelectedPlan();
+				if (selectedPlan) {
+					updatePriceSummary(selectedPlan);
+				}
+			});
+		});
 
 		// Helpers selección plan/empresa
 		function getSelectedPlan() {
@@ -1082,6 +1077,32 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 			if (!Number.isFinite(amount)) return '$0.00';
 			return '$' + amount.toFixed(2);
 		}
+
+		// Función para obtener microservicios seleccionados
+		function getSelectedMicroservicios() {
+			const checkboxes = document.querySelectorAll('.microservicio-checkbox:checked');
+			const microservicios = [];
+			let totalPrice = 0;
+
+			checkboxes.forEach(checkbox => {
+				const price = parseFloat(checkbox.dataset.price) || 0;
+				const id = checkbox.dataset.id;
+				const name = checkbox.dataset.name;
+				
+				totalPrice += price;
+				microservicios.push({
+					id: id,
+					name: name,
+					price: price
+				});
+			});
+
+			return {
+				items: microservicios,
+				totalPrice: totalPrice
+			};
+		}
+
 		function updatePriceSummary(plan) {
 			if (!plan || !Number.isFinite(plan.price)) {
 				baseEl.textContent = '$0.00';
@@ -1089,24 +1110,58 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 				totalEl.textContent = '$0.00';
 				return;
 			}
-			const base = plan.price;
+
+			const microservicios = getSelectedMicroservicios();
+			const base = plan.price + microservicios.totalPrice;
 			const feePercent = 0.045;
 			const fee = base * feePercent;
 			const total = base + fee;
-			baseEl.textContent = formatUSD(base);
+			
+			// Actualizar el texto del resumen para incluir microservicios
+			let summaryText = `Estás pagando: ${plan.label}`;
+			if (microservicios.items.length > 0) {
+				const names = microservicios.items.map(item => item.name).join(', ');
+				summaryText += ` + ${names}`;
+			}
+			
+			const empresaLabel = getSelectedEmpresaLabel();
+			if (empresaLabel) {
+				summaryText += ` | Empresa: ${empresaLabel}`;
+			}
+			
+			planSummary.textContent = summaryText;
+			
+			// Mostrar/ocultar sección de microservicios
+			const microserviciosContainer = document.getElementById('summary-microservicios-container');
+			const microserviciosEl = document.getElementById('summary-microservicios');
+			
+			if (microservicios.items.length > 0) {
+				microserviciosContainer.classList.remove('hidden');
+				microserviciosEl.textContent = formatUSD(microservicios.totalPrice);
+			} else {
+				microserviciosContainer.classList.add('hidden');
+			}
+			
+			baseEl.textContent = formatUSD(plan.price);
 			feeEl.textContent = formatUSD(fee);
 			totalEl.textContent = formatUSD(total);
 		}
 
-		// Crear PaymentIntent (manda empresaId)
+		// Crear PaymentIntent (manda empresaId y microservicios)
 		async function createPaymentIntent(planId, userId, empresaId) {
 			statusMessage.textContent = 'Preparando el pago...';
 			payButton.disabled = true;
 			try {
+				const microservicios = getSelectedMicroservicios();
 				const res = await fetch('/api/payment/payment-intent', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ planId, userId, empresaId }),
+					body: JSON.stringify({ 
+						planId, 
+						userId, 
+						empresaId,
+						microservicios: microservicios.items
+					}),
 				});
 				const data = await res.json();
 				if (!res.ok || !data.clientSecret)
@@ -1301,8 +1356,11 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 	document.addEventListener('DOMContentLoaded', function () {
 		const boton = document.getElementById('btn-paso1');
 		const regresar = document.getElementById('btn-atras');
+		const boton2 = document.getElementById('btn-paso2');
+		const regresar2 = document.getElementById('btn-atras2');
 		const div2 = document.getElementById('panel2');
 		const div1 = document.getElementById('panel1');
+		const div3 = document.getElementById('panel3');
 
 		boton?.addEventListener('click', function () {
 			div1?.classList.add('hidden');
@@ -1313,26 +1371,15 @@ console.log('planesDeServicio :>> ', planesDeServicio);
 			div2?.classList.add('hidden');
 			div1?.classList.remove('hidden');
 		});
-	});
-</script>
-<script is:inline>
-	document.addEventListener('DOMContentLoaded', function () {
-		const countrySelect = document.getElementById('bill-phone-country');
-		const phoneInput = document.getElementById('bill-phone');
-		// Función para actualizar el código de país
-		function updateCountryCode() {
-			const selectedCountryCode = countrySelect.value;
-			const currentPhoneValue = phoneInput.value;
 
-			// Si el valor actual ya empieza con un código de país, lo eliminamos
-			const phoneWithoutCode = currentPhoneValue.replace(/^\+\d+\s?/, '');
+		boton2?.addEventListener('click', function () {
+			div2?.classList.add('hidden');
+			div3?.classList.remove('hidden');
+		});
 
-			// Añadimos el nuevo código de país
-			phoneInput.value = selectedCountryCode + ' ' + phoneWithoutCode;
-		}
-		// Actualizar cuando cambie la selección
-		countrySelect.addEventListener('change', updateCountryCode);
-		// Actualizar al cargar la página
-		updateCountryCode();
+		regresar2?.addEventListener('click', function () {
+			div3?.classList.add('hidden');
+			div2?.classList.remove('hidden');
+		});
 	});
 </script>

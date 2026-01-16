@@ -3,7 +3,6 @@ import '../estilos/datatables.css';
 import { supabase } from '../lib/supabase';
 import { Icon } from 'astro-icon/components';
 
-
 interface Props {
 	empresaId: string;
 }
@@ -35,7 +34,6 @@ const { data: managers } = await supabase
 	.from('managers_validados')
 	.select('*')
 	.eq('empresa_incorporacion_id', empresaId);
-
 
 const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 ---
@@ -92,7 +90,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 					type="button"
 					role="tab"
 					aria-controls="settings"
-					aria-selected="false">documentos</button
+					aria-selected="false">Documentos</button
 				>
 			</li>
 			<li role="presentation">
@@ -103,7 +101,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 					type="button"
 					role="tab"
 					aria-controls="contacts"
-					aria-selected="false">mantenimiento</button
+					aria-selected="false">Mantenimiento</button
 				>
 			</li>
 		</ul>
@@ -143,7 +141,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						data-popover
 						id="popover-description"
 						role="tooltip"
-						class="absolute z-10 invisible inline-block text-sm text-neutral-500 transition-opacity duration-300 bg-white border border-neutral-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-400"
+						class="absolute z-10 invisible inline-block text-sm text-neutral-500 transition-opacity duration-300 bg-white border border-neutral-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-[#0e2637] dark:border-neutral-600 dark:text-neutral-400"
 					>
 						<div class="p-3 space-y-2">
 							<h3 class="font-semibold text-neutral-900 dark:text-white">
@@ -162,7 +160,9 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 					</div>
 				</div>
 
-				<div class="flex gap-10 items-center dark:text-neutral-300 text-neutral-800">
+				<div
+					class="flex gap-10 items-center dark:text-neutral-300 text-neutral-800"
+				>
 					<div class="flex gap-5">
 						<div>
 							<p class="font-bold text-4xl">
@@ -170,17 +170,19 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							</p>
 						</div>
 						<div>
-							<span
-								class="bg-green-100 text-green-800 text-base font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900/50 dark:text-green-300 flex w-fit items-center mt-2"
-								>{
-									empresa.estado === 'Activo' ? (
+							{
+								empresa.estado === 'Activo' ? (
+									<span class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900/50 dark:text-green-300 flex items-center mt-2 w-full">
 										<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2 animate-pulse" />
-									) : (
-										<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
-									)
-								}
-								{empresa.estado}</span
-							>
+										{empresa.estado}
+									</span>
+								) : (
+									<span class="bg-green-100 text-orange-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-orange-900/50 dark:text-orange-300 flex items-center mt-2 w-full">
+										<div class="h-2.5 w-2.5 rounded-full bg-orange-500 mr-2" />
+										{empresa.estado}
+									</span>
+								)
+							}
 						</div>
 					</div>
 				</div>
@@ -267,7 +269,9 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							>
 								Actividad de la compañía
 							</h5>
-							<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400 text-base">
+							<p
+								class="mb-3 font-normal text-neutral-700 dark:text-neutral-400 text-base"
+							>
 								{empresa.actividad}
 							</p>
 						</div>
@@ -277,7 +281,9 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							>
 								Forma de tributar
 							</h5>
-							<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400 text-base">
+							<p
+								class="mb-3 font-normal text-neutral-700 dark:text-neutral-400 text-base"
+							>
 								{empresa.forma_tributacion}
 							</p>
 						</div>
@@ -287,7 +293,9 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							>
 								Obtendrá ingresos desde EE.UU.
 							</h5>
-							<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400 text-base">
+							<p
+								class="mb-3 font-normal text-neutral-700 dark:text-neutral-400 text-base"
+							>
 								{
 									empresa.Obtendra_ingresos_desde_eeuu === true
 										? 'Si obtendrá ingresos'
@@ -301,7 +309,9 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							>
 								Forma de administración
 							</h5>
-							<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400">
+							<p
+								class="mb-3 font-normal text-neutral-700 dark:text-neutral-400"
+							>
 								{empresa.forma_administracion}
 							</p>
 						</div>
@@ -490,7 +500,9 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				)
 			}
 
-			<hr class="h-px my-4 bg-neutral-400 border-0 dark:bg-neutral-600" />
+			<hr
+				class="h-px my-4 bg-neutral-400 border-0 dark:bg-neutral-600 col-span-3"
+			/>
 			<div>
 				<button
 					type="button"
@@ -501,7 +513,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			</div>
 		</div>
 		<div
-			class="hidden p-4 rounded-lg "
+			class="hidden p-4 rounded-lg"
 			id="socios"
 			role="tabpanel"
 			aria-labelledby="socios-tab"
@@ -522,7 +534,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						<thead
 							class="text-xs text-neutral-700 uppercase bg-neutral-400 dark:bg-neutral-800 dark:text-neutral-400"
 						>
-							<tr >
+							<tr>
 								{
 									[
 										'nombres',
@@ -661,7 +673,6 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 										</th>
 									))
 								}
-								
 							</tr>
 						</thead>
 						<tbody>
@@ -702,9 +713,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			role="tabpanel"
 			aria-labelledby="contacts-tab"
 		>
-			<p class="text-sm text-neutral-500 dark:text-neutral-400">
-				Pendiente
-			</p>
+			<p class="text-sm text-neutral-500 dark:text-neutral-400">Pendiente</p>
 		</div>
 	</div>
 </div>
@@ -725,7 +734,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			labels: {
 				placeholder: 'Buscar...',
 				perPage: 'Filas',
-				noRows: 'No hay empresas',
+				noRows: 'No hay socios aun',
 				noResults: 'No se encontraron resultados',
 				info: 'Mostrando {start} a {end} de {rows} registros',
 			},
@@ -761,7 +770,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			labels: {
 				placeholder: 'Buscar...',
 				perPage: 'Filas',
-				noRows: 'No hay empresas',
+				noRows: 'No hay documentos aun',
 				noResults: 'No se encontraron resultados',
 				info: 'Mostrando {start} a {end} de {rows} registros',
 			},

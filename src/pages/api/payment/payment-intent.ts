@@ -14,11 +14,12 @@ const supabase = createClient(
 
 export const POST: APIRoute = async ({ request }) => {
 	try {
-		// 1) Body: requerimos empresaId
+		// 1) Body: requerimos empresaId y microservicios
 		const body = (await request.json().catch(() => null)) as {
 			planId?: string;
 			userId?: string; // UUID del usuario
 			empresaId?: string; // UUID de empresas_incorporaciones.empresa_incorporacion_id
+			microservicios?: Array<{ id: string; name: string; price: number }>;
 		} | null;
 
 		if (!body || !body.planId || !body.userId || !body.empresaId) {
@@ -31,7 +32,7 @@ export const POST: APIRoute = async ({ request }) => {
 			);
 		}
 
-		const { planId, userId, empresaId } = body;
+		const { planId, userId, empresaId, microservicios = [] } = body;
 
 		// 2) Servicio vigente (precio/activo)
 		const { data: servicio, error: serviciosErr } = await supabase
@@ -52,8 +53,56 @@ export const POST: APIRoute = async ({ request }) => {
 			);
 		}
 
-		// 3) Montos (USD→centavos) + 4.5% fee
-		const baseAmountCents = Math.round(Number(servicio.precio) * 100);
+		// 3) Validar y obtener precios de microservicios desde la base de datos
+		let microserviciosTotal = 0;
+		let microserviciosValidados: Array<{ id: string; name: string; price: number }> = [];
+
+		if (microservicios.length > 0) {
+			// Obtener los microservicios desde la base de datos para validar precios
+			const microserviciosIds = microservicios.map(m => m.id);
+			const { data: microserviciosDB, error: microserviciosErr } = await supabase
+				.from('micro_servicios')
+				.select('id_micro_servicios, nombre, precio, estado')
+				.in('id_micro_servicios', microserviciosIds)
+				.eq('estado', true);
+
+			if (microserviciosErr) {
+				console.error('Error obteniendo microservicios:', microserviciosErr);
+				return new Response(
+					JSON.stringify({ error: 'Error validando microservicios' }),
+					{
+						status: 400,
+						headers: { 'Content-Type': 'application/json' },
+					},
+				);
+			}
+
+			// Validar que todos los microservicios solicitados existan y estén activos
+			for (const solicitado of microservicios) {
+				const dbItem = microserviciosDB?.find(db => db.id_micro_servicios === solicitado.id);
+				if (!dbItem) {
+					return new Response(
+						JSON.stringify({ error: `Microservicio ${solicitado.id} no encontrado o inactivo` }),
+						{
+							status: 400,
+							headers: { 'Content-Type': 'application/json' },
+						},
+					);
+				}
+				
+				// Usar el precio de la base de datos (seguro) en lugar del del frontend
+				microserviciosValidados.push({
+					id: dbItem.id_micro_servicios,
+					name: dbItem.nombre,
+					price: Number(dbItem.precio)
+				});
+				microserviciosTotal += Number(dbItem.precio);
+			}
+		}
+
+		// 4) Montos (USD→centavos) + 4.5% fee
+		const planBaseAmount = Number(servicio.precio) + microserviciosTotal;
+		const baseAmountCents = Math.round(planBaseAmount * 100);
 		const feePercent = 0.045;
 		const totalAmountCents = Math.round(baseAmountCents * (1 + feePercent));
 
@@ -68,21 +117,55 @@ export const POST: APIRoute = async ({ request }) => {
 			);
 		}
 
-		// 4) Metadata para Stripe (coincide con la función SQL)
+		// 5) Metadata para Stripe (estructura optimizada para trigger)
 		const metadata: Record<string, string> = {
 			servicio_id: String(servicio.id_servicios),
 			user_id: String(userId),
 			empresa_incorporacion_id: String(empresaId),
 			base_amount_cents: String(baseAmountCents),
 			fee_percent: String(feePercent * 100), // "4.5"
+			plan_base_amount: String(servicio.precio),
+			microservicios_total: String(microserviciosTotal),
+			microservicios_count: String(microserviciosValidados.length),
 		};
 
-		// 5) PaymentIntent en Stripe
+		// Estructura optimizada para trigger de Supabase
+		if (microserviciosValidados.length > 0) {
+			// Booleano para verificación rápida en trigger
+			metadata.microservicios_exist = 'true';
+			
+			// Array JSON bien estructurado para copia directa
+			const microserviciosArray = microserviciosValidados.map(m => ({
+				id: m.id,
+				name: m.name,
+				price: m.price
+			}));
+			
+			// Guardar como string JSON en metadata (Stripe solo acepta strings)
+			metadata.microservicios_array = JSON.stringify(microserviciosArray);
+			
+			// Mantener compatibilidad con datos separados por comas (legacy)
+			metadata.microservicios_ids = microserviciosValidados.map(m => m.id).join(',');
+			metadata.microservicios_names = microserviciosValidados.map(m => m.name).join(',');
+			metadata.microservicios_prices = microserviciosValidados.map(m => m.price).join(',');
+		} else {
+			// Booleano para indicar que no hay microservicios
+			metadata.microservicios_exist = 'false';
+			metadata.microservicios_array = '[]';
+		}
+
+		// 6) PaymentIntent en Stripe
+		let description = servicio.nombre ?? 'Servicio LLC';
+		if (microserviciosValidados.length > 0) {
+			const microserviciosNames = microserviciosValidados.map(m => m.name).join(', ');
+			description += ` + ${microserviciosNames}`;
+		}
+
 		const paymentIntent = await stripe.paymentIntents.create(
 			{
 				amount: totalAmountCents,
 				currency: 'usd',
-				description: servicio.nombre ?? 'Servicio LLC',
+				description,
 				metadata,
 				payment_method_types: ['card'],
 			},

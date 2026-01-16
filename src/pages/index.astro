@@ -38,8 +38,8 @@ if (error) {
 	<script is:inline>
 		(async function () {
 			const toast = document.getElementById('toast-feedback-2');
-			const msgWrapper = toast?.querySelector('.ms-3'); // el div
-			const msgEl = msgWrapper?.querySelector('span.ms-3'); // el span interno
+			const msgWrapper = toast?.querySelector('.ms-3');
+			const msgEl = msgWrapper?.querySelector('span.ms-3');
 
 			const iconWrapper = document.getElementById('toast-icon-wrapper');
 			const iconSuccess = document.getElementById('toast-icon-success');
@@ -51,7 +51,7 @@ if (error) {
 					isSuccess = false,
 					autoClose = true,
 					autoCloseMs = 6000,
-					redirectTo, // string | undefined
+					redirectTo,
 					redirectDelayMs = 3000,
 				} = options;
 
@@ -83,7 +83,7 @@ if (error) {
 					isSuccess ? 'text-green-700' : 'text-red-700',
 					isSuccess ? 'dark:text-green-300' : 'dark:text-red-300',
 				);
-
++
 				// Colores del icon wrapper
 				iconWrapper.classList.remove(
 					'bg-green-100',
