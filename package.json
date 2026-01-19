@@ -36,8 +36,8 @@
 		"start": "astro dev"
 	},
 	"dependencies": {
-		"@astrojs/node": "^9.5.1",
-		"@astrojs/sitemap": "^3.6.0",
+		"@astrojs/node": "^9.5.2",
+		"@astrojs/sitemap": "^3.7.0",
 		"@astrojs/tailwind": "^6.0.2",
 		"@emotion/css": "^11.13.5",
 		"@faker-js/faker": "^7.6.0",
@@ -47,7 +47,7 @@
 		"@supabase/supabase-js": "^2.57.0",
 		"alpinejs": "^3.15.3",
 		"apexcharts": "^3.37.2",
-		"astro": "^5.16.0",
+		"astro": "^5.16.11",
 		"astro-icon": "^1.1.5",
 		"carbone": "^3.5.6",
 		"chart.js": "^4.5.1",

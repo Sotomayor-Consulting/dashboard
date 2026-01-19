@@ -5,23 +5,14 @@ import Alerta from '../components/alertageneral.astro';
 import { Icon } from 'astro-icon/components';
 
 // JOINS para render
-const { data: formularios_envios } = await supabase
-	.from('formularios_envios')
+const { data: pagosRealizados } = await supabase
+	.from('pagos')
 	.select(
 		`
-    submission_id,
-    form_id,
-    user_id,
-    status,
-    data_json,
-    schema_snapshot,
-    progress_percent,
-    created_at,
-    updated_at,
-    submitted_at,
-    schema_hash,
-    formularios:formularios ( form_id, titulo, slug, descripcion ),
-    usuarios:usuarios ( user_id, nombre, apellido )
+    *,
+    usuarios:usuarios ( user_id, nombre, apellido, correo ),
+	servicios:servicios (id_servicios, nombre, categoria),
+	empresas_incorporaciones:empresas_incorporaciones (empresa_incorporacion_id, nombre_1)
   `,
 		{ count: 'exact' },
 	)
@@ -80,7 +71,7 @@ const { data: formularios_envios } = await supabase
 				<h1
 					class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
 				>
-					Todos los formularios enviados
+					Todos los pagos realizados
 				</h1>
 			</div>
 			<div class="items-center justify-between block sm:flex">
@@ -107,23 +98,6 @@ const { data: formularios_envios } = await supabase
 						</svg>
 						Actualizar
 					</a>
-					<a
-						href="/crud/formularios"
-						target="_blank"
-						type="button"
-						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="w-5 h-5 mr-2 -ml-1"
-							viewBox="0 0 24 24"
-							><path
-								fill="currentColor"
-								d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6v2H5v12h12v-6zM13 3v2h4.586l-7.793 7.793l1.414 1.414L19 6.414V11h2V3z"
-							></path></svg
-						>
-						Gestionar formularios
-					</a>
 				</div>
 			</div>
 		</div>
@@ -141,13 +115,14 @@ const { data: formularios_envios } = await supabase
 							<tr>
 								{
 									[
-										'id de formulario',
-										'Subido por',
-										'Porcentaje de progreso',
-										'Fecha de inicio del formulario',
-										'Fecha de ultima actualización',
-										'Fecha de ultima subida',
-										'estado',
+										'id de Stripe',
+										'Pago hecho por',
+										'Empresa asociada al pago',
+										'Servicio pagado',
+										'cantidad',
+										'Estado del pago',
+										'Leído',
+										'Fecha de pago',
 										'Acciones',
 									].map((th) => (
 										<th
@@ -184,31 +159,79 @@ const { data: formularios_envios } = await supabase
 							class="bg-white divide-y divide-gray-200 dark:bg-[#1d1d1d] dark:divide-gray-700"
 						>
 							{
-								formularios_envios?.map((sr) => (
+								pagosRealizados?.map((sr) => (
 									<tr class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-[#1d313f] odd:bg-neutral-200 even:bg-[#d4d4d4]">
 										<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
-											<div class="text-base font-semibold text-gray-900 dark:text-white">
+											<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
 												<data value="name">
-													{sr.formularios?.titulo ?? '— sin título —'}
-												</data>
-											</div>
-											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-												<data value="category">
-													{sr.formularios?.slug ?? '— sin categoría —'}
+													{sr.stripe_payment_intent_id ?? '— sin id —'}
 												</data>
 											</div>
 										</td>
-
 										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-											<data >
+											<data>
 												{sr.usuarios.nombre} {sr.usuarios.apellido}
 											</data>
 										</td>
 										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-											<data value="">{sr.progress_percent ?? '0'}% </data>
+											<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
+												<data>{sr.empresas_incorporaciones.nombre_1}</data>
+											</div>
+
+											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+												<data>
+													{sr.empresas_incorporaciones.empresa_incorporacion_id}
+												</data>
+											</div>
 										</td>
 										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<data value="">
+											<data />
+											<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
+												<data>{sr.servicios.nombre}</data>
+											</div>
+										</td>
+										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
+											<data>
+												{sr.amount &&
+													(sr.amount / 100).toLocaleString('en-US', {
+														style: 'currency',
+														currency: 'USD',
+														minimumFractionDigits: 2,
+													})}
+											</data>
+										</td>
+										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
+											<div class="flex items-center">
+												{sr.status === 'succeeded' ? (
+													<>
+														<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
+														<span>Pago exitoso</span>
+													</>
+												) : (
+													<>
+														<div class="h-2.5 w-2.5 rounded-full bg-orange-400 mr-2" />
+														<span>Error de pago</span>
+													</>
+												)}
+											</div>
+										</td>
+										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
+											<div class="flex items-center">
+												{sr.visto_por_operaciones === true ? (
+													<>
+														<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
+														<span>Leído</span>
+													</>
+												) : (
+													<>
+														<div class="h-2.5 w-2.5 rounded-full bg-orange-400 mr-2" />
+														<span>Sin leer</span>
+													</>
+												)}
+											</div>
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											<div class="flex items-center">
 												{sr.created_at &&
 													new Date(sr.created_at)
 														.toLocaleDateString('es-ES', {
@@ -217,68 +240,64 @@ const { data: formularios_envios } = await supabase
 															year: 'numeric',
 														})
 														.replace(/\//g, '-')}
-											</data>
-										</td>
-										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<data value="">
-												{sr.updated_at &&
-													new Date(sr.updated_at)
-														.toLocaleDateString('es-ES', {
-															day: '2-digit',
-															month: '2-digit',
-															year: 'numeric',
-														})
-														.replace(/\//g, '-')}
-											</data>
-										</td>
-										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<data value="">
-												{(sr.submitted_at &&
-													new Date(sr.submitted_at)
-														.toLocaleDateString('es-ES', {
-															day: '2-digit',
-															month: '2-digit',
-															year: 'numeric',
-														})
-														.replace(/\//g, '-')) ??
-													'— sin fecha —'}
-											</data>
-										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-											<div class="flex items-center">
-												{sr.status === 'submitted' ? (
-													<>
-														<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
-														<span>Terminado</span>
-													</>
-												) : (
-													<>
-														<div class="h-2.5 w-2.5 rounded-full bg-orange-400 mr-2" />
-														<span>En progreso</span>
-													</>
-												)}
 											</div>
 										</td>
-
 										<td class="p-4 space-x-2 whitespace-nowrap text-center">
 											<div class="h-full flex justify-center items-center gap-2">
-												<a
-													href={`/forms/enviados/${sr.submission_id}`}
-													target="_blank"
-													title="ver formulario"
-													data-tooltip-target={`tool-tip-${sr.submission_id}`}
-												>
-													<Icon
-														name="ri:eye-fill"
-														class="text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-300 text-2xl hover:scale-105"
-													/>
-												</a>
+												{sr.visto_por_operaciones === false ? (
+													<form
+														action="/api/update/operaciones-update-lectura-de-pagos"
+														method="post"
+													>
+														<input
+															type="text"
+															value={sr.id_pagos}
+															hidden
+															name="pago_id"
+														/>
+														<input
+															type="text"
+															value="true"
+															hidden
+															name="marcar_como_visto"
+														/>
+														<button
+															type="submit"
+															title="marcar como leído"
+															data-tooltip-target={`tool-tip-${sr.id_pagos}`}
+														>
+															<Icon
+																name="ri:check-double-fill"
+																class="text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-300 text-2xl hover:scale-105"
+															/>
+														</button>
+													</form>
+												) : (
+													<div
+														data-tooltip-target={`tool-tip-${sr.id_pagos}-read`}
+													>
+														<Icon
+															name="ri:checkbox-circle-fill"
+															class="text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-300 text-2xl hover:scale-105"
+														/>
+													</div>
+												)}
+
 												<div
-													id={`tool-tip-${sr.submission_id}`}
+													id={`tool-tip-${sr.id_pagos}`}
 													role="tooltip"
 													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-[#223848]"
 												>
-													Ver respuestas del formulario
+													Marcar como leído
+													<div class="tooltip-arrow" data-popper-arrow />
+												</div>
+
+												<div
+													id={`tool-tip-${sr.id_pagos}-read`}
+													role="tooltip"
+													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-[#223848]"
+												>
+													Leído
 													<div class="tooltip-arrow" data-popper-arrow />
 												</div>
 											</div>
@@ -350,7 +369,7 @@ const { data: formularios_envios } = await supabase
 					<label
 						for="categoria_service"
 						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-						>Categoría</label
+						>Categoria</label
 					>
 					<input
 						type="text"
@@ -386,14 +405,14 @@ const { data: formularios_envios } = await supabase
 						name="tema-form-update"
 						rows="4"
 						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-						placeholder="Añade el código json del tema de tu formulario"
+						placeholder="Añade el codigo json del tema de tu formulario"
 					></textarea>
 				</div>
 				<div>
 					<label
 						for="descripcion-servicio"
 						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-						>Descripción</label
+						>Descripcion</label
 					>
 					<textarea
 						id="descripcion-form"

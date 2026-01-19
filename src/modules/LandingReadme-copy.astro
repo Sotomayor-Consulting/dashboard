@@ -144,6 +144,30 @@ const menuItems = [
 		svgname: 'ri:archive-stack-fill',
 	},
 	{
+		id: 'menu-vista-de-pagos',
+		label: 'Pagos',
+		href: '/crud/pagos',
+		tooltip: 'verifica y gestiona los pagos realizados por los clientes',
+		roles: ['admin'],
+		svgname: 'ri:coins-fill',
+	},
+	{
+		id: 'menu-notificaciones-a-usuarios',
+		label: 'Notificaciones',
+		href: '/crud/notificaciones-personalizadas',
+		tooltip: 'Notifica a los usuarios con mensajes personalizados',
+		roles: ['admin'],
+		svgname: 'ri:chat-ai-4-fill',
+	},
+	{
+		id: 'menu-mailing',
+		label: 'Mailing',
+		href: '/crud/mailing',
+		tooltip: 'Envía correos personalizados a los usuarios',
+		roles: ['admin'],
+		svgname: 'ri:mail-ai-fill',
+	},
+	{
 		id: 'crud-servicios',
 		label: 'Servicios',
 		href: '/crud/services',
@@ -190,12 +214,25 @@ if (userRole === 'admin') {
 			usuarios:usuarios (user_id, nombre, apellido)
 		`,
 		)
-		.eq('formularios.titulo', 'Formulario de incorporación')
 		.eq('status', 'submitted')
 		.eq('verificacion_operaciones', false)
+		.or('formularios.titulo.eq.Formulario de incorporación')
 		.order('updated_at', { ascending: true });
 
 	formularioPendientesCount = formularios?.length || 0;
+}
+
+// --- 5. Consulta de tabla de pagos (solo para admin) ---
+let pagosCount = 0;
+
+if (userRole === 'admin') {
+	const { data: pagosCountData } = await supabase
+		.from('pagos')
+		.select('*')
+		.eq('status', 'succeeded')
+		.eq('visto_por_operaciones', false);
+
+	pagosCount = pagosCountData?.length || 0;
 }
 
 // Filtramos el menú antes de renderizar - ACTUALIZADO PARA INCLUIR 'all'
@@ -242,7 +279,9 @@ const visibleMenu = menuItems.filter(
 								item.id === 'verificacion-formulario-incorp' &&
 								formularioPendientesCount > 0
 									? formularioPendientesCount
-									: null
+									: item.id === 'menu-vista-de-pagos' && pagosCount > 0
+										? pagosCount
+										: null
 							}
 						>
 							<Icon name={item.svgname} class="text-5xl" />

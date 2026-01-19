@@ -1,25 +1,9 @@
 ---
-import NavPagination from '../components/NavPagination.astro';
+import '../estilos/datatables.css';
 import { supabase } from '../lib/supabase';
 import Alerta from '../components/alertageneral.astro';
 
-/* =========================
-   4) Búsqueda + paginación
-   ========================= */
-const rawQ = (Astro.url.searchParams.get('rawQ') || '').trim();
-const rawPage = parseInt(Astro.url.searchParams.get('page') || '1', 10);
-const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
-
-const pageSize = 20;
-const from = (page - 1) * pageSize;
-const to = from + pageSize - 1;
-
-let servicio: any[] = []; // ✅ usa "servicios" (plural) para pintar
-let errorMsg = '';
-let total = 0;
-let totalPages = 1;
-
-let query = supabase
+const { data: servicio } = await supabase
 	.from('servicios')
 	.select(
 		`
@@ -34,31 +18,10 @@ let query = supabase
 		{ count: 'exact' },
 	)
 	.order('created_at', { ascending: false });
-
-if (rawQ) {
-	const safe = rawQ.replace(/[,*]/g, ''); // evita romper .or
-	query = query.or(
-		[
-			`nombre.ilike.*${safe}*`,
-			`categoria.ilike.*${safe}*`,
-			`descripcion.ilike.*${safe}*`,
-		].join(','),
-	);
-}
-
-// Paginamos
-const { data, error, count } = await query.range(from, to);
-
-if (error) {
-	errorMsg = error.message ?? 'Error desconocido';
-	console.error('Error leyendo servicios:', errorMsg);
-} else {
-	servicio = data ?? [];
-	total = count ?? 0;
-	totalPages = Math.max(1, Math.ceil(total / pageSize));
-}
 ---
 
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+></script>
 <div
 	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#0E2637] dark:border-gray-700"
 >
@@ -118,59 +81,11 @@ if (error) {
 					</h1>
 				</div>
 				<div class="items-center justify-between block sm:flex">
-					<div class="flex items-center mb-4 sm:mb-0">
-						<form class="lg:pr-3" method="GET">
-							<label for="users-search" class="sr-only">Buscar</label>
-							<div class="relative mt-1 lg:w-64 xl:w-96 flex">
-								<input
-									type="search"
-									name="rawQ"
-									value={rawQ}
-									class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-									placeholder="Buscar por nombre, correo, empresa…"
-								/>
-								<button
-									class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800 ml-2"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										viewBox="0 0 24 24"
-										><path
-											fill="currentColor"
-											d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0s.41-1.08 0-1.49zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5S14 7.01 14 9.5S11.99 14 9.5 14"
-										></path></svg
-									>
-									Buscar
-								</button>
-							</div>
-						</form>
-						<div class="flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0">
-							<a
-								href="/crud/services"
-								type="button"
-								class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
-							>
-								<svg
-									class="w-5 h-5 mr-2 -ml-1"
-									viewBox="0 0 1024 1024"
-									xmlns="http://www.w3.org/2000/svg"
-									><path
-										fill="currentColor"
-										d="m899.1 869.6l-53-305.6H864c14.4 0 26-11.6 	26-26V346c0-14.4-11.6-26-26-26H618V138c0-14.4-11.6-26-26-26H432c-14.4 0-26 11.6-26 26v182H160c-14.4 0-26 11.6-26 26v192c0 14.4 11.6 26 26 26h17.9l-53 305.6c-.3 1.5-.	4 3-.4 4.4c0 14.4 11.6 26 26 26h723c1.5 0 3-.1 4.4-.4c14.2-2.4 23.7-15.9 21.2-30M204 390h272V182h72v208h272v104H204zm468 440V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 	8v156H416V674c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v156H202.8l45.1-260H776l45.1 260z"
-									></path></svg
-								>
-								Limpiar busqueda
-							</a>
-						</div>
-					</div>
-
 					<div class="flex items-center ml-auto space-x-2 sm:space-x-3">
 						<a
 							href="/crud/services/"
 							type="button"
-							class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d]focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
 						>
 							<svg
 								class="w-5 h-5 mr-2 -ml-1"
@@ -191,7 +106,7 @@ if (error) {
 						</a>
 						<button
 							id="createProductButton"
-							class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d]focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
 							type="button"
 							data-drawer-target="drawer-create-product-default"
 							data-drawer-show="drawer-create-product-default"
@@ -221,21 +136,10 @@ if (error) {
 					<div class="overflow-hidden shadow">
 						<table
 							class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
+							id="myTable"
 						>
 							<thead class="bg-gray-100 dark:bg-[#1f2937]">
 								<tr>
-									<th scope="col" class="p-4">
-										<div class="flex items-center">
-											<input
-												id="checkbox-all"
-												aria-describedby="checkbox-1"
-												type="checkbox"
-												class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:bg-neutral-700 dark:border-gray-600"
-											/>
-											<label for="checkbox-all" class="sr-only">checkbox</label>
-										</div>
-									</th>
-
 									{
 										[
 											'Nombre del servicio',
@@ -251,32 +155,36 @@ if (error) {
 												scope="col"
 												class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
 											>
-												{th}
+												<span class="flex items-center uppercase">
+													{th}
+													<svg
+														class="w-4 h-4 ms-1"
+														aria-hidden="true"
+														xmlns="http://www.w3.org/2000/svg"
+														width="24"
+														height="24"
+														fill="none"
+														viewBox="0 0 24 24"
+													>
+														<path
+															stroke="currentColor"
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															stroke-width="2"
+															d="m8 15 4 4 4-4m0-6-4-4-4 4"
+														/>
+													</svg>
+												</span>
 											</th>
 										))
 									}
 								</tr>
 							</thead>
 
-							<tbody
-								class="divide-y divide-gray-200 dark:divide-gray-700"
-							>
+							<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
 								{
 									servicio?.map((sr) => (
 										<tr class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-[#1d313f] odd:bg-neutral-200 even:bg-[#d4d4d4]">
-											<td class="w-4 p-4">
-												<div class="flex items-center">
-													<input
-														id={`checkbox-${sr.id}`}
-														aria-describedby="checkbox-1"
-														type="checkbox"
-														class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:bg-neutral-700 dark:border-gray-600"
-													/>
-													<label for={`checkbox-${sr.id}`} class="sr-only">
-														checkbox
-													</label>
-												</div>
-											</td>
 											<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
 												<div class="text-base font-semibold text-gray-900 dark:text-white">
 													<data value="name">{sr.nombre}</data>
@@ -299,7 +207,16 @@ if (error) {
 												$<data value="price">{sr.precio}</data>
 											</td>
 											<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-												<data value="price">{sr.created_at}</data>
+												<data value="price">
+													{sr.created_at &&
+														new Date(sr.created_at)
+															.toLocaleDateString('es-ES', {
+																day: '2-digit',
+																month: '2-digit',
+																year: 'numeric',
+															})
+															.replace(/\//g, '-')}
+												</data>
 											</td>
 											<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
 												<div class="flex items-center">
@@ -317,7 +234,10 @@ if (error) {
 												</div>
 											</td>
 
-											<td class="p-4 space-x-2 whitespace-nowrap">
+											<td
+												class="p-4 space-x-2 whitespace-nowrap"
+												x-data="{ showTooltip: false }"
+											>
 												<button
 													type="button"
 													id="updateProductButton"
@@ -331,7 +251,7 @@ if (error) {
 													data-drawer-show="drawer-update-product-default"
 													aria-controls="drawer-update-product-default"
 													data-drawer-placement="right"
-													class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+													class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 												>
 													<svg
 														class="w-4 h-4 mr-2"
@@ -352,7 +272,8 @@ if (error) {
 												</button>
 												<button
 													id={`dd-btn-${sr.id}`}
-													data-dropdown-toggle={`dd-${sr.id}`}
+													@click="showTooltip = !showTooltip"
+													@click.outside="showTooltip = false"
 													class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-neutral-700 dark:hover:bg-[#223848] dark:focus:ring-gray-600"
 													type="button"
 													aria-haspopup="true"
@@ -370,7 +291,9 @@ if (error) {
 												</button>
 												<div
 													id={`dd-${sr.id}`}
-													class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-neutral-700 dark:divide-gray-600"
+													x-show="showTooltip"
+													x-transition
+													class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-[#1f3443] dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute right-2"
 													role="menu"
 													aria-labelledby={`dd-btn-${sr.id}`}
 													data-dropdown-placement="bottom-start"
@@ -435,7 +358,7 @@ if (error) {
 		<!-- Edit Product Drawer -->
 		<div
 			id="drawer-update-product-default"
-			class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#1d1d1d]"
+			class="fixed top-0 right-0 z-40 w-full h-screen max-w-sm p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#1d1d1d]"
 			tabindex="-1"
 			aria-labelledby="drawer-label"
 			aria-hidden="true"
@@ -444,7 +367,7 @@ if (error) {
 				id="drawer-label"
 				class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
 			>
-				Actualizar producto
+				Actualizar servicio
 			</h5>
 			<button
 				type="button"
@@ -484,7 +407,7 @@ if (error) {
 							type="text"
 							name="nombre-service"
 							id="nombre_update-service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							value="Education Dashboard"
 							placeholder="inserta el nombre del servicio"
 							required=""
@@ -500,7 +423,7 @@ if (error) {
 							type="text"
 							name="categoria-service"
 							id="categoria_service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							value="Education Dashboard"
 							placeholder="Añade el nombre del servicio"
 							required=""
@@ -516,7 +439,7 @@ if (error) {
 							type="number"
 							name="precio-servicio"
 							id="precio-servicio"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							value="2999"
 							placeholder="$149"
 							required=""
@@ -532,7 +455,7 @@ if (error) {
 							id="descripcion-servicio"
 							name="descripcion-service"
 							rows="4"
-							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#967432] focus:border-[#967432] dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							placeholder="Añade una descripcion del producto"
 							>Start developing with an open-source library of over 450+ UI
 							components, sections, and pages built with the utility classes
@@ -545,7 +468,7 @@ if (error) {
 				>
 					<button
 						type="submit"
-						class="w-full justify-center text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="w-full justify-center text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-[#8c681d] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
 					>
 						Actualizar
 					</button>
@@ -708,7 +631,7 @@ if (error) {
 		<!-- Add Product Drawer -->
 		<div
 			id="drawer-create-product-default"
-			class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#1d1d1d]"
+			class="fixed top-0 right-0 z-40 w-full h-screen max-w-sm p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#1d1d1d]"
 			tabindex="-1"
 			aria-labelledby="drawer-label"
 			aria-hidden="true"
@@ -750,7 +673,7 @@ if (error) {
 							type="text"
 							name="nombre-service"
 							id="nombre-service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							placeholder="Nombre del servicio"
 							required=""
 						/>
@@ -766,7 +689,7 @@ if (error) {
 							type="number"
 							name="precio-servicio"
 							id="price"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							placeholder="$2999"
 							required=""
 						/>
@@ -781,7 +704,7 @@ if (error) {
 							type="text"
 							name="categoria-service"
 							id="categoria-service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							placeholder="Categoria del servicio"
 							required=""
 						/>
@@ -796,7 +719,7 @@ if (error) {
 							id="descripcion-service"
 							name="descripcion-service"
 							rows="4"
-							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#967432] focus:border-[#967432] dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							placeholder="Ingresa una descripcion del servicio"></textarea>
 					</div>
 
@@ -805,7 +728,7 @@ if (error) {
 					>
 						<button
 							type="submit"
-							class="text-white w-full justify-center bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							class="text-white w-full justify-center bg-[#8c681d] hover:bg-[#8c681d]focus:ring-4 focus:outline-none focus:ring-[#967432] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#967432]"
 						>
 							Añadir servicio
 						</button>
@@ -835,7 +758,7 @@ if (error) {
 			</form>
 		</div>
 
-		<script is:inline>
+		<script>
 			document.addEventListener('DOMContentLoaded', () => {
 				// Tipar los botones como HTMLElement (con dataset)
 				const btns = document.querySelectorAll<HTMLElement>(
@@ -843,7 +766,7 @@ if (error) {
 				);
 
 				// Helper para setear .value de inputs/textarea de forma segura
-				function setValue(id, val) {
+				function setValue(id: string, val: string) {
 					const el = document.getElementById(id) as
 						| HTMLInputElement
 						| HTMLTextAreaElement
@@ -919,11 +842,41 @@ if (error) {
 			});
 		</script>
 
-		<NavPagination
-			page={page}
-			total={total}
-			pageSize={20}
-			searchParams={Astro.url.searchParams}
-		/>
+		<script type="module">
+			import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+
+			function initDT() {
+				const el = document.querySelector('#myTable');
+				if (!el) return;
+				if (el.dataset.dtInit === '1') return;
+
+				const dt = new DataTable(el, {
+					searchable: true,
+					perPage: 25,
+					perPageSelect: [5, 10, 25, 50],
+
+					// Textos en español
+					labels: {
+						placeholder: 'Buscar...',
+						perPage: 'Filas',
+						noRows: 'No hay empresas',
+						noResults: 'No se encontraron resultados',
+						info: 'Mostrando {start} a {end} de {rows} registros',
+					},
+
+					// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+					layout: {
+						top: '{select}{search}',
+						bottom: '{info}{pager}',
+					},
+				});
+
+				el.dataset.dtInit = '1';
+				el.dataset.dtInstance = '1';
+			}
+
+			initDT();
+			document.addEventListener('astro:page-load', initDT);
+		</script>
 	</div>
 </div>
