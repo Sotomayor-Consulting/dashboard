@@ -194,7 +194,7 @@ export { notifications, totalUnread, user };
 					</button>
 					<!-- Dropdown menu -->
 					<div
-						class="z-20 z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 rounded shadow-lg dark:divide-gray-600 dark:bg-[#223848]"
+						class="z-20 z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-[#223848] rounded-xl"
 						id="notification-dropdown"
 					>
 						<div
@@ -202,7 +202,7 @@ export { notifications, totalUnread, user };
 						>
 							Notificaciones
 						</div>
-						<div id="notifications-list">
+						<div id="notifications-list" class="overflow-y-auto h-96 scrollbar-thin scrollbar-thumb-neutral-400">
 							{
 								notifications.length === 0 ? (
 									<div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-600 dark:border-gray-600 dark:text-neutral-500 text-neutral-400">
@@ -218,7 +218,7 @@ export { notifications, totalUnread, user };
 												<Image
 													src={logonotificaciones}
 													width="44"
-													alt="Logo notificacion Sotomayor Consulting"
+													alt="Logo notificación Sotomayor Consulting"
 													class="rounded-full"
 												/>
 											</div>
