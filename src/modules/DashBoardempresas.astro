@@ -36,7 +36,7 @@ if (empresa.estado_de_incorporacion) {
 		.single();
 
 	if (!estadoError && estadoData) {
-		estadoMapa = estadoData.abreviatura;
+		estadoMapa = estadoData.Estado;
 	}
 }
 
@@ -577,7 +577,6 @@ const acciones = [
 				</div>
 			</div>
 			<div id="datamap-container" class="w-full h-full relative">
-				<!-- Loader animado -->
 				<div
 					class="map-loader absolute inset-0 flex items-center justify-center rounded-lg"
 				>
@@ -730,7 +729,9 @@ const acciones = [
 								</tr>
 							</thead>
 							<tbody class="bg-white dark:bg-neutral-700">
-								<tr class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-[#1d313f] odd:bg-neutral-200 even:bg-[#d4d4d4] cursor-pointer">
+								<tr
+									class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-[#1d313f] odd:bg-neutral-200 even:bg-[#d4d4d4] cursor-pointer"
+								>
 									<td
 										class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white"
 									>
@@ -884,102 +885,175 @@ const acciones = [
 	initDT();
 	document.addEventListener('astro:page-load', initDT);
 </script>
-<!-- DataMaps dependencies -->
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"
-	is:inline></script>
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"
-	is:inline></script>
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.9/datamaps.usa.min.js"
-	is:inline></script>
 
-<script define:vars={{ estadoMapa }} is:inline>
+<script type="module" define:vars={{ estadoMapa }} is:inline>
+	import { Chart, registerables } from 'https://esm.sh/chart.js';
+	import {
+		topojson,
+		ChoroplethController,
+		GeoFeature,
+		ProjectionScale,
+		ColorScale,
+	} from 'https://esm.sh/chartjs-chart-geo';
+
+	Chart.register(
+		ChoroplethController,
+		GeoFeature,
+		ProjectionScale,
+		ColorScale,
+		...registerables,
+	);
+
 	document.addEventListener('DOMContentLoaded', function () {
 		setTimeout(function () {
 			try {
-				// Verificar que Datamap esté disponible
-				if (typeof Datamap === 'undefined') {
-					throw new Error(
-						'Datamap no está definido. Verifica que se cargaron las dependencias.',
-					);
-				}
-
 				// Obtener contenedor
 				const container = document.getElementById('datamap-container');
 				const loader = container.querySelector('.map-loader');
 
-				var map = new Datamap({
-					element: document.getElementById('datamap-container'),
-					responsive: true,
-					scope: 'usa',
+				// Cargar datos geográficos de EE.UU.
+				fetch('https://unpkg.com/us-atlas/states-10m.json')
+					.then((r) => r.json())
+					.then((us) => {
+						const nation = topojson.feature(us, us.objects.nation).features[0];
+						const states = topojson.feature(us, us.objects.states).features;
 
-					geographyConfig: {
-						borderColor: '#b8860b',
-						highlightBorderColor: '#967432',
-						highlightBorderWidth: 2,
-						highlightFillColor: '#967432',
-						popupTemplate: function (geography, data) {
-							// Si es el estado de la empresa, mostrar mensaje personalizado
-							if (geography.id === estadoMapa) {
-								return (
-									'<div class="hoverinfo">' +
-									geography.properties.name +
-									': El estado de tu empresa</div>'
-								);
+						// Crear canvas para el mapa
+						const canvas = document.createElement('canvas');
+						container.innerHTML = '';
+						container.appendChild(canvas);
+
+						// Establecer altura fija al contenedor para evitar crecimiento
+						container.style.height = '400px';
+						container.style.maxHeight = '400px';
+
+						// Preparar datos para el mapa - solo el estado de la empresa
+						const mapData = states.map((d) => {
+							// Usar el nombre completo del estado
+							const stateName = d.properties.name;
+							const isActive =
+								estadoMapa &&
+								stateName.toLowerCase() === estadoMapa.toLowerCase();
+
+							return {
+								feature: d,
+								value: isActive ? 1 : 0,
+							};
+						});
+
+						// Crear el mapa con Chart.js Geo
+						const chart = new Chart(canvas.getContext('2d'), {
+							type: 'choropleth',
+							data: {
+								labels: states.map((d) => d.properties.name),
+								datasets: [
+									{
+										label: 'Estados',
+										outline: nation,
+										data: mapData,
+										backgroundColor: (context) => {
+											// Si el estado tiene valor 1, es el estado de la empresa
+											if (context.raw && context.raw.value === 1) {
+												return '#b8860b'; // activeFill
+											}
+											return 'transparent'; // defaultFill
+										},
+										borderColor: '#b8860b',
+										borderWidth: 1,
+										hoverBackgroundColor: '#967432', // highlightFill
+										hoverBorderColor: '#967432',
+										hoverBorderWidth: 2,
+										skip: false,
+									},
+								],
+							},
+							options: {
+								responsive: true,
+								maintainAspectRatio: false,
+								scales: {
+									projection: {
+										axis: 'x',
+										projection: 'albersUsa',
+									},
+									color: {
+										axis: 'x',
+										display: false,
+									},
+								},
+								plugins: {
+									legend: {
+										display: false,
+									},
+									tooltip: {
+										enabled: true,
+										backgroundColor: 'rgba(0, 0, 0, 0.8)',
+										titleColor: '#fff',
+										bodyColor: '#fff',
+										borderColor: '#b8860b',
+										borderWidth: 1,
+										padding: 10,
+										displayColors: false,
+										callbacks: {
+											title: function (context) {
+												const item = context[0];
+												if (
+													item &&
+													item.raw &&
+													item.raw.feature &&
+													item.raw.feature.properties
+												) {
+													return item.raw.feature.properties.name;
+												}
+												return '';
+											},
+											label: function (context) {
+												if (context.raw && context.raw.value === 1) {
+													return 'El estado de tu empresa';
+												}
+												return '';
+											},
+										},
+									},
+								},
+							},
+						});
+
+						// Ocultar loader
+						if (loader) {
+							setTimeout(() => {
+								loader.style.transition = 'opacity 0.3s ease-out';
+								loader.style.opacity = '0';
+								setTimeout(() => {
+									loader.style.display = 'none';
+								}, 300);
+							}, 100);
+
+							// Animar el mapa
+							const canvasElement = container.querySelector('canvas');
+							if (canvasElement) {
+								canvasElement.style.opacity = '0';
+								canvasElement.style.transform = 'scale(0.95)';
+								canvasElement.style.transition = 'all 0.5s ease-out';
+
+								setTimeout(() => {
+									canvasElement.style.opacity = '1';
+									canvasElement.style.transform = 'scale(1)';
+								}, 150);
 							}
-							// Para otros estados, mostrar nombre normal
-							return (
-								'<div class="hoverinfo">' + geography.properties.name + '</div>'
-							);
-						},
-					},
+						}
 
-					fills: {
-						defaultFill: 'transparent',
-						highlightFill: '#967432',
-						activeFill: '#b8860b',
-					},
-					data: {
-						// Estado de incorporación desde Supabase
-						...(estadoMapa && { [estadoMapa]: { fillKey: 'activeFill' } }),
-					},
-				});
-
-				// Animación de entrada y ocultar loader
-				if (loader) {
-					setTimeout(() => {
-						loader.style.transition = 'opacity 0.3s ease-out';
-						loader.style.opacity = '0';
-						setTimeout(() => {
-							loader.style.display = 'none';
-						}, 300);
-					}, 100);
-
-					// Animar el mapa
-					const svgElement = container.querySelector('svg');
-					if (svgElement) {
-						svgElement.style.opacity = '0';
-						svgElement.style.transform = 'scale(0.95)';
-						svgElement.style.transition = 'all 0.5s ease-out';
-
-						setTimeout(() => {
-							svgElement.style.opacity = '1';
-							svgElement.style.transform = 'scale(1)';
-						}, 150);
-					}
-				}
-
-				// No mostrar labels para un look más limpio
-				// map.labels();
-
-				// Manejo responsive
-				window.addEventListener('resize', function () {
-					map.resize();
-				});
+						// Chart.js maneja el responsive automáticamente, no se necesita listener manual
+					})
+					.catch((error) => {
+						console.error('Error al cargar datos geográficos:', error);
+						const container = document.getElementById('datamap-container');
+						if (container) {
+							container.innerHTML =
+								'<div style="display:flex;align-items:center;justify-content:center;height:400px;color:#666;flex-direction:column;"><div style="margin-bottom:10px;">Error: No se pudieron cargar los datos del mapa</div><div style="font-size:12px;">Verifica tu conexión a internet</div></div>';
+						}
+					});
 			} catch (error) {
-				console.error('Error al inicializar DataMaps:', error);
+				console.error('Error al inicializar El mapa:', error);
 				const container = document.getElementById('datamap-container');
 				if (container) {
 					container.innerHTML =
