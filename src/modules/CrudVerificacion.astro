@@ -14,8 +14,10 @@ const { data: formularios } = await supabase
   
   .eq('status', 'submitted')
   .eq('verificacion_operaciones', false)
-  .or('formularios.titulo.eq.Formulario de incorporación')
+  .eq('formularios.titulo', 'Formulario de incorporación')
   .order('updated_at', { ascending: true });
+
+  
 
 ---
 

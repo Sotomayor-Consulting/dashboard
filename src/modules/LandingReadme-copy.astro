@@ -152,6 +152,14 @@ const menuItems = [
 		svgname: 'ri:coins-fill',
 	},
 	{
+		id: 'menu-subir-documentos-de-usuario',
+		label: 'subir docs',
+		href: '/crud/subir-documentos',
+		tooltip: 'Sube documentos específicos para los clientes',
+		roles: ['admin'],
+		svgname: 'ri:upload-cloud-2-fill',
+	},
+	{
 		id: 'menu-notificaciones-a-usuarios',
 		label: 'Notificaciones',
 		href: '/crud/notificaciones-personalizadas',
@@ -216,7 +224,7 @@ if (userRole === 'admin') {
 		)
 		.eq('status', 'submitted')
 		.eq('verificacion_operaciones', false)
-		.or('formularios.titulo.eq.Formulario de incorporación')
+		.eq('formularios.titulo', 'Formulario de incorporación')
 		.order('updated_at', { ascending: true });
 
 	formularioPendientesCount = formularios?.length || 0;

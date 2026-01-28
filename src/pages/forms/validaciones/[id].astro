@@ -136,7 +136,7 @@ import '/src/estilos/surveyjs.css';
 		}
 	};
 
-	// Solo si puede editar, mandamos a endpoint
+	// Si es editable envia a endopint
 	if (canEdit) {
 		survey.onComplete.add(async (sender) => {
 			const payload = {
@@ -146,29 +146,37 @@ import '/src/estilos/surveyjs.css';
 			};
 
 			try {
-				const res = await fetch("/api/operaciones/validacion_de_incorporacion", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						"Accept": "application/json",
+				const res = await fetch(
+					'/api/operaciones/validacion_de_incorporacion',
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
+						},
+						credentials: 'include',
+						redirect: 'manual',
+						body: JSON.stringify(payload),
 					},
-					credentials: "include",
-					redirect: "manual",
-					body: JSON.stringify(payload),
-				});
+				);
 
 				// Detectar redirects (mala señal si esperas JSON)
 				if (
-					res.type === "opaqueredirect" ||
+					res.type === 'opaqueredirect' ||
 					res.status === 0 ||
 					(res.status >= 300 && res.status < 400)
 				) {
-					console.error("[VALIDACION] El backend respondió con redirect (no JSON).", {
-						status: res.status,
-						type: res.type,
-						location: res.headers?.get?.("location") ?? null,
-					});
-					alert("El servidor respondió con redirect. El endpoint debe devolver JSON (ok/false).");
+					console.error(
+						'[VALIDACION] El backend respondió con redirect (no JSON).',
+						{
+							status: res.status,
+							type: res.type,
+							location: res.headers?.get?.('location') ?? null,
+						},
+					);
+					alert(
+						'El servidor respondió con redirect. El endpoint debe devolver JSON (ok/false).',
+					);
 					return;
 				}
 
@@ -177,41 +185,42 @@ import '/src/estilos/surveyjs.css';
 				// Si no vino JSON, mostramos texto para debugging
 				if (!out) {
 					const txt = await getDebugText(res);
-					console.error("[VALIDACION] Respuesta no-JSON del backend", {
+					console.error('[VALIDACION] Respuesta no-JSON del backend', {
 						status: res.status,
 						text: txt?.slice?.(0, 2000) ?? txt,
 					});
-					alert("El servidor no devolvió JSON. Revise consola para ver la respuesta.");
+					alert(
+						'El servidor no devolvió JSON. Revise consola para ver la respuesta.',
+					);
 					return;
 				}
 
 				// Manejo de error estándar { ok:false, error:{...} }
 				if (!res.ok || out.ok === false) {
-					console.error("[VALIDACION] Error backend:", out);
+					console.error('[VALIDACION] Error backend:', out);
 
 					const msg =
 						out?.error?.message ||
 						out?.message ||
-						"No se pudo validar. Revise los errores en consola.";
+						'No se pudo validar. Revise los errores en consola.';
 
 					alert(msg);
 					return;
 				}
 
 				// OK
-				console.log("[VALIDACION] OK:", out);
-				alert("Validación enviada correctamente.");
+				console.log('[VALIDACION] OK:', out);
+				alert('Validación enviada correctamente.');
 
 				// Opcional: recargar o navegar
 				// window.location.reload();
 				// window.location.href = `/crud/verficacion-incorporacion?status=success&empresa_id=${encodeURIComponent(empresa_id)}`;
 			} catch (e) {
-				console.error("[VALIDACION] Error enviando validación:", e);
-				alert("Error enviando validación. Revise consola.");
+				console.error('[VALIDACION] Error enviando validación:', e);
+				alert('Error enviando validación. Revise consola.');
 			}
 		});
 	}
 
-	survey.render(document.getElementById("surveyContainer"));
+	survey.render(document.getElementById('surveyContainer'));
 </script>
-
