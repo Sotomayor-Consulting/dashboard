@@ -9,10 +9,10 @@ import logo2 from '../assets/SC-INTER-NG.png';
 >
 	<!-- Card -->
 	<div
-		class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-gray-200 rounded-lg shadow dark:bg-[#0e2637]"
+		class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-gray-200 rounded-lg shadow dark:bg-[#101521]"
 	>
 		<a
-			href="#"
+			href="/sign-in"
 			class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white"
 		>
 			<Image
@@ -20,12 +20,14 @@ import logo2 from '../assets/SC-INTER-NG.png';
 				alt="Sotomayor Logo"
 				height="44"
 				class="mr-4 dark:block hidden"
+				loading="lazy"
 			/>
 			<Image
 				src={logo2}
 				alt="Sotomayor Logo"
 				height="44"
 				class="mr-4 dark:hidden block"
+				loading="lazy"
 			/>
 		</a>
 		<h2 class="text-2xl font-bold text-gray-900 dark:text-white">
@@ -42,7 +44,7 @@ import logo2 from '../assets/SC-INTER-NG.png';
 					type="email"
 					name="email"
 					id="email"
-					class="border sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#05121d] bg-white border-gray-600 placeholder-gray-400 dark:text-white text-neutral-700"
+					class="border sm:text-sm rounded-lg focus:ring-[#134aed] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] bg-white border-gray-600 placeholder-gray-400 dark:text-white text-neutral-700"
 					placeholder="correo@ejemplo.com"
 					autocomplete="email"
 					required
@@ -59,7 +61,7 @@ import logo2 from '../assets/SC-INTER-NG.png';
 					name="password"
 					id="password"
 					placeholder="••••••••"
-					class="border sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#05121d] bg-white border-gray-600 placeholder-gray-400 dark:text-white text-neutral-700"
+					class="border sm:text-sm rounded-lg focus:ring-[#134aed] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] bg-white border-gray-600 placeholder-gray-400 dark:text-white text-neutral-700"
 					autocomplete="on"
 					required
 				/>
@@ -71,7 +73,7 @@ import logo2 from '../assets/SC-INTER-NG.png';
 						aria-describedby="remember"
 						name="remember"
 						type="checkbox"
-						class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-[#967432] dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:bg-[#05121d] dark:border-gray-600 text-[#967432]"
+						class="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-[#967432] dark:focus:ring-[#134aed] dark:ring-offset-gray-800 dark:bg-[#192033] dark:border-gray-600 text-[#967432] dark:text-[#134aed]"
 					/>
 				</div>
 				<div class="ml-3 text-sm">
@@ -82,14 +84,14 @@ import logo2 from '../assets/SC-INTER-NG.png';
 				</div>
 				<a
 					href="/forgot-password"
-					class="ml-auto mt-4 text-left text-sm text-[#8c681d] hover:underline dark:text-[#8c681d] w-full"
+					class="ml-auto mt-4 text-left text-sm text-[#8c681d] hover:underline dark:text-[#134aed] w-full"
 					>Olvide mi contraseña</a
 				>
 			</div>
 			<div class="w-full flex">
 				<button
 					type="submit"
-					class="w-full px-5 py-3 text-base font-medium text-center text-white bg-[#8c681d] rounded-lg hover:bg-[#8c681d] focus:ring-4 focus:ring-[#967432] sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#967432]"
+					class="w-full px-5 py-3 text-base font-medium text-center text-white bg-[#8c681d] rounded-lg hover:bg-[#8c681d] focus:ring-4 focus:ring-[#967432] sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#134aed]"
 					>Iniciar sesión</button
 				>
 			</div>
@@ -97,14 +99,14 @@ import logo2 from '../assets/SC-INTER-NG.png';
 			<div class="text-sm font-medium text-gray-500 dark:text-gray-400">
 				¿No tienes una cuenta? <a
 					href="/sign-up"
-					class="text-[#8c681d] hover:underline dark:text-[#8c681d]"
+					class="text-[#8c681d] hover:underline dark:text-[#134aed]"
 					>Crear una cuenta</a
 				>
 			</div>
 			<div>
 				<div class="inline-flex items-center justify-center w-full">
 					<hr
-						class="w-11/12 h-px my-5 border-0 dark:bg-neutral-700 bg-gray-300"
+						class="w-11/12 h-px my-5 border-0 dark:bg-[#192033] bg-gray-300"
 					/>
 					<span class="absolute px-5 font-medium text-gray-900 dark:text-white">
 						o
@@ -118,6 +120,7 @@ import logo2 from '../assets/SC-INTER-NG.png';
 					class="w-full flex border dark:border-white border-gray-500 rounded-lg dark:text-white gap-2 items-center justify-center p-2.5 dark:hover:bg-slate-300/10 hover:bg-slate-700/10"
 					value="google"
 					name="provider"
+					id="provider"
 					type="submit"
 				>
 					<svg
@@ -146,7 +149,7 @@ import logo2 from '../assets/SC-INTER-NG.png';
 							></defs
 						>
 					</svg>
-					<label>Iniciar con Google</label>
+					<label for="provider">Iniciar con Google</label>
 				</button>
 			</form>
 		</div>

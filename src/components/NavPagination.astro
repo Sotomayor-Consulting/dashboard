@@ -25,9 +25,9 @@ const nextHref = hasNext ? linkFor(current + 1) : '#';
 const baseBtn =
 	'inline-flex items-center justify-center flex-1 px-3 py-2 text-sm font-medium text-center rounded-lg';
 const enabled =
-	'text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]';
+	'text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]';
 const disabled =
-	'text-gray-400 bg-gray-200 dark:bg-neutral-700 cursor-not-allowed';
+	'text-gray-400 bg-gray-200 dark:bg-[#192033] cursor-not-allowed';
 ---
 
 <nav
@@ -40,7 +40,7 @@ const disabled =
 			aria-disabled={!hasPrev}
 			class={`inline-flex justify-center p-1 rounded ${
 				hasPrev
-					? 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-[#223848] dark:hover:text-white'
+					? 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white'
 					: 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
 			}`}
 		>
@@ -57,7 +57,7 @@ const disabled =
 			aria-disabled={!hasNext}
 			class={`inline-flex justify-center p-1 mr-2 rounded ${
 				hasNext
-					? 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-[#223848] dark:hover:text-white'
+					? 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white'
 					: 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
 			}`}
 		>

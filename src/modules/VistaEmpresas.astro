@@ -35,6 +35,96 @@ const { data: managers } = await supabase
 	.select('*')
 	.eq('empresa_incorporacion_id', empresaId);
 
+const { data: personas_empresa } = await supabase
+	.from('empresa_personas_nombre')
+	.select('nombre_persona')
+	.eq('id_empresa', empresaId);
+
+const expirySeconds = 60 * 5;
+
+// 1) Normalizar nombres (array)
+const nombres = (personas_empresa ?? [])
+	.map((p) => p.nombre_persona)
+	.filter(Boolean);
+
+// 2) Por cada persona: listar /servicio_basico, firmar y guardar
+type SignedFile = { persona: string; name: string; url: string; path: string };
+
+const servicioBasicoFirmado: SignedFile[] = [];
+
+for (const persona of nombres) {
+	const folder = `${empresaId}/documentos_socios/${persona}/servicio_basico`;
+
+	const { data: files, error: listErr } = await supabase.storage
+		.from('documentos_empresas')
+		.list(folder, {
+			limit: 100,
+			offset: 0,
+			sortBy: { column: 'name', order: 'asc' },
+		});
+
+	if (listErr) {
+		console.error('Error listando servicio_basico de', persona, listErr);
+		continue;
+	}
+
+	// solo archivos (evita carpetas si existieran)
+	const paths = (files ?? [])
+		.filter((f) => f.name && f.metadata) // metadata suele venir en archivos
+		.map((f) => `${folder}/${f.name}`);
+
+	if (!paths.length) continue;
+
+	// 3) Firmar en batch (mucho mejor que 1x1)
+	const { data: signedList, error: signErr } = await supabase.storage
+		.from('documentos_empresas')
+		.createSignedUrls(paths, expirySeconds);
+
+	if (signErr) {
+		console.error('Error firmando servicio_basico de', persona, signErr);
+		continue;
+	}
+
+	(signedList ?? []).forEach((s, idx) => {
+		const path = paths?.[idx];
+		if (path) {
+			servicioBasicoFirmado.push({
+				persona,
+				name: path.split('/').pop() ?? `file-${idx}`,
+				url: s.signedUrl,
+				path: path,
+			});
+		}
+	});
+}
+
+const { data: pasaportes } = await supabase.storage
+	.from('documentos_empresas')
+	.list(`${empresaId}/documentos_socios/Mike test/pasaporte`, {
+		limit: 20,
+		offset: 0,
+		sortBy: { column: 'name', order: 'asc' },
+	});
+
+const items: { name: string; url: string }[] = [];
+for (const file of pasaportes || []) {
+	const path = `${empresaId}/documentos_socios/Mike test/pasaporte/${file.name}`;
+	const { data: signed, error: signErr } = await supabase.storage
+		.from('documentos_empresas')
+		.createSignedUrl(path, expirySeconds);
+	if (signErr) {
+		console.error('Error creando signed url para', file.name, signErr);
+		continue;
+	}
+	items.push({ name: file.name, url: signed.signedUrl });
+}
+
+const { data: actividades } = await supabase
+	.from('actividades_duplicate')
+	.select('*');
+const { data: estados } = await supabase.from('estados').select('*');
+const { data: paises } = await supabase.from('paises').select('*');
+
 const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 ---
 
@@ -48,73 +138,60 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			data-tabs-active-classes="text-[#8c681d] hover:text-[#8c681d] dark:text-[#8c681d] dark:hover:text-[#8c681d] border-[#8c681d] dark:border-[#8c681d]"
 			data-tabs-inactive-classes="dark:border-transparent text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 border-neutral-100 hover:border-neutral-300 dark:border-neutral-700 dark:hover:text-neutral-300"
 		>
-			<li class="me-2" role="presentation">
-				<button
-					class="inline-block p-4 border-b-2 rounded-t-lg"
-					id="profile-tab"
-					data-tabs-target="#profile"
-					type="button"
-					role="tab"
-					aria-controls="profile"
-					aria-selected="false">Datos Generales</button
-				>
-			</li>
-			<li class="me-2" role="presentation">
-				<button
-					class="inline-block p-4 border-b-2 rounded-t-lg hover:text-neutral-600 hover:border-neutral-300 dark:hover:text-neutral-300"
-					id="socios-tab"
-					data-tabs-target="#socios"
-					type="button"
-					role="tab"
-					aria-controls="socios"
-					aria-selected="false">Socios</button
-				>
-			</li>
-			<!-- 
-			<li class="me-2" role="presentation">
-				<button
-					class="inline-block p-4 border-b-2 rounded-t-lg hover:text-neutral-600 hover:border-neutral-300 dark:hover:text-neutral-300"
-					id="managers-tab"
-					data-tabs-target="#managers"
-					type="button"
-					role="tab"
-					aria-controls="managers"
-					aria-selected="false">Managers</button
-				>
-			</li>-->
-			<li class="me-2" role="presentation">
-				<button
-					class="inline-block p-4 border-b-2 rounded-t-lg hover:text-neutral-600 hover:border-neutral-300 dark:hover:text-neutral-300"
-					id="settings-tab"
-					data-tabs-target="#settings"
-					type="button"
-					role="tab"
-					aria-controls="settings"
-					aria-selected="false">Documentos</button
-				>
-			</li>
-			<li role="presentation">
-				<button
-					class="inline-block p-4 border-b-2 rounded-t-lg hover:text-neutral-600 hover:border-neutral-300 dark:hover:text-neutral-300"
-					id="contacts-tab"
-					data-tabs-target="#contacts"
-					type="button"
-					role="tab"
-					aria-controls="contacts"
-					aria-selected="false">Mantenimiento</button
-				>
-			</li>
+			{
+				[
+					{
+						id: 'profile-tab',
+						tabs: 'profile',
+						label: 'Datos Generales',
+						icono: 'ri:building-2-fill',
+					},
+					{
+						id: 'socios-tab',
+						tabs: 'socios',
+						label: 'Socios',
+						icono: 'ri:folder-user-fill',
+					},
+					{
+						id: 'settings-tab',
+						tabs: 'settings',
+						label: 'Documentos',
+						icono: 'ri:file-copy-2-fill',
+					},
+					{
+						id: 'contacts-tab',
+						tabs: 'contacts',
+						label: 'Editar datos',
+						icono: 'ri:edit-fill',
+					},
+				].map((i) => (
+					<li class="me-2" role="presentation">
+						<button
+							class="p-4 border-b-2 rounded-t-lg flex items-center gap-2"
+							id={i.id}
+							data-tabs-target={`#${i.tabs}`}
+							type="button"
+							role="tab"
+							aria-controls={i.tabs}
+							aria-selected="false"
+						>
+							<Icon name={i.icono} class="text-lg" />
+							{i.label}
+						</button>
+					</li>
+				))
+			}
 		</ul>
 	</div>
 	<div id="default-tab-content">
 		<div
-			class="hidden p-4 rounded-lg grid lg:grid-cols-3 md:grid-cols-2 gap-4"
+			class="hidden p-4 rounded-lg grid lg:grid-cols-2 xl:grid-cols-3 md:grid-cols-1 gap-4"
 			id="profile"
 			role="tabpanel"
 			aria-labelledby="profile-tab"
 		>
 			<div
-				class="w-full h-full bg-neutral-50 dark:bg-[#1f3443] rounded-md gap-5 dark:text-neutral-300 flex flex-col p-14 md:mb-0 mb-2 lg:col-span-1 col-span-2"
+				class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex flex-col p-14 md:mb-0 mb-2 lg:col-span-1 col-span-2"
 			>
 				<div class="flex">
 					<p class="font-bold text-base text-neutral-500">
@@ -141,7 +218,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						data-popover
 						id="popover-description"
 						role="tooltip"
-						class="absolute z-10 invisible inline-block text-sm text-neutral-500 transition-opacity duration-300 bg-white border border-neutral-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-[#0e2637] dark:border-neutral-600 dark:text-neutral-400"
+						class="absolute z-10 invisible inline-block text-sm text-neutral-500 transition-opacity duration-300 bg-white border border-neutral-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-[#192033] dark:border-neutral-600 dark:text-neutral-400"
 					>
 						<div class="p-3 space-y-2">
 							<h3 class="font-semibold text-neutral-900 dark:text-white">
@@ -165,7 +242,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				>
 					<div class="flex gap-5">
 						<div>
-							<p class="font-bold text-4xl">
+							<p class="font-bold lg:text-4xl text-3xl">
 								{empresa.nombre_1} - {empresa.tipo_de_negocio}
 							</p>
 						</div>
@@ -188,7 +265,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				</div>
 			</div>
 			<div
-				class="w-full h-full bg-neutral-50 dark:bg-[#1f3443] rounded-md gap-5 dark:text-neutral-300 text-neutral-800 flex flex-col md:mb-0 mb-2 md:col-span-1 col-span-2 p-14 justify-center"
+				class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 text-neutral-800 flex flex-col md:mb-0 mb-2 md:col-span-1 col-span-2 p-14 justify-center"
 			>
 				<div class="flex">
 					<p class="font-bold text-base text-neutral-500">
@@ -199,7 +276,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				<div class="flex gap-5 items-center">
 					<div class="flex flex-col gap-5">
 						<div>
-							<p class="font-bold text-4xl">
+							<p class="font-bold lg:text-4xl text-3xl">
 								{empresa.estado_de_incorporacion}
 							</p>
 						</div>
@@ -207,7 +284,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				</div>
 			</div>
 			<div
-				class="w-full h-full bg-neutral-50 dark:bg-[#1f3443] rounded-md gap-5 dark:text-neutral-300 text-neutral-800 flex flex-col p-14 md:mb-0 mb-2 md:col-span-1 col-span-2 justify-center"
+				class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 text-neutral-800 flex flex-col p-14 md:mb-0 mb-2 md:col-span-1 col-span-2 justify-center"
 			>
 				<div class="flex">
 					<p class="font-bold text-base text-neutral-500">
@@ -223,9 +300,9 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							</p>
 						</div>
 					</div>
-					<div class="w-full bg-neutral-200 rounded-full dark:bg-neutral-700">
+					<div class="w-full bg-neutral-200 rounded-full dark:bg-[#192033]">
 						<div
-							class="bg-[#8c681d] text-blue-100 text-center p-1 leading-none rounded-full"
+							class="bg-[#8c681d] dark:bg-[#134aed] text-blue-100 text-center p-1 leading-none rounded-full"
 							style={`width: ${empresa.porcentaje_de_incorporacion}%`}
 						>
 						</div>
@@ -233,15 +310,15 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				</div>
 			</div>
 			<div
-				class="w-full h-full bg-neutral-50 dark:bg-[#1f3443] rounded-md gap-5 dark:text-neutral-300 flex col-span-2 relative"
+				class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex col-span-2 relative"
 			>
 				<img
-					src="https://images.unsplash.com/photo-1609273817335-4fa6f22d565f?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+					src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
 					alt="Edificios"
 					class="object-cover w-full rounded-t-lg h-96 md:h-auto md:w-2/5 md:rounded-none md:rounded-s-lg md:block hidden"
 				/>
 				<div
-					class="h-1/5 bg-[#1f3443] rounded-md bg-clip-padding backdrop-filter
+					class="h-fit bg-[#1f3443] rounded-md bg-clip-padding backdrop-filter
 				backdrop-blur-md bg-opacity-10 border border-neutral-400 absolute bottom-4 left-4 p-2 lg:block hidden"
 				>
 					<p class="font-normal text-white text-sm">Empresa id:</p>
@@ -319,10 +396,10 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				</div>
 			</div>
 			<div
-				class="w-full h-full bg-neutral-50 dark:bg-[#1f3443] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-2 lg:col-span-1"
+				class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-2 lg:col-span-1"
 			>
 				<div
-					class="bg-[#d4d4d4] dark:bg-[#2c485b] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold"
+					class="bg-[#d4d4d4] dark:bg-[#134aed] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold"
 				>
 					<Icon name="ri:shake-hands-fill" />
 					<p>Socios</p>
@@ -368,9 +445,9 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			{
 				empresa.direccion_operativa_eeuu === 'Si' && (
 					<div
-						class={`w-full h-full bg-neutral-50 dark:bg-[#1f3443] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-1 ${esMember_Managed ? 'col-span-2' : 'col-span-3'}`}
+						class={`w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-1 ${esMember_Managed ? 'col-span-2' : 'col-span-3'}`}
 					>
-						<div class="bg-[#d4d4d4] dark:bg-[#2c485b] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold">
+						<div class="bg-[#d4d4d4] dark:bg-[#134aed] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold">
 							<Icon name="ri:map-pin-fill" />
 							<p>Dirección operativa EE.UU.</p>
 						</div>
@@ -426,9 +503,9 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			{
 				empresa.direccion_operativa_eeuu === 'No' && (
 					<div
-						class={`w-full h-full bg-neutral-50 dark:bg-[#1f3443] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-1 ${esMember_Managed ? 'col-span-2' : 'col-span-3'}`}
+						class={`w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-1 ${esMember_Managed ? 'col-span-2' : 'col-span-3'}`}
 					>
-						<div class="bg-[#d4d4d4] dark:bg-[#2c485b] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold">
+						<div class="bg-[#d4d4d4] dark:bg-[#134aed] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold">
 							<Icon name="ri:map-pin-fill" />
 							<p>Dirección operativa</p>
 						</div>
@@ -459,8 +536,8 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			}
 			{
 				managers && managers.length > 0 && (
-					<div class="w-full h-full bg-neutral-50 dark:bg-[#1f3443] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-2 lg:col-span-1">
-						<div class="bg-[#d4d4d4] dark:bg-[#2c485b] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold">
+					<div class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-2 lg:col-span-1">
+						<div class="bg-[#d4d4d4] dark:bg-[#134aed] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold">
 							<Icon name="ri:user-settings-fill" />
 							<p>Managers</p>
 						</div>
@@ -506,7 +583,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			<div>
 				<button
 					type="button"
-					class="text-white bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] focus:outline-none dark:focus:ring-[#967432] flex gap-1 justify-center items-center"
+					class="text-white bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 focus:outline-none dark:focus:ring-[#967432] flex gap-1 justify-center items-center"
 				>
 					<Icon name="ri:edit-2-fill" /> Editar</button
 				>
@@ -532,7 +609,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						id="myTable"
 					>
 						<thead
-							class="text-xs text-neutral-700 uppercase bg-neutral-400 dark:bg-neutral-800 dark:text-neutral-400"
+							class="text-xs text-neutral-700 uppercase bg-neutral-400 dark:bg-[#192033] dark:text-neutral-400"
 						>
 							<tr>
 								{
@@ -576,7 +653,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						<tbody>
 							{
 								socios?.map((socio) => (
-									<tr class="hover:bg-neutral-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-[#1d313f] odd:bg-neutral-200 even:bg-[#d4d4d4]">
+									<tr class="hover:bg-neutral-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
 										<th
 											scope="row"
 											class="px-6 py-4 font-medium text-neutral-900 whitespace-nowrap dark:text-white"
@@ -602,7 +679,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 										<td class="px-6 py-4">
 											<button
 												type="button"
-												class="text-white bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] focus:outline-none dark:focus:ring-[#967432] flex gap-1 justify-center items-center"
+												class="text-white bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 focus:outline-none dark:focus:ring-[#967432] flex gap-1 justify-center items-center"
 											>
 												<Icon name="ri:edit-2-fill" /> Editar
 											</button>
@@ -635,7 +712,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						id="myTable2"
 					>
 						<thead
-							class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-neutral-700 dark:text-neutral-400"
+							class="text-xs text-neutral-700 uppercase bg-neutral-50 dark:bg-[#192033] dark:text-neutral-400"
 						>
 							<tr>
 								{
@@ -678,7 +755,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						<tbody>
 							{
 								socios?.map((socio) => (
-									<tr class="hover:bg-neutral-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-[#1d313f] odd:bg-neutral-200 even:bg-[#d4d4d4]">
+									<tr class="hover:bg-neutral-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
 										<th
 											scope="row"
 											class="px-6 py-4 font-medium text-neutral-900 whitespace-nowrap dark:text-white"
@@ -694,7 +771,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 										<td class="px-6 py-4">
 											<button
 												type="button"
-												class="text-white bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] focus:outline-none dark:focus:ring-[#967432] flex gap-1 justify-center items-center"
+												class="text-white bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 focus:outline-none dark:focus:ring-[#967432] flex gap-1 justify-center items-center"
 											>
 												<Icon name="ri:edit-2-fill" /> Editar
 											</button>
@@ -708,15 +785,1243 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			</div>
 		</div>
 		<div
-			class="hidden p-4 rounded-lg bg-neutral-50 dark:bg-[#1f3443]"
+			class="hidden md:p-4 p-0 rounded-lg grid md:grid-cols-[auto_1fr] md:space-x-4 space-x-0 w-full"
 			id="contacts"
 			role="tabpanel"
 			aria-labelledby="contacts-tab"
+			x-data="{ 
+				formadeAdministracion: '',  
+				actvidadManual: null, 
+				RegistroManual: '',
+				direccionOperativa: '',
+				managerMiembro: '',
+				otrosMiembrosfuera: '',
+				init() {
+					// Sincroniza con el valor real de Supabase
+					const checkbox = document.querySelector('#otros-miembros-fuera-de-lista');
+					if (checkbox) {
+						this.actvidadManual = checkbox.checked;
+					};
+					const direccionop = document.querySelector('#direccionOperativa');
+					if (direccionop) {
+						this.direccionOperativa = direccionop.value
+					};
+					const administracion = document.querySelector('#forma_de_tributar');
+					if (administracion) {
+						this.formadeAdministracion = administracion.value
+					};
+				}
+			}"
+			x-effect="if (!actvidadManual) {
+				RegistroManual = '';
+			}"
 		>
-			<p class="text-sm text-neutral-500 dark:text-neutral-400">Pendiente</p>
+			<div class="mb-4 dark:border-gray-700 md:max-w-72 md:min-w-72">
+				<ul
+					class="flex-column text-sm font-medium text-gray-500 dark:text-gray-400 dark:bg-[#192033] p-5 rounded-lg space-y-5"
+					id="default-tab-2"
+					data-tabs-toggle="#default-tab-content-2"
+					role="tablist"
+					data-tabs-active-classes="text-white bg-blue-700 dark:bg-blue-600"
+					data-tabs-inactive-classes="hover:text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-[#101521] dark:hover:bg-[#101521]/80 dark:hover:text-white"
+				>
+					<li>
+						<div>
+							<h5 class="text-lg">{empresa.nombre_1}</h5>
+							<p class="font-light">navegacion de edicion</p>
+						</div>
+					</li>
+					{
+						[
+							{
+								id: 'generales-tab',
+								tabs: 'generales',
+								label: 'Generales',
+								icono: 'ri:building-2-fill',
+							},
+							{
+								id: 'ubicacion-tab',
+								tabs: 'ubicacion',
+								label: 'Ubicacion',
+								icono: 'ri:folder-user-fill',
+							},
+							{
+								id: 'socios-edit-tab',
+								tabs: 'socios-edit',
+								label: 'Socios',
+								icono: 'ri:file-copy-2-fill',
+							},
+							{
+								id: 'manager-tab',
+								tabs: 'manager',
+								label: 'Manager',
+								icono: 'ri:edit-fill',
+							},
+						].map((i) => (
+							<li role="presentation">
+								<button
+									id={i.id}
+									data-tabs-target={`#${i.tabs}`}
+									type="button"
+									role="tab"
+									aria-controls={i.tabs}
+									aria-selected="false"
+									class="p-4 flex items-center gap-2 w-full rounded-lg"
+								>
+									<Icon name={i.icono} class="text-lg" />
+									{i.label}
+								</button>
+							</li>
+						))
+					}
+				</ul>
+			</div>
+			<div id="default-tab-content-2" class="min-w-full ml-0">
+				<div
+					class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+					id="generales"
+					role="tabpanel"
+					aria-labelledby="generales-tab"
+				>
+					<div class="bg-white rounded-lg shadow dark:bg-[#101521] w-full">
+						<form action="" class="min-w-full">
+							<div
+								class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+							>
+								<h3 class="mb-4 text-xl font-semibold dark:text-white">
+									Datos Generales
+								</h3>
+
+								<div class="grid grid-cols-6 gap-6">
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="Ingresos_de_EEUU"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>¿La LLC obtendrá ingresos provenientes de Estados Unidos?</label
+										>
+										<select
+											name="Ingresos_de_EEUU"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+										>
+											<!-- Opción por defecto (placeholder) -->
+											<option
+												value=""
+												disabled
+												hidden
+												selected={empresa.Obtendra_ingresos_desde_eeuu === null}
+											>
+												Seleccione una opción
+											</option>
+
+											<!-- Opción "Sí" -->
+											<option
+												value="true"
+												selected={empresa.Obtendra_ingresos_desde_eeuu === true}
+											>
+												Sí
+											</option>
+
+											<!-- Opción "No" -->
+											<option
+												value="false"
+												selected={empresa.Obtendra_ingresos_desde_eeuu ===
+													false}
+											>
+												No
+											</option>
+										</select>
+									</div>
+
+									<div class="col-span-6 sm:col-span-3 flex items-end">
+										<button
+											type="button"
+											data-modal-target="crud-modal"
+											data-modal-toggle="crud-modal"
+											class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 flex items-center gap-2"
+										>
+											<Icon name="ri:add-line" /> Añadir actividad</button
+										>
+									</div>
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="actividad"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										>
+											Actividad
+										</label>
+										<select
+											name="actividad"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec] truncate w-full"
+										>
+											<option
+												value=""
+												disabled
+												hidden
+												selected={empresa.actividad === null}
+											>
+												Seleccione una opción
+											</option>
+											{
+												actividades?.map((ac) => (
+													<option
+														value={ac.actividad}
+														selected={ac.Actividad === empresa.actividad}
+													>
+														{ac.Actividad} - {ac.Codigo}
+													</option>
+												))
+											}
+										</select>
+									</div>
+									<div
+										class="col-span-6 sm:col-span-3"
+										x-show="actvidadManual === true"
+										x-transition
+									>
+										<label
+											for="actividad_manual"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										>
+											Registro de actividad forma manual
+										</label>
+										<input
+											type="text"
+											name="actividad_manual"
+											id="actividad_manual"
+											x-model="RegistroManual"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											placeholder="114110 - Pesca"
+										/>
+									</div>
+
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="forma_de_administrar"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>Forma de administrar</label
+										>
+										<select
+											name="forma_de_tributar"
+											id="forma_de_tributar"
+											x-model="formadeAdministracion"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+										>
+											<option
+												value=""
+												selected={!empresa.forma_administracion}
+												hidden
+												disabled>Seleccione una forma de tibutar</option
+											>
+
+											<!-- Opción "Sí" -->
+											<option
+												value="Member-Managed"
+												selected={empresa.forma_administracion ===
+													'Member-Managed'}
+											>
+												Member-Managed
+											</option>
+
+											<!-- Opción "No" -->
+											<option
+												value="Manager-Managed"
+												selected={empresa.forma_administracion ===
+													'Manager-Managed'}
+											>
+												Manager-Managed
+											</option>
+										</select>
+									</div>
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="forma_de_tributar"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>Forma de tributar</label
+										>
+										<select
+											name="forma_de_tributar"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+										>
+											<option
+												value=""
+												hidden
+												disabled
+												selected={!empresa.forma_tributacion}
+												>Seleccione una forma de tibutar</option
+											>
+
+											<!-- Opción "Sí" -->
+											<option
+												value="Entidad de paso"
+												selected={empresa.forma_tributacion ===
+													'Entidad de paso'}
+											>
+												Entidad de paso
+											</option>
+
+											<!-- Opción "No" -->
+											<option
+												value="Corporación"
+												selected={empresa.forma_tributacion === 'Corporación'}
+											>
+												Corporación
+											</option>
+										</select>
+									</div>
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="responsable_irs"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										>
+											Responsable frente al IRS
+										</label>
+										<select
+											name="responsable_irs"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+										>
+											<option
+												value=""
+												disabled
+												hidden
+												selected={!empresa.responsable_irs}
+											>
+												Seleccione una responsable
+											</option>
+
+											{
+												socios?.map((s) => (
+													<option
+														value={s.nombre_de_socio}
+														selected={
+															s.nombre_de_socio === empresa.responsable_irs
+														}
+													>
+														{' '}
+														{s.nombre_de_socio}{' '}
+													</option>
+												))
+											}
+										</select>
+									</div>
+
+									<div class="col-span-12 sm:col-span-6">
+										<label
+											for="informacion_miembros"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										>
+											Informacion de los miembros
+										</label>
+										<select
+											name="informacion_miembros"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+										>
+											<option
+												value=""
+												disabled
+												hidden
+												selected={!empresa.informacion_miembros}
+											>
+												Seleccione una opcion
+											</option>
+
+											<option
+												value="Pública"
+												selected={empresa.informacion_miembros === 'Pública'}
+											>
+												Pública
+											</option>
+
+											<option
+												value="Privada"
+												selected={empresa.informacion_miembros === 'Privada'}
+											>
+												Privada
+											</option>
+										</select>
+									</div>
+
+									<div class="col-span-6 sm:col-full">
+										<button
+											class="text-white bg-[#1349ec] hover:bg-[#1349ec] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+											type="submit"
+										>
+											Guardar datos
+										</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div
+					class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033] min-w-full"
+					id="ubicacion"
+					role="tabpanel"
+					aria-labelledby="ubicacion-tab"
+				>
+					<div
+						class="relative bg-white rounded-lg shadow dark:bg-[#101521] min-w-full"
+					>
+						<div
+							class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+						>
+							<h3 class="mb-4 text-xl font-semibold dark:text-white">
+								Ubicacion
+							</h3>
+
+							<div class="grid grid-cols-6 gap-6">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="direccionOperativa"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										>¿Tiene dirección operativa en EE.UU.?</label
+									>
+									<select
+										name="direccionOperativa"
+										id="direccionOperativa"
+										x-model="direccionOperativa"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+									>
+										<!-- Opción "Sí" -->
+										<option
+											value="Si"
+											selected={empresa.direccion_operativa_eeuu === 'Si'}
+										>
+											Sí
+										</option>
+
+										<!-- Opción "No" -->
+										<option
+											value="No"
+											selected={empresa.direccion_operativa_eeuu === 'No'}
+										>
+											No
+										</option>
+
+										<option
+											value="Quiero que Sotomayor Consulting International provea una dirección"
+											selected={empresa.direccion_operativa_eeuu ===
+												'Quiero que Sotomayor Consulting International provea una dirección'}
+										>
+											Quiero que Sotomayor Consulting International provea una
+											dirección
+										</option>
+									</select>
+								</div>
+
+								<!-- condicionales de Tiene dirección operativa en EE.UU. -->
+								<!-- inicio direccionOperativa === 'Si' -->
+
+								<template x-if="direccionOperativa === 'Si'">
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="direccion"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>Dirección</label
+										>
+										<input
+											type="text"
+											name="direccion"
+											id="address"
+											class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											value={empresa.direccion_eeuu}
+											placeholder="ejem. Av. Juan Molineros"
+										/>
+									</div>
+								</template>
+								<template x-if="direccionOperativa === 'Si'">
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="condado"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>Condado</label
+										>
+										<input
+											type="text"
+											name="condado"
+											id="condado"
+											value={empresa.condado_eeuu}
+											class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											placeholder="ejem. Miami-Dade"
+										/>
+									</div>
+								</template>
+								<template x-if="direccionOperativa === 'Si'">
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="ciudad"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>Ciudad</label
+										>
+										<input
+											type="text"
+											name="ciudad"
+											id="ciudad"
+											value={empresa.ciudad_eeuu}
+											class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											placeholder="ejem. Miami"
+										/>
+									</div>
+								</template>
+								<template x-if="direccionOperativa === 'Si'">
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="estado"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>Estado</label
+										>
+										<select
+											name="estado"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+										>
+											<option
+												value=""
+												disabled
+												hidden
+												selected={!empresa.estado_eeuu}
+											>
+												Seleccione un estado
+											</option>
+
+											{
+												estados?.map((estados) => (
+													<option
+														value={estados.Estado}
+														selected={estados.Estado === empresa.estado_eeuu}
+													>
+														{estados.Estado}
+													</option>
+												))
+											}
+										</select>
+									</div>
+								</template>
+								<template x-if="direccionOperativa === 'Si'">
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="Codigo_postal"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>Codigo Postal</label
+										>
+										<input
+											type="text"
+											name="Codigo_postal"
+											id="Codigo_postal"
+											value={empresa.codigo_postal_eeuu}
+											class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											placeholder="ejem. Miami-Dade"
+										/>
+									</div>
+								</template>
+
+								<!-- fin direccionOperativa === 'Si' -->
+
+								<!-- direccionOperativa === 'No' -->
+								<template x-if="direccionOperativa === 'No'"
+									><div class="col-span-6 sm:col-span-3">
+										<label
+											for="Pais_operativo"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>Pais</label
+										>
+										<select
+											name="Pais_operativo"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+										>
+											<option
+												value=""
+												disabled
+												hidden
+												selected={!empresa.Pais_operativo}
+											>
+												Seleccione un pais
+											</option>
+
+											{
+												paises?.map((paises) => (
+													<option
+														value={paises.nombre_paises}
+														selected={
+															paises.nombre_paises === empresa.Pais_operativo
+														}
+													>
+														{paises.nombre_paises}
+													</option>
+												))
+											}
+										</select>
+									</div>
+								</template>
+
+								<template x-if="direccionOperativa === 'No'">
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="direccion_empresa"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>Dirección Empresa</label
+										>
+										<input
+											type="text"
+											name="direccion_empresa"
+											id="direccion_empresa"
+											value={empresa.direccion_empresa}
+											class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											placeholder="Av. Juan Molineros"
+										/>
+									</div>
+								</template>
+
+								<!-- direccionOperativa === 'No' -->
+								<!-- Final de condicionales en dirección operativa en EE.UU. -->
+							</div>
+						</div>
+					</div>
+				</div>
+				<div
+					class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+					id="socios-edit"
+					role="tabpanel"
+					aria-labelledby="socios-edit-tab"
+				>
+					<div
+						id="datos-socios"
+						class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+					>
+						<h3 class="mb-4 text-xl font-semibold dark:text-white">
+							Datos de los socios
+						</h3>
+						{
+							socios?.map((s) => (
+								<div class="border border-neutral-600 rounded-lg mb-5">
+									<div class="grid grid-cols-6 gap-6 p-5">
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="Nombres_completos_socio"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Nombres completos
+											</label>
+											<input
+												type="text"
+												name="Nombres_completos_socio"
+												id="Nombres_completos_socio-1"
+												value={s.nombre_de_socio}
+												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full dark:bg-[#101521] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec] h-fit"
+												placeholder="Av. Juan Molineros"
+											/>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="correo_electronico"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Correo electronico
+											</label>
+											<input
+												name="correo_electronico"
+												type="email"
+												id="correo_electronico"
+												value={s.correo}
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												placeholder="correo@ejemplo.com"
+												required
+											/>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="Tipo_de_socio"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Tipo de socio
+											</label>
+											<select
+												name="Tipo_de_socio"
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											>
+												<option
+													value=""
+													disabled
+													hidden
+													selected={!s.tipo_de_socio}
+												>
+													Seleccione un tipo de socio
+												</option>
+
+												<option
+													value="Persona Natural"
+													selected={s.tipo_de_socio === 'Persona Natural'}
+												>
+													Persona Natural
+												</option>
+
+												<option
+													value="Empresa"
+													selected={s.tipo_de_socio === 'Empresa'}
+												>
+													Empresa
+												</option>
+											</select>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<div class="relative">
+												<label
+													for="estado_civil"
+													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												>
+													Estado civil
+												</label>
+												<select
+													name="estado_civil"
+													class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												>
+													<option
+														value=""
+														disabled
+														hidden
+														selected={!s.estado_civil}
+													>
+														Seleccione un tipo de socio
+													</option>
+
+													<option
+														value="Casado"
+														selected={s.estado_civil === 'Casado'}
+													>
+														Casado
+													</option>
+
+													<option
+														value="Soltero"
+														selected={s.estado_civil === 'Soltero'}
+													>
+														Soltero
+													</option>
+
+													<option
+														value="Divorciado"
+														selected={s.estado_civil === 'Divorciado'}
+													>
+														Divorciado
+													</option>
+
+													<option
+														value="Viudo"
+														selected={s.estado_civil === 'Viudo'}
+													>
+														Viudo
+													</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-span-6">
+											<label
+												for="porcentaje"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Porcentaje
+											</label>
+											<input
+												type="number"
+												name="porcentaje"
+												min="1"
+												max="100"
+												id="porcentaje"
+												value={s.porcentaje}
+												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												placeholder="80"
+												required
+											/>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="residente_fiscal_eeuu"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Residente fiscal en EE.UU
+											</label>
+											<select
+												name="estado_civil"
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											>
+												<option
+													value=""
+													disabled
+													hidden
+													selected={!s.residente_fiscal}
+												>
+													Seleccione si es residente fiscal en EE.UU.
+												</option>
+
+												<option
+													value="Si"
+													selected={s.residente_fiscal === 'Si'}
+												>
+													Si
+												</option>
+
+												<option
+													value="No"
+													selected={s.residente_fiscal === 'No'}
+												>
+													No
+												</option>
+											</select>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="numero_pasaporte"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Numero de pasaporte
+											</label>
+											<input
+												type="text"
+												name="numero_pasaporte"
+												id="numero_pasaporte"
+												value={s.numero_de_pasaporte}
+												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												placeholder="Av. Siempre Viva 123 y Calle Alguna"
+												required
+											/>
+										</div>
+										<div class="col-span-6">
+											<div class="w-full space-y-3">
+												<div>
+													<label
+														for="nacionalidad"
+														class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													>
+														Pais de nacionalidad
+													</label>
+													<select
+														name="nacionalidad"
+														class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													>
+														<option
+															value=""
+															disabled
+															hidden
+															selected={!s.pais_de_nacionalidad}
+														>
+															Seleccione un pais
+														</option>
+
+														{paises?.map((paises) => (
+															<option
+																value={paises.nombre_paises}
+																selected={
+																	paises.nombre_paises ===
+																	s.pais_de_nacionalidad
+																}
+															>
+																{paises.nombre_paises}
+															</option>
+														))}
+													</select>
+												</div>
+											</div>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="numero_ssn"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Numero de SSN
+											</label>
+											<input
+												type="text"
+												name="numero_ssn"
+												id="numero_ssn"
+												value={s.numero_de_seguro_social}
+												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												placeholder="Av. Siempre Viva 123 y Calle Alguna"
+											/>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="numero_ssn"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Numero de ITIN
+											</label>
+											<input
+												type="text"
+												name="numero_ssn"
+												id="numero_ssn"
+												value={s.numero_itin}
+												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												placeholder="Av. Siempre Viva 123 y Calle Alguna"
+											/>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="pais_factura_servicio_basico"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Pais de factura de servicio basico
+											</label>
+											<select
+												name="pais_factura_servicio_basico"
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											>
+												<option
+													value=""
+													disabled
+													hidden
+													selected={!s.pais_planilla}
+												>
+													Seleccione un pais
+												</option>
+
+												{paises?.map((paises) => (
+													<option
+														value={paises.nombre_paises}
+														selected={paises.nombre_paises === s.pais_planilla}
+													>
+														{paises.nombre_paises}
+													</option>
+												))}
+											</select>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="direccion_planilla_socio"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Direccion de la planilla del socio
+											</label>
+											<input
+												type="text"
+												name="direccion_planilla_socio"
+												id="direccion_planilla_socio"
+												value={s.direccion_planilla}
+												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												placeholder="Av. Siempre Viva 123 y Calle Alguna"
+											/>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="numero_p"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Factura de servicio basico
+											</label>
+
+											<div class="flex gap-1 items-center">
+												<input
+													type="file"
+													name="factura_servicio_basico"
+													id="factura_servicio_basico"
+													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full dark:bg-[#101521] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec] h-fit"
+												/>
+											</div>
+										</div>
+
+										<hr class="h-px my-8 bg-neutral-200 border-0 dark:bg-[#192033] col-span-6" />
+									</div>
+								</div>
+							))
+						}
+					</div>
+				</div>
+				<div
+					class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+					id="manager"
+					role="tabpanel"
+					aria-labelledby="manager-tab"
+				>
+					<template x-if="formadeAdministracion === 'Member-Managed'">
+						<div
+							id="datos-managers"
+							class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+							x-data="{ espartedelosMiembros: '' }"
+							x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
+						>
+							<h3 class="mb-4 text-xl font-semibold dark:text-white">
+								Informacion de managers
+							</h3>
+							<div>
+								<div
+									class="grid grid-cols-6 gap-6"
+									x-data="{ asignarManager: '' }"
+									x-init="asignarManager = document.getElementById('informacion_miembros').value"
+								>
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="informacion_miembros"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										>
+											Sotomayor Consulting International asigna al Manager
+										</label>
+										<select
+											name="informacion_miembros"
+											id="informacion_miembros"
+											x-model="asignarManager"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+										>
+											<option
+												value=""
+												disabled
+												hidden
+												selected={!empresa.manager_sci}
+											>
+												Seleccione una opcion
+											</option>
+
+											<option
+												value="Si"
+												selected={empresa.manager_sci === true}
+											>
+												Si
+											</option>
+
+											<option
+												value="No"
+												selected={empresa.manager_sci === false}
+											>
+												No
+											</option>
+										</select>
+									</div>
+									<template x-if="asignarManager === 'No'">
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="informacionmanager"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												El manager es parte de los miebros
+											</label>
+											<select
+												name="informacionmanager"
+												id="informacionmanager"
+												x-model="managerMiembro"
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											>
+												<option disabled hidden selected={!empresa.manager_sci}>
+													Seleccione una opcion
+												</option>
+
+												<option
+													value="Si"
+													selected={empresa.manager_sci === true}
+												>
+													Si
+												</option>
+
+												<option
+													value="No"
+													selected={empresa.manager_sci === false}
+												>
+													No
+												</option>
+											</select>
+										</div>
+									</template>
+									<template x-if="managerMiembro === 'Si'">
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="managers"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Miembros que son managers
+											</label>
+
+											<div class="flex items-center mb-4">
+												<input
+													id={`miembros-managers-`}
+													name={`miembros-managers-`}
+													type="checkbox"
+													class="w-4 h-4 text-[#1349ec] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#1349ec] dark:focus:ring-[#323f67] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+													checked
+												/>
+												<label
+													for={`miembros-managers-`}
+													class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+												>
+													socio x
+												</label>
+											</div>
+										</div>
+									</template>
+									<template x-if="managerMiembro === 'Si'">
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												class="mb-2 text-sm font-medium text-neutral-900 dark:text-white block"
+											>
+												¿Añadir otro(s) socio(s) fuera de la lista?
+												<div class="flex cursor-pointer mt-2">
+													<input
+														type="checkbox"
+														name="otros-miembros-fuera-de-lista"
+														id="otros-miembros-fuera-de-lista"
+														x-model="otrosMiembrosfuera"
+														class="sr-only peer"
+													/>
+													<div
+														class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-[#1349ec] rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#1349ec] dark:peer-checked:bg-[#1349ec]"
+													>
+													</div>
+													<span
+														class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+														>Si</span
+													>
+												</div>
+											</label>
+										</div>
+									</template>
+								</div>
+								<template
+									x-if="managerMiembro === 'No' || otrosMiembrosfuera === true"
+								>
+									<div>
+										<hr
+											class="h-px my-8 bg-neutral-200 border-0 dark:bg-[#192033] col-span-6"
+										/>
+										<h3 class="mb-4 text-xl font-semibold dark:text-white">
+											Añadir manager
+										</h3>
+
+										<div class="grid grid-cols-6 gap-6">
+											<div class="col-span-6 sm:col-span-3">
+												<label
+													for="informacion_miembros"
+													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												>
+													Nombres y Apellidos
+												</label>
+												<input
+													type="text"
+													name="Nombres_y_apellidos_manager"
+													value=""
+													id="Nombres_y_apellidos_manager"
+													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full dark:bg-[#101521] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec] h-fit"
+												/>
+											</div>
+										</div>
+									</div>
+								</template>
+							</div>
+						</div>
+					</template>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
+
+<div
+	id="crud-modal"
+	tabindex="-1"
+	aria-hidden="true"
+	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+>
+	<div class="relative p-4 w-full max-w-md max-h-full">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
+			<!-- Modal header -->
+			<div
+				class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200"
+			>
+				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+					Crear nuevo registro de actividad
+				</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					data-modal-toggle="crud-modal"
+				>
+					<svg
+						class="w-3 h-3"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 14 14"
+					>
+						<path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
+					</svg>
+					<span class="sr-only">Close modal</span>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form class="p-4 md:p-5">
+				<div class="grid gap-4 mb-4 grid-cols-2">
+					<div class="col-span-2">
+						<label
+							for="ActividadGeneral"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Actividad General</label
+						>
+						<input
+							type="text"
+							name="ActividadGeneral"
+							id="ActividadGeneral"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							placeholder="Agricultura, silvicultura y pesca"
+							required=""
+						/>
+					</div>
+					<div class="col-span-2 sm:col-span-1">
+						<label
+							for="Tipo"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Tipo</label
+						>
+						<input
+							type="text"
+							name="Tipo"
+							id="Tipo"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							placeholder="Minería"
+							required=""
+						/>
+					</div>
+					<div class="col-span-2 sm:col-span-1">
+						<label
+							for="Codigo"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Codigo</label
+						>
+						<input
+							type="number"
+							name="Codigo"
+							id="Codigo"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							placeholder="115210"
+							required=""
+						/>
+					</div>
+					<div class="col-span-2">
+						<label
+							for="Actividad"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Actividad
+						</label>
+						<textarea
+							id="Actividad"
+							rows="4"
+							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							placeholder="Actividades de procesamiento de transacciones financieras, reserva y cámara de compensación."
+						></textarea>
+					</div>
+				</div>
+				<button
+					type="submit"
+					class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+				>
+					Añadir actividad
+				</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+></script>
 <script type="module">
 	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
 

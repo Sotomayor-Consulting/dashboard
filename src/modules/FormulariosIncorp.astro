@@ -1,5 +1,4 @@
 ---
-
 import { supabase } from '../lib/supabase';
 
 const { id } = Astro.params;
@@ -34,7 +33,6 @@ const { data: actividades } = await supabase
 	.order('Actividad');
 
 const managers = formularios?.data_json?.Managers || [];
-
 ---
 
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
@@ -124,7 +122,7 @@ const managers = formularios?.data_json?.Managers || [];
 				hidden
 			/>
 			<div
-				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#1d1d1d]"
+				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
 			>
 				<h3 class="mb-4 text-xl font-semibold dark:text-white">
 					Actividad de la compañía
@@ -143,7 +141,7 @@ const managers = formularios?.data_json?.Managers || [];
 						>
 						<select
 							name="Ingresos_de_EEUU"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<!-- Opción por defecto (placeholder) -->
 							<option
@@ -191,7 +189,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="actividad_manual"
 									value={`${formularios?.data_json?.codigo_actividad} - ${formularios?.data_json?.descripcion_actividad}`}
 									id="actividad_manual"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									placeholder="114110 - Pesca"
 								/>
 							</div>
@@ -205,7 +203,7 @@ const managers = formularios?.data_json?.Managers || [];
 								</label>
 								<select
 									name="actividad"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								>
 									<option
 										value=""
@@ -242,7 +240,7 @@ const managers = formularios?.data_json?.Managers || [];
 							name="forma_de_administrar"
 							id="forma_de_administrar"
 							x-model="formadeAdministracion"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<option
 								value=""
@@ -278,7 +276,7 @@ const managers = formularios?.data_json?.Managers || [];
 						>
 						<select
 							name="forma_de_tributar"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<option
 								value=""
@@ -316,7 +314,7 @@ const managers = formularios?.data_json?.Managers || [];
 							name="direccion_operativa_eeuu"
 							id="direccion_operativa_eeuu"
 							x-model="direccionEEUU"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<option
 								value=""
@@ -369,7 +367,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="direccion"
 								value={formularios?.data_json?.Direccion}
 								id="address"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="ejem. Av. Juan Molineros"
 							/>
 						</div>
@@ -386,7 +384,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="condado"
 								value={formularios?.data_json?.Condado}
 								id="condado"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="ejem. Miami-Dade"
 							/>
 						</div>
@@ -403,7 +401,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="ciudad"
 								value={formularios?.data_json?.Ciudad}
 								id="ciudad"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="ejem. Miami"
 							/>
 						</div>
@@ -417,7 +415,7 @@ const managers = formularios?.data_json?.Managers || [];
 							>
 							<select
 								name="estado"
-								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							>
 								<option
 									value=""
@@ -455,7 +453,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="Codigo_postal"
 								value={formularios?.data_json?.Ciudad}
 								id="Codigo_postal"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="ejem. Miami-Dade"
 							/>
 						</div>
@@ -473,7 +471,7 @@ const managers = formularios?.data_json?.Managers || [];
 							>
 							<select
 								name="Pais_operativo"
-								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							>
 								<option
 									value=""
@@ -512,7 +510,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="direccion_empresa"
 								value={formularios?.data_json?.direccion_empresa}
 								id="direccion_empresa"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="Av. Juan Molineros"
 							/>
 						</div>
@@ -542,7 +540,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="factura_servicio_basico"
 									value={formularios?.data_json?.direccion_empresa}
 									id="factura_servicio_basico"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d] h-fit"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
 									placeholder="Av. Juan Molineros"
 								/>
 
@@ -556,7 +554,7 @@ const managers = formularios?.data_json?.Managers || [];
 											class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
 										>
 											<div class="relative p-4 w-full max-w-2xl max-h-full">
-												<div class="relative bg-white rounded-lg shadow-sm dark:bg-neutral-700">
+												<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
 													<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
 														<h3 class="text-xl font-semibold text-black dark:text-white">
 															Factura de servicio básico
@@ -598,7 +596,7 @@ const managers = formularios?.data_json?.Managers || [];
 														<button
 															data-modal-hide="static-modal"
 															type="button"
-															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#223848]"
+															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-[#101521] dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
 														>
 															Cerrar
 														</button>
@@ -618,7 +616,7 @@ const managers = formularios?.data_json?.Managers || [];
 			</div>
 			<div
 				id="datos-socios"
-				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#1d1d1d]"
+				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
 			>
 				<h3 class="mb-4 text-xl font-semibold dark:text-white">
 					Datos de los socios - total ( {
@@ -641,7 +639,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="Nombres_completos_socio"
 									value={socio?.Nombres_completos}
 									id={`Nombres_completos_socio-${index}`}
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d] h-fit"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
 									placeholder="Av. Juan Molineros"
 								/>
 							</div>
@@ -657,7 +655,7 @@ const managers = formularios?.data_json?.Managers || [];
 									value={socio?.correoelectronico}
 									type="email"
 									id="correo_electronico"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									placeholder="correo@ejemplo.com"
 									required
 								/>
@@ -671,7 +669,7 @@ const managers = formularios?.data_json?.Managers || [];
 								</label>
 								<select
 									name="Tipo_de_socio"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								>
 									<option
 										value=""
@@ -707,7 +705,7 @@ const managers = formularios?.data_json?.Managers || [];
 									</label>
 									<select
 										name="estado_civil"
-										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									>
 										<option
 											value=""
@@ -760,7 +758,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="porcentaje"
 									value={socio?.Porcentaje}
 									id="porcentaje"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									placeholder="80"
 									required
 								/>
@@ -774,7 +772,7 @@ const managers = formularios?.data_json?.Managers || [];
 								</label>
 								<select
 									name="estado_civil"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								>
 									<option
 										value=""
@@ -812,7 +810,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="numero_pasaporte"
 									value={socio?.numero_pasaporte}
 									id="numero_pasaporte"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									placeholder="Av. Siempre Viva 123 y Calle Alguna"
 									required
 								/>
@@ -828,7 +826,7 @@ const managers = formularios?.data_json?.Managers || [];
 										</label>
 										<select
 											name="nacionalidad"
-											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 										>
 											<option
 												value=""
@@ -875,7 +873,7 @@ const managers = formularios?.data_json?.Managers || [];
 											type="file"
 											name="factura_servicio_basico"
 											id="factura_servicio_basico"
-											class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d] h-fit"
+											class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
 										/>
 										<div
 											id="static-modal-pasaporte"
@@ -885,7 +883,7 @@ const managers = formularios?.data_json?.Managers || [];
 											class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
 										>
 											<div class="relative p-4 w-full max-w-2xl max-h-full">
-												<div class="relative bg-white rounded-lg shadow-sm dark:bg-neutral-700">
+												<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
 													<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
 														<h3 class="text-xl font-semibold text-black dark:text-white">
 															Pasaporte de {socio?.Nombres_completos}
@@ -922,7 +920,7 @@ const managers = formularios?.data_json?.Managers || [];
 														<button
 															data-modal-hide="static-modal-pasaporte"
 															type="button"
-															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#223848]"
+															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-[#101521] dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
 														>
 															Cerrar
 														</button>
@@ -945,7 +943,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="numero_ssn"
 									value={socio?.ssn}
 									id="numero_ssn"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									placeholder="Av. Siempre Viva 123 y Calle Alguna"
 								/>
 							</div>
@@ -961,7 +959,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="numero_ssn"
 									value={socio?.itin}
 									id="numero_ssn"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									placeholder="Av. Siempre Viva 123 y Calle Alguna"
 								/>
 							</div>
@@ -974,7 +972,7 @@ const managers = formularios?.data_json?.Managers || [];
 								</label>
 								<select
 									name="pais_factura_servicio_basico"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2  dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2  dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								>
 									<option
 										value=""
@@ -1010,7 +1008,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="direccion_planilla_socio"
 									value={socio?.direccion_planilla_socio}
 									id="direccion_planilla_socio"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									placeholder="Av. Siempre Viva 123 y Calle Alguna"
 								/>
 							</div>
@@ -1036,7 +1034,7 @@ const managers = formularios?.data_json?.Managers || [];
 											type="file"
 											name="factura_servicio_basico"
 											id="factura_servicio_basico"
-											class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d] h-fit"
+											class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
 										/>
 
 										<div
@@ -1047,7 +1045,7 @@ const managers = formularios?.data_json?.Managers || [];
 											class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
 										>
 											<div class="relative p-4 w-full max-w-2xl max-h-full">
-												<div class="relative bg-white rounded-lg shadow-sm dark:bg-neutral-700">
+												<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
 													<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
 														<h3 class="text-xl font-semibold text-black dark:text-white">
 															Factura de servicio basico de{' '}
@@ -1085,7 +1083,7 @@ const managers = formularios?.data_json?.Managers || [];
 														<button
 															data-modal-hide="static-modal-factura"
 															type="button"
-															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#223848]"
+															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-[#101521] dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
 														>
 															Cerrar
 														</button>
@@ -1097,7 +1095,7 @@ const managers = formularios?.data_json?.Managers || [];
 								))}
 							</div>
 
-							<hr class="h-px my-8 bg-neutral-200 border-0 dark:bg-neutral-700 col-span-6" />
+							<hr class="h-px my-8 bg-neutral-200 border-0 dark:bg-[#192033] col-span-6" />
 						</div>
 					))
 				}
@@ -1109,7 +1107,7 @@ const managers = formularios?.data_json?.Managers || [];
 			>
 				<div
 					id="datos-managers"
-					class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#1d1d1d]"
+					class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
 					x-data="{ espartedelosMiembros: '' }"
 					x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
 				>
@@ -1136,7 +1134,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="informacion_miembros"
 									id="informacion_miembros"
 									x-model="asignarManager"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								>
 									<option
 										value=""
@@ -1174,7 +1172,7 @@ const managers = formularios?.data_json?.Managers || [];
 										name="manager_parte_miembros"
 										id="manager_parte_miembros"
 										x-model="manager_parte_miembros"
-										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									>
 										<option
 											value=""
@@ -1220,7 +1218,7 @@ const managers = formularios?.data_json?.Managers || [];
 													name={`miembros-managers-${socio?.Nombres_completos}`}
 													type="checkbox"
 													value={socio?.Nombres_completos}
-													class="w-4 h-4 text-[#8c681d] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#8c681d] dark:focus:ring-[#8c681d] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+													class="w-4 h-4 text-[#8c681d] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#8c681d] dark:focus:ring-[#323f67] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
 													checked={formularios?.data_json?.Seleccion_managers?.includes(
 														socio?.Nombres_completos,
 													)}
@@ -1270,7 +1268,7 @@ const managers = formularios?.data_json?.Managers || [];
 						>
 							<div>
 								<hr
-									class="h-px my-8 bg-neutral-200 border-0 dark:bg-neutral-700 col-span-6"
+									class="h-px my-8 bg-neutral-200 border-0 dark:bg-[#192033] col-span-6"
 								/>
 								<h3 class="mb-4 text-xl font-semibold dark:text-white">
 									Añadir manager
@@ -1294,7 +1292,7 @@ const managers = formularios?.data_json?.Managers || [];
 														name={`Nombres_y_apellidos_manager-${index}`}
 														value={manager?.Nombres_manager || ''}
 														id={`Nombres_y_apellidos_manager-${index}`}
-														class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d] h-fit"
+														class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
 													/>
 												</div>
 											</div>
@@ -1316,7 +1314,7 @@ const managers = formularios?.data_json?.Managers || [];
 													name="Nombres_y_apellidos_manager"
 													value=""
 													id="Nombres_y_apellidos_manager"
-													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d] h-fit"
+													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
 												/>
 											</div>
 										</div>
@@ -1330,7 +1328,7 @@ const managers = formularios?.data_json?.Managers || [];
 
 			<div
 				id="datos-info-adicional"
-				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#1d1d1d]"
+				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
 			>
 				<h3 class="mb-4 text-xl font-semibold dark:text-white">
 					Informacion Adicional
@@ -1346,7 +1344,7 @@ const managers = formularios?.data_json?.Managers || [];
 						</label>
 						<select
 							name="informacion_miembros"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<option
 								value=""
@@ -1383,7 +1381,7 @@ const managers = formularios?.data_json?.Managers || [];
 						</label>
 						<select
 							name="responsable_irs"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<option
 								value=""
@@ -1424,7 +1422,7 @@ const managers = formularios?.data_json?.Managers || [];
 
 					<div class="col-span-6 sm:col-full">
 						<button
-							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 							type="submit"
 						>
 							Guardar datos
@@ -1438,7 +1436,7 @@ const managers = formularios?.data_json?.Managers || [];
 
 <!-- <div class="grid grid-cols-1 px-4 xl:grid-cols-2 xl:gap-4">
 	<div
-		class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm dark:border-neutral-700 sm:p-6 dark:bg-[#1d1d1d] xl:mb-0"
+		class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm dark:border-neutral-700 sm:p-6 dark:bg-[#192033] xl:mb-0"
 	>
 		<div class="flow-root">
 			<h3 class="text-xl font-semibold dark:text-white">
@@ -1500,14 +1498,14 @@ const managers = formularios?.data_json?.Managers || [];
 			</div>
 			<div class="mt-6">
 				<button
-					class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+					class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 					>Save all</button
 				>
 			</div>
 		</div>
 	</div>
 	<div
-		class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm dark:border-neutral-700 sm:p-6 dark:bg-[#1d1d1d] xl:mb-0"
+		class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm dark:border-neutral-700 sm:p-6 dark:bg-[#192033] xl:mb-0"
 	>
 		<div class="flow-root">
 			<h3 class="text-xl font-semibold dark:text-white">Email Notifications</h3>
@@ -1566,7 +1564,7 @@ const managers = formularios?.data_json?.Managers || [];
 			</div>
 			<div class="mt-6">
 				<button
-					class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+					class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 					>Save all</button
 				>
 			</div>

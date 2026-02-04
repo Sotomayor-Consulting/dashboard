@@ -41,8 +41,8 @@ const status = Astro.url.searchParams.get('status'); // "success" | "error"
 const msg = Astro.url.searchParams.get('msg') || '';
 const isSuccess = status === 'success';
 const variant = isSuccess
-	? 'text-green-800 border-green-300 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-[#1d1d1d]'
-	: 'text-red-800 border-red-300 bg-red-50 dark:text-red-400 dark:border-red-800 dark:bg-[#1d1d1d]';
+	? 'text-green-800 border-green-300 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-[#192033]'
+	: 'text-red-800 border-red-300 bg-red-50 dark:text-red-400 dark:border-red-800 dark:bg-[#192033]';
 
 // visible si hay msg; si no, hidden
 const display = msg ? 'flex' : 'hidden';
@@ -175,7 +175,7 @@ const display = msg ? 'flex' : 'hidden';
 	<!-- Right Content -->
 	<div class="col-span-full xl:col-auto">
 		<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
+			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
 		>
 			<div
 				class="items-center sm:flex xl:block 2xl:flex sm:space-x-4 xl:space-x-0 2xl:space-x-4"
@@ -184,13 +184,13 @@ const display = msg ? 'flex' : 'hidden';
 			</div>
 		</div>
 		<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
+			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
 		>
 			<h3 class="mb-4 text-xl font-semibold dark:text-white">Rol de cuenta</h3>
 			<div class="mb-4">
 				<label
 					for=""
-					class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 					>{email}</label
 				>
 			</div>
@@ -198,13 +198,13 @@ const display = msg ? 'flex' : 'hidden';
 			<div>
 				<a
 					href="/"
-					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 					>Promover a cuenta de asociado</a
 				>
 			</div>
 		</div>
 		<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
+			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
 		>
 			<h3 class="mb-4 text-xl font-semibold dark:text-white">
 				Canjear codigo de Referido
@@ -214,7 +214,7 @@ const display = msg ? 'flex' : 'hidden';
 					<input
 						type="text"
 						name="code"
-						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						placeholder="Ejemplo: 9F2A7C4B"
 					/>
 				</div>
@@ -222,7 +222,7 @@ const display = msg ? 'flex' : 'hidden';
 				<div>
 					<button
 						type="submit"
-						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 						>Canjear</button
 					>
 				</div>
@@ -230,7 +230,7 @@ const display = msg ? 'flex' : 'hidden';
 		</div>
 		<!-- 
 		<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
+			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
 		>
 			<h3 class="mb-4 text-xl font-semibold dark:text-white">
 				Language & Time
@@ -244,7 +244,7 @@ const display = msg ? 'flex' : 'hidden';
 				<select
 					id="settings-language"
 					name="countries"
-					class="bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					class="bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 				>
 					<option>English (US)</option>
 					<option>Italiano</option>
@@ -264,7 +264,7 @@ const display = msg ? 'flex' : 'hidden';
 				<select
 					id="settings-timezone"
 					name="countries"
-					class="bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					class="bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 				>
 					<option>GMT+0 Greenwich Mean Time (GMT)</option>
 					<option>GMT+1 Central European Time (CET)</option>
@@ -277,13 +277,13 @@ const display = msg ? 'flex' : 'hidden';
 			</div>
 			<div>
 				<button
-					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 					>Save all</button
 				>
 			</div>
 		</div>
 		<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
+			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
 		>
 			<div class="flow-root">
 				<h3 class="text-xl font-semibold dark:text-white">Social accounts</h3>
@@ -322,7 +322,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center">
 								<a
 									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848]"
+									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
 									>Disconnect</a
 								>
 							</div>
@@ -362,7 +362,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center">
 								<a
 									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848]"
+									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
 									>Disconnect</a
 								>
 							</div>
@@ -401,7 +401,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center">
 								<a
 									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 									>Connect</a
 								>
 							</div>
@@ -440,7 +440,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center">
 								<a
 									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 									>Connect</a
 								>
 							</div>
@@ -449,14 +449,14 @@ const display = msg ? 'flex' : 'hidden';
 				</ul>
 				<div>
 					<button
-						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 						>Save all</button
 					>
 				</div>
 			</div>
 		</div>
 		<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
+			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
 		>
 			<div class="flow-root">
 				<h3 class="text-xl font-semibold dark:text-white">Other accounts</h3>
@@ -494,7 +494,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center w-auto xl:w-full 2xl:w-auto">
 								<a
 									href="#"
-									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848]"
+									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
 									>Disconnect</a
 								>
 							</div>
@@ -533,7 +533,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center w-auto xl:w-full 2xl:w-auto">
 								<a
 									href="#"
-									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848]"
+									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
 									>Disconnect</a
 								>
 							</div>
@@ -572,7 +572,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center w-auto xl:w-full 2xl:w-auto">
 								<a
 									href="#"
-									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848]"
+									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
 									>Disconnect</a
 								>
 							</div>
@@ -611,7 +611,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center w-auto xl:w-full 2xl:w-auto">
 								<a
 									href="#"
-									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848]"
+									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
 									>Disconnect</a
 								>
 							</div>
@@ -620,7 +620,7 @@ const display = msg ? 'flex' : 'hidden';
 				</ul>
 				<div>
 					<button
-						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 						>Save all</button
 					>
 				</div>
@@ -629,7 +629,7 @@ const display = msg ? 'flex' : 'hidden';
 	</div>
 	<div class="col-span-2">
 		<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
+			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
 		>
 			<h3 class="mb-4 text-xl font-semibold dark:text-white">
 				Información General
@@ -648,7 +648,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="nombre"
 							value={testRow?.nombre ?? ''}
 							id="first-name"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Juan"
 						/>
 					</div>
@@ -662,7 +662,7 @@ const display = msg ? 'flex' : 'hidden';
 							type="text"
 							name="apellido"
 							id="last-name"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Green"
 							value={testRow?.apellido ?? ''}
 						/>
@@ -675,7 +675,7 @@ const display = msg ? 'flex' : 'hidden';
 						>
 						<select
 							name="pais"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 						>
 							<option value="" selected={!testRow?.pais_id}
 								>Seleccione un país</option
@@ -700,7 +700,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="ciudad"
 							value={testRow?.ciudad ?? ''}
 							id="city"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="ejem. San Francisco"
 							-
 						/>
@@ -716,7 +716,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="direccion"
 							value={testRow?.direccion_linea1 ?? ''}
 							id="address"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="ejem. Av. Juan Molineros"
 							-
 						/>
@@ -732,7 +732,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="direccion2"
 							value={testRow?.direccion_linea2 ?? ''}
 							id="address"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="ejem. y De los Guayacanes"
 							-
 						/>
@@ -745,7 +745,7 @@ const display = msg ? 'flex' : 'hidden';
 						>
 						<label
 							for=""
-							class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="cursor-not-allowed shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							>{email}</label
 						>
 					</div>
@@ -760,7 +760,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="telefono"
 							id="phone-number"
 							value={testRow?.telf ?? ''}
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="ejem. +(12)3456 789"
 							-
 						/>
@@ -776,7 +776,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="fecha_nacimiento"
 							value={testRow?.fecha_nacimiento ?? ''}
 							id="birthday"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="15/08/1990"
 							-
 						/>
@@ -792,7 +792,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="organizacion"
 							value={testRow?.organizacion ?? ''}
 							id="organizacion"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Ejem. Sotomayor Consulting Ecuador"
 							-
 						/>
@@ -808,7 +808,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="cargo"
 							value={testRow?.cargo ?? ''}
 							id="role"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Ejem. Gerente General"
 							-
 						/>
@@ -824,7 +824,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="departamento"
 							value={testRow?.departamento ?? ''}
 							id="department"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Development"
 							-
 						/>
@@ -840,7 +840,7 @@ const display = msg ? 'flex' : 'hidden';
 							name="codigo_postal"
 							value={testRow?.codigo_postal ?? ''}
 							id="zip-code"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="123456"
 							-
 						/>
@@ -848,7 +848,7 @@ const display = msg ? 'flex' : 'hidden';
 
 					<div class="col-span-6 sm:col-full">
 						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 							type="submit">Guardar</button
 						>
 					</div>
@@ -856,7 +856,7 @@ const display = msg ? 'flex' : 'hidden';
 			</form>
 		</div>
 		<!--<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
+			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
 		>
 			<h3 class="mb-4 text-xl font-semibold dark:text-white">
 				Password information
@@ -873,7 +873,7 @@ const display = msg ? 'flex' : 'hidden';
 							type="text"
 							name="current-password"
 							id="current-password"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="••••••••"
 							-
 						/>
@@ -889,7 +889,7 @@ const display = msg ? 'flex' : 'hidden';
 							data-popover-placement="bottom"
 							type="password"
 							id="password"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 							placeholder="••••••••"
 							-
 						/>
@@ -897,7 +897,7 @@ const display = msg ? 'flex' : 'hidden';
 							data-popover
 							id="popover-password"
 							role="tooltip"
-							class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-[#1d1d1d] dark:border-gray-600 dark:text-gray-400"
+							class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-[#192033] dark:border-gray-600 dark:text-gray-400"
 						>
 							<div class="p-3 space-y-2">
 								<h3 class="font-semibold text-gray-900 dark:text-white">
@@ -968,14 +968,14 @@ const display = msg ? 'flex' : 'hidden';
 							type="text"
 							name="confirm-password"
 							id="confirm-password"
-							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="••••••••"
 							-
 						/>
 					</div>
 					<div class="col-span-6 sm:col-full">
 						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 							type="submit">Save all</button
 						>
 					</div>
@@ -983,7 +983,7 @@ const display = msg ? 'flex' : 'hidden';
 			</form>
 		</div> -->
 		<!--<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d]"
+			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
 		>
 			<div class="flow-root">
 				<h3 class="text-xl font-semibold dark:text-white">Sessions</h3>
@@ -1020,7 +1020,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center">
 								<a
 									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848]"
+									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
 									>Revoke</a
 								>
 							</div>
@@ -1058,7 +1058,7 @@ const display = msg ? 'flex' : 'hidden';
 							<div class="inline-flex items-center">
 								<a
 									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848]"
+									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
 									>Revoke</a
 								>
 							</div>
@@ -1067,7 +1067,7 @@ const display = msg ? 'flex' : 'hidden';
 				</ul>
 				<div>
 					<button
-						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+						class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 						>See more</button
 					>
 				</div>
@@ -1078,7 +1078,7 @@ const display = msg ? 'flex' : 'hidden';
 
 <!-- <div class="grid grid-cols-1 px-4 xl:grid-cols-2 xl:gap-4">
 	<div
-		class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d] xl:mb-0"
+		class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#192033] xl:mb-0"
 	>
 		<div class="flow-root">
 			<h3 class="text-xl font-semibold dark:text-white">
@@ -1140,14 +1140,14 @@ const display = msg ? 'flex' : 'hidden';
 			</div>
 			<div class="mt-6">
 				<button
-					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 					>Save all</button
 				>
 			</div>
 		</div>
 	</div>
 	<div
-		class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#1d1d1d] xl:mb-0"
+		class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#192033] xl:mb-0"
 	>
 		<div class="flow-root">
 			<h3 class="text-xl font-semibold dark:text-white">Email Notifications</h3>
@@ -1206,7 +1206,7 @@ const display = msg ? 'flex' : 'hidden';
 			</div>
 			<div class="mt-6">
 				<button
-					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+					class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 					>Save all</button
 				>
 			</div>

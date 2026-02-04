@@ -75,12 +75,12 @@ const { data: notificaciones } = await supabase
 						</tr>
 					</thead>
 					<tbody
-						class="bg-white divide-y divide-gray-200 dark:bg-[#1d1d1d] dark:divide-gray-700"
+						class="bg-white divide-y divide-gray-200 dark:bg-[#192033] dark:divide-gray-700"
 					>
 						{
 							notificaciones?.map((user) => (
 								<div>
-									<tr class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-[#1d313f] odd:bg-neutral-200 even:bg-[#d4d4d4]">
+									<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
 										<td class="w-4 pl-4">
 											<Image
 												src={logonotificaciones}
@@ -99,7 +99,7 @@ const { data: notificaciones } = await supabase
 											<a
 												href={user.link}
 												target="_blank"
-												class="text-white bg-[#967432] hover:bg-[#8c681d] focus:outline-none focus:ring-4 focus:ring-[#8c681d] font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] flex items-center gap-4 w-fit"
+												class="text-white bg-[#967432] hover:bg-[#8c681d] focus:outline-none focus:ring-4 focus:ring-[#8c681d] font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67] flex items-center gap-4 w-fit"
 											>
 												{user.mensaje_link}
 												<Icon name="ri:external-link-line" />
@@ -141,7 +141,7 @@ const { data: notificaciones } = await supabase
 												data-creado={user.created_at || ''}
 												data-link={user.link || ''}
 												data-mensajelink={user.mensaje_link ?? ''}
-												class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-[#967432] dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+												class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-[#967432] dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 											>
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
@@ -159,7 +159,7 @@ const { data: notificaciones } = await supabase
 											<button
 												id={`dd-btn-${user.id}`}
 												data-dropdown-toggle={`dd-${user.id}`}
-												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-neutral-700 dark:hover:bg-[#223848] dark:focus:ring-gray-600"
+												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-[#192033] dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
 												aria-expanded="false"
@@ -176,7 +176,7 @@ const { data: notificaciones } = await supabase
 											</button>
 											<div
 												id={`dd-${user.id}`}
-												class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-neutral-700 dark:divide-gray-600"
+												class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-[#192033] dark:divide-gray-600"
 												role="menu"
 												aria-labelledby={`dd-btn-${user.id}`}
 												data-dropdown-placement="bottom-start"
@@ -240,7 +240,7 @@ const { data: notificaciones } = await supabase
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-[#1f3443]">
+		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -252,7 +252,7 @@ const { data: notificaciones } = await supabase
 				</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#223848] dark:hover:text-white"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="edit-user-modal"
 				>
 					<svg
@@ -410,7 +410,7 @@ const { data: notificaciones } = await supabase
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -418,7 +418,7 @@ const { data: notificaciones } = await supabase
 				<h3 class="text-xl font-semibold dark:text-white">Invitar usuario</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#223848] dark:hover:text-white"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="add-user-modal"
 				>
 					<svg
@@ -447,7 +447,7 @@ const { data: notificaciones } = await supabase
 								type="email"
 								name="correo_create"
 								id="email"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 								placeholder="correo@ejemplo.com"
 								required
 							/>
@@ -459,7 +459,7 @@ const { data: notificaciones } = await supabase
 						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 							type="submit">Invitar Usuario</button
 						>
 					</div>
@@ -476,7 +476,7 @@ const { data: notificaciones } = await supabase
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-neutral-800">
+		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -484,7 +484,7 @@ const { data: notificaciones } = await supabase
 				<h3 class="text-xl font-semibold dark:text-white">Añadir Rol</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#223848] dark:hover:text-white"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="rol-modal-admin"
 				>
 					<svg
@@ -513,7 +513,7 @@ const { data: notificaciones } = await supabase
 								type="text"
 								name="nombre_rol"
 								id="rol-create"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#1d1d1d] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 								placeholder="admin"
 								required
 							/>
@@ -525,7 +525,7 @@ const { data: notificaciones } = await supabase
 						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 							type="submit">Añadir rol</button
 						>
 					</div>
@@ -544,7 +544,7 @@ const { data: notificaciones } = await supabase
 	<div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
 		<!-- Modal content -->
 		<div
-			class="relative p-4 bg-white rounded-lg shadow dark:bg-neutral-700 sm:p-5"
+			class="relative p-4 bg-white rounded-lg shadow dark:bg-[#192033] sm:p-5"
 		>
 			<!-- Modal header -->
 			<div
@@ -603,7 +603,7 @@ const { data: notificaciones } = await supabase
 					<button
 						data-modal-hide="updaterol"
 						type="button"
-						class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848]"
+						class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
 						>No, cancel</button
 					>
 				</div>

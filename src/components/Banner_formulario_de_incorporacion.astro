@@ -19,7 +19,8 @@ const FORMULARIOS_TABLE = 'formularios_envios';
 
 // Datos fijos para el banner
 const BANNER_PROPS = {
-	title: 'Proceda con la formalización de la incorporación de su empresa a través del siguiente formulario.',
+	title:
+		'Proceda con la formalización de la incorporación de su empresa a través del siguiente formulario.',
 	btnId: 'dismiss-incorp-banner-icorp',
 	btnTitle: 'Comenzar ahora',
 };
@@ -90,9 +91,8 @@ if (accessToken && refreshToken) {
 			<div
 				id="banner_forms_incorp"
 				tabindex="-1"
-				class="flex flex-col md:flex-row justify-between w-full p-4 bg-white border border-gray-100 shadow-xs top-28 dark:bg-[#223848] dark:border-gray-600 right-4 animate-fade-in"
+				class="flex flex-col md:flex-row justify-between w-full p-4 bg-white border border-gray-100 shadow-xs top-28 dark:bg-[#192033] dark:border-gray-600 right-4 animate-fade-in"
 			>
-			
 				<div class="flex mb-3 me-4 items-center flex-row md:mb-0">
 					<a
 						href="/"
@@ -118,7 +118,7 @@ if (accessToken && refreshToken) {
 				<div class="flex items-center shrink-0 justify-between">
 					<a
 						href={`/forms/incorporacion/3bc86384-2cc6-440d-aa79-f2f63738fd3b?empresa=${empresaId}`}
-						class="px-5 py-2 me-2 text-base font-medium text-white bg-[#8c681d] rounded-lg hover:bg-[#8c681d] focus:ring-4 focus:ring-blue-300 dark:bg-[#8c681d] dark:hover:bg-[#8c681d] focus:outline-none dark:focus:ring-[#8c681d]"
+						class="px-5 py-2 me-2 text-base font-medium text-white bg-[#8c681d] rounded-lg hover:bg-[#8c681d] focus:ring-4 focus:ring-blue-300 dark:bg-[#8c681d] dark:hover:bg-[#134aed]/80 focus:outline-none dark:focus:ring-[#323f67]"
 					>
 						{BANNER_PROPS.btnTitle}
 					</a>

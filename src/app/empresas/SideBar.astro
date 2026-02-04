@@ -52,7 +52,7 @@ if (user) {
 	aria-label="Sidebar"
 >
 	<div
-		class="relative flex flex-col flex-1 min-h-0 pt-0 bg-white border-r border-gray-200 dark:bg-neutral-800 dark:border-gray-700"
+		class="relative flex flex-col flex-1 min-h-0 pt-0 bg-white border-r border-gray-200 dark:bg-[#101521] dark:border-gray-700"
 	>
 		<div
 			class:list={[
@@ -63,7 +63,7 @@ if (user) {
 			]}
 		>
 			<div
-				class="flex-1 px-3 space-y-1 bg-white divide-y divide-gray-200 dark:bg-neutral-800 dark:divide-gray-700"
+				class="flex-1 px-3 space-y-1 bg-white divide-y divide-gray-200 dark:bg-[#101521] dark:divide-gray-700"
 			>
 				<ul class="pb-2 space-y-2">
 					<li>
@@ -88,7 +88,7 @@ if (user) {
 									type="text"
 									name="email"
 									id="mobile-search"
-									class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+									class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 dark:focus:ring-primary-500 dark:focus:border-primary-500"
 									placeholder="Search"
 								/>
 							</div>
@@ -97,7 +97,7 @@ if (user) {
 					<li>
 						<a
 							href={`/empresas/${empresa.slug}/`}
-							class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#223848]"
+							class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
 						>
 							<svg
 								fill="currentColor"
@@ -119,7 +119,7 @@ if (user) {
 					<li>
 						<a
 							href={`/empresas/${empresa.slug}/dashboard`}
-							class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#223848]"
+							class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
 						>
 							<svg
 								class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -137,7 +137,7 @@ if (user) {
 							<li>
 								<a
 									href={`/empresas/${empresa.slug}/crud/users`}
-									class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
 								>
 									<svg
 										class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -160,7 +160,7 @@ if (user) {
 					<li>
 						<button
 							type="button"
-							class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+							class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 							aria-controls="dropdown-layouts"
 							data-collapse-toggle="dropdown-layouts"
 						>
@@ -195,14 +195,14 @@ if (user) {
 							<li>
 								<a
 									href={`/empresas/${empresa.slug}/layouts/stacked`}
-									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Stacked</a
 								>
 							</li>
 							<li>
 								<a
 									href={`/empresas/${empresa.slug}/layouts/sidebar`}
-									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Sidebar</a
 								>
 							</li>
@@ -213,7 +213,7 @@ if (user) {
 							<li>
 								<button
 									type="button"
-									class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									aria-controls="dropdown-crud"
 									data-collapse-toggle="dropdown-crud"
 								>
@@ -254,7 +254,7 @@ if (user) {
 									<li>
 										<a
 											href={`/empresas/${empresa.slug}/crud/servicios`}
-											class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#223848]"
+											class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#101522]"
 										>
 											Servicios
 										</a>
@@ -262,7 +262,7 @@ if (user) {
 									<li>
 										<a
 											href={`/empresas/${empresa.slug}/crud/users`}
-											class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#223848]"
+											class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#101522]"
 										>
 											Clientes
 										</a>
@@ -270,7 +270,7 @@ if (user) {
 									<li>
 										<a
 											href={`/empresas/${empresa.slug}/crud/formularios`}
-											class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#223848]"
+											class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#101522]"
 										>
 											Formularios
 										</a>
@@ -278,7 +278,7 @@ if (user) {
 									<li>
 										<a
 											href={`/empresas/${empresa.slug}/crud/formularios-enviados`}
-											class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#223848]"
+											class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#101522]"
 										>
 											Forms enviados
 										</a>
@@ -292,7 +292,7 @@ if (user) {
 						<!-- {{ if eq $page_slug "settings" }} -->
 						<a
 							href={`/empresas/${empresa.slug}/settings`}
-							class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#223848]"
+							class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
 						>
 							<svg
 								class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -313,7 +313,7 @@ if (user) {
 					<li>
 						<button
 							type="button"
-							class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+							class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 							aria-controls="dropdown-pages"
 							data-collapse-toggle="dropdown-pages"
 						>
@@ -347,28 +347,28 @@ if (user) {
 							<li>
 								<a
 									href={url('pages/pricing')}
-									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Pricing</a
 								>
 							</li>
 							<li>
 								<a
 									href={url('pages/maintenance')}
-									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Maintenance</a
 								>
 							</li>
 							<li>
 								<a
 									href={url('pages/404')}
-									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>404 not found</a
 								>
 							</li>
 							<li>
 								<a
 									href={url('pages/500')}
-									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>500 server error</a
 								>
 							</li>
@@ -377,7 +377,7 @@ if (user) {
 					<li>
 						<button
 							type="button"
-							class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+							class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 							aria-controls="dropdown-auth"
 							data-collapse-toggle="dropdown-auth"
 						>
@@ -411,35 +411,35 @@ if (user) {
 							<li>
 								<a
 									href={url('authentication/sign-in')}
-									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Sign in</a
 								>
 							</li>
 							<li>
 								<a
 									href={url('authentication/sign-up')}
-									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Sign up</a
 								>
 							</li>
 							<li>
 								<a
 									href={url('authentication/forgot-password')}
-									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Forgot password</a
 								>
 							</li>
 							<li>
 								<a
 									href={url('authentication/reset-password')}
-									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Reset password</a
 								>
 							</li>
 							<li>
 								<a
 									href={url('authentication/profile-lock')}
-									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Profile lock</a
 								>
 							</li>
@@ -448,7 +448,7 @@ if (user) {
 					<li>
 						<button
 							type="button"
-							class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#223848]"
+							class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-[#101522]"
 							aria-controls="dropdown-playground"
 							data-collapse-toggle="dropdown-playground"
 						>
@@ -485,29 +485,29 @@ if (user) {
 						<ul id="dropdown-playground" class="hidden space-y-2 py-2">
 							<li>
 								<!-- {{ if eq $page_slug "stacked" }} -->
-								<!--  bg-gray-100 dark:bg-neutral-700 -->
+								<!--  bg-gray-100 dark:bg-[#192033] -->
 								<a
 									href={url('playground/stacked')}
-									class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Stacked</a
 								>
 								<!-- <a
 									href={url('playground/kitchen-sink')}
-									class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Kitchen Sink</a
 								> -->
 							</li>
 							<li>
 								<!-- {{ if eq $page_slug "sidebar" }} -->
-								<!--  bg-gray-100 dark:bg-neutral-700 -->
+								<!--  bg-gray-100 dark:bg-[#192033] -->
 								<a
 									href={url('playground/sidebar')}
-									class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>Sidebar</a
 								>
 								<a
 									href={url('playground/data')}
-									class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#223848]"
+									class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-[#101522]"
 									>API data</a
 								>
 							</li>
@@ -518,7 +518,7 @@ if (user) {
 					<a
 						href={'https://github.com/themesberg/flowbite-astro-admin-dashboard'}
 						target="_blank"
-						class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#223848]"
+						class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
 					>
 						<svg
 							aria-hidden="true"
@@ -536,7 +536,7 @@ if (user) {
 					<a
 						href="https://sotomayorconsulting.com/inicio/terminos/"
 						target="_blank"
-						class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#223848]"
+						class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
 					>
 						<svg
 							class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -553,7 +553,7 @@ if (user) {
 					<a
 						href="https://flowbite.com/docs/components/alerts/"
 						target="_blank"
-						class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#223848]"
+						class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
 					>
 						<svg
 							class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -569,7 +569,7 @@ if (user) {
 					<a
 						href="https://github.com/themesberg/flowbite-astro-admin-dashboard/issues"
 						target="_blank"
-						class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#223848]"
+						class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
 					>
 						<svg
 							class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -587,12 +587,12 @@ if (user) {
 			</div>
 		</div>
 		<div
-			class="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-white lg:flex dark:bg-neutral-800"
+			class="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-white lg:flex dark:bg-[#101521]"
 			sidebar-bottom-menu
 		>
 			<a
 				href="#"
-				class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-[#223848] dark:hover:text-white"
+				class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-[#101522] dark:hover:text-white"
 			>
 				<svg
 					class="w-6 h-6"
@@ -607,7 +607,7 @@ if (user) {
 			<a
 				href={`/empresas/${empresa.slug}/settings`}
 				data-tooltip-target="tooltip-settings"
-				class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-[#223848] dark:hover:text-white"
+				class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-[#101522] dark:hover:text-white"
 			>
 				<svg
 					class="w-6 h-6"
@@ -623,7 +623,7 @@ if (user) {
 			<div
 				id="tooltip-settings"
 				role="tooltip"
-				class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-neutral-700"
+				class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-[#192033]"
 			>
 				Settings page
 				<div class="tooltip-arrow" data-popper-arrow></div>
@@ -631,7 +631,7 @@ if (user) {
 			<button
 				type="button"
 				data-dropdown-toggle="language-dropdown"
-				class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-[#223848] dark:hover:text-white"
+				class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-[#101522] dark:hover:text-white"
 			>
 				<svg
 					class="h-5 w-5 rounded-full mt-0.5"
@@ -663,7 +663,7 @@ if (user) {
 			</button>
 			<!-- Dropdown -->
 			<div
-				class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-neutral-700"
+				class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-[#192033]"
 				id="language-dropdown"
 			>
 				<ul class="py-1" role="none">

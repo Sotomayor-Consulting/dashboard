@@ -22,7 +22,7 @@ const { data: pagosRealizados } = await supabase
 <Alerta />
 <div>
 	<div
-		class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#0E2637] w-full"
+		class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] w-full"
 	>
 		<div class="w-full mb-1">
 			<div class="mb-4">
@@ -79,7 +79,7 @@ const { data: pagosRealizados } = await supabase
 					<a
 						href="/crud/formularios-enviados"
 						type="button"
-						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] h-full"
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67] h-full"
 					>
 						<svg
 							class="w-5 h-5 mr-2 -ml-1"
@@ -111,7 +111,7 @@ const { data: pagosRealizados } = await supabase
 						class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
 						id="myTable"
 					>
-						<thead class="bg-gray-100 dark:bg-neutral-700">
+						<thead class="bg-gray-100 dark:bg-[#192033]">
 							<tr>
 								{
 									[
@@ -156,11 +156,11 @@ const { data: pagosRealizados } = await supabase
 						</thead>
 
 						<tbody
-							class="bg-white divide-y divide-gray-200 dark:bg-[#1d1d1d] dark:divide-gray-700"
+							class="bg-white divide-y divide-gray-200 dark:bg-[#192033] dark:divide-gray-700"
 						>
 							{
 								pagosRealizados?.map((sr) => (
-									<tr class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-[#1d313f] odd:bg-neutral-200 even:bg-[#d4d4d4]">
+									<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
 										<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
 											<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
 												<data value="name">
@@ -286,7 +286,7 @@ const { data: pagosRealizados } = await supabase
 												<div
 													id={`tool-tip-${sr.id_pagos}`}
 													role="tooltip"
-													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-[#223848]"
+													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-[#192033]"
 												>
 													Marcar como leído
 													<div class="tooltip-arrow" data-popper-arrow />
@@ -295,7 +295,7 @@ const { data: pagosRealizados } = await supabase
 												<div
 													id={`tool-tip-${sr.id_pagos}-read`}
 													role="tooltip"
-													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-[#223848]"
+													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-[#192033]"
 												>
 													Leído
 													<div class="tooltip-arrow" data-popper-arrow />
@@ -315,7 +315,7 @@ const { data: pagosRealizados } = await supabase
 	<!-- Edit Product Drawer -->
 	<div
 		id="drawer-update-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#1d1d1d]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#192033]"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -359,7 +359,7 @@ const { data: pagosRealizados } = await supabase
 						type="text"
 						name="titulo-form"
 						id="titulo-update-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						value=""
 						placeholder="inserta el titulo del formulario"
 						required=""
@@ -375,7 +375,7 @@ const { data: pagosRealizados } = await supabase
 						type="text"
 						name="categoria-form"
 						id="categoria-form-update"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						value=""
 						placeholder="Añade la categoria del formulario"
 						required=""
@@ -390,7 +390,7 @@ const { data: pagosRealizados } = await supabase
 					<textarea
 						name="json-update"
 						id="json-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						placeholder="Añade el Json del formulario"
 						required=""></textarea>
 				</div>
@@ -404,7 +404,7 @@ const { data: pagosRealizados } = await supabase
 						id="tema-form"
 						name="tema-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						placeholder="Añade el codigo json del tema de tu formulario"
 					></textarea>
 				</div>
@@ -418,7 +418,7 @@ const { data: pagosRealizados } = await supabase
 						id="descripcion-form"
 						name="descripcion-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						placeholder="Añade una descripcion para el form"></textarea>
 				</div>
 				<div>
@@ -430,7 +430,7 @@ const { data: pagosRealizados } = await supabase
 					<select
 						id="update-form-estado"
 						name="estado"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 					>
 						<option value="" disabled="" selected="">--</option>
 						<option value="true">Activo</option>
@@ -443,14 +443,14 @@ const { data: pagosRealizados } = await supabase
 			>
 				<button
 					type="submit"
-					class="w-full justify-center text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+					class="w-full justify-center text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 				>
 					Actualizar
 				</button>
 				<button
 					data-drawer-hide="drawer-update-product-default"
 					type="button"
-					class="w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900 dark:bg-[#1d1d1d]"
+					class="w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900 dark:bg-[#192033]"
 				>
 					Cancelar
 				</button>
@@ -461,7 +461,7 @@ const { data: pagosRealizados } = await supabase
 	<!-- Delete Product Drawer -->
 	<div
 		id="drawer-delete-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#1d1d1d]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#192033]"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -521,7 +521,7 @@ const { data: pagosRealizados } = await supabase
 				Si, estoy seguro
 			</button>
 			<button
-				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848] dark:focus:ring-gray-700"
+				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
 				type="button"
 				data-drawer-dismiss="drawer-delete-product-default"
 				aria-controls="drawer-delete-product-default"
@@ -534,7 +534,7 @@ const { data: pagosRealizados } = await supabase
 	<!-- desarchivar Product Drawer -->
 	<div
 		id="desarchivar-menu"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#1d1d1d]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#192033]"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -593,7 +593,7 @@ const { data: pagosRealizados } = await supabase
 				Si, estoy seguro
 			</button>
 			<button
-				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#1d1d1d] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848] dark:focus:ring-gray-700"
+				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
 				type="button"
 				data-drawer-dismiss="desarchivar-menu"
 				aria-controls="desarchivar-menu"
@@ -606,7 +606,7 @@ const { data: pagosRealizados } = await supabase
 	<!-- Add Product Drawer -->
 	<div
 		id="drawer-create-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#1d1d1d]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#192033]"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -648,7 +648,7 @@ const { data: pagosRealizados } = await supabase
 						type="text"
 						name="titulo-form"
 						id="nombre-service"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						placeholder="Nombre del formulario"
 						required=""
 					/>
@@ -663,7 +663,7 @@ const { data: pagosRealizados } = await supabase
 						type="text"
 						name="categoria-form"
 						id="categoria-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						placeholder="Añade la categoria del form"
 						required=""
 					/>
@@ -678,7 +678,7 @@ const { data: pagosRealizados } = await supabase
 						id="json-update"
 						name="json-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						placeholder="Pega aqui el Json del formulario"></textarea>
 				</div>
 				<div>
@@ -691,7 +691,7 @@ const { data: pagosRealizados } = await supabase
 						id="tema-form-update"
 						name="tema-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						placeholder="Pega el Json del tema"></textarea>
 				</div>
 				<div>
@@ -704,7 +704,7 @@ const { data: pagosRealizados } = await supabase
 						id="descripcion-form-update"
 						name="descripcion-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						placeholder="Añade una descripcion del formulario"></textarea>
 				</div>
 				<div>
@@ -716,7 +716,7 @@ const { data: pagosRealizados } = await supabase
 					<select
 						id="estado"
 						name="estado"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 					>
 						<option value="" disabled="" selected="">--</option>
 						<option value="true">Activo</option>
@@ -729,7 +729,7 @@ const { data: pagosRealizados } = await supabase
 				>
 					<button
 						type="submit"
-						class="text-white w-full justify-center bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+						class="text-white w-full justify-center bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 					>
 						Añadir formulario
 					</button>
@@ -737,7 +737,7 @@ const { data: pagosRealizados } = await supabase
 						type="button"
 						data-drawer-dismiss="drawer-create-product-default"
 						aria-controls="drawer-create-product-default"
-						class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-neutral-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+						class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-[#192033] dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
 					>
 						<svg
 							aria-hidden="true"

@@ -32,8 +32,8 @@ const status = Astro.url.searchParams.get('status'); // "success" | "error"
 const msg = Astro.url.searchParams.get('msg') || '';
 const isSuccess = status === 'success';
 const variant = isSuccess
-	? 'text-green-800 border-green-300 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-[#1d1d1d]'
-	: 'text-red-800 border-red-300 bg-red-50 dark:text-red-400 dark:border-red-800 dark:bg-[#1d1d1d]';
+	? 'text-green-800 border-green-300 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-[#192033]'
+	: 'text-red-800 border-red-300 bg-red-50 dark:text-red-400 dark:border-red-800 dark:bg-[#192033]';
 
 // visible si hay msg; si no, hidden
 const display = msg ? 'flex' : 'hidden';

@@ -131,7 +131,7 @@ html.dark .datatable-dropdown label {
 
 /* Input en dark */
 html.dark .datatable-input {
-	background-color: #1f3443;
+	background-color: #28314c;
 	border-color: rgb(75 85 99);
 	color: rgb(255 255 255);
 }
@@ -141,8 +141,8 @@ html.dark .datatable-input::placeholder {
 }
 
 html.dark .datatable-input:focus {
-	border-color: #967432;
-	box-shadow: 0 0 0 3px #967432;
+	border-color: #134aed;
+	box-shadow: 0 0 0 3px #134aed;
 }
 
 html.dark .datatable-search::before {
@@ -174,7 +174,7 @@ html.dark .datatable-info {
 }
 
 html.dark .datatable-selector {
-	background-color: #1f3443;
+	background-color: #28314c;
 	border-color: rgb(75 85 99);
 	color: rgb(255 255 255);
 }
@@ -184,8 +184,8 @@ html.dark .datatable-selector::placeholder {
 }
 
 html.dark .datatable-selector:focus {
-	border-color: #967432;
-	box-shadow: 0 0 0 3px #967432;
+	border-color: #134aed;
+	box-shadow: 0 0 0 3px #134aed;
 }
 
 thead {
@@ -196,7 +196,7 @@ thead {
 }
 
 html.dark thead {
-	background: #1b2e3c;
+	background: #28314c;
 }
 
 .datatable-pagination .datatable-active a,
@@ -224,10 +224,12 @@ html.dark .datatable-pagination .datatable-active button:hover {
 	padding-top: 2rem;
 	font-size: 1.2rem;
 }
+
 html.dark .datatable-empty {
 	color: white;
 
 }
-.datatable-sorter{
+
+.datatable-sorter {
 	text-transform: uppercase;
 }

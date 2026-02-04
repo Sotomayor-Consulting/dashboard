@@ -6,8 +6,8 @@ const status = Astro.url.searchParams.get('status'); // "success" | "error"
 const msg = Astro.url.searchParams.get('msg') || '';
 const isSuccess = status === 'success';
 const variant = isSuccess
-	? 'text-green-800 border-green-300 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-neutral-800'
-	: 'text-red-800 border-red-300 bg-red-50 dark:text-red-400 dark:border-red-800 dark:bg-neutral-800';
+	? 'text-green-800 border-green-300 bg-green-50 dark:text-green-400 dark:border-green-800 dark:bg-[#101521]'
+	: 'text-red-800 border-red-300 bg-red-50 dark:text-red-400 dark:border-red-800 dark:bg-[#101521]';
 const display = msg ? 'flex' : 'hidden';
 ---
 
@@ -270,7 +270,7 @@ const display = msg ? 'flex' : 'hidden';
 						</h3>
 					</div>
 					<button
-						class="text-white bg-[#967432] hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-[#967432] dark:hover:bg-[#8c681d] focus:outline-none dark:focus:ring-blue-800 w-fit mt-5"
+						class="text-white bg-[#967432] hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 focus:outline-none dark:focus:ring-blue-800 w-fit mt-5"
 						type="button"
 						id="Btn-cambio">Continuar</button
 					>
@@ -304,7 +304,7 @@ const display = msg ? 'flex' : 'hidden';
 								action="/api/create/client-new-tenant"
 								method="post"
 								enctype="multipart/form-data"
-								class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-[#1d1d1d] sm:p-6 lg:max-w-xl lg:p-8"
+								class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-[#192033] sm:p-6 lg:max-w-xl lg:p-8"
 							>
 								<input type="hidden" name="estado" id="estado" value="active" />
 								<input type="hidden" name="rol_en_empresa" value="admin" />
@@ -328,7 +328,7 @@ const display = msg ? 'flex' : 'hidden';
 										type="text"
 										name="nombre_empresa"
 										id="nombre_empresa"
-										class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 mb-2"
+										class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 mb-2"
 										placeholder="Sotomayor Consulting Internacional"
 										required
 									/>
@@ -349,7 +349,7 @@ const display = msg ? 'flex' : 'hidden';
 											type="text"
 											id="slug_empresa"
 											name="slug_empresa"
-											class="rounded-none rounded-s-lg bg-gray-50 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm p-2.5 dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+											class="rounded-none rounded-s-lg bg-gray-50 border border-gray-300 text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 											placeholder="mi-empresa-llc"
 											pattern="[a-z0-9-]+"
 											required
@@ -375,7 +375,7 @@ const display = msg ? 'flex' : 'hidden';
 									<input
 										name="logo-empresa"
 										id="logo-empresa"
-										class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-neutral-700 dark:border-gray-600 dark:placeholder-gray-400"
+										class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400"
 										aria-describedby="file_input_help"
 										accept="image/png,image/jpeg,image/webp"
 										type="file"
@@ -394,7 +394,7 @@ const display = msg ? 'flex' : 'hidden';
 										id="toggleCheckbox"
 										type="checkbox"
 										value=""
-										class="w-4 h-4 text-[#967432] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#967432] dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-neutral-700 dark:border-gray-600"
+										class="w-4 h-4 text-[#967432] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#967432] dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-[#192033] dark:border-gray-600"
 										required
 									/>
 									<label
@@ -410,14 +410,14 @@ const display = msg ? 'flex' : 'hidden';
 
 								<button
 									type="submit"
-									class="flex w-full items-center justify-center rounded-lg bg-[#8c681d] px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-primary-800"
+									class="flex w-full items-center justify-center rounded-lg bg-[#8c681d] px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 									>Pay now</button
 								>
 							</form>
 
 							<div class="mt-6 grow sm:mt-8 lg:mt-0 hidden" id="targetElement">
 								<div
-									class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-[#1d1d1d]"
+									class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-[#192033]"
 								>
 									<div class="space-y-2">
 										<dl class="flex items-center justify-between gap-4">

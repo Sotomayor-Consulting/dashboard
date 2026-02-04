@@ -28,7 +28,7 @@ const { data: servicio } = await supabase
 <Alerta />
 <div>
 	<div
-		class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#0E2637] dark:border-gray-700 w-full"
+		class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] dark:border-gray-700 w-full"
 	>
 		<div class="w-full mb-1">
 			<div class="mb-4">
@@ -85,7 +85,7 @@ const { data: servicio } = await supabase
 					<a
 						href="/crud/formularios/"
 						type="button"
-						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-[#967432] sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d] h-full"
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-[#967432] sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67] h-full"
 					>
 						<svg
 							class="w-5 h-5 mr-2 -ml-1"
@@ -106,7 +106,7 @@ const { data: servicio } = await supabase
 					</a>
 					<button
 						id="createProductButton"
-						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 						type="button"
 						data-drawer-target="drawer-create-product-default"
 						data-drawer-show="drawer-create-product-default"
@@ -129,7 +129,7 @@ const { data: servicio } = await supabase
 						href="https://surveyjs.io/create-free-survey"
 						target="_blank"
 						type="button"
-						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -157,8 +157,6 @@ const { data: servicio } = await supabase
 					>
 						<thead class="bg-gray-100 dark:bg-[#1f2937]">
 							<tr>
-								
-
 								{
 									[
 										'Titulo',
@@ -203,8 +201,7 @@ const { data: servicio } = await supabase
 						<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
 							{
 								servicio?.map((sr) => (
-									<tr class="hover:bg-gray-100 dark:hover:bg-[#1b2e3c] odd:dark:bg-[#1f3443] even:dark:bg-[#1d313f] odd:bg-neutral-200 even:bg-[#d4d4d4]">
-										
+									<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
 										<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
 											<div class="text-base font-semibold text-gray-900 dark:text-white">
 												<data value="name">{sr.titulo}</data>
@@ -263,7 +260,10 @@ const { data: servicio } = await supabase
 											</div>
 										</td>
 
-										<td class="p-4 space-x-2 whitespace-nowrap" x-data="{ showTooltip: false }">
+										<td
+											class="p-4 space-x-2 whitespace-nowrap"
+											x-data="{ showTooltip: false }"
+										>
 											<button
 												type="button"
 												id="updateProductButton"
@@ -279,7 +279,7 @@ const { data: servicio } = await supabase
 												data-drawer-show="drawer-update-product-default"
 												aria-controls="drawer-update-product-default"
 												data-drawer-placement="right"
-												class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+												class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 											>
 												<svg
 													class="w-4 h-4 mr-2"
@@ -304,7 +304,7 @@ const { data: servicio } = await supabase
 												data-id={sr.form_id}
 												data-modal-target="course-modal"
 												data-modal-toggle="course-modal"
-												class="text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-[#1f3443] dark:border-gray-700 dark:text-white dark:hover:bg-[#223848]"
+												class="text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-[#101521] dark:border-gray-700 dark:text-white dark:hover:bg-[#101522]"
 											>
 												<svg
 													class="w-4 h-4"
@@ -320,7 +320,7 @@ const { data: servicio } = await supabase
 												id={`dd-btn-${sr.form_id}`}
 												@click="showTooltip = !showTooltip"
 												@click.outside="showTooltip = false"
-												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-[#1f3443] dark:hover:bg-[#223848] dark:focus:ring-gray-600"
+												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-[#101521] dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
 												aria-expanded="false"
@@ -337,12 +337,11 @@ const { data: servicio } = await supabase
 											</button>
 											<div
 												id={`dd-${sr.form_id}`}
-												class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-[#1f3443] dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute right-2"
+												class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-[#101521] dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute right-2"
 												role="menu"
 												x-show="showTooltip"
 												x-transition
 												aria-labelledby={`dd-btn-${sr.form_id}`}
-												
 											>
 												<ul
 													class="py-2 text-sm text-gray-700 dark:text-gray-200"
@@ -412,7 +411,7 @@ const { data: servicio } = await supabase
 	<!-- Edit Product Drawer -->
 	<div
 		id="drawer-update-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-lg p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#0e2637]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-lg p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -456,7 +455,7 @@ const { data: servicio } = await supabase
 						type="text"
 						name="titulo-form"
 						id="titulo-update-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						value=""
 						placeholder="inserta el titulo del formulario"
 						required=""
@@ -472,7 +471,7 @@ const { data: servicio } = await supabase
 						type="text"
 						name="categoria-form"
 						id="categoria-form-update"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						value=""
 						placeholder="Añade la categoria del formulario"
 						required=""
@@ -487,7 +486,7 @@ const { data: servicio } = await supabase
 					<textarea
 						name="json-update"
 						id="json-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade el Json del formulario"
 						required=""
 						rows="10"></textarea>
@@ -502,7 +501,7 @@ const { data: servicio } = await supabase
 						id="tema-form"
 						name="tema-form-update"
 						rows="2"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade el codigo json del tema de tu formulario"
 					></textarea>
 				</div>
@@ -516,7 +515,7 @@ const { data: servicio } = await supabase
 						id="descripcion-form"
 						name="descripcion-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade una descripcion para el form"></textarea>
 				</div>
 				<div>
@@ -528,7 +527,7 @@ const { data: servicio } = await supabase
 					<select
 						id="update-form-estado"
 						name="estado"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 					>
 						<option value="" disabled="" selected="">--</option>
 						<option value="true">Activo</option>
@@ -541,14 +540,14 @@ const { data: servicio } = await supabase
 			>
 				<button
 					type="submit"
-					class="w-full justify-center text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-[#967432] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+					class="w-full justify-center text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-[#967432] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 				>
 					Actualizar
 				</button>
 				<button
 					data-drawer-hide="drawer-update-product-default"
 					type="button"
-					class="w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900 dark:bg-[#0e2637]"
+					class="w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900 dark:bg-[#101521]"
 				>
 					Cancelar
 				</button>
@@ -559,7 +558,7 @@ const { data: servicio } = await supabase
 	<!-- Delete Product Drawer -->
 	<div
 		id="drawer-delete-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#0e2637]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -619,7 +618,7 @@ const { data: servicio } = await supabase
 				Si, estoy seguro
 			</button>
 			<button
-				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#0e2637] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848] dark:focus:ring-gray-700"
+				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#101521] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
 				type="button"
 				data-drawer-dismiss="drawer-delete-product-default"
 				aria-controls="drawer-delete-product-default"
@@ -632,7 +631,7 @@ const { data: servicio } = await supabase
 	<!-- desarchivar Product Drawer -->
 	<div
 		id="desarchivar-menu"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#0e2637]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -691,7 +690,7 @@ const { data: servicio } = await supabase
 				Si, estoy seguro
 			</button>
 			<button
-				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#0e2637] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#223848] dark:focus:ring-gray-700"
+				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#101521] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
 				type="button"
 				data-drawer-dismiss="desarchivar-menu"
 				aria-controls="desarchivar-menu"
@@ -704,7 +703,7 @@ const { data: servicio } = await supabase
 	<!-- Add Product Drawer -->
 	<div
 		id="drawer-create-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#0e2637]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -746,7 +745,7 @@ const { data: servicio } = await supabase
 						type="text"
 						name="titulo-form"
 						id="nombre-service"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Nombre del formulario"
 						required=""
 					/>
@@ -762,7 +761,7 @@ const { data: servicio } = await supabase
 						type="text"
 						name="categoria-form"
 						id="categoria-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade la categoria del form"
 						required=""
 					/>
@@ -777,7 +776,7 @@ const { data: servicio } = await supabase
 						id="json-update"
 						name="json-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Pega aqui el Json del formulario"></textarea>
 				</div>
 				<div>
@@ -790,7 +789,7 @@ const { data: servicio } = await supabase
 						id="tema-form-update"
 						name="tema-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Pega el Json del tema"></textarea>
 				</div>
 				<div>
@@ -803,7 +802,7 @@ const { data: servicio } = await supabase
 						id="descripcion-form-update"
 						name="descripcion-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade una descripcion del formulario"></textarea>
 				</div>
 				<div>
@@ -815,7 +814,7 @@ const { data: servicio } = await supabase
 					<select
 						id="estado"
 						name="estado"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1f3443] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 					>
 						<option value="" disabled="" selected="">--</option>
 						<option value="true">Activo</option>
@@ -828,7 +827,7 @@ const { data: servicio } = await supabase
 				>
 					<button
 						type="submit"
-						class="text-white w-full justify-center bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#967432] dark:hover:bg-[#8c681d] dark:focus:ring-[#8c681d]"
+						class="text-white w-full justify-center bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 					>
 						Añadir formulario
 					</button>
@@ -836,7 +835,7 @@ const { data: servicio } = await supabase
 						type="button"
 						data-drawer-dismiss="drawer-create-product-default"
 						aria-controls="drawer-create-product-default"
-						class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-[#1f3443] dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+						class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-[#101521] dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
 					>
 						<svg
 							aria-hidden="true"
@@ -867,7 +866,7 @@ const { data: servicio } = await supabase
 	>
 		<div class="relative p-4 w-full max-w-lg max-h-full">
 			<!-- Modal content -->
-			<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#0e2637]">
+			<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#101521]">
 				<!-- Modal header -->
 				<div class="flex items-center justify-between p-4 md:p-5">
 					<h3 class="text-lg text-gray-500 dark:text-gray-400">
@@ -875,7 +874,7 @@ const { data: servicio } = await supabase
 					</h3>
 					<button
 						type="button"
-						class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8 ms-auto inline-flex justify-center items-center dark:hover:bg-[#223848] dark:hover:text-white"
+						class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8 ms-auto inline-flex justify-center items-center dark:hover:bg-[#101522] dark:hover:text-white"
 						data-modal-toggle="course-modal"
 					>
 						<svg
@@ -906,7 +905,7 @@ const { data: servicio } = await supabase
 						<input
 							id="share-id"
 							type="text"
-							class="col-span-6 bg-gray-50 border border-gray-300 text-gray-500 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1e3342] dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-400 dark:focus:ring-[#8c681d] dark:focus:border-[#8c681d]"
+							class="col-span-6 bg-gray-50 border border-gray-300 text-gray-500 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#1e3342] dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-400 dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							value=""
 							disabled
 							readonly
@@ -915,7 +914,7 @@ const { data: servicio } = await supabase
 							id="copias"
 							data-copy-to-clipboard-target="share-id"
 							data-tooltip-target="tooltip-share-id"
-							class="absolute end-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#05121d] rounded-lg p-2 inline-flex items-center justify-center dark:bg-[#0e2637]"
+							class="absolute end-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#05121d] rounded-lg p-2 inline-flex items-center justify-center dark:bg-[#101521]"
 						>
 							<span id="default-icon-share-id">
 								<svg
@@ -962,7 +961,7 @@ const { data: servicio } = await supabase
 					<button
 						type="button"
 						data-modal-hide="course-modal"
-						class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-[#8c681d] focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600 dark:hover:text-white dark:bg-[#967432] dark:hover:bg-[#8c681d]"
+						class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-[#8c681d] focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600 dark:hover:text-white dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
 						>Cerrar</button
 					>
 				</div>

@@ -75,7 +75,7 @@ export { notifications, totalUnread, user };
 ---
 
 <nav
-	class="fixed z-30 w-full bg-neutral-200 border-b border-neutral-300 dark:bg-[#0E2637] dark:border-gray-700"
+	class="fixed z-30 w-full bg-neutral-200 border-b border-neutral-300 dark:bg-[#101521] dark:border-gray-700"
 >
 	<div class="px-3 py-3 lg:px-5 lg:pl-3">
 		<div class="flex items-center justify-between">
@@ -84,7 +84,7 @@ export { notifications, totalUnread, user };
 					id="toggleSidebarMobile"
 					aria-expanded="true"
 					aria-controls="sidebar"
-					class="p-2 text-gray-600 rounded cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-neutral-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-[#223848] dark:hover:text-white"
+					class="p-2 text-gray-600 rounded cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-neutral-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white"
 				>
 					<svg
 						id="toggleSidebarMobileHamburger"
@@ -129,7 +129,7 @@ export { notifications, totalUnread, user };
 				<!-- Dropdown menu -->
 				<div
 					id="dropdownNavbar"
-					class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-neutral-700 dark:divide-gray-600"
+					class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-[#192033] dark:divide-gray-600"
 				>
 					<ul
 						class="py-2 text-sm text-gray-700 dark:text-gray-400"
@@ -171,7 +171,7 @@ export { notifications, totalUnread, user };
 						type="button"
 						id="notifications-toggle"
 						data-dropdown-toggle="notification-dropdown"
-						class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-[#223848] relative"
+						class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-[#101522] relative"
 					>
 						<span class="sr-only">View notifications</span>
 						<!-- Bell icon -->
@@ -194,15 +194,18 @@ export { notifications, totalUnread, user };
 					</button>
 					<!-- Dropdown menu -->
 					<div
-						class="z-20 z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-[#223848] rounded-xl"
+						class="z-20 z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-[#192033] rounded-xl"
 						id="notification-dropdown"
 					>
 						<div
-							class="block px-4 py-2 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-[#223848] dark:text-gray-400"
+							class="block px-4 py-2 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-[#192033] dark:text-gray-400"
 						>
 							Notificaciones
 						</div>
-						<div id="notifications-list" class="overflow-y-auto h-96 scrollbar-thin scrollbar-thumb-neutral-400">
+						<div
+							id="notifications-list"
+							class="overflow-y-auto h-96 scrollbar-thin scrollbar-thumb-neutral-400"
+						>
 							{
 								notifications.length === 0 ? (
 									<div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-600 dark:border-gray-600 dark:text-neutral-500 text-neutral-400">
@@ -211,7 +214,7 @@ export { notifications, totalUnread, user };
 								) : (
 									notifications.map((notification) => (
 										<div
-											class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-[#223848]/5 dark:border-gray-600"
+											class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-[#101522]/5 dark:border-gray-600"
 											data-id={notification.id}
 										>
 											<div class="flex-shrink-0">
@@ -258,7 +261,7 @@ export { notifications, totalUnread, user };
 						</div>
 						<a
 							href="/notificaciones"
-							class="block py-2 text-base font-normal text-center text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-[#223848] dark:text-white dark:hover:underline"
+							class="block py-2 text-base font-normal text-center text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-[#192033] dark:text-white dark:hover:underline"
 						>
 							<div class="inline-flex items-center">
 								<svg
@@ -309,7 +312,7 @@ export { notifications, totalUnread, user };
 					</div>
 					<!-- Dropdown menu -->
 					<div
-						class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-[#223848] dark:divide-gray-600"
+						class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-[#192033] dark:divide-gray-600"
 						id="dropdown-2"
 					>
 						<div class="px-4 py-3" role="none">
@@ -436,7 +439,7 @@ export { notifications, totalUnread, user };
 
 		const itemHTML = (n) =>
 			`
-      <div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-[#223848]/5 dark:border-gray-600" data-id="${n.id}">
+      <div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-[#101522]/5 dark:border-gray-600" data-id="${n.id}">
         <div class="flex-shrink-0">
           <img class="rounded-full w-11 h-11" src="/src/assets/avatarSCI.png" alt="Avatar"/>
         </div>
