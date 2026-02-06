@@ -2,7 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 // Ajusta esta ruta si tu estructura es distinta:
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 const BACK_PATH = '/crud/notificaciones-personalizadas';
 
@@ -47,7 +47,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const userId = form.get('user_id_modal_name')?.toString();
 		const message = form.get('mensaje-notificacion')?.toString().trim();
 		const link = form.get('link-notificacion')?.toString().trim();
-		const linkDescription = form.get('descripcion-link-notificacion')?.toString().trim();
+		const linkDescription = form
+			.get('descripcion-link-notificacion')
+			?.toString()
+			.trim();
 
 		// Validación de campos requeridos
 		if (!userId) {
@@ -66,16 +69,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const payload: Record<string, any> = {
 			user_id: userId,
 			message: message,
-            link: link,
-            mensaje_link: linkDescription,
+			link: link,
+			mensaje_link: linkDescription,
 			created_at: new Date().toISOString(),
 		};
 
-
 		// 5) Insert en tabla notifications
-		const { error } = await supabase
-			.from('notifications')
-			.insert(payload);
+		const { error } = await supabase.from('notifications').insert(payload);
 
 		if (error) {
 			const msg = encodeURIComponent(`DB: ${error.message}`);

@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 import crypto from 'node:crypto';
 
 const BACK_PATH = '/crud/verficacion-incorporacion';

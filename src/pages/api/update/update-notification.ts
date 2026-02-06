@@ -1,7 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 // Define la ruta a la que se redirige después de la operación (ajusta si es necesario)
 const BACK_PATH = '/notificaciones'; // <-- AJUSTA ESTA RUTA

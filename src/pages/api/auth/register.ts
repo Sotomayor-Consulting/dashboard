@@ -1,6 +1,6 @@
 // src/pages/api/auth/register.ts
 import type { APIRoute } from 'astro';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 /**
  * Helper para redirigir con mensaje

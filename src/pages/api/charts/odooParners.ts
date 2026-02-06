@@ -1,7 +1,7 @@
 // src/pages/api/charts/referrals-odoo.ts
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
-import { getReferralsByEmail } from '../../../services/partnerService';
+import { getReferralsByEmail } from '@services/partnerService';
 
 type Referral = {
 	name: string;

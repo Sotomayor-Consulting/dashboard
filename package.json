@@ -17,7 +17,7 @@
 		"astro-template",
 		"javascript"
 	],
-	"homepage": "https://flowbite.com",
+	"homepage": "https://dashboard.sotomayorconsulting.com/",
 	"bugs": "https://github.com/themesberg/flowbite-astro-admin-dashboard/issues",
 	"repository": "https://github.com/themesberg/flowbite-astro-admin-dashboard.git",
 	"license": "MIT",
@@ -36,7 +36,7 @@
 		"start": "astro dev"
 	},
 	"dependencies": {
-		"@astrojs/check": "^0.9.6",
+		"@astrojs/check": "^0.9.2",
 		"@astrojs/node": "^9.5.2",
 		"@astrojs/sitemap": "^3.7.0",
 		"@astrojs/tailwind": "^6.0.2",
@@ -56,8 +56,6 @@
 		"chartjs-plugin-annotation": "^3.1.0",
 		"d3": "^7.9.0",
 		"datamaps": "^0.5.9",
-		"datatables.net": "^2.3.4",
-		"datatables.net-plugins": "^2.3.2",
 		"docx-templates": "^4.14.1",
 		"docxtemplater": "^3.67.5",
 		"dropzone": "^6.0.0-beta.2",

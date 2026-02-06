@@ -8,7 +8,7 @@ import { createRequire } from 'node:module';
 import carbone from 'carbone';
 
 // Usa el mismo cliente Supabase que en tu endpoint insert.ts
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 export const prerender = false;
 const require = createRequire(import.meta.url);

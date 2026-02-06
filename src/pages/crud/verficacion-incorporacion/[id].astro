@@ -1,9 +1,9 @@
 ---
-import LayoutSidebar from '../../../app/LayoutSidebar.astro';
-import Formularios from '../../../modules/FormulariosIncorp.astro';
-import Alerta from '../../../components/alertageneral.astro';
+import LayoutSidebar from '@app/LayoutSidebar.astro';
+import Formularios from '@modules/FormulariosIncorp.astro';
+import Alerta from '@components/alertageneral.astro';
 
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 const accessToken = Astro.cookies.get('sb-access-token');
 const refreshToken = Astro.cookies.get('sb-refresh-token');

@@ -1,6 +1,6 @@
 ---
 // src/pages/envios/[id].astro
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 // /envios/[id]  -> id = submission_id
 const { id } = Astro.params;
@@ -64,7 +64,7 @@ const apellido = envio.usuarios?.apellido;
 const schemaSnapshot = envio.schema_snapshot ?? {};
 const answers = envio.data_json ?? {};
 
-import '/src/estilos/surveyjs.css';
+import '@estilos/surveyjs.css';
 ---
 
 <!doctype html>

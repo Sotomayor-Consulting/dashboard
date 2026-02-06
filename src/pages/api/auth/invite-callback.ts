@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 export const GET: APIRoute = async ({ url, cookies, redirect }) => {
 	// Si tu invitación entrega un "code" igual que OAuth:

@@ -1,8 +1,8 @@
 ---
-import { supabase } from '../lib/supabase';
+import { supabase } from '@lib/supabase';
 const { cookies, redirect } = Astro;
 import { Image } from 'astro:assets';
-import imagen from '../assets/imagen-no.png'
+import imagen from '@assets/imagen-no.png'
 
 // 1) Restaurar sesión
 const at = cookies.get('sb-access-token');

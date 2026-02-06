@@ -1,7 +1,7 @@
 ---
 /* eslint max-lines: 'off' */
-import { supabase } from '../lib/supabase';
-import PictureUploader from '../components/PictureUploader.astro';
+import { supabase } from '@lib/supabase';
+import PictureUploader from '@components/PictureUploader.astro';
 
 // ⚡ Restaurar sesión desde cookies
 const accessToken = Astro.cookies.get('sb-access-token');

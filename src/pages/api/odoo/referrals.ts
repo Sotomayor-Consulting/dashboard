@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
-import { getReferralsByEmail } from '../../../services/partnerService';
+import { getReferralsByEmail } from '@services/partnerService';
 
 export const GET: APIRoute = async ({ cookies, request }) => {
 	const supabase = createClient(

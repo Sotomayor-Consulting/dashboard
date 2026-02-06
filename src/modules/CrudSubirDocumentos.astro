@@ -1,7 +1,7 @@
 ---
-import Alerta from '../components/alertageneral.astro';
-import '../estilos/datatables.css';
-import { supabase } from '../lib/supabase';
+import Alerta from '@components/alertageneral.astro';
+import '@estilos/datatables.css';
+import { supabase } from '@lib/supabase';
 
 const { data: pagos } = await supabase
 	.from('pagos')

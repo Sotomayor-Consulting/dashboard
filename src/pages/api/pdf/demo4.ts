@@ -9,7 +9,7 @@ import { execSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 
 // Supabase
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 // ==== docx-templates vía require (para evitar el error de default) ====
 const require = createRequire(import.meta.url);

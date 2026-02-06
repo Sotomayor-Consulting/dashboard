@@ -1,9 +1,9 @@
 ---
-import Alerta from '../components/alertageneral.astro';
-import Alertaempresas from '../components/alertaempresas.astro';
-import LayoutSidebar from '../app/LayoutSidebar.astro';
-import LandingReadme from '../modules/LandingReadme-copy.astro';
-import { supabase } from '../lib/supabase';
+import Alerta from '@components/alertageneral.astro';
+import Alertaempresas from '@components/alertaempresas.astro';
+import LayoutSidebar from '@app/LayoutSidebar.astro';
+import LandingReadme from '@modules/LandingReadme-copy.astro';
+import { supabase } from '@lib/supabase';
 
 const { cookies, redirect } = Astro;
 
@@ -83,13 +83,14 @@ if (error) {
 					isSuccess ? 'text-green-700' : 'text-red-700',
 					isSuccess ? 'dark:text-green-300' : 'dark:text-red-300',
 				);
-+
-				// Colores del icon wrapper
-				iconWrapper.classList.remove(
-					'bg-green-100',
-					'dark:bg-green-800',
-					'bg-red-100',
-					'dark:bg-red-800',
+				+(
+					// Colores del icon wrapper
+					iconWrapper.classList.remove(
+						'bg-green-100',
+						'dark:bg-green-800',
+						'bg-red-100',
+						'dark:bg-red-800',
+					)
 				);
 				iconWrapper.classList.add(
 					isSuccess ? 'bg-green-100' : 'bg-red-100',

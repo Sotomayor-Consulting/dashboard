@@ -1,8 +1,8 @@
 ---
-import LayoutSidebar from '../../app/LayoutSidebar.astro';
-import CrudMail from '../../modules/CrudMailing.astro';
+import LayoutSidebar from '@app/LayoutSidebar.astro';
+import CrudMail from '@modules/CrudMailing.astro';
 
-import { supabase } from '../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 const { cookies, redirect } = Astro;
 // 1) Restaurar sesión desde cookies

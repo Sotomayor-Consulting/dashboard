@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 const DEFAULT_BACK_PATH = '/partners/configuracion-partners/';
 const BUCKET_NAME = 'documentos_usuarios';

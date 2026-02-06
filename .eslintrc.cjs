@@ -1,5 +1,4 @@
 /** @type {import("@types/eslint").Linter.Config} */
-// Extracted from `webdev-configs` (https://github.com/JulianCataldo/web-garden/tree/develop/configs)
 
 module.exports = {
 	root: true,

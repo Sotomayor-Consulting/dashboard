@@ -2,13 +2,15 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 const BACK_PATH = '/sign-in';
 
 export const GET: APIRoute = async ({ redirect, url }) => {
 	const back = url.searchParams.get('back') || BACK_PATH;
-	return redirect(`${back}?status=info&msg=${encodeURIComponent('Usa el formulario para solicitar recuperación de contraseña')}`);
+	return redirect(
+		`${back}?status=info&msg=${encodeURIComponent('Usa el formulario para solicitar recuperación de contraseña')}`,
+	);
 };
 
 export const POST: APIRoute = async ({ request, redirect, url }) => {
@@ -26,10 +28,11 @@ export const POST: APIRoute = async ({ request, redirect, url }) => {
 		}
 
 		// 2) Verificar si el email existe en Supabase usando listUsers
-		const { data: users, error: userErr } = await supabase.auth.admin.listUsers();
-		
-		const userExists = users?.users?.some(user => user.email === email);
-		
+		const { data: users, error: userErr } =
+			await supabase.auth.admin.listUsers();
+
+		const userExists = users?.users?.some((user) => user.email === email);
+
 		if (userErr || !userExists) {
 			// Por seguridad, no revelamos si el email existe o no
 			return redirect(
@@ -40,9 +43,12 @@ export const POST: APIRoute = async ({ request, redirect, url }) => {
 		// 3) Enviar email de recuperación de contraseña
 		const redirectTo = `${url.origin}/auth/reset-password`;
 
-		const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-			redirectTo,
-		});
+		const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+			email,
+			{
+				redirectTo,
+			},
+		);
 
 		if (resetError) {
 			const msg = encodeURIComponent(

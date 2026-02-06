@@ -1,6 +1,6 @@
 // src/pages/api/generar.ts
 import type { APIRoute } from 'astro';
-import { generatePdf } from '../../../lib/carbone'; // <-- ojo a la ruta
+import { generatePdf } from '@lib/carbone';
 
 type GenerateBody = {
 	data?: unknown;

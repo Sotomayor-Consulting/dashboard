@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 import crypto from 'node:crypto';
 
 const BACK_PATH = '/crud/verficacion-incorporacion';
@@ -422,7 +422,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 			const manager_es_miembro = asBool(approved_data?.manager_es_miembro);
 
 			const companyRow = {
-				porcentaje_de_incorporacion: "10",
+				porcentaje_de_incorporacion: '10',
 				empresa_incorporacion_id: empresa_id,
 				Obtendra_ingresos_desde_eeuu: asBool(
 					approved_data?.ingresos_provenientes_de_Estados_Unidos,
@@ -638,16 +638,16 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 				managers_count: managers.length,
 			},
 		});
-} catch (e: any) {
-	// console.error(`[validacion:${debug_id}] FATAL`, { message: e?.message ?? String(e), stack: e?.stack ?? null });
-	return jsonOk(
-		{
-			ok: false,
-			debug_id,
-			step: 'catch',
-			error: { message: e?.message ?? String(e), stack: e?.stack ?? null },
-		},
-		500,
-	);
-}
+	} catch (e: any) {
+		// console.error(`[validacion:${debug_id}] FATAL`, { message: e?.message ?? String(e), stack: e?.stack ?? null });
+		return jsonOk(
+			{
+				ok: false,
+				debug_id,
+				step: 'catch',
+				error: { message: e?.message ?? String(e), stack: e?.stack ?? null },
+			},
+			500,
+		);
+	}
 };

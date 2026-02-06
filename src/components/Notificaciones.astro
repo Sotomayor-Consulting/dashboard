@@ -1,10 +1,10 @@
 ---
 import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
-import '../estilos/datatables.css';
+import '@estilos/datatables.css';
 import logonotificaciones from '/src/assets/avatarSCI.png';
-import { supabase } from '../lib/supabase';
-import Alerta from '../components/alertageneral.astro';
+import { supabase } from '@lib/supabase';
+import Alerta from '@components/alertageneral.astro';
 
 const { data: notificaciones } = await supabase
 	.from('notifications')

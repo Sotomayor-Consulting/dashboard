@@ -3,7 +3,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 // Ajusta esta ruta si tu estructura es distinta:
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 const BACK_PATH = '/crud/users';
 

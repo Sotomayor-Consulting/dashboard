@@ -1,6 +1,6 @@
 // src/pages/api/generales/estado-incorporacion.ts
 import type { APIRoute } from 'astro';
-import { supabase } from '../../../lib/supabase'; // Ajusta tu ruta
+import { supabase } from '@lib/supabase'; // Ajusta tu ruta
 
 export const prerender = false;
 

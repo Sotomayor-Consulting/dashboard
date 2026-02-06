@@ -1,5 +1,5 @@
 ---
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 const { id } = Astro.params;
 
@@ -32,7 +32,7 @@ const { data: formulario, error } = await supabase
 	.from('formularios')
 	.select('form_id, titulo, descripcion, schema_json, tema_json')
 	.eq('form_id', id)
-	.single(); 
+	.single();
 
 // Si no existe, redirigir
 if (error || !formulario) {
@@ -48,7 +48,7 @@ if (empresaId) {
 		.eq('empresa_incorporacion_id', empresaId)
 		.eq('status', 'succeeded')
 		.single();
-	
+
 	// Si no hay pago exitoso o hay error, redirigir al inicio
 	if (pagoError || !pago) {
 		return Astro.redirect('/');
@@ -61,7 +61,7 @@ if (empresaId) {
 const jsonConfig = formulario.schema_json;
 const themeJson = formulario.tema_json;
 
-import '/src/estilos/surveyjs.css';
+import '@estilos/surveyjs.css';
 ---
 
 <!doctype html>

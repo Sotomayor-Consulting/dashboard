@@ -1,10 +1,10 @@
 ---
-import { supabase } from '../lib/supabase';
+import { supabase } from '@lib/supabase';
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
-import MenuCard from '../components/MenuCard.astro'; // Importamos el componente
-import logo1 from '../assets/SC-INTER.png';
-import logo2 from '../assets/SC-INTER-NG.png';
+import MenuCard from '@components/MenuCard.astro'; // Importamos el componente
+import logo1 from '@assets/SC-INTER.png';
+import logo2 from '@assets/SC-INTER-NG.png';
 
 // --- 1. Autenticación y Tokens ---
 const at = Astro.cookies.get('sb-access-token');

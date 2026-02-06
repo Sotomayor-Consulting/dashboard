@@ -1,6 +1,6 @@
 ---
-import '../estilos/datatables.css';
-import { supabase } from '../lib/supabase';
+import '@estilos/datatables.css';
+import { supabase } from '@lib/supabase';
 
 const { data: formularios } = await supabase
   .from('formularios_envios')

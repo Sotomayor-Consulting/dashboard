@@ -1,5 +1,5 @@
 ---
-import { supabase } from '../../lib/supabase';
+import { supabase } from '@lib/supabase';
 
 const { id } = Astro.params;
 
@@ -42,7 +42,7 @@ if (error || !formulario) {
 const jsonConfig = formulario.schema_json;
 const themeJson = formulario.tema_json;
 
-import '/src/estilos/surveyjs.css';
+import '@estilos/surveyjs.css';
 ---
 
 <!doctype html>

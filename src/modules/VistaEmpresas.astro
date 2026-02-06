@@ -1,6 +1,6 @@
 ---
-import '../estilos/datatables.css';
-import { supabase } from '../lib/supabase';
+import '@estilos/datatables.css';
+import { supabase } from '@lib/supabase';
 import { Icon } from 'astro-icon/components';
 
 interface Props {
@@ -794,8 +794,10 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				actvidadManual: null, 
 				RegistroManual: '',
 				direccionOperativa: '',
+				otrosMiembrosfuera: null,
 				managerMiembro: '',
-				otrosMiembrosfuera: '',
+				asignarManager: '',
+				tabManager: '',
 				init() {
 					// Sincroniza con el valor real de Supabase
 					const checkbox = document.querySelector('#otros-miembros-fuera-de-lista');
@@ -810,10 +812,16 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 					if (administracion) {
 						this.formadeAdministracion = administracion.value
 					};
+					const manager = document.querySelector('#informacionmanager');
+					if (manager) {
+						this.managerMiembro = manager.value
+					};
 				}
 			}"
 			x-effect="if (!actvidadManual) {
 				RegistroManual = '';
+			}; if (asignarManager === 'Si') {
+				 managerMiembro = '';
 			}"
 		>
 			<div class="mb-4 dark:border-gray-700 md:max-w-72 md:min-w-72">
@@ -838,41 +846,64 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 								tabs: 'generales',
 								label: 'Generales',
 								icono: 'ri:building-2-fill',
+								condicion: 'activo',
 							},
 							{
 								id: 'ubicacion-tab',
 								tabs: 'ubicacion',
 								label: 'Ubicacion',
 								icono: 'ri:folder-user-fill',
+								condicion: 'activo',
 							},
 							{
 								id: 'socios-edit-tab',
 								tabs: 'socios-edit',
 								label: 'Socios',
 								icono: 'ri:file-copy-2-fill',
+								condicion: 'activo',
 							},
 							{
 								id: 'manager-tab',
 								tabs: 'manager',
 								label: 'Manager',
 								icono: 'ri:edit-fill',
+								condicion: 'condicional',
 							},
-						].map((i) => (
-							<li role="presentation">
-								<button
-									id={i.id}
-									data-tabs-target={`#${i.tabs}`}
-									type="button"
-									role="tab"
-									aria-controls={i.tabs}
-									aria-selected="false"
-									class="p-4 flex items-center gap-2 w-full rounded-lg"
-								>
-									<Icon name={i.icono} class="text-lg" />
-									{i.label}
-								</button>
-							</li>
-						))
+						].map((i) =>
+							i.condicion === 'activo' ? (
+								<li role="presentation">
+									<button
+										id={i.id}
+										data-tabs-target={`#${i.tabs}`}
+										type="button"
+										role="tab"
+										aria-controls={i.tabs}
+										aria-selected="false"
+										class="p-4 flex items-center gap-2 w-full rounded-lg"
+									>
+										<Icon name={i.icono} class="text-lg" />
+										{i.label}
+									</button>
+								</li>
+							) : (
+								<li role="presentation">
+									<button
+										id={i.id}
+										data-tabs-target={`#${i.tabs}`}
+										type="button"
+										role="tab"
+										x-model="tabManager"
+										x-show="formadeAdministracion === 'Member-Managed'"
+										aria-controls={i.tabs}
+										aria-selected="false"
+										class="p-4 flex items-center gap-2 w-full rounded-lg"
+									>
+										<Icon name={i.icono} class="text-lg" />
+										{i.label}
+									</button>
+								</li>
+							),
+						)
 					}
 				</ul>
 			</div>
@@ -1390,7 +1421,356 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						<h3 class="mb-4 text-xl font-semibold dark:text-white">
 							Datos de los socios
 						</h3>
+						<div class="grid xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+							{
+								socios?.map((s, index) => (
+									<div class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-[#101521]  lg:rounded-lg justify-self-center">
+										<span class="sr-only">Open user menu</span>
+										<div class="flex w-full items-center justify-between">
+											<div class="flex items-center">
+												<img
+													src="https://api.dicebear.com/9.x/thumbs/svg?seed="
+													class="mr-3 h-8 w-8 rounded-md"
+													alt="Bonnie avatar"
+												/>
+												<div class="text-left">
+													<div class="mb-0.5 font-semibold leading-none text-gray-900 dark:text-white">
+														<input
+															type="text"
+															id="small-input"
+															value={s.nombre_de_socio}
+															class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+														/>
+													</div>
+													<div class="">
+														<input
+															type="text"
+															id="small-input"
+															value={s.correo}
+															class="block w-full p-1 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg text-sm text-gray-500 dark:text-gray-400"
+														/>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="mb-4 w-full border-y border-gray-100 py-4 dark:border-gray-700">
+											<ul class="grid grid-cols-2 gap-2">
+												<li>
+													<input
+														type="radio"
+														id={`input-socios-natural-${index}`}
+														name={`tipo-persona-${index}`}
+														value="Persona Natural"
+														class="hidden peer"
+														checked={s.tipo_de_socio === 'Persona Natural'}
+														required
+													/>
+													<label
+														for={`input-socios-natural-${index}`}
+														class="flex items-center justify-center w-full h-full p-2 text-gray-500 bg-purple-900 hover:bg-purple-800 border-2 border-gray-400 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-blue-600 dark:peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 dark:text-gray-400 dark:bg-purple-900 dark:hover:bg-purple-800"
+													>
+														<div class="flex justify-center items-center flex-col">
+															<span class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-purple-800 group-hover:bg-purple-700 dark:bg-purple-800 dark:group-hover:bg-purple-700">
+																<Icon
+																	name="ri:user-star-line"
+																	class="h-5 w-5 text-purple-300 dark:text-purple-300"
+																/>
+															</span>
+															<span class="text-sm font-medium text-purple-300 dark:text-purple-300">
+																Persona Natural
+															</span>
+														</div>
+													</label>
+												</li>
+												<li>
+													<input
+														type="radio"
+														id={`input-socios-empresa-${index}`}
+														name={`tipo-persona-${index}`}
+														value="Empresa"
+														class="hidden peer"
+														checked={s.tipo_de_socio === 'Empresa'}
+														required
+													/>
+													<label
+														for={`input-socios-empresa-${index}`}
+														class="flex items-center justify-center w-full h-full p-2 text-gray-500 bg-teal-900 hover:bg-teal-800 border-2 border-gray-400 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-blue-600 dark:peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 dark:text-gray-400 dark:bg-teal-900 dark:hover:bg-teal-800"
+													>
+														<div class="flex justify-center items-center flex-col">
+															<span class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-purple-800 group-hover:bg-teal-700 dark:bg-teal-800 dark:group-hover:bg-teal-700">
+																<Icon
+																	name="ri:building-2-line"
+																	class="h-5 w-5 text-purple-300 dark:text-purple-300"
+																/>
+															</span>
+															<span class="text-sm font-medium text-purple-300 dark:text-purple-300">
+																Empresa
+															</span>
+														</div>
+													</label>
+												</li>
+											</ul>
+										</div>
+										<ul class="space-y-2">
+											<li>
+												<div class="relative flex items-center w-full">
+													<button
+														type="button"
+														id="decrement-button"
+														data-input-counter-decrement={`bedrooms-input-${index}`}
+														class=" dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
+													>
+														<svg
+															class="w-3 h-3 text-gray-900 dark:text-white"
+															aria-hidden="true"
+															xmlns="http://www.w3.org/2000/svg"
+															fill="none"
+															viewBox="0 0 18 2"
+														>
+															<path
+																stroke="currentColor"
+																stroke-linecap="round"
+																stroke-linejoin="round"
+																stroke-width="2"
+																d="M1 1h16"
+															/>
+														</svg>
+													</button>
+													<input
+														type="text"
+														id={`bedrooms-input-${index}`}
+														data-input-counter
+														data-input-counter-min="1"
+														data-input-counter-max="100"
+														aria-describedby="helper-text-explanation"
+														class="bg-gray-50 border-x-0 border-gray-300 h-11 font-medium text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full pb-6 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+														placeholder=""
+														value={s.porcentaje}
+														required
+													/>
+													<div class="absolute bottom-1 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 flex items-center text-xs text-gray-400 space-x-1 rtl:space-x-reverse">
+														<span>Porcentaje</span>
+													</div>
+													<button
+														type="button"
+														id="increment-button"
+														data-input-counter-increment={`bedrooms-input-${index}`}
+														class=" dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
+													>
+														<svg
+															class="w-3 h-3 text-gray-900 dark:text-white"
+															aria-hidden="true"
+															xmlns="http://www.w3.org/2000/svg"
+															fill="none"
+															viewBox="0 0 18 18"
+														>
+															<path
+																stroke="currentColor"
+																stroke-linecap="round"
+																stroke-linejoin="round"
+																stroke-width="2"
+																d="M9 1v16M1 9h16"
+															/>
+														</svg>
+													</button>
+												</div>
+											</li>
+											<li>
+												<div class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2">
+													<Icon
+														name="ri:earth-line"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+													<div class="w-full">
+														<label for="underline_select" class="sr-only">
+															Selecciona una opcion
+														</label>
+														<select
+															id="underline_select"
+															class="block py-0 px-0 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-[#101521] dark:group-hover:bg-gray-700"
+														>
+															<option
+																value=""
+																disabled
+																hidden
+																selected={!s.pais_de_nacionalidad}
+															>
+																Seleccione un pais
+															</option>
+
+															{paises?.map((paises) => (
+																<option
+																	value={paises.nombre_paises}
+																	selected={
+																		paises.nombre_paises ===
+																		s.pais_de_nacionalidad
+																	}
+																>
+																	{paises.nombre_paises}
+																</option>
+															))}
+														</select>
+													</div>
+												</div>
+											</li>
+											<li>
+												<div class="group flex items-center rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2">
+													<Icon
+														name="ri:diamond-ring-fill"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+													<div class="w-full">
+														<label for="underline_select" class="sr-only">
+															Selecciona una opcion
+														</label>
+														<select
+															id="underline_select"
+															class="block py-0 px-0 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-[#101521] dark:group-hover:bg-gray-700"
+														>
+															<option selected hidden disabled>
+																Selecciona una opcion
+															</option>
+															<option
+																value="Casado"
+																selected={s.estado_civil === 'Casado'}
+															>
+																Casado
+															</option>
+
+															<option
+																value="Soltero"
+																selected={s.estado_civil === 'Soltero'}
+															>
+																Soltero
+															</option>
+
+															<option
+																value="Divorciado"
+																selected={s.estado_civil === 'Divorciado'}
+															>
+																Divorciado
+															</option>
+
+															<option
+																value="Viudo"
+																selected={s.estado_civil === 'Viudo'}
+															>
+																Viudo
+															</option>
+														</select>
+													</div>
+												</div>
+											</li>
+										</ul>
+										<ul class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700">
+											<li>
+												<div class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2">
+													<div class="w-full flex">
+														<label class="inline-flex items-center cursor-pointer">
+															<input
+																type="checkbox"
+																class="sr-only peer"
+																checked={s.residente_fiscal === 'Si'}
+															/>
+															<div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600" />
+															<span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+																Residente fiscal en EE.UU.
+															</span>
+														</label>
+													</div>
+												</div>
+											</li>
+										</ul>
+										<ul class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700">
+											<li>
+												<div
+													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white  gap-2"
+													title="Numero de Pasaporte"
+												>
+													<Icon
+														name="ri:passport-line"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+													<input
+														type="text"
+														id="small-input"
+														value={s.numero_de_pasaporte}
+														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+													/>
+												</div>
+											</li>
+											<li>
+												<div
+													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white  gap-2"
+													title="Numero de Seguro Social"
+												>
+													<Icon
+														name="ri:secure-payment-line"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+													<input
+														type="text"
+														id="small-input"
+														value={s.numero_de_seguro_social}
+														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+													/>
+												</div>
+											</li>
+
+											<li>
+												<div
+													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+													title="Numero de ITIN"
+												>
+													<Icon
+														name="ri:hashtag"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+													<input
+														type="text"
+														id="small-input"
+														value={s.numero_itin}
+														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+													/>
+												</div>
+											</li>
+											<li>
+												<div
+													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+													title="Direccion de planilla"
+												>
+													<Icon
+														name="ri:direction-line"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+													<input
+														type="text"
+														id="small-input"
+														value={s.direccion_planilla}
+														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+													/>
+												</div>
+											</li>
+										</ul>
+									</div>
+								))
+							}
+						</div>
+
 						{
+							/* 
 							socios?.map((s) => (
 								<div class="border border-neutral-600 rounded-lg mb-5">
 									<div class="grid grid-cols-6 gap-6 p-5">
@@ -1721,6 +2101,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 									</div>
 								</div>
 							))
+						*/
 						}
 					</div>
 				</div>
@@ -1741,11 +2122,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 								Informacion de managers
 							</h3>
 							<div>
-								<div
-									class="grid grid-cols-6 gap-6"
-									x-data="{ asignarManager: '' }"
-									x-init="asignarManager = document.getElementById('informacion_miembros').value"
-								>
+								<div class="grid grid-cols-6 gap-6">
 									<div class="col-span-6 sm:col-span-3">
 										<label
 											for="informacion_miembros"
@@ -1757,6 +2134,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 											name="informacion_miembros"
 											id="informacion_miembros"
 											x-model="asignarManager"
+											x-init="$el.value ? asignarManager = $el.value : null"
 											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
 										>
 											<option
@@ -1789,28 +2167,33 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 												for="informacionmanager"
 												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
 											>
-												El manager es parte de los miebros
+												El manager es parte de los miembros
 											</label>
 											<select
 												name="informacionmanager"
 												id="informacionmanager"
 												x-model="managerMiembro"
+												x-init="$el.value ? managerMiembro = $el.value : null"
 												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
 											>
-												<option disabled hidden selected={!empresa.manager_sci}>
+												<option
+													disabled
+													hidden
+													selected={!empresa.manager_es_miembro}
+												>
 													Seleccione una opcion
 												</option>
 
 												<option
 													value="Si"
-													selected={empresa.manager_sci === true}
+													selected={empresa.manager_es_miembro === true}
 												>
 													Si
 												</option>
 
 												<option
 													value="No"
-													selected={empresa.manager_sci === false}
+													selected={empresa.manager_es_miembro === false}
 												>
 													No
 												</option>
@@ -1823,83 +2206,46 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 												for="managers"
 												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
 											>
-												Miembros que son managers
+												Socios que son managers
 											</label>
 
-											<div class="flex items-center mb-4">
-												<input
-													id={`miembros-managers-`}
-													name={`miembros-managers-`}
-													type="checkbox"
-													class="w-4 h-4 text-[#1349ec] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#1349ec] dark:focus:ring-[#323f67] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-													checked
-												/>
-												<label
-													for={`miembros-managers-`}
-													class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-												>
-													socio x
-												</label>
-											</div>
-										</div>
-									</template>
-									<template x-if="managerMiembro === 'Si'">
-										<div class="col-span-6 sm:col-span-3">
-											<label
-												class="mb-2 text-sm font-medium text-neutral-900 dark:text-white block"
-											>
-												¿Añadir otro(s) socio(s) fuera de la lista?
-												<div class="flex cursor-pointer mt-2">
-													<input
-														type="checkbox"
-														name="otros-miembros-fuera-de-lista"
-														id="otros-miembros-fuera-de-lista"
-														x-model="otrosMiembrosfuera"
-														class="sr-only peer"
-													/>
-													<div
-														class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-[#1349ec] rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#1349ec] dark:peer-checked:bg-[#1349ec]"
-													>
+											{
+												socios?.map((s, index) => (
+													<div class="flex items-center mb-4">
+														<input
+															id={`miembros-managers-${index}`}
+															name={`miembros-managers-${index}`}
+															type="checkbox"
+															class="w-4 h-4 text-[#1349ec] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#1349ec] dark:focus:ring-[#323f67] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+															checked={s.roles?.includes('manager') || false}
+														/>
+														<label
+															for={`miembros-managers-${index}`}
+															class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+														>
+															{s.nombre_de_socio}
+														</label>
 													</div>
-													<span
-														class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-														>Si</span
-													>
-												</div>
-											</label>
+												))
+											}
 										</div>
 									</template>
-								</div>
-								<template
-									x-if="managerMiembro === 'No' || otrosMiembrosfuera === true"
-								>
-									<div>
-										<hr
-											class="h-px my-8 bg-neutral-200 border-0 dark:bg-[#192033] col-span-6"
-										/>
-										<h3 class="mb-4 text-xl font-semibold dark:text-white">
-											Añadir manager
-										</h3>
 
-										<div class="grid grid-cols-6 gap-6">
-											<div class="col-span-6 sm:col-span-3">
-												<label
-													for="informacion_miembros"
-													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-												>
-													Nombres y Apellidos
-												</label>
-												<input
-													type="text"
-													name="Nombres_y_apellidos_manager"
-													value=""
-													id="Nombres_y_apellidos_manager"
-													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full dark:bg-[#101521] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec] h-fit"
-												/>
-											</div>
-										</div>
+									<div
+										class="col-span-6 sm:col-span-3"
+										x-show="managerMiembro === 'Si' || managerMiembro === 'No'"
+										x-transition
+									>
+										<button
+											type="button"
+											data-modal-target="crud-modal-2"
+											data-modal-toggle="crud-modal-2"
+											class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 flex items-center gap-2"
+										>
+											<Icon name="ri:add-line" /> Añadir manager</button
+										>
 									</div>
-								</template>
+								</div>
 							</div>
 						</div>
 					</template>
@@ -1929,6 +2275,117 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 					type="button"
 					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
 					data-modal-toggle="crud-modal"
+				>
+					<svg
+						class="w-3 h-3"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 14 14"
+					>
+						<path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
+					</svg>
+					<span class="sr-only">Close modal</span>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form class="p-4 md:p-5">
+				<div class="grid gap-4 mb-4 grid-cols-2">
+					<div class="col-span-2">
+						<label
+							for="ActividadGeneral"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Actividad General</label
+						>
+						<input
+							type="text"
+							name="ActividadGeneral"
+							id="ActividadGeneral"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							placeholder="Agricultura, silvicultura y pesca"
+							required=""
+						/>
+					</div>
+					<div class="col-span-2 sm:col-span-1">
+						<label
+							for="Tipo"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Tipo</label
+						>
+						<input
+							type="text"
+							name="Tipo"
+							id="Tipo"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							placeholder="Minería"
+							required=""
+						/>
+					</div>
+					<div class="col-span-2 sm:col-span-1">
+						<label
+							for="Codigo"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Codigo</label
+						>
+						<input
+							type="number"
+							name="Codigo"
+							id="Codigo"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							placeholder="115210"
+							required=""
+						/>
+					</div>
+					<div class="col-span-2">
+						<label
+							for="Actividad"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Actividad
+						</label>
+						<textarea
+							id="Actividad"
+							rows="4"
+							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							placeholder="Actividades de procesamiento de transacciones financieras, reserva y cámara de compensación."
+						></textarea>
+					</div>
+				</div>
+				<button
+					type="submit"
+					class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+				>
+					Añadir actividad
+				</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div
+	id="crud-modal-2"
+	tabindex="-1"
+	aria-hidden="true"
+	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+>
+	<div class="relative p-4 w-full max-w-md max-h-full">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
+			<!-- Modal header -->
+			<div
+				class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200"
+			>
+				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+					Crear nuevo registro de actividad
+				</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					data-modal-toggle="crud-modal-2"
 				>
 					<svg
 						class="w-3 h-3"

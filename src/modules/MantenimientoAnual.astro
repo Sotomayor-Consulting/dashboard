@@ -1,4 +1,5 @@
 ---
+import { supabase } from '@lib/supabase';
 const { id } = Astro.params; // ID dinámico de la URL
 const { redirect } = Astro;
 
@@ -7,8 +8,6 @@ const {
 	error: userErr,
 } = await supabase.auth.getUser();
 if (userErr || !user) return redirect('/sign-in');
-
-import { supabase } from '../lib/supabase';
 
 const { data: empresa, error: empresaError } = await supabase
 	.from('empresas_incorporaciones')

@@ -1,4 +1,4 @@
-import { executeKw } from '../lib/odoo/client';
+import { executeKw } from '@lib/odoo/client';
 import type { OdooPartner, ServiceResponse } from '../types/odoo';
 
 type EnsureContactPayload = {
