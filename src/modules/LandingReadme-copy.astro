@@ -6,17 +6,6 @@ import MenuCard from '@components/MenuCard.astro'; // Importamos el componente
 import logo1 from '@assets/SC-INTER.png';
 import logo2 from '@assets/SC-INTER-NG.png';
 
-// --- 1. Autenticación y Tokens ---
-const at = Astro.cookies.get('sb-access-token');
-const rt = Astro.cookies.get('sb-refresh-token');
-
-if (at && rt) {
-	await supabase.auth.setSession({
-		access_token: at.value,
-		refresh_token: rt.value,
-	});
-}
-
 const {
 	data: { user },
 } = await supabase.auth.getUser();
@@ -50,9 +39,7 @@ if (user) {
 	}
 }
 
-// --- 3. Configuración del Menú (Data-Driven) ---
-// Definimos qué roles pueden ver qué items.
-// 'all' podría usarse para items públicos.
+// --- 3. Configuración del Menú ---
 const menuItems = [
 	{
 		id: 'llc',
@@ -261,12 +248,14 @@ const visibleMenu = menuItems.filter(
 				width="320"
 				alt="Sotomayor Logo"
 				class="dark:block hidden"
+				loading="eager"
 			/>
 			<Image
 				src={logo2}
 				width="320"
 				alt="Sotomayor Logo"
 				class="dark:hidden hidden sm:block"
+				loading="eager"
 			/>
 		</div>
 	</header>
@@ -292,7 +281,12 @@ const visibleMenu = menuItems.filter(
 										: null
 							}
 						>
-							<Icon name={item.svgname} class="text-5xl" />
+							<Icon
+								name={item.svgname}
+								class="text-5xl"
+								aria-label={item.label}
+								title={item.label}
+							/>
 						</MenuCard>
 					))
 			}

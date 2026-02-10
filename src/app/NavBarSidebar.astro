@@ -115,12 +115,14 @@ export { notifications, totalUnread, user };
 						class="mr-3 hidden dark:block"
 						height="40"
 						alt="SotoMayor consulting Logo"
+						loading="eager"
 					/>
 					<Image
 						src={Logo2}
 						class="dark:hidden block"
 						height="40"
 						alt="SotoMayor consulting Logo"
+						loading="eager"
 					/>
 				</a>
 			</div>
@@ -295,16 +297,19 @@ export { notifications, totalUnread, user };
 							<span class="sr-only">Open user menu</span>
 							{
 								imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
-									<img
+									<Image
 										src={`https://api.dicebear.com/9.x/thumbs/svg?seed=`}
+										inferSize={true}
 										class="w-8 h-8 rounded-full"
 										alt="avatar"
+										loading="eager"
 									/>
 								) : (
-									<img
+									<Image
 										class="w-8 h-8 rounded-full"
 										src={imagen?.avatar_url}
 										alt="user photo"
+										loading="eager"
 									/>
 								)
 							}
