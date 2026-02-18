@@ -1,0 +1,64 @@
+import { supabase } from '@lib/supabase';
+
+export interface PagoPorLeer {
+	id: string;
+	status: string;
+	visto_por_operaciones: boolean;
+	created_at: string;
+	monto: number;
+	moneda: string;
+	usuarios?: {
+		user_id: string;
+		nombre: string;
+		apellido: string;
+	};
+}
+
+export async function getPagosPorLeer(userRole?: string): Promise<{
+	count: number;
+	data: PagoPorLeer[];
+}> {
+	let pagosCount = 0;
+	let pagosData: PagoPorLeer[] = [];
+
+	if (userRole === 'admin') {
+		const { data: pagos } = await supabase
+			.from('pagos')
+			.select(
+				`
+        *,
+        usuarios:usuarios (user_id, nombre, apellido)
+      `,
+			)
+			.eq('status', 'succeeded')
+			.eq('visto_por_operaciones', false)
+			.order('created_at', { ascending: true });
+
+		pagosData = pagos || [];
+		pagosCount = pagos?.length || 0;
+	}
+
+	return { count: pagosCount, data: pagosData };
+}
+
+export const pagosRealizadosData = async () => {
+	const { data, error } = await supabase
+		.from('pagos')
+		.select(
+			`
+    *,
+    usuarios ( user_id, nombre, apellido, correo ),
+	servicios (id_servicios, nombre, categoria),
+	empresas_incorporaciones (empresa_incorporacion_id, nombre_1)
+  `,
+			{ count: 'exact' },
+		)
+		.order('created_at', { ascending: false });
+
+	if (error) {
+		console.error('Error fetching all pagos data:', error);
+		throw error;
+	}
+
+	return data;
+};

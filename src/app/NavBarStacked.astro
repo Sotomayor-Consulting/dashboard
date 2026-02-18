@@ -1,33 +1,8 @@
 ---
-import { supabase } from '../lib/supabase';
-import { Image } from 'astro:assets';
-import logo1 from '/src/assets/SC-INTER.png';
-import logo2 from '/src/assets/SC-INTER-NG.png';
+import { Icon } from 'astro-icon/components';
+import { UsersGeneral } from '@lib/tablas/userAuth';
 
-// Verificar autenticación con Supabase
-const { cookies } = Astro;
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
-let user = null;
-
-if (accessToken && refreshToken) {
-	const { data: sessionData, error } = await supabase.auth.setSession({
-		refresh_token: refreshToken.value,
-		access_token: accessToken.value,
-	});
-	if (!error && sessionData?.session) {
-		const { data: userData, error: userError } = await supabase.auth.getUser();
-		if (!userError) {
-			user = userData.user;
-		} else {
-			cookies.delete('sb-access-token', { path: '/' });
-			cookies.delete('sb-refresh-token', { path: '/' });
-		}
-	} else {
-		cookies.delete('sb-access-token', { path: '/' });
-		cookies.delete('sb-refresh-token', { path: '/' });
-	}
-}
+const user = await UsersGeneral(Astro);
 ---
 
 <nav
@@ -37,18 +12,8 @@ if (accessToken && refreshToken) {
 		<div class="flex items-center justify-between">
 			<div class="flex items-center justify-start">
 				<a href="/" class="flex mr-4">
-					<Image
-						src={logo1}
-						alt="Sotomayor Logo"
-						class="mx-3 hidden dark:block"
-						height="32"
-					/>
-					<Image
-						src={logo2}
-						alt="Sotomayor Logo"
-						class="mx-3 block dark:hidden"
-						height="32"
-					/>
+					<Icon name="logo-en-blanco" class="mx-3 hidden dark:block text-3xl" />
+					<Icon name="logo-en-negro" class="mx-3 block dark:hidden text-3xl" />
 				</a>
 				<div class="hidden sm:flex sm:ml-6">
 					<ul class="flex space-x-8">

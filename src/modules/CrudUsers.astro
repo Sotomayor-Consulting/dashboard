@@ -1,58 +1,16 @@
 ---
 import '@estilos/datatables.css';
-import { supabase } from '@lib/supabase';
+import { Image } from 'astro:assets';
+import { getAllUsuarios } from '@lib/tablas/usuarios';
+import { RolesGeneral } from '@lib/tablas/roles';
+import { PaisesGeneral } from '@lib/tablas/paises';
 
-const { data: usuarios } = await supabase
-	.from('usuarios')
-	.select(
-		`
-    user_id,
-    created_at,
-    nombre,
-    apellido,
-    correo,
-    pais_id,
-	pais: paises ( id, nombre_paises ),
-    ciudad,
-    direccion_linea1,
-    direccion_linea2,
-    telf,
-    fecha_nacimiento,
-    organizacion,
-    cargo,
-    departamento,
-    codigo_postal,
-    avatar_url,
-    rol_id,
-	rol: roles!usuarios_rol_id_fkey ( id, nombre ),
-    estado,
-	tipo_identificacion,
-	numero_de_identificacion,
-	tipo_persona
-  `,
-		{ count: 'exact' },
-	)
-	.order('created_at', { ascending: false });
-
-// Ajusta el nombre de tu tabla y columnas
-const { data: roles } = await supabase
-	.from('roles') // por ejemplo
-	.select(
-		`
-    id,
-    nombre
-  `,
-	)
-	.order('id', { ascending: true });
-
-const { data: paises } = await supabase
-	.from('paises')
-	.select('*')
-	.order('nombre_paises', { ascending: true });
+const usuarios = await getAllUsuarios();
+const roles = await RolesGeneral();
+const paises = await PaisesGeneral();
 ---
 
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-></script>
+<script src="../lib/alpinejs/alpine.js"></script>
 <div
 	class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] dark:border-gray-700"
 >
@@ -91,11 +49,11 @@ const { data: paises } = await supabase
 									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
 									clip-rule="evenodd"></path></svg
 							>
-							<a
-								href="#"
+							<p
 								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
-								>Usuarios</a
 							>
+								Usuarios
+							</p>
 						</div>
 					</li>
 				</ol>
@@ -205,9 +163,9 @@ const { data: paises } = await supabase
 								[
 									'foto',
 									'nombre',
-									'compañia',
+									'compañía',
 									'cargo',
-									'pais',
+									'país',
 									'estado',
 									'rol',
 									'acciones',
@@ -250,16 +208,20 @@ const { data: paises } = await supabase
 									<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
 										<td class="w-4 pl-4">
 											{user.avatar_url === 'NULL' || !user.avatar_url ? (
-												<img
+												<Image
 													class="w-10 h-10 rounded-full"
 													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
 													alt={`Avatar de ${user.nombre}`}
+													inferSize={true}
+													loading="eager"
 												/>
 											) : (
-												<img
+												<Image
 													class="w-10 h-10 rounded-full"
 													src={user.avatar_url}
 													alt={`Avatar de ${user.nombre}`}
+													inferSize={true}
+													loading="eager"
 												/>
 											)}
 										</td>
@@ -280,7 +242,7 @@ const { data: paises } = await supabase
 											{user.cargo}
 										</td>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-											{user.pais?.nombre_paises ?? '—'}
+											{user.paises?.nombre_paises ?? '—'}
 										</td>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
 											<div class="flex items-center">
@@ -1032,15 +994,16 @@ const { data: paises } = await supabase
 		});
 	});
 </script>
-<script type="module">
-	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+<script>
+	import { DataTable } from '../lib/simple-data-tables/simple-data-table.js';
 
 	function initDT() {
-		const el = document.querySelector('#myTable');
+		const el = document.querySelector('#myTable') as HTMLElement | null;
 		if (!el) return;
-		if (el.dataset.dtInit === '1') return;
+		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
+			return;
 
-		const dt = new DataTable(el, {
+		new DataTable(el, {
 			searchable: true,
 			perPage: 25,
 			perPageSelect: [5, 10, 25, 50],
@@ -1049,7 +1012,7 @@ const { data: paises } = await supabase
 			labels: {
 				placeholder: 'Buscar...',
 				perPage: 'Filas',
-				noRows: 'No hay empresas',
+				noRows: 'No hay usuarios',
 				noResults: 'No se encontraron resultados',
 				info: 'Mostrando {start} a {end} de {rows} registros',
 			},
@@ -1061,8 +1024,8 @@ const { data: paises } = await supabase
 			},
 		});
 
-		el.dataset.dtInit = '1';
-		el.dataset.dtInstance = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
 	}
 
 	initDT();

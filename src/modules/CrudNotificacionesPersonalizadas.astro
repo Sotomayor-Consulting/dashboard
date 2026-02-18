@@ -1,41 +1,12 @@
 ---
 import Alerta from '@components/alertageneral.astro';
 import '@estilos/datatables.css';
-import { supabase } from '@lib/supabase';
+import { getAllUsuarios } from '@lib/tablas/usuarios';
 
-const { data: usuarios } = await supabase
-	.from('usuarios')
-	.select(
-		`
-    user_id,
-    created_at,
-    nombre,
-    apellido,
-    correo,
-    pais_id,
-    pais:paises ( id, nombre_paises ),
-    ciudad,
-    direccion_linea1,
-    direccion_linea2,
-    telf,
-    fecha_nacimiento,
-    organizacion,
-    cargo,
-    departamento,
-    codigo_postal,
-    avatar_url,
-    rol_id,
-    rol:roles!usuarios_rol_id_fkey ( id, nombre ),
-    estado
-    
-  `,
-		{ count: 'exact' },
-	)
-	.order('created_at', { ascending: false });
+const usuarios = await getAllUsuarios();
 ---
 
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-></script>
+<script src="../lib/alpinejs/alpine.js"></script>
 <div
 	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] dark:border-gray-700"
 >
@@ -181,7 +152,7 @@ const { data: usuarios } = await supabase
 											{user.cargo}
 										</td>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-											{user.pais?.nombre_paises ?? '—'}
+											{user.paises?.nombre_paises ?? '—'}
 										</td>
 										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
 											<div class="flex items-center">
@@ -390,15 +361,16 @@ const { data: usuarios } = await supabase
 		});
 	});
 </script>
-<script type="module">
-	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+<script>
+	import { DataTable } from '../lib/simple-data-tables/simple-data-table.js';
 
 	function initDT() {
-		const el = document.querySelector('#myTable');
+		const el = document.querySelector('#myTable') as HTMLElement | null;
 		if (!el) return;
-		if (el.dataset.dtInit === '1') return;
+		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
+			return;
 
-		const dt = new DataTable(el, {
+		new DataTable(el, {
 			searchable: true,
 			perPage: 25,
 			perPageSelect: [5, 10, 25, 50],
@@ -407,8 +379,8 @@ const { data: usuarios } = await supabase
 			labels: {
 				placeholder: 'Buscar...',
 				perPage: 'Filas',
-				noRows: 'No hay empresas',
-				noResults: 'No se encontraron resultados',
+				noRows: 'No hay usuarios',
+				noResults: 'No se encontraron usuarios',
 				info: 'Mostrando {start} a {end} de {rows} registros',
 			},
 
@@ -419,8 +391,8 @@ const { data: usuarios } = await supabase
 			},
 		});
 
-		el.dataset.dtInit = '1';
-		el.dataset.dtInstance = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
 	}
 
 	initDT();

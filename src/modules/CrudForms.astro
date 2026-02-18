@@ -1,30 +1,12 @@
 ---
 import '@estilos/datatables.css';
-import { supabase } from '@lib/supabase';
 import Alerta from '@components/alertageneral.astro';
+import { ListaFormulariosGeneral } from '@lib/tablas/formularios';
 
-const { data: servicio } = await supabase
-	.from('formularios')
-	.select(
-		`
-    form_id,
- 	slug,
-    revision,
-    titulo,
-    descripcion,
-    estado,
-	schema_json,
-	tema_json,
-	created_at,
-	updated_at
-  `,
-		{ count: 'exact' },
-	)
-	.order('titulo', { ascending: false });
+const servicio = await ListaFormulariosGeneral();
 ---
 
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-></script>
+<script src="../lib/alpinejs/alpine.js"></script>
 <Alerta />
 <div>
 	<div

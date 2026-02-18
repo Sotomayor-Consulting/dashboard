@@ -1,31 +1,10 @@
 ---
 import '@estilos/datatables.css';
-import { supabase } from '@lib/supabase';
 import Alerta from '@components/alertageneral.astro';
 import { Icon } from 'astro-icon/components';
+import { FormsEnviadosDataGeneral } from '@lib/tablas/formulariosEnviados';
 
-// JOINS para render
-const { data: formularios_envios } = await supabase
-	.from('formularios_envios')
-	.select(
-		`
-    submission_id,
-    form_id,
-    user_id,
-    status,
-    data_json,
-    schema_snapshot,
-    progress_percent,
-    created_at,
-    updated_at,
-    submitted_at,
-    schema_hash,
-    formularios:formularios ( form_id, titulo, slug, descripcion ),
-    usuarios:usuarios ( user_id, nombre, apellido )
-  `,
-		{ count: 'exact' },
-	)
-	.order('created_at', { ascending: false });
+const formularios_envios = await FormsEnviadosDataGeneral();
 ---
 
 <Alerta />
@@ -80,7 +59,7 @@ const { data: formularios_envios } = await supabase
 				<h1
 					class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
 				>
-					Todos los formularios enviados
+					Todos los formularios de incorporación enviados
 				</h1>
 			</div>
 			<div class="items-center justify-between block sm:flex">

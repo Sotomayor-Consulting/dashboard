@@ -1,47 +1,17 @@
 ---
-/* eslint max-lines: 'off' */
-import { supabase } from '@lib/supabase';
 import PictureUploader from '@components/PictureUploader.astro';
+import { PaisesGeneral } from '@lib/tablas/paises';
+import { FacturacionbyId } from '@lib/tablas/facturacion';
+import { getUserEmail } from '@lib/tablas/userAuth';
+import { UsersGeneral } from '@lib/tablas/userAuth';
+import { getUsuarioById } from '@lib/tablas/usuarios';
 
-// ⚡ Restaurar sesión desde cookies
-const accessToken = Astro.cookies.get('sb-access-token');
-const refreshToken = Astro.cookies.get('sb-refresh-token');
-
-if (accessToken && refreshToken) {
-	await supabase.auth.setSession({
-		access_token: accessToken.value,
-		refresh_token: refreshToken.value,
-	});
-}
-
-const {
-	data: { user },
-} = await supabase.auth.getUser();
-
-let testRow = null;
-if (user) {
-	const { data } = await supabase
-		.from('usuarios')
-		.select(
-			'nombre, apellido, pais_id, ciudad, direccion_linea1, direccion_linea2, telf, fecha_nacimiento, organizacion, cargo, departamento, codigo_postal, tipo_identificacion, numero_de_identificacion, tipo_persona, user_id',
-		)
-		.eq('user_id', user.id)
-		.single();
-	testRow = data;
-}
-
-const { data: paises } = await supabase
-	.from('paises')
-	.select('id, iso, nombre_paises, codigo_telf')
-	.order('nombre_paises');
-
-const { data: facturacion } = await supabase
-	.from('datos_facturacion')
-	.select('*')
-	.eq('user_id', user?.id)
-	.single();
-
-const email = user?.email;
+const paises = await PaisesGeneral();
+const email = await getUserEmail(Astro);
+const user = await UsersGeneral(Astro);
+const userId = user?.id;
+const usuario = userId ? await getUsuarioById(userId) : null;
+const facturacion = userId ? await FacturacionbyId(userId) : null;
 
 type Opcion = {
 	value: string;
@@ -153,7 +123,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
 		>
 			<h3 class="mb-4 text-xl font-semibold dark:text-white">
-				Canjear codigo de Referido
+				Canjear código de Referido
 			</h3>
 			<form action="/api/partners_code/code_canje" method="POST">
 				<div class="mb-4">
@@ -174,404 +144,6 @@ const TipoIdentificacionOptions: Opcion[] = [
 				</div>
 			</form>
 		</div>
-		<!-- 
-		<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
-		>
-			<h3 class="mb-4 text-xl font-semibold dark:text-white">
-				Language & Time
-			</h3>
-			<div class="mb-4">
-				<label
-					for="settings-language"
-					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-					>Select language</label
-				>
-				<select
-					id="settings-language"
-					name="countries"
-					class="bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
-				>
-					<option>English (US)</option>
-					<option>Italiano</option>
-					<option>Français (France)</option>
-					<option>正體字</option>
-					<option>Español (España)</option>
-					<option>Deutsch</option>
-					<option>Português (Brasil)</option>
-				</select>
-			</div>
-			<div class="mb-6">
-				<label
-					for="settings-timezone"
-					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-					>Time Zone</label
-				>
-				<select
-					id="settings-timezone"
-					name="countries"
-					class="bg-gray-50 border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
-				>
-					<option>GMT+0 Greenwich Mean Time (GMT)</option>
-					<option>GMT+1 Central European Time (CET)</option>
-					<option>GMT+2 Eastern European Time (EET)</option>
-					<option>GMT+3 Moscow Time (MSK)</option>
-					<option>GMT+5 Pakistan Standard Time (PKT)</option>
-					<option>GMT+8 China Standard Time (CST)</option>
-					<option>GMT+10 Eastern Australia Standard Time (AEST)</option>
-				</select>
-			</div>
-			<div>
-				<button
-					class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-					>Save all</button
-				>
-			</div>
-		</div>
-		<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
-		>
-			<div class="flow-root">
-				<h3 class="text-xl font-semibold dark:text-white">Social accounts</h3>
-				<ul class="divide-y divide-gray-200 dark:divide-gray-700">
-					<li class="py-4">
-						<div class="flex items-center space-x-4">
-							<div class="flex-shrink-0">
-								<svg
-									class="w-5 h-5 dark:text-white"
-									aria-hidden="true"
-									focusable="false"
-									data-prefix="fab"
-									data-icon="facebook-f"
-									role="img"
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 320 512"
-									><path
-										fill="currentColor"
-										d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"
-									></path></svg
-								>
-							</div>
-							<div class="flex-1 min-w-0">
-								<span
-									class="block text-base font-semibold text-gray-900 truncate dark:text-white"
-								>
-									Facebook account
-								</span>
-								<a
-									href="#"
-									class="block text-sm font-normal truncate text-[#8c681d] hover:underline dark:text-[#8c681d]"
-								>
-									www.facebook.com/themesberg
-								</a>
-							</div>
-							<div class="inline-flex items-center">
-								<a
-									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
-									>Disconnect</a
-								>
-							</div>
-						</div>
-					</li>
-					<li class="py-4">
-						<div class="flex items-center space-x-4">
-							<div class="flex-shrink-0">
-								<svg
-									class="w-5 h-5 dark:text-white"
-									aria-hidden="true"
-									focusable="false"
-									data-prefix="fab"
-									data-icon="twitter"
-									role="img"
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 512 512"
-									><path
-										fill="currentColor"
-										d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"
-									></path></svg
-								>
-							</div>
-							<div class="flex-1 min-w-0">
-								<span
-									class="block text-base font-semibold text-gray-900 truncate dark:text-white"
-								>
-									Twitter account
-								</span>
-								<a
-									href="#"
-									class="block text-sm font-normal truncate text-[#8c681d] hover:underline dark:text-[#8c681d]"
-								>
-									www.twitter.com/themesberg
-								</a>
-							</div>
-							<div class="inline-flex items-center">
-								<a
-									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
-									>Disconnect</a
-								>
-							</div>
-						</div>
-					</li>
-					<li class="py-4">
-						<div class="flex items-center space-x-4">
-							<div class="flex-shrink-0">
-								<svg
-									class="w-5 h-5 dark:text-white"
-									aria-hidden="true"
-									focusable="false"
-									data-prefix="fab"
-									data-icon="github"
-									role="img"
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 496 512"
-									><path
-										fill="currentColor"
-										d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"
-									></path></svg
-								>
-							</div>
-							<div class="flex-1 min-w-0">
-								<span
-									class="block text-base font-semibold text-gray-900 truncate dark:text-white"
-								>
-									Github account
-								</span>
-								<span
-									class="block text-sm font-normal text-gray-500 truncate dark:text-gray-400"
-								>
-									Not connected
-								</span>
-							</div>
-							<div class="inline-flex items-center">
-								<a
-									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-									>Connect</a
-								>
-							</div>
-						</div>
-					</li>
-					<li class="pt-4 pb-6">
-						<div class="flex items-center space-x-4">
-							<div class="flex-shrink-0">
-								<svg
-									class="w-5 h-5 dark:text-white"
-									aria-hidden="true"
-									focusable="false"
-									data-prefix="fab"
-									data-icon="dribbble"
-									role="img"
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 512 512"
-									><path
-										fill="currentColor"
-										d="M256 8C119.252 8 8 119.252 8 256s111.252 248 248 248 248-111.252 248-248S392.748 8 256 8zm163.97 114.366c29.503 36.046 47.369 81.957 47.835 131.955-6.984-1.477-77.018-15.682-147.502-6.818-5.752-14.041-11.181-26.393-18.617-41.614 78.321-31.977 113.818-77.482 118.284-83.523zM396.421 97.87c-3.81 5.427-35.697 48.286-111.021 76.519-34.712-63.776-73.185-116.168-79.04-124.008 67.176-16.193 137.966 1.27 190.061 47.489zm-230.48-33.25c5.585 7.659 43.438 60.116 78.537 122.509-99.087 26.313-186.36 25.934-195.834 25.809C62.38 147.205 106.678 92.573 165.941 64.62zM44.17 256.323c0-2.166.043-4.322.108-6.473 9.268.19 111.92 1.513 217.706-30.146 6.064 11.868 11.857 23.915 17.174 35.949-76.599 21.575-146.194 83.527-180.531 142.306C64.794 360.405 44.17 310.73 44.17 256.323zm81.807 167.113c22.127-45.233 82.178-103.622 167.579-132.756 29.74 77.283 42.039 142.053 45.189 160.638-68.112 29.013-150.015 21.053-212.768-27.882zm248.38 8.489c-2.171-12.886-13.446-74.897-41.152-151.033 66.38-10.626 124.7 6.768 131.947 9.055-9.442 58.941-43.273 109.844-90.795 141.978z"
-									></path></svg
-								>
-							</div>
-							<div class="flex-1 min-w-0">
-								<span
-									class="block text-base font-semibold text-gray-900 truncate dark:text-white"
-								>
-									Dribbble account
-								</span>
-								<span
-									class="block text-sm font-normal text-gray-500 truncate dark:text-gray-400"
-								>
-									Not connected
-								</span>
-							</div>
-							<div class="inline-flex items-center">
-								<a
-									href="#"
-									class="px-3 py-2 mb-3 mr-3 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-									>Connect</a
-								>
-							</div>
-						</div>
-					</li>
-				</ul>
-				<div>
-					<button
-						class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-						>Save all</button
-					>
-				</div>
-			</div>
-		</div>
-		<div
-			class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
-		>
-			<div class="flow-root">
-				<h3 class="text-xl font-semibold dark:text-white">Other accounts</h3>
-				<ul class="mb-6 divide-y divide-gray-200 dark:divide-gray-700">
-					<li class="py-4">
-						<div
-							class="flex justify-between xl:block 2xl:flex align-center 2xl:space-x-4"
-						>
-							<div class="flex space-x-4 xl:mb-4 2xl:mb-0">
-								<div>
-									<img
-										class="w-6 h-6 rounded-full"
-										src={asset('images/users/bonnie-green.png')}
-										alt="Bonnie image"
-									/>
-								</div>
-								<div class="flex-1 min-w-0">
-									<p
-										class="text-base font-semibold text-gray-900 leading-none truncate mb-0.5 dark:text-white"
-									>
-										Bonnie Green
-									</p>
-									<p
-										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-[#8c681d]"
-									>
-										New York, USA
-									</p>
-									<p
-										class="text-xs font-medium text-gray-500 dark:text-gray-400"
-									>
-										Last seen: 1 min ago
-									</p>
-								</div>
-							</div>
-							<div class="inline-flex items-center w-auto xl:w-full 2xl:w-auto">
-								<a
-									href="#"
-									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
-									>Disconnect</a
-								>
-							</div>
-						</div>
-					</li>
-					<li class="py-4">
-						<div
-							class="flex justify-between xl:block 2xl:flex align-center 2xl:space-x-4"
-						>
-							<div class="flex space-x-4 xl:mb-4 2xl:mb-0">
-								<div>
-									<img
-										class="w-6 h-6 rounded-full"
-										src={asset('images/users/jese-leos.png')}
-										alt="Jese image"
-									/>
-								</div>
-								<div class="flex-1 min-w-0">
-									<p
-										class="text-base font-semibold text-gray-900 leading-none truncate mb-0.5 dark:text-white"
-									>
-										Jese Leos
-									</p>
-									<p
-										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-[#8c681d]"
-									>
-										California, USA
-									</p>
-									<p
-										class="text-xs font-medium text-gray-500 dark:text-gray-400"
-									>
-										Last seen: 2 min ago
-									</p>
-								</div>
-							</div>
-							<div class="inline-flex items-center w-auto xl:w-full 2xl:w-auto">
-								<a
-									href="#"
-									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
-									>Disconnect</a
-								>
-							</div>
-						</div>
-					</li>
-					<li class="py-4">
-						<div
-							class="flex justify-between xl:block 2xl:flex align-center 2xl:space-x-4"
-						>
-							<div class="flex space-x-4 xl:mb-4 2xl:mb-0">
-								<div>
-									<img
-										class="w-6 h-6 rounded-full"
-										src={asset('images/users/thomas-lean.png')}
-										alt="Thomas image"
-									/>
-								</div>
-								<div class="flex-1 min-w-0">
-									<p
-										class="text-base font-semibold text-gray-900 leading-none truncate mb-0.5 dark:text-white"
-									>
-										Thomas Lean
-									</p>
-									<p
-										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-[#8c681d]"
-									>
-										Texas, USA
-									</p>
-									<p
-										class="text-xs font-medium text-gray-500 dark:text-gray-400"
-									>
-										Last seen: 1 hour ago
-									</p>
-								</div>
-							</div>
-							<div class="inline-flex items-center w-auto xl:w-full 2xl:w-auto">
-								<a
-									href="#"
-									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
-									>Disconnect</a
-								>
-							</div>
-						</div>
-					</li>
-					<li class="pt-4">
-						<div
-							class="flex justify-between xl:block 2xl:flex align-center 2xl:space-x-4"
-						>
-							<div class="flex space-x-4 xl:mb-4 2xl:mb-0">
-								<div>
-									<img
-										class="w-6 h-6 rounded-full"
-										src={asset('images/users/lana-byrd.png')}
-										alt="Lana image"
-									/>
-								</div>
-								<div class="flex-1 min-w-0">
-									<p
-										class="text-base font-semibold text-gray-900 leading-none truncate mb-0.5 dark:text-white"
-									>
-										Lana Byrd
-									</p>
-									<p
-										class="mb-1 text-sm font-normal truncate text-[#8c681d] dark:text-[#8c681d]"
-									>
-										Texas, USA
-									</p>
-									<p
-										class="text-xs font-medium text-gray-500 dark:text-gray-400"
-									>
-										Last seen: 1 hour ago
-									</p>
-								</div>
-							</div>
-							<div class="inline-flex items-center w-auto xl:w-full 2xl:w-auto">
-								<a
-									href="#"
-									class="w-full px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
-									>Disconnect</a
-								>
-							</div>
-						</div>
-					</li>
-				</ul>
-				<div>
-					<button
-						class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-						>Save all</button
-					>
-				</div>
-			</div>
-		</div>-->
 	</div>
 	<div class="col-span-2">
 		<div
@@ -591,7 +163,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 						<input
 							type="text"
 							name="nombre"
-							value={testRow?.nombre ?? ''}
+							value={usuario?.nombre ?? ''}
 							id="first-name"
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="Juan"
@@ -609,7 +181,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 							id="last-name"
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="Green"
-							value={testRow?.apellido ?? ''}
+							value={usuario.apellido ?? ''}
 						/>
 					</div>
 					<div class="col-span-6 sm:col-span-3">
@@ -622,12 +194,12 @@ const TipoIdentificacionOptions: Opcion[] = [
 							name="pais"
 							class="bg-neutral-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
-							<option value="" selected={!testRow?.pais_id}
+							<option value="" selected={!usuario?.pais_id}
 								>Seleccione un país</option
 							>
 							{
 								paises?.map((p) => (
-									<option value={p.id} selected={testRow?.pais_id === p.id}>
+									<option value={p.id} selected={usuario?.pais_id === p.id}>
 										{p.nombre_paises}
 									</option>
 								))
@@ -643,7 +215,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 						<input
 							type="text"
 							name="ciudad"
-							value={testRow?.ciudad ?? ''}
+							value={usuario?.ciudad ?? ''}
 							id="city"
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="ejem. San Francisco"
@@ -659,7 +231,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 						<input
 							type="text"
 							name="direccion"
-							value={testRow?.direccion_linea1 ?? ''}
+							value={usuario?.direccion_linea1 ?? ''}
 							id="address"
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="ejem. Av. Juan Molineros"
@@ -675,7 +247,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 						<input
 							type="text"
 							name="direccion2"
-							value={testRow?.direccion_linea2 ?? ''}
+							value={usuario?.direccion_linea2 ?? ''}
 							id="address"
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="ejem. y De los Guayacanes"
@@ -693,7 +265,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 						>
 							<option
 								value=""
-								selected={!testRow?.tipo_identificacion}
+								selected={!usuario?.tipo_identificacion}
 								disabled
 								hidden>Seleccione un tipo de documento</option
 							>
@@ -701,7 +273,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 								opcionesPerfil?.map((p) => (
 									<option
 										value={p.value}
-										selected={testRow?.tipo_identificacion === p.value}
+										selected={usuario?.tipo_identificacion === p.value}
 									>
 										{p.label}
 									</option>
@@ -718,7 +290,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 						<input
 							type="text"
 							name="Numero_de_identificacion"
-							value={testRow?.numero_de_identificacion ?? ''}
+							value={usuario?.numero_de_identificacion ?? ''}
 							id="address"
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="1777745898"
@@ -734,14 +306,14 @@ const TipoIdentificacionOptions: Opcion[] = [
 							name="tipo_de_persona"
 							class="bg-neutral-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
-							<option value="" selected={!testRow?.tipo_persona} disabled hidden
+							<option value="" selected={!usuario?.tipo_persona} disabled hidden
 								>Seleccione el tipo de persona</option
 							>
 							{
 								TipoPersonaOptions?.map((p) => (
 									<option
 										value={p.value}
-										selected={testRow?.tipo_persona === p.value}
+										selected={usuario?.tipo_persona === p.value}
 									>
 										{p.label}
 									</option>
@@ -771,7 +343,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 							type="number"
 							name="telefono"
 							id="phone-number"
-							value={testRow?.telf ?? ''}
+							value={usuario?.telf ?? ''}
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="ejem. +(12)3456 789"
 							-
@@ -786,7 +358,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 						<input
 							type="date"
 							name="fecha_nacimiento"
-							value={testRow?.fecha_nacimiento ?? ''}
+							value={usuario?.fecha_nacimiento ?? ''}
 							id="birthday"
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="15/08/1990"
@@ -802,7 +374,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 						<input
 							type="text"
 							name="organizacion"
-							value={testRow?.organizacion ?? ''}
+							value={usuario?.organizacion ?? ''}
 							id="organizacion"
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="Ejem. Sotomayor Consulting Ecuador"
@@ -818,7 +390,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 						<input
 							type="text"
 							name="cargo"
-							value={testRow?.cargo ?? ''}
+							value={usuario?.cargo ?? ''}
 							id="role"
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="Ejem. Gerente General"
@@ -834,7 +406,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 						<input
 							type="text"
 							name="departamento"
-							value={testRow?.departamento ?? ''}
+							value={usuario?.departamento ?? ''}
 							id="department"
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="Development"
@@ -850,7 +422,7 @@ const TipoIdentificacionOptions: Opcion[] = [
 						<input
 							type="number"
 							name="codigo_postal"
-							value={testRow?.codigo_postal ?? ''}
+							value={usuario?.codigo_postal ?? ''}
 							id="zip-code"
 							class="shadow-sm bg-neutral-200 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							placeholder="123456"

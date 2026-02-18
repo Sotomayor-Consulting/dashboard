@@ -18,3 +18,16 @@ export const getEmpresaById = async (empresaId: string) => {
 
 	return empresa;
 };
+
+export const getEmpresasGenenralById = async (userId: string) => {
+	const { data: empresas, error } = await supabase
+		.from('empresas_incorporaciones')
+		.select('*')
+		.eq('user_id', userId)
+		.order('updated_at', { ascending: true });
+	if (error || !empresas) {
+		return null;
+	}
+
+	return empresas;
+};

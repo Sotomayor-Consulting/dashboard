@@ -1,11 +1,10 @@
 import { supabase } from '@lib/supabase';
 
-export const PaisesGeneral = async () => {
+export const ListaFormulariosGeneral = async () => {
 	const { data, error } = await supabase
-		.from('paises')
-		.select('*')
-		.order('nombre_paises', { ascending: true });
-
+		.from('formularios')
+		.select('*', { count: 'exact' })
+		.order('titulo', { ascending: false });
 	if (error) {
 		console.error('Error fetching all países:', error);
 		throw error;

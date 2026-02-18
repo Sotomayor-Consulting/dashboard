@@ -2,22 +2,14 @@
 import { Image } from 'astro:assets';
 import icono from '/src/assets/icono.png';
 import icono2 from '/src/assets/icono-negro.png';
-import { supabase } from '../lib/supabase'; // Asegúrate de que esta ruta es correcta
-import type { User } from '@supabase/supabase-js';
+import { getEstadoIncorporacionByUserId } from '../lib/tablas/empresa_incorporaciones';
+import { UsersGeneral } from '@lib/tablas/userAuth';
 
-// 1. Acceso a las cookies y tokens
-const { cookies } = Astro;
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
-
-let user: User | null = null;
+const user = await UsersGeneral(Astro);
 let shouldShowBanner = false;
 
-// 2. Definición de la Condición
 const CONDITION_STATUS = 'En proceso';
-const TARGET_TABLE = 'empresas_incorporaciones';
 
-// Datos fijos para el banner
 const BANNER_PROPS = {
 	title: 'Tu compañía esta pendiente a incorporar. Desbloquea sus beneficios.',
 	btnId: 'dismiss-incorp-banner',
@@ -25,42 +17,13 @@ const BANNER_PROPS = {
 	url: '/incorporacion-y-pago',
 };
 
-// 3. Proceso de Autenticación y Consulta (SSR)
-if (accessToken && refreshToken) {
-	try {
-		// 3a. Establecer la sesión para que las consultas tengan el contexto del usuario
-		await supabase.auth.setSession({
-			refresh_token: refreshToken.value,
-			access_token: accessToken.value,
-		});
+if (user) {
+	const incorporaciones = await getEstadoIncorporacionByUserId(user.id);
 
-		// 3b. Obtener el objeto de usuario actual
-		const {
-			data: { user: currentUser },
-		} = await supabase.auth.getUser();
-		user = currentUser;
-
-		if (user) {
-			// 3c. Consulta a la tabla adaptada: 'empresas_incorporaciones'
-			const { data: incorporaciones, error } = await supabase
-				.from(TARGET_TABLE)
-				.select('estado') // Solo necesitamos la columna 'estado'
-				.eq('user_id', user.id); // Filtrar por el usuario actual
-
-			if (error) {
-				console.error(
-					`[Banner] Error al obtener estado de ${TARGET_TABLE}:`,
-					error,
-				);
-			} else if (incorporaciones && incorporaciones.length > 0) {
-				// 3d. Verificar la condición: ¿Alguna está 'En proceso'?
-				shouldShowBanner = incorporaciones.some(
-					(c) => c.estado === CONDITION_STATUS,
-				);
-			}
-		}
-	} catch (e) {
-		console.error('[Banner] Error de sesión o conexión con Supabase:', e);
+	if (incorporaciones && incorporaciones.length > 0) {
+		shouldShowBanner = incorporaciones.some(
+			(c) => c.estado === CONDITION_STATUS,
+		);
 	}
 }
 ---
@@ -83,12 +46,14 @@ if (accessToken && refreshToken) {
 							width="32"
 							alt="Sotomayor consulting Logo"
 							class="me-2 hidden dark:block"
+							loading="eager"
 						/>
 						<Image
 							src={icono2}
 							width="32"
 							alt="Sotomayor consulting Logo"
 							class="me-2 dark:hidden block"
+							loading="eager"
 						/>
 					</a>
 					<p class="flex items-center text-base font-normal text-black dark:text-white">

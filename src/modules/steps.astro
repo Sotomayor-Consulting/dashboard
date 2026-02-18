@@ -3,31 +3,6 @@ import WhatsappBtn from '@components/WhatsappBtn.astro';
 import { supabase } from '@lib/supabase';
 import Alerta from '@components/alertageneral.astro';
 
-// Verificar autenticación con Supabase
-const { cookies } = Astro;
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
-let user = null;
-
-if (accessToken && refreshToken) {
-	const { data: sessionData, error } = await supabase.auth.setSession({
-		refresh_token: refreshToken.value,
-		access_token: accessToken.value,
-	});
-	if (!error && sessionData?.session) {
-		const { data: userData, error: userError } = await supabase.auth.getUser();
-		if (!userError) {
-			user = userData.user;
-		} else {
-			cookies.delete('sb-access-token', { path: '/' });
-			cookies.delete('sb-refresh-token', { path: '/' });
-		}
-	} else {
-		cookies.delete('sb-access-token', { path: '/' });
-		cookies.delete('sb-refresh-token', { path: '/' });
-	}
-}
-
 const { data: estados } = await supabase.from('estados').select('Estado');
 
 const datosName = [
@@ -171,7 +146,7 @@ const datosName = [
 				>
 					<div
 						id="stepdiv1-1"
-						class="flex items-center gap-3.5 bg-[#0e2637] p-3.5 rounded-xl relative z-10 border border-[#8c681d] w-full text-left"
+						class="flex items-center gap-3.5 bg-[#192033] p-3.5 rounded-xl relative z-10 border border-[#8c681d] w-full text-left"
 					>
 						<div
 							id="stepdiv2-1"
@@ -217,7 +192,7 @@ const datosName = [
 				>
 					<div
 						id="stepdiv1-2"
-						class="flex items-center gap-3.5 bg-[#0e2637] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
+						class="flex items-center gap-3.5 bg-[#192033] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
 					>
 						<div
 							id="stepdiv2-2"
@@ -266,7 +241,7 @@ const datosName = [
 				>
 					<div
 						id="stepdiv1-3"
-						class="flex items-center gap-3.5 bg-[#0e2637] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
+						class="flex items-center gap-3.5 bg-[#192033] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
 					>
 						<div
 							id="stepdiv2-3"
@@ -315,7 +290,7 @@ const datosName = [
 				>
 					<div
 						id="stepdiv1-4"
-						class="flex items-center gap-3.5 bg-[#0e2637] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
+						class="flex items-center gap-3.5 bg-[#192033] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
 					>
 						<div
 							id="stepdiv2-4"
@@ -386,7 +361,7 @@ const datosName = [
 						/>
 						<label
 							for="LLC_radio_btn"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-[#05121d] dark:hover:bg-[#0e2637] dark:peer-checked:bg-[#0e2637] peer-checked:bg-neutral-200"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-[#101521] dark:hover:bg-[#192033] dark:peer-checked:bg-[#192033] peer-checked:bg-neutral-200"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">LLC</div>
@@ -421,7 +396,7 @@ const datosName = [
 						/>
 						<label
 							for="C_coorp_btn_radio"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-[#05121d] dark:hover:bg-[#0e2637] dark:peer-checked:bg-[#0e2637] peer-checked:bg-neutral-200"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-[#101521] dark:hover:bg-[#192033] dark:peer-checked:bg-[#192033] peer-checked:bg-neutral-200"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">C-corporation</div>
@@ -449,7 +424,7 @@ const datosName = [
 						<button
 							id="openBtnxd"
 							type="button"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 focus:text-[#8c681d] focus:border-[#8c681d] dark:text-gray-400 dark:bg-[#05121d] bg-neutral-400 dark:hover:bg-[#05121d] dark:focus:bg-[#0e2637] text-left text-neutral-500"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 focus:text-[#8c681d] focus:border-[#8c681d] dark:text-gray-400 dark:bg-[#101521] bg-neutral-400 dark:hover:bg-[#101521] dark:focus:bg-[#192033] text-left text-neutral-500"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">Ayúdame a elegir</div>
@@ -530,7 +505,7 @@ const datosName = [
 							<select
 								id="estados"
 								name="estado_de_empresa"
-								class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-800 border-[#967432] peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-700 dark:bg-[#05121d] bg-neutral-200 dark:hover:bg-[#0e2637] hover:bg-neutral-300 dark:peer-checked:bg-[#05121d] peer-checked:bg-neutral-700 focus:ring-[#967432]"
+								class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-800 border-[#967432] peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-700 dark:bg-[#101521] bg-neutral-200 dark:hover:bg-[#192033] hover:bg-neutral-300 dark:peer-checked:bg-[#101521] peer-checked:bg-neutral-700 focus:ring-[#967432]"
 								required
 							>
 								{
@@ -676,7 +651,7 @@ const datosName = [
 					<li class="md:w-3/5 w-4/5">
 						<div id="respuestasradio" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#05121d] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#101521] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
 							>
 								<div>
 									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">
@@ -710,7 +685,7 @@ const datosName = [
 						</div>
 						<div id="respuesta_estado" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#05121d] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#101521] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
 							>
 								<div>
 									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">
@@ -744,7 +719,7 @@ const datosName = [
 						</div>
 						<div id="respuesta_plan" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#05121d] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#101521] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
 							>
 								<div>
 									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">
@@ -794,7 +769,7 @@ const datosName = [
 		>
 			<!-- Card -->
 			<div
-				class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-gray-200 rounded-lg shadow dark:bg-[#05121d]"
+				class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-gray-200 rounded-lg shadow dark:bg-[#101521]"
 			>
 				<a
 					href="#"
@@ -1015,7 +990,7 @@ const datosName = [
 		'flex',
 		'items-center',
 		'gap-3.5',
-		'dark:bg-[#05121d]',
+		'dark:bg-[#101521]',
 		'bg-neutral-200',
 		'p-3.5',
 		'rounded-xl',
@@ -1058,7 +1033,7 @@ const datosName = [
 		'flex',
 		'items-center',
 		'gap-3.5',
-		'dark:bg-[#05121d]',
+		'dark:bg-[#101521]',
 		'bg-neutral-400',
 		'p-3.5',
 		'rounded-xl',
@@ -1073,7 +1048,7 @@ const datosName = [
 	];
 	const inactivodiv2 = [
 		'rounded-lg',
-		'dark:bg-[#18384f]',
+		'dark:bg-[#192033]',
 		'bg-neutral-500',
 		'group-hover:bg-[#8c681d]',
 		'flex',
