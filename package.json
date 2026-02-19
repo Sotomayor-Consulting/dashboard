@@ -50,6 +50,7 @@
 		"apexcharts": "^3.37.2",
 		"astro": "^5.17.1",
 		"astro-icon": "^1.1.5",
+		"axios": "^1.13.5",
 		"carbone": "^3.5.6",
 		"chart.js": "^4.5.1",
 		"chartjs-chart-geo": "^4.3.6",

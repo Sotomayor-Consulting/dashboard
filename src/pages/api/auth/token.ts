@@ -1,20 +1,22 @@
+// src/pages/api/auth/token.ts
+// ─── Thin handler: Get Access Token ─────────────────────
+// Devuelve el access token para uso en APIs externas (SurveyJS, etc.)
 import type { APIRoute } from 'astro';
+import { createSupabaseServerClient } from '@lib/supabase';
+import { AuthService, jsonSuccess, jsonError } from '@lib/auth';
 
-export const GET: APIRoute = async ({ cookies }) => {
-	// Si tus cookies se llaman distinto, ajusta aquí:
-	const access = cookies.get('sb-access-token')?.value;
-	const refresh = cookies.get('sb-refresh-token')?.value;
+export const GET: APIRoute = async ({ request, cookies }) => {
+	const supabase = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
+	});
+	const auth = new AuthService(supabase, cookies);
 
-	if (!access || !refresh) {
-		return new Response(JSON.stringify({ ok: false }), {
-			status: 401,
-			headers: { 'Content-Type': 'application/json' },
-		});
+	const accessToken = auth.getAccessToken();
+
+	if (!accessToken) {
+		return jsonError('No autenticado', 401);
 	}
 
-	// Para SurveyJS solo necesitas el access_token para Authorization: Bearer ...
-	return new Response(JSON.stringify({ ok: true, access_token: access }), {
-		status: 200,
-		headers: { 'Content-Type': 'application/json' },
-	});
+	return jsonSuccess({ access_token: accessToken });
 };

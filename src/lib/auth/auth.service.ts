@@ -1,0 +1,373 @@
+// src/lib/auth/auth.service.ts
+// ─── Servicio de autenticación ──────────────────────────
+// Encapsula TODA la lógica de negocio de auth.
+// Los API routes (pages/api/auth/) son thin handlers que delegan aquí.
+
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { AstroCookies } from 'astro';
+import type {
+	SignInWithPasswordDto,
+	RegisterDto,
+	ForgotPasswordDto,
+	AuthResult,
+	AuthUser,
+	OAuthProvider,
+	OAuthResult,
+} from './auth.types';
+import {
+	mapAuthResult,
+	mapSupabaseUser,
+	VALID_OAUTH_PROVIDERS,
+} from './auth.types';
+import {
+	AUTH_COOKIE_NAMES,
+	AUTH_COOKIE_OPTIONS,
+	VALIDATION,
+} from './auth.config';
+import { friendlyAuthError } from './auth.helpers';
+
+/**
+ * AuthService — un servicio por request.
+ *
+ * Recibe el SupabaseClient ya configurado con cookies (creado vía
+ * `createSupabaseServerClient` de `@lib/supabase/server.ts`) y las cookies
+ * de Astro para poder setear/limpiar tokens.
+ *
+ * @example
+ * ```ts
+ * // En un API route:
+ * const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+ * const auth = new AuthService(supabase, cookies);
+ * const result = await auth.signInWithPassword({ email, password });
+ * ```
+ */
+export class AuthService {
+	constructor(
+		private readonly supabase: SupabaseClient,
+		private readonly cookies: AstroCookies,
+	) {}
+
+	// ─── Email/Password Auth ────────────────────────────────
+
+	/**
+	 * Inicia sesión con email y contraseña.
+	 * Setea cookies de sesión en caso de éxito.
+	 */
+	async signInWithPassword(dto: SignInWithPasswordDto): Promise<AuthResult> {
+		if (!dto.email || !dto.password) {
+			throw new AuthError('Correo electrónico y contraseña son obligatorios.');
+		}
+
+		const { data, error } = await this.supabase.auth.signInWithPassword({
+			email: dto.email,
+			password: dto.password,
+		});
+
+		if (error) {
+			throw new AuthError(friendlyAuthError(error.message, error.code));
+		}
+
+		if (!data.session) {
+			throw new AuthError('No se pudo iniciar sesión. Inténtalo nuevamente.');
+		}
+
+		this.setSessionCookies(
+			data.session.access_token,
+			data.session.refresh_token,
+		);
+
+		return mapAuthResult(data.user, data.session);
+	}
+
+	/**
+	 * Registra un nuevo usuario con email, contraseña y metadatos.
+	 * No setea cookies (requiere confirmación de email por defecto).
+	 */
+	async register(
+		dto: RegisterDto,
+	): Promise<{ requiresEmailConfirmation: boolean; user?: AuthUser }> {
+		// Validaciones
+		if (!dto.email || !dto.password) {
+			throw new AuthError('Correo electrónico y contraseña son obligatorios.');
+		}
+		if (!VALIDATION.emailRegex.test(dto.email)) {
+			throw new AuthError('Por favor, introduce un correo electrónico válido.');
+		}
+		if (dto.password.length < VALIDATION.passwordMinLength) {
+			throw new AuthError(
+				`La contraseña debe tener al menos ${VALIDATION.passwordMinLength} caracteres.`,
+			);
+		}
+
+		const { data, error } = await this.supabase.auth.signUp({
+			email: dto.email,
+			password: dto.password,
+			options: {
+				data: {
+					name: dto.name,
+					lastName: dto.lastName,
+				},
+			},
+		});
+
+		if (error) {
+			throw new AuthError(friendlyAuthError(error.message, error.code));
+		}
+
+		// Si el usuario ya existía (identities vacías)
+		if (data.user?.identities?.length === 0) {
+			throw new AuthError(
+				'Este correo electrónico ya está registrado. Por favor, inicia sesión.',
+			);
+		}
+
+		// Si se devuelve sesión (email confirmation deshabilitada), setear cookies
+		if (data.session) {
+			this.setSessionCookies(
+				data.session.access_token,
+				data.session.refresh_token,
+			);
+			return {
+				requiresEmailConfirmation: false,
+				user: mapSupabaseUser(data.user!),
+			};
+		}
+
+		return { requiresEmailConfirmation: true };
+	}
+
+	// ─── OAuth ────────────────────────────────────────────
+
+	/**
+	 * Inicia el flujo OAuth y devuelve la URL de autorización.
+	 */
+	async signInWithOAuth(
+		provider: OAuthProvider,
+		redirectTo: string,
+	): Promise<OAuthResult> {
+		if (!VALID_OAUTH_PROVIDERS.includes(provider)) {
+			throw new AuthError(`Proveedor OAuth no soportado: ${provider}`);
+		}
+
+		const { data, error } = await this.supabase.auth.signInWithOAuth({
+			provider,
+			options: {
+				redirectTo,
+				queryParams: {
+					access_type: 'offline',
+					prompt: 'consent',
+				},
+			},
+		});
+
+		if (error || !data.url) {
+			throw new AuthError(
+				error?.message ?? 'No se pudo iniciar sesión con el proveedor OAuth.',
+			);
+		}
+
+		return { url: data.url };
+	}
+
+	/**
+	 * Intercambia un código de autorización OAuth por una sesión.
+	 * Setea cookies de sesión. Incluye retry para errores PKCE.
+	 */
+	async exchangeCodeForSession(code: string): Promise<AuthResult> {
+		const MAX_ATTEMPTS = 2;
+
+		for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+			try {
+				const { data, error } =
+					await this.supabase.auth.exchangeCodeForSession(code);
+
+				if (error || !data.session) {
+					const errMsg = error?.message ?? 'Error desconocido';
+
+					// Retry para errores PKCE/state conocidos
+					if (this.isPkceError(errMsg) && attempt < MAX_ATTEMPTS) {
+						await this.delay(300);
+						continue;
+					}
+
+					throw new AuthError(
+						'No se pudo completar el inicio de sesión. Inténtalo nuevamente.',
+					);
+				}
+
+				this.setSessionCookies(
+					data.session.access_token,
+					data.session.refresh_token,
+				);
+
+				return mapAuthResult(data.user, data.session);
+			} catch (err) {
+				if (err instanceof AuthError) throw err;
+
+				if (attempt === MAX_ATTEMPTS) {
+					throw new AuthError(
+						'Ocurrió un error interno al procesar el inicio de sesión.',
+					);
+				}
+				await this.delay(300);
+			}
+		}
+
+		throw new AuthError(
+			'No se pudo completar el inicio de sesión. Inténtalo nuevamente.',
+		);
+	}
+
+	// ─── Session Management ───────────────────────────────
+
+	/**
+	 * Cierra la sesión del usuario y limpia las cookies.
+	 */
+	async signOut(): Promise<void> {
+		await this.supabase.auth.signOut();
+		this.clearSessionCookies();
+	}
+
+	/**
+	 * Obtiene el usuario autenticado actual desde la sesión.
+	 * Retorna null si no hay sesión válida.
+	 */
+	async getCurrentUser(): Promise<AuthUser | null> {
+		const { data, error } = await this.supabase.auth.getUser();
+
+		if (error || !data.user) {
+			return null;
+		}
+
+		return mapSupabaseUser(data.user);
+	}
+
+	/**
+	 * Verifica si existe una sesión válida.
+	 * Retorna info del usuario si existe.
+	 */
+	async checkSession(): Promise<{
+		isAuthenticated: boolean;
+		user: AuthUser | null;
+	}> {
+		const user = await this.getCurrentUser();
+		return {
+			isAuthenticated: user !== null,
+			user,
+		};
+	}
+
+	/**
+	 * Obtiene el access token actual (para uso con APIs externas como SurveyJS).
+	 */
+	getAccessToken(): string | undefined {
+		return this.cookies.get(AUTH_COOKIE_NAMES.accessToken)?.value;
+	}
+
+	// ─── Password Recovery ────────────────────────────────
+
+	/**
+	 * Envía un email de recuperación de contraseña.
+	 * Por seguridad, no revela si el email existe o no.
+	 */
+	async forgotPassword(dto: ForgotPasswordDto): Promise<void> {
+		if (!dto.email) {
+			throw new AuthError('El email es requerido.');
+		}
+
+		const { error } = await this.supabase.auth.resetPasswordForEmail(
+			dto.email,
+			{
+				redirectTo: dto.redirectTo,
+			},
+		);
+
+		if (error) {
+			// Log pero no exponer al usuario si el email existe
+			console.error(
+				'[AuthService] resetPasswordForEmail error:',
+				error.message,
+			);
+		}
+
+		// Siempre respondemos lo mismo por seguridad
+	}
+
+	// ─── Invite Handling ──────────────────────────────────
+
+	/**
+	 * Procesa un callback de invitación usando código o token.
+	 */
+	async handleInviteCallback(params: {
+		code?: string | undefined;
+		token?: string | undefined;
+	}): Promise<AuthResult> {
+		if (params.code) {
+			return this.exchangeCodeForSession(params.code);
+		}
+
+		if (params.token) {
+			const { data, error } = await this.supabase.auth.verifyOtp({
+				type: 'signup',
+				token_hash: params.token,
+			});
+
+			if (error || !data.session) {
+				throw new AuthError('No se pudo verificar el token de invitación.');
+			}
+
+			this.setSessionCookies(
+				data.session.access_token,
+				data.session.refresh_token,
+			);
+
+			return mapAuthResult(data.user!, data.session);
+		}
+
+		throw new AuthError("Parámetros inválidos: se requiere 'code' o 'token'.");
+	}
+
+	// ─── Private Helpers ──────────────────────────────────
+
+	private setSessionCookies(accessToken: string, refreshToken: string): void {
+		this.cookies.set(
+			AUTH_COOKIE_NAMES.accessToken,
+			accessToken,
+			AUTH_COOKIE_OPTIONS,
+		);
+		this.cookies.set(
+			AUTH_COOKIE_NAMES.refreshToken,
+			refreshToken,
+			AUTH_COOKIE_OPTIONS,
+		);
+	}
+
+	private clearSessionCookies(): void {
+		this.cookies.delete(AUTH_COOKIE_NAMES.accessToken, { path: '/' });
+		this.cookies.delete(AUTH_COOKIE_NAMES.refreshToken, { path: '/' });
+	}
+
+	private isPkceError(message: string): boolean {
+		const pkceErrors = [
+			'code challenge does not match',
+			'bad_code_verifier',
+			'invalid state',
+			'token is expired',
+		];
+		const lower = message.toLowerCase();
+		return pkceErrors.some((p) => lower.includes(p));
+	}
+
+	private delay(ms: number): Promise<void> {
+		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
+}
+
+// ─── Custom Error ─────────────────────────────────────────
+
+export class AuthError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'AuthError';
+	}
+}

@@ -1,68 +1,70 @@
+// src/pages/api/auth/save-data.ts
+// ─── Thin handler: Save Data (pre-auth business data) ───
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
+import { AuthService, redirectWithMessage } from '@lib/auth';
 
 const BACK_PATH = '/start/';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	try {
-		const back = url.searchParams.get('back') || BACK_PATH;
+		const back = url.searchParams.get('back') ?? BACK_PATH;
 
-		// 1) Sesión
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
-		if (at && rt) {
-			await supabase.auth.setSession({
-				access_token: at.value,
-				refresh_token: rt.value,
-			});
-			const { data: userRes } = await supabase.auth.getUser();
-			if (userRes?.user) {
-				return redirect('/');
-			}
+		// Verificar si ya tiene sesión activa
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
+		const auth = new AuthService(supabase, cookies);
+		const user = await auth.getCurrentUser();
+
+		if (user) {
+			return redirect('/');
 		}
 
-		// 2) Form data
+		// Extraer y validar datos del formulario
 		const form = await request.formData();
-		const tipo_de_empresa = form.get('tipo_de_empresa')?.toString();
-		const estado_de_empresa = form.get('estado_de_empresa')?.toString();
-		const nombre_1 = form.get('nombre_1')?.toString();
-		const nombre_2 = form.get('nombre_2')?.toString();
-		const nombre_3 = form.get('nombre_3')?.toString();
-		const estado_de = form.get('estado_de')?.toString();
+		const tipoDeEmpresa = form.get('tipo_de_empresa')?.toString();
+		const estadoDeEmpresa = form.get('estado_de_empresa')?.toString();
+		const nombre1 = form.get('nombre_1')?.toString();
+		const nombre2 = form.get('nombre_2')?.toString();
+		const nombre3 = form.get('nombre_3')?.toString();
 
-		// 3) Validaciones
-		if (!tipo_de_empresa) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('El tipo de empresa es obligatorio')}`,
+		if (!tipoDeEmpresa) {
+			return redirectWithMessage(
+				redirect,
+				'El tipo de empresa es obligatorio.',
+				'error',
+				back,
 			);
 		}
-		if (!estado_de_empresa) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('El estado de incorporación es obligatorio')}`,
+		if (!estadoDeEmpresa) {
+			return redirectWithMessage(
+				redirect,
+				'El estado de incorporación es obligatorio.',
+				'error',
+				back,
 			);
 		}
-		if (!nombre_1) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('El nombre 1 es obligatorio')}`,
-			);
-		}
-		if (!nombre_2) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('El nombre 2 es obligatorio')}`,
-			);
-		}
-		if (!nombre_3) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('El nombre 3 es obligatorio')}`,
+		if (!nombre1 || !nombre2 || !nombre3) {
+			return redirectWithMessage(
+				redirect,
+				'Los tres nombres son obligatorios.',
+				'error',
+				back,
 			);
 		}
 
-		// 4) OK (el cliente guarda en localStorage)
+		// OK — el cliente guarda en localStorage
 		return redirect(`${back}?status=auth_required`);
-	} catch (e: any) {
-		const msg = typeof e?.message === 'string' ? e.message : 'Error inesperado';
-		return redirect(`${BACK_PATH}?status=error&msg=${encodeURIComponent(msg)}`);
+	} catch {
+		return redirectWithMessage(
+			redirect,
+			'Error inesperado.',
+			'error',
+			BACK_PATH,
+		);
 	}
 };

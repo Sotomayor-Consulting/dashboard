@@ -1,102 +1,21 @@
+// src/pages/api/auth/session-check.ts
+// ─── Thin handler: Session Check ────────────────────────
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
+import { AuthService, jsonSuccess, jsonError } from '@lib/auth';
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, cookies }) => {
 	try {
-		// Obtener cookies de la request
-		const cookies = request.headers.get('cookie') || '';
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
+		const auth = new AuthService(supabase, cookies);
 
-		// Verificar si existen tokens de sesión en las cookies
-		const hasAccessToken = cookies.includes('sb-access-token');
-		const hasRefreshToken = cookies.includes('sb-refresh-token');
+		const { isAuthenticated, user } = await auth.checkSession();
 
-		// Si no hay tokens, retornar no autenticado inmediatamente
-		if (!hasAccessToken && !hasRefreshToken) {
-			return new Response(
-				JSON.stringify({
-					isAuthenticated: false,
-				}),
-				{
-					status: 200,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				},
-			);
-		}
-
-		// Intentar obtener la sesión actual
-		const {
-			data: { session },
-			error: sessionError,
-		} = await supabase.auth.getSession();
-
-		if (sessionError || !session) {
-			return new Response(
-				JSON.stringify({
-					isAuthenticated: false,
-				}),
-				{
-					status: 200,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				},
-			);
-		}
-
-		// Obtener información del usuario
-		const {
-			data: { user },
-			error: userError,
-		} = await supabase.auth.getUser();
-
-		if (userError || !user) {
-			return new Response(
-				JSON.stringify({
-					isAuthenticated: false,
-				}),
-				{
-					status: 200,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				},
-			);
-		}
-
-		// Usuario autenticado correctamente
-		return new Response(
-			JSON.stringify({
-				isAuthenticated: true,
-				user: {
-					id: user.id,
-					email: user.email,
-					name: user.user_metadata?.name,
-					lastName: user.user_metadata?.lastName,
-				},
-			}),
-			{
-				status: 200,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			},
-		);
-	} catch (error) {
-		console.error('Error checking session:', error);
-
-		return new Response(
-			JSON.stringify({
-				isAuthenticated: false,
-				error: 'Error interno del servidor',
-			}),
-			{
-				status: 200, // Mantenemos 200 para no romper el flujo del cliente
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			},
-		);
+		return jsonSuccess({ isAuthenticated, user: user ?? null });
+	} catch {
+		return jsonError('Error al verificar sesión.', 500);
 	}
 };

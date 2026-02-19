@@ -1,9 +1,17 @@
-// Con `output: 'hybrid'` configurado:
-// export const prerender = false;
+// src/pages/api/auth/signout.ts
+// ─── Thin handler: Sign Out ─────────────────────────────
 import type { APIRoute } from 'astro';
+import { createSupabaseServerClient } from '@lib/supabase';
+import { AuthService, PATHS } from '@lib/auth';
 
-export const GET: APIRoute = async ({ cookies, redirect }) => {
-	cookies.delete('sb-access-token', { path: '/' });
-	cookies.delete('sb-refresh-token', { path: '/' });
-	return redirect('/sign-in');
+export const GET: APIRoute = async ({ request, cookies, redirect }) => {
+	const supabase = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
+	});
+	const auth = new AuthService(supabase, cookies);
+
+	await auth.signOut();
+
+	return redirect(PATHS.signIn);
 };

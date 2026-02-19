@@ -1,32 +1,32 @@
 // src/pages/api/auth/google.ts
+// ─── Thin handler: Google OAuth Initiation ──────────────
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
+import { AuthService, AuthError, redirectWithMessage } from '@lib/auth';
 
 const BACK_PATH = '/start';
 
-export const POST: APIRoute = async ({ redirect, url }) => {
-	const back = url.searchParams.get('back') || BACK_PATH;
+export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
+	const back = url.searchParams.get('back') ?? BACK_PATH;
 
 	try {
-		const { data, error } = await supabase.auth.signInWithOAuth({
-			provider: 'google',
-			options: {
-				redirectTo: `${url.origin}/api/auth/callback_start?next=/`,
-			},
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
 		});
+		const auth = new AuthService(supabase, cookies);
 
-		if (error || !data.url) {
-			const msg = encodeURIComponent(
-				`Error iniciando OAuth: ${error?.message ?? 'Desconocido'}`,
-			);
-			return redirect(`${back}?status=error&msg=${msg}`);
-		}
+		const redirectTo = `${url.origin}/api/auth/callback_start?next=/`;
+		const result = await auth.signInWithOAuth('google', redirectTo);
 
-		return redirect(data.url);
-	} catch (e: any) {
-		const msg = encodeURIComponent(`Error inesperado: ${e?.message ?? e}`);
-		return redirect(`${back}?status=error&msg=${msg}`);
+		return redirect(result.url);
+	} catch (error) {
+		const message =
+			error instanceof AuthError
+				? error.message
+				: 'Error inesperado al iniciar OAuth.';
+		return redirectWithMessage(redirect, message, 'error', back);
 	}
 };

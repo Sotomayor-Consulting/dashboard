@@ -1,44 +1,37 @@
+// src/pages/api/auth/start_with_google.ts
+// ─── Thin handler: Start with Google (preserva business data) ─
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
-import type { Provider } from '@supabase/supabase-js';
+import { createSupabaseServerClient } from '@lib/supabase';
+import { AuthService, AuthError } from '@lib/auth';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-	const formData = await request.formData();
-	const provider = formData.get('provider')?.toString();
-
-	const validProviders = ['google'];
-
-	if (provider && validProviders.includes(provider)) {
-		// Copiar datos del negocio para el callback
-		const businessData = cookies.get('business_data')?.value;
-
-		if (businessData) {
-			cookies.set('oauth_business_data', businessData, {
-				path: '/',
-				maxAge: 60 * 30,
-				httpOnly: true,
-				secure: import.meta.env.PROD,
-			});
-		}
-
-		const { data, error } = await supabase.auth.signInWithOAuth({
-			provider: provider as Provider,
-			options: {
-				redirectTo: '/api/auth/callback_start',
-				queryParams: {
-					access_type: 'offline',
-					prompt: 'consent',
-				},
-			},
+	// Preservar datos de negocio en cookie temporal para el callback
+	const businessData = cookies.get('business_data')?.value;
+	if (businessData) {
+		cookies.set('oauth_business_data', businessData, {
+			path: '/',
+			maxAge: 60 * 30,
+			httpOnly: true,
+			secure: import.meta.env.PROD,
 		});
-
-		if (error) {
-			return new Response(error.message, { status: 500 });
-		}
-
-		return redirect(data.url);
 	}
 
-	// Resto del código para login con email/password si es necesario
-	return new Response('Método no válido', { status: 400 });
+	try {
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
+		const auth = new AuthService(supabase, cookies);
+
+		const result = await auth.signInWithOAuth(
+			'google',
+			'/api/auth/callback_start',
+		);
+
+		return redirect(result.url);
+	} catch (error) {
+		const message =
+			error instanceof AuthError ? error.message : 'Error inesperado.';
+		return new Response(message, { status: 500 });
+	}
 };
