@@ -111,6 +111,12 @@ export class AuthService {
 		});
 
 		if (error) {
+			console.error('[AuthService.register] Supabase error original:', {
+				message: error.message,
+				code: error.code,
+				status: error.status,
+				name: error.name,
+			});
 			throw new AuthError(friendlyAuthError(error.message, error.code));
 		}
 

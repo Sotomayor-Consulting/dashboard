@@ -1,6 +1,9 @@
 import type { APIRoute } from 'astro';
 import * as operations from '../../services/index.js';
 
+/* SSR mode: no prerender, no getStaticPaths needed */
+export const prerender = false;
+
 /* Map REST API endpoints to internal operations
   (GETs only for illustration purpose) */
 export const endpointsToOperations = {
@@ -13,9 +16,9 @@ function parseTypeParam(endpoint: string | undefined) {
 	return endpoint as keyof typeof endpointsToOperations;
 }
 
-/* Controllers */
+/* Controllers — Astro 5 usa nombres en MAYÚSCULAS para los métodos HTTP */
 
-export const get: APIRoute = ({ params /* , request */ }) => {
+export const GET: APIRoute = ({ params }) => {
 	console.log('Hit!', params.entity);
 
 	const operationName = parseTypeParam(params.entity);
@@ -31,12 +34,3 @@ export const get: APIRoute = ({ params /* , request */ }) => {
 		},
 	});
 };
-
-/* ... */
-
-/* Astro's static build helper, can be removed for SSR mode */
-export function getStaticPaths() {
-	return Object.keys(endpointsToOperations).map((endpoint) => ({
-		params: { entity: endpoint },
-	}));
-}

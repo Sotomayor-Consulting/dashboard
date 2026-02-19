@@ -105,9 +105,29 @@ export function friendlyAuthError(
 	if (msg.includes('email') || code === 'invalid_email') {
 		return 'El correo electrónico no es válido.';
 	}
-	if (msg.includes('rate limit')) {
+	if (msg.includes('rate limit') || code === 'over_request_rate_limit') {
 		return 'Demasiados intentos. Por favor, espera unos minutos.';
 	}
+	if (msg.includes('signup_disabled') || code === 'signup_disabled') {
+		return 'El registro de nuevos usuarios está deshabilitado temporalmente.';
+	}
+	if (
+		msg.includes('email_provider_disabled') ||
+		code === 'email_provider_disabled'
+	) {
+		return 'El registro por correo electrónico no está habilitado. Contacta al administrador.';
+	}
+	if (msg.includes('validation_failed') || code === 'validation_failed') {
+		return 'Los datos proporcionados no son válidos. Revisa tu correo y contraseña.';
+	}
+	if (msg.includes('unexpected') || code === 'unexpected_failure') {
+		return `Error inesperado del servidor de autenticación. Inténtalo nuevamente. (${errorMessage})`;
+	}
 
-	return 'Ocurrió un error inesperado. Inténtalo nuevamente.';
+	// Fallback: incluir el mensaje original para facilitar depuración
+	console.warn('[friendlyAuthError] Error no mapeado:', {
+		errorMessage,
+		errorCode,
+	});
+	return `Ocurrió un error inesperado. Inténtalo nuevamente. (Detalle: ${errorMessage})`;
 }

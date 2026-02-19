@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import logo1 from '@assets/SC-INTER.png';
 import logo2 from '@assets/SC-INTER-NG.png';
+import PasswordMeter from '@components/forms/PasswordMeter.astro';
 ---
 
 <div
@@ -91,17 +92,12 @@ import logo2 from '@assets/SC-INTER-NG.png';
 						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
 						>Contraseña</label
 					>
-					<input
-						type="password"
-						name="password"
-						minlength="8"
-						pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-						title="Mínimo 8 caracteres, una mayúscula, una minúscula y un número"
+					<PasswordMeter
 						id="password"
+						name="password"
 						placeholder="••••••••"
-						class="border sm:text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5
-							dark:bg-[#05121d] border-gray-600 placeholder-gray-400 dark:text-white bg-white"
 						required
+						minlength={8}
 					/>
 				</div>
 				<div>
