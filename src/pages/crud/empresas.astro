@@ -1,8 +1,8 @@
 ---
-import LayoutSidebar from '@app/LayoutSidebar.astro';
-import Crudempresas from '@modules/CrudEmpresas.astro';
+import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
+import Crudempresas from '@modules/crud/CrudEmpresas.astro';
 import { supabase } from '@lib/supabase';
-import Alerta from '@components/alertageneral.astro';
+import Alerta from '@components/feedback/alertageneral.astro';
 
 const { cookies, redirect } = Astro;
 // 1) Restaurar sesión desde cookies

@@ -1,18 +1,18 @@
 ---
 /* http://localhost:2121/playground/kitchen-sink/ */
 
-import LayoutSidebar from '../../../../app/LayoutSidebar.astro';
-import CrudProducts from '../../../../modules/CrudProducts.astro';
-import FormSignIn from '../../../../modules/FormSignIn.astro';
-import FormSignUp from '../../../../modules/FormSignUp.astro';
-import FormForgotPassword from '../../../../modules/FormForgotPassword.astro';
-import FormResetPassword from '../../../../modules/FormResetPassword.astro';
-import FormProfileLock from '../../../../modules/FormProfileLock.astro';
-// import CrudUsers from '../../modules/CrudUsers.astro';
-import ErrorMaintenance from '../../../../modules/ErrorMaintenance.astro';
-import ErrorNotFound from '../../../../modules/ErrorNotFound.astro';
-import ErrorServer from '../../../../modules/ErrorServer.astro';
-import PricingPlan from '../../../../modules/PricingPlan.astro';
+import LayoutSidebar from '../../../../app/layouts/LayoutSidebar.astro';
+import CrudProducts from '../../../../modules/crud/CrudProducts.astro';
+import FormSignIn from '../../../../modules/auth/FormSignIn.astro';
+import FormSignUp from '../../../../modules/auth/FormSignUp.astro';
+import FormForgotPassword from '../../../../modules/auth/FormForgotPassword.astro';
+import FormResetPassword from '../../../../modules/auth/FormResetPassword.astro';
+import FormProfileLock from '../../../../modules/auth/FormProfileLock.astro';
+// import CrudUsers from '../../../../modules/crud/CrudUsers.astro';
+import ErrorMaintenance from '../../../../modules/errors/ErrorMaintenance.astro';
+import ErrorNotFound from '../../../../modules/errors/ErrorNotFound.astro';
+import ErrorServer from '../../../../modules/errors/ErrorServer.astro';
+import PricingPlan from '../../../../modules/billing/PricingPlan.astro';
 
 import { actions } from './_actions.js';
 ---
@@ -108,8 +108,8 @@ import { actions } from './_actions.js';
 </LayoutSidebar>
 
 <script>
-	import type { CrudEntities } from '../../modules/CrudEntities.client.js';
-	import type { PlaygroundAction } from '../../types.js';
+	import type { CrudEntities } from '../../../../modules/crud/CrudEntities.client.js';
+	import type { PlaygroundAction } from '../../../../types/entities.js';
 
 	const playgroundActions: Record<PlaygroundAction, (...args: any) => void> = {
 		refetchCrudData: (crud: CrudEntities) => crud.update(),

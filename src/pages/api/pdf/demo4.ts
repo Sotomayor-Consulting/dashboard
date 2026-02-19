@@ -111,12 +111,12 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 		debugStep('3. process.cwd()', cwd);
 
 		const templateName = 'input.docx';
-		const templatePath = path.join(cwd, 'src', 'templates', templateName);
+		const templatePath = path.join(cwd, 'src', 'templates', 'documents', templateName);
 		debugStep('3.1 Ruta absoluta del template', templatePath);
 
 		if (!fssync.existsSync(templatePath)) {
 			debugStep('3.E Template NO existe');
-			return new Response('No se encontró src/templates/input.docx', {
+			return new Response('No se encontró src/templates/documents/input.docx', {
 				status: 500,
 				headers: { 'Content-Type': 'text/plain' },
 			});

@@ -1,8 +1,8 @@
 ---
-import LayoutSidebar from '@app/LayoutSidebar.astro';
-import Crudverificacion from '@modules/CrudVerificacion.astro';
+import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
+import Crudverificacion from '@modules/crud/CrudVerificacion.astro';
 import { supabase } from '@lib/supabase';
-import Alerta from '@components/alertageneral.astro';
+import Alerta from '@components/feedback/alertageneral.astro';
 
 const { cookies, redirect } = Astro;
 // 1) Restaurar sesión desde cookies

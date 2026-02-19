@@ -46,7 +46,7 @@ function findLibreOffice(): string {
 // ============ Carbone config ============
 
 carbone.set({
-	templatePath: path.join(process.cwd(), 'src', 'templates'),
+	templatePath: path.join(process.cwd(), 'src', 'templates', 'documents'),
 	tempPath: path.join(process.cwd(), '.carbone-tmp'),
 	lang: 'es-es',
 	factories: 1,

@@ -1,0 +1,301 @@
+---
+import { supabase } from '@lib/supabase';
+import { Icon } from 'astro-icon/components';
+import { Image } from 'astro:assets';
+import MenuCard from '@components/display/MenuCard.astro'; // Importamos el componente
+import logo1 from '@assets/SC-INTER.png';
+import logo2 from '@assets/SC-INTER-NG.png';
+
+// --- 1. Autenticación y Tokens ---
+const at = Astro.cookies.get('sb-access-token');
+const rt = Astro.cookies.get('sb-refresh-token');
+
+if (at && rt) {
+	await supabase.auth.setSession({
+		access_token: at.value,
+		refresh_token: rt.value,
+	});
+}
+
+const {
+	data: { user },
+} = await supabase.auth.getUser();
+
+// --- 2. Lógica de Roles Optimizada (Una sola consulta) ---
+let userRole = 'guest'; // default
+
+if (user) {
+	// Verificamos Admin primero (RPC)
+	const { data: isAdminRes } = await supabase.rpc('is_admin', { uid: user.id });
+
+	if (isAdminRes) {
+		userRole = 'admin';
+	} else {
+		// Si no es admin, consultamos la tabla usuarios UNA sola vez
+		const { data: userData } = await supabase
+			.from('usuarios')
+			.select('rol_id')
+			.eq('user_id', user.id)
+			.single();
+
+		// Mapeamos ID numérico a string legible
+		const roleMap: Record<number, string> = {
+			2: 'partner',
+			3: 'client',
+		};
+
+		if (userData && userData.rol_id) {
+			userRole = roleMap[Number(userData.rol_id)] || 'authenticated';
+		}
+	}
+}
+
+// --- 3. Configuración del Menú (Data-Driven) ---
+// Definimos qué roles pueden ver qué items.
+// 'all' podría usarse para items públicos.
+const menuItems = [
+	{
+		id: 'llc',
+		label: 'Crea una LLC',
+		href: '/start/',
+		tooltip: 'Crea una nueva LLC',
+		roles: ['client', 'partner'],
+		svgname: 'ri:building-2-fill',
+	},
+	{
+		id: 'companias',
+		label: 'Tus compañias',
+		href: '/pages/companias',
+		tooltip: 'Mira tus compañias y su estado',
+		roles: ['client', 'partner'],
+		svgname: 'ri:hand-coin-fill',
+	},
+	{
+		id: 'mantenimiento_anual',
+		label: 'mantenimiento',
+		href: '/pages/mantenimiento',
+		tooltip: 'Mira fechas de tu compania y su mantenimiento anual',
+		roles: ['client', 'partner'],
+		svgname: 'ri:time-zone-fill',
+	},
+	{
+		id: 'documentos',
+		label: 'Documentos',
+		href: '/pages/tus-formularios',
+		tooltip: 'Mira tus documentos y formularios',
+		roles: ['client', 'partner'],
+		svgname: 'ri:file-copy-2-line',
+	},
+	{
+		id: 'partners',
+		label: 'Partners',
+		href: '/partners/datos-referidos/',
+		tooltip: 'Mira tus referidos',
+		roles: ['partner'],
+		svgname: 'ri:shake-hands-fill',
+	},
+	{
+		id: 'partners-configuracion',
+		label: 'Configuracion',
+		href: '/partners/configuracion-partners/',
+		tooltip: 'Configuracion de partner',
+		roles: ['partner'],
+		svgname: 'ri:settings-3-fill',
+	},
+
+	{
+		id: 'partners-soporte',
+		label: 'Agendar',
+		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
+		tooltip: 'Agenda una reunion con Sotomayor Consulting',
+		roles: ['client', 'partner'],
+		svgname: 'ri:calendar-fill',
+	},
+	{
+		id: 'partners-configuracion-perfil',
+		label: 'Perfil',
+		href: '/settings/',
+		tooltip: 'Configure su perfil y datos',
+		roles: ['all'],
+		svgname: 'ri:account-circle-fill',
+	},
+	{
+		id: 'crud-users',
+		label: 'Clientes',
+		href: '/crud/users',
+		tooltip: 'Gestionar clientes',
+		roles: ['admin'],
+		svgname: 'ri:user-add-fill',
+	},
+	{
+		id: 'crud-empresas',
+		label: 'Empresas',
+		href: '/crud/empresas',
+		tooltip: 'Gestionar clientes',
+		roles: ['admin'],
+		svgname: 'ri:building-2-fill',
+	},
+	{
+		id: 'verificacion-formulario-incorp',
+		label: 'Incorporación',
+		href: '/crud/verficacion-incorporacion',
+		tooltip: 'Gestiona y verifica los datos del formulario de incorporación',
+		roles: ['admin'],
+		svgname: 'ri:archive-stack-fill',
+	},
+	{
+		id: 'menu-vista-de-pagos',
+		label: 'Pagos',
+		href: '/crud/pagos',
+		tooltip: 'verifica y gestiona los pagos realizados por los clientes',
+		roles: ['admin'],
+		svgname: 'ri:coins-fill',
+	},
+	{
+		id: 'menu-subir-documentos-de-usuario',
+		label: 'subir docs',
+		href: '/crud/subir-documentos',
+		tooltip: 'Sube documentos específicos para los clientes',
+		roles: ['admin'],
+		svgname: 'ri:upload-cloud-2-fill',
+	},
+	{
+		id: 'menu-notificaciones-a-usuarios',
+		label: 'Notificaciones',
+		href: '/crud/notificaciones-personalizadas',
+		tooltip: 'Notifica a los usuarios con mensajes personalizados',
+		roles: ['admin'],
+		svgname: 'ri:chat-ai-4-fill',
+	},
+	{
+		id: 'menu-mailing',
+		label: 'Mailing',
+		href: '/crud/mailing',
+		tooltip: 'Envía correos personalizados a los usuarios',
+		roles: ['admin'],
+		svgname: 'ri:mail-ai-fill',
+	},
+	{
+		id: 'crud-servicios',
+		label: 'Servicios',
+		href: '/crud/services',
+		tooltip: 'Gestionar servicios',
+		roles: ['admin'],
+		svgname: 'ri:function-add-fill',
+	},
+	{
+		id: 'crud-formularios',
+		label: 'Formularios',
+		href: '/crud/formularios',
+		tooltip: 'Crea y gestiona formularios',
+		roles: ['admin'],
+		svgname: 'ri:file-edit-fill',
+	},
+	{
+		id: 'crud-formularios-enviados',
+		label: 'Docs Enviados',
+		href: '/crud/formularios-enviados',
+		tooltip: 'Gestiona las respuestas y estados de documentos',
+		roles: ['admin'],
+		svgname: 'ri:file-check-fill',
+	},
+	{
+		id: 'otros-servicios',
+		label: 'Otros servicios',
+		href: '/pages/otros-servicios',
+		tooltip: 'Explora otros servicios disponibles',
+		roles: ['all'],
+		svgname: 'ri:dashboard-horizontal-fill',
+	},
+];
+
+// --- 4. Consulta de formularios pendientes (solo para admin) ---
+let formularioPendientesCount = 0;
+
+if (userRole === 'admin') {
+	const { data: formularios } = await supabase
+		.from('formularios_envios')
+		.select(
+			`
+			*,
+			formularios:formularios (form_id, titulo, slug, descripcion),
+			usuarios:usuarios (user_id, nombre, apellido)
+		`,
+		)
+		.eq('status', 'submitted')
+		.eq('verificacion_operaciones', false)
+		.eq('formularios.titulo', 'Formulario de incorporación')
+		.order('updated_at', { ascending: true });
+
+	formularioPendientesCount = formularios?.length || 0;
+}
+
+// --- 5. Consulta de tabla de pagos (solo para admin) ---
+let pagosCount = 0;
+
+if (userRole === 'admin') {
+	const { data: pagosCountData } = await supabase
+		.from('pagos')
+		.select('*')
+		.eq('status', 'succeeded')
+		.eq('visto_por_operaciones', false);
+
+	pagosCount = pagosCountData?.length || 0;
+}
+
+// Filtramos el menú antes de renderizar - ACTUALIZADO PARA INCLUIR 'all'
+const visibleMenu = menuItems.filter(
+	(item) => item.roles.includes('all') || item.roles.includes(userRole),
+);
+---
+
+<div
+	class="bg-neutral-200 dark:bg-[#101521] dark:text-slate-100 p-4 lg:p-16 h-full mb-20 mt-10"
+>
+	<header
+		class="p-8 flex justify-center items-center flex-wrap flex-col w-full mt-5"
+	>
+		<div class="flex justify-center w-full">
+			<Image
+				src={logo1}
+				width="320"
+				alt="Sotomayor Logo"
+				class="dark:block hidden"
+			/>
+			<Image
+				src={logo2}
+				width="320"
+				alt="Sotomayor Logo"
+				class="dark:hidden hidden sm:block"
+			/>
+		</div>
+	</header>
+
+	<article class="flex justify-center pt-20 pb-32 h-full">
+		<div
+			class="grid grid-flow-row grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 md:gap-10 gap-y-10"
+		>
+			{
+				visibleMenu &&
+					visibleMenu.map((item) => (
+						<MenuCard
+							href={item.href}
+							label={item.label}
+							tooltipId={item.id}
+							tooltipText={item.tooltip}
+							badge={
+								item.id === 'verificacion-formulario-incorp' &&
+								formularioPendientesCount > 0
+									? formularioPendientesCount
+									: item.id === 'menu-vista-de-pagos' && pagosCount > 0
+										? pagosCount
+										: null
+							}
+						>
+							<Icon name={item.svgname} class="text-5xl" />
+						</MenuCard>
+					))
+			}
+		</div>
+	</article>
+</div>

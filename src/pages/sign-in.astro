@@ -1,7 +1,7 @@
 ---
-import LayoutStacked from '@app/LayoutStackedDos.astro';
-import FormSignIn from '@modules/FormSignIn.astro';
-import Alerta from '@components/alertageneral.astro';
+import LayoutStacked from '@app/layouts/LayoutStackedDos.astro';
+import FormSignIn from '@modules/auth/FormSignIn.astro';
+import Alerta from '@components/feedback/alertageneral.astro';
 const { cookies, redirect } = Astro;
 
 const accessToken = cookies.get('sb-access-token');

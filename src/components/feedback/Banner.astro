@@ -1,0 +1,148 @@
+---
+import { Image } from 'astro:assets';
+import icono from '/src/assets/icono.png';
+import icono2 from '/src/assets/icono-negro.png';
+import { supabase } from '@lib/supabase';
+import type { User } from '@supabase/supabase-js';
+
+// 1. Acceso a las cookies y tokens
+const { cookies } = Astro;
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+
+let user: User | null = null;
+let shouldShowBanner = false;
+
+// 2. Definición de la Condición
+const CONDITION_STATUS = 'En proceso';
+const TARGET_TABLE = 'empresas_incorporaciones';
+
+// Datos fijos para el banner
+const BANNER_PROPS = {
+	title: 'Tu compañía esta pendiente a incorporar. Desbloquea sus beneficios.',
+	btnId: 'dismiss-incorp-banner',
+	btnTitle: 'Continuar al pago',
+	url: '/incorporacion-y-pago',
+};
+
+// 3. Proceso de Autenticación y Consulta (SSR)
+if (accessToken && refreshToken) {
+	try {
+		// 3a. Establecer la sesión para que las consultas tengan el contexto del usuario
+		await supabase.auth.setSession({
+			refresh_token: refreshToken.value,
+			access_token: accessToken.value,
+		});
+
+		// 3b. Obtener el objeto de usuario actual
+		const {
+			data: { user: currentUser },
+		} = await supabase.auth.getUser();
+		user = currentUser;
+
+		if (user) {
+			// 3c. Consulta a la tabla adaptada: 'empresas_incorporaciones'
+			const { data: incorporaciones, error } = await supabase
+				.from(TARGET_TABLE)
+				.select('estado') // Solo necesitamos la columna 'estado'
+				.eq('user_id', user.id); // Filtrar por el usuario actual
+
+			if (error) {
+				console.error(
+					`[Banner] Error al obtener estado de ${TARGET_TABLE}:`,
+					error,
+				);
+			} else if (incorporaciones && incorporaciones.length > 0) {
+				// 3d. Verificar la condición: ¿Alguna está 'En proceso'?
+				shouldShowBanner = incorporaciones.some(
+					(c) => c.estado === CONDITION_STATUS,
+				);
+			}
+		}
+	} catch (e) {
+		console.error('[Banner] Error de sesión o conexión con Supabase:', e);
+	}
+}
+---
+
+{
+	shouldShowBanner && (
+		<astro-banner btnId={BANNER_PROPS.btnId}>
+			<div
+				id="marketing-banner"
+				tabindex="-1"
+				class="flex flex-col md:flex-row justify-between w-full p-4 bg-white border border-gray-100 shadow-xs top-28 dark:bg-[#192033] dark:border-gray-600 right-4 animate-fade-in"
+			>
+				<div class="flex mb-3 me-4 items-center flex-row md:mb-0">
+					<a
+						href="/"
+						class="flex items-center mb-2 border-gray-200 pe-4 me-4 border-e md:mb-0 dark:border-gray-600"
+					>
+						<Image
+							src={icono}
+							width="32"
+							alt="Sotomayor consulting Logo"
+							class="me-2 hidden dark:block"
+						/>
+						<Image
+							src={icono2}
+							width="32"
+							alt="Sotomayor consulting Logo"
+							class="me-2 dark:hidden block"
+						/>
+					</a>
+					<p class="flex items-center text-base font-normal text-black dark:text-white">
+						{BANNER_PROPS.title}
+					</p>
+				</div>
+				<div class="flex items-center shrink-0 justify-between">
+					<a
+						href={BANNER_PROPS.url}
+						class="px-5 py-2 me-2 text-base font-medium text-white bg-[#8c681d] rounded-lg hover:bg-[#8c681d] focus:ring-4 focus:ring-blue-300 dark:bg-[#8c681d] dark:hover:bg-[#134aed]/80 focus:outline-none dark:focus:ring-[#323f67]"
+					>
+						{BANNER_PROPS.btnTitle}
+					</a>
+					<button
+						data-dismiss-target="#marketing-banner"
+						type="button"
+						class="shrink-0 inline-flex justify-center w-7 h-7 items-center text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 dark:hover:bg-gray-600 dark:hover:text-white"
+					>
+						<svg
+							class="w-3 h-3"
+							aria-hidden="true"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 14 14"
+						>
+							<path
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+							/>
+						</svg>
+						<span class="sr-only">Close banner</span>
+					</button>
+				</div>
+			</div>
+		</astro-banner>
+	)
+}
+
+<style>
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.animate-fade-in {
+		animation: fade-in 0.5s ease-out forwards;
+	}
+</style>

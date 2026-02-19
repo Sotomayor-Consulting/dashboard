@@ -1,8 +1,8 @@
 ---
-import LayoutSidebar from '@app/LayoutSidebar.astro';
-import CuerpoFroms from '@modules/cuerpoForms.astro';
+import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
+import CuerpoFroms from '@modules/forms/cuerpoForms.astro';
 import { supabase } from '@lib/supabase';
-import Alerta from '@components/alertageneral.astro';
+import Alerta from '@components/feedback/alertageneral.astro';
 
 const accessToken = Astro.cookies.get('sb-access-token');
 const refreshToken = Astro.cookies.get('sb-refresh-token');

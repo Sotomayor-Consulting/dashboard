@@ -1,0 +1,617 @@
+---
+import { Image } from 'astro:assets';
+import Logo1 from '/src/assets/SC-INTER.png';
+import Logo2 from '/src/assets/SC-INTER-NG.png';
+import logonotificaciones from '/src/assets/avatarSCI.png';
+import { supabase } from '../../lib/supabase';
+const { cookies } = Astro;
+
+const accessToken = cookies.get('sb-access-token');
+const refreshToken = cookies.get('sb-refresh-token');
+
+import ColorModeSwitcher from '../../components/display/ColorModeSwitcher.astro';
+const { data } = await supabase.auth.setSession({
+	refresh_token: refreshToken.value,
+	access_token: accessToken.value,
+});
+
+const {
+	data: { user },
+} = await supabase.auth.getUser();
+
+let imagen = null;
+if (user) {
+	const { data } = await supabase
+		.from('usuarios')
+		.select('avatar_url')
+		.eq('user_id', user.id)
+		.single();
+	imagen = data;
+}
+
+let testRow = null;
+if (user) {
+	const { data } = await supabase
+		.from('usuarios')
+		.select('nombre, apellido')
+		.eq('user_id', user.id)
+		.single();
+	testRow = data;
+}
+
+let isAdmin = false;
+if (user) {
+	// usa tu función SECURITY DEFINER
+	const { data: isAdminRes, error } = await supabase.rpc('is_admin', {
+		uid: user.id,
+	});
+	if (!error) isAdmin = Boolean(isAdminRes);
+}
+
+const email = data?.user?.email;
+
+let notifications = [];
+let totalUnread = 0;
+if (user) {
+	// Consulta para las 5 notificaciones más recientes
+	const { data } = await supabase
+		.from('notifications')
+		.select('*')
+		.eq('user_id', user.id)
+		.order('created_at', { ascending: false })
+		.limit(5);
+	notifications = data || [];
+
+	// Contador de no leídas (opcional, para mostrar badge)
+	const { count } = await supabase
+		.from('notifications')
+		.select('*', { count: 'exact', head: true })
+		.eq('user_id', user.id)
+		.eq('is_read', false);
+	totalUnread = count || 0;
+}
+
+export { notifications, totalUnread, user };
+---
+
+<nav
+	class="fixed z-30 w-full bg-neutral-200 border-b border-neutral-300 dark:bg-[#101521] dark:border-gray-700"
+>
+	<div class="px-3 py-3 lg:px-5 lg:pl-3">
+		<div class="flex items-center justify-between">
+			<div class="flex items-center justify-start">
+				<button
+					id="toggleSidebarMobile"
+					aria-expanded="true"
+					aria-controls="sidebar"
+					class="p-2 text-gray-600 rounded cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-neutral-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white"
+				>
+					<svg
+						id="toggleSidebarMobileHamburger"
+						class="w-6 h-6"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+							clip-rule="evenodd"></path></svg
+					>
+					<svg
+						id="toggleSidebarMobileClose"
+						class="hidden w-6 h-6"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+				<a href="/" class="ml-2 md:mr-24 md:flex hidden">
+					<Image
+						src={Logo1}
+						class="mr-3 hidden dark:block"
+						height="40"
+						alt="SotoMayor consulting Logo"
+					/>
+					<Image
+						src={Logo2}
+						class="dark:hidden block"
+						height="40"
+						alt="SotoMayor consulting Logo"
+					/>
+				</a>
+			</div>
+
+			<div class="flex items-center">
+				<!-- Dropdown menu -->
+				<div
+					id="dropdownNavbar"
+					class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-[#192033] dark:divide-gray-600"
+				>
+					<ul
+						class="py-2 text-sm text-gray-700 dark:text-gray-400"
+						aria-labelledby="dropdownNavbarButton"
+					>
+						<li>
+							<a
+								href="#"
+								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+								>Dashboard</a
+							>
+						</li>
+						<li>
+							<a
+								href="/settings/"
+								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+								>Settings</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+								>Earnings</a
+							>
+						</li>
+					</ul>
+					<div class="py-2">
+						<a
+							href="#"
+							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white"
+							>Sign out</a
+						>
+					</div>
+				</div>
+				<div>
+					<!-- Notifications -->
+					<button
+						type="button"
+						id="notifications-toggle"
+						data-dropdown-toggle="notification-dropdown"
+						class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-[#101522] relative"
+					>
+						<span class="sr-only">View notifications</span>
+						<!-- Bell icon -->
+						<svg
+							class="w-6 h-6"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
+							></path></svg
+						>
+						{
+							totalUnread > 0 && (
+								<span class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-neutral-300 rounded-full -top-2 -end-2 dark:border-[#223848] animate-pulse">
+									{totalUnread}
+								</span>
+							)
+						}
+					</button>
+					<!-- Dropdown menu -->
+					<div
+						class="z-20 z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-[#192033] rounded-xl"
+						id="notification-dropdown"
+					>
+						<div
+							class="block px-4 py-2 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-[#192033] dark:text-gray-400"
+						>
+							Notificaciones
+						</div>
+						<div
+							id="notifications-list"
+							class="overflow-y-auto h-96 scrollbar-thin scrollbar-thumb-neutral-400"
+						>
+							{
+								notifications.length === 0 ? (
+									<div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-600 dark:border-gray-600 dark:text-neutral-500 text-neutral-400">
+										No hay notificaciones
+									</div>
+								) : (
+									notifications.map((notification) => (
+										<div
+											class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-[#101522]/5 dark:border-gray-600"
+											data-id={notification.id}
+										>
+											<div class="flex-shrink-0">
+												<Image
+													src={logonotificaciones}
+													width="44"
+													alt="Logo notificación Sotomayor Consulting"
+													class="rounded-full"
+												/>
+											</div>
+											<div class="w-full pl-3">
+												<div class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400 flex flex-col">
+													<span class="font-semibold text-gray-900 dark:text-white">
+														{notification.message}
+													</span>
+													<a
+														href={notification.link}
+														target="_blank"
+														class="my-1 text-primary-500 hover:text-blue-600"
+													>
+														{notification.mensaje_link}
+													</a>
+												</div>
+												<div class="flex justify-between">
+													<span class="text-xs text-gray-400">
+														{new Date(
+															notification.created_at,
+														).toLocaleDateString()}
+													</span>
+													{!notification.is_read && (
+														<button
+															class="mark-as-read text-xs font-medium text-[#8c681d] dark:text-neutral-400 inline-flex hover:dark:text-primary-400"
+															data-id={notification.id}
+														>
+															Marcar como leída
+														</button>
+													)}
+												</div>
+											</div>
+										</div>
+									))
+								)
+							}
+						</div>
+						<a
+							href="/notificaciones"
+							class="block py-2 text-base font-normal text-center text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-[#192033] dark:text-white dark:hover:underline"
+						>
+							<div class="inline-flex items-center">
+								<svg
+									class="w-5 h-5 mr-2"
+									fill="currentColor"
+									viewBox="0 0 20 20"
+									xmlns="http://www.w3.org/2000/svg"
+									><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path
+										fill-rule="evenodd"
+										d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+										clip-rule="evenodd"></path></svg
+								>
+								Ver todo
+							</div>
+						</a>
+					</div>
+				</div>
+
+				<ColorModeSwitcher />
+
+				<!-- Profile -->
+				<div class="flex items-center ml-3">
+					<div>
+						<button
+							type="button"
+							class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+							id="user-menu-button-2"
+							aria-expanded="false"
+							data-dropdown-toggle="dropdown-2"
+						>
+							<span class="sr-only">Open user menu</span>
+							{
+								imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
+									<img
+										src={`https://api.dicebear.com/9.x/thumbs/svg?seed=`}
+										class="w-8 h-8 rounded-full"
+										alt="avatar"
+									/>
+								) : (
+									<img
+										class="w-8 h-8 rounded-full"
+										src={imagen?.avatar_url}
+										alt="user photo"
+									/>
+								)
+							}
+						</button>
+					</div>
+					<!-- Dropdown menu -->
+					<div
+						class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-[#192033] dark:divide-gray-600"
+						id="dropdown-2"
+					>
+						<div class="px-4 py-3" role="none">
+							<p class="text-sm text-gray-900 dark:text-white" role="none">
+								{testRow?.nombre ?? ''}
+								{testRow?.apellido ?? ''}
+							</p>
+							<p
+								class="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
+								role="none"
+							>
+								{email}
+							</p>
+						</div>
+						<ul class="py-1" role="none">
+							<li>
+								<a
+									href="/dashboard/"
+									class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+									role="menuitem">Dashboard</a
+								>
+							</li>
+							<li>
+								<a
+									href="/settings/"
+									class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+									role="menuitem">Configuraciones</a
+								>
+							</li>
+							<li>
+								<form action="/api/auth/signout">
+									<button
+										type="submit"
+										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+										role="menuitem">Cerrar sesión</button
+									>
+								</form>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</nav>
+<script
+	type="module"
+	define:vars={{
+		SB_URL: import.meta.env.PUBLIC_SUPABASE_URL,
+		SB_ANON: import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+		USER_ID: user?.id ?? '',
+	}}
+>
+	import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+	const start = async () => {
+		const listEl = document.getElementById('notifications-list');
+		const bellBtn = document.getElementById('notifications-toggle');
+		if (!listEl || !bellBtn)
+			return console.error(
+				'[notifications] Falta #notifications-list o #notifications-toggle',
+			);
+		if (!SB_URL || !SB_ANON)
+			return console.error('[notifications] Faltan claves Supabase');
+		if (!USER_ID)
+			return console.info('[notifications] Sin usuario; no suscribo');
+
+		const supabase = createClient(SB_URL, SB_ANON, {
+			auth: { persistSession: true, autoRefreshToken: true },
+			realtime: { params: { eventsPerSecond: 10 } },
+		});
+
+		supabase.auth.onAuthStateChange((_e, s) =>
+			supabase.realtime.setAuth(s?.access_token ?? null),
+		);
+		const readCookie = (name) =>
+			document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))?.[2] ??
+			null;
+		const { data: s0 } = await supabase.auth.getSession();
+		if (!s0?.session) {
+			const at = readCookie('sb-access-token'),
+				rt = readCookie('sb-refresh-token');
+			if (at && rt)
+				await supabase.auth.setSession({ access_token: at, refresh_token: rt });
+		}
+		await supabase.realtime.setAuth();
+
+		// ===== helpers =====
+		const escapeHtml = (str) =>
+			String(str ?? '')
+				.replaceAll('&', '&amp;')
+				.replaceAll('<', '&lt;')
+				.replaceAll('>', '&gt;')
+				.replaceAll('"', '&quot;')
+				.replaceAll("'", '&#39;');
+		const safeHref = (href) =>
+			typeof href === 'string' && /^(\/|https?:\/\/)/i.test(href) ? href : '#';
+		const fmt = (iso) => {
+			try {
+				return new Date(iso).toLocaleDateString();
+			} catch {
+				return '';
+			}
+		};
+
+		const getBadgeEl = () => bellBtn?.querySelector('span.inline-flex.w-6.h-6');
+		const ensureBadge = () => {
+			let b = getBadgeEl();
+			if (!b) {
+				b = document.createElement('span');
+				b.className =
+					'absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900 animate-pulse';
+				bellBtn.appendChild(b);
+			}
+			return b;
+		};
+		const refreshBadgeFromDOM = () => {
+			const unread = listEl.querySelectorAll('.mark-as-read').length;
+			const existing = getBadgeEl();
+			if (unread <= 0) return existing?.remove();
+			const b = existing ?? ensureBadge();
+			b.textContent = String(unread);
+		};
+
+		const itemHTML = (n) =>
+			`
+      <div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-[#101522]/5 dark:border-gray-600" data-id="${n.id}">
+        <div class="flex-shrink-0">
+          <img class="rounded-full w-11 h-11" src="/src/assets/avatarSCI.png" alt="Avatar"/>
+        </div>
+        <div class="w-full pl-3">
+          <div class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400 flex flex-col">
+            <span class="font-semibold text-gray-900 dark:text-white">${escapeHtml(n.message)}</span>
+            ${n.link ? `<a href="${safeHref(n.link)}" target="_blank" class="my-1 text-primary-400 hover:text-blue-500">${escapeHtml(n.mensaje_link ?? 'Abrir')}</a>` : ''}
+          </div>
+          <div class="flex justify-between">
+            <span class="text-xs text-gray-400">${fmt(n.created_at ?? new Date().toISOString())}</span>
+            ${!n.is_read ? `<button class="mark-as-read text-xs font-medium text-[#8c681d] dark:text-neutral-400 inline-flex hover:dark:text-primary-400" data-id="${n.id}">Marcar como leída</button>` : ''}
+          </div>
+        </div>
+      </div>
+    `.trim();
+
+		// Reemplaza/inserta el nodo completo (robusto)
+		const upsertRowDOM = (rec) => {
+			if (!rec?.id) return;
+			let row = listEl.querySelector(`[data-id="${rec.id}"]`);
+			if (!row) {
+				listEl.insertAdjacentHTML('afterbegin', itemHTML(rec));
+				// quitar placeholder
+				listEl
+					.querySelector('.dark\\:text-neutral-500.text-neutral-400')
+					?.remove();
+				// limitar a 5
+				const rows = listEl.querySelectorAll('[data-id]');
+				if (rows.length > 5) rows[rows.length - 1].remove();
+			} else {
+				// reemplazar el bloque entero
+				row.outerHTML = itemHTML(rec);
+			}
+			refreshBadgeFromDOM();
+		};
+
+		const removeRowDOM = (id) => {
+			const row = id && listEl.querySelector(`[data-id="${id}"]`);
+			row?.remove();
+			refreshBadgeFromDOM();
+		};
+
+		// Marcar como leída (optimista DOM + rollback)
+		listEl.addEventListener('click', async (e) => {
+			const btn = e.target.closest('.mark-as-read');
+			if (!btn) return;
+			const id = btn.getAttribute('data-id');
+
+			// Optimista: quita botón
+			btn.remove();
+			refreshBadgeFromDOM();
+
+			const { error } = await supabase
+				.from('notifications')
+				.update({ is_read: true, leido_en: new Date().toISOString() })
+				.eq('id', id)
+				.eq('user_id', USER_ID);
+
+			if (error) {
+				console.error('[notifications] marcar como leída error:', error);
+				// Rollback DOM: reponer botón
+				const actions = listEl.querySelector(
+					`[data-id="${id}"] .flex.justify-between`,
+				);
+				if (actions) {
+					const mk = document.createElement('button');
+					mk.className =
+						'mark-as-read text-xs font-medium text-[#8c681d] dark:text-neutral-400 inline-flex hover:dark:text-primary-400';
+					mk.setAttribute('data-id', id);
+					mk.textContent = 'Marcar como leída';
+					actions.appendChild(mk);
+				}
+				refreshBadgeFromDOM();
+			}
+		});
+
+		// ===== Realtime =====
+		const topic = `user:${USER_ID}:notifications`;
+		const channel = supabase.channel(topic, {
+			config: { private: true, broadcast: { self: true, ack: true } },
+		});
+
+		// 👇 AQUI el fix CLAVE: lee payload.payload.record / payload.payload.old_record
+		const recOf = (p) =>
+			p?.payload?.record ??
+			p?.record ??
+			p?.new ??
+			p?.payload?.new ??
+			p?.data ??
+			null;
+		const oldOf = (p) =>
+			p?.payload?.old_record ??
+			p?.old_record ??
+			p?.old ??
+			p?.payload?.old ??
+			null;
+		const safeLog = (label, payload, fn) => {
+			try {
+				console.log(label, JSON.stringify(payload));
+			} catch {
+				console.log(label, payload);
+			}
+			try {
+				fn(payload);
+			} catch (err) {
+				console.error(`[notifications] Handler error ${label}:`, err);
+			}
+		};
+
+		channel
+			.on('broadcast', { event: 'notification_created' }, (payload) =>
+				safeLog('[RT] notification_created', payload, (pl) => {
+					const rec = recOf(pl);
+					if (rec) upsertRowDOM(rec);
+				}),
+			)
+			.on('broadcast', { event: 'notification_updated' }, (payload) =>
+				safeLog('[RT] notification_updated', payload, (pl) => {
+					const rec = recOf(pl);
+					if (rec) upsertRowDOM(rec);
+				}),
+			)
+			.on('broadcast', { event: 'notification_status_changed' }, (payload) =>
+				safeLog('[RT] notification_status_changed', payload, (pl) => {
+					const rec = recOf(pl);
+					if (rec) upsertRowDOM(rec);
+				}),
+			)
+			.on('broadcast', { event: 'notification_deleted' }, (payload) =>
+				safeLog('[RT] notification_deleted', payload, (pl) => {
+					const old = oldOf(pl);
+					if (old?.id) removeRowDOM(old.id);
+				}),
+			)
+			// Fallback TG_OP, por si tu trigger envía INSERT/UPDATE/DELETE
+			.on('broadcast', { event: 'INSERT' }, (payload) =>
+				safeLog('[RT] INSERT', payload, (pl) => {
+					const rec = recOf(pl);
+					if (rec) upsertRowDOM(rec);
+				}),
+			)
+			.on('broadcast', { event: 'UPDATE' }, (payload) =>
+				safeLog('[RT] UPDATE', payload, (pl) => {
+					const rec = recOf(pl);
+					if (rec) upsertRowDOM(rec);
+				}),
+			)
+			.on('broadcast', { event: 'DELETE' }, (payload) =>
+				safeLog('[RT] DELETE', payload, (pl) => {
+					const old = oldOf(pl);
+					if (old?.id) removeRowDOM(old.id);
+				}),
+			);
+
+		await channel.subscribe((state, err) => {
+			if (state === 'SUBSCRIBED')
+				console.info('[notifications] Realtime conectado');
+			if (state === 'CHANNEL_ERROR')
+				console.error('[notifications] Realtime error:', err);
+			if (state === 'CLOSED') console.info('[notifications] Realtime cerrado');
+		});
+
+		window.addEventListener('beforeunload', () =>
+			supabase.removeChannel(channel),
+		);
+		// Badge inicial basado en SSR existente:
+		refreshBadgeFromDOM();
+	};
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', start);
+	} else {
+		start();
+	}
+</script>

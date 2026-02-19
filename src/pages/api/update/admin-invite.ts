@@ -2,8 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
-import { supabaseAdmin } from '@lib/supabaseAdmin';
+import { supabase, supabaseAdmin } from '@lib/supabase';
 
 const BACK_PATH = '/crud/users';
 
