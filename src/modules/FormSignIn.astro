@@ -1,7 +1,5 @@
 ---
-import { Image } from 'astro:assets';
-import logo1 from '@assets/SC-INTER.webp';
-import logo2 from '@assets/SC-INTER-NG.webp';
+import { Icon } from 'astro-icon/components';
 ---
 
 <div
@@ -15,20 +13,8 @@ import logo2 from '@assets/SC-INTER-NG.webp';
 			href="/sign-in"
 			class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white"
 		>
-			<Image
-				src={logo1}
-				alt="Sotomayor Logo"
-				height="44"
-				class="mr-4 dark:block hidden"
-				loading="lazy"
-			/>
-			<Image
-				src={logo2}
-				alt="Sotomayor Logo"
-				height="44"
-				class="mr-4 dark:hidden block"
-				loading="lazy"
-			/>
+			<Icon name="logo-en-blanco" class="mr-4 dark:block hidden text-4xl" />
+			<Icon name="logo-en-negro" class="mr-4 dark:hidden block text-4xl" />
 		</a>
 		<h2 class="text-2xl font-bold text-gray-900 dark:text-white">
 			Inicia sesión

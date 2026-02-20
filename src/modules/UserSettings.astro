@@ -2,13 +2,11 @@
 import PictureUploader from '@components/PictureUploader.astro';
 import { PaisesGeneral } from '@lib/tablas/paises';
 import { FacturacionbyId } from '@lib/tablas/facturacion';
-import { getUserEmail } from '@lib/tablas/userAuth';
-import { UsersGeneral } from '@lib/tablas/userAuth';
 import { getUsuarioById } from '@lib/tablas/usuarios';
 
 const paises = await PaisesGeneral();
-const email = await getUserEmail(Astro);
-const user = await UsersGeneral(Astro);
+const email = Astro.locals.user?.email;
+const user = Astro.locals.user;
 const userId = user?.id;
 const usuario = userId ? await getUsuarioById(userId) : null;
 const facturacion = userId ? await FacturacionbyId(userId) : null;

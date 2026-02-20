@@ -19,32 +19,24 @@ const {
 	data: { user },
 } = await supabase.auth.getUser();
 
-let isAdmin = false;
-let isPartner = false;
-let isClient = false;
+let userRole = 'guest';
 
 if (user) {
-	// Admin (si ya tienes el RPC)
-	const { data: isAdminRes } = await supabase.rpc('is_admin', { uid: user.id });
-	isAdmin = Boolean(isAdminRes);
-
-	// Partner por rol_id = 2 (directo a la tabla)
-	const { data: me } = await supabase
+	const { data: usuarioData } = await supabase
 		.from('usuarios')
-		.select('rol_id')
+		.select('*, roles (name)')
 		.eq('user_id', user.id)
-		.single();
+		.maybeSingle();
 
-	isPartner = Number(me?.rol_id) === 2;
-
-	const { data: me2 } = await supabase
-		.from('usuarios')
-		.select('rol_id')
-		.eq('user_id', user.id)
-		.single();
-
-	isClient = Number(me2?.rol_id) === 3;
+	if (usuarioData?.roles) {
+		const rolArray = usuarioData.roles as { name: string }[];
+		userRole = rolArray?.[0]?.name || 'guest';
+	}
 }
+
+const isAdmin = userRole === 'admin';
+const isPartner = userRole === 'partner';
+const isClient = userRole === 'cliente';
 ---
 
 <div

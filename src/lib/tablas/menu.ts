@@ -2,38 +2,39 @@ import { supabase } from '@lib/supabase';
 
 export interface UserWithRole {
 	user: any;
-	role: 'guest' | 'admin' | 'partner' | 'client' | 'authenticated';
+	role:
+		| 'guest'
+		| 'admin'
+		| 'partner'
+		| 'cliente'
+		| 'operaciones'
+		| 'authenticated';
+	roles: string[];
 }
 
-export async function getUserWithRole(): Promise<UserWithRole> {
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
-
-	let userRole = 'guest';
-
-	if (user) {
-		const { data: isAdminRes } = await supabase.rpc('is_admin', { uid: user.id });
-
-		if (isAdminRes) {
-			userRole = 'admin';
-		} else {
-			const { data: userData } = await supabase
-				.from('usuarios')
-				.select('rol_id')
-				.eq('user_id', user.id)
-				.single();
-
-			const roleMap: Record<number, string> = {
-				2: 'partner',
-				3: 'client',
-			};
-
-			if (userData && userData.rol_id) {
-				userRole = roleMap[Number(userData.rol_id)] || 'authenticated';
-			}
-		}
+export async function getUserWithRole(userId?: string): Promise<UserWithRole> {
+	if (!userId) {
+		return { user: null, role: 'guest', roles: [] };
 	}
 
-	return { user, role: userRole as UserWithRole['role'] };
+	const { data: usuarioData } = await supabase
+		.from('user_roles')
+		.select('roles (name)')
+		.eq('user_id', userId);
+
+	const rolePriority = ['admin', 'partner', 'cliente', 'operaciones'];
+	const userRoles =
+		(usuarioData as any[])?.map((ur: any) => ur.roles?.name).filter(Boolean) ||
+		[];
+
+	let userRole = 'guest';
+	if (userRoles.length > 0) {
+		userRole = rolePriority.find((r) => userRoles.includes(r)) || 'guest';
+	}
+
+	return {
+		user: { id: userId },
+		role: userRole as UserWithRole['role'],
+		roles: userRoles,
+	};
 }

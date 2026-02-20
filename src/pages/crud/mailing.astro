@@ -27,16 +27,6 @@ const {
 if (userErr || !user) {
 	return redirect('/sign-in');
 }
-
-// 3) Verificar si es admin (RPC a tu función is_admin)
-const { data: isAdminRes, error: rpcErr } = await supabase.rpc('is_admin', {
-	uid: user.id,
-});
-
-// si la RPC falla o no es admin → redirigir a /
-if (rpcErr || !isAdminRes) {
-	return redirect('/');
-}
 ---
 
 <LayoutSidebar>

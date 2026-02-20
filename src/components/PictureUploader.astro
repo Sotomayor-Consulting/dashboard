@@ -1,8 +1,8 @@
 ---
 import { getUsuarioAvatar } from '@lib/tablas/usuarios';
-import { UsersGeneral } from '@lib/tablas/userAuth';
+import Image from 'astro/components/Image.astro';
 
-const user = await UsersGeneral(Astro);
+const user = Astro.locals.user;
 const userId = user?.id;
 const imagen = userId ? await getUsuarioAvatar(userId) : null;
 
@@ -15,17 +15,19 @@ const { slug } = Astro.params;
 
 {
 	imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
-		<img
+		<Image
 			src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId || ''}`}
 			class="mb-4 rounded-lg w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0"
 			alt="avatar"
 			loading="eager"
+			inferSize={true}
 		/>
 	) : (
-		<img
+		<Image
 			class="mb-4 rounded-lg w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0"
 			src={imagen?.avatar_url}
 			alt="Foto de perfil"
+			inferSize={true}
 			loading="eager"
 		/>
 	)
@@ -36,7 +38,7 @@ const { slug } = Astro.params;
 		{title}
 	</h3>
 	<div class="mb-4 text-sm text-gray-500 dark:text-gray-400">
-		JPG, PNG o WEBP. tamaño maximo de 5M.
+		JPG, PNG o WEBP. tamaño máximo de 5M.
 	</div>
 	<div class="flex items-center space-x-4">
 		<form

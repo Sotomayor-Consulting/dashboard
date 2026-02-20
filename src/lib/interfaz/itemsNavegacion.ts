@@ -4,7 +4,7 @@ export const menuItems = [
 		label: 'Crea una LLC',
 		href: '/start/',
 		tooltip: 'Crea una nueva LLC',
-		roles: ['client', 'partner'],
+		roles: ['cliente', 'partner'],
 		svgname: 'ri:building-2-fill',
 	},
 	{
@@ -12,7 +12,7 @@ export const menuItems = [
 		label: 'Tus compañias',
 		href: '/pages/companias',
 		tooltip: 'Mira tus compañias y su estado',
-		roles: ['client', 'partner'],
+		roles: ['cliente', 'partner'],
 		svgname: 'ri:hand-coin-fill',
 	},
 	{
@@ -20,7 +20,7 @@ export const menuItems = [
 		label: 'mantenimiento',
 		href: '/pages/mantenimiento',
 		tooltip: 'Mira fechas de tu compania y su mantenimiento anual',
-		roles: ['client', 'partner'],
+		roles: ['cliente', 'partner'],
 		svgname: 'ri:time-zone-fill',
 	},
 	{
@@ -28,7 +28,7 @@ export const menuItems = [
 		label: 'Documentos',
 		href: '/pages/tus-formularios',
 		tooltip: 'Mira tus documentos y formularios',
-		roles: ['client', 'partner'],
+		roles: ['cliente', 'partner'],
 		svgname: 'ri:file-copy-2-line',
 	},
 	{
@@ -53,7 +53,7 @@ export const menuItems = [
 		label: 'Agendar',
 		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
 		tooltip: 'Agenda una reunion con Sotomayor Consulting',
-		roles: ['client', 'partner'],
+		roles: ['cliente', 'partner'],
 		svgname: 'ri:calendar-fill',
 	},
 	{
@@ -149,7 +149,7 @@ export const menuItems = [
 		label: 'Otros servicios',
 		href: '/pages/otros-servicios',
 		tooltip: 'Explora otros servicios disponibles',
-		roles: ['client', 'partner'],
+		roles: ['cliente', 'partner'],
 		svgname: 'ri:dashboard-horizontal-fill',
 	},
 ];

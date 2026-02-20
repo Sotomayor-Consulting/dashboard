@@ -3,7 +3,10 @@ import { Icon } from 'astro-icon/components';
 import { getUserWithRole } from '@lib/tablas/menu';
 import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
-const { role: userRole } = await getUserWithRole();
+const user = Astro.locals.user;
+const userId = user?.id;
+
+const { role: userRole } = await getUserWithRole(userId);
 
 const visibleMenu = menuItems.filter(
 	(item) => item.roles.includes('all') || item.roles.includes(userRole),
@@ -105,56 +108,39 @@ const visibleMenu = menuItems.filter(
 				</ul>
 
 				<div class="pt-2 space-y-2">
-					<a
-						href="https://sotomayorconsulting.com/"
-						target="_blank"
-						class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-							viewBox="0 0 24 24"
-							><path
-								fill="currentColor"
-								d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10s10-4.486 10-10S17.514 2 12 2M4 12c0-.899.156-1.762.431-2.569L6 11l2 2v2l2 2l1 1v1.931C7.061 19.436 4 16.072 4 12m14.33 4.873C17.677 16.347 16.687 16 16 16v-1a2 2 0 0 0-2-2h-4v-3a2 2 0 0 0 2-2V7h1a2 2 0 0 0 2-2v-.411C17.928 5.778 20 8.65 20 12a7.95 7.95 0 0 1-1.67 4.873"
-							></path></svg
-						>
-						<span class="ml-3" sidebar-toggle-item>Visita nuestra web</span>
-					</a>
-					<a
-						href='https://sotomayorconsulting.com/inicio/terminos/"'
-						target="_blank"
-						class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
-					>
-						<svg
-							class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-							xmlns="http://www.w3.org/2000/svg"
-							><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path
-								fill-rule="evenodd"
-								d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-								clip-rule="evenodd"></path></svg
-						>
-						<span class="ml-3" sidebar-toggle-item>Términos y condiciones</span>
-					</a>
-					<a
-						href="mailto:info@sotomayorconsulting.com"
-						target="_blank"
-						class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
-					>
-						<svg
-							class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-							xmlns="http://www.w3.org/2000/svg"
-							><path
-								fill-rule="evenodd"
-								d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-2 0c0 .993-.241 1.929-.668 2.754l-1.524-1.525a3.997 3.997 0 00.078-2.183l1.562-1.562C15.802 8.249 16 9.1 16 10zm-5.165 3.913l1.58 1.58A5.98 5.98 0 0110 16a5.976 5.976 0 01-2.516-.552l1.562-1.562a4.006 4.006 0 001.789.027zm-4.677-2.796a4.002 4.002 0 01-.041-2.08l-.08.08-1.53-1.533A5.98 5.98 0 004 10c0 .954.223 1.856.619 2.657l1.54-1.54zm1.088-6.45A5.974 5.974 0 0110 4c.954 0 1.856.223 2.657.619l-1.54 1.54a4.002 4.002 0 00-2.346.033L7.246 4.668zM12 10a2 2 0 11-4 0 2 2 0 014 0z"
-								clip-rule="evenodd"></path></svg
-						>
-						<span class="ml-3" sidebar-toggle-item>Soporte</span>
-					</a>
+					{
+						[
+							{
+								link: 'https://sotomayorconsulting.com/',
+								svgname: 'ri:earth-line',
+								span: 'Visita nuestra web',
+							},
+							{
+								link: 'https://sotomayorconsulting.com/inicio/terminos/',
+								svgname: 'ri:file-list-3-fill',
+								span: 'Términos y condiciones',
+							},
+							{
+								link: 'mailto:info@sotomayorconsulting.com',
+								svgname: 'ri:lifebuoy-fill',
+								span: 'Soporte',
+							},
+						].map((l) => (
+							<a
+								href={l.link}
+								target="_blank"
+								class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
+							>
+								<Icon
+									name={l.svgname}
+									class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+								/>
+								<span class="ml-3" sidebar-toggle-item>
+									{l.span}
+								</span>
+							</a>
+						))
+					}
 				</div>
 			</div>
 		</div>
@@ -214,179 +200,6 @@ const visibleMenu = menuItems.filter(
 			>
 				Configuración
 				<div class="tooltip-arrow" data-popper-arrow></div>
-			</div>
-			<!--Lenguaje selector-->
-			<button
-				type="button"
-				data-dropdown-toggle="language-dropdown"
-				class="justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-[#101522] dark:hover:text-white hidden"
-			>
-				<svg
-					class="h-5 w-5 rounded-full mt-0.5"
-					xmlns="http://www.w3.org/2000/svg"
-					xmlns:xlink="http://www.w3.org/1999/xlink"
-					viewBox="0 0 3900 3900"
-					><path fill="#b22234" d="M0 0h7410v3900H0z"></path><path
-						d="M0 450h7410m0 600H0m0 600h7410m0 600H0m0 600h7410m0 600H0"
-						stroke="#fff"
-						stroke-width="300"></path><path fill="#3c3b6e" d="M0 0h2964v2100H0z"
-					></path><g fill="#fff"
-						><g id="d"
-							><g id="c"
-								><g id="e"
-									><g id="b"
-										><path
-											id="a"
-											d="M247 90l70.534 217.082-184.66-134.164h228.253L176.466 307.082z"
-										></path><use xlink:href="#a" y="420"></use><use
-											xlink:href="#a"
-											y="840"></use><use xlink:href="#a" y="1260"></use></g
-									><use xlink:href="#a" y="1680"></use></g
-								><use xlink:href="#b" x="247" y="210"></use></g
-							><use xlink:href="#c" x="494"></use></g
-						><use xlink:href="#d" x="988"></use><use xlink:href="#c" x="1976"
-						></use><use xlink:href="#e" x="2470"></use></g
-					></svg
-				>
-			</button>
-			<!-- Dropdown -->
-			<div
-				class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-[#192033]"
-				id="language-dropdown"
-			>
-				<ul class="py-1" role="none">
-					<li>
-						<a
-							href="#"
-							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-							role="menuitem"
-						>
-							<div class="inline-flex items-center">
-								<svg
-									class="h-3.5 w-3.5 rounded-full mr-2"
-									xmlns="http://www.w3.org/2000/svg"
-									id="flag-icon-css-us"
-									viewBox="0 0 512 512"
-								>
-									<g fill-rule="evenodd">
-										<g stroke-width="1pt">
-											<path
-												fill="#bd3d44"
-												d="M0 0h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0z"
-												transform="scale(3.9385)"></path>
-											<path
-												fill="#fff"
-												d="M0 10h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0zm0 20h247v10H0z"
-												transform="scale(3.9385)"></path>
-										</g>
-										<path
-											fill="#192f5d"
-											d="M0 0h98.8v70H0z"
-											transform="scale(3.9385)"></path>
-										<path
-											fill="#fff"
-											d="M8.2 3l1 2.8H12L9.7 7.5l.9 2.7-2.4-1.7L6 10.2l.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8H45l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7L74 8.5l-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9L92 7.5l1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm-74.1 7l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7H65zm16.4 0l1 2.8H86l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm-74 7l.8 2.8h3l-2.4 1.7.9 2.7-2.4-1.7L6 24.2l.9-2.7-2.4-1.7h3zm16.4 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8H45l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9L92 21.5l1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm-74.1 7l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7H65zm16.4 0l1 2.8H86l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm-74 7l.8 2.8h3l-2.4 1.7.9 2.7-2.4-1.7L6 38.2l.9-2.7-2.4-1.7h3zm16.4 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8H45l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9L92 35.5l1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm-74.1 7l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7H65zm16.4 0l1 2.8H86l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm-74 7l.8 2.8h3l-2.4 1.7.9 2.7-2.4-1.7L6 52.2l.9-2.7-2.4-1.7h3zm16.4 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8H45l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9L92 49.5l1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm-74.1 7l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7H65zm16.4 0l1 2.8H86l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm-74 7l.8 2.8h3l-2.4 1.7.9 2.7-2.4-1.7L6 66.2l.9-2.7-2.4-1.7h3zm16.4 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8H45l-2.4 1.7 1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9zm16.4 0l1 2.8h2.8l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h3zm16.5 0l.9 2.8h2.9l-2.3 1.7.9 2.7-2.4-1.7-2.3 1.7.9-2.7-2.4-1.7h2.9zm16.5 0l.9 2.8h2.9L92 63.5l1 2.7-2.4-1.7-2.4 1.7 1-2.7-2.4-1.7h2.9z"
-											transform="scale(3.9385)"></path>
-									</g>
-								</svg>
-								English (US)
-							</div>
-						</a>
-					</li>
-					<li>
-						<a
-							href="#"
-							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-							role="menuitem"
-						>
-							<div class="inline-flex items-center">
-								<svg
-									class="h-3.5 w-3.5 rounded-full mr-2"
-									xmlns="http://www.w3.org/2000/svg"
-									id="flag-icon-css-de"
-									viewBox="0 0 512 512"
-								>
-									<path fill="#ffce00" d="M0 341.3h512V512H0z"></path>
-									<path d="M0 0h512v170.7H0z"></path>
-									<path fill="#d00" d="M0 170.7h512v170.6H0z"></path>
-								</svg>
-								Deutsch
-							</div>
-						</a>
-					</li>
-					<li>
-						<a
-							href="#"
-							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-							role="menuitem"
-						>
-							<div class="inline-flex items-center">
-								<svg
-									class="h-3.5 w-3.5 rounded-full mr-2"
-									xmlns="http://www.w3.org/2000/svg"
-									id="flag-icon-css-it"
-									viewBox="0 0 512 512"
-								>
-									<g fill-rule="evenodd" stroke-width="1pt">
-										<path fill="#fff" d="M0 0h512v512H0z"></path>
-										<path fill="#009246" d="M0 0h170.7v512H0z"></path>
-										<path fill="#ce2b37" d="M341.3 0H512v512H341.3z"></path>
-									</g>
-								</svg>
-								Italiano
-							</div>
-						</a>
-					</li>
-					<li>
-						<a
-							href="#"
-							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-							role="menuitem"
-						>
-							<div class="inline-flex items-center">
-								<svg
-									class="h-3.5 w-3.5 rounded-full mr-2"
-									xmlns="http://www.w3.org/2000/svg"
-									xmlns:xlink="http://www.w3.org/1999/xlink"
-									id="flag-icon-css-cn"
-									viewBox="0 0 512 512"
-								>
-									<defs>
-										<path id="a" fill="#ffde00" d="M1-.3L-.7.8 0-1 .6.8-1-.3z"
-										></path>
-									</defs>
-									<path fill="#de2910" d="M0 0h512v512H0z"></path>
-									<use
-										width="30"
-										height="20"
-										transform="matrix(76.8 0 0 76.8 128 128)"
-										xlink:href="#a"></use>
-									<use
-										width="30"
-										height="20"
-										transform="rotate(-121 142.6 -47) scale(25.5827)"
-										xlink:href="#a"></use>
-									<use
-										width="30"
-										height="20"
-										transform="rotate(-98.1 198 -82) scale(25.6)"
-										xlink:href="#a"></use>
-									<use
-										width="30"
-										height="20"
-										transform="rotate(-74 272.4 -114) scale(25.6137)"
-										xlink:href="#a"></use>
-									<use
-										width="30"
-										height="20"
-										transform="matrix(16 -19.968 19.968 16 256 230.4)"
-										xlink:href="#a"></use>
-								</svg>
-								中文 (繁體)
-							</div>
-						</a>
-					</li>
-				</ul>
 			</div>
 		</div>
 	</div>

@@ -153,7 +153,7 @@ export const GET: APIRoute = async ({ url, cookies, redirect, request }) => {
 				path: '/',
 				secure: true,
 				httpOnly: false, // si quieres que el cliente pueda leer tokens, poner false; con supabase suele usarse client-side
-				sameSite: 'None' as const,
+				sameSite: 'none' as const,
 				maxAge: 60 * 60 * 24 * 30, // 30 días
 			};
 

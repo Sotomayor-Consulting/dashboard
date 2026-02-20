@@ -4,21 +4,19 @@ import { Icon } from 'astro-icon/components';
 import logonotificaciones from '/src/assets/avatarSCI.png';
 import ColorModeSwitcher from '@components/ColorModeSwitcher.astro';
 import { getUsuarioAvatar } from '@lib/tablas/usuarios';
-import { UsersGeneral } from '@lib/tablas/userAuth';
-import { getUserEmail } from '@lib/tablas/userAuth';
 import { getUsuarioById } from '@lib/tablas/usuarios';
 import { getNotifications } from '@lib/tablas/notificaciones';
 
-const user = await UsersGeneral(Astro);
-const email = await getUserEmail(Astro);
+const user = Astro.locals?.user;
 const userId = user?.id;
+const email = user?.email;
 const imagen = userId ? await getUsuarioAvatar(userId) : null;
 const usuario = userId ? await getUsuarioById(userId) : null;
 
 let notifications = [];
 let totalUnread = 0;
-if (user) {
-	({ notifications, totalUnread } = await getNotifications(user.id));
+if (user && userId) {
+	({ notifications, totalUnread } = await getNotifications(userId));
 }
 
 export { notifications, totalUnread, user };
@@ -121,7 +119,7 @@ export { notifications, totalUnread, user };
 						data-dropdown-toggle="notification-dropdown"
 						class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-[#101522] relative"
 					>
-						<span class="sr-only">View notifications</span>
+						<span class="sr-only">Ver Notificaciones</span>
 						<!-- Bell icon -->
 						<svg
 							class="w-6 h-6"
@@ -142,7 +140,7 @@ export { notifications, totalUnread, user };
 					</button>
 					<!-- Dropdown menu -->
 					<div
-						class="z-20 z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-[#192033] rounded-xl"
+						class="z-20 z-50 hidden max-w-sm min-w-[24rem] my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-[#192033] rounded-xl"
 						id="notification-dropdown"
 					>
 						<div
@@ -156,7 +154,7 @@ export { notifications, totalUnread, user };
 						>
 							{
 								notifications.length === 0 ? (
-									<div class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-neutral-600 dark:border-gray-600 dark:text-neutral-500 text-neutral-400">
+									<div class="flex px-4 py-3  dark:text-neutral-500 text-neutral-500">
 										No hay notificaciones
 									</div>
 								) : (
@@ -338,20 +336,44 @@ export { notifications, totalUnread, user };
 			realtime: { params: { eventsPerSecond: 10 } },
 		});
 
-		supabase.auth.onAuthStateChange((_e, s) =>
-			supabase.realtime.setAuth(s?.access_token ?? null),
-		);
 		const readCookie = (name) =>
 			document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))?.[2] ??
 			null;
-		const { data: s0 } = await supabase.auth.getSession();
+		const { data: s0, error: sessionError } = await supabase.auth.getSession();
+
+		console.log(
+			'[notifications] Sesión inicial:',
+			s0?.session ? 'OK' : 'SIN SESIÓN',
+			sessionError,
+		);
+
 		if (!s0?.session) {
 			const at = readCookie('sb-access-token'),
 				rt = readCookie('sb-refresh-token');
-			if (at && rt)
-				await supabase.auth.setSession({ access_token: at, refresh_token: rt });
+			console.log('[notifications] Tokens en cookies:', { at: !!at, rt: !!rt });
+			if (at && rt) {
+				const { data, error } = await supabase.auth.setSession({
+					access_token: at.value,
+					refresh_token: rt.value,
+				});
+				console.log(
+					'[notifications] Sesión restaurada:',
+					error ? error.message : 'OK',
+				);
+			}
 		}
-		await supabase.realtime.setAuth();
+
+		// Verificar sesión antes de suscribirse
+		const {
+			data: { session },
+		} = await supabase.auth.getSession();
+		if (!session) {
+			return console.error('[notifications] No hay sesión autenticada');
+		}
+
+		supabase.auth.onAuthStateChange((_e, s) =>
+			supabase.realtime.setAuth(s?.access_token ?? null),
+		);
 
 		// ===== helpers =====
 		const escapeHtml = (str) =>
@@ -470,30 +492,17 @@ export { notifications, totalUnread, user };
 		});
 
 		// ===== Realtime =====
-		const topic = `user:${USER_ID}:notifications`;
-		const channel = supabase.channel(topic, {
-			config: { private: true, broadcast: { self: true, ack: true } },
+		const channel = supabase.channel('notifications', {
+			config: { broadcast: { self: true } },
 		});
 
-		// 👇 AQUI el fix CLAVE: lee payload.payload.record / payload.payload.old_record
-		const recOf = (p) =>
-			p?.payload?.record ??
-			p?.record ??
-			p?.new ??
-			p?.payload?.new ??
-			p?.data ??
-			null;
-		const oldOf = (p) =>
-			p?.payload?.old_record ??
-			p?.old_record ??
-			p?.old ??
-			p?.payload?.old ??
-			null;
+		const recOf = (p) => p?.payload?.new ?? p?.new ?? p;
+		const oldOf = (p) => p?.payload?.old ?? p?.old ?? p;
 		const safeLog = (label, payload, fn) => {
 			try {
-				console.log(label, JSON.stringify(payload));
+				console.log('[RT]', label, JSON.stringify(payload));
 			} catch {
-				console.log(label, payload);
+				console.log('[RT]', label, payload);
 			}
 			try {
 				fn(payload);
@@ -503,47 +512,22 @@ export { notifications, totalUnread, user };
 		};
 
 		channel
-			.on('broadcast', { event: 'notification_created' }, (payload) =>
-				safeLog('[RT] notification_created', payload, (pl) => {
-					const rec = recOf(pl);
-					if (rec) upsertRowDOM(rec);
-				}),
-			)
-			.on('broadcast', { event: 'notification_updated' }, (payload) =>
-				safeLog('[RT] notification_updated', payload, (pl) => {
-					const rec = recOf(pl);
-					if (rec) upsertRowDOM(rec);
-				}),
-			)
-			.on('broadcast', { event: 'notification_status_changed' }, (payload) =>
-				safeLog('[RT] notification_status_changed', payload, (pl) => {
-					const rec = recOf(pl);
-					if (rec) upsertRowDOM(rec);
-				}),
-			)
-			.on('broadcast', { event: 'notification_deleted' }, (payload) =>
-				safeLog('[RT] notification_deleted', payload, (pl) => {
-					const old = oldOf(pl);
-					if (old?.id) removeRowDOM(old.id);
-				}),
-			)
-			// Fallback TG_OP, por si tu trigger envía INSERT/UPDATE/DELETE
 			.on('broadcast', { event: 'INSERT' }, (payload) =>
-				safeLog('[RT] INSERT', payload, (pl) => {
+				safeLog('INSERT', payload, (pl) => {
 					const rec = recOf(pl);
-					if (rec) upsertRowDOM(rec);
+					if (rec?.user_id === USER_ID) upsertRowDOM(rec);
 				}),
 			)
 			.on('broadcast', { event: 'UPDATE' }, (payload) =>
-				safeLog('[RT] UPDATE', payload, (pl) => {
+				safeLog('UPDATE', payload, (pl) => {
 					const rec = recOf(pl);
-					if (rec) upsertRowDOM(rec);
+					if (rec?.user_id === USER_ID) upsertRowDOM(rec);
 				}),
 			)
 			.on('broadcast', { event: 'DELETE' }, (payload) =>
-				safeLog('[RT] DELETE', payload, (pl) => {
+				safeLog('DELETE', payload, (pl) => {
 					const old = oldOf(pl);
-					if (old?.id) removeRowDOM(old.id);
+					if (old?.user_id === USER_ID) removeRowDOM(old.id);
 				}),
 			);
 

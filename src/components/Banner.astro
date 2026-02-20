@@ -3,12 +3,8 @@ import { Image } from 'astro:assets';
 import icono from '/src/assets/icono.png';
 import icono2 from '/src/assets/icono-negro.png';
 import { getEstadoIncorporacionByUserId } from '../lib/tablas/empresa_incorporaciones';
-import { UsersGeneral } from '@lib/tablas/userAuth';
 
-const user = await UsersGeneral(Astro);
 let shouldShowBanner = false;
-
-const CONDITION_STATUS = 'En proceso';
 
 const BANNER_PROPS = {
 	title: 'Tu compañía esta pendiente a incorporar. Desbloquea sus beneficios.',
@@ -17,14 +13,15 @@ const BANNER_PROPS = {
 	url: '/incorporacion-y-pago',
 };
 
-if (user) {
-	const incorporaciones = await getEstadoIncorporacionByUserId(user.id);
+const user = Astro.locals.user;
+const UserId = user?.id;
 
-	if (incorporaciones && incorporaciones.length > 0) {
-		shouldShowBanner = incorporaciones.some(
-			(c) => c.estado === CONDITION_STATUS,
-		);
-	}
+const incorporaciones = UserId
+	? await getEstadoIncorporacionByUserId(UserId)
+	: null;
+
+if (incorporaciones && incorporaciones.length > 0) {
+	shouldShowBanner = incorporaciones.some((c) => c.estado === 'En proceso');
 }
 ---
 

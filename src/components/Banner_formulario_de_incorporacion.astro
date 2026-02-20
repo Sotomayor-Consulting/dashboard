@@ -2,87 +2,26 @@
 import { Image } from 'astro:assets';
 import icono from '/src/assets/icono.png';
 import icono2 from '/src/assets/icono-negro.png';
-import { supabase } from '../lib/supabase'; // Asegúrate de que esta ruta es correcta
-import type { User } from '@supabase/supabase-js';
+import { getBannerIncorporacionData } from '../lib/tablas/empresa_incorporaciones';
 
-// 1. Acceso a las cookies y tokens
-const { cookies } = Astro;
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
+const locals = (Astro as any).locals;
+const user = locals?.user;
 
-let user: User | null = null;
 let shouldShowBanner = false;
+let empresaId: string | null = null;
 
-// 2. Definición de la Condición
-const TARGET_TABLE = 'empresas_incorporaciones';
-const FORMULARIOS_TABLE = 'formularios_envios';
+if (user?.id) {
+	const data = await getBannerIncorporacionData(user.id);
+	shouldShowBanner = data.shouldShow;
+	empresaId = data.empresaId;
+}
 
-// Datos fijos para el banner
 const BANNER_PROPS = {
 	title:
 		'Proceda con la formalización de la incorporación de su empresa a través del siguiente formulario.',
 	btnId: 'dismiss-incorp-banner-icorp',
 	btnTitle: 'Comenzar ahora',
 };
-
-// 3. Proceso de Autenticación y Consulta (SSR)
-let empresaId: string | null = null;
-
-if (accessToken && refreshToken) {
-	try {
-		// 3a. Establecer la sesión para que las consultas tengan el contexto del usuario
-		await supabase.auth.setSession({
-			refresh_token: refreshToken.value,
-			access_token: accessToken.value,
-		});
-
-		// 3b. Obtener el objeto de usuario actual
-		const {
-			data: { user: currentUser },
-		} = await supabase.auth.getUser();
-		user = currentUser;
-
-		if (user) {
-			// 3c. Consulta una sola empresa activa del usuario (más escalable)
-			const { data: empresaActiva, error: errorIncorp } = await supabase
-				.from(TARGET_TABLE)
-				.select('empresa_incorporacion_id')
-				.eq('user_id', user.id)
-				.eq('estado', 'Activo')
-				.single(); // .single() devuelve solo un registro o null
-
-			// 3d. Consulta si ya existe un formulario enviado por el usuario actual
-			const { data: formularios, error: errorForm } = await supabase
-				.from(FORMULARIOS_TABLE)
-				.select('status')
-				.eq('user_id', user.id)
-				.eq('status', 'submitted')
-				.maybeSingle(); // .maybeSingle() permite null sin error
-
-			if (errorIncorp && errorIncorp.code !== 'PGRST116') {
-				// Ignorar error de "no rows returned"
-				console.error(
-					'[Banner] Error al consultar empresa activa:',
-					errorIncorp,
-				);
-			} else if (errorForm && errorForm.code !== 'PGRST116') {
-				// Ignorar error de "no rows returned"
-				console.error('[Banner] Error al consultar formulario:', errorForm);
-			} else {
-				// 3e. Condición: mostrar si hay empresa 'Activo' Y NO hay formulario 'submitted'
-				const tieneEmpresaActiva = !!empresaActiva;
-				const tieneFormularioEnviado = !!formularios;
-
-				shouldShowBanner = tieneEmpresaActiva && !tieneFormularioEnviado;
-				if (tieneEmpresaActiva && empresaActiva.empresa_incorporacion_id) {
-					empresaId = empresaActiva.empresa_incorporacion_id;
-				}
-			}
-		}
-	} catch (e) {
-		console.error('[Banner] Error de sesión o conexión con Supabase:', e);
-	}
-}
 ---
 
 {

@@ -24,7 +24,7 @@ const {
 if (userErr || !user) return redirect('/sign-in');
 
 // 3) Traer envío y verificar rol admin (en paralelo)
-const [envioRes, adminRes] = await Promise.all([
+const [envioRes, usuarioData] = await Promise.all([
 	supabase
 		.from('formularios_envios')
 		.select(
@@ -43,17 +43,27 @@ const [envioRes, adminRes] = await Promise.all([
 		)
 		.eq('submission_id', id)
 		.single(),
-	supabase.rpc('is_admin', { uid: user.id }),
+	supabase
+		.from('usuarios')
+		.select('*, roles (name)')
+		.eq('user_id', user.id)
+		.maybeSingle(),
 ]);
 
 const { data: envio, error: envioErr } = envioRes;
-const { data: isAdmin, error: rpcErr } = adminRes;
+
+let userRole = 'guest';
+if (usuarioData?.roles) {
+	const rolArray = usuarioData.roles as { name: string }[];
+	userRole = rolArray?.[0]?.name || 'guest';
+}
+
+const isAdmin = userRole === 'admin';
 
 if (envioErr || !envio) return redirect('/');
 
 // 4) Gate: dueño o admin
-const esAdmin = !rpcErr && !!isAdmin;
-if (!esAdmin && envio.user_id !== user.id) return redirect('/');
+if (!isAdmin && envio.user_id !== user.id) return redirect('/');
 
 // 5) Accesos directos
 const titulo = envio.formularios?.titulo;

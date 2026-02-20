@@ -6,13 +6,18 @@ import { getFormulariosPendientes } from '@lib/tablas/formulariosEnviados';
 import { getPagosPorLeer } from '@lib/tablas/PagosPorLeer';
 import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
-const { role: userRole } = await getUserWithRole();
+const user = Astro.locals.user;
+const userId = user?.id;
+
+const { role: userRole, roles: userRoles } = await getUserWithRole(userId);
 const { count: formularioPendientesCount } = await getFormulariosPendientes();
 const { count: pagosCount } = await getPagosPorLeer(userRole);
 
-// Filtramos el menú antes de renderizar - ACTUALIZADO PARA INCLUIR 'all'
 const visibleMenu = menuItems.filter(
-	(item) => item.roles.includes('all') || item.roles.includes(userRole),
+	(item) =>
+		(item.roles.includes('all') && userRoles.length > 0) ||
+		item.roles.includes('todos') ||
+		item.roles.some((r) => userRoles.includes(r)),
 );
 ---
 

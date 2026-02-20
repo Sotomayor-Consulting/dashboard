@@ -36,13 +36,23 @@ if (at && rt) {
 	if (!userErr && user) {
 		userId = user.id; // Este es el user_id (UUID) que necesitas
 
-		// 3) Verificar si es admin
-		const { data: isAdmin, error: rpcErr } = await supabase.rpc('is_admin', {
-			uid: user.id,
-		});
+		// 3) Obtener rol
+		const { data: usuarioData } = await supabase
+			.from('usuarios')
+			.select('*, roles (name)')
+			.eq('user_id', user.id)
+			.maybeSingle();
+
+		let userRole = 'guest';
+		if (usuarioData?.roles) {
+			const rolArray = usuarioData.roles as { name: string }[];
+			userRole = rolArray?.[0]?.name || 'guest';
+		}
+
+		const isAdmin = userRole === 'admin';
 
 		// 4) Si NO es admin → cargar sus empresas con estado "En proceso"
-		if (!rpcErr && !isAdmin) {
+		if (!isAdmin) {
 			const { data } = await supabase
 				.from('empresas_incorporaciones')
 				.select(

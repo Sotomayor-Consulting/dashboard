@@ -9,7 +9,7 @@ export const getIncorporacionesByUserId = async (userId: string) => {
 
 	if (error) {
 		console.error('Error fetching incorporaciones by user ID:', error);
-		throw error;
+		return [];
 	}
 
 	return data;
@@ -23,7 +23,7 @@ export const getEstadoIncorporacionByUserId = async (userId: string) => {
 
 	if (error) {
 		console.error('Error fetching estado incorporacion by user ID:', error);
-		throw error;
+		return [];
 	}
 
 	return data;
@@ -87,4 +87,34 @@ export const checkUserIncorporacionesEnProceso = async (
 	if (!incorporaciones || incorporaciones.length === 0) return false;
 
 	return incorporaciones.some((c) => c.estado === 'En proceso');
+};
+
+export interface BannerIncorporacionData {
+	shouldShow: boolean;
+	empresaId: string | null;
+}
+
+export const getBannerIncorporacionData = async (
+	userId: string,
+): Promise<BannerIncorporacionData> => {
+	const { data: empresaActiva } = await supabase
+		.from('empresas_incorporaciones')
+		.select('empresa_incorporacion_id')
+		.eq('user_id', userId)
+		.eq('estado', 'Activo')
+		.maybeSingle();
+
+	const { data: formularioEnviado } = await supabase
+		.from('formularios_envios')
+		.select('status')
+		.eq('user_id', userId)
+		.eq('status', 'submitted')
+		.maybeSingle();
+
+	const shouldShow = !!empresaActiva && !formularioEnviado;
+
+	return {
+		shouldShow,
+		empresaId: empresaActiva?.empresa_incorporacion_id || null,
+	};
 };

@@ -1,15 +1,18 @@
-import { supabase } from '@lib/supabase';
+import { supabaseAdmin } from '@lib/supabaseAdmin';
 
 export const getNotifications = async (userId: string, limit = 5) => {
-	const { data, error } = await supabase
+	if (!userId) {
+		return { notifications: [], totalUnread: 0 };
+	}
+
+	const { data, error } = await supabaseAdmin
 		.from('notifications')
 		.select('*')
 		.eq('user_id', userId)
 		.order('created_at', { ascending: false })
 		.limit(limit);
 
-	if (error) {
-		console.error('Error fetching notifications:', error);
+	if (error || !data) {
 		return { notifications: [], totalUnread: 0 };
 	}
 
@@ -19,15 +22,17 @@ export const getNotifications = async (userId: string, limit = 5) => {
 	return { notifications, totalUnread };
 };
 
-export const markNotificationAsRead = async (notificationId: string, userId: string) => {
-	const { error } = await supabase
+export const markNotificationAsRead = async (
+	notificationId: string,
+	userId: string,
+) => {
+	const { error } = await supabaseAdmin
 		.from('notifications')
 		.update({ is_read: true, leido_en: new Date().toISOString() })
 		.eq('id', notificationId)
 		.eq('user_id', userId);
 
 	if (error) {
-		console.error('Error marking notification as read:', error);
 		return { success: false, error };
 	}
 
