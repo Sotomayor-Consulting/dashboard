@@ -14,8 +14,18 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const formData = await request.formData();
 	const email = formData.get('email')?.toString().trim() ?? '';
 	const password = formData.get('password')?.toString() ?? '';
+	const confirmPassword = formData.get('confirm-password')?.toString() ?? '';
 	const name = formData.get('name')?.toString().trim() ?? '';
 	const lastName = formData.get('last-name')?.toString().trim() ?? '';
+
+	if (password !== confirmPassword) {
+		return redirectWithMessage(
+			redirect,
+			'Las contraseñas no coinciden. Por favor, verifica e intena de nuevo. ',
+			'error',
+			PATHS.signUp,
+		);
+	}
 
 	try {
 		const result = await auth.register({ email, password, name, lastName });

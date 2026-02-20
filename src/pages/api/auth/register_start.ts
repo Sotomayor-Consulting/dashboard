@@ -17,6 +17,17 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const lastName = form.get('last-name')?.toString().trim() ?? '';
 		const email = form.get('email')?.toString().trim() ?? '';
 		const password = form.get('password')?.toString().trim() ?? '';
+		const confirmPassword =
+			form.get('confirm-password')?.toString().trim() ?? '';
+
+		if (password !== confirmPassword) {
+			return redirectWithMessage(
+				redirect,
+				'Las contraseñas no coinciden. Por favor, verifica e intena de nuevo. ',
+				'error',
+				back,
+			);
+		}
 
 		const supabase = createSupabaseServerClient({
 			headers: request.headers,
