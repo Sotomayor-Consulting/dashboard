@@ -1,32 +1,10 @@
 ---
 import WhatsappBtn from '@components/navigation/WhatsappBtn.astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 import Alerta from '@components/feedback/alertageneral.astro';
 
-// Verificar autenticación con Supabase
-const { cookies } = Astro;
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
-let user = null;
-
-if (accessToken && refreshToken) {
-	const { data: sessionData, error } = await supabase.auth.setSession({
-		refresh_token: refreshToken.value,
-		access_token: accessToken.value,
-	});
-	if (!error && sessionData?.session) {
-		const { data: userData, error: userError } = await supabase.auth.getUser();
-		if (!userError) {
-			user = userData.user;
-		} else {
-			cookies.delete('sb-access-token', { path: '/' });
-			cookies.delete('sb-refresh-token', { path: '/' });
-		}
-	} else {
-		cookies.delete('sb-access-token', { path: '/' });
-		cookies.delete('sb-refresh-token', { path: '/' });
-	}
-}
+// Auth handled by middleware (Astro.locals.user)
+const supabase = createSupabaseServerClient(Astro);
 
 const { data: estados } = await supabase.from('estados').select('Estado');
 

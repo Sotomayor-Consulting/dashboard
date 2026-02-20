@@ -2,15 +2,12 @@
 import { Image } from 'astro:assets';
 import icono from '/src/assets/icono.png';
 import icono2 from '/src/assets/icono-negro.png';
-import { supabase } from '@lib/supabase';
-import type { User } from '@supabase/supabase-js';
+import { createSupabaseServerClient } from '@lib/supabase';
 
-// 1. Acceso a las cookies y tokens
-const { cookies } = Astro;
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
+// Auth handled by middleware
+const user = Astro.locals.user;
+const supabase = createSupabaseServerClient(Astro);
 
-let user: User | null = null;
 let shouldShowBanner = false;
 
 // 2. Definición de la Condición
@@ -25,39 +22,25 @@ const BANNER_PROPS = {
 	url: '/incorporacion-y-pago',
 };
 
-// 3. Proceso de Autenticación y Consulta (SSR)
-if (accessToken && refreshToken) {
+// 3. Consulta de datos (SSR)
+if (user) {
 	try {
-		// 3a. Establecer la sesión para que las consultas tengan el contexto del usuario
-		await supabase.auth.setSession({
-			refresh_token: refreshToken.value,
-			access_token: accessToken.value,
-		});
+		// 3c. Consulta a la tabla adaptada: 'empresas_incorporaciones'
+		const { data: incorporaciones, error } = await supabase
+			.from(TARGET_TABLE)
+			.select('estado') // Solo necesitamos la columna 'estado'
+			.eq('user_id', user.id); // Filtrar por el usuario actual
 
-		// 3b. Obtener el objeto de usuario actual
-		const {
-			data: { user: currentUser },
-		} = await supabase.auth.getUser();
-		user = currentUser;
-
-		if (user) {
-			// 3c. Consulta a la tabla adaptada: 'empresas_incorporaciones'
-			const { data: incorporaciones, error } = await supabase
-				.from(TARGET_TABLE)
-				.select('estado') // Solo necesitamos la columna 'estado'
-				.eq('user_id', user.id); // Filtrar por el usuario actual
-
-			if (error) {
-				console.error(
-					`[Banner] Error al obtener estado de ${TARGET_TABLE}:`,
-					error,
-				);
-			} else if (incorporaciones && incorporaciones.length > 0) {
-				// 3d. Verificar la condición: ¿Alguna está 'En proceso'?
-				shouldShowBanner = incorporaciones.some(
-					(c) => c.estado === CONDITION_STATUS,
-				);
-			}
+		if (error) {
+			console.error(
+				`[Banner] Error al obtener estado de ${TARGET_TABLE}:`,
+				error,
+			);
+		} else if (incorporaciones && incorporaciones.length > 0) {
+			// 3d. Verificar la condición: ¿Alguna está 'En proceso'?
+			shouldShowBanner = incorporaciones.some(
+				(c) => c.estado === CONDITION_STATUS,
+			);
 		}
 	} catch (e) {
 		console.error('[Banner] Error de sesión o conexión con Supabase:', e);

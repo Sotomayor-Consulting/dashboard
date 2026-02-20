@@ -1,8 +1,11 @@
 ---
 import '@styles/dropzone.css';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 import { Icon } from 'astro-icon/components';
 import ImprimirContrato from '@components/display/ImprimirContrato.astro';
+
+const supabase = createSupabaseServerClient(Astro);
+const user = Astro.locals.user;
 
 let datosParaReporte = {};
 
@@ -71,10 +74,6 @@ interface Props {
 	reportName?: string;
 }
 
-const { cookies } = Astro;
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
-
 let perfilCompleto = false;
 
 // Campos requeridos para partners (rol_id = 2)
@@ -86,40 +85,25 @@ const REQUIRED_FIELDS = [
 	'tipo_persona',
 ] as const;
 
-// Proceso de autenticación y consulta (SSR)
-if (accessToken?.value && refreshToken?.value) {
+// Profile completeness check using middleware-provided user
+if (user) {
 	try {
-		// Establecer sesión
-		const { error: sessionErr } = await supabase.auth.setSession({
-			refresh_token: refreshToken.value,
-			access_token: accessToken.value,
-		});
+		const { data: userProfile, error: profileError } = await supabase
+			.from('usuarios')
+			.select(
+				'rol_id, direccion_linea1, direccion_linea2, tipo_identificacion, numero_de_identificacion, tipo_persona',
+			)
+			.eq('user_id', user.id)
+			.single();
 
-		if (!sessionErr) {
-			// Obtener usuario actual
-			const {
-				data: { user: currentUser },
-			} = await supabase.auth.getUser();
+		if (!profileError && userProfile && userProfile.rol_id === 2) {
+			// Verificar si todos los campos están completos
+			const camposFaltantes = REQUIRED_FIELDS.filter((field) => {
+				const value = userProfile[field];
+				return value === null || value === undefined || value === '';
+			});
 
-			if (currentUser) {
-				const { data: userProfile, error: profileError } = await supabase
-					.from('usuarios')
-					.select(
-						'rol_id, direccion_linea1, direccion_linea2, tipo_identificacion, numero_de_identificacion, tipo_persona',
-					)
-					.eq('user_id', currentUser.id)
-					.single();
-
-				if (!profileError && userProfile && userProfile.rol_id === 2) {
-					// Verificar si todos los campos están completos
-					const camposFaltantes = REQUIRED_FIELDS.filter((field) => {
-						const value = userProfile[field];
-						return value === null || value === undefined || value === '';
-					});
-
-					perfilCompleto = camposFaltantes.length === 0;
-				}
-			}
+			perfilCompleto = camposFaltantes.length === 0;
 		}
 	} catch (e) {
 		console.error('[Botones] Error:', e);

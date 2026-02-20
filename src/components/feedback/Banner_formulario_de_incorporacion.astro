@@ -2,15 +2,12 @@
 import { Image } from 'astro:assets';
 import icono from '/src/assets/icono.png';
 import icono2 from '/src/assets/icono-negro.png';
-import { supabase } from '@lib/supabase';
-import type { User } from '@supabase/supabase-js';
+import { createSupabaseServerClient } from '@lib/supabase';
 
-// 1. Acceso a las cookies y tokens
-const { cookies } = Astro;
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
+// Auth handled by middleware
+const user = Astro.locals.user;
+const supabase = createSupabaseServerClient(Astro);
 
-let user: User | null = null;
 let shouldShowBanner = false;
 
 // 2. Definición de la Condición
@@ -25,58 +22,44 @@ const BANNER_PROPS = {
 	btnTitle: 'Comenzar ahora',
 };
 
-// 3. Proceso de Autenticación y Consulta (SSR)
+// 3. Consulta de datos (SSR)
 let empresaId: string | null = null;
 
-if (accessToken && refreshToken) {
+if (user) {
 	try {
-		// 3a. Establecer la sesión para que las consultas tengan el contexto del usuario
-		await supabase.auth.setSession({
-			refresh_token: refreshToken.value,
-			access_token: accessToken.value,
-		});
+		// 3c. Consulta una sola empresa activa del usuario (más escalable)
+		const { data: empresaActiva, error: errorIncorp } = await supabase
+			.from(TARGET_TABLE)
+			.select('empresa_incorporacion_id')
+			.eq('user_id', user.id)
+			.eq('estado', 'Activo')
+			.single(); // .single() devuelve solo un registro o null
 
-		// 3b. Obtener el objeto de usuario actual
-		const {
-			data: { user: currentUser },
-		} = await supabase.auth.getUser();
-		user = currentUser;
+		// 3d. Consulta si ya existe un formulario enviado por el usuario actual
+		const { data: formularios, error: errorForm } = await supabase
+			.from(FORMULARIOS_TABLE)
+			.select('status')
+			.eq('user_id', user.id)
+			.eq('status', 'submitted')
+			.maybeSingle(); // .maybeSingle() permite null sin error
 
-		if (user) {
-			// 3c. Consulta una sola empresa activa del usuario (más escalable)
-			const { data: empresaActiva, error: errorIncorp } = await supabase
-				.from(TARGET_TABLE)
-				.select('empresa_incorporacion_id')
-				.eq('user_id', user.id)
-				.eq('estado', 'Activo')
-				.single(); // .single() devuelve solo un registro o null
+		if (errorIncorp && errorIncorp.code !== 'PGRST116') {
+			// Ignorar error de "no rows returned"
+			console.error(
+				'[Banner] Error al consultar empresa activa:',
+				errorIncorp,
+			);
+		} else if (errorForm && errorForm.code !== 'PGRST116') {
+			// Ignorar error de "no rows returned"
+			console.error('[Banner] Error al consultar formulario:', errorForm);
+		} else {
+			// 3e. Condición: mostrar si hay empresa 'Activo' Y NO hay formulario 'submitted'
+			const tieneEmpresaActiva = !!empresaActiva;
+			const tieneFormularioEnviado = !!formularios;
 
-			// 3d. Consulta si ya existe un formulario enviado por el usuario actual
-			const { data: formularios, error: errorForm } = await supabase
-				.from(FORMULARIOS_TABLE)
-				.select('status')
-				.eq('user_id', user.id)
-				.eq('status', 'submitted')
-				.maybeSingle(); // .maybeSingle() permite null sin error
-
-			if (errorIncorp && errorIncorp.code !== 'PGRST116') {
-				// Ignorar error de "no rows returned"
-				console.error(
-					'[Banner] Error al consultar empresa activa:',
-					errorIncorp,
-				);
-			} else if (errorForm && errorForm.code !== 'PGRST116') {
-				// Ignorar error de "no rows returned"
-				console.error('[Banner] Error al consultar formulario:', errorForm);
-			} else {
-				// 3e. Condición: mostrar si hay empresa 'Activo' Y NO hay formulario 'submitted'
-				const tieneEmpresaActiva = !!empresaActiva;
-				const tieneFormularioEnviado = !!formularios;
-
-				shouldShowBanner = tieneEmpresaActiva && !tieneFormularioEnviado;
-				if (tieneEmpresaActiva && empresaActiva.empresa_incorporacion_id) {
-					empresaId = empresaActiva.empresa_incorporacion_id;
-				}
+			shouldShowBanner = tieneEmpresaActiva && !tieneFormularioEnviado;
+			if (tieneEmpresaActiva && empresaActiva.empresa_incorporacion_id) {
+				empresaId = empresaActiva.empresa_incorporacion_id;
 			}
 		}
 	} catch (e) {

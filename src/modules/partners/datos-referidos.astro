@@ -1,11 +1,11 @@
 ---
 /* eslint max-lines: 'off' */
 
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
-const {
-	data: { user },
-} = await supabase.auth.getUser();
+const user = Astro.locals.user;
+const supabase = createSupabaseServerClient(Astro);
+
 // JOIN: referidos -> usuarios (referido) y (opcional) partner
 const { data: rows, error } = await supabase
 	.from('referidos')

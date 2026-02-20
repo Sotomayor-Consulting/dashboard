@@ -1,20 +1,10 @@
 ---
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 const { slug } = Astro.params;
 
-const accessToken = Astro.cookies.get('sb-access-token');
-const refreshToken = Astro.cookies.get('sb-refresh-token');
-
-if (accessToken && refreshToken) {
-	await supabase.auth.setSession({
-		access_token: accessToken.value,
-		refresh_token: refreshToken.value,
-	});
-}
-
-const {
-	data: { user },
-} = await supabase.auth.getUser();
+// Auth handled by middleware
+const user = Astro.locals.user;
+const supabase = createSupabaseServerClient(Astro);
 
 let imagen = null;
 if (user) {

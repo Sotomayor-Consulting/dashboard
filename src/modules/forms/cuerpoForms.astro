@@ -1,35 +1,21 @@
 ---
-import { supabase } from "@lib/supabase";
-const { cookies, redirect } = Astro;
 import { Image } from 'astro:assets';
 import imagen from "@assets/imagen-no.png";
+import { isAdmin } from '@lib/roles';
+import { createSupabaseServerClient } from '@lib/supabase';
 
-// 1) Restaurar sesión
-const at = cookies.get("sb-access-token");
-const rt = cookies.get("sb-refresh-token");
-if (!at || !rt) return redirect("/sign-in");
+// Auth handled by middleware — user & roles already in locals
+const user = Astro.locals.user;
+const userRoles = Astro.locals.userRoles;
 
-await supabase.auth.setSession({
-  access_token: at.value,
-  refresh_token: rt.value,
-});
-
-// 2) Usuario
-const {
-  data: { user },
-  error: userErr,
-} = await supabase.auth.getUser();
-if (userErr || !user) return redirect("/sign-in");
-
-// 3) ¿Es admin?
-const { data: isAdmin, error: rpcErr } = await supabase.rpc("is_admin", {
-  uid: user.id,
-});
-
-// 4) Si es admin → no mostrar nada (ni consultar)
+// If admin → show nothing (admins see the crud panel instead)
 let formularios: any[] = [];
-if (!rpcErr && !isAdmin) {
-  // 5) No admin → solo sus envíos
+if (user && !isAdmin(userRoles)) {
+  const supabase = createSupabaseServerClient({
+    headers: Astro.request.headers,
+    cookies: Astro.cookies,
+  });
+
   const { data } = await supabase
     .from("formularios_envios")
     .select(`

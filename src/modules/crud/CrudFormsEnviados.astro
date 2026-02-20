@@ -1,6 +1,7 @@
 ---
 import '@styles/datatables.css';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
+const supabase = createSupabaseServerClient(Astro);
 import Alerta from '@components/feedback/alertageneral.astro';
 import { Icon } from 'astro-icon/components';
 

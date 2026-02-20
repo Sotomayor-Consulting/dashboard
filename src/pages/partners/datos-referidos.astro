@@ -1,33 +1,13 @@
 ---
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import DashBoard from '@modules/partners/datos-referidos.astro';
-import { supabase } from '@lib/supabase';
-const at = Astro.cookies.get('sb-access-token');
-const rt = Astro.cookies.get('sb-refresh-token');
-if (!at || !rt)
-	return Astro.redirect(
-		`/login?next=${encodeURIComponent(Astro.url.pathname)}`,
-	);
-await supabase.auth.setSession({
-	access_token: at.value,
-	refresh_token: rt.value,
-});
+import { isPartner } from '@lib/roles';
 
-const {
-	data: { user },
-} = await supabase.auth.getUser();
-if (!user)
-	return Astro.redirect(
-		`/login?next=${encodeURIComponent(Astro.url.pathname)}`,
-	);
+// Auth handled by middleware
+const userRoles = Astro.locals.userRoles;
 
-// opcional: verifica que sea partner (rol_id = 2)
-const { data: me } = await supabase
-	.from('usuarios')
-	.select('rol_id')
-	.eq('user_id', user.id)
-	.single();
-if (!me || Number(me.rol_id) !== 2) {
+// Middleware protects /partners/ for partner role, but double-check
+if (!isPartner(userRoles)) {
 	return Astro.redirect(
 		`/?status=error&msg=${encodeURIComponent('Acceso solo para partners')}`,
 	);

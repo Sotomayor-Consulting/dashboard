@@ -1,45 +1,16 @@
 ---
-import { supabase } from '../../lib/supabase';
+import {
+	isAdmin as checkAdmin,
+	isPartner as checkPartner,
+	isClient as checkClient,
+} from '@lib/roles';
 
-const at = Astro.cookies.get('sb-access-token');
-const rt = Astro.cookies.get('sb-refresh-token');
-if (at && rt) {
-	await supabase.auth.setSession({
-		access_token: at.value,
-		refresh_token: rt.value,
-	});
-}
+// Roles ya resueltos por el middleware → Astro.locals.userRoles
+const userRoles = Astro.locals.userRoles ?? [];
 
-const {
-	data: { user },
-} = await supabase.auth.getUser();
-
-let isAdmin = false;
-let isPartner = false;
-let isClient = false;
-
-if (user) {
-	// Admin (si ya tienes el RPC)
-	const { data: isAdminRes } = await supabase.rpc('is_admin', { uid: user.id });
-	isAdmin = Boolean(isAdminRes);
-
-	// Partner por rol_id = 2 (directo a la tabla)
-	const { data: me } = await supabase
-		.from('usuarios')
-		.select('rol_id')
-		.eq('user_id', user.id)
-		.single();
-
-	isPartner = Number(me?.rol_id) === 2;
-
-	const { data: me2 } = await supabase
-		.from('usuarios')
-		.select('rol_id')
-		.eq('user_id', user.id)
-		.single();
-
-	isClient = Number(me2?.rol_id) === 3;
-}
+const isAdmin = checkAdmin(userRoles);
+const isPartner = checkPartner(userRoles);
+const isClient = checkClient(userRoles);
 ---
 
 <!-- TODO: Dynamic dropdowns -->

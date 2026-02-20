@@ -8,15 +8,31 @@
 import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 import type { AstroCookies } from 'astro';
 
+/** Explicit context: { headers, cookies } — used in API routes & middleware */
 interface ServerClientContext {
 	headers: Headers;
 	cookies: AstroCookies;
 }
 
+/** Astro global context: { request: { headers }, cookies } — used in .astro components */
+interface AstroGlobalContext {
+	request: Request;
+	cookies: AstroCookies;
+}
+
+type SupabaseContext = ServerClientContext | AstroGlobalContext;
+
+/** Type guard: does the context have a `request` property (Astro global)? */
+function isAstroGlobal(ctx: SupabaseContext): ctx is AstroGlobalContext {
+	return 'request' in ctx && ctx.request instanceof Request;
+}
+
 /**
  * Crea un cliente Supabase para server-side con manejo de cookies.
  *
- * @param context - Debe contener `headers` (de la Request) y `cookies` (de Astro).
+ * @param context - Acepta dos formatos:
+ *   1. `{ headers, cookies }` — para API routes y middleware.
+ *   2. El objeto `Astro` global — para componentes .astro (tiene `request.headers`).
  * @returns SupabaseClient configurado para SSR.
  *
  * @example
@@ -27,11 +43,14 @@ interface ServerClientContext {
  * // En middleware:
  * const supabase = createSupabaseServerClient({ headers: context.request.headers, cookies: context.cookies });
  *
- * // En un componente Astro:
+ * // En un componente Astro (shorthand):
+ * const supabase = createSupabaseServerClient(Astro);
+ *
+ * // En un componente Astro (explicit):
  * const supabase = createSupabaseServerClient({ headers: Astro.request.headers, cookies: Astro.cookies });
  * ```
  */
-export function createSupabaseServerClient(context: ServerClientContext) {
+export function createSupabaseServerClient(context: SupabaseContext) {
 	const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 	const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
@@ -41,10 +60,16 @@ export function createSupabaseServerClient(context: ServerClientContext) {
 		);
 	}
 
+	// Normalize: extract headers from Astro global or use directly
+	const headers = isAstroGlobal(context)
+		? context.request.headers
+		: context.headers;
+	const { cookies } = context;
+
 	return createServerClient(supabaseUrl, supabaseAnonKey, {
 		cookies: {
 			getAll() {
-				const parsed = parseCookieHeader(context.headers.get('Cookie') ?? '');
+				const parsed = parseCookieHeader(headers.get('Cookie') ?? '');
 				// parseCookieHeader puede retornar value?: string, pero CookieMethodsServer
 				// requiere value: string. Filtramos entradas sin valor.
 				return parsed.filter(
@@ -54,7 +79,7 @@ export function createSupabaseServerClient(context: ServerClientContext) {
 			},
 			setAll(cookiesToSet) {
 				cookiesToSet.forEach(({ name, value, options }) => {
-					context.cookies.set(name, value, options);
+					cookies.set(name, value, options);
 				});
 			},
 		},

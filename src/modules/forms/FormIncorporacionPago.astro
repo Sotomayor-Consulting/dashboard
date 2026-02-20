@@ -1,10 +1,19 @@
 ---
-import { supabase } from '@lib/supabase';
 import Stripelogo from '@assets/stripe.svg';
 import { Icon } from 'astro-icon/components';
-const { cookies } = Astro;
+import { isAdmin } from '@lib/roles';
+import { createSupabaseServerClient } from '@lib/supabase';
 
-let userId = null;
+// Auth handled by middleware — user & roles already in locals
+const user = Astro.locals.user;
+const userRoles = Astro.locals.userRoles;
+const userId = user?.id ?? null;
+
+const supabase = createSupabaseServerClient({
+	headers: Astro.request.headers,
+	cookies: Astro.cookies,
+});
+
 let empresas: {
 	user_id: any;
 	empresa_incorporacion_id: any;
@@ -17,54 +26,28 @@ let empresas: {
 	updated_at: any;
 }[] = [];
 
-// 1) Intentar restaurar sesión si hay cookies disponibles
-const at = cookies.get('sb-access-token');
-const rt = cookies.get('sb-refresh-token');
+// If authenticated and NOT admin → load their empresas with estado "En proceso"
+if (user && !isAdmin(userRoles)) {
+	const { data } = await supabase
+		.from('empresas_incorporaciones')
+		.select(
+			`
+			user_id,
+			empresa_incorporacion_id,
+			tipo_de_negocio,
+			estado_de_incorporacion,
+			estado,
+			nombre_1,
+			nombre_2,
+			nombre_3,
+			updated_at
+		`,
+		)
+		.eq('user_id', user.id)
+		.eq('estado', 'En proceso')
+		.order('updated_at', { ascending: true });
 
-if (at && rt) {
-	await supabase.auth.setSession({
-		access_token: at.value,
-		refresh_token: rt.value,
-	});
-
-	// 2) Obtener el usuario si existe sesión
-	const {
-		data: { user },
-		error: userErr,
-	} = await supabase.auth.getUser();
-
-	if (!userErr && user) {
-		userId = user.id; // Este es el user_id (UUID) que necesitas
-
-		// 3) Verificar si es admin
-		const { data: isAdmin, error: rpcErr } = await supabase.rpc('is_admin', {
-			uid: user.id,
-		});
-
-		// 4) Si NO es admin → cargar sus empresas con estado "En proceso"
-		if (!rpcErr && !isAdmin) {
-			const { data } = await supabase
-				.from('empresas_incorporaciones')
-				.select(
-					`
-					user_id,
-					empresa_incorporacion_id,
-					tipo_de_negocio,
-					estado_de_incorporacion,
-					estado,
-					nombre_1,
-					nombre_2,
-					nombre_3,
-					updated_at
-				`,
-				)
-				.eq('user_id', user.id)
-				.eq('estado', 'En proceso') // <- Filtro para mostrar solo "En proceso"
-				.order('updated_at', { ascending: true });
-
-			empresas = data ?? [];
-		}
-	}
+	empresas = data ?? [];
 }
 
 // 5) Obtener los servicios activos (siempre se ejecuta, con o sin usuario)

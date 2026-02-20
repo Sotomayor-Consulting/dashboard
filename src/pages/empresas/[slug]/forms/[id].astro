@@ -1,31 +1,9 @@
 ---
-import { supabase } from '../../../../lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
+// Auth handled by middleware
 const { id } = Astro.params;
-
-const { cookies, redirect } = Astro;
-// 1) Restaurar sesión desde cookies
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
-
-if (!accessToken || !refreshToken) {
-	return redirect('/sign-in');
-}
-
-await supabase.auth.setSession({
-	access_token: accessToken.value,
-	refresh_token: refreshToken.value,
-});
-
-// 2) Obtener usuario
-const {
-	data: { user },
-	error: userErr,
-} = await supabase.auth.getUser();
-
-if (userErr || !user) {
-	return redirect('/sign-in');
-}
+const supabase = createSupabaseServerClient(Astro);
 
 const { data: formulario, error } = await supabase
 	.from('formularios')

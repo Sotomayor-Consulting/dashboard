@@ -1,65 +1,27 @@
 ---
-import { supabase } from '@lib/supabase';
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
-import MenuCard from '@components/display/MenuCard.astro'; // Importamos el componente
+import MenuCard from '@components/display/MenuCard.astro';
 import logo1 from '@assets/SC-INTER.png';
 import logo2 from '@assets/SC-INTER-NG.png';
+import { ROLES, isAdmin as checkAdmin } from '@lib/roles';
+import { createSupabaseServerClient } from '@lib/supabase';
 
-// --- 1. Autenticación y Tokens ---
-const at = Astro.cookies.get('sb-access-token');
-const rt = Astro.cookies.get('sb-refresh-token');
+// --- 1. Roles desde middleware (ya resueltos, sin queries extra) ---
+const userRoles = Astro.locals.userRoles ?? [];
 
-if (at && rt) {
-	await supabase.auth.setSession({
-		access_token: at.value,
-		refresh_token: rt.value,
-	});
-}
+const isAdmin = checkAdmin(userRoles);
 
-const {
-	data: { user },
-} = await supabase.auth.getUser();
-
-// --- 2. Lógica de Roles Optimizada (Una sola consulta) ---
-let userRole = 'guest'; // default
-
-if (user) {
-	// Verificamos Admin primero (RPC)
-	const { data: isAdminRes } = await supabase.rpc('is_admin', { uid: user.id });
-
-	if (isAdminRes) {
-		userRole = 'admin';
-	} else {
-		// Si no es admin, consultamos la tabla usuarios UNA sola vez
-		const { data: userData } = await supabase
-			.from('usuarios')
-			.select('rol_id')
-			.eq('user_id', user.id)
-			.single();
-
-		// Mapeamos ID numérico a string legible
-		const roleMap: Record<number, string> = {
-			2: 'partner',
-			3: 'client',
-		};
-
-		if (userData && userData.rol_id) {
-			userRole = roleMap[Number(userData.rol_id)] || 'authenticated';
-		}
-	}
-}
-
-// --- 3. Configuración del Menú (Data-Driven) ---
-// Definimos qué roles pueden ver qué items.
-// 'all' podría usarse para items públicos.
+// --- 2. Configuración del Menú (Data-Driven) ---
+// Usa los valores de ROLES para consistencia con la BD:
+// 'admin', 'partner', 'cliente', 'operaciones', 'all'
 const menuItems = [
 	{
 		id: 'llc',
 		label: 'Crea una LLC',
 		href: '/start/',
 		tooltip: 'Crea una nueva LLC',
-		roles: ['client', 'partner'],
+		roles: [ROLES.CLIENT, ROLES.PARTNER],
 		svgname: 'ri:building-2-fill',
 	},
 	{
@@ -67,7 +29,7 @@ const menuItems = [
 		label: 'Tus compañias',
 		href: '/pages/companias',
 		tooltip: 'Mira tus compañias y su estado',
-		roles: ['client', 'partner'],
+		roles: [ROLES.CLIENT, ROLES.PARTNER],
 		svgname: 'ri:hand-coin-fill',
 	},
 	{
@@ -75,7 +37,7 @@ const menuItems = [
 		label: 'mantenimiento',
 		href: '/pages/mantenimiento',
 		tooltip: 'Mira fechas de tu compania y su mantenimiento anual',
-		roles: ['client', 'partner'],
+		roles: [ROLES.CLIENT, ROLES.PARTNER],
 		svgname: 'ri:time-zone-fill',
 	},
 	{
@@ -83,7 +45,7 @@ const menuItems = [
 		label: 'Documentos',
 		href: '/pages/tus-formularios',
 		tooltip: 'Mira tus documentos y formularios',
-		roles: ['client', 'partner'],
+		roles: [ROLES.CLIENT, ROLES.PARTNER],
 		svgname: 'ri:file-copy-2-line',
 	},
 	{
@@ -91,7 +53,7 @@ const menuItems = [
 		label: 'Partners',
 		href: '/partners/datos-referidos/',
 		tooltip: 'Mira tus referidos',
-		roles: ['partner'],
+		roles: [ROLES.PARTNER],
 		svgname: 'ri:shake-hands-fill',
 	},
 	{
@@ -99,7 +61,7 @@ const menuItems = [
 		label: 'Configuracion',
 		href: '/partners/configuracion-partners/',
 		tooltip: 'Configuracion de partner',
-		roles: ['partner'],
+		roles: [ROLES.PARTNER],
 		svgname: 'ri:settings-3-fill',
 	},
 
@@ -108,7 +70,7 @@ const menuItems = [
 		label: 'Agendar',
 		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
 		tooltip: 'Agenda una reunion con Sotomayor Consulting',
-		roles: ['client', 'partner'],
+		roles: [ROLES.CLIENT, ROLES.PARTNER],
 		svgname: 'ri:calendar-fill',
 	},
 	{
@@ -124,7 +86,7 @@ const menuItems = [
 		label: 'Clientes',
 		href: '/crud/users',
 		tooltip: 'Gestionar clientes',
-		roles: ['admin'],
+		roles: [ROLES.ADMIN],
 		svgname: 'ri:user-add-fill',
 	},
 	{
@@ -132,7 +94,7 @@ const menuItems = [
 		label: 'Empresas',
 		href: '/crud/empresas',
 		tooltip: 'Gestionar clientes',
-		roles: ['admin'],
+		roles: [ROLES.ADMIN],
 		svgname: 'ri:building-2-fill',
 	},
 	{
@@ -140,7 +102,7 @@ const menuItems = [
 		label: 'Incorporación',
 		href: '/crud/verficacion-incorporacion',
 		tooltip: 'Gestiona y verifica los datos del formulario de incorporación',
-		roles: ['admin'],
+		roles: [ROLES.ADMIN],
 		svgname: 'ri:archive-stack-fill',
 	},
 	{
@@ -148,7 +110,7 @@ const menuItems = [
 		label: 'Pagos',
 		href: '/crud/pagos',
 		tooltip: 'verifica y gestiona los pagos realizados por los clientes',
-		roles: ['admin'],
+		roles: [ROLES.ADMIN],
 		svgname: 'ri:coins-fill',
 	},
 	{
@@ -156,7 +118,7 @@ const menuItems = [
 		label: 'subir docs',
 		href: '/crud/subir-documentos',
 		tooltip: 'Sube documentos específicos para los clientes',
-		roles: ['admin'],
+		roles: [ROLES.ADMIN],
 		svgname: 'ri:upload-cloud-2-fill',
 	},
 	{
@@ -164,7 +126,7 @@ const menuItems = [
 		label: 'Notificaciones',
 		href: '/crud/notificaciones-personalizadas',
 		tooltip: 'Notifica a los usuarios con mensajes personalizados',
-		roles: ['admin'],
+		roles: [ROLES.ADMIN],
 		svgname: 'ri:chat-ai-4-fill',
 	},
 	{
@@ -172,7 +134,7 @@ const menuItems = [
 		label: 'Mailing',
 		href: '/crud/mailing',
 		tooltip: 'Envía correos personalizados a los usuarios',
-		roles: ['admin'],
+		roles: [ROLES.ADMIN],
 		svgname: 'ri:mail-ai-fill',
 	},
 	{
@@ -180,7 +142,7 @@ const menuItems = [
 		label: 'Servicios',
 		href: '/crud/services',
 		tooltip: 'Gestionar servicios',
-		roles: ['admin'],
+		roles: [ROLES.ADMIN],
 		svgname: 'ri:function-add-fill',
 	},
 	{
@@ -188,7 +150,7 @@ const menuItems = [
 		label: 'Formularios',
 		href: '/crud/formularios',
 		tooltip: 'Crea y gestiona formularios',
-		roles: ['admin'],
+		roles: [ROLES.ADMIN],
 		svgname: 'ri:file-edit-fill',
 	},
 	{
@@ -196,7 +158,7 @@ const menuItems = [
 		label: 'Docs Enviados',
 		href: '/crud/formularios-enviados',
 		tooltip: 'Gestiona las respuestas y estados de documentos',
-		roles: ['admin'],
+		roles: [ROLES.ADMIN],
 		svgname: 'ri:file-check-fill',
 	},
 	{
@@ -209,43 +171,46 @@ const menuItems = [
 	},
 ];
 
-// --- 4. Consulta de formularios pendientes (solo para admin) ---
+// --- 3. Consultas de datos admin (solo si es admin) ---
 let formularioPendientesCount = 0;
-
-if (userRole === 'admin') {
-	const { data: formularios } = await supabase
-		.from('formularios_envios')
-		.select(
-			`
-			*,
-			formularios:formularios (form_id, titulo, slug, descripcion),
-			usuarios:usuarios (user_id, nombre, apellido)
-		`,
-		)
-		.eq('status', 'submitted')
-		.eq('verificacion_operaciones', false)
-		.eq('formularios.titulo', 'Formulario de incorporación')
-		.order('updated_at', { ascending: true });
-
-	formularioPendientesCount = formularios?.length || 0;
-}
-
-// --- 5. Consulta de tabla de pagos (solo para admin) ---
 let pagosCount = 0;
 
-if (userRole === 'admin') {
-	const { data: pagosCountData } = await supabase
-		.from('pagos')
-		.select('*')
-		.eq('status', 'succeeded')
-		.eq('visto_por_operaciones', false);
+if (isAdmin) {
+	const supabase = createSupabaseServerClient({
+		headers: Astro.request.headers,
+		cookies: Astro.cookies,
+	});
 
+	const [{ data: formularios }, { data: pagosCountData }] = await Promise.all([
+		supabase
+			.from('formularios_envios')
+			.select(
+				`
+				*,
+				formularios:formularios (form_id, titulo, slug, descripcion),
+				usuarios:usuarios (user_id, nombre, apellido)
+			`,
+			)
+			.eq('status', 'submitted')
+			.eq('verificacion_operaciones', false)
+			.eq('formularios.titulo', 'Formulario de incorporación')
+			.order('updated_at', { ascending: true }),
+		supabase
+			.from('pagos')
+			.select('*')
+			.eq('status', 'succeeded')
+			.eq('visto_por_operaciones', false),
+	]);
+
+	formularioPendientesCount = formularios?.length || 0;
 	pagosCount = pagosCountData?.length || 0;
 }
 
-// Filtramos el menú antes de renderizar - ACTUALIZADO PARA INCLUIR 'all'
+// Filtramos el menú: el item es visible si incluye 'all' o si el usuario tiene alguno de los roles del item
 const visibleMenu = menuItems.filter(
-	(item) => item.roles.includes('all') || item.roles.includes(userRole),
+	(item) =>
+		item.roles.includes('all' as any) ||
+		item.roles.some((role) => userRoles.includes(role as any)),
 );
 ---
 

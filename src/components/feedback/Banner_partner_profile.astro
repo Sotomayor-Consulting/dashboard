@@ -1,16 +1,8 @@
 ---
-import { supabase } from '@lib/supabase';
-import type { User } from '@supabase/supabase-js';
+import { isPartner } from '@lib/roles';
+import { createSupabaseServerClient } from '@lib/supabase';
 
-const { cookies } = Astro;
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
-
-let user: User | null = null;
-let shouldShowBanner = false;
-let missingFields: string[] = [];
-
-// Campos requeridos para partners (rol_id = 2)
+// Campos requeridos para partners
 const REQUIRED_FIELDS = [
 	'direccion_linea1',
 	'direccion_linea2',
@@ -21,9 +13,7 @@ const REQUIRED_FIELDS = [
 
 type RequiredFieldKey = (typeof REQUIRED_FIELDS)[number];
 
-type UsuarioPerfil = {
-	rol_id: number;
-} & Record<RequiredFieldKey, string | null>;
+type UsuarioPerfil = Record<RequiredFieldKey, string | null>;
 
 // Mapeo de nombre técnico → etiqueta bonita
 const FIELD_LABELS: Record<RequiredFieldKey, string> = {
@@ -34,6 +24,13 @@ const FIELD_LABELS: Record<RequiredFieldKey, string> = {
 	tipo_persona: 'Tipo de persona',
 };
 
+// Auth handled by middleware — user & roles already in locals
+const user = Astro.locals.user;
+const userRoles = Astro.locals.userRoles;
+
+let shouldShowBanner = false;
+let missingFields: RequiredFieldKey[] = [];
+
 const BANNER_PROPS = {
 	title: 'Completa tu información de perfil para continuar como partner.',
 	btnId: 'dismiss-profile-banner',
@@ -41,46 +38,32 @@ const BANNER_PROPS = {
 	url: '/settings/',
 };
 
-// Proceso de autenticación y consulta (SSR)
-if (accessToken?.value && refreshToken?.value) {
+// Only check profile completeness for partners
+if (user && isPartner(userRoles)) {
 	try {
-		// Establecer sesión
-		const { error: sessionErr } = await supabase.auth.setSession({
-			refresh_token: refreshToken.value,
-			access_token: accessToken.value,
+		const supabase = createSupabaseServerClient({
+			headers: Astro.request.headers,
+			cookies: Astro.cookies,
 		});
 
-		if (!sessionErr) {
-			// Obtener usuario actual
-			const {
-				data: { user: currentUser },
-			} = await supabase.auth.getUser();
+		const { data: userProfile, error: profileError } = await supabase
+			.from('usuarios')
+			.select(
+				'direccion_linea1, direccion_linea2, tipo_identificacion, numero_de_identificacion, tipo_persona',
+			)
+			.eq('user_id', user.id)
+			.single<UsuarioPerfil>();
 
-			user = currentUser;
+		if (!profileError && userProfile) {
+			missingFields = REQUIRED_FIELDS.filter((field) => {
+				const value = userProfile[field];
+				return value === null || value === undefined || value === '';
+			});
 
-			if (user) {
-				const { data: userProfile, error: profileError } = await supabase
-					.from('usuarios')
-					.select(
-						'rol_id, direccion_linea1, direccion_linea2, tipo_identificacion, numero_de_identificacion, tipo_persona',
-					)
-					.eq('user_id', user.id)
-					.single<UsuarioPerfil>();
-
-				if (!profileError && userProfile && userProfile.rol_id === 2) {
-					missingFields = REQUIRED_FIELDS.filter((field) => {
-						const value = userProfile[field];
-						return value === null || value === undefined || value === '';
-					});
-
-					shouldShowBanner = missingFields.length > 0;
-				}
-			}
-		} else {
-			console.error('[Banner] Error setSession:', sessionErr);
+			shouldShowBanner = missingFields.length > 0;
 		}
 	} catch (e) {
-		console.error('[Banner] Error de sesión o conexión con Supabase:', e);
+		console.error('[Banner] Error de conexión con Supabase:', e);
 	}
 }
 ---

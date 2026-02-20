@@ -1,19 +1,17 @@
 ---
 import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const { id } = Astro.params; // ID dinámico de la URL
-const { redirect } = Astro;
 
-const {
-	data: { user },
-	error: userErr,
-} = await supabase.auth.getUser();
-if (userErr || !user) {
-	return redirect('/sign-in');
+// Auth handled by middleware
+const user = Astro.locals.user;
+if (!user) {
+	return Astro.redirect('/sign-in');
 }
 
-import { supabase } from '@lib/supabase';
+const supabase = createSupabaseServerClient(Astro);
 
 const { data: empresa, error: empresaError } = await supabase
 	.from('empresas_incorporaciones')

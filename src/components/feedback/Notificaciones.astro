@@ -3,7 +3,8 @@ import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import '@styles/datatables.css';
 import logonotificaciones from '/src/assets/avatarSCI.png';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
+const supabase = createSupabaseServerClient(Astro);
 import Alerta from '@components/feedback/alertageneral.astro';
 
 const { data: notificaciones } = await supabase

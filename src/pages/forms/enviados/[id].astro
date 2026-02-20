@@ -1,34 +1,19 @@
 ---
 // src/pages/envios/[id].astro
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
+import { isAdmin as checkIsAdmin } from '@lib/roles';
 
-// /envios/[id]  -> id = submission_id
+// Auth handled by middleware
+const user = Astro.locals.user!;
+const userRoles = Astro.locals.userRoles;
 const { id } = Astro.params;
-const { cookies, redirect } = Astro;
+const supabase = createSupabaseServerClient(Astro);
 
-// 1) Sesión
-const at = cookies.get('sb-access-token');
-const rt = cookies.get('sb-refresh-token');
-if (!at || !rt) return redirect('/sign-in');
-
-await supabase.auth.setSession({
-	access_token: at.value,
-	refresh_token: rt.value,
-});
-
-// 2) Usuario
-const {
-	data: { user },
-	error: userErr,
-} = await supabase.auth.getUser();
-if (userErr || !user) return redirect('/sign-in');
-
-// 3) Traer envío y verificar rol admin (en paralelo)
-const [envioRes, adminRes] = await Promise.all([
-	supabase
-		.from('formularios_envios')
-		.select(
-			`
+// Traer envío
+const { data: envio, error: envioErr } = await supabase
+	.from('formularios_envios')
+	.select(
+		`
       submission_id,
       form_id,
       user_id,
@@ -40,20 +25,15 @@ const [envioRes, adminRes] = await Promise.all([
       formularios:formularios ( titulo, tema_json ),
       usuarios:usuarios ( nombre, apellido )
     `,
-		)
-		.eq('submission_id', id)
-		.single(),
-	supabase.rpc('is_admin', { uid: user.id }),
-]);
+	)
+	.eq('submission_id', id)
+	.single();
 
-const { data: envio, error: envioErr } = envioRes;
-const { data: isAdmin, error: rpcErr } = adminRes;
+if (envioErr || !envio) return Astro.redirect('/');
 
-if (envioErr || !envio) return redirect('/');
-
-// 4) Gate: dueño o admin
-const esAdmin = !rpcErr && !!isAdmin;
-if (!esAdmin && envio.user_id !== user.id) return redirect('/');
+// Gate: dueño o admin
+const esAdmin = checkIsAdmin(userRoles);
+if (!esAdmin && envio.user_id !== user.id) return Astro.redirect('/');
 
 // 5) Accesos directos
 const titulo = envio.formularios?.titulo;

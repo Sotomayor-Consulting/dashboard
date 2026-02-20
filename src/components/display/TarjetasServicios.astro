@@ -1,5 +1,6 @@
 ---
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
+const supabase = createSupabaseServerClient(Astro);
 
 const { data: servicios, error: serviciosErr } = await supabase
 	.from('servicio_extra')

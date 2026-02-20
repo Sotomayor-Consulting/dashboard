@@ -3,71 +3,52 @@ import { Image } from 'astro:assets';
 import Logo1 from '/src/assets/SC-INTER.png';
 import Logo2 from '/src/assets/SC-INTER-NG.png';
 import logonotificaciones from '/src/assets/avatarSCI.png';
-import { supabase } from '../../lib/supabase';
-const { cookies } = Astro;
-
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
+import { createSupabaseServerClient } from '@lib/supabase';
 
 import ColorModeSwitcher from '../../components/display/ColorModeSwitcher.astro';
-const { data } = await supabase.auth.setSession({
-	refresh_token: refreshToken.value,
-	access_token: accessToken.value,
+
+// --- Usuario desde middleware (sin queries extra de auth) ---
+const user = Astro.locals.user;
+
+// --- Queries de datos del usuario (necesitan Supabase) ---
+const supabase = createSupabaseServerClient({
+	headers: Astro.request.headers,
+	cookies: Astro.cookies,
 });
 
-const {
-	data: { user },
-} = await supabase.auth.getUser();
-
 let imagen = null;
-if (user) {
-	const { data } = await supabase
-		.from('usuarios')
-		.select('avatar_url')
-		.eq('user_id', user.id)
-		.single();
-	imagen = data;
-}
-
 let testRow = null;
+let email = user?.email ?? '';
+let notifications: any[] = [];
+let totalUnread = 0;
+
 if (user) {
-	const { data } = await supabase
+	// Una sola query para avatar + nombre + apellido
+	const { data: userData } = await supabase
 		.from('usuarios')
-		.select('nombre, apellido')
+		.select('avatar_url, nombre, apellido')
 		.eq('user_id', user.id)
 		.single();
-	testRow = data;
-}
 
-let isAdmin = false;
-if (user) {
-	// usa tu función SECURITY DEFINER
-	const { data: isAdminRes, error } = await supabase.rpc('is_admin', {
-		uid: user.id,
-	});
-	if (!error) isAdmin = Boolean(isAdminRes);
-}
+	imagen = userData;
+	testRow = userData;
 
-const email = data?.user?.email;
+	// Notificaciones
+	const [{ data: notifData }, { count }] = await Promise.all([
+		supabase
+			.from('notifications')
+			.select('*')
+			.eq('user_id', user.id)
+			.order('created_at', { ascending: false })
+			.limit(5),
+		supabase
+			.from('notifications')
+			.select('*', { count: 'exact', head: true })
+			.eq('user_id', user.id)
+			.eq('is_read', false),
+	]);
 
-let notifications = [];
-let totalUnread = 0;
-if (user) {
-	// Consulta para las 5 notificaciones más recientes
-	const { data } = await supabase
-		.from('notifications')
-		.select('*')
-		.eq('user_id', user.id)
-		.order('created_at', { ascending: false })
-		.limit(5);
-	notifications = data || [];
-
-	// Contador de no leídas (opcional, para mostrar badge)
-	const { count } = await supabase
-		.from('notifications')
-		.select('*', { count: 'exact', head: true })
-		.eq('user_id', user.id)
-		.eq('is_read', false);
+	notifications = notifData || [];
 	totalUnread = count || 0;
 }
 
