@@ -1,71 +1,20 @@
 ---
-// src/pages/envios/[id].astro
-import { supabase } from '@lib/supabase';
+import { getFormularioEnviadoDetalle } from '@lib/tablas/formulariosEnviados';
 
-// /envios/[id]  -> id = submission_id
 const { id } = Astro.params;
-const { cookies, redirect } = Astro;
+const user = Astro.locals.user;
+const userId = user?.id;
+const userRoles = Astro.locals.userRoles || [];
 
-// 1) Sesión
-const at = cookies.get('sb-access-token');
-const rt = cookies.get('sb-refresh-token');
-if (!at || !rt) return redirect('/sign-in');
+const isAdmin = userRoles.includes('admin');
 
-await supabase.auth.setSession({
-	access_token: at.value,
-	refresh_token: rt.value,
-});
+const { data: envio, error: envioErr } = await getFormularioEnviadoDetalle(id!);
 
-// 2) Usuario
-const {
-	data: { user },
-	error: userErr,
-} = await supabase.auth.getUser();
-if (userErr || !user) return redirect('/sign-in');
-
-// 3) Traer envío y verificar rol admin (en paralelo)
-const [envioRes, usuarioData] = await Promise.all([
-	supabase
-		.from('formularios_envios')
-		.select(
-			`
-      submission_id,
-      form_id,
-      user_id,
-      status,
-      data_json,
-      schema_snapshot,
-      created_at,
-      submitted_at,
-      empresa_incorporacion_id,
-      formularios:formularios ( titulo, tema_json ),
-      usuarios:usuarios ( nombre, apellido )
-    `,
-		)
-		.eq('submission_id', id)
-		.single(),
-	supabase
-		.from('usuarios')
-		.select('*, roles (name)')
-		.eq('user_id', user.id)
-		.maybeSingle(),
-]);
-
-const { data: envio, error: envioErr } = envioRes;
-
-let userRole = 'guest';
-if (usuarioData?.roles) {
-	const rolArray = usuarioData.roles as { name: string }[];
-	userRole = rolArray?.[0]?.name || 'guest';
-}
-
-const isAdmin = userRole === 'admin';
-
-if (envioErr || !envio) return redirect('/');
+if (envioErr || !envio) return Astro.redirect('/');
 
 // 4) Gate: dueño o admin
 const canEdit = isAdmin;
-if (!isAdmin && envio.user_id !== user.id) return redirect('/');
+if (!isAdmin && envio.user_id !== userId) return Astro.redirect('/');
 
 // 5) Accesos directos
 const titulo = envio.formularios?.titulo;

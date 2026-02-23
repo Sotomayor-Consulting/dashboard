@@ -36,10 +36,21 @@ export function onRequest(context: any, next: any) {
 
 			if (!error && authUser) {
 				user = authUser;
+
+				const { data: usuarioData } = await supabase
+					.from('user_roles')
+					.select('*, roles (name)')
+					.eq('user_id', user.id);
+
+				const userRoles: string[] =
+					(usuarioData as any[])
+						?.map((ur: any) => ur.roles?.name)
+						.filter(Boolean) || [];
+
+				context.locals.user = user;
+				context.locals.userRoles = userRoles;
 			}
 		}
-
-		context.locals.user = user;
 
 		if (isPublicRoute || isPublicFolder) {
 			return next();
@@ -49,15 +60,7 @@ export function onRequest(context: any, next: any) {
 			return redirect('/sign-in');
 		}
 
-		const { data: usuarioData } = await supabase
-			.from('user_roles')
-			.select('*, roles (name)')
-			.eq('user_id', user.id);
-
-		const userRoles: string[] =
-			(usuarioData as any[])
-				?.map((ur: any) => ur.roles?.name)
-				.filter(Boolean) || [];
+		const userRoles = context.locals.userRoles || [];
 
 		const adminFolders = ['/crud/', '/admin/'];
 		const partnerFolders = ['/partners/', '/afiliados/'];

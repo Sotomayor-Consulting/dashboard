@@ -6,7 +6,7 @@ import { supabase } from '@lib/supabase';
 
 const BACK_PATH = '/crud/notificaciones-personalizadas';
 
-export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
+export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }) => {
 	const back = url.searchParams.get('back') || BACK_PATH;
 
 	try {
@@ -23,7 +23,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			refresh_token: rt.value,
 		});
 
-		// 2) Actor + check admin
+		// 2) Actor + check admin desde locals
 		const { data: userRes, error: userErr } = await supabase.auth.getUser();
 		const actor = userRes?.user;
 		if (userErr || !actor) {
@@ -32,10 +32,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			);
 		}
 
-		const { data: isAdminRes, error: rpcErr } = await supabase.rpc('is_admin', {
-			uid: actor.id,
-		});
-		const isAdmin = !rpcErr && Boolean(isAdminRes);
+		const userRoles = locals.userRoles || [];
+		const isAdmin = userRoles.includes('admin');
 		if (!isAdmin) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autorizado')}`,

@@ -1,5 +1,55 @@
 import { supabase } from '@lib/supabase';
 
+export interface FormularioEnviadoDetalle {
+	submission_id: string;
+	form_id: string;
+	user_id: string;
+	status: string;
+	data_json: Record<string, unknown>;
+	schema_snapshot: Record<string, unknown>;
+	created_at: string;
+	submitted_at: string;
+	empresa_incorporacion_id: string;
+	formularios: {
+		titulo: string;
+		tema_json: Record<string, unknown>;
+	}[];
+	usuarios: {
+		nombre: string;
+		apellido: string;
+	}[];
+}
+
+export async function getFormularioEnviadoDetalle(
+	submissionId: string,
+): Promise<{ data: FormularioEnviadoDetalle | null; error: Error | null }> {
+	const { data, error } = await supabase
+		.from('formularios_envios')
+		.select(
+			`
+      submission_id,
+      form_id,
+      user_id,
+      status,
+      data_json,
+      schema_snapshot,
+      created_at,
+      submitted_at,
+      empresa_incorporacion_id,
+      formularios:formularios ( titulo, tema_json ),
+      usuarios:usuarios ( nombre, apellido )
+    `,
+		)
+		.eq('submission_id', submissionId)
+		.single();
+
+	if (error) {
+		return { data: null, error };
+	}
+
+	return { data: data as FormularioEnviadoDetalle, error: null };
+}
+
 export interface FormularioPendiente {
 	id: string;
 	status: string;

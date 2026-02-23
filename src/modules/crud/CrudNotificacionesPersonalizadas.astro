@@ -1,0 +1,400 @@
+---
+import Alerta from '@components/feedback/alertageneral.astro';
+import '@estilos/datatables.css';
+import { getAllUsuarios } from '@lib/tablas/usuarios';
+
+const usuarios = await getAllUsuarios();
+---
+
+<script src="@lib/alpinejs/alpine.js"></script>
+<div
+	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] dark:border-gray-700"
+>
+	<Alerta />
+	<div class="w-full mb-1">
+		<div class="mb-4">
+			<nav class="flex mb-5" aria-label="Breadcrumb">
+				<ol
+					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
+				>
+					<li class="inline-flex items-center">
+						<a
+							href="/"
+							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
+						>
+							<svg
+								class="w-5 h-5 mr-2.5"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+								></path></svg
+							>
+							Inicio
+						</a>
+					</li>
+					<li>
+						<div class="flex items-center">
+							<svg
+								class="w-6 h-6 text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+									clip-rule="evenodd"></path></svg
+							>
+							<a
+								href="/crud/notificaciones-personalizadas"
+								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
+								>Notificaciones</a
+							>
+						</div>
+					</li>
+				</ol>
+			</nav>
+			<h1
+				class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
+			>
+				Lista de usuarios
+			</h1>
+		</div>
+	</div>
+</div>
+<div class="flex flex-col">
+	<div class="overflow-x-auto">
+		<div class="inline-block min-w-full align-middle">
+			<div class="overflow-hidden shadow">
+				<table
+					class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
+					id="myTable"
+				>
+					<thead class="bg-gray-100 dark:bg-[#374151]">
+						<tr>
+							{
+								[
+									'Foto',
+									'Nombre',
+									'Compañía',
+									'Cargo',
+									'País',
+									'Estado',
+									'Rol',
+									'Acciones',
+								].map((th) => (
+									<th
+										scope="col"
+										class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+									>
+										<span class="flex items-center uppercase">
+											{th}
+											<svg
+												class="w-4 h-4 ms-1"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												fill="none"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke="currentColor"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="m8 15 4 4 4-4m0-6-4-4-4 4"
+												/>
+											</svg>
+										</span>
+									</th>
+								))
+							}
+						</tr>
+					</thead>
+					<tbody
+						class="bg-white divide-y divide-gray-200 dark:bg-[#192033] dark:divide-gray-700"
+					>
+						{
+							usuarios?.map((user) => (
+								<div>
+									<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
+										<td class="w-4 pl-4">
+											{user.avatar_url === 'NULL' || !user.avatar_url ? (
+												<img
+													class="w-10 h-10 rounded-full"
+													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
+													alt={`Avatar de ${user.nombre}`}
+												/>
+											) : (
+												<img
+													class="w-10 h-10 rounded-full"
+													src={user.avatar_url}
+													alt={`Avatar de ${user.nombre}`}
+												/>
+											)}
+										</td>
+										<td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
+											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+												<div class="text-base font-semibold text-gray-900 dark:text-white">
+													{user.nombre} {user.apellido}
+												</div>
+												<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+													{user.correo}
+												</div>
+											</div>
+										</td>
+										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+											{user.organizacion}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{user.cargo}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{user.paises?.nombre_paises ?? '—'}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											<div class="flex items-center">
+												{user.estado === 'activo' ? (
+													<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
+												) : (
+													<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
+												)}
+												{user.estado}
+											</div>
+										</td>
+										<td class="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
+											<div class="flex items-center">
+												{user.rol_id === 1 ? (
+													<span
+														class="text-purple-600 font-medium"
+														title="Administrador"
+													>
+														Admin
+													</span>
+												) : user.rol_id === 2 ? (
+													<span
+														class="text-[#8c681d] font-medium"
+														title="Partner"
+													>
+														Partner
+													</span>
+												) : (
+													<span
+														class="text-green-600 font-medium"
+														title="Cliente"
+													>
+														Cliente
+													</span>
+												)}
+											</div>
+										</td>
+										<td class="p-4 space-x-2 flex">
+											<button
+												data-modal-target="top-right-modal"
+												data-modal-toggle="top-right-modal"
+												data-user-notification
+												data-user-id={user.user_id}
+												class="block w-full md:w-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+												type="button"
+											>
+												Enviar notificación
+											</button>
+										</td>
+									</tr>
+								</div>
+							))
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Top Right Modal -->
+<div
+	id="top-right-modal"
+	data-modal-placement="top-right"
+	tabindex="-1"
+	class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-full"
+>
+	<div class="relative w-full max-w-2xl h-full">
+		<!-- Modal content -->
+		<div
+			class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033] h-full"
+		>
+			<!-- Modal header -->
+			<div
+				class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200"
+			>
+				<h3 class="text-xl font-medium text-gray-900 dark:text-white">
+					Mensaje para el usuario
+				</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					data-modal-hide="top-right-modal"
+				>
+					<svg
+						class="w-3 h-3"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 14 14"
+					>
+						<path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
+					</svg>
+					<span class="sr-only">Cerrar modal</span>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<div class="p-4 md:p-5 space-y-4">
+				<form action="/api/update/admin-notifications-update" method="post">
+					<input
+						type="text"
+						name="user_id_modal_name"
+						id="user_id_modal"
+						hidden
+					/>
+					<div class="grid gap-4 mb-4 sm:grid-cols-2">
+						<div>
+							<label
+								for="descripcion-link-notificacion"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Descripción del link</label
+							>
+							<input
+								type="text"
+								name="descripcion-link-notificacion"
+								id="descripcion-link-notificacion"
+								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								placeholder="Inserta el link"
+								required=""
+							/>
+						</div>
+						<div>
+							<label
+								for="link-notificacion"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Link</label
+							>
+							<input
+								type="text"
+								name="link-notificacion"
+								id="link-notificacion"
+								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								placeholder="Inserta el asunto del correo"
+								required=""
+							/>
+						</div>
+						<div class="sm:col-span-2 h-full">
+							<label
+								for="mensaje-notificacion"
+								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								>Mensaje</label
+							>
+							<textarea
+								id="mensaje-notificacion"
+								name="mensaje-notificacion"
+								rows="28"
+								class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432] h-full mb-2"
+								placeholder="Escribe un mensaje corto para el usuario"
+								required></textarea>
+						</div>
+					</div>
+					<div
+						class="flex items-center p-4 md:p-5 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b dark:border-gray-600"
+					>
+						<button
+							data-modal-hide="top-right-modal"
+							type="submit"
+							class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+							>Enviar notificación</button
+						>
+						<button
+							data-modal-hide="top-right-modal"
+							type="button"
+							class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
+							>Cancelar</button
+						>
+					</div>
+				</form>
+			</div>
+			<!-- Modal footer -->
+		</div>
+	</div>
+</div>
+
+<script is:inline>
+	document.addEventListener('DOMContentLoaded', function () {
+		// Obtener todos los botones de notificación
+		const notificationButtons = document.querySelectorAll(
+			'button[data-user-notification]',
+		);
+
+		notificationButtons.forEach(function (button) {
+			button.addEventListener('click', function () {
+				// Obtener el user_id del dataset
+				const userId = this.getAttribute('data-user-id');
+
+				// Buscar el input en el modal por su name
+				const userInput = document.querySelector(
+					'input[name="user_id_modal_name"]',
+				);
+
+				if (userInput && userId) {
+					// Asignar el valor
+					userInput.value = userId;
+				} else {
+					console.log('No se encontró el input o no hay user_id');
+					console.log('User ID desde dataset:', userId);
+					console.log('Input encontrado:', userInput);
+				}
+			});
+		});
+	});
+</script>
+<script>
+	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
+
+	function initDT() {
+		const el = document.querySelector('#myTable') as HTMLElement | null;
+		if (!el) return;
+		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
+			return;
+
+		new DataTable(el, {
+			searchable: true,
+			perPage: 25,
+			perPageSelect: [5, 10, 25, 50],
+
+			// Textos en español
+			labels: {
+				placeholder: 'Buscar...',
+				perPage: 'Filas',
+				noRows: 'No hay usuarios',
+				noResults: 'No se encontraron usuarios',
+				info: 'Mostrando {start} a {end} de {rows} registros',
+			},
+
+			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			layout: {
+				top: '{select}{search}',
+				bottom: '{info}{pager}',
+			},
+		});
+
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
+	}
+
+	initDT();
+	document.addEventListener('astro:page-load', initDT);
+</script>

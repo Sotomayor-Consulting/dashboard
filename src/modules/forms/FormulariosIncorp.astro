@@ -1,0 +1,1438 @@
+---
+import { supabase } from '@lib/supabase';
+
+const { id } = Astro.params;
+
+const { data: formularios } = await supabase
+	.from('formularios_envios')
+	.select(
+		`
+	empresa_incorporacion_id,
+    data_json,
+    formularios (form_id, titulo, slug, descripcion),
+    usuarios (user_id, nombre, apellido),
+    empresas_incorporaciones (nombre_1, estado)
+  `,
+	)
+	.eq('submission_id', id)
+	.single();
+
+const { data: estados } = await supabase
+	.from('estados')
+	.select('Estado')
+	.order('Estado');
+
+const { data: paises } = await supabase
+	.from('paises')
+	.select('nombre_paises')
+	.order('nombre_paises');
+
+const { data: actividades } = await supabase
+	.from('actividades')
+	.select('Actividad')
+	.order('Actividad');
+
+const managers = formularios?.data_json?.Managers || [];
+---
+
+<script src="../../lib/alpinejs/alpine.js"></script>
+
+<div class="grid grid-cols-1 px-4 pt-6 xl:grid-cols-2 xl:gap-4">
+	<div class="mb-4 col-span-full xl:mb-2">
+		<nav class="flex mb-5" aria-label="Breadcrumb">
+			<ol
+				class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
+			>
+				<li class="inline-flex items-center">
+					<a
+						href="/"
+						class="inline-flex items-center text-neutral-700 hover:text-[#967432] dark:text-neutral-300 dark:hover:text-white"
+					>
+						<svg
+							class="w-5 h-5 mr-2.5"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+							></path></svg
+						>
+						Inicio
+					</a>
+				</li>
+				<li class="inline-flex items-center">
+					<a
+						href="/crud/verficacion-incorporacion"
+						class="inline-flex items-center text-neutral-700 hover:text-[#967432] dark:text-neutral-300 dark:hover:text-white"
+					>
+						<svg
+							class="w-6 h-6 text-neutral-400"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill-rule="evenodd"
+								d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+								clip-rule="evenodd"></path></svg
+						>
+						verificación incorporación
+					</a>
+				</li>
+				<li>
+					<div class="flex items-center">
+						<svg
+							class="w-6 h-6 text-neutral-400"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill-rule="evenodd"
+								d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+								clip-rule="evenodd"></path></svg
+						>
+						<span
+							class="ml-1 text-neutral-400 md:ml-2 dark:text-neutral-500"
+							aria-current="page"
+							>Empresa {
+								formularios?.empresas_incorporaciones?.[0]?.nombre_1
+							}</span
+						>
+					</div>
+				</li>
+			</ol>
+		</nav>
+		<h1
+			class="text-xl font-semibold text-neutral-900 sm:text-2xl dark:text-white"
+		>
+			Respuestas del formulario de incorporación
+		</h1>
+	</div>
+	<!-- Right Content -->
+
+	<div class="col-span-2">
+		<form
+			action=""
+			x-data="{ formadeAdministracion: '' }"
+			x-init="formadeAdministracion = document.getElementById('forma_de_administrar').value"
+		>
+			<input
+				type="text"
+				name="empresa_id"
+				id="empresa_id"
+				value={formularios?.empresa_incorporacion_id}
+				hidden
+			/>
+			<div
+				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+			>
+				<h3 class="mb-4 text-xl font-semibold dark:text-white">
+					Actividad de la compañía
+				</h3>
+
+				<div
+					class="grid grid-cols-6 gap-6"
+					x-data="{ direccionEEUU: 'No' }"
+					x-init="direccionEEUU = document.getElementById('direccion_operativa_eeuu').value"
+				>
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="Ingresos_de_EEUU"
+							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+							>¿La LLC obtendrá ingresos provenientes de Estados Unidos?</label
+						>
+						<select
+							name="Ingresos_de_EEUU"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						>
+							<!-- Opción por defecto (placeholder) -->
+							<option
+								value=""
+								disabled
+								hidden
+								selected={formularios?.data_json
+									?.ingresos_provenientes_de_Estados_Unidos == null}
+							>
+								Seleccione una opción
+							</option>
+
+							<!-- Opción "Sí" -->
+							<option
+								value="true"
+								selected={formularios?.data_json
+									?.ingresos_provenientes_de_Estados_Unidos === true}
+							>
+								Sí
+							</option>
+
+							<!-- Opción "No" -->
+							<option
+								value="false"
+								selected={formularios?.data_json
+									?.ingresos_provenientes_de_Estados_Unidos === false}
+							>
+								No
+							</option>
+						</select>
+					</div>
+
+					{
+						formularios?.data_json?.actividad_en_lista ===
+						'No está en la lista' ? (
+							<div class="col-span-6 sm:col-span-3">
+								<label
+									for="actividad_manual"
+									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								>
+									Actividad registrada de forma manual
+								</label>
+								<input
+									type="text"
+									name="actividad_manual"
+									value={`${formularios?.data_json?.codigo_actividad} - ${formularios?.data_json?.descripcion_actividad}`}
+									id="actividad_manual"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									placeholder="114110 - Pesca"
+								/>
+							</div>
+						) : (
+							<div class="col-span-6 sm:col-span-3">
+								<label
+									for="actividad"
+									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								>
+									Actividad
+								</label>
+								<select
+									name="actividad"
+									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								>
+									<option
+										value=""
+										disabled
+										hidden
+										selected={formularios?.data_json?.Actividad == null}
+									>
+										Seleccione una opción
+									</option>
+
+									{actividades?.map((actividad) => (
+										<option
+											value={actividad.Actividad}
+											selected={
+												formularios?.data_json?.Actividad ===
+												actividad.Actividad
+											}
+										>
+											{actividad.Actividad}
+										</option>
+									))}
+								</select>
+							</div>
+						)
+					}
+
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="forma_de_administrar"
+							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+							>Forma de administrar</label
+						>
+						<select
+							name="forma_de_administrar"
+							id="forma_de_administrar"
+							x-model="formadeAdministracion"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						>
+							<option
+								value=""
+								selected={!formularios?.data_json?.forma_administracion}
+								hidden
+								disabled>Seleccione una forma de administar</option
+							>
+
+							<!-- Opción "Sí" -->
+							<option
+								value="Manager-Managed"
+								selected={formularios?.data_json?.forma_administracion ===
+									'Manager-Managed'}
+							>
+								Manager-Managed
+							</option>
+
+							<!-- Opción "No" -->
+							<option
+								value="Member-Managed"
+								selected={formularios?.data_json?.forma_administracion ===
+									'Member-Managed'}
+							>
+								Member-Managed
+							</option>
+						</select>
+					</div>
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="forma_de_tributar"
+							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+							>Forma de tributar</label
+						>
+						<select
+							name="forma_de_tributar"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						>
+							<option
+								value=""
+								selected={!formularios?.data_json?.forma_tributacion}
+								hidden
+								disabled>Seleccione una forma de tibutar</option
+							>
+
+							<!-- Opción "Sí" -->
+							<option
+								value="Entidad de paso"
+								selected={formularios?.data_json?.forma_tributacion ===
+									'Entidad de paso'}
+							>
+								Entidad de paso
+							</option>
+
+							<!-- Opción "No" -->
+							<option
+								value="Corporación"
+								selected={formularios?.data_json?.forma_tributacion ===
+									'Corporación'}
+							>
+								Corporación
+							</option>
+						</select>
+					</div>
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="city"
+							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+							>¿Tiene dirección operativa en EE.UU.?</label
+						>
+						<select
+							name="direccion_operativa_eeuu"
+							id="direccion_operativa_eeuu"
+							x-model="direccionEEUU"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						>
+							<option
+								value=""
+								selected={!formularios?.data_json?.direccion_operativa_eeuu}
+								hidden
+								disabled
+							>
+								Seleccione una opción
+							</option>
+
+							<option
+								value="Si"
+								selected={formularios?.data_json?.direccion_operativa_eeuu ===
+									'Si'}
+							>
+								Si
+							</option>
+
+							<option
+								value="No"
+								selected={formularios?.data_json?.direccion_operativa_eeuu ===
+									'No'}
+							>
+								No
+							</option>
+
+							<option
+								value="Quiero que Sotomayor Consulting International provea una dirección"
+								selected={formularios?.data_json?.direccion_operativa_eeuu ===
+									'Quiero que Sotomayor Consulting International provea una dirección'}
+							>
+								Quiero que Sotomayor Consulting International provea una
+								dirección
+							</option>
+						</select>
+					</div>
+
+					<!-- condicionales de Tiene dirección operativa en EE.UU. -->
+					<!-- inicio direccionEEUU === 'Si' -->
+
+					<template x-if="direccionEEUU === 'Si'">
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="direccion"
+								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								>Dirección</label
+							>
+							<input
+								type="text"
+								name="direccion"
+								value={formularios?.data_json?.Direccion}
+								id="address"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								placeholder="ejem. Av. Juan Molineros"
+							/>
+						</div>
+					</template>
+					<template x-if="direccionEEUU === 'Si'">
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="condado"
+								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								>Condado</label
+							>
+							<input
+								type="text"
+								name="condado"
+								value={formularios?.data_json?.Condado}
+								id="condado"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								placeholder="ejem. Miami-Dade"
+							/>
+						</div>
+					</template>
+					<template x-if="direccionEEUU === 'Si'">
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="ciudad"
+								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								>Ciudad</label
+							>
+							<input
+								type="text"
+								name="ciudad"
+								value={formularios?.data_json?.Ciudad}
+								id="ciudad"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								placeholder="ejem. Miami"
+							/>
+						</div>
+					</template>
+					<template x-if="direccionEEUU === 'Si'">
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="estado"
+								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								>Estado</label
+							>
+							<select
+								name="estado"
+								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							>
+								<option
+									value=""
+									disabled
+									hidden
+									selected={formularios?.data_json?.Estado == null}
+								>
+									Seleccione un país
+								</option>
+
+								{
+									estados?.map((estados) => (
+										<option
+											value={estados.Estado}
+											selected={
+												formularios?.data_json?.Estado === estados.Estado
+											}
+										>
+											{estados.Estado}
+										</option>
+									))
+								}
+							</select>
+						</div>
+					</template>
+					<template x-if="direccionEEUU === 'Si'">
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="Codigo_postal"
+								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								>Codigo Postal</label
+							>
+							<input
+								type="text"
+								name="Codigo_postal"
+								value={formularios?.data_json?.Ciudad}
+								id="Codigo_postal"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								placeholder="ejem. Miami-Dade"
+							/>
+						</div>
+					</template>
+
+					<!-- fin direccionEEUU === 'Si' -->
+
+					<!-- direccionEEUU === 'No' -->
+					<template x-if="direccionEEUU === 'No'"
+						><div class="col-span-6 sm:col-span-3">
+							<label
+								for="Pais_operativo"
+								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								>Pais</label
+							>
+							<select
+								name="Pais_operativo"
+								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							>
+								<option
+									value=""
+									disabled
+									hidden
+									selected={formularios?.data_json?.Pais_ == null}
+								>
+									Seleccione un pais
+								</option>
+
+								{
+									paises?.map((paises) => (
+										<option
+											value={paises.nombre_paises}
+											selected={
+												formularios?.data_json?.Pais_ === paises.nombre_paises
+											}
+										>
+											{paises.nombre_paises}
+										</option>
+									))
+								}
+							</select>
+						</div>
+					</template>
+
+					<template x-if="direccionEEUU === 'No'">
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="direccion_empresa"
+								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								>Dirección Empresa</label
+							>
+							<input
+								type="text"
+								name="direccion_empresa"
+								value={formularios?.data_json?.direccion_empresa}
+								id="direccion_empresa"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								placeholder="Av. Juan Molineros"
+							/>
+						</div>
+					</template>
+					<template x-if="direccionEEUU === 'No'">
+						<div class="col-span-6 sm:col-span-3">
+							<label
+								for="factura_servicio_basico"
+								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								>Factura de servicio básico</label
+							>
+							<div class="flex gap-1 items-center">
+								{
+									formularios?.data_json?.factura_servicio_basico && (
+										<img
+											src={formularios?.data_json?.factura_servicio_basico}
+											class="w-20 cursor-zoom-in"
+											alt="Factura de servicio básico"
+											data-modal-target="static-modal"
+											data-modal-toggle="static-modal"
+										/>
+									)
+								}
+
+								<input
+									type="file"
+									name="factura_servicio_basico"
+									value={formularios?.data_json?.direccion_empresa}
+									id="factura_servicio_basico"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+									placeholder="Av. Juan Molineros"
+								/>
+
+								{
+									formularios?.data_json?.factura_servicio_basico && (
+										<div
+											id="static-modal"
+											data-modal-backdrop="static"
+											tabindex="-1"
+											aria-hidden="true"
+											class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+										>
+											<div class="relative p-4 w-full max-w-2xl max-h-full">
+												<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
+													<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
+														<h3 class="text-xl font-semibold text-black dark:text-white">
+															Factura de servicio básico
+														</h3>
+														<button
+															type="button"
+															class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
+															data-modal-hide="static-modal"
+														>
+															<svg
+																class="w-3 h-3"
+																aria-hidden="true"
+																xmlns="http://www.w3.org/2000/svg"
+																fill="none"
+																viewBox="0 0 14 14"
+															>
+																<path
+																	stroke="currentColor"
+																	stroke-linecap="round"
+																	stroke-linejoin="round"
+																	stroke-width="2"
+																	d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+																/>
+															</svg>
+															<span class="sr-only">Cerrar modal</span>
+														</button>
+													</div>
+
+													<div class="p-4 md:p-5 space-y-4">
+														<img
+															src={
+																formularios?.data_json?.factura_servicio_basico
+															}
+															alt="Factura de servicio Basico"
+														/>
+													</div>
+
+													<div class="flex items-center p-4 md:p-5 border-t border-neutral-200 rounded-b dark:border-neutral-600">
+														<button
+															data-modal-hide="static-modal"
+															type="button"
+															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-[#101521] dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
+														>
+															Cerrar
+														</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									)
+								}
+							</div>
+						</div>
+					</template>
+
+					<!-- direccionEEUU === 'No' -->
+					<!-- Final de condicionales en dirección operativa en EE.UU. -->
+				</div>
+			</div>
+			<div
+				id="datos-socios"
+				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+			>
+				<h3 class="mb-4 text-xl font-semibold dark:text-white">
+					Datos de los socios - total ( {
+						formularios?.data_json?.panel_socios.length
+					} )
+				</h3>
+
+				{
+					formularios?.data_json.panel_socios.map(
+						(socio: any, index: number) => (
+							<div class="grid grid-cols-6 gap-6">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="Nombres_completos_socio"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Nombres completos
+									</label>
+									<input
+										type="text"
+										name="Nombres_completos_socio"
+										value={socio?.Nombres_completos}
+										id={`Nombres_completos_socio-${index}`}
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+										placeholder="Av. Juan Molineros"
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="correo_electronico"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Correo electronico
+									</label>
+									<input
+										name="correo_electronico"
+										value={socio?.correoelectronico}
+										type="email"
+										id="correo_electronico"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="correo@ejemplo.com"
+										required
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="Tipo_de_socio"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Tipo de socio
+									</label>
+									<select
+										name="Tipo_de_socio"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									>
+										<option
+											value=""
+											disabled
+											hidden
+											selected={socio?.tipo_socio == null}
+										>
+											Seleccione un tipo de socio
+										</option>
+
+										<option
+											value="Persona Natural"
+											selected={socio?.tipo_socio === 'Persona Natural'}
+										>
+											Persona Natural
+										</option>
+
+										<option
+											value="Empresa"
+											selected={socio?.tipo_socio === 'Empresa'}
+										>
+											Empresa
+										</option>
+									</select>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<div class="relative">
+										<label
+											for="estado_civil"
+											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										>
+											Estado civil
+										</label>
+										<select
+											name="estado_civil"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										>
+											<option
+												value=""
+												disabled
+												hidden
+												selected={socio?.estado_civil == null}
+											>
+												Seleccione un tipo de socio
+											</option>
+
+											<option
+												value="Casado"
+												selected={socio?.estado_civil === 'Casado'}
+											>
+												Casado
+											</option>
+
+											<option
+												value="Soltero"
+												selected={socio?.estado_civil === 'Soltero'}
+											>
+												Soltero
+											</option>
+
+											<option
+												value="Divorciado"
+												selected={socio?.estado_civil === 'Divorciado'}
+											>
+												Divorciado
+											</option>
+
+											<option
+												value="Viudo"
+												selected={socio?.estado_civil === 'Viudo'}
+											>
+												Viudo
+											</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-span-6">
+									<label
+										for="porcentaje"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Porcentaje
+									</label>
+									<input
+										type="number"
+										name="porcentaje"
+										value={socio?.Porcentaje}
+										id="porcentaje"
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="80"
+										required
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="residente_fiscal_eeuu"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Residente fiscal en EE.UU
+									</label>
+									<select
+										name="estado_civil"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									>
+										<option
+											value=""
+											disabled
+											hidden
+											selected={socio?.residente_fiscal_eeuu == null}
+										>
+											Seleccione si es residente fiscal en EE.UU.
+										</option>
+
+										<option
+											value="Si"
+											selected={socio?.residente_fiscal_eeuu === 'Si'}
+										>
+											Si
+										</option>
+
+										<option
+											value="No"
+											selected={socio?.residente_fiscal_eeuu === 'No'}
+										>
+											No
+										</option>
+									</select>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="numero_pasaporte"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Numero de pasaporte
+									</label>
+									<input
+										type="text"
+										name="numero_pasaporte"
+										value={socio?.numero_pasaporte}
+										id="numero_pasaporte"
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="Av. Siempre Viva 123 y Calle Alguna"
+										required
+									/>
+								</div>
+								<div class="col-span-6">
+									<div class="w-full space-y-3">
+										<div>
+											<label
+												for="nacionalidad"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Pais de nacionalidad
+											</label>
+											<select
+												name="nacionalidad"
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+											>
+												<option
+													value=""
+													disabled
+													hidden
+													selected={socio?.nacionalidad == null}
+												>
+													Seleccione un pais
+												</option>
+
+												{paises?.map((paises) => (
+													<option
+														value={paises.nombre_paises}
+														selected={
+															socio?.nacionalidad === paises.nombre_paises
+														}
+													>
+														{paises.nombre_paises}
+													</option>
+												))}
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="numero_p"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Pasaporte
+									</label>
+
+									{socio?.Pasaporte?.map((ps: any) => (
+										<div class="flex gap-1 items-center">
+											<img
+												src={ps?.content}
+												class="w-20 cursor-zoom-in"
+												alt={ps?.name}
+												data-modal-target="static-modal-pasaporte"
+												data-modal-toggle="static-modal-pasaporte"
+											/>
+
+											<input
+												type="file"
+												name="factura_servicio_basico"
+												id="factura_servicio_basico"
+												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+											/>
+											<div
+												id="static-modal-pasaporte"
+												data-modal-backdrop="static"
+												tabindex="-1"
+												aria-hidden="true"
+												class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+											>
+												<div class="relative p-4 w-full max-w-2xl max-h-full">
+													<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
+														<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
+															<h3 class="text-xl font-semibold text-black dark:text-white">
+																Pasaporte de {socio?.Nombres_completos}
+															</h3>
+															<button
+																type="button"
+																class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
+																data-modal-hide="static-modal-pasaporte"
+															>
+																<svg
+																	class="w-3 h-3"
+																	aria-hidden="true"
+																	xmlns="http://www.w3.org/2000/svg"
+																	fill="none"
+																	viewBox="0 0 14 14"
+																>
+																	<path
+																		stroke="currentColor"
+																		stroke-linecap="round"
+																		stroke-linejoin="round"
+																		stroke-width="2"
+																		d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+																	/>
+																</svg>
+																<span class="sr-only">Cerrar modal</span>
+															</button>
+														</div>
+
+														<div class="p-4 md:p-5 space-y-4">
+															<img src={ps?.content} alt={ps?.name} />
+														</div>
+
+														<div class="flex items-center p-4 md:p-5 border-t border-neutral-200 rounded-b dark:border-neutral-600">
+															<button
+																data-modal-hide="static-modal-pasaporte"
+																type="button"
+																class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-[#101521] dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
+															>
+																Cerrar
+															</button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									))}
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="numero_ssn"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Numero de SSN
+									</label>
+									<input
+										type="text"
+										name="numero_ssn"
+										value={socio?.ssn}
+										id="numero_ssn"
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="Av. Siempre Viva 123 y Calle Alguna"
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="numero_ssn"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Numero de ITIN
+									</label>
+									<input
+										type="text"
+										name="numero_ssn"
+										value={socio?.itin}
+										id="numero_ssn"
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="Av. Siempre Viva 123 y Calle Alguna"
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="pais_factura_servicio_basico"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Pais de factura de servicio basico
+									</label>
+									<select
+										name="pais_factura_servicio_basico"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2  dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									>
+										<option
+											value=""
+											disabled
+											hidden
+											selected={socio?.pais_factura_servicio_basico == null}
+										>
+											Seleccione un pais
+										</option>
+
+										{paises?.map((paises) => (
+											<option
+												value={paises.nombre_paises}
+												selected={
+													socio?.pais_factura_servicio_basico ===
+													paises.nombre_paises
+												}
+											>
+												{paises.nombre_paises}
+											</option>
+										))}
+									</select>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="direccion_planilla_socio"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Direccion de la planilla del socio
+									</label>
+									<input
+										type="text"
+										name="direccion_planilla_socio"
+										value={socio?.direccion_planilla_socio}
+										id="direccion_planilla_socio"
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="Av. Siempre Viva 123 y Calle Alguna"
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="numero_p"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Factura de servicio basico
+									</label>
+
+									{socio?.factura_servicio_basico_socio?.map((fc: any) => (
+										<div class="flex gap-1 items-center">
+											<img
+												src={fc?.content}
+												class="w-20 cursor-zoom-in"
+												alt={fc?.name}
+												data-modal-target="static-modal-factura"
+												data-modal-toggle="static-modal-factura"
+											/>
+
+											<input
+												type="file"
+												name="factura_servicio_basico"
+												id="factura_servicio_basico"
+												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+											/>
+
+											<div
+												id="static-modal-factura"
+												data-modal-backdrop="static"
+												tabindex="-1"
+												aria-hidden="true"
+												class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+											>
+												<div class="relative p-4 w-full max-w-2xl max-h-full">
+													<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
+														<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
+															<h3 class="text-xl font-semibold text-black dark:text-white">
+																Factura de servicio basico de{' '}
+																{socio?.Nombres_completos}
+															</h3>
+															<button
+																type="button"
+																class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
+																data-modal-hide="static-modal-factura"
+															>
+																<svg
+																	class="w-3 h-3"
+																	aria-hidden="true"
+																	xmlns="http://www.w3.org/2000/svg"
+																	fill="none"
+																	viewBox="0 0 14 14"
+																>
+																	<path
+																		stroke="currentColor"
+																		stroke-linecap="round"
+																		stroke-linejoin="round"
+																		stroke-width="2"
+																		d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+																	/>
+																</svg>
+																<span class="sr-only">Cerrar modal</span>
+															</button>
+														</div>
+
+														<div class="p-4 md:p-5 space-y-4">
+															<img src={fc?.content} alt={fc?.name} />
+														</div>
+
+														<div class="flex items-center p-4 md:p-5 border-t border-neutral-200 rounded-b dark:border-neutral-600">
+															<button
+																data-modal-hide="static-modal-factura"
+																type="button"
+																class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-[#101521] dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
+															>
+																Cerrar
+															</button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									))}
+								</div>
+
+								<hr class="h-px my-8 bg-neutral-200 border-0 dark:bg-[#192033] col-span-6" />
+							</div>
+						),
+					)
+				}
+			</div>
+			<template
+				x-if="formadeAdministracion === 'Member-Managed'"
+				x-data="{ manager_parte_miembros: '' }"
+				x-init="manager_parte_miembros = document.getElementById('manager_parte_miembros').value"
+			>
+				<div
+					id="datos-managers"
+					class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+					x-data="{ espartedelosMiembros: '' }"
+					x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
+				>
+					<h3 class="mb-4 text-xl font-semibold dark:text-white">
+						Informacion de managers
+					</h3>
+					<div
+						x-data="{ otrosMiembrosfuera: '' }"
+						x-init="otrosMiembrosfuera = document.getElementById('otros-miembros-fuera-de-lista').value"
+					>
+						<div
+							class="grid grid-cols-6 gap-6"
+							x-data="{ asignarManager: '' }"
+							x-init="asignarManager = document.getElementById('informacion_miembros').value"
+						>
+							<div class="col-span-6 sm:col-span-3">
+								<label
+									for="informacion_miembros"
+									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								>
+									Sotomayor Consulting International asigna al Manager
+								</label>
+								<select
+									name="informacion_miembros"
+									id="informacion_miembros"
+									x-model="asignarManager"
+									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								>
+									<option
+										value=""
+										disabled
+										hidden
+										selected={formularios?.data_json?.manager_sci == null}
+									>
+										Seleccione una opcion
+									</option>
+
+									<option
+										value="Si"
+										selected={formularios?.data_json?.manager_sci == true}
+									>
+										Si
+									</option>
+
+									<option
+										value="No"
+										selected={formularios?.data_json?.manager_sci == false}
+									>
+										No
+									</option>
+								</select>
+							</div>
+							<template x-if="asignarManager === 'No'">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="manager_parte_miembros"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										El manager es parte de los miembros
+									</label>
+									<select
+										name="manager_parte_miembros"
+										id="manager_parte_miembros"
+										x-model="manager_parte_miembros"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									>
+										<option
+											value=""
+											disabled
+											hidden
+											selected={formularios?.data_json?.manager_es_miembro ==
+												null}
+										>
+											Seleccione una opcion
+										</option>
+
+										<option
+											value="Si"
+											selected={formularios?.data_json?.manager_es_miembro ==
+												true}
+										>
+											Si
+										</option>
+
+										<option
+											value="No"
+											selected={formularios?.data_json?.manager_es_miembro ==
+												false}
+										>
+											No
+										</option>
+									</select>
+								</div>
+							</template>
+							<template x-if="manager_parte_miembros === 'Si'">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="managers"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Miembros que son managers
+									</label>
+									{
+										formularios?.data_json?.panel_socios.map((socio: any) => (
+											<div class="flex items-center mb-4">
+												<input
+													id={`miembros-managers-${socio?.Nombres_completos}`}
+													name={`miembros-managers-${socio?.Nombres_completos}`}
+													type="checkbox"
+													value={socio?.Nombres_completos}
+													class="w-4 h-4 text-[#8c681d] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#8c681d] dark:focus:ring-[#323f67] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+													checked={formularios?.data_json?.Seleccion_managers?.includes(
+														socio?.Nombres_completos,
+													)}
+												/>
+												<label
+													for={`miembros-managers-${socio?.Nombres_completos}`}
+													class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+												>
+													{socio?.Nombres_completos}
+												</label>
+											</div>
+										))
+									}
+								</div>
+							</template>
+							<template x-if="manager_parte_miembros === 'Si'">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										class="mb-2 text-sm font-medium text-neutral-900 dark:text-white block"
+									>
+										¿Añadir otro(s) socio(s) fuera de la lista?
+										<div class="flex cursor-pointer mt-2">
+											<input
+												type="checkbox"
+												name="otros-miembros-fuera-de-lista"
+												id="otros-miembros-fuera-de-lista"
+												x-model="otrosMiembrosfuera"
+												class="sr-only peer"
+												checked={formularios?.data_json
+													?.agregar_otros_socios === true}
+											/>
+											<div
+												class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-[#8c681d] rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#8c681d] dark:peer-checked:bg-[#8c681d]"
+											>
+											</div>
+											<span
+												class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+												>Si</span
+											>
+										</div>
+									</label>
+								</div>
+							</template>
+						</div>
+						<template
+							x-if="manager_parte_miembros === 'No' || otrosMiembrosfuera === true"
+						>
+							<div>
+								<hr
+									class="h-px my-8 bg-neutral-200 border-0 dark:bg-[#192033] col-span-6"
+								/>
+								<h3 class="mb-4 text-xl font-semibold dark:text-white">
+									Añadir manager
+								</h3>
+								{
+									managers.length > 0 &&
+										managers.map((manager: any, index: number) => (
+											<div
+												class="grid grid-cols-6 gap-6"
+												id={`contenedor-managers-${index}`}
+											>
+												<div class="col-span-6 sm:col-span-3">
+													<label
+														for={`informacion_miembros-${index}`}
+														class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													>
+														Nombres y Apellidos
+													</label>
+													<input
+														type="text"
+														name={`Nombres_y_apellidos_manager-${index}`}
+														value={manager?.Nombres_manager || ''}
+														id={`Nombres_y_apellidos_manager-${index}`}
+														class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+													/>
+												</div>
+											</div>
+										))
+								}
+
+								{
+									managers.length === 0 && (
+										<div class="grid grid-cols-6 gap-6">
+											<div class="col-span-6 sm:col-span-3">
+												<label
+													for="informacion_miembros"
+													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												>
+													Nombres y Apellidos
+												</label>
+												<input
+													type="text"
+													name="Nombres_y_apellidos_manager"
+													value=""
+													id="Nombres_y_apellidos_manager"
+													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+												/>
+											</div>
+										</div>
+									)
+								}
+							</div>
+						</template>
+					</div>
+				</div>
+			</template>
+
+			<div
+				id="datos-info-adicional"
+				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+			>
+				<h3 class="mb-4 text-xl font-semibold dark:text-white">
+					Informacion Adicional
+				</h3>
+
+				<div class="grid grid-cols-6 gap-6">
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="informacion_miembros"
+							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+						>
+							Informacion de los miembros
+						</label>
+						<select
+							name="informacion_miembros"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						>
+							<option
+								value=""
+								disabled
+								hidden
+								selected={formularios?.data_json?.informacion_miembros == null}
+							>
+								Seleccione una opcion
+							</option>
+
+							<option
+								value="Pública"
+								selected={formularios?.data_json?.informacion_miembros ==
+									'Pública'}
+							>
+								Pública
+							</option>
+
+							<option
+								value="Privada"
+								selected={formularios?.data_json?.informacion_miembros ==
+									'Privada'}
+							>
+								Privada
+							</option>
+						</select>
+					</div>
+					<div class="col-span-6 sm:col-span-3">
+						<label
+							for="responsable_irs"
+							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+						>
+							Responsable frente al IRS
+						</label>
+						<select
+							name="responsable_irs"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						>
+							<option
+								value=""
+								disabled
+								hidden
+								selected={formularios?.data_json?.responsable_irs == null}
+							>
+								Seleccione una responsable
+							</option>
+
+							{
+								formularios?.data_json?.panel_socios.map((socio: any) => (
+									<option
+										value={socio?.Nombres_completos}
+										selected={
+											formularios?.data_json?.responsable_irs ==
+											socio?.Nombres_completos
+										}
+									>
+										{socio?.Nombres_completos}
+									</option>
+								))
+							}
+						</select>
+					</div>
+
+					<div class="col-span-6 sm:col-span-3">
+						<div class="relative">
+							<label
+								for="estado_civil"
+								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+							>
+								Firma
+							</label>
+							<img src={formularios?.data_json?.firma} alt="firma" />
+						</div>
+					</div>
+
+					<div class="col-span-6 sm:col-full">
+						<button
+							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+							type="submit"
+						>
+							Guardar datos
+						</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

@@ -1,0 +1,1581 @@
+---
+import '@estilos/datatables.css';
+import { supabase } from '@lib/supabase';
+import { Icon } from 'astro-icon/components';
+import { Image } from 'astro:assets';
+
+const { data: empresas } = await supabase
+	.from('empresas_incorporaciones')
+	.select(
+		`
+    user_id,
+    empresa_incorporacion_id,
+    tipo_de_negocio,
+    estado_de_incorporacion,
+    estado,
+    nombre_1,
+    nombre_2,
+    nombre_3,
+    updated_at,
+	porcentaje_de_incorporacion,
+    usuarios:user_id (nombre, apellido)
+  `,
+		{ count: 'exact' },
+	)
+	.order('updated_at', { ascending: false });
+
+const { data: actividades } = await supabase
+	.from('actividades_duplicate')
+	.select('*');
+const { data: estados } = await supabase.from('estados').select('*');
+const { data: paises } = await supabase.from('paises').select('*');
+---
+
+<script src="@lib/alpinejs/alpine.js"></script>
+
+<div
+	class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] dark:border-gray-700"
+>
+	<div class="w-full mb-1">
+		<div class="mb-4">
+			<nav class="flex mb-5" aria-label="Breadcrumb">
+				<ol
+					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
+				>
+					<li class="inline-flex items-center">
+						<a
+							href="/"
+							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
+						>
+							<svg
+								class="w-5 h-5 mr-2.5"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+								></path></svg
+							>
+							Inicio
+						</a>
+					</li>
+					<li>
+						<div class="flex items-center">
+							<svg
+								class="w-6 h-6 text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+									clip-rule="evenodd"></path></svg
+							>
+							<a
+								href="/crud/empresas"
+								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
+								>Empresas</a
+							>
+						</div>
+					</li>
+				</ol>
+			</nav>
+			<h1
+				class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
+			>
+				Lista de empresas
+			</h1>
+		</div>
+	</div>
+</div>
+<div class="sm:flex border-b border-gray-200 dark:border-gray-700 p-5">
+	<div class="flex items-center ml-auto space-x-2 sm:space-x-3 mr-4">
+		<button
+			type="button"
+			data-modal-target="add-user-modal"
+			data-modal-toggle="add-user-modal"
+			class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#1349ec] hover:bg-[#1349ec] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+		>
+			<svg
+				class="w-5 h-5 mr-2 -ml-1"
+				fill="currentColor"
+				viewBox="0 0 20 20"
+				xmlns="http://www.w3.org/2000/svg"
+				><path
+					fill-rule="evenodd"
+					d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+					clip-rule="evenodd"></path></svg
+			>
+			Añadir nueva empresa
+		</button>
+	</div>
+</div>
+<div class="flex flex-col">
+	<div class="overflow-x-auto">
+		<div class="inline-block min-w-full align-middle">
+			<div class="overflow-hidden shadow">
+				<table
+					class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
+					id="myTable"
+				>
+					<thead class="bg-gray-100 dark:bg-[#192033]" id="test">
+						<tr>
+							{
+								[
+									'id',
+									'Usuario que la creo',
+									'Tipo de Negocio',
+									'Estado de incorporación',
+									'Estado',
+									'Estado',
+									'Creado en',
+								].map((th) => (
+									<th
+										scope="col"
+										class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+									>
+										<span class="flex items-center uppercase">
+											{th}
+											<svg
+												class="w-4 h-4 ms-1"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												fill="none"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke="currentColor"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="m8 15 4 4 4-4m0-6-4-4-4 4"
+												/>
+											</svg>
+										</span>
+									</th>
+								))
+							}
+						</tr>
+					</thead>
+					<tbody
+						class="bg-white divide-y divide-gray-200 dark:bg-[#192033] dark:divide-gray-700"
+					>
+						{
+							empresas?.map((empresa) => (
+								<div>
+									<tr
+										class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4] cursor-pointer"
+										onclick={`window.open('/crud/empresa/${empresa.empresa_incorporacion_id}', '_blank')`}
+									>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.nombre_1}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.usuarios[0]?.nombre}
+											{empresa.usuarios[0]?.apellido}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.tipo_de_negocio}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.porcentaje_de_incorporacion}%
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.estado_de_incorporacion}
+										</td>
+										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											<div class="flex items-center">
+												{empresa.estado === 'Activo' ? (
+													<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
+												) : (
+													<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
+												)}
+												{empresa.estado}
+											</div>
+										</td>
+										<td class="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
+											{empresa.updated_at &&
+												new Date(empresa.updated_at)
+													.toLocaleDateString('es-ES', {
+														day: '2-digit',
+														month: '2-digit',
+														year: 'numeric',
+													})
+													.replace(/\//g, '-')}
+										</td>
+									</tr>
+								</div>
+							))
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Añadir empresa -->
+<div
+	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto md:inset-0 h-screen"
+	id="add-user-modal"
+>
+	<div class="relative w-full px-4 h-5/6">
+		<!-- Modal content -->
+		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
+			<!-- Modal header -->
+			<div
+				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+			>
+				<h3 class="text-xl font-semibold dark:text-white">Añadir empresa</h3>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
+					data-modal-toggle="add-user-modal"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="" method="post">
+				<div
+					class="md:p-4 p-0 rounded-lg grid md:grid-cols-[auto_1fr] md:space-x-4 space-x-0 w-full"
+					id="contacts"
+					role="tabpanel"
+					aria-labelledby="contacts-tab"
+					x-data="{ 
+				formadeAdministracion: '',  
+				actvidadManual: null, 
+				RegistroManual: '',
+				direccionOperativa: '',
+				otrosMiembrosfuera: null,
+				managerMiembro: '',
+				asignarManager: '',
+				tabManager: '',
+				
+			}"
+					x-effect="if (!actvidadManual) {
+				RegistroManual = '';
+			}; if (asignarManager === 'Si') {
+				 managerMiembro = '';
+			}"
+				>
+					<div class="mb-4 dark:border-gray-700 md:max-w-72 md:min-w-72">
+						<ul
+							class="flex-column text-sm font-medium text-gray-500 dark:text-gray-400 dark:bg-[#192033] p-5 rounded-lg space-y-5"
+							id="default-tab-2"
+							data-tabs-toggle="#default-tab-content-2"
+							role="tablist"
+							data-tabs-active-classes="text-white bg-blue-700 dark:bg-blue-600"
+							data-tabs-inactive-classes="hover:text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-[#101521] dark:hover:bg-[#101521]/80 dark:hover:text-white"
+						>
+							<li>
+								<div>
+									<h5 class="text-lg">navegación de edición</h5>
+								</div>
+							</li>
+							{
+								[
+									{
+										id: 'generales-tab',
+										tabs: 'generales',
+										label: 'Generales',
+										icono: 'ri:building-2-fill',
+										condicion: 'activo',
+									},
+									{
+										id: 'ubicacion-tab',
+										tabs: 'ubicacion',
+										label: 'Ubicacion',
+										icono: 'ri:folder-user-fill',
+										condicion: 'activo',
+									},
+									{
+										id: 'socios-edit-tab',
+										tabs: 'socios-edit',
+										label: 'Socios',
+										icono: 'ri:file-copy-2-fill',
+										condicion: 'activo',
+									},
+									{
+										id: 'manager-tab',
+										tabs: 'manager',
+										label: 'Manager',
+										icono: 'ri:edit-fill',
+										condicion: 'condicional',
+									},
+								].map((i) =>
+									i.condicion === 'activo' ? (
+										<li role="presentation">
+											<button
+												id={i.id}
+												data-tabs-target={`#${i.tabs}`}
+												type="button"
+												role="tab"
+												aria-controls={i.tabs}
+												aria-selected="false"
+												class="p-4 flex items-center gap-2 w-full rounded-lg"
+											>
+												<Icon name={i.icono} class="text-lg" />
+												{i.label}
+											</button>
+										</li>
+									) : (
+										<li role="presentation">
+											<button
+												id={i.id}
+												data-tabs-target={`#${i.tabs}`}
+												type="button"
+												role="tab"
+												x-model="tabManager"
+												x-show="formadeAdministracion === 'Member-Managed'"
+												aria-controls={i.tabs}
+												aria-selected="false"
+												class="p-4 flex items-center gap-2 w-full rounded-lg"
+											>
+												<Icon name={i.icono} class="text-lg" />
+												{i.label}
+											</button>
+										</li>
+									),
+								)
+							}
+						</ul>
+					</div>
+					<div id="default-tab-content-2" class="min-w-full ml-0">
+						<div
+							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+							id="generales"
+							role="tabpanel"
+							aria-labelledby="generales-tab"
+						>
+							<div class="bg-white rounded-lg shadow dark:bg-[#101521] w-full">
+								<div
+									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+								>
+									<h3 class="mb-4 text-xl font-semibold dark:text-white">
+										Datos Generales
+									</h3>
+
+									<div class="grid grid-cols-6 gap-6">
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="Ingresos_de_EEUU"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												>¿La LLC obtendrá ingresos provenientes de Estados
+												Unidos?</label
+											>
+											<select
+												name="Ingresos_de_EEUU"
+												id="Ingresos_de_EEUU"
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											>
+												<!-- Opción por defecto (placeholder) -->
+												<option value="" disabled hidden selected>
+													Seleccione una opción
+												</option>
+
+												<!-- Opción "Sí" -->
+												<option value="true"> Sí </option>
+
+												<!-- Opción "No" -->
+												<option value="false"> No </option>
+											</select>
+										</div>
+
+										<div class="col-span-6 sm:col-span-3 flex items-end">
+											<button
+												type="button"
+												data-modal-target="crud-modal"
+												data-modal-toggle="crud-modal"
+												class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 flex items-center gap-2"
+											>
+												<Icon name="ri:add-line" /> Añadir actividad</button
+											>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="actividad-input"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Actividad
+											</label>
+
+											<input
+												list="actividades-list"
+												id="actividad-input"
+												name="actividad"
+												placeholder="Escribe para buscar actividad..."
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec] truncate w-full"
+											/>
+
+											<datalist id="actividades-list">
+												{
+													actividades?.map((ac) => (
+														<option value={ac.actividad}>
+															{ac.Actividad} - {ac.Codigo}
+														</option>
+													))
+												}
+											</datalist>
+										</div>
+
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="forma_de_administrar"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												>Forma de administrar</label
+											>
+											<select
+												name="forma_de_administrar"
+												id="forma_de_administrar"
+												x-model="formadeAdministracion"
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											>
+												<option value="" selected hidden disabled
+													>Seleccione una forma de tibutar</option
+												>
+
+												<!-- Opción "Sí" -->
+												<option value="Member-Managed"> Member-Managed </option>
+
+												<!-- Opción "No" -->
+												<option value="Manager-Managed">
+													Manager-Managed
+												</option>
+											</select>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="forma_de_tributar"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												>Forma de tributar</label
+											>
+											<select
+												name="forma_de_tributar"
+												id="forma_de_tributar"
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											>
+												<option value="" hidden disabled selected
+													>Seleccione una forma de tributar</option
+												>
+
+												<!-- Opción "Sí" -->
+												<option value="Entidad de paso">
+													Entidad de paso
+												</option>
+
+												<!-- Opción "No" -->
+												<option value="Corporación"> Corporación </option>
+											</select>
+										</div>
+
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="informacion_miembros"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Información de los miembros
+											</label>
+											<select
+												name="informacion_miembros"
+												id="informacion_miembros"
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											>
+												<option value="" disabled hidden selected>
+													Seleccione una opcion
+												</option>
+
+												<option value="Pública"> Pública </option>
+
+												<option value="Privada"> Privada </option>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div
+							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033] min-w-full"
+							id="ubicacion"
+							role="tabpanel"
+							aria-labelledby="ubicacion-tab"
+						>
+							<div
+								class="relative bg-white rounded-lg shadow dark:bg-[#101521] min-w-full"
+							>
+								<div
+									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+								>
+									<h3 class="mb-4 text-xl font-semibold dark:text-white">
+										Ubicación
+									</h3>
+
+									<div class="grid grid-cols-6 gap-6">
+										<div class="col-span-6 sm:col-span-3">
+											<label
+												for="direccionOperativa"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												>¿Tiene dirección operativa en EE.UU.?</label
+											>
+											<select
+												name="direccionOperativa"
+												id="direccionOperativa"
+												x-model="direccionOperativa"
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+											>
+												<option value="" selected hidden disabled
+													>Selecciona una opción</option
+												>
+												<!-- Opción "Sí" -->
+												<option value="Si"> Sí </option>
+
+												<!-- Opción "No" -->
+												<option value="No"> No </option>
+
+												<option
+													value="Quiero que Sotomayor Consulting International provea una dirección"
+												>
+													Quiero que Sotomayor Consulting International provea
+													una dirección
+												</option>
+											</select>
+										</div>
+
+										<!-- condicionales de Tiene dirección operativa en EE.UU. -->
+										<!-- inicio direccionOperativa === 'Si' -->
+
+										<template x-if="direccionOperativa === 'Si'">
+											<div class="col-span-6 sm:col-span-3">
+												<label
+													for="direccion"
+													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													>Dirección</label
+												>
+												<input
+													type="text"
+													name="direccion"
+													id="direccion"
+													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													placeholder="ejem. Av. Juan Molineros"
+												/>
+											</div>
+										</template>
+										<template x-if="direccionOperativa === 'Si'">
+											<div class="col-span-6 sm:col-span-3">
+												<label
+													for="condado"
+													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													>Condado</label
+												>
+												<input
+													type="text"
+													name="condado"
+													id="condado"
+													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													placeholder="ejem. Miami-Dade"
+												/>
+											</div>
+										</template>
+										<template x-if="direccionOperativa === 'Si'">
+											<div class="col-span-6 sm:col-span-3">
+												<label
+													for="ciudad"
+													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													>Ciudad</label
+												>
+												<input
+													type="text"
+													name="ciudad"
+													id="ciudad"
+													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													placeholder="ejem. Miami"
+												/>
+											</div>
+										</template>
+										<template x-if="direccionOperativa === 'Si'">
+											<div class="col-span-6 sm:col-span-3">
+												<label
+													for="estado"
+													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													>Estado</label
+												>
+												<select
+													name="estado"
+													id="estado"
+													class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												>
+													<option value="" disabled hidden selected>
+														Seleccione un estado
+													</option>
+
+													{
+														estados?.map((estados) => (
+															<option value={estados.Estado}>
+																{estados.Estado}
+															</option>
+														))
+													}
+												</select>
+											</div>
+										</template>
+										<template x-if="direccionOperativa === 'Si'">
+											<div class="col-span-6 sm:col-span-3">
+												<label
+													for="Codigo_postal"
+													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													>Codigo Postal</label
+												>
+												<input
+													type="text"
+													name="Codigo_postal"
+													id="Codigo_postal"
+													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													placeholder="ejem. Miami-Dade"
+												/>
+											</div>
+										</template>
+
+										<!-- fin direccionOperativa === 'Si' -->
+
+										<!-- direccionOperativa === 'No' -->
+										<template x-if="direccionOperativa === 'No'"
+											><div class="col-span-6 sm:col-span-3">
+												<label
+													for="Pais_operativo"
+													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													>Pais</label
+												>
+												<select
+													name="Pais_operativo"
+													id="Pais_operativo"
+													class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												>
+													<option value="" disabled hidden selected>
+														Seleccione un pais
+													</option>
+
+													{
+														paises?.map((paises) => (
+															<option value={paises.nombre_paises}>
+																{paises.nombre_paises}
+															</option>
+														))
+													}
+												</select>
+											</div>
+										</template>
+
+										<template x-if="direccionOperativa === 'No'">
+											<div class="col-span-6 sm:col-span-3">
+												<label
+													for="direccion_empresa"
+													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													>Dirección Empresa</label
+												>
+												<input
+													type="text"
+													name="direccion_empresa"
+													id="direccion_empresa"
+													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													placeholder="Av. Juan Molineros"
+												/>
+											</div>
+										</template>
+
+										<!-- direccionOperativa === 'No' -->
+										<!-- Final de condicionales en dirección operativa en EE.UU. -->
+									</div>
+								</div>
+							</div>
+						</div>
+						<div
+							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+							id="socios-edit"
+							role="tabpanel"
+							aria-labelledby="socios-edit-tab"
+						>
+							<div
+								id="datos-socios"
+								class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+							>
+								<h3 class="mb-4 text-xl font-semibold dark:text-white">
+									Datos de los socios
+								</h3>
+								<div class="grid xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+									<div
+										class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-[#101521] lg:rounded-lg justify-self-center"
+									>
+										<span class="sr-only">Open user menu</span>
+										<div class="flex w-full items-center justify-between">
+											<div class="flex items-center">
+												<Image
+													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=`}
+													class="mr-3 h-8 w-8 rounded-md"
+													alt="Bonnie avatar"
+													inferSize={true}
+													loading="eager"
+												/>
+												<div class="text-left">
+													<div
+														class="mb-0.5 font-semibold leading-none text-gray-900 dark:text-white"
+													>
+														<input
+															type="text"
+															id={`nombre_de_socio_card_`}
+															name={`nombre_de_socio_card_`}
+															class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+														/>
+													</div>
+													<div class="">
+														<input
+															type="text"
+															id={`correo-socio-`}
+															name={`correo-socio-`}
+															class="block w-full p-1 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg text-sm text-gray-500 dark:text-gray-400"
+														/>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div
+											class="mb-4 w-full border-y border-gray-100 py-4 dark:border-gray-700"
+										>
+											<ul class="grid grid-cols-2 gap-2">
+												<li>
+													<input
+														type="radio"
+														id={`input-socios-natural-`}
+														name={`tipo-persona-`}
+														value="Persona Natural"
+														class="hidden peer"
+														required
+													/>
+													<label
+														for={`input-socios-natural-`}
+														class="flex items-center justify-center w-full h-full p-2 text-gray-500 bg-purple-900 hover:bg-purple-800 border-2 border-gray-400 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-blue-600 dark:peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 dark:text-gray-400 dark:bg-purple-900 dark:hover:bg-purple-800"
+													>
+														<div
+															class="flex justify-center items-center flex-col"
+														>
+															<span
+																class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-purple-800 group-hover:bg-purple-700 dark:bg-purple-800 dark:group-hover:bg-purple-700"
+															>
+																<Icon
+																	name="ri:user-star-line"
+																	class="h-5 w-5 text-purple-300 dark:text-purple-300"
+																/>
+															</span>
+															<span
+																class="text-sm font-medium text-purple-300 dark:text-purple-300"
+															>
+																Persona Natural
+															</span>
+														</div>
+													</label>
+												</li>
+												<li>
+													<input
+														type="radio"
+														id={`input-socios-empresa-`}
+														name={`tipo-persona-`}
+														value="Empresa"
+														class="hidden peer"
+														required
+													/>
+													<label
+														for={`input-socios-empresa-`}
+														class="flex items-center justify-center w-full h-full p-2 text-gray-500 bg-teal-700 hover:bg-teal-800 border-2 border-gray-400 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-blue-600 dark:peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 dark:text-gray-400 dark:bg-teal-700 dark:hover:bg-teal-800"
+													>
+														<div
+															class="flex justify-center items-center flex-col"
+														>
+															<span
+																class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-teal-800 group-hover:bg-teal-700 dark:bg-teal-800 dark:group-hover:bg-teal-700"
+															>
+																<Icon
+																	name="ri:building-2-line"
+																	class="h-5 w-5 text-purple-300 dark:text-purple-300"
+																/>
+															</span>
+															<span
+																class="text-sm font-medium text-purple-300 dark:text-purple-300"
+															>
+																Empresa
+															</span>
+														</div>
+													</label>
+												</li>
+											</ul>
+										</div>
+										<ul class="space-y-2">
+											<li>
+												<div class="relative flex items-center w-full">
+													<button
+														type="button"
+														id="decrement-button"
+														data-input-counter-decrement={`bedrooms-input-`}
+														class="dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
+													>
+														<svg
+															class="w-3 h-3 text-gray-900 dark:text-white"
+															aria-hidden="true"
+															xmlns="http://www.w3.org/2000/svg"
+															fill="none"
+															viewBox="0 0 18 2"
+														>
+															<path
+																stroke="currentColor"
+																stroke-linecap="round"
+																stroke-linejoin="round"
+																stroke-width="2"
+																d="M1 1h16"></path>
+														</svg>
+													</button>
+													<input
+														type="text"
+														id={`bedrooms-input-`}
+														data-input-counter
+														data-input-counter-min="1"
+														data-input-counter-max="100"
+														aria-describedby="helper-text-explanation"
+														class="bg-gray-50 border-x-0 border-gray-300 h-11 font-medium text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full pb-6 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+														placeholder=""
+														required
+													/>
+													<div
+														class="absolute bottom-1 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 flex items-center text-xs text-gray-400 space-x-1 rtl:space-x-reverse"
+													>
+														<span>Porcentaje</span>
+													</div>
+													<button
+														type="button"
+														id="increment-button"
+														data-input-counter-increment={`bedrooms-input-`}
+														class="dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
+													>
+														<svg
+															class="w-3 h-3 text-gray-900 dark:text-white"
+															aria-hidden="true"
+															xmlns="http://www.w3.org/2000/svg"
+															fill="none"
+															viewBox="0 0 18 18"
+														>
+															<path
+																stroke="currentColor"
+																stroke-linecap="round"
+																stroke-linejoin="round"
+																stroke-width="2"
+																d="M9 1v16M1 9h16"></path>
+														</svg>
+													</button>
+												</div>
+											</li>
+											<li>
+												<div
+													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+												>
+													<Icon
+														name="ri:earth-line"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+													<div class="w-full">
+														<label for={`pais-socio-card-`} class="sr-only">
+															Selecciona una opcion
+														</label>
+														<select
+															id={`pais-socio-card-`}
+															name={`pais-socio-card-`}
+															class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-[#101521] dark:group-hover:bg-gray-700"
+														>
+															<option value="" disabled hidden selected>
+																Seleccione un pais
+															</option>
+
+															{
+																paises?.map((paises) => (
+																	<option value={paises.nombre_paises}>
+																		{paises.nombre_paises}
+																	</option>
+																))
+															}
+														</select>
+													</div>
+												</div>
+											</li>
+											<li>
+												<div
+													class="group flex items-center rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+												>
+													<Icon
+														name="ri:diamond-ring-fill"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+													<div class="w-full">
+														<label
+															for={`estado-civil-socio-card-`}
+															class="sr-only"
+														>
+															Selecciona una opcion
+														</label>
+														<select
+															id={`estado-civil-socio-card-`}
+															name={`estado-civil-socio-card-`}
+															class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-[#101521] dark:group-hover:bg-gray-700"
+														>
+															<option selected hidden disabled>
+																Selecciona una opcion
+															</option>
+															<option value="Casado"> Casado </option>
+
+															<option value="Soltero"> Soltero </option>
+
+															<option value="Divorciado"> Divorciado </option>
+
+															<option value="Viudo"> Viudo </option>
+														</select>
+													</div>
+												</div>
+											</li>
+										</ul>
+										<ul
+											class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
+										>
+											<li>
+												<div
+													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+												>
+													<div class="w-full flex">
+														<label
+															class="inline-flex items-center cursor-pointer"
+														>
+															<input
+																type="checkbox"
+																class="sr-only peer"
+																id={`residente-fiscal-socio-`}
+																name={`residente-fiscal-socio-`}
+															/>
+															<div
+																class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"
+															>
+															</div>
+															<span
+																class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+															>
+																Residente fiscal en EE.UU.
+															</span>
+														</label>
+													</div>
+												</div>
+											</li>
+										</ul>
+										<ul
+											class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
+										>
+											<li>
+												<div
+													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+												>
+													<button
+														data-tooltip-target={`tooltip-default-`}
+														data-tooltip-placement="left"
+														type="button"
+														class="text-center"
+													>
+														<Icon
+															name="ri:passport-line"
+															width="24"
+															height="24"
+															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+														/>
+													</button>
+
+													<div
+														id={`tooltip-default-`}
+														role="tooltip"
+														class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+													>
+														Numero de Pasaporte
+														<div class="tooltip-arrow" data-popper-arrow></div>
+													</div>
+
+													<input
+														type="text"
+														id={`´pasaporte-socios-card-`}
+														name={`´pasaporte-socios-card-`}
+														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+													/>
+												</div>
+											</li>
+											<li>
+												<div
+													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+												>
+													<button
+														data-tooltip-target={`tooltip-seguro-`}
+														data-tooltip-placement="left"
+														type="button"
+														class="text-center"
+													>
+														<Icon
+															name="ri:secure-payment-line"
+															width="24"
+															height="24"
+															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+														/>
+													</button>
+
+													<div
+														id={`tooltip-seguro-`}
+														role="tooltip"
+														class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+													>
+														Numero de Seguro Social
+														<div class="tooltip-arrow" data-popper-arrow></div>
+													</div>
+													<input
+														type="text"
+														id={`numero-seguro-socio-`}
+														name={`numero-seguro-socio-`}
+														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+													/>
+												</div>
+											</li>
+											<li>
+												<div
+													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+												>
+													<button
+														data-tooltip-target={`tooltip-itin-`}
+														data-tooltip-placement="left"
+														type="button"
+														class="text-center"
+													>
+														<Icon
+															name="ri:hashtag"
+															width="24"
+															height="24"
+															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+														/>
+													</button>
+
+													<div
+														id={`tooltip-itin-`}
+														role="tooltip"
+														class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+													>
+														Numero de ITIN
+														<div class="tooltip-arrow" data-popper-arrow></div>
+													</div>
+													<input
+														type="text"
+														id={`numero-itin-socio-card-`}
+														name={`numero-itin-socio-card-`}
+														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+													/>
+												</div>
+											</li>
+											<li>
+												<div
+													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+												>
+													<button
+														data-tooltip-target={`tooltip-direccion-`}
+														data-tooltip-placement="left"
+														type="button"
+														class="text-center"
+													>
+														<Icon
+															name="ri:direction-line"
+															width="24"
+															height="24"
+															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+														/>
+													</button>
+
+													<div
+														id={`tooltip-direccion-`}
+														role="tooltip"
+														class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+													>
+														Direccion de planilla
+														<div class="tooltip-arrow" data-popper-arrow></div>
+													</div>
+													<input
+														type="text"
+														id={`direccion-planilla-socio-card-`}
+														name={`direccion-planilla-socio-card-`}
+														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+													/>
+												</div>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div
+							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+							id="manager"
+							role="tabpanel"
+							aria-labelledby="manager-tab"
+						>
+							<template x-if="formadeAdministracion === 'Member-Managed'">
+								<div
+									id="datos-managers"
+									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+									x-data="{ espartedelosMiembros: '' }"
+									x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
+								>
+									<h3 class="mb-4 text-xl font-semibold dark:text-white">
+										Informacion de managers
+									</h3>
+									<div>
+										<div class="grid grid-cols-6 gap-6">
+											<div class="col-span-6 sm:col-span-3">
+												<label
+													for="informacion_miembros"
+													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												>
+													Sotomayor Consulting International asigna al Manager
+												</label>
+												<select
+													name="informacion_miembros"
+													id="informacion_miembros"
+													x-model="asignarManager"
+													x-init="$el.value ? asignarManager = $el.value : null"
+													class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												>
+													<option value="" disabled hidden selected>
+														Seleccione una opcion
+													</option>
+
+													<option value="Si"> Si </option>
+
+													<option value="No"> No </option>
+												</select>
+											</div>
+											<template x-if="asignarManager === 'No'">
+												<div class="col-span-6 sm:col-span-3">
+													<label
+														for="informacionmanager"
+														class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													>
+														El manager es parte de los miembros
+													</label>
+													<select
+														name="informacionmanager"
+														id="informacionmanager"
+														x-model="managerMiembro"
+														x-init="$el.value ? managerMiembro = $el.value : null"
+														class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													>
+														<option disabled hidden selected>
+															Seleccione una opcion
+														</option>
+
+														<option value="Si"> Si </option>
+
+														<option value="No"> No </option>
+													</select>
+												</div>
+											</template>
+											<template x-if="managerMiembro === 'Si'">
+												<div class="col-span-6 sm:col-span-3">
+													<label
+														for="managers"
+														class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													>
+														Socios que son managers
+													</label>
+
+													<div class="flex items-center mb-4">
+														<input
+															id={`miembros-managers-`}
+															name={`miembros-managers-`}
+															type="checkbox"
+															class="w-4 h-4 text-[#1349ec] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#1349ec] dark:focus:ring-[#323f67] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+														/>
+														<label
+															for={`miembros-managers-`}
+															class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+														>
+															x
+														</label>
+													</div>
+												</div>
+											</template>
+										</div>
+									</div>
+									<template x-if="asignarManager === 'No'">
+										<div
+											class="grid xl:grid-cols-2 2xl:grid-cols-3 gap-4 border border-neutral-600 rounded-lg p-5 mt-5"
+										>
+											<h3
+												class="mb-4 text-xl font-semibold dark:text-white col-span-3"
+											>
+												Managers
+											</h3>
+
+											<div
+												class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-[#101521] lg:rounded-lg justify-self-center"
+											>
+												<span class="sr-only">Open user menu</span>
+												<div class="flex w-full items-center justify-between">
+													<div class="flex items-center">
+														<Image
+															src={`https://api.dicebear.com/9.x/thumbs/svg?seed=`}
+															class="mr-3 h-8 w-8 rounded-md"
+															alt="Bonnie avatar"
+															inferSize={true}
+															loading="eager"
+														/>
+														<div class="text-left">
+															<div
+																class="mb-0.5 font-semibold leading-none text-gray-900 dark:text-white"
+															>
+																<input
+																	type="text"
+																	id={`nombre-manager-card-`}
+																	name={`nombre-manager-card-`}
+																	class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+																/>
+															</div>
+															<div class="">
+																<input
+																	type="text"
+																	id={`nombre-manager-card-`}
+																	name={`nombre-manager-card-`}
+																	class="block w-full p-1 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg text-sm text-gray-500 dark:text-gray-400"
+																/>
+															</div>
+														</div>
+													</div>
+												</div>
+												<ul
+													class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
+												>
+													<li>
+														<div
+															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+														>
+															<Icon
+																name="ri:earth-line"
+																width="24"
+																height="24"
+																class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+															/>
+															<div class="w-full">
+																<label
+																	for={`pais-manager-card-`}
+																	class="sr-only"
+																>
+																	Selecciona una opcion
+																</label>
+																<select
+																	id={`pais-manager-card-`}
+																	name={`pais-manager-card-`}
+																	class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-[#101521] dark:group-hover:bg-gray-700"
+																>
+																	<option value="" disabled hidden selected>
+																		Seleccione un pais
+																	</option>
+
+																	{
+																		paises?.map((paises) => (
+																			<option value={paises.nombre_paises}>
+																				{paises.nombre_paises}
+																			</option>
+																		))
+																	}
+																</select>
+															</div>
+														</div>
+													</li>
+												</ul>
+												<ul
+													class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
+												>
+													<li>
+														<div
+															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+														>
+															<div class="w-full flex">
+																<label
+																	class="inline-flex items-center cursor-pointer"
+																>
+																	<input
+																		type="checkbox"
+																		id={`residente-fiscal-manager-card-`}
+																		name={`residente-fiscal-manager-card-`}
+																		class="sr-only peer"
+																	/>
+																	<div
+																		class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"
+																	>
+																	</div>
+																	<span
+																		class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+																	>
+																		Residente fiscal en EE.UU.
+																	</span>
+																</label>
+															</div>
+														</div>
+													</li>
+													<li>
+														<div
+															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+														>
+															<div class="w-full flex">
+																<label
+																	class="inline-flex items-center cursor-pointer"
+																>
+																	<input
+																		type="checkbox"
+																		class="sr-only peer"
+																		id={`misma-direccion-manager-card-`}
+																		name={`misma-direccion-manager-card-`}
+																	/>
+																	<div
+																		class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"
+																	>
+																	</div>
+																	<span
+																		class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+																	>
+																		Tiene la misma direccion que la empresa
+																	</span>
+																</label>
+															</div>
+														</div>
+													</li>
+												</ul>
+												<ul
+													class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
+												>
+													<li>
+														<div
+															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+														>
+															<button
+																data-tooltip-target={`tooltip-default-manager-`}
+																data-tooltip-placement="left"
+																type="button"
+																class="text-center"
+															>
+																<Icon
+																	name="ri:passport-line"
+																	width="24"
+																	height="24"
+																	class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+																	title="Numero de Pasaporte"
+																/>
+															</button>
+
+															<div
+																id={`tooltip-default-manager-`}
+																role="tooltip"
+																class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+															>
+																Numero de Pasaporte
+																<div class="tooltip-arrow" data-popper-arrow>
+																</div>
+															</div>
+
+															<input
+																type="text"
+																id={`pasaporte-manager-card-`}
+																name={`pasaporte-manager-card-`}
+																class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+															/>
+														</div>
+													</li>
+													<li>
+														<div
+															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+														>
+															<button
+																data-tooltip-target={`tooltip-seguro-manager-`}
+																data-tooltip-placement="left"
+																type="button"
+																class="text-center"
+															>
+																<Icon
+																	name="ri:secure-payment-line"
+																	width="24"
+																	height="24"
+																	class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+																	title="Numero de Seguro Social"
+																/>
+															</button>
+
+															<div
+																id={`tooltip-seguro-manager-`}
+																role="tooltip"
+																class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+															>
+																Numero de Seguro Social
+																<div class="tooltip-arrow" data-popper-arrow>
+																</div>
+															</div>
+															<input
+																type="text"
+																id={`numero-seguro-manager-card-`}
+																name={`numero-seguro-manager-card-`}
+																class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+															/>
+														</div>
+													</li>
+
+													<li>
+														<div
+															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+														>
+															<button
+																data-tooltip-target={`tooltip-itin-manager-`}
+																data-tooltip-placement="left"
+																type="button"
+																class="text-center"
+															>
+																<Icon
+																	name="ri:hashtag"
+																	width="24"
+																	height="24"
+																	class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+																	title="Numero de ITIN"
+																/>
+															</button>
+
+															<div
+																id={`tooltip-itin-manager-`}
+																role="tooltip"
+																class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+															>
+																Numero de ITIN
+																<div class="tooltip-arrow" data-popper-arrow>
+																</div>
+															</div>
+															<input
+																type="text"
+																id={`numero-itin-manager-card-`}
+																name={`numero-itin-manager-card-`}
+																class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+															/>
+														</div>
+													</li>
+													<li>
+														<div
+															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+														>
+															<button
+																data-tooltip-target={`tooltip-direccion-manager-`}
+																data-tooltip-placement="left"
+																type="button"
+																class="text-center"
+															>
+																<Icon
+																	name="ri:direction-line"
+																	width="24"
+																	height="24"
+																	class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+																	title="Direccion del manager"
+																/>
+															</button>
+
+															<div
+																id={`tooltip-direccion-manager-`}
+																role="tooltip"
+																class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+															>
+																Direccion del manager
+																<div class="tooltip-arrow" data-popper-arrow>
+																</div>
+															</div>
+															<input
+																type="text"
+																id={`direccion-manager-card-`}
+																name={`direccion-manager-card-`}
+																class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+															/>
+														</div>
+													</li>
+												</ul>
+											</div>
+										</div>
+									</template>
+								</div>
+							</template>
+							<div
+								class="col-span-6 sm:col-span-3"
+								x-show="managerMiembro === 'Si' || managerMiembro === 'No'"
+								x-transition
+							>
+								<button
+									type="button"
+									data-modal-target="crud-modal-2"
+									data-modal-toggle="crud-modal-2"
+									class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 flex items-center gap-2"
+								>
+									<Icon name="ri:add-line" /> Añadir manager</button
+								>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script>
+	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
+
+	function initDT() {
+		const el = document.querySelector('#myTable') as HTMLElement | null;
+		if (!el) return;
+		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
+			return;
+
+		new DataTable(el, {
+			searchable: true,
+			perPage: 25,
+			perPageSelect: [5, 10, 25, 50],
+
+			// Textos en español
+			labels: {
+				placeholder: 'Buscar...',
+				perPage: 'Filas',
+				noRows: 'No hay empresas',
+				noResults: 'No se encontraron resultados',
+				info: 'Mostrando {start} a {end} de {rows} registros',
+			},
+
+			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			layout: {
+				top: '{select}{search}',
+				bottom: '{info}{pager}',
+			},
+		});
+
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
+	}
+
+	initDT();
+	document.addEventListener('astro:page-load', initDT);
+</script>
