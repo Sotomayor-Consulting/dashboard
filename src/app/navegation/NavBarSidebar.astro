@@ -3,21 +3,26 @@ import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import logonotificaciones from '/src/assets/avatarSCI.png';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
-import { getUsuarioAvatar } from '@lib/tablas/usuarios';
-import { getUsuarioById } from '@lib/tablas/usuarios';
+import { getUsuarioAvatar, getUsuarioById } from '@lib/tablas/usuarios';
 import { getNotifications } from '@lib/tablas/notificaciones';
 
 const user = Astro.locals?.user;
 const userId = user?.id;
 const email = user?.email;
-const imagen = userId ? await getUsuarioAvatar(userId) : null;
-const usuario = userId ? await getUsuarioById(userId) : null;
 
-let notifications = [];
-let totalUnread = 0;
+let imagen: any = null;
+let usuario: any = null;
+let notificationsData: any = { notifications: [], totalUnread: 0 };
+
 if (user && userId) {
-	({ notifications, totalUnread } = await getNotifications(userId));
+	[imagen, usuario, notificationsData] = await Promise.all([
+		getUsuarioAvatar(userId),
+		getUsuarioById(userId),
+		getNotifications(userId),
+	]);
 }
+
+const { notifications, totalUnread } = notificationsData;
 
 export { notifications, totalUnread, user };
 ---
@@ -158,7 +163,7 @@ export { notifications, totalUnread, user };
 										No hay notificaciones
 									</div>
 								) : (
-									notifications.map((notification) => (
+									notifications.map((notification: any) => (
 										<div
 											class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-[#101522]/5 dark:border-gray-600"
 											data-id={notification.id}

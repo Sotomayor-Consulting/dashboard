@@ -1,34 +1,18 @@
 ---
 import '@estilos/datatables.css';
-import { supabase } from '@lib/supabase';
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
+import { IncorporacionesEmpresasBase } from '@lib/tablas/empresa_incorporaciones';
+import { actividadesGeneral } from '@lib/tablas/actividades';
+import { EstadosGeneral } from '@lib/tablas/estados';
+import { PaisesGeneral } from '@lib/tablas/paises';
 
-const { data: empresas } = await supabase
-	.from('empresas_incorporaciones')
-	.select(
-		`
-    user_id,
-    empresa_incorporacion_id,
-    tipo_de_negocio,
-    estado_de_incorporacion,
-    estado,
-    nombre_1,
-    nombre_2,
-    nombre_3,
-    updated_at,
-	porcentaje_de_incorporacion,
-    usuarios:user_id (nombre, apellido)
-  `,
-		{ count: 'exact' },
-	)
-	.order('updated_at', { ascending: false });
-
-const { data: actividades } = await supabase
-	.from('actividades_duplicate')
-	.select('*');
-const { data: estados } = await supabase.from('estados').select('*');
-const { data: paises } = await supabase.from('paises').select('*');
+const [empresas, actividades, estados, paises] = await Promise.all([
+  IncorporacionesEmpresasBase(),
+  actividadesGeneral(),
+  EstadosGeneral(),
+  PaisesGeneral(),
+]);
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>
@@ -422,9 +406,7 @@ const { data: paises } = await supabase.from('paises').select('*');
 											<datalist id="actividades-list">
 												{
 													actividades?.map((ac) => (
-														<option value={ac.actividad}>
-															{ac.Actividad} - {ac.Codigo}
-														</option>
+														<option value={ac.actividad}>{ac.Actividad}</option>
 													))
 												}
 											</datalist>

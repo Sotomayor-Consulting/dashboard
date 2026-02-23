@@ -1,5 +1,6 @@
 import { supabase } from '@lib/supabase';
 import type { User } from '@supabase/supabase-js';
+import { e } from '../../../dist/server/chunks/astro/server_Cm0vK6ob.mjs';
 
 export const getIncorporacionesByUserId = async (userId: string) => {
 	const { data, error } = await supabase
@@ -12,6 +13,34 @@ export const getIncorporacionesByUserId = async (userId: string) => {
 		return [];
 	}
 
+	return data;
+};
+
+export const IncorporacionesEmpresasBase = async () => {
+	const { data, error } = await supabase
+		.from('empresas_incorporaciones')
+		.select(
+			`
+    user_id,
+    empresa_incorporacion_id,
+    tipo_de_negocio,
+    estado_de_incorporacion,
+    estado,
+    nombre_1,
+    nombre_2,
+    nombre_3,
+    updated_at,
+	porcentaje_de_incorporacion,
+    usuarios:user_id (nombre, apellido)
+  `,
+			{ count: 'exact' },
+		)
+		.order('updated_at', { ascending: false });
+
+	if (error) {
+		console.error('Error fetching incorporaciones base:', error);
+		return [];
+	}
 	return data;
 };
 
@@ -60,7 +89,10 @@ export const getUserWithSession = async (
 	}
 };
 
-export const getUser = async (): Promise<{ user: User | null; error: Error | null }> => {
+export const getUser = async (): Promise<{
+	user: User | null;
+	error: Error | null;
+}> => {
 	try {
 		const {
 			data: { user },

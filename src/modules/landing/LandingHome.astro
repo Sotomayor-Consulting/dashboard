@@ -9,8 +9,14 @@ import { menuItems } from '@lib/interfaz/itemsNavegacion';
 const user = Astro.locals.user;
 const userId = user?.id;
 
-const { role: userRole, roles: userRoles } = await getUserWithRole(userId);
-const { count: formularioPendientesCount } = await getFormulariosPendientes();
+const [userData, formularioData] = await Promise.all([
+  getUserWithRole(userId),
+  getFormulariosPendientes(),
+]);
+
+const { role: userRole, roles: userRoles } = userData;
+const { count: formularioPendientesCount } = formularioData;
+
 const { count: pagosCount } = await getPagosPorLeer(userRole);
 
 const visibleMenu = menuItems.filter(
