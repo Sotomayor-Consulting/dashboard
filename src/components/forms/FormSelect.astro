@@ -1,0 +1,68 @@
+---
+interface Option {
+	value: string;
+	label: string;
+}
+
+interface Props {
+	label: string;
+	name: string;
+	options: Option[];
+	value?: string | undefined;
+	required?: boolean | undefined;
+	disabled?: boolean | undefined;
+	id?: string | undefined;
+	class?: string | undefined;
+	placeholder?: string | undefined;
+}
+
+const {
+	label,
+	name,
+	options,
+	value = '',
+	required = false,
+	disabled = false,
+	id = name,
+	class: wrapperClass = 'col-span-6 sm:col-span-3',
+	placeholder = 'Seleccione una opción',
+} = Astro.props;
+
+const selectClasses = [
+	'block w-full rounded-lg border border-gray-300 bg-neutral-200 p-2.5',
+	'text-gray-900 shadow-sm sm:text-sm',
+	'focus:border-[#8c681d] focus:ring-[#8c681d]',
+	'dark:border-gray-600 dark:bg-[#101521] dark:text-white',
+	'dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]',
+	disabled && 'cursor-not-allowed opacity-50',
+]
+	.filter(Boolean)
+	.join(' ');
+---
+
+<div class={wrapperClass}>
+	<label
+		for={id}
+		class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+	>
+		{label}
+	</label>
+	<select
+		name={name}
+		id={id}
+		required={required}
+		disabled={disabled}
+		class={selectClasses}
+	>
+		<option value="" disabled selected={!value}>
+			{placeholder}
+		</option>
+		{
+			options.map((option) => (
+				<option value={option.value} selected={option.value === value}>
+					{option.label}
+				</option>
+			))
+		}
+	</select>
+</div>

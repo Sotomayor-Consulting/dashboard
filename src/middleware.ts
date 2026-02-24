@@ -1,5 +1,4 @@
 // ─── Astro Middleware: Auth Guard + RBAC (Role-Based Access Control) ─────
-
 import { defineMiddleware } from 'astro:middleware';
 import { createSupabaseServerClient } from '@lib/supabase';
 import type { AuthUser } from '@lib/auth';
@@ -18,12 +17,13 @@ const PUBLIC_ROUTES: string[] = [
 	'/sign-up',
 	'/forgot-password',
 	'/reset-password',
+	'/api/auth',
+	'/callback',
 ];
 
 const PUBLIC_PREFIXES: string[] = ['/api/'];
 
 // ─── Definición de acceso por rol ──────────────────────
-// Usa ROLES.* para mantener consistencia con la BD
 const ROLE_PROTECTED_ROUTES: RouteRoleConfig[] = [
 	{
 		path: '/crud/',
@@ -62,9 +62,20 @@ const ROLE_PROTECTED_ROUTES: RouteRoleConfig[] = [
 	},
 ];
 
+/**
+ * Normaliza el pathname eliminando el trailing slash
+ * para evitar mismatches entre "/sign-in" y "/sign-in/"
+ */
+function normalizePath(path: string): string {
+	if (path.length > 1 && path.endsWith('/')) {
+		return path.slice(0, -1);
+	}
+	return path;
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
 	const { cookies, url, redirect, request } = context;
-	const pathname = url.pathname;
+	const pathname = normalizePath(url.pathname);
 
 	// ─── 1. Crear cliente Supabase per-request ─────────────
 	const supabase = createSupabaseServerClient({
@@ -89,7 +100,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	context.locals.userRoles = [];
 
 	// ─── 4. Rutas públicas — dejar pasar siempre ──────────
-	const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route);
+	const isPublicRoute = PUBLIC_ROUTES.some(
+		(route) => pathname === route || pathname.startsWith(`${route}/`),
+	);
 	const isPublicPrefix = PUBLIC_PREFIXES.some((prefix) =>
 		pathname.startsWith(prefix),
 	);
@@ -98,33 +111,40 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		return next();
 	}
 
-	// ─── 5. Redirigir usuarios no autenticados ────────────
-	if (!user) {
+	// ─── 4b. Redirigir usuarios no autenticados (excepto ruta raíz) ──
+	if (!user && pathname !== '/') {
 		return redirect(PATHS.signIn);
 	}
 
-	// ─── 6. Obtener roles del usuario ──────────────────────
-	const { data: userRolesData, error: rolesError } = await supabase
-		.from('user_roles')
-		.select('rol_id, roles ( name )')
-		.eq('user_id', user.id);
+	// ─── 5. Obtener roles del usuario ──────────────────────
+	if (user) {
+		const { data: userRolesData, error: rolesError } = await supabase
+			.from('user_roles')
+			.select('rol_id, roles ( name )')
+			.eq('user_id', user.id);
 
-	if (rolesError) {
-		console.error('[middleware] Error al obtener roles:', rolesError.message);
+		if (rolesError) {
+			console.error('[middleware] Error al obtener roles:', rolesError.message);
+		}
+
+		const userRoles = extractRoleNames(
+			userRolesData as unknown as UserRoleRow[] | null,
+		);
+
+		context.locals.userRoles = userRoles;
 	}
 
-	const userRoles = extractRoleNames(
-		userRolesData as unknown as UserRoleRow[] | null,
-	);
-
-	context.locals.userRoles = userRoles;
+	// ─── 6. Ruta raíz — dejar pasar (la página decide qué mostrar) ──
+	if (pathname === '/') {
+		return next();
+	}
 
 	// ─── 7. RBAC: Verificar acceso por rol ────────────────
 	const matchedRoute = ROLE_PROTECTED_ROUTES.find((config) =>
 		pathname.startsWith(config.path),
 	);
 
-	if (matchedRoute && !hasAnyRole(userRoles, matchedRoute.roles)) {
+	if (matchedRoute && !hasAnyRole(context.locals.userRoles, matchedRoute.roles)) {
 		return redirect(
 			`/?status=error&msg=${encodeURIComponent(matchedRoute.errorMsg)}`,
 		);

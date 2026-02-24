@@ -1,0 +1,122 @@
+---
+interface Props {
+	label: string;
+	name: string;
+	value?: string | undefined;
+	initialCountry?: string | undefined;
+	required?: boolean | undefined;
+	id?: string | undefined;
+	class?: string | undefined;
+}
+const {
+	label,
+	name,
+	value = '',
+	initialCountry = 'us',
+	required = false,
+	id = `phone-${name}`,
+	class: wrapperClass = 'col-span-6 sm:col-span-3',
+} = Astro.props;
+---
+
+<div class={wrapperClass}>
+	<label
+		for={id}
+		class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+	>
+		{label}
+	</label>
+	<input
+		type="tel"
+		id={id}
+		value={value ?? ''}
+		placeholder=""
+		class="iti-input block w-full rounded-lg border border-gray-300 bg-neutral-200 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:bg-[#101521] dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
+		data-phone-input
+		data-phone-name={name}
+		data-phone-country={initialCountry}
+		data-phone-required={required ? 'true' : undefined}
+	/>
+	<p
+		class="mt-1 hidden text-sm text-red-600 dark:text-red-400"
+		data-phone-error={id}
+	>
+		Número de teléfono inválido
+	</p>
+</div>
+<script>
+	import intlTelInput from 'intl-tel-input/intlTelInputWithUtils';
+	import es from 'intl-tel-input/i18n/es';
+	import 'intl-tel-input/styles';
+	function initPhoneInputs() {
+		const inputs =
+			document.querySelectorAll<HTMLInputElement>('[data-phone-input]');
+		inputs.forEach((input) => {
+			if (intlTelInput.getInstance(input)) return;
+			const name = input.dataset.phoneName || 'phone';
+			const country = input.dataset.phoneCountry || 'us';
+			const isRequired = input.dataset.phoneRequired === 'true';
+			const iti = intlTelInput(input, {
+				i18n: es,
+				initialCountry: country as any,
+				nationalMode: true,
+				formatAsYouType: true,
+				separateDialCode: true,
+				countrySearch: true,
+				strictMode: true,
+				hiddenInput: () => ({
+					phone: name,
+					country: `${name}_country`,
+				}),
+			});
+			// Validación inline (opcional, si el form lo requiere)
+			if (isRequired) {
+				const errorEl = document.querySelector(
+					`[data-phone-error="${input.id}"]`,
+				);
+				input.addEventListener('blur', () => {
+					const isValid = iti.isValidNumber();
+					input.classList.toggle(
+						'border-red-500',
+						!isValid && input.value !== '',
+					);
+					errorEl?.classList.toggle('hidden', isValid || input.value === '');
+				});
+				// Limpiar error al escribir
+				input.addEventListener('input', () => {
+					input.classList.remove('border-red-500');
+					errorEl?.classList.add('hidden');
+				});
+			}
+		});
+	}
+	document.addEventListener('DOMContentLoaded', initPhoneInputs);
+	document.addEventListener('astro:page-load', initPhoneInputs);
+</script>
+
+<style is:global>
+	/* Adaptar intl-tel-input al design system del dashboard */
+	.iti {
+		--iti-border-color: #d1d5db; /* gray-300 */
+		--iti-dropdown-bg: #e5e5e5; /* neutral-200 */
+		--iti-hover-color: rgba(0, 0, 0, 0.05);
+		width: 100%;
+	}
+	:where(.dark) .iti {
+		--iti-border-color: #4b5563; /* gray-600 */
+		--iti-dropdown-bg: #101521;
+		--iti-hover-color: rgba(255, 255, 255, 0.05);
+		--iti-icon-color: #9ca3af;
+	}
+	:where(.dark) .iti__search-input {
+		background-color: #192033;
+		color: #fff;
+	}
+	:where(.dark) .iti__country-name,
+	:where(.dark) .iti__dial-code {
+		color: #e5e7eb;
+	}
+	:where(.dark) .iti__selected-dial-code {
+		color: #fff;
+	}
+</style>

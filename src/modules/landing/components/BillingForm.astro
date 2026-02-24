@@ -1,0 +1,149 @@
+---
+import FormPhoneInput from '@components/forms/FormPhoneInput.astro';
+import FormInput from '@components/forms/FormInput.astro';
+import FormSelect from '@components/forms/FormSelect.astro';
+
+interface PaisRow {
+	id: number;
+	iso: string;
+	nombre_paises: string;
+	codigo_telf: string;
+}
+
+interface FacturacionRow {
+	personería?: string | null;
+	nombre_o_razon_social?: string | null;
+	correo?: string | null;
+	telefono?: string | null;
+	direccion?: string | null;
+	pais?: string | null;
+	ciudad?: string | null;
+	tipo_de_documento?: string | null;
+	documento_de_identidad?: string | null;
+}
+
+interface Props {
+	facturacion?: FacturacionRow | null | undefined;
+	paises?: PaisRow[] | null | undefined;
+	userId?: string | undefined;
+}
+
+type Option = {
+	value: string;
+	label: string;
+};
+
+const personTypeOptions: Option[] = [
+	{ value: 'Natural', label: 'Natural' },
+	{ value: 'Jurídica', label: 'Jurídica' },
+];
+
+const documentTypeOptions: Option[] = [
+	{ value: 'Cédula', label: 'Cédula' },
+	{ value: 'RUC', label: 'RUC' },
+	{ value: 'ID', label: 'ID' },
+	{ value: 'Pasaporte', label: 'Pasaporte' },
+	{ value: 'EIN', label: 'EIN' },
+];
+
+const { facturacion, paises, userId } = Astro.props;
+
+const countryOptions: Option[] = (paises ?? []).map((p) => ({
+	value: p.nombre_paises,
+	label: p.nombre_paises,
+}));
+---
+
+<div
+	id="datos-facturacion"
+	class="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-[#192033]"
+>
+	<h3 class="mb-4 text-xl font-semibold dark:text-white">
+		Datos de facturación
+	</h3>
+	<form method="post" action="/api/update/update-factura">
+		<input type="hidden" value={userId} name="user_id_factura" />
+		<div class="grid grid-cols-6 gap-6">
+			<!-- Personería / Razón Social -->
+			<FormSelect
+				label="Personería"
+				name="tipo_de_persona"
+				value={facturacion?.personería ?? ''}
+				options={personTypeOptions}
+				placeholder="Seleccione el tipo de persona"
+				required
+			/>
+			<FormInput
+				label="Nombre o Razón Social"
+				name="razon_social"
+				value={facturacion?.nombre_o_razon_social ?? ''}
+				placeholder="Ejem. Juan Perez o Comercial Perez S.A."
+				required
+			/>
+			<!-- Correo / Teléfono -->
+			<FormInput
+				label="Correo electrónico para facturación"
+				name="correo_electronico_factura"
+				type="email"
+				value={facturacion?.correo ?? ''}
+				placeholder="ejemplo@gmail.com"
+				required
+			/>
+			<FormPhoneInput
+				label="Número de teléfono"
+				name="telefono"
+				value={facturacion?.telefono ?? ''}
+				initialCountry="us"
+			/>
+			<!-- Dirección (full width) -->
+			<FormInput
+				label="Dirección"
+				name="direccion_factura"
+				value={facturacion?.direccion ?? ''}
+				placeholder="Av. Siempre Viva 123 y Calle Alguna"
+				required
+				class="col-span-6"
+			/>
+			<!-- País / Ciudad -->
+			<FormSelect
+				label="País"
+				name="pais_factura"
+				value={facturacion?.pais ?? ''}
+				options={countryOptions}
+				placeholder="Seleccione un país"
+				required
+			/>
+			<FormInput
+				label="Ciudad"
+				name="ciudad_factura"
+				value={facturacion?.ciudad ?? ''}
+				placeholder="Quito"
+				required
+			/>
+			<FormSelect
+				label="Tipo de documento"
+				name="tipo_de_documento_factura"
+				value={facturacion?.tipo_de_documento ?? ''}
+				options={documentTypeOptions}
+				placeholder="Seleccione un tipo de documento"
+				required
+			/>
+			<FormInput
+				label="Número de identificación"
+				name="documento_de_identidad_factura"
+				value={facturacion?.documento_de_identidad ?? ''}
+				placeholder="1712345678"
+				required
+			/>
+			<!-- Botón guardar -->
+			<div class="sm:col-full col-span-6">
+				<button
+					type="submit"
+					class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+				>
+					Guardar
+				</button>
+			</div>
+		</div>
+	</form>
+</div>

@@ -36,10 +36,9 @@
 		"start": "astro dev"
 	},
 	"dependencies": {
-		"@astrojs/check": "^0.9.2",
-		"@astrojs/node": "^9.5.2",
+		"@astrojs/check": "0.9.6",
+		"@astrojs/node": "9.5.4",
 		"@astrojs/sitemap": "^3.7.0",
-		"@astrojs/tailwind": "^6.0.2",
 		"@emotion/css": "^11.13.5",
 		"@faker-js/faker": "^7.6.0",
 		"@sparticuz/chromium": "^141.0.0",
@@ -48,7 +47,7 @@
 		"@supabase/supabase-js": "^2.57.0",
 		"alpinejs": "^3.15.7",
 		"apexcharts": "^3.37.2",
-		"astro": "^5.17.1",
+		"astro": "5.17.3",
 		"astro-icon": "^1.1.5",
 		"axios": "^1.13.5",
 		"carbone": "^3.5.6",
@@ -63,6 +62,7 @@
 		"flowbite": "^2.5.2",
 		"flowbite-typography": "^1.0.3",
 		"gridjs": "^6.2.0",
+		"intl-tel-input": "^26.6.0",
 		"jquery": "^3.7.1",
 		"libreoffice-convert": "^1.7.0",
 		"mammoth": "^1.11.0",
@@ -75,21 +75,23 @@
 		"simple-datatables": "^10.2.0",
 		"stripe": "^20.3.1",
 		"survey-core": "^2.3.9",
-		"tailwind-scrollbar": "^3.0.0",
-		"tailwindcss": "^3.0.24",
+		"tailwindcss": "^4.2.0",
 		"typescript": "^5.9.3",
 		"xmlrpc": "^1.3.2",
 		"zxcvbn": "^4.4.2"
 	},
 	"devDependencies": {
 		"@iconify-json/ri": "^1.2.6",
+		"@tailwindcss/vite": "^4.2.0",
 		"@types/carbone": "^3.2.5",
 		"@types/dropzone": "^5.7.9",
+		"@types/intl-tel-input": "^18.1.4",
 		"@types/mustache": "^4.2.6",
 		"@types/xmlrpc": "^1.3.10",
 		"@types/zxcvbn": "^4.4.5",
 		"baseline-browser-mapping": "^2.9.5",
 		"prettier": "^3.6.2",
-		"prettier-plugin-astro": "^0.14.1"
+		"prettier-plugin-astro": "^0.14.1",
+		"prettier-plugin-tailwindcss": "^0.7.2"
 	}
 }

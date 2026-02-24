@@ -1,4 +1,5 @@
 ---
+import '../../styles/global.css';
 import pkg from '../../../package.json' assert { type: 'json' };
 import { url } from '../../lib/data.js';
 
@@ -38,16 +39,7 @@ const { class: clazz } = Astro.props;
 			}
 		</script>
 	</head>
-	<body
-		class:list={[
-			//
-			clazz,
-			'bg-gray-50 dark:bg-[#192033]',
-			'scrollbar scrollbar-w-3 scrollbar-thumb-rounded-[0.25rem]',
-			'scrollbar-track-slate-200  scrollbar-thumb-gray-400',
-			'dark:scrollbar-track-gray-900 dark:scrollbar-thumb-gray-700',
-		]}
-	>
+	<body class:list={[clazz, 'bg-gray-50 dark:bg-[#192033]']}>
 		<slot />
 	</body>
 </html>
@@ -57,5 +49,28 @@ const { class: clazz } = Astro.props;
 </script>
 
 <style is:global>
-	@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+	/* Scrollbar styling (reemplaza tailwind-scrollbar plugin incompatible con v4) */
+	body {
+		scrollbar-width: thin;
+		scrollbar-color: #9ca3af #e2e8f0;
+	}
+	:where(.dark) body {
+		scrollbar-color: #374151 #111827;
+	}
+	body::-webkit-scrollbar {
+		width: 0.75rem;
+	}
+	body::-webkit-scrollbar-track {
+		background: #e2e8f0;
+	}
+	body::-webkit-scrollbar-thumb {
+		background: #9ca3af;
+		border-radius: 0.25rem;
+	}
+	:where(.dark) body::-webkit-scrollbar-track {
+		background: #111827;
+	}
+	:where(.dark) body::-webkit-scrollbar-thumb {
+		background: #374151;
+	}
 </style>

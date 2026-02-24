@@ -1,0 +1,60 @@
+---
+interface Props {
+	label: string;
+	name?: string | undefined;
+	value?: string | undefined;
+	type?: 'text' | 'number' | 'date' | 'email' | 'tel' | 'hidden';
+	placeholder?: string | undefined;
+	required?: boolean | undefined;
+	disabled?: boolean | undefined;
+	id?: string | undefined;
+	class?: string | undefined;
+}
+
+const {
+	label,
+	disabled = false,
+	name,
+	id = name ?? label.toLowerCase().replace(/\s+/g, '-'),
+	value = '',
+	placeholder,
+	type = 'text',
+	required = false,
+	class: wrapperClass = 'col-span-6 sm:col-span-3',
+} = Astro.props;
+
+const inputClasses = [
+	'block w-full rounded-lg border border-gray-300 bg-neutral-200 p-2.5',
+	'text-gray-900 shadow-sm sm:text-sm',
+	'focus:border-[#8c681d] focus:ring-[#8c681d]',
+	'dark:border-gray-600 dark:bg-[#101521] dark:text-white',
+	'dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]',
+	disabled && 'cursor-not-allowed',
+]
+	.filter(Boolean)
+	.join(' ');
+---
+
+<div class={wrapperClass}>
+	<label
+		for={id}
+		class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+	>
+		{label}
+	</label>
+	{
+		disabled ? (
+			<label class={inputClasses}>{value}</label>
+		) : (
+			<input
+				type={type}
+				name={name}
+				id={id}
+				value={value ?? ''}
+				placeholder={placeholder}
+				required={required}
+				class={inputClasses}
+			/>
+		)
+	}
+</div>

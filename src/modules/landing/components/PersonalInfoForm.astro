@@ -1,0 +1,194 @@
+---
+import FormInput from '../../../components/forms/FormInput.astro';
+import FormPhoneInput from '../../../components/forms/FormPhoneInput.astro';
+import FormSelect from '../../../components/forms/FormSelect.astro';
+
+interface PaisRow {
+	id: number;
+	iso: string;
+	nombre_paises: string;
+	codigo_telf: string;
+}
+
+interface UsuarioRow {
+	nombre?: string | null;
+	apellido?: string | null;
+	pais_id?: number | null;
+	ciudad?: string | null;
+	direccion_linea1?: string | null;
+	direccion_linea2?: string | null;
+	telf?: string | null;
+	fecha_nacimiento?: string | null;
+	organizacion?: string | null;
+	cargo?: string | null;
+	departamento?: string | null;
+	codigo_postal?: string | null;
+	tipo_identificacion?: string | null;
+	numero_de_identificacion?: string | null;
+	tipo_persona?: string | null;
+	user_id?: string | null;
+}
+
+interface Props {
+	usuario?: UsuarioRow | null | undefined;
+	paises?: PaisRow[] | null | undefined;
+	email?: string | undefined;
+}
+
+type Option = {
+	value: string;
+	label: string;
+};
+
+const documentTypeOptions: Option[] = [
+	{ value: 'Cédula', label: 'Cédula' },
+	{ value: 'RUC', label: 'RUC' },
+	{ value: 'ID', label: 'ID' },
+	{ value: 'Pasaporte', label: 'Pasaporte' },
+	{ value: 'EIN', label: 'EIN' },
+];
+
+const personTypeOptions: Option[] = [
+	{ value: 'Natural', label: 'Natural' },
+	{ value: 'Jurídica', label: 'Jurídica' },
+];
+
+const { usuario, paises, email } = Astro.props;
+
+const countryOptions: Option[] = (paises ?? []).map((p) => ({
+	value: String(p.id),
+	label: p.nombre_paises,
+}));
+const selectedCountry = usuario?.pais_id ? String(usuario.pais_id) : '';
+---
+
+<div
+	class="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-[#192033]"
+>
+	<h3 class="mb-4 text-xl font-semibold dark:text-white">
+		Información General
+	</h3>
+	<form
+		id="personal-info-form"
+		method="post"
+		action="/api/update/update-profile"
+	>
+		<div class="grid grid-cols-6 gap-6">
+			<!-- Nombre / Apellido -->
+			<FormInput
+				label="Nombre"
+				name="nombre"
+				value={usuario?.nombre ?? ''}
+				placeholder="Juan"
+			/>
+			<FormInput
+				label="Apellido"
+				name="apellido"
+				value={usuario?.apellido ?? ''}
+				placeholder="Green"
+			/>
+			<!-- País / Ciudad -->
+			<FormSelect
+				label="País"
+				name="pais"
+				value={selectedCountry}
+				options={countryOptions}
+				placeholder="Seleccione un país"
+			/>
+			<FormInput
+				label="Ciudad"
+				name="ciudad"
+				value={usuario?.ciudad ?? ''}
+				placeholder="ejem. San Francisco"
+			/>
+			<!-- Dirección línea 1 / Dirección línea 2 -->
+			<FormInput
+				label="Dirección línea 1"
+				name="direccion"
+				value={usuario?.direccion_linea1 ?? ''}
+				placeholder="ejem. Av. Juan Molineros"
+			/>
+			<FormInput
+				label="Dirección línea 2"
+				name="direccion2"
+				value={usuario?.direccion_linea2 ?? ''}
+				placeholder="ejem. y De los Guayacanes"
+			/>
+
+			<!-- Tipo de documento / Número de identificación -->
+			<FormSelect
+				label="Tipo de documento"
+				name="tipo_de_documento"
+				value={usuario?.tipo_identificacion ?? ''}
+				options={documentTypeOptions}
+				placeholder="Seleccione un tipo de documento"
+			/>
+			<FormInput
+				label="Número de identificación"
+				name="Numero_de_identificacion"
+				value={usuario?.numero_de_identificacion ?? ''}
+				placeholder="1777745898"
+			/>
+
+			<!-- Tipo de persona / Email -->
+			<FormSelect
+				label="Tipo de persona"
+				name="tipo_de_persona"
+				value={usuario?.tipo_persona ?? ''}
+				options={personTypeOptions}
+				placeholder="Seleccione el tipo de persona"
+			/>
+			<FormInput label="Email" name="email" value={email ?? ''} disabled />
+
+			<!-- Teléfono / Fecha de nacimiento -->
+			<FormPhoneInput
+				label="Número de teléfono"
+				name="telefono"
+				value={usuario?.telf ?? ''}
+				initialCountry="us"
+			/>
+			<FormInput
+				label="Fecha de nacimiento"
+				name="fecha_nacimiento"
+				type="date"
+				value={usuario?.fecha_nacimiento ?? ''}
+			/>
+			<!-- Organización / Cargo -->
+			<FormInput
+				label="Organización a la que pertenece"
+				name="organizacion"
+				value={usuario?.organizacion ?? ''}
+				placeholder="Ejem. Sotomayor Consulting Ecuador"
+			/>
+			<FormInput
+				label="Cargo"
+				name="cargo"
+				value={usuario?.cargo ?? ''}
+				placeholder="Ejem. Gerente General"
+			/>
+
+			<!-- Departamento / Código Postal -->
+			<FormInput
+				label="Departamento"
+				name="departamento"
+				value={usuario?.departamento ?? ''}
+				placeholder="Development"
+			/>
+			<FormInput
+				label="Código Postal"
+				name="codigo_postal"
+				value={usuario?.codigo_postal ?? ''}
+				placeholder="123456"
+			/>
+			<!-- Botón guardar -->
+			<div class="sm:col-full col-span-6">
+				<button
+					type="submit"
+					class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+				>
+					Guardar
+				</button>
+			</div>
+		</div>
+	</form>
+</div>

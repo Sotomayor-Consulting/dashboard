@@ -7,8 +7,8 @@ module.exports = {
 	trailingComma: 'all',
 	useTabs: true,
   
-	// CAMBIA ESTA LÍNEA - usa solo el nombre del plugin
-	plugins: ['prettier-plugin-astro'],
+	// IMPORTANTE: prettier-plugin-tailwindcss debe ir al final
+	plugins: ['prettier-plugin-astro', 'prettier-plugin-tailwindcss'],
 	
 	overrides: [
 	  {
