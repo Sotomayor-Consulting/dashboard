@@ -503,7 +503,6 @@ export { notifications, totalUnread, user };
 			config: { private: true, broadcast: { self: true, ack: true } },
 		});
 
-		// 👇 AQUI el fix CLAVE: lee payload.payload.record / payload.payload.old_record
 		const recOf = (p) =>
 			p?.payload?.record ??
 			p?.record ??
