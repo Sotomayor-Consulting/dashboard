@@ -2,6 +2,7 @@
 import pkg from '../../../package.json' with { type: 'json' };
 import { url } from '../../lib/data.js';
 import { SITE_TITLE } from '../constants.js';
+import '../../styles/global.css';
 
 const { class: clazz } = Astro.props;
 ---
@@ -41,7 +42,7 @@ const { class: clazz } = Astro.props;
 		class:list={[
 			//
 			clazz,
-			'bg-gray-50 dark:bg-[#192033]',
+			'bg-gray-50 dark:bg-black-800',
 			'scrollbar scrollbar-w-3 scrollbar-thumb-rounded-[0.25rem]',
 			'scrollbar-track-slate-200  scrollbar-thumb-gray-400',
 			'dark:scrollbar-track-gray-900 dark:scrollbar-thumb-gray-700',

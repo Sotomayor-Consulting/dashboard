@@ -49,7 +49,7 @@ if (isPartner && user) {
 		class="grid gap-4 w-full grid-cols-1 my-4 xl:grid-cols-2 2xl:grid-cols-3"
 	>
 		<div
-			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
+			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-black-800"
 		>
 			<div class="w-full">
 				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
@@ -62,7 +62,7 @@ if (isPartner && user) {
 						<input
 							id="npm-install-input"
 							type="text"
-							class="block w-full text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white bg-white rounded-xl dark:bg-[#192033] border-0 p-0"
+							class="block w-full text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white bg-white rounded-xl dark:bg-black-800 border-0 p-0"
 							value={usuario.codigo_de_partner}
 							disabled
 							readonly
@@ -116,7 +116,7 @@ if (isPartner && user) {
 						<div
 							id="tooltip-copy-npm-install-copy-button"
 							role="tooltip"
-							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-[#101521]"
+							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-black-900"
 						>
 							<span id="default-tooltip-message">Copiar codigo de partners</span
 							>
@@ -134,10 +134,10 @@ if (isPartner && user) {
 		</div>
 
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800"
 		>
 			<div
-				class="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm sm:flex sm:p-6 dark:bg-[#192033]"
+				class="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm sm:flex sm:p-6 dark:bg-black-800"
 			>
 				<div class="w-full">
 					<div class="flex items-center">
@@ -166,7 +166,7 @@ if (isPartner && user) {
 							data-popover
 							id="popover-description-2"
 							role="tooltip"
-							class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-[#192033] dark:border-gray-600 dark:text-gray-400"
+							class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-black-800 dark:border-gray-600 dark:text-gray-400"
 						>
 							<div class="p-3 space-y-2">
 								<h3 class="font-semibold text-gray-900 dark:text-white">
@@ -204,7 +204,7 @@ if (isPartner && user) {
 		</div>
 
 		<div
-			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm flex dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
+			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm flex dark:border-gray-700 sm:p-6 dark:bg-black-800"
 		>
 			<div class="w-full">
 				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
@@ -231,7 +231,7 @@ if (isPartner && user) {
 	>
 		<!-- Main widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
+			class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-black-800"
 		>
 			<div class="flex items-center justify-between mb-4">
 				<div class="flex-shrink-0">
@@ -251,7 +251,7 @@ if (isPartner && user) {
 						<>
 							<form
 								id="my-dropzone"
-								class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-[#101521] dark:border-gray-600 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80"
+								class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-black-900 dark:border-gray-600 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80"
 								action="/api/update/contrato-partner-upload"
 								method="post"
 								enctype="multipart/form-data"
@@ -276,7 +276,7 @@ if (isPartner && user) {
 							</div>
 						</>
 					) : (
-						<div class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-[#101521] dark:border-orange-500 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80 cursor-not-allowed">
+						<div class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-black-900 dark:border-orange-500 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80 cursor-not-allowed">
 							<div class="text-white flex flex-col">
 								<Icon name="ri:alert-fill" class="w-10 h-10" />
 								<span>
@@ -299,7 +299,7 @@ if (isPartner && user) {
 		</div>
 		<!--Tabs widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800"
 		>
 			<h3
 				class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white"
@@ -326,7 +326,7 @@ if (isPartner && user) {
 				data-popover
 				id="popover-description"
 				role="tooltip"
-				class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-[#192033] dark:border-gray-600 dark:text-gray-400"
+				class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-black-800 dark:border-gray-600 dark:text-gray-400"
 			>
 				<div class="p-3 space-y-2">
 					<h3 class="font-semibold text-gray-900 dark:text-white">
@@ -420,7 +420,7 @@ if (isPartner && user) {
 		</div>
 	</div>
 	<div
-		class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#192033] my-4"
+		class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800 my-4"
 	>
 		<!-- Card header -->
 		<div class="items-center justify-between lg:flex">
@@ -441,7 +441,7 @@ if (isPartner && user) {
 						<table
 							class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
 						>
-							<thead class="bg-gray-50 dark:bg-[#192033]">
+							<thead class="bg-gray-50 dark:bg-black-800">
 								<tr>
 									{
 										[
@@ -461,7 +461,7 @@ if (isPartner && user) {
 									}
 								</tr>
 							</thead>
-							<tbody class="bg-white dark:bg-[#192033]">
+							<tbody class="bg-white dark:bg-black-800">
 								<tr>
 									{
 										documentos && documentos.length > 0 ? (
@@ -477,11 +477,11 @@ if (isPartner && user) {
 													</td>
 													<td class="p-4 whitespace-nowrap">
 														{documento?.estado === 'activo' ? (
-															<span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:bg-[#192033] dark:text-green-400 border border-green-100 dark:border-green-500 mx-auto">
+															<span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:bg-black-800 dark:text-green-400 border border-green-100 dark:border-green-500 mx-auto">
 																Completado
 															</span>
 														) : (
-															<span class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:bg-[#192033] dark:text-yellow-400 border border-yellow-100 dark:border-yellow-500 mx-auto">
+															<span class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:bg-black-800 dark:text-yellow-400 border border-yellow-100 dark:border-yellow-500 mx-auto">
 																En proceso
 															</span>
 														)}

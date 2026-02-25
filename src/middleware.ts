@@ -22,20 +22,29 @@ export function onRequest(context: any, next: any) {
 		const refreshToken = cookies.get('sb-refresh-token');
 
 		let user = null;
+		let isValidSession = false;
 
 		if (accessToken && refreshToken) {
-			await supabase.auth.setSession({
-				access_token: accessToken.value,
-				refresh_token: refreshToken.value,
-			});
+			const { data: sessionData, error: sessionError } =
+				await supabase.auth.setSession({
+					access_token: accessToken.value,
+					refresh_token: refreshToken.value,
+				});
+
+			if (sessionError || !sessionData?.session) {
+				cookies.delete('sb-access-token', { path: '/' });
+				cookies.delete('sb-refresh-token', { path: '/' });
+				return redirect('/sign-in');
+			}
 
 			const {
 				data: { user: authUser },
 				error,
-			} = await supabase.auth.getUser();
+			} = await supabase.auth.getUser(accessToken.value);
 
 			if (!error && authUser) {
 				user = authUser;
+				isValidSession = true;
 
 				const { data: usuarioData } = await supabase
 					.from('user_roles')
@@ -49,6 +58,9 @@ export function onRequest(context: any, next: any) {
 
 				context.locals.user = user;
 				context.locals.userRoles = userRoles;
+			} else {
+				cookies.delete('sb-access-token', { path: '/' });
+				cookies.delete('sb-refresh-token', { path: '/' });
 			}
 		}
 

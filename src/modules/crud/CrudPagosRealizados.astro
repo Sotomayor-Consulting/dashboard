@@ -10,7 +10,7 @@ const pagosRealizados = await pagosRealizadosData();
 <Alerta />
 <div>
 	<div
-		class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] w-full"
+		class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 w-full"
 	>
 		<div class="w-full mb-1">
 			<div class="mb-4">
@@ -99,7 +99,7 @@ const pagosRealizados = await pagosRealizadosData();
 						class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
 						id="myTable"
 					>
-						<thead class="bg-gray-100 dark:bg-[#192033]">
+						<thead class="bg-gray-100 dark:bg-black-800">
 							<tr>
 								{
 									[
@@ -144,7 +144,7 @@ const pagosRealizados = await pagosRealizadosData();
 						</thead>
 
 						<tbody
-							class="bg-white divide-y divide-gray-200 dark:bg-[#192033] dark:divide-gray-700"
+							class="bg-white divide-y divide-gray-200 dark:bg-black-800 dark:divide-gray-700"
 						>
 							{
 								pagosRealizados?.map((sr) => (
@@ -274,7 +274,7 @@ const pagosRealizados = await pagosRealizadosData();
 												<div
 													id={`tool-tip-${sr.id_pagos}`}
 													role="tooltip"
-													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-[#192033]"
+													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-black-800"
 												>
 													Marcar como leído
 													<div class="tooltip-arrow" data-popper-arrow />
@@ -283,7 +283,7 @@ const pagosRealizados = await pagosRealizadosData();
 												<div
 													id={`tool-tip-${sr.id_pagos}-read`}
 													role="tooltip"
-													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-[#192033]"
+													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-black-800"
 												>
 													Leído
 													<div class="tooltip-arrow" data-popper-arrow />

@@ -39,7 +39,7 @@ const opcionesllc =
 				</h3>
 			</div>
 			<div
-				class="flex flex-col bg-white border border-neutral-500 rounded-2xl p-4 md:p-8 dark:bg-[#101521] dark:border-neutral-800 w-full md:w-1/2 items-center"
+				class="flex flex-col bg-white border border-neutral-500 rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 w-full md:w-1/2 items-center"
 			>
 				<p
 					class="mt-2 lg:text-lg text-gray-800 dark:text-neutral-200 mb-5 text-left w-full"
@@ -49,7 +49,7 @@ const opcionesllc =
 				<select
 					name="empresa"
 					id="empresa-select"
-					class="py-3 px-4 pe-9 block w-full border-neutral-600 rounded-lg text-sm focus:border-[#8c681d] focus:ring-[#8c681d] disabled:opacity-50 disabled:pointer-events-none bg-neutral-200 dark:bg-[#192033] dark:border-neutral-700 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 mb-5"
+					class="py-3 px-4 pe-9 block w-full border-neutral-600 rounded-lg text-sm focus:border-[#8c681d] focus:ring-[#8c681d] disabled:opacity-50 disabled:pointer-events-none bg-neutral-200 dark:bg-black-800 dark:border-neutral-700 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 mb-5"
 				>
 					{
 						empresas?.map((empresa) => (
@@ -100,7 +100,7 @@ const opcionesllc =
 								/>
 								<label
 									for={planBasico.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-[#101521] dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
 									<h4 class="font-medium text-lg text-gray-800 dark:text-neutral-200">
 										{planBasico.nombre}
@@ -148,7 +148,7 @@ const opcionesllc =
 								/>
 								<label
 									for={planBusiness.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-[#101521] dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
 									<p class="mb-3">
 										<span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs uppercase font-semibold bg-[#8c681d] text-white dark:bg-[#8c681d] dark:text-white animate-pulse">
@@ -234,7 +234,7 @@ const opcionesllc =
 								/>
 								<label
 									for={planEstandar.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-[#101521] dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
 									<h4 class="font-medium text-lg text-gray-800 dark:text-neutral-200">
 										{planEstandar.nombre}
@@ -292,7 +292,7 @@ const opcionesllc =
 								/>
 								<label
 									for={planDiseno.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-[#101521] dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
 								>
 									<div class="col-span-2 mt-2">
 										<button
@@ -324,7 +324,7 @@ const opcionesllc =
 										data-popover
 										id="popover-description4"
 										role="tooltip"
-										class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-96 dark:bg-[#192033] dark:border-gray-600 dark:text-gray-400"
+										class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-96 dark:bg-black-800 dark:border-gray-600 dark:text-gray-400"
 									>
 										<div class="p-3 space-y-2">
 											<h3 class="font-semibold text-gray-900 dark:text-white">
@@ -444,7 +444,7 @@ const opcionesllc =
 					<div
 						id="accordion-collapse"
 						data-accordion="collapse"
-						data-active-classes="bg-white dark:bg-[#101521] text-gray-900 dark:text-white"
+						data-active-classes="bg-white dark:bg-black-900 text-gray-900 dark:text-white"
 						data-inactive-classes="text-neutral-500 dark:text-gray-400"
 					>
 						<h2 id="accordion-collapse-heading-1">
@@ -479,7 +479,7 @@ const opcionesllc =
 							aria-labelledby="accordion-collapse-heading-1"
 						>
 							<div
-								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-[#101521] bg-neutral-200"
+								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-black-900 bg-neutral-200"
 							>
 								<ul class="grid w-full gap-6 md:grid-cols-3">
 									{
@@ -496,7 +496,7 @@ const opcionesllc =
 												/>
 												<label
 													for={`opcion-popular-${opciones.id_micro_servicios}`}
-													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-[#192033] dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
+													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-black-800 dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
 												>
 													<div class="block w-full">
 														<div class="flex items-center justify-between w-full">
@@ -555,7 +555,7 @@ const opcionesllc =
 							aria-labelledby="accordion-collapse-heading-2"
 						>
 							<div
-								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-[#101521] bg-neutral-200"
+								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-black-900 bg-neutral-200"
 							>
 								<ul class="grid w-full gap-6 md:grid-cols-3">
 									{
@@ -572,7 +572,7 @@ const opcionesllc =
 												/>
 												<label
 													for={`opcion-llc-${opciones.id_micro_servicios}`}
-													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-[#192033] dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
+													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-black-800 dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
 												>
 													<div class="block w-full">
 														<div class="flex items-center justify-between w-full">
@@ -631,7 +631,7 @@ const opcionesllc =
 							aria-labelledby="accordion-collapse-heading-3"
 						>
 							<div
-								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-[#101521] bg-neutral-200"
+								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-black-900 bg-neutral-200"
 							>
 								<ul class="grid w-full gap-6 md:grid-cols-3">
 									{
@@ -648,7 +648,7 @@ const opcionesllc =
 												/>
 												<label
 													for={`opcion-tec-${opciones.id_micro_servicios}`}
-													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-[#192033] dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
+													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-black-800 dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
 												>
 													<div class="block w-full">
 														<div class="flex items-center justify-between w-full">
@@ -703,7 +703,7 @@ const opcionesllc =
 
 			<div id="step-payment" class="hidden grid md:grid-cols-2">
 				<div
-					class="md:w-4/5 w-full mx-auto mt-10 mb-16 bg-white/80 dark:bg-[#101521] border border-gray-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm place-self-center justify-self-center md:row-start-1 row-start-2"
+					class="md:w-4/5 w-full mx-auto mt-10 mb-16 bg-white/80 dark:bg-black-900 border border-gray-200 dark:border-neutral-800 rounded-2xl p-6 shadow-sm place-self-center justify-self-center md:row-start-1 row-start-2"
 				>
 					<div
 						id="stripe-config"
@@ -733,7 +733,7 @@ const opcionesllc =
 							</label>
 							<div
 								id="card-element"
-								class="p-3 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-[#192033] text-neutral-700"
+								class="p-3 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-black-800 text-neutral-700"
 							>
 							</div>
 							<p id="card-errors" class="text-sm text-red-500 mt-2"></p>
@@ -755,7 +755,7 @@ const opcionesllc =
 						<button
 							type="button"
 							id="btn-back"
-							class="w-full py-2 px-4 mt-2 inline-flex justify-center items-center gap-x-2 text-xs font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 dark:bg-[#101521] dark:text-neutral-200 dark:border-neutral-700"
+							class="w-full py-2 px-4 mt-2 inline-flex justify-center items-center gap-x-2 text-xs font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 dark:bg-black-900 dark:text-neutral-200 dark:border-neutral-700"
 						>
 							Volver a elegir plan
 						</button>
@@ -765,7 +765,7 @@ const opcionesllc =
 				<div class="grow mt-10 mb-16 md:w-3/5 w-full">
 					<div
 						id="price-summary"
-						class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-[#101521]"
+						class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700 dark:bg-black-900"
 					>
 						<div class="space-y-2">
 							<dl class="flex items-center justify-between gap-4">

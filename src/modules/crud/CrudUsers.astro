@@ -14,7 +14,7 @@ const [usuarios, roles, paises] = await Promise.all([
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] dark:border-gray-700"
+	class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700"
 >
 	<div class="w-full mb-1">
 		<div class="">
@@ -89,7 +89,7 @@ const [usuarios, roles, paises] = await Promise.all([
 				<button
 					id="dropdownMenuIconButton"
 					data-dropdown-toggle="dropdownDots2"
-					class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-[#192033] dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+					class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 					type="button"
 				>
 					<svg
@@ -107,7 +107,7 @@ const [usuarios, roles, paises] = await Promise.all([
 				<!-- Dropdown menu -->
 				<div
 					id="dropdownDots2"
-					class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-[#192033] dark:divide-gray-600"
+					class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-800 dark:divide-gray-600"
 				>
 					<ul
 						class="py-2 text-sm text-gray-700 dark:text-gray-200 text-start"
@@ -136,7 +136,7 @@ const [usuarios, roles, paises] = await Promise.all([
 					class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
 					id="myTable"
 				>
-					<thead class="bg-gray-100 dark:bg-[#101521]">
+					<thead class="bg-gray-100 dark:bg-black-900">
 						<tr>
 							{
 								[
@@ -179,7 +179,7 @@ const [usuarios, roles, paises] = await Promise.all([
 						</tr>
 					</thead>
 					<tbody
-						class="bg-white divide-y divide-gray-200 dark:bg-[#192033] dark:divide-gray-700"
+						class="bg-white divide-y divide-gray-200 dark:bg-black-800 dark:divide-gray-700"
 					>
 						{
 							usuarios?.map((user) => (
@@ -311,7 +311,7 @@ const [usuarios, roles, paises] = await Promise.all([
 												id={`dd-btn-${user.user_id}`}
 												@click="showTooltip = !showTooltip"
 												@click.outside="showTooltip = false"
-												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-[#192033] dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
 												aria-expanded="false"
@@ -331,7 +331,7 @@ const [usuarios, roles, paises] = await Promise.all([
 												id={`dd-${user.user_id}`}
 												x-show="showTooltip"
 												x-transition
-												class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-[#192033] dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute"
+												class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-800 dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute"
 												role="menu"
 												aria-labelledby={`dd-btn-${user.user_id}`}
 											>
@@ -375,7 +375,7 @@ const [usuarios, roles, paises] = await Promise.all([
 >
 	<div class="relative w-full h-full max-w-4xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
+		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -414,7 +414,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								name="nombre"
 								value="Bonnie"
 								id="modal_nombre"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="Bonnie"
 							/>
 						</div>
@@ -429,7 +429,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								name="apellido"
 								value="Green"
 								id="modal_apellido"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="Green"
 							/>
 						</div>
@@ -443,7 +443,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								type="email"
 								name="correo"
 								id="modal_correo"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="example@company.com"
 							/>
 						</div>
@@ -459,7 +459,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								name="compania"
 								value="React Developer"
 								id="modal_compania"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="Sotomayor Consulting"
 							/>
 						</div>
@@ -472,7 +472,7 @@ const [usuarios, roles, paises] = await Promise.all([
 							<select
 								id="pais"
 								name="pais_modal"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							>
 								<option selected hidden disabled>Selecciona un pais</option>
 								{
@@ -493,7 +493,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								value=""
 								id="ciudad"
 								name="ciudad_modal"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="Quito"
 							/>
 						</div>
@@ -508,7 +508,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								name="direccion_linea1"
 								value=""
 								id="direccion_linea1"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="Av Juan molineros"
 							/>
 						</div>
@@ -523,7 +523,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								name="direccion_linea2"
 								value=""
 								id="direccion_linea2"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="Y de los Guayacanes"
 							/>
 						</div>
@@ -537,7 +537,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								type="tel"
 								id="modal_telefono"
 								name="modal_telefono"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="0912345678"
 							/>
 						</div>
@@ -551,7 +551,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								type="date"
 								name="fecha_nacimiento"
 								id="fecha_nacimiento"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="0912345678"
 							/>
 						</div>
@@ -564,7 +564,7 @@ const [usuarios, roles, paises] = await Promise.all([
 							<select
 								id="tipo_identificacion"
 								name="tipo_identificacion"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							>
 								<option value="" hidden disabled selected
 									>Tipo de documento</option
@@ -588,7 +588,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								type="text"
 								name="numero_de_identificacion"
 								id="numero_de_identificacion"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="1712345678"
 							/>
 						</div>
@@ -601,7 +601,7 @@ const [usuarios, roles, paises] = await Promise.all([
 							<select
 								id="tipo_persona"
 								name="tipo_persona"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							>
 								<option value="" hidden="">Tipo de persona</option>
 								<option value="Natural"> Natural </option>
@@ -614,7 +614,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								Añade un rol
 							</h3>
 							<ul
-								class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-[#101521] dark:border-gray-600 dark:text-white"
+								class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-black-900 dark:border-gray-600 dark:text-white"
 							>
 								{
 									roles?.map((rol) => (
@@ -730,7 +730,7 @@ const [usuarios, roles, paises] = await Promise.all([
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
+		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -767,7 +767,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								type="email"
 								name="correo_create"
 								id="email"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="correo@ejemplo.com"
 								required
 							/>
@@ -795,7 +795,7 @@ const [usuarios, roles, paises] = await Promise.all([
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
+		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -832,7 +832,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								type="text"
 								name="nombre_rol"
 								id="rol-create"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="admin"
 								required
 							/>
@@ -863,7 +863,7 @@ const [usuarios, roles, paises] = await Promise.all([
 	<div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
 		<!-- Modal content -->
 		<div
-			class="relative p-4 bg-white rounded-lg shadow dark:bg-[#192033] sm:p-5"
+			class="relative p-4 bg-white rounded-lg shadow dark:bg-black-800 sm:p-5"
 		>
 			<!-- Modal header -->
 			<div
@@ -904,7 +904,7 @@ const [usuarios, roles, paises] = await Promise.all([
 						<select
 							id="updaterol_estado"
 							name="estado"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<option value="" disabled="" selected="">--</option>
 							{

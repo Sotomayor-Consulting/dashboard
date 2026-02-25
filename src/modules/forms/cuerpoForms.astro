@@ -78,7 +78,7 @@ const formularios = userId ? await FormsEnviadosForId(userId) : null;
 					</div>
 				) : (
 					formularios?.map((fr) => (
-						<div class="flex flex-col items-end mb-4 bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-[#192033] dark:hover:bg-[#101522]">
+						<div class="flex flex-col items-end mb-4 bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-black-800 dark:hover:bg-[#101522]">
 							<a
 								href={`/forms/enviados/${fr.submission_id}`}
 								target="_blank"
@@ -104,7 +104,7 @@ const formularios = userId ? await FormsEnviadosForId(userId) : null;
 								<button
 									id="dropdownMenuIconButton"
 									data-dropdown-toggle={fr.submission_id}
-									class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-[#192033] dark:hover:bg-[#101522] dark:focus:ring-gray-600 z-10"
+									class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600 z-10"
 									type="button"
 								>
 									<svg

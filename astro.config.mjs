@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 
 import sitemap from '@astrojs/sitemap';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import node from '@astrojs/node';
 import icon from 'astro-icon';
 
@@ -13,8 +13,11 @@ export default defineConfig({
 	adapter: node({
 		mode: 'standalone',
 	}),
+	vite: {
+		plugins: [tailwindcss()],
+	},
 	base: '/',
-	integrations: [sitemap(), tailwind(), icon()],
+	integrations: [sitemap(), icon()],
 	image: {
 		remotePatterns: [{ protocol: 'https' }],
 	},

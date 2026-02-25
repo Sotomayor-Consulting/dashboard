@@ -58,9 +58,9 @@ const sanitizeFileName = (name: string) => {
 };
 
 // ---------- JSON helpers ----------
-const jlog = (debug_id: string, step: string, data?: any) => {
+const jlog = (_debug_id: string, _step: string, _data?: any) => {
 	// En prod puedes bajar ruido: if (import.meta.env.DEV) ...
-	console.log(`[validacion:${debug_id}] ${step}`, data ?? '');
+	// console.log(`[validacion:${debug_id}] ${step}`, data ?? '');
 };
 
 const jerr = (debug_id: string, step: string, err: any, extra?: any) => {
@@ -255,7 +255,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 				.from(BUCKET)
 				.upload(storage_path, bytes, {
 					upsert: true,
-					contentType: type || undefined,
+					contentType: type,
 				});
 
 			if (upErr) {
@@ -422,6 +422,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 			const manager_es_miembro = asBool(approved_data?.manager_es_miembro);
 
 			const companyRow = {
+				porcentaje_de_incorporacion: '10',
 				empresa_incorporacion_id: empresa_id,
 				Obtendra_ingresos_desde_eeuu: asBool(
 					approved_data?.ingresos_provenientes_de_Estados_Unidos,
@@ -638,14 +639,13 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 			},
 		});
 	} catch (e: any) {
-		const debug = { message: e?.message ?? String(e), stack: e?.stack ?? null };
-		console.error(`[validacion:${debug_id}] FATAL`, debug);
+		// console.error(`[validacion:${debug_id}] FATAL`, { message: e?.message ?? String(e), stack: e?.stack ?? null });
 		return jsonOk(
 			{
 				ok: false,
 				debug_id,
 				step: 'catch',
-				error: { message: 'Error inesperado', ...debug },
+				error: { message: e?.message ?? String(e), stack: e?.stack ?? null },
 			},
 			500,
 		);

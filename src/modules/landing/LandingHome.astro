@@ -10,8 +10,8 @@ const user = Astro.locals.user;
 const userId = user?.id;
 
 const [userData, formularioData] = await Promise.all([
-  getUserWithRole(userId),
-  getFormulariosPendientes(),
+	getUserWithRole(userId),
+	getFormulariosPendientes(),
 ]);
 
 const { role: userRole, roles: userRoles } = userData;
@@ -28,7 +28,7 @@ const visibleMenu = menuItems.filter(
 ---
 
 <div
-	class="bg-neutral-200 dark:bg-[#101521] dark:text-slate-100 p-4 lg:p-16 h-full mb-20 mt-10"
+	class="bg-neutral-200 dark:bg-black-900 dark:text-slate-100 p-4 lg:p-16 h-full mb-20 mt-10"
 >
 	<header
 		class="p-8 flex justify-center items-center flex-wrap flex-col w-full mt-5"

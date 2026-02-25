@@ -81,7 +81,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			aria-labelledby="profile-tab"
 		>
 			<div
-				class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex flex-col p-14 md:mb-0 mb-2 lg:col-span-1 col-span-2"
+				class="w-full h-full bg-neutral-50 dark:bg-black-800 rounded-md gap-5 dark:text-neutral-300 flex flex-col p-14 md:mb-0 mb-2 lg:col-span-1 col-span-2"
 			>
 				<div class="flex">
 					<p class="font-bold text-base text-neutral-500">
@@ -108,7 +108,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						data-popover
 						id="popover-description"
 						role="tooltip"
-						class="absolute z-10 invisible inline-block text-sm text-neutral-500 transition-opacity duration-300 bg-white border border-neutral-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-[#192033] dark:border-neutral-600 dark:text-neutral-400"
+						class="absolute z-10 invisible inline-block text-sm text-neutral-500 transition-opacity duration-300 bg-white border border-neutral-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-black-800 dark:border-neutral-600 dark:text-neutral-400"
 					>
 						<div class="p-3 space-y-2">
 							<h3
@@ -158,7 +158,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				</div>
 			</div>
 			<div
-				class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 text-neutral-800 flex flex-col md:mb-0 mb-2 md:col-span-1 col-span-2 p-14 justify-center"
+				class="w-full h-full bg-neutral-50 dark:bg-black-800 rounded-md gap-5 dark:text-neutral-300 text-neutral-800 flex flex-col md:mb-0 mb-2 md:col-span-1 col-span-2 p-14 justify-center"
 			>
 				<div class="flex">
 					<p class="font-bold text-base text-neutral-500">
@@ -177,7 +177,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				</div>
 			</div>
 			<div
-				class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 text-neutral-800 flex flex-col p-14 md:mb-0 mb-2 md:col-span-1 col-span-2 justify-center"
+				class="w-full h-full bg-neutral-50 dark:bg-black-800 rounded-md gap-5 dark:text-neutral-300 text-neutral-800 flex flex-col p-14 md:mb-0 mb-2 md:col-span-1 col-span-2 justify-center"
 			>
 				<div class="flex">
 					<p class="font-bold text-base text-neutral-500">
@@ -193,7 +193,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							</p>
 						</div>
 					</div>
-					<div class="w-full bg-neutral-200 rounded-full dark:bg-[#192033]">
+					<div class="w-full bg-neutral-200 rounded-full dark:bg-black-800">
 						<div
 							class="bg-[#8c681d] dark:bg-[#134aed] text-blue-100 text-center p-1 leading-none rounded-full"
 							style={`width: ${empresa.porcentaje_de_incorporacion}%`}
@@ -203,7 +203,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				</div>
 			</div>
 			<div
-				class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex col-span-2 relative"
+				class="w-full h-full bg-neutral-50 dark:bg-black-800 rounded-md gap-5 dark:text-neutral-300 flex col-span-2 relative"
 			>
 				<Image
 					src={imagenempresa}
@@ -290,7 +290,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				</div>
 			</div>
 			<div
-				class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-2 lg:col-span-1"
+				class="w-full h-full bg-neutral-50 dark:bg-black-800 rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-2 lg:col-span-1"
 			>
 				<div
 					class="bg-[#d4d4d4] dark:bg-[#134aed] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold"
@@ -341,7 +341,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			{
 				empresa.direccion_operativa_eeuu === 'Si' && (
 					<div
-						class={`w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-1 ${esMember_Managed ? 'col-span-2' : 'col-span-3'}`}
+						class={`w-full h-full bg-neutral-50 dark:bg-black-800 rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-1 ${esMember_Managed ? 'col-span-2' : 'col-span-3'}`}
 					>
 						<div class="bg-[#d4d4d4] dark:bg-[#134aed] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold">
 							<Icon name="ri:map-pin-fill" />
@@ -399,7 +399,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			{
 				empresa.direccion_operativa_eeuu === 'No' && (
 					<div
-						class={`w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-1 ${esMember_Managed ? 'col-span-2' : 'col-span-3'}`}
+						class={`w-full h-full bg-neutral-50 dark:bg-black-800 rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-1 ${esMember_Managed ? 'col-span-2' : 'col-span-3'}`}
 					>
 						<div class="bg-[#d4d4d4] dark:bg-[#134aed] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold">
 							<Icon name="ri:map-pin-fill" />
@@ -432,7 +432,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			}
 			{
 				managers && managers.length > 0 && (
-					<div class="w-full h-full bg-neutral-50 dark:bg-[#192033] rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-2 lg:col-span-1">
+					<div class="w-full h-full bg-neutral-50 dark:bg-black-800 rounded-md gap-5 dark:text-neutral-300 flex relative flex-col col-span-2 lg:col-span-1">
 						<div class="bg-[#d4d4d4] dark:bg-[#134aed] w-full h-fit rounded-t-md flex items-center text-xl p-4 gap-2 font-bold">
 							<Icon name="ri:user-settings-fill" />
 							<p>Managers</p>
@@ -519,12 +519,12 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			>
 				<div class="mb-4 dark:border-gray-700 md:max-w-72 md:min-w-72">
 					<ul
-						class="flex-column text-sm font-medium text-gray-500 dark:text-gray-400 dark:bg-[#192033] p-5 rounded-lg space-y-5"
+						class="flex-column text-sm font-medium text-gray-500 dark:text-gray-400 dark:bg-black-800 p-5 rounded-lg space-y-5"
 						id="default-tab-2"
 						data-tabs-toggle="#default-tab-content-2"
 						role="tablist"
 						data-tabs-active-classes="text-white bg-blue-700 dark:bg-blue-600"
-						data-tabs-inactive-classes="hover:text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-[#101521] dark:hover:bg-[#101521]/80 dark:hover:text-white"
+						data-tabs-inactive-classes="hover:text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-black-900 dark:hover:bg-[#101521]/80 dark:hover:text-white"
 					>
 						<li>
 							<div>
@@ -602,14 +602,14 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 				</div>
 				<div id="default-tab-content-2" class="min-w-full ml-0">
 					<div
-						class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+						class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800"
 						id="generales"
 						role="tabpanel"
 						aria-labelledby="generales-tab"
 					>
-						<div class="bg-white rounded-lg shadow dark:bg-[#101521] w-full">
+						<div class="bg-white rounded-lg shadow dark:bg-black-900 w-full">
 							<div
-								class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+								class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800 min-w-full"
 							>
 								<h3 class="mb-4 text-xl font-semibold dark:text-white">
 									Datos Generales
@@ -843,16 +843,16 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						</div>
 					</div>
 					<div
-						class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033] min-w-full"
+						class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800 min-w-full"
 						id="ubicacion"
 						role="tabpanel"
 						aria-labelledby="ubicacion-tab"
 					>
 						<div
-							class="relative bg-white rounded-lg shadow dark:bg-[#101521] min-w-full"
+							class="relative bg-white rounded-lg shadow dark:bg-black-900 min-w-full"
 						>
 							<div
-								class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+								class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800 min-w-full"
 							>
 								<h3 class="mb-4 text-xl font-semibold dark:text-white">
 									Ubicacion
@@ -1069,14 +1069,14 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						</div>
 					</div>
 					<div
-						class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+						class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800"
 						id="socios-edit"
 						role="tabpanel"
 						aria-labelledby="socios-edit-tab"
 					>
 						<div
 							id="datos-socios"
-							class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+							class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800 min-w-full"
 						>
 							<h3 class="mb-4 text-xl font-semibold dark:text-white">
 								Datos de los socios
@@ -1084,7 +1084,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							<div class="grid xl:grid-cols-2 2xl:grid-cols-3 gap-4">
 								{
 									socios?.map((s, index) => (
-										<div class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-[#101521]  lg:rounded-lg justify-self-center">
+										<div class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-black-900  lg:rounded-lg justify-self-center">
 											<span class="sr-only">Open user menu</span>
 											<div class="flex w-full items-center justify-between">
 												<div class="flex items-center">
@@ -1207,7 +1207,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 															data-input-counter-min="1"
 															data-input-counter-max="100"
 															aria-describedby="helper-text-explanation"
-															class="bg-gray-50 border-x-0 border-gray-300 h-11 font-medium text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full pb-6 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+															class="bg-gray-50 border-x-0 border-gray-300 h-11 font-medium text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full pb-6 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 															placeholder=""
 															value={s.porcentaje}
 															required
@@ -1257,7 +1257,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 															<select
 																id={`pais-socio-card-${index}`}
 																name={`pais-socio-card-${index}`}
-																class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-[#101521] dark:group-hover:bg-gray-700"
+																class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-black-900 dark:group-hover:bg-gray-700"
 															>
 																<option
 																	value=""
@@ -1301,7 +1301,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 															<select
 																id={`estado-civil-socio-card-${index}`}
 																name={`estado-civil-socio-card-${index}`}
-																class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-[#101521] dark:group-hover:bg-gray-700"
+																class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-black-900 dark:group-hover:bg-gray-700"
 															>
 																<option selected hidden disabled>
 																	Selecciona una opcion
@@ -1539,7 +1539,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						</div>
 					</div>
 					<div
-						class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+						class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800"
 						id="manager"
 						role="tabpanel"
 						aria-labelledby="manager-tab"
@@ -1547,7 +1547,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						<template x-if="formadeAdministracion === 'Member-Managed'">
 							<div
 								id="datos-managers"
-								class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+								class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800"
 								x-data="{ espartedelosMiembros: '' }"
 								x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
 							>
@@ -1675,7 +1675,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 									</h3>
 									{
 										managers?.map((m, index) => (
-											<div class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-[#101521]  lg:rounded-lg justify-self-center">
+											<div class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-black-900  lg:rounded-lg justify-self-center">
 												<span class="sr-only">Open user menu</span>
 												<div class="flex w-full items-center justify-between">
 													<div class="flex items-center">
@@ -1727,7 +1727,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 																<select
 																	id={`pais-manager-card-${index}`}
 																	name={`pais-manager-card-${index}`}
-																	class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-[#101521] dark:group-hover:bg-gray-700"
+																	class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-black-900 dark:group-hover:bg-gray-700"
 																>
 																	<option
 																		value=""
@@ -1974,7 +1974,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 >
 	<div class="relative p-4 w-full max-w-md max-h-full">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
+		<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-800">
 			<!-- Modal header -->
 			<div
 				class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200"
@@ -2017,7 +2017,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							type="text"
 							name="ActividadGeneral"
 							id="ActividadGeneral"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Agricultura, silvicultura y pesca"
 							required=""
 						/>
@@ -2032,7 +2032,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							type="text"
 							name="Tipo"
 							id="Tipo"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Minería"
 							required=""
 						/>
@@ -2047,7 +2047,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							type="number"
 							name="Codigo"
 							id="Codigo"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="115210"
 							required=""
 						/>
@@ -2062,7 +2062,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							id="Actividad"
 							name="Actividad"
 							rows="4"
-							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 							placeholder="Actividades de procesamiento de transacciones financieras, reserva y cámara de compensación."
 						></textarea>
 					</div>
@@ -2086,7 +2086,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 >
 	<div class="relative p-4 w-full max-w-md max-h-full">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
+		<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-800">
 			<!-- Modal header -->
 			<div
 				class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200"
@@ -2136,7 +2136,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							type="text"
 							name="Nombre-completo-manager"
 							id="Nombre-completo-manager"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Joe Due"
 							required=""
 						/>
@@ -2151,7 +2151,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							type="email"
 							name="correo-manager"
 							id="correo-manager"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="correo@ejemplo.com"
 							required
 						/>
@@ -2165,7 +2165,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						<select
 							id="Pais-añadir-manager"
 							name="Pais-añadir-manager"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 						>
 							<option value="" disabled hidden selected>
 								Seleccione un pais
@@ -2195,7 +2195,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							maxlength="20"
 							pattern="[A-Za-z0-9]{6,20}"
 							title="Ingresa tu número de pasaporte (letras y números, 6-20 caracteres)"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Joe Due"
 							required=""
 						/>
@@ -2214,7 +2214,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							maxlength="9"
 							pattern="\d{9}"
 							title="9 dígitos sin espacios o guiones"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							required=""
 						/>
 					</div>
@@ -2232,7 +2232,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							maxlength="11"
 							pattern="9\d{2}[\-]\d{2}[\-]\d{4}"
 							title="Formato: 9XX-XX-XXXX (siempre comienza con 9)"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							required=""
 						/>
 					</div>
@@ -2246,7 +2246,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							type="text"
 							name="direccion-de-manager"
 							id="direccion-de-manager"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Av. ejemplo y Calle 123"
 							required=""
 						/>
@@ -2309,7 +2309,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 >
 	<div class="relative p-4 w-full max-w-md max-h-full">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
+		<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-800">
 			<!-- Modal header -->
 			<div
 				class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200"
@@ -2352,7 +2352,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							type="text"
 							name="ActividadGeneral"
 							id="ActividadGeneral"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Agricultura, silvicultura y pesca"
 							required=""
 						/>
@@ -2367,7 +2367,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							type="text"
 							name="Tipo"
 							id="Tipo"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="Minería"
 							required=""
 						/>
@@ -2382,7 +2382,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							type="number"
 							name="Codigo"
 							id="Codigo"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="115210"
 							required=""
 						/>
@@ -2396,7 +2396,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						<textarea
 							id="Actividad"
 							rows="4"
-							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-[#101521] dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-black-900 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 							placeholder="Actividades de procesamiento de transacciones financieras, reserva y cámara de compensación."
 						></textarea>
 					</div>

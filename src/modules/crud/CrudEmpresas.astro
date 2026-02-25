@@ -8,17 +8,17 @@ import { EstadosGeneral } from '@lib/tablas/estados';
 import { PaisesGeneral } from '@lib/tablas/paises';
 
 const [empresas, actividades, estados, paises] = await Promise.all([
-  IncorporacionesEmpresasBase(),
-  actividadesGeneral(),
-  EstadosGeneral(),
-  PaisesGeneral(),
+	IncorporacionesEmpresasBase(),
+	actividadesGeneral(),
+	EstadosGeneral(),
+	PaisesGeneral(),
 ]);
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>
 
 <div
-	class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] dark:border-gray-700"
+	class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700"
 >
 	<div class="w-full mb-1">
 		<div class="mb-4">
@@ -102,7 +102,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 					class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
 					id="myTable"
 				>
-					<thead class="bg-gray-100 dark:bg-[#192033]" id="test">
+					<thead class="bg-gray-100 dark:bg-black-800" id="test">
 						<tr>
 							{
 								[
@@ -144,7 +144,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 						</tr>
 					</thead>
 					<tbody
-						class="bg-white divide-y divide-gray-200 dark:bg-[#192033] dark:divide-gray-700"
+						class="bg-white divide-y divide-gray-200 dark:bg-black-800 dark:divide-gray-700"
 					>
 						{
 							empresas?.map((empresa) => (
@@ -207,7 +207,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 >
 	<div class="relative w-full px-4 h-5/6">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
+		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -256,12 +256,12 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 				>
 					<div class="mb-4 dark:border-gray-700 md:max-w-72 md:min-w-72">
 						<ul
-							class="flex-column text-sm font-medium text-gray-500 dark:text-gray-400 dark:bg-[#192033] p-5 rounded-lg space-y-5"
+							class="flex-column text-sm font-medium text-gray-500 dark:text-gray-400 dark:bg-black-800 p-5 rounded-lg space-y-5"
 							id="default-tab-2"
 							data-tabs-toggle="#default-tab-content-2"
 							role="tablist"
 							data-tabs-active-classes="text-white bg-blue-700 dark:bg-blue-600"
-							data-tabs-inactive-classes="hover:text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-[#101521] dark:hover:bg-[#101521]/80 dark:hover:text-white"
+							data-tabs-inactive-classes="hover:text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-black-900 dark:hover:bg-[#101521]/80 dark:hover:text-white"
 						>
 							<li>
 								<div>
@@ -338,14 +338,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 					</div>
 					<div id="default-tab-content-2" class="min-w-full ml-0">
 						<div
-							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800"
 							id="generales"
 							role="tabpanel"
 							aria-labelledby="generales-tab"
 						>
-							<div class="bg-white rounded-lg shadow dark:bg-[#101521] w-full">
+							<div class="bg-white rounded-lg shadow dark:bg-black-900 w-full">
 								<div
-									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800 min-w-full"
 								>
 									<h3 class="mb-4 text-xl font-semibold dark:text-white">
 										Datos Generales
@@ -488,16 +488,16 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							</div>
 						</div>
 						<div
-							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033] min-w-full"
+							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800 min-w-full"
 							id="ubicacion"
 							role="tabpanel"
 							aria-labelledby="ubicacion-tab"
 						>
 							<div
-								class="relative bg-white rounded-lg shadow dark:bg-[#101521] min-w-full"
+								class="relative bg-white rounded-lg shadow dark:bg-black-900 min-w-full"
 							>
 								<div
-									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800 min-w-full"
 								>
 									<h3 class="mb-4 text-xl font-semibold dark:text-white">
 										Ubicación
@@ -682,21 +682,21 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							</div>
 						</div>
 						<div
-							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800"
 							id="socios-edit"
 							role="tabpanel"
 							aria-labelledby="socios-edit-tab"
 						>
 							<div
 								id="datos-socios"
-								class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033] min-w-full"
+								class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800 min-w-full"
 							>
 								<h3 class="mb-4 text-xl font-semibold dark:text-white">
 									Datos de los socios
 								</h3>
 								<div class="grid xl:grid-cols-2 2xl:grid-cols-3 gap-4">
 									<div
-										class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-[#101521] lg:rounded-lg justify-self-center"
+										class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-black-900 lg:rounded-lg justify-self-center"
 									>
 										<span class="sr-only">Open user menu</span>
 										<div class="flex w-full items-center justify-between">
@@ -831,7 +831,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														data-input-counter-min="1"
 														data-input-counter-max="100"
 														aria-describedby="helper-text-explanation"
-														class="bg-gray-50 border-x-0 border-gray-300 h-11 font-medium text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full pb-6 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+														class="bg-gray-50 border-x-0 border-gray-300 h-11 font-medium text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full pb-6 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 														placeholder=""
 														required
 													/>
@@ -880,7 +880,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														<select
 															id={`pais-socio-card-`}
 															name={`pais-socio-card-`}
-															class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-[#101521] dark:group-hover:bg-gray-700"
+															class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-black-900 dark:group-hover:bg-gray-700"
 														>
 															<option value="" disabled hidden selected>
 																Seleccione un pais
@@ -917,7 +917,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														<select
 															id={`estado-civil-socio-card-`}
 															name={`estado-civil-socio-card-`}
-															class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-[#101521] dark:group-hover:bg-gray-700"
+															class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-black-900 dark:group-hover:bg-gray-700"
 														>
 															<option selected hidden disabled>
 																Selecciona una opcion
@@ -1111,7 +1111,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							</div>
 						</div>
 						<div
-							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-[#192033]"
+							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800"
 							id="manager"
 							role="tabpanel"
 							aria-labelledby="manager-tab"
@@ -1119,7 +1119,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							<template x-if="formadeAdministracion === 'Member-Managed'">
 								<div
 									id="datos-managers"
-									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800"
 									x-data="{ espartedelosMiembros: '' }"
 									x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
 								>
@@ -1214,7 +1214,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											</h3>
 
 											<div
-												class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-[#101521] lg:rounded-lg justify-self-center"
+												class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-black-900 lg:rounded-lg justify-self-center"
 											>
 												<span class="sr-only">Open user menu</span>
 												<div class="flex w-full items-center justify-between">
@@ -1271,7 +1271,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 																<select
 																	id={`pais-manager-card-`}
 																	name={`pais-manager-card-`}
-																	class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-[#101521] dark:group-hover:bg-gray-700"
+																	class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-black-900 dark:group-hover:bg-gray-700"
 																>
 																	<option value="" disabled hidden selected>
 																		Seleccione un pais

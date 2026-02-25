@@ -35,7 +35,7 @@ const datosName = [
 >
 	<div class="relative p-4 w-full max-w-screen-lg">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#101521]">
+		<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-900">
 			<!-- Modal header -->
 			<div
 				class="flex items-center justify-between p-4 md:p-5 rounded-t dark:border-gray-600"
@@ -335,7 +335,7 @@ const datosName = [
 		</ol>
 	</div>
 	<div
-		class="rounded-lg w-full flex justify-center flex-col items-center m-auto h-full drop-shadow-xl place-self-center test bg-center bg-cover dark:bg-[#101521] bg-neutral-500 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-20 backdrop-saturate-100 backdrop-contrast-100 py-20 md:mr-5 z-20"
+		class="rounded-lg w-full flex justify-center flex-col items-center m-auto h-full drop-shadow-xl place-self-center test bg-center bg-cover dark:bg-black-900 bg-neutral-500 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-20 backdrop-saturate-100 backdrop-contrast-100 py-20 md:mr-5 z-20"
 	>
 		<form id="business-form" class="w-full">
 			<input type="hidden" name="estado_de" value="En proceso" />
@@ -361,7 +361,7 @@ const datosName = [
 						/>
 						<label
 							for="LLC_radio_btn"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-[#101521] dark:hover:bg-[#192033] dark:peer-checked:bg-[#192033] peer-checked:bg-neutral-200"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-black-900 dark:hover:bg-[#192033] dark:peer-checked:bg-[#192033] peer-checked:bg-neutral-200"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">LLC</div>
@@ -396,7 +396,7 @@ const datosName = [
 						/>
 						<label
 							for="C_coorp_btn_radio"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-[#101521] dark:hover:bg-[#192033] dark:peer-checked:bg-[#192033] peer-checked:bg-neutral-200"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-black-900 dark:hover:bg-[#192033] dark:peer-checked:bg-[#192033] peer-checked:bg-neutral-200"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">C-corporation</div>
@@ -424,7 +424,7 @@ const datosName = [
 						<button
 							id="openBtnxd"
 							type="button"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 focus:text-[#8c681d] focus:border-[#8c681d] dark:text-gray-400 dark:bg-[#101521] bg-neutral-400 dark:hover:bg-[#101521] dark:focus:bg-[#192033] text-left text-neutral-500"
+							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 focus:text-[#8c681d] focus:border-[#8c681d] dark:text-gray-400 dark:bg-black-900 bg-neutral-400 dark:hover:bg-[#101521] dark:focus:bg-[#192033] text-left text-neutral-500"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">Ayúdame a elegir</div>
@@ -505,7 +505,7 @@ const datosName = [
 							<select
 								id="estados"
 								name="estado_de_empresa"
-								class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-800 border-[#967432] peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-700 dark:bg-[#101521] bg-neutral-200 dark:hover:bg-[#192033] hover:bg-neutral-300 dark:peer-checked:bg-[#101521] peer-checked:bg-neutral-700 focus:ring-[#967432]"
+								class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-800 border-[#967432] peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-700 dark:bg-black-900 bg-neutral-200 dark:hover:bg-[#192033] hover:bg-neutral-300 dark:peer-checked:bg-[#101521] peer-checked:bg-neutral-700 focus:ring-[#967432]"
 								required
 							>
 								{
@@ -598,7 +598,7 @@ const datosName = [
 										type="text"
 										id={name.id}
 										name={name.name}
-										class="rounded-none rounded-e-lg border focus:ring-[#8c681d] focus:border-[#8c681d] min-w-10 w-full text-sm p-2.5 dark:bg-[#101521] bg-neutral-200 dark:border-[#8c681d] border-neutral-500/10 placeholder-gray-500 dark:text-white text-neutral-900"
+										class="rounded-none rounded-e-lg border focus:ring-[#8c681d] focus:border-[#8c681d] min-w-10 w-full text-sm p-2.5 dark:bg-black-900 bg-neutral-200 dark:border-[#8c681d] border-neutral-500/10 placeholder-gray-500 dark:text-white text-neutral-900"
 										placeholder="Sotomayor Consulting"
 										required
 									/>
@@ -651,7 +651,7 @@ const datosName = [
 					<li class="md:w-3/5 w-4/5">
 						<div id="respuestasradio" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#101521] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-black-900 bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
 							>
 								<div>
 									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">
@@ -667,7 +667,7 @@ const datosName = [
 								<button
 									id="editar1"
 									type="button"
-									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-[#101521] bg-neutral-400 dark:hover:bg-[#134aed]/80 hover:bg-[#8c681d]"
+									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-black-900 bg-neutral-400 dark:hover:bg-[#134aed]/80 hover:bg-[#8c681d]"
 									title="editar"
 								>
 									<svg
@@ -685,7 +685,7 @@ const datosName = [
 						</div>
 						<div id="respuesta_estado" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#101521] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-black-900 bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
 							>
 								<div>
 									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">
@@ -701,7 +701,7 @@ const datosName = [
 								<button
 									id="editar2"
 									type="button"
-									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-[#101521] bg-neutral-400 dark:hover:bg-[#134aed]/80 hover:bg-[#8c681d]"
+									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-black-900 bg-neutral-400 dark:hover:bg-[#134aed]/80 hover:bg-[#8c681d]"
 									title="editar"
 								>
 									<svg
@@ -719,7 +719,7 @@ const datosName = [
 						</div>
 						<div id="respuesta_plan" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-[#101521] bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-black-900 bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
 							>
 								<div>
 									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">
@@ -735,7 +735,7 @@ const datosName = [
 								<button
 									id="editar3"
 									type="button"
-									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-[#101521] bg-neutral-400 dark:hover:bg-[#134aed]/80 hover:bg-[#8c681d]"
+									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-black-900 bg-neutral-400 dark:hover:bg-[#134aed]/80 hover:bg-[#8c681d]"
 									title="editar"
 								>
 									<svg
@@ -769,7 +769,7 @@ const datosName = [
 		>
 			<!-- Card -->
 			<div
-				class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-gray-200 rounded-lg shadow dark:bg-[#101521]"
+				class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-gray-200 rounded-lg shadow dark:bg-black-900"
 			>
 				<a
 					href="#"
@@ -801,7 +801,7 @@ const datosName = [
 								type="text"
 								name="name"
 								id="name"
-								class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 								placeholder="Nombre"
 								required
 							/>
@@ -816,7 +816,7 @@ const datosName = [
 								type="text"
 								name="last-name"
 								id="last-name"
-								class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 								placeholder="Apellido"
 								required
 							/>
@@ -832,7 +832,7 @@ const datosName = [
 							type="email"
 							name="email"
 							id="email"
-							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							placeholder="correo@ejemplo.com"
 							required
 						/>
@@ -851,7 +851,7 @@ const datosName = [
 							title="Mínimo 8 caracteres, una mayúscula, una minúscula y un número"
 							id="password"
 							placeholder="••••••••"
-							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							required
 						/>
 					</div>
@@ -866,7 +866,7 @@ const datosName = [
 							name="confirm-password"
 							id="confirm-password"
 							placeholder="••••••••"
-							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 							required
 						/>
 					</div>
@@ -877,7 +877,7 @@ const datosName = [
 								aria-describedby="remember"
 								name="remember"
 								type="checkbox"
-								class="w-4 h-4 border-gray-500 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:bg-[#101521] dark:border-gray-600 text-[#967432]"
+								class="w-4 h-4 border-gray-500 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:bg-black-900 dark:border-gray-600 text-[#967432]"
 								required
 							/>
 						</div>
@@ -903,7 +903,7 @@ const datosName = [
 				<div>
 					<div class="inline-flex items-center justify-center w-full">
 						<hr
-							class="w-11/12 h-px my-2 border-0 dark:bg-[#101521] bg-gray-300"
+							class="w-11/12 h-px my-2 border-0 dark:bg-black-900 bg-gray-300"
 						/>
 						<span
 							class="absolute px-5 font-medium text-gray-900 dark:text-white"
@@ -990,7 +990,7 @@ const datosName = [
 		'flex',
 		'items-center',
 		'gap-3.5',
-		'dark:bg-[#101521]',
+		'dark:bg-black-900',
 		'bg-neutral-200',
 		'p-3.5',
 		'rounded-xl',
@@ -1033,7 +1033,7 @@ const datosName = [
 		'flex',
 		'items-center',
 		'gap-3.5',
-		'dark:bg-[#101521]',
+		'dark:bg-black-900',
 		'bg-neutral-400',
 		'p-3.5',
 		'rounded-xl',
@@ -1048,7 +1048,7 @@ const datosName = [
 	];
 	const inactivodiv2 = [
 		'rounded-lg',
-		'dark:bg-[#192033]',
+		'dark:bg-black-800',
 		'bg-neutral-500',
 		'group-hover:bg-[#8c681d]',
 		'flex',

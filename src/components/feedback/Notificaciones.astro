@@ -60,7 +60,7 @@ const notificaciones = await getNotificacionesGeneral();
 						</tr>
 					</thead>
 					<tbody
-						class="bg-white divide-y divide-gray-200 dark:bg-[#192033] dark:divide-gray-700"
+						class="bg-white divide-y divide-gray-200 dark:bg-black-800 dark:divide-gray-700"
 					>
 						{
 							notificaciones?.map((user) => (
@@ -144,7 +144,7 @@ const notificaciones = await getNotificacionesGeneral();
 											<button
 												id={`dd-btn-${user.id}`}
 												data-dropdown-toggle={`dd-${user.id}`}
-												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-[#192033] dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
 												aria-expanded="false"
@@ -161,7 +161,7 @@ const notificaciones = await getNotificacionesGeneral();
 											</button>
 											<div
 												id={`dd-${user.id}`}
-												class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-[#192033] dark:divide-gray-600"
+												class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-800 dark:divide-gray-600"
 												role="menu"
 												aria-labelledby={`dd-btn-${user.id}`}
 												data-dropdown-placement="bottom-start"
@@ -225,7 +225,7 @@ const notificaciones = await getNotificacionesGeneral();
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
+		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -392,7 +392,7 @@ const notificaciones = await getNotificacionesGeneral();
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
+		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -429,7 +429,7 @@ const notificaciones = await getNotificacionesGeneral();
 								type="email"
 								name="correo_create"
 								id="email"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 								placeholder="correo@ejemplo.com"
 								required
 							/>
@@ -458,7 +458,7 @@ const notificaciones = await getNotificacionesGeneral();
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
+		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -495,7 +495,7 @@ const notificaciones = await getNotificacionesGeneral();
 								type="text"
 								name="nombre_rol"
 								id="rol-create"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 								placeholder="admin"
 								required
 							/>
@@ -526,7 +526,7 @@ const notificaciones = await getNotificacionesGeneral();
 	<div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
 		<!-- Modal content -->
 		<div
-			class="relative p-4 bg-white rounded-lg shadow dark:bg-[#192033] sm:p-5"
+			class="relative p-4 bg-white rounded-lg shadow dark:bg-black-800 sm:p-5"
 		>
 			<!-- Modal header -->
 			<div

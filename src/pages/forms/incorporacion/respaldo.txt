@@ -218,24 +218,35 @@ import '@estilos/surveyjs.css';
 	// === CACHE LOCAL ===
 	const STORAGE_KEY = `survey:${formId || 'unknown'}:state`;
 
-	// Limpiar localStorage al inicio para evitar datos obsoletos de sesiones anteriores
+	// Restaura estado si existe
 	try {
-		localStorage.removeItem(STORAGE_KEY);
-	} catch (e) {
-		console.warn('No se pudo limpiar localStorage:', e);
+		const saved = localStorage.getItem(STORAGE_KEY);
+		if (saved) {
+			const state = JSON.parse(saved);
+			if (state?.data) survey.data = state.data;
+			if (Number.isInteger(state?.page)) survey.currentPageNo = state.page;
+		}
+	} catch {
+		/* ignore */
 	}
 
-	// Guardado local instantáneo
-	function saveLocal() {
-		try {
-			localStorage.setItem(
-				STORAGE_KEY,
-				JSON.stringify({ data: survey.data, page: survey.currentPageNo }),
-			);
-		} catch (e) {
-			console.warn('No se pudo guardar en localStorage:', e);
-		}
-	}
+	// Guardado local (debounce sencillo)
+	const saveLocal = (() => {
+		let t;
+		return () => {
+			clearTimeout(t);
+			t = setTimeout(() => {
+				try {
+					localStorage.setItem(
+						STORAGE_KEY,
+						JSON.stringify({ data: survey.data, page: survey.currentPageNo }),
+					);
+				} catch (e) {
+					console.warn('No se pudo guardar en localStorage:', e);
+				}
+			}, 200);
+		};
+	})();
 
 	// === AUTOSAVE BACKEND (borrador) === -> /api/forms/submit_incorp
 	async function autosaveDraft() {
@@ -354,25 +365,11 @@ import '@estilos/surveyjs.css';
 				console.error('submit_incorp error:', out);
 			} else {
 				console.log('OK submission_id:', out.id);
+				// limpiar cache local al final
+				localStorage.removeItem(STORAGE_KEY);
 			}
 		} catch (e) {
 			console.error('submit_incorp falló:', e);
-		} finally {
-			// Siempre limpiar localStorage al completar (éxito o error)
-			try {
-				localStorage.removeItem(STORAGE_KEY);
-			} catch (e) {
-				console.warn('No se pudo limpiar localStorage:', e);
-			}
-		}
-	});
-
-	// Limpiar localStorage cuando el usuario abandone la página
-	window.addEventListener('beforeunload', () => {
-		try {
-			localStorage.removeItem(STORAGE_KEY);
-		} catch (e) {
-			/* ignore */
 		}
 	});
 

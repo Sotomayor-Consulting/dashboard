@@ -10,7 +10,7 @@ const servicio = await ListaFormulariosGeneral();
 <Alerta />
 <div>
 	<div
-		class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] dark:border-gray-700 w-full"
+		class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700 w-full"
 	>
 		<div class="w-full mb-1">
 			<div class="mb-4">
@@ -286,7 +286,7 @@ const servicio = await ListaFormulariosGeneral();
 												data-id={sr.form_id}
 												data-modal-target="course-modal"
 												data-modal-toggle="course-modal"
-												class="text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-[#101521] dark:border-gray-700 dark:text-white dark:hover:bg-[#101522]"
+												class="text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-black-900 dark:border-gray-700 dark:text-white dark:hover:bg-[#101522]"
 											>
 												<svg
 													class="w-4 h-4"
@@ -302,7 +302,7 @@ const servicio = await ListaFormulariosGeneral();
 												id={`dd-btn-${sr.form_id}`}
 												@click="showTooltip = !showTooltip"
 												@click.outside="showTooltip = false"
-												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-[#101521] dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-900 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
 												aria-expanded="false"
@@ -319,7 +319,7 @@ const servicio = await ListaFormulariosGeneral();
 											</button>
 											<div
 												id={`dd-${sr.form_id}`}
-												class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-[#101521] dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute right-2"
+												class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-900 dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute right-2"
 												role="menu"
 												x-show="showTooltip"
 												x-transition
@@ -393,7 +393,7 @@ const servicio = await ListaFormulariosGeneral();
 	<!-- Edit Product Drawer -->
 	<div
 		id="drawer-update-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-lg p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-lg p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-900"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -437,7 +437,7 @@ const servicio = await ListaFormulariosGeneral();
 						type="text"
 						name="titulo-form"
 						id="titulo-update-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						value=""
 						placeholder="inserta el titulo del formulario"
 						required=""
@@ -453,7 +453,7 @@ const servicio = await ListaFormulariosGeneral();
 						type="text"
 						name="categoria-form"
 						id="categoria-form-update"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						value=""
 						placeholder="Añade la categoria del formulario"
 						required=""
@@ -468,7 +468,7 @@ const servicio = await ListaFormulariosGeneral();
 					<textarea
 						name="json-update"
 						id="json-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade el Json del formulario"
 						required=""
 						rows="10"></textarea>
@@ -483,7 +483,7 @@ const servicio = await ListaFormulariosGeneral();
 						id="tema-form"
 						name="tema-form-update"
 						rows="2"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade el codigo json del tema de tu formulario"
 					></textarea>
 				</div>
@@ -497,7 +497,7 @@ const servicio = await ListaFormulariosGeneral();
 						id="descripcion-form"
 						name="descripcion-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade una descripcion para el form"></textarea>
 				</div>
 				<div>
@@ -509,7 +509,7 @@ const servicio = await ListaFormulariosGeneral();
 					<select
 						id="update-form-estado"
 						name="estado"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 					>
 						<option value="" disabled="" selected="">--</option>
 						<option value="true">Activo</option>
@@ -529,7 +529,7 @@ const servicio = await ListaFormulariosGeneral();
 				<button
 					data-drawer-hide="drawer-update-product-default"
 					type="button"
-					class="w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900 dark:bg-[#101521]"
+					class="w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900 dark:bg-black-900"
 				>
 					Cancelar
 				</button>
@@ -540,7 +540,7 @@ const servicio = await ListaFormulariosGeneral();
 	<!-- Delete Product Drawer -->
 	<div
 		id="drawer-delete-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-900"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -600,7 +600,7 @@ const servicio = await ListaFormulariosGeneral();
 				Si, estoy seguro
 			</button>
 			<button
-				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#101521] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
+				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-black-900 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
 				type="button"
 				data-drawer-dismiss="drawer-delete-product-default"
 				aria-controls="drawer-delete-product-default"
@@ -613,7 +613,7 @@ const servicio = await ListaFormulariosGeneral();
 	<!-- desarchivar Product Drawer -->
 	<div
 		id="desarchivar-menu"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-900"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -672,7 +672,7 @@ const servicio = await ListaFormulariosGeneral();
 				Si, estoy seguro
 			</button>
 			<button
-				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#101521] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
+				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-black-900 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
 				type="button"
 				data-drawer-dismiss="desarchivar-menu"
 				aria-controls="desarchivar-menu"
@@ -685,7 +685,7 @@ const servicio = await ListaFormulariosGeneral();
 	<!-- Add Product Drawer -->
 	<div
 		id="drawer-create-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-900"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -727,7 +727,7 @@ const servicio = await ListaFormulariosGeneral();
 						type="text"
 						name="titulo-form"
 						id="nombre-service"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Nombre del formulario"
 						required=""
 					/>
@@ -743,7 +743,7 @@ const servicio = await ListaFormulariosGeneral();
 						type="text"
 						name="categoria-form"
 						id="categoria-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade la categoria del form"
 						required=""
 					/>
@@ -758,7 +758,7 @@ const servicio = await ListaFormulariosGeneral();
 						id="json-update"
 						name="json-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Pega aqui el Json del formulario"></textarea>
 				</div>
 				<div>
@@ -771,7 +771,7 @@ const servicio = await ListaFormulariosGeneral();
 						id="tema-form-update"
 						name="tema-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Pega el Json del tema"></textarea>
 				</div>
 				<div>
@@ -784,7 +784,7 @@ const servicio = await ListaFormulariosGeneral();
 						id="descripcion-form-update"
 						name="descripcion-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade una descripcion del formulario"></textarea>
 				</div>
 				<div>
@@ -796,7 +796,7 @@ const servicio = await ListaFormulariosGeneral();
 					<select
 						id="estado"
 						name="estado"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 					>
 						<option value="" disabled="" selected="">--</option>
 						<option value="true">Activo</option>
@@ -817,7 +817,7 @@ const servicio = await ListaFormulariosGeneral();
 						type="button"
 						data-drawer-dismiss="drawer-create-product-default"
 						aria-controls="drawer-create-product-default"
-						class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-[#101521] dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+						class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-black-900 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
 					>
 						<svg
 							aria-hidden="true"
@@ -848,7 +848,7 @@ const servicio = await ListaFormulariosGeneral();
 	>
 		<div class="relative p-4 w-full max-w-lg max-h-full">
 			<!-- Modal content -->
-			<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#101521]">
+			<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-900">
 				<!-- Modal header -->
 				<div class="flex items-center justify-between p-4 md:p-5">
 					<h3 class="text-lg text-gray-500 dark:text-gray-400">
@@ -896,7 +896,7 @@ const servicio = await ListaFormulariosGeneral();
 							id="copias"
 							data-copy-to-clipboard-target="share-id"
 							data-tooltip-target="tooltip-share-id"
-							class="absolute end-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#05121d] rounded-lg p-2 inline-flex items-center justify-center dark:bg-[#101521]"
+							class="absolute end-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#05121d] rounded-lg p-2 inline-flex items-center justify-center dark:bg-black-900"
 						>
 							<span id="default-icon-share-id">
 								<svg

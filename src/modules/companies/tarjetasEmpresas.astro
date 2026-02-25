@@ -76,7 +76,7 @@ const empresas = userId ? await getEmpresasGenenralById(userId) : null;
 				) : (
 					empresas?.map((fr) => (
 						<>
-							<div class="flex flex-col items-end mb-4 bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-[#192033] dark:hover:bg-[#101522]">
+							<div class="flex flex-col items-end mb-4 bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-black-800 dark:hover:bg-[#101522]">
 								<a
 									href={`/dashboard/${fr.empresa_incorporacion_id}`}
 									target="_blank"
@@ -129,7 +129,7 @@ const empresas = userId ? await getEmpresasGenenralById(userId) : null;
 								data-popover
 								id={`tooltip-${fr.empresa_incorporacion_id}`}
 								role="tooltip"
-								class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-[#101521] dark:border-gray-600 dark:text-gray-400"
+								class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-black-900 dark:border-gray-600 dark:text-gray-400"
 							>
 								<div class="p-3 space-y-2">
 									<h3
