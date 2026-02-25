@@ -10,3 +10,17 @@ export const EstadosGeneral = async () => {
 
 	return data;
 };
+
+export const getEstadoPorEmpresa = async (estado: string) => {
+	const { data, error } = await supabase
+		.from('estados')
+		.select('abreviatura, Estado')
+		.eq('Estado', estado)
+		.single();
+	if (error) {
+		console.error('Error fetching estado por empresa:', error);
+		throw error;
+	}
+
+	return data;
+};

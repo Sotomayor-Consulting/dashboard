@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import logonotificaciones from '/src/assets/avatarSCI.png';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
@@ -169,7 +169,7 @@ export { notifications, totalUnread, user };
 											data-id={notification.id}
 										>
 											<div class="flex-shrink-0">
-												<Image
+												<Picture
 													src={logonotificaciones}
 													width="44"
 													alt="Logo notificación Sotomayor Consulting"
@@ -247,20 +247,22 @@ export { notifications, totalUnread, user };
 							<span class="sr-only">Open user menu</span>
 							{
 								imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
-									<Image
+									<Picture
 										src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId || ''}`}
 										class="w-8 h-8 rounded-full"
 										alt="avatar general aleatorio"
 										loading="eager"
 										inferSize={true}
+										layout="constrained"
 									/>
 								) : (
-									<Image
+									<Picture
 										class="w-8 h-8 rounded-full"
 										src={imagen?.avatar_url}
 										alt={`user avatar ${userId}`}
 										loading="eager"
 										inferSize={true}
+										layout="constrained"
 									/>
 								)
 							}

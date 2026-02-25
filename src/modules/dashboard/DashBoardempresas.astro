@@ -1,41 +1,26 @@
 ---
 import '@estilos/datatables.css';
 import { Icon } from 'astro-icon/components';
+import { getIncorporacionById } from '@lib/tablas/empresa_incorporaciones';
+import { getEstadoPorEmpresa } from '@lib/tablas/estados';
 
-const { id } = Astro.params; // ID dinámico de la URL
+const { id } = Astro.params;
+const user = Astro.locals.user;
+const userId = user?.id;
 const { redirect } = Astro;
 
-const {
-	data: { user },
-	error: userErr,
-} = await supabase.auth.getUser();
-if (userErr || !user) {
-	return redirect('/sign-in');
+if (!id || !userId) {
+	return redirect('/');
 }
 
-import { supabase } from '@lib/supabase';
-
-const { data: empresa, error: empresaError } = await supabase
-	.from('empresas_incorporaciones')
-	.select('*')
-	.eq('empresa_incorporacion_id', id)
-	.eq('user_id', user.id)
-	.single();
-
-if (empresaError || !empresa) {
-	return redirect('/pages/empresas');
-}
+const empresa = await getIncorporacionById(id, userId);
 
 // Obtener estado de incorporación para el mapa
 let estadoMapa = null;
 if (empresa.estado_de_incorporacion) {
-	const { data: estadoData, error: estadoError } = await supabase
-		.from('estados')
-		.select('abreviatura, Estado')
-		.eq('Estado', empresa.estado_de_incorporacion)
-		.single();
+	const estadoData = await getEstadoPorEmpresa(empresa.estado_de_incorporacion);
 
-	if (!estadoError && estadoData) {
+	if (estadoData) {
 		estadoMapa = estadoData.Estado;
 	}
 }
@@ -610,7 +595,10 @@ const acciones = [
 				class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-[#192033] dark:border-gray-600 dark:text-gray-400"
 			>
 				<div class="p-3 space-y-2">
-					<h3 class="font-semibold text-gray-900 dark:text-white">
+					<h3
+						class="font-semibold text-gray-900 dark:text-white"
+						aria-label="Acciones rapidas"
+					>
 						Acciones rapidas
 					</h3>
 					<p>
@@ -835,15 +823,16 @@ const acciones = [
 		@apply border-0 !important;
 	}
 </style>
-<script type="module">
-	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+<script>
+	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
 
 	function initDT() {
-		const el = document.querySelector('#myTable');
+		const el = document.querySelector('#myTable') as HTMLElement | null;
 		if (!el) return;
-		if (el.dataset.dtInit === '1') return;
+		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
+			return;
 
-		const dt = new DataTable(el, {
+		new DataTable(el, {
 			searchable: true,
 			perPage: 25,
 			perPageSelect: [5, 10, 25, 50],
@@ -864,8 +853,8 @@ const acciones = [
 			},
 		});
 
-		el.dataset.dtInit = '1';
-		el.dataset.dtInstance = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
 	}
 
 	initDT();

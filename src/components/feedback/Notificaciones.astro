@@ -3,25 +3,10 @@ import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import '@estilos/datatables.css';
 import logonotificaciones from '/src/assets/avatarSCI.png';
-import { supabase } from '@lib/supabase';
 import Alerta from '@components/feedback/alertageneral.astro';
+import { getNotificacionesGeneral } from '@lib/tablas/notificaciones';
 
-const { data: notificaciones } = await supabase
-	.from('notifications')
-	.select(
-		`
-    id,
-    user_id,
-    message,
-    is_read,
-    leido_en,
-    created_at,
-    link,
-	mensaje_link
-  `,
-		{ count: 'exact' },
-	)
-	.order('created_at', { ascending: false });
+const notificaciones = await getNotificacionesGeneral();
 ---
 
 <Alerta />

@@ -1,6 +1,5 @@
 import { supabase } from '@lib/supabase';
 import type { User } from '@supabase/supabase-js';
-import { e } from '../../../dist/server/chunks/astro/server_Cm0vK6ob.mjs';
 
 export const getIncorporacionesByUserId = async (userId: string) => {
 	const { data, error } = await supabase
@@ -10,6 +9,51 @@ export const getIncorporacionesByUserId = async (userId: string) => {
 
 	if (error) {
 		console.error('Error fetching incorporaciones by user ID:', error);
+		return [];
+	}
+
+	return data;
+};
+
+export const getIncorporacionById = async (id: string, userId: string) => {
+	const { data, error } = await supabase
+		.from('empresas_incorporaciones')
+		.select('*')
+		.eq('empresa_incorporacion_id', id)
+		.eq('user_id', userId)
+		.single();
+	if (error) {
+		console.error('Error fetching incorporaciones by ID:', error);
+		return [];
+	}
+
+	return data;
+};
+
+export const getIncorporacionesEnProceso = async (userId: string) => {
+	const { data, error } = await supabase
+		.from('empresas_incorporaciones')
+		.select(
+			`
+					user_id,
+					empresa_incorporacion_id,
+					tipo_de_negocio,
+					estado_de_incorporacion,
+					estado,
+					nombre_1,
+					nombre_2,
+					nombre_3,
+					updated_at
+				`,
+		)
+		.eq('user_id', userId)
+		.eq('estado', 'En proceso')
+		.order('updated_at', { ascending: true });
+	if (error) {
+		console.error(
+			'Error fetching incorporaciones en proceso por user ID:',
+			error,
+		);
 		return [];
 	}
 

@@ -58,7 +58,6 @@ async function initPorcentajeRadioChart() {
 		return;
 	}
 
-	const empresaId = el.dataset.empresaId || el.getAttribute('data-empresa-id');
 	const rawPct = el.dataset.porcentaje || el.getAttribute('data-porcentaje');
 
 	const n = parseNumeric(rawPct);
@@ -79,7 +78,7 @@ async function initPorcentajeRadioChart() {
 				startAngle: -135,
 				endAngle: 135,
 				hollow: { margin: 0, size: '70%', background: 'transparent' },
-				track: { background: '#0e2637', strokeWidth: '100%', margin: 0 },
+				track: { background: '#101521', strokeWidth: '100%', margin: 0 },
 				dataLabels: {
 					show: true,
 					name: { show: false },

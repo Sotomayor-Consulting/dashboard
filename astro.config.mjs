@@ -6,10 +6,16 @@ import node from '@astrojs/node';
 import icon from 'astro-icon';
 
 export default defineConfig({
+	prefetch: {
+		defaultStrategy: 'tap',
+	},
 	output: 'server',
 	adapter: node({
 		mode: 'standalone',
 	}),
 	base: '/',
 	integrations: [sitemap(), tailwind(), icon()],
+	image: {
+		remotePatterns: [{ protocol: 'https' }],
+	},
 });

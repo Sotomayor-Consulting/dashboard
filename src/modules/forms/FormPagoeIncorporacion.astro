@@ -1,111 +1,18 @@
 ---
-import { supabase } from '@lib/supabase';
 import Stripelogo from '@assets/stripe.svg';
 import { Icon } from 'astro-icon/components';
-const { cookies } = Astro;
+import { getIncorporacionesEnProceso } from '@lib/tablas/empresa_incorporaciones';
+import { ListaServiciosStripe } from '@lib/tablas/servicios';
+import { ListaDeMicroServiciosActivos } from '@lib/tablas/microservicios';
 
-let userId = null;
-let empresas: {
-	user_id: any;
-	empresa_incorporacion_id: any;
-	tipo_de_negocio: any;
-	estado_de_incorporacion: any;
-	estado: any;
-	nombre_1: any;
-	nombre_2: any;
-	nombre_3: any;
-	updated_at: any;
-}[] = [];
+const User = Astro.locals.user;
+const userId = User?.id || '';
 
-// 1) Intentar restaurar sesión si hay cookies disponibles
-const at = cookies.get('sb-access-token');
-const rt = cookies.get('sb-refresh-token');
-
-if (at && rt) {
-	await supabase.auth.setSession({
-		access_token: at.value,
-		refresh_token: rt.value,
-	});
-
-	// 2) Obtener el usuario si existe sesión
-	const {
-		data: { user },
-		error: userErr,
-	} = await supabase.auth.getUser();
-
-	if (!userErr && user) {
-		userId = user.id; // Este es el user_id (UUID) que necesitas
-
-		// 3) Obtener rol
-		const { data: usuarioData } = await supabase
-			.from('usuarios')
-			.select('*, roles (name)')
-			.eq('user_id', user.id)
-			.maybeSingle();
-
-		let userRole = 'guest';
-		if (usuarioData?.roles) {
-			const rolArray = usuarioData.roles as { name: string }[];
-			userRole = rolArray?.[0]?.name || 'guest';
-		}
-
-		const isAdmin = userRole === 'admin';
-
-		// 4) Si NO es admin → cargar sus empresas con estado "En proceso"
-		if (!isAdmin) {
-			const { data } = await supabase
-				.from('empresas_incorporaciones')
-				.select(
-					`
-					user_id,
-					empresa_incorporacion_id,
-					tipo_de_negocio,
-					estado_de_incorporacion,
-					estado,
-					nombre_1,
-					nombre_2,
-					nombre_3,
-					updated_at
-				`,
-				)
-				.eq('user_id', user.id)
-				.eq('estado', 'En proceso') // <- Filtro para mostrar solo "En proceso"
-				.order('updated_at', { ascending: true });
-
-			empresas = data ?? [];
-		}
-	}
-}
-
-// 5) Obtener los servicios activos (siempre se ejecuta, con o sin usuario)
-const { data: servicios, error: serviciosErr } = await supabase
-	.from('servicios')
-	.select(
-		`
-		id_servicios,
-		nombre,
-		precio,
-		descripcion,
-		categoria,
-		servicio_activo
-	`,
-	)
-	.eq('servicio_activo', true)
-	.in('id', [1, 2, 3, 4]);
-
-if (serviciosErr) {
-	console.error('Error cargando servicios:', serviciosErr);
-}
-
-const { data: microservicios } = await supabase
-	.from('micro_servicios')
-	.select('*')
-	.eq('estado', true);
-
-// Convertir a array seguro para usar con .map()
-const empresasArray = empresas || [];
-
-// 6) Asignar cada servicio a una tarjeta específica
+const [empresas, servicios, microservicios] = await Promise.all([
+	getIncorporacionesEnProceso(userId),
+	ListaServiciosStripe(),
+	ListaDeMicroServiciosActivos(),
+]);
 
 const planBasico = servicios?.find((s) => s.nombre === 'Plan Básico');
 const planEstandar = servicios?.find((s) => s.nombre === 'Plan Estándar');
@@ -145,7 +52,7 @@ const opcionesllc =
 					class="py-3 px-4 pe-9 block w-full border-neutral-600 rounded-lg text-sm focus:border-[#8c681d] focus:ring-[#8c681d] disabled:opacity-50 disabled:pointer-events-none bg-neutral-200 dark:bg-[#192033] dark:border-neutral-700 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 mb-5"
 				>
 					{
-						empresasArray?.map((empresa) => (
+						empresas?.map((empresa) => (
 							<option value={empresa.empresa_incorporacion_id}>
 								{empresa.nombre_1}
 							</option>
@@ -211,20 +118,10 @@ const opcionesllc =
 											'Agente Residente por un año.',
 										].map((li) => (
 											<li class="flex gap-x-2">
-												<svg
+												<Icon
+													name="ri:check-line"
 													class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
-													xmlns="http://www.w3.org/2000/svg"
-													width="24"
-													height="24"
-													viewBox="0 0 24 24"
-													fill="none"
-													stroke="currentColor"
-													stroke-width="2"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-												>
-													<polyline points="20 6 9 17 4 12" />
-												</svg>
+												/>
 												<span class="text-gray-800 dark:text-neutral-400 text-left">
 													{li}
 												</span>
@@ -361,20 +258,10 @@ const opcionesllc =
 											'Reporte BOI',
 										].map((li) => (
 											<li class="flex gap-x-2">
-												<svg
+												<Icon
+													name="ri:check-line"
 													class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
-													xmlns="http://www.w3.org/2000/svg"
-													width="24"
-													height="24"
-													viewBox="0 0 24 24"
-													fill="none"
-													stroke="currentColor"
-													stroke-width="2"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-												>
-													<polyline points="20 6 9 17 4 12" />
-												</svg>
+												/>
 												<span class="text-gray-800 dark:text-neutral-400 text-left">
 													{li}
 												</span>
@@ -507,20 +394,10 @@ const opcionesllc =
 
 									<ul class="mt-7 space-y-2.5 text-sm">
 										<li class="flex gap-x-2">
-											<svg
+											<Icon
+												name="ri:check-line"
 												class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="2"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											>
-												<polyline points="20 6 9 17 4 12" />
-											</svg>
+											/>
 											<span class="text-gray-800 dark:text-neutral-400 text-left">
 												Planificación y diseño de LLC
 											</span>

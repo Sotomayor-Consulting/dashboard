@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import imagen from '@assets/imagen-no.png';
+import imagen from '@assets/g31.avif';
 import { FormsEnviadosForId } from '@lib/tablas/formulariosEnviados';
 
 const user = Astro.locals.user;
@@ -63,11 +63,18 @@ const formularios = userId ? await FormsEnviadosForId(userId) : null;
 		<div class="grid xl:grid-cols-3 md:grid-cols-2 gap-2">
 			{
 				(formularios?.length ?? 0) === 0 ? (
-					<div class="p-6 border rounded-lg text-center text-gray-600 dark:text-gray-300 col-span-3 flex flex-col items-center">
+					<div class="p-6 rounded-lg text-center text-gray-600 dark:text-gray-300 col-span-3 flex flex-col items-center">
 						<h3 class="text-lg font-semibold mb-5 ">
 							No tienes formularios o documentos aún
 						</h3>
-						<Image src={imagen} alt="test" width={400} height={300} />
+						<Image
+							src={imagen}
+							class="opacity-50 my-20"
+							alt="test"
+							width={400}
+							height={400}
+							loading={'eager'}
+						/>
 					</div>
 				) : (
 					formularios?.map((fr) => (
@@ -82,6 +89,7 @@ const formularios = userId ? await FormsEnviadosForId(userId) : null;
 									src="https://images.unsplash.com/photo-1554224154-22dec7ec8818?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687"
 									alt={`imagen de formulario ${fr.formularios.titulo}`}
 									inferSize={true}
+									loading={'eager'}
 								/>
 								<div class="flex flex-col p-4 leading-normal h-fit">
 									<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">

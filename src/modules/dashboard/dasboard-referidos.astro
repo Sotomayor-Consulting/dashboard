@@ -3,9 +3,8 @@
 
 import { supabase } from '@lib/supabase';
 
-const {
-	data: { user },
-} = await supabase.auth.getUser();
+const user = Astro.locals.user;
+const UserId = user?.id;
 // JOIN: referidos -> usuarios (referido) y (opcional) partner
 const { data: rows, error } = await supabase
 	.from('referidos')
@@ -22,19 +21,20 @@ const { data: rows, error } = await supabase
     )
   `,
 	)
-	.eq('partner_id', user?.id)
+	.eq('partner_id', UserId)
 	.order('created_at', { ascending: false });
 
 if (error) console.error(error);
 
 const referidosSupabase = (rows ?? []).map((r) => ({
 	name:
-		`${r.referido?.nombre ?? ''} ${r.referido?.apellido ?? ''}`.trim() || '—',
-	email: r.referido?.correo ?? '—',
-	avatar: r.referido?.avatar_url ?? null,
+		`${r.referido[0]?.nombre ?? ''} ${r.referido[0]?.apellido ?? ''}`.trim() ||
+		'—',
+	email: r.referido[0]?.correo ?? '—',
+	avatar: r.referido[0]?.avatar_url ?? null,
 	code: r.code,
 	fecha: r.created_at,
-	estado: r.referido?.estado,
+	estado: r.referido[0]?.estado,
 	fuente: 'Supabase',
 }));
 type Referral = {

@@ -1,18 +1,18 @@
 ---
 import '@estilos/dropzone.css';
-import { supabase } from '@lib/supabase';
 import { Icon } from 'astro-icon/components';
 import ImprimirContrato from '@components/display/ImprimirContrato.astro';
+import { getUsuarioById, getMissingPartnerFields } from '@lib/tablas/usuarios';
+import { getDocumentosGenerales } from '@lib/tablas/documentos';
+
+const user = Astro.locals.user;
+const userRoles = Astro.locals.userRoles || [];
+const UserId = user?.id;
 
 let datosParaReporte = {};
 
-// Con RLS, no necesitas filtrar manualmente por user_id
-let { data: usuario, error } = await supabase
-	.from('usuarios')
-	.select('*')
-	.single();
+let usuario = UserId ? await getUsuarioById(UserId) : null;
 
-// Si no se encontraron datos, usar el prop data como fallback
 if (!usuario && Astro.props.data) {
 	usuario = Astro.props.data;
 }
@@ -27,103 +27,20 @@ if (usuario) {
 	};
 }
 
-if (error) {
-	console.error('Error cargando usuario:', error);
-}
+const documentos = UserId ? await getDocumentosGenerales(UserId) : null;
 
-const { data: documentos } = await supabase
-	.from('documentos_usuarios')
-	.select('*');
-
-const acciones = [
-	{
-		nombre: 'Mira tus referidos',
-		descripcion:
-			'Encuentra links a tus documentos completados, bandeja de notificaciones, formularios, email, y descarga plantillas de documentos importantes.',
-		link: '/partners/datos-referidos/',
-		icono: 'ri:shake-hands-fill',
-	},
-	{
-		nombre: 'Configura tu perfil',
-		descripcion:
-			'Inicia el proceso para crear una nueva empresa asociada a tu cuenta de partner.',
-		link: '/settings/',
-		icono: 'ri:account-circle-fill',
-	},
-	{
-		nombre: 'Agenda una cita',
-		descripcion:
-			'Contacta a nuestro equipo de soporte para asistencia personalizada con tu cuenta de partner.',
-		link: 'https://zcal.co/t/agendar-asesoria-llc/60min',
-		icono: 'ri:calendar-fill',
-	},
-	{
-		nombre: 'Contacta a soporte',
-		descripcion:
-			'Contacta a nuestro equipo de soporte para asistencia personalizada con tu cuenta de partner.',
-		link: 'mailto:serviciossotomayorcoonsulting.com',
-		icono: 'ri:customer-service-2-fill',
-	},
-];
 interface Props {
 	data: object;
 	templateName?: string;
 	reportName?: string;
 }
 
-const { cookies } = Astro;
-const accessToken = cookies.get('sb-access-token');
-const refreshToken = cookies.get('sb-refresh-token');
-
 let perfilCompleto = false;
+const isPartner = userRoles.includes('partner');
 
-// Campos requeridos para partners (rol_id = 2)
-const REQUIRED_FIELDS = [
-	'direccion_linea1',
-	'direccion_linea2',
-	'tipo_identificacion',
-	'numero_de_identificacion',
-	'tipo_persona',
-] as const;
-
-// Proceso de autenticación y consulta (SSR)
-if (accessToken?.value && refreshToken?.value) {
-	try {
-		// Establecer sesión
-		const { error: sessionErr } = await supabase.auth.setSession({
-			refresh_token: refreshToken.value,
-			access_token: accessToken.value,
-		});
-
-		if (!sessionErr) {
-			// Obtener usuario actual
-			const {
-				data: { user: currentUser },
-			} = await supabase.auth.getUser();
-
-			if (currentUser) {
-				const { data: userProfile, error: profileError } = await supabase
-					.from('usuarios')
-					.select(
-						'rol_id, direccion_linea1, direccion_linea2, tipo_identificacion, numero_de_identificacion, tipo_persona',
-					)
-					.eq('user_id', currentUser.id)
-					.single();
-
-				if (!profileError && userProfile && userProfile.rol_id === 2) {
-					// Verificar si todos los campos están completos
-					const camposFaltantes = REQUIRED_FIELDS.filter((field) => {
-						const value = userProfile[field];
-						return value === null || value === undefined || value === '';
-					});
-
-					perfilCompleto = camposFaltantes.length === 0;
-				}
-			}
-		}
-	} catch (e) {
-		console.error('[Botones] Error:', e);
-	}
+if (isPartner && user) {
+	const camposFaltantes = await getMissingPartnerFields(user.id);
+	perfilCompleto = camposFaltantes.length === 0;
 }
 ---
 
@@ -340,21 +257,10 @@ if (accessToken?.value && refreshToken?.value) {
 								enctype="multipart/form-data"
 							>
 								<div class="dz-message dark:text-white w-full flex flex-col">
-									<svg
-										class="w-h-14 h-14 mb-4 text-gray-500 dark:text-gray-400"
-										aria-hidden="true"
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 20 16"
-									>
-										<path
-											stroke="currentColor"
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth="2"
-											d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-										/>
-									</svg>
+									<Icon
+										name="ri:upload-cloud-2-line"
+										class="text-5xl mb-4 text-gray-500 dark:text-gray-400"
+									/>
 									Arrastra tu contrato aquí o haz clic para subir.
 								</div>
 							</form>
@@ -438,7 +344,36 @@ if (accessToken?.value && refreshToken?.value) {
 				<div class="pt-4">
 					<ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
 						{
-							acciones?.map((ac) => (
+							[
+								{
+									nombre: 'Mira tus referidos',
+									descripcion:
+										'Encuentra links a tus documentos completados, bandeja de notificaciones, formularios, email, y descarga plantillas de documentos importantes.',
+									link: '/partners/datos-referidos/',
+									icono: 'ri:shake-hands-fill',
+								},
+								{
+									nombre: 'Configura tu perfil',
+									descripcion:
+										'Inicia el proceso para crear una nueva empresa asociada a tu cuenta de partner.',
+									link: '/settings/',
+									icono: 'ri:account-circle-fill',
+								},
+								{
+									nombre: 'Agenda una cita',
+									descripcion:
+										'Contacta a nuestro equipo de soporte para asistencia personalizada con tu cuenta de partner.',
+									link: 'https://zcal.co/t/agendar-asesoria-llc/60min',
+									icono: 'ri:calendar-fill',
+								},
+								{
+									nombre: 'Contacta a soporte',
+									descripcion:
+										'Contacta a nuestro equipo de soporte para asistencia personalizada con tu cuenta de partner.',
+									link: 'mailto:serviciossotomayorcoonsulting.com',
+									icono: 'ri:customer-service-2-fill',
+								},
+							].map((ac) => (
 								<li class="py-3 sm:py-4">
 									<div class="flex items-center justify-between">
 										<div class="flex items-center min-w-0">

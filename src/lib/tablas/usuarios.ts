@@ -43,3 +43,37 @@ export const getUsuarioAvatar = async (userId: string) => {
 
 	return data;
 };
+
+export const getUsuarioPerfilPartner = async (userId: string) => {
+	const { data, error } = await supabase
+		.from('usuarios')
+		.select('direccion_linea1, direccion_linea2, tipo_identificacion, numero_de_identificacion, tipo_persona')
+		.eq('user_id', userId)
+		.single();
+
+	if (error) {
+		console.error('Error fetching usuario perfil partner:', error);
+		throw error;
+	}
+
+	return data;
+};
+
+export const getMissingPartnerFields = async (userId: string): Promise<string[]> => {
+	const REQUIRED_FIELDS = [
+		'direccion_linea1',
+		'direccion_linea2',
+		'tipo_identificacion',
+		'numero_de_identificacion',
+		'tipo_persona',
+	] as const;
+
+	const profile = await getUsuarioPerfilPartner(userId);
+	
+	if (!profile) return [];
+
+	return REQUIRED_FIELDS.filter((field) => {
+		const value = profile[field];
+		return value === null || value === undefined || value === '';
+	});
+};
