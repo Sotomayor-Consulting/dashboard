@@ -59,20 +59,22 @@ export const getUsuarioPerfilPartner = async (userId: string) => {
 	return data;
 };
 
-export const getMissingPartnerFields = async (userId: string): Promise<string[]> => {
-	const REQUIRED_FIELDS = [
-		'direccion_linea1',
-		'direccion_linea2',
-		'tipo_identificacion',
-		'numero_de_identificacion',
-		'tipo_persona',
-	] as const;
+export const PARTNER_REQUIRED_FIELDS = [
+	'direccion_linea1',
+	'direccion_linea2',
+	'tipo_identificacion',
+	'numero_de_identificacion',
+	'tipo_persona',
+] as const;
 
+export type PartnerRequiredField = (typeof PARTNER_REQUIRED_FIELDS)[number];
+
+export const getMissingPartnerFields = async (userId: string): Promise<PartnerRequiredField[]> => {
 	const profile = await getUsuarioPerfilPartner(userId);
 	
 	if (!profile) return [];
 
-	return REQUIRED_FIELDS.filter((field) => {
+	return PARTNER_REQUIRED_FIELDS.filter((field): field is PartnerRequiredField => {
 		const value = profile[field];
 		return value === null || value === undefined || value === '';
 	});

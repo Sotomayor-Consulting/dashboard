@@ -1,23 +1,7 @@
 ---
-import { getMissingPartnerFields } from '@lib/tablas/usuarios';
+import { getMissingPartnerFields, type PartnerRequiredField } from '@lib/tablas/usuarios';
 
-const user = Astro.locals.user;
-const userRoles = Astro.locals.userRoles || [];
-
-let shouldShowBanner = false;
-let missingFields: string[] = [];
-
-const REQUIRED_FIELDS = [
-	'direccion_linea1',
-	'direccion_linea2',
-	'tipo_identificacion',
-	'numero_de_identificacion',
-	'tipo_persona',
-] as const;
-
-type RequiredFieldKey = (typeof REQUIRED_FIELDS)[number];
-
-const FIELD_LABELS: Record<RequiredFieldKey, string> = {
+const FIELD_LABELS: Record<PartnerRequiredField, string> = {
 	direccion_linea1: 'Dirección línea 1',
 	direccion_linea2: 'Dirección línea 2',
 	tipo_identificacion: 'Tipo de identificación',
@@ -27,10 +11,10 @@ const FIELD_LABELS: Record<RequiredFieldKey, string> = {
 
 // Auth handled by middleware — user & roles already in locals
 const user = Astro.locals.user;
-const userRoles = Astro.locals.userRoles;
+const userRoles = Astro.locals.userRoles || [];
 
 let shouldShowBanner = false;
-let missingFields: RequiredFieldKey[] = [];
+let missingFields: PartnerRequiredField[] = [];
 
 const BANNER_PROPS = {
 	title: 'Completa tu información de perfil para continuar como partner.',
@@ -83,7 +67,7 @@ if (isPartner && user) {
 								Campos incompletos:{' '}
 								<span class="font-medium text-yellow-700 dark:text-yellow-400">
 									{missingFields
-										.map((f) => FIELD_LABELS[f as RequiredFieldKey] ?? f)
+										.map((f) => FIELD_LABELS[f] ?? f)
 										.join(', ')}
 								</span>
 							</p>

@@ -1,7 +1,9 @@
 ---
+import { Icon } from 'astro-icon/components';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
 import { getUsuarioAvatar, getUsuarioById } from '@lib/tablas/usuarios';
 import { getNotifications } from '@lib/tablas/notificaciones';
+import logonotificaciones from '@assets/avatarSCI.png';
 
 const user = Astro.locals?.user;
 const userId = user?.id;
@@ -35,7 +37,6 @@ export { notifications, totalUnread, user };
 					data-drawer-show="sidebar"
 					aria-controls="sidebar"
 					aria-expanded="true"
-					aria-controls="sidebar"
 					class="p-2 text-gray-600 rounded cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-neutral-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white"
 				>
 					<svg
@@ -144,7 +145,7 @@ export { notifications, totalUnread, user };
 					</button>
 					<!-- Dropdown menu -->
 					<div
-						class="z-20 z-50 hidden max-w-sm min-w-[24rem] my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-black-800 rounded-xl"
+						class="z-20 hidden max-w-sm min-w-[24rem] my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-black-800 rounded-xl"
 						id="notification-dropdown"
 					>
 						<div
@@ -167,14 +168,15 @@ export { notifications, totalUnread, user };
 											class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-[#101522]/5 dark:border-gray-600"
 											data-id={notification.id}
 										>
-											<div class="flex-shrink-0">
-												<Picture
-													src={logonotificaciones}
-													width="44"
-													alt="Logo notificación Sotomayor Consulting"
-													class="rounded-full"
-													loading="lazy"
-												/>
+											<div class="shrink-0">
+											<img
+												src={logonotificaciones.src}
+												width="44"
+												height="44"
+												alt="Logo notificación Sotomayor Consulting"
+												class="rounded-full"
+												loading="lazy"
+											/>
 											</div>
 											<div class="w-full pl-3">
 												<div class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400 flex flex-col">
@@ -237,25 +239,21 @@ export { notifications, totalUnread, user };
 							aria-expanded="false"
 							data-dropdown-toggle="dropdown-2"
 						>
-							<span class="sr-only">Open user menu</span>
+						<span class="sr-only">Open user menu</span>
 							{
 								imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
-									<Picture
+									<img
 										src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId || ''}`}
 										class="w-8 h-8 rounded-full"
 										alt="avatar general aleatorio"
 										loading="eager"
-										inferSize={true}
-										layout="constrained"
 									/>
 								) : (
-									<Picture
+									<img
 										class="w-8 h-8 rounded-full"
 										src={imagen?.avatar_url}
 										alt={`user avatar ${userId}`}
 										loading="eager"
-										inferSize={true}
-										layout="constrained"
 									/>
 								)
 							}
@@ -316,6 +314,7 @@ export { notifications, totalUnread, user };
 		SB_ANON: import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
 		USER_ID: user?.id ?? '',
 	}}
+	is:inline
 >
 	import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 

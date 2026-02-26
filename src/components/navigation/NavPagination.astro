@@ -12,7 +12,7 @@ const totalPages = Math.max(1, Math.ceil(Number(total) / Number(pageSize)));
 const start = total === 0 ? 0 : (current - 1) * pageSize + 1;
 const end = Math.min(current * pageSize, total);
 
-function linkFor(p) {
+function linkFor(p: number) {
 	const qs = new URLSearchParams(searchParams);
 	qs.set('page', String(p));
 	return `?${qs.toString()}`;

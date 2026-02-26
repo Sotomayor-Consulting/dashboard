@@ -22,7 +22,6 @@ export function onRequest(context: any, next: any) {
 		const refreshToken = cookies.get('sb-refresh-token');
 
 		let user = null;
-		let isValidSession = false;
 
 		if (accessToken && refreshToken) {
 			const { data: sessionData, error: sessionError } =
@@ -44,7 +43,6 @@ export function onRequest(context: any, next: any) {
 
 			if (!error && authUser) {
 				user = authUser;
-				isValidSession = true;
 
 				const { data: usuarioData } = await supabase
 					.from('user_roles')
