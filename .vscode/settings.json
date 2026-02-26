@@ -35,18 +35,12 @@
 	"prettier.enableDebugLogs": true,
 	"prettier.trace.server": "verbose",
 	"[astro]": {
-		"editor.defaultFormatter": "astro-build.astro-vscode"
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 
 	/* —————————————————————————————— Misc. ———————————————————————————————— */
 
 	"markdown.extension.toc.levels": "2..6",
 	"cSpell.language": "es-ES",
-	"cSpell.words": [
-		"crud",
-		"dark",
-		"Entregable",
-		"supabase"
-	]
-	
+	"cSpell.words": ["crud", "dark", "Entregable", "supabase"]
 }
