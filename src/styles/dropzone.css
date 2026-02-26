@@ -32,8 +32,8 @@
 
 /* Para forzar dark mode cuando Tailwind tiene la clase dark */
 .dark {
-	--dropzone-bg: #ffffff;
-	--dropzone-border: #e2e8f0;
+	--dropzone-bg: #000510;
+	--dropzone-border: #5c5c5c;
 	--dropzone-text: #1a202c;
 	--dropzone-preview-bg: #ffffff;
 	--dropzone-preview-text: #1a202c;
