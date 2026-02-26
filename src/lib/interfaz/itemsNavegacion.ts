@@ -16,14 +16,6 @@ export const menuItems = [
 		svgname: 'ri:hand-coin-fill',
 	},
 	{
-		id: 'mantenimiento_anual',
-		label: 'mantenimiento',
-		href: '/pages/mantenimiento',
-		tooltip: 'Mira fechas de tu compania y su mantenimiento anual',
-		roles: ['cliente', 'partner'],
-		svgname: 'ri:time-zone-fill',
-	},
-	{
 		id: 'documentos',
 		label: 'Documentos',
 		href: '/pages/tus-formularios',

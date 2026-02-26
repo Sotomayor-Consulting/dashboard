@@ -81,7 +81,7 @@ const empresas = userId ? await getEmpresasGenenralById(userId) : null;
 									href={`/dashboard/${fr.empresa_incorporacion_id}`}
 									target="_blank"
 									title={`ver datos de tu empresa ${fr.nombre_1}`}
-									class="grid w-full lg:grid-cols-[auto,1fr] min-h-full"
+									class="grid w-full lg:grid-cols-[auto_1fr] min-h-full"
 								>
 									<div>
 										<Image
@@ -92,7 +92,7 @@ const empresas = userId ? await getEmpresasGenenralById(userId) : null;
 											loading="eager"
 										/>
 									</div>
-									<div class="grid lg:grid-cols-[1fr,auto]">
+									<div class="grid lg:grid-cols-[1fr_auto]">
 										<div class="flex flex-col p-4 leading-normal items-start justify-start lg:place-self-center">
 											<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
 												{fr.nombre_1} - {fr.tipo_de_negocio}

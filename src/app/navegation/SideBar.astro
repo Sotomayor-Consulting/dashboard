@@ -1,25 +1,42 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { getUserWithRole } from '@lib/tablas/menu';
 import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
-const user = Astro.locals.user;
-const userId = user?.id;
-
-const { role: userRole } = await getUserWithRole(userId);
+const userRoles = Astro.locals.userRoles;
 
 const visibleMenu = menuItems.filter(
-	(item) => item.roles.includes('all') || item.roles.includes(userRole),
+	(item) =>
+		(item.roles.includes('all') && userRoles.length > 0) ||
+		item.roles.includes('todos') ||
+		item.roles.some((r) => userRoles.includes(r)),
 );
+
+const ruta = Astro.url.pathname;
 ---
 
+<div class="hidden top-1/2 z-40 fixed lg:block">
+	<button
+		type="button"
+		class="text-white dark:bg-black-800 bg-white-100 box-border border border-transparent hover:bg-white-200 focus:ring-1 focus:ring-brand-medium dark:focus:ring-black-700 shadow-xs font-medium leading-5 rounded-e-base text-sm py-6 focus:outline-none group dark:hover:border-black-800 dark:hover:bg-black-900"
+		data-drawer-target="sidebar"
+		data-drawer-show="sidebar"
+		aria-controls="sidebar"
+	>
+		<Icon
+			name="ri:arrow-right-s-fill"
+			class="text-xl text-white-600 dark:text-white group-hover:translate-x-0.5 transition-transform ease-in duration-200"
+			title="Menu"
+		/>
+	</button>
+</div>
 <aside
 	id="sidebar"
-	class="fixed top-0 left-0 z-20 flex flex-col flex-shrink-0 hidden w-64 h-full pt-16 font-normal duration-75 lg:flex transition-width"
-	aria-label="Sidebar"
+	class="fixed top-0 left-0 z-40 w-64 h-screen overflow-hidden transition-transform -translate-x-full bg-neutral-primary-soft border-e border-default"
+	tabindex="-1"
+	aria-labelledby="sidebar-label"
 >
 	<div
-		class="relative flex flex-col flex-1 min-h-0 pt-0 bg-neutral-200 border-r border-neutral-300 dark:bg-black-900 dark:border-gray-700"
+		class="relative flex flex-col flex-1 min-h-0 pt-0 bg-white-300 border-r border-neutral-300 dark:bg-black-900 dark:border-gray-700 h-full"
 	>
 		<div
 			class:list={[
@@ -30,33 +47,55 @@ const visibleMenu = menuItems.filter(
 			]}
 		>
 			<div
-				class="flex-1 px-3 space-y-1 bg-neutral-200 divide-y divide-gray-200 dark:bg-black-900 dark:divide-gray-700"
+				class="flex-1 px-3 space-y-1 bg-white-300 dark:bg-black-900 overflow-auto scrollbar-none"
 			>
-				<ul class="pb-2 space-y-2">
-					{
-						[
-							{
-								href: '/',
-								svgname: 'ri:home-9-fill',
-								label: 'Inicio',
-							},
-						].map((l) => (
-							<li>
-								<a
-									href={l.href}
-									class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
-								>
-									<Icon
-										name={l.svgname}
-										class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-									/>
-									<span class="ml-3" sidebar-toggle-item>
-										{l.label}
-									</span>
-								</a>
-							</li>
-						))
-					}
+				<div class="flex items-center justify-start mb-5">
+					<a href="/">
+						<Icon
+							name="logo-en-negro"
+							class="dark:hidden block text-3xl"
+							title="Logo Sotomayor Consulting"
+						/>
+						<Icon
+							name="logo-en-blanco"
+							class="mr-3 hidden dark:block text-3xl"
+							title="Logo Sotomayor Consulting"
+						/>
+					</a>
+
+					<button
+						type="button"
+						data-drawer-hide="sidebar"
+						aria-controls="sidebar"
+						class="text-body bg-transparent hover:text-heading hover:bg-neutral-tertiary rounded-base p-2 h-fit flex items-center justify-center"
+					>
+						<Icon name="ri:close-line" class="w-5 h-5" />
+						<span class="sr-only">Close menu</span>
+					</button>
+				</div>
+				<ul class="pb-2 space-y-2 overflow-hidden">
+					<li>
+						<a
+							href="/"
+							class={`flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-black-700 ${
+								ruta === '/'
+									? 'bg-gray-200 dark:bg-black-700 translate-x-2.5 hover:translate-x-0 transition-transform duration-200'
+									: 'hover:translate-x-2 transition-transform duration-200'
+							}`}
+						>
+							<Icon
+								name="ri:home-9-fill"
+								class={`w-6 h-6 transition duration-75 group-hover:text-white-700 dark:group-hover:text-black-500 ${ruta === '/' ? 'dark:text-black-400 text-white-500' : 'dark:text-gray-400 text-gray-500'}`}
+							/>
+							<span
+								class={`ml-3 ${ruta === '/' ? 'dark:text-black-400 text-white-500' : 'dark:text-gray-400 text-gray-500'}`}
+								sidebar-toggle-item
+							>
+								Inicio
+							</span>
+						</a>
+					</li>
+
 					<li>
 						<button
 							type="button"
@@ -82,31 +121,44 @@ const visibleMenu = menuItems.filter(
 									clip-rule="evenodd"></path>
 							</svg>
 						</button>
-						<ul id="dropdown-pages" class="hidden py-2 space-y-2">
+						<ul id="dropdown-pages" class="py-2 space-y-2 ml-1">
 							{
 								visibleMenu &&
-									visibleMenu.map((l) => (
-										<li>
-											<a
-												href={l.href}
-												class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
-											>
-												<Icon
-													name={l.svgname}
-													class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-												/>
-												<span class="ml-3" sidebar-toggle-item>
-													{l.label}
-												</span>
-											</a>
-										</li>
-									))
+									visibleMenu.map((l) => {
+										const isActive = ruta === l.href;
+
+										return (
+											<li>
+												<a
+													href={l.href}
+													class={`flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-black-700 ${
+														isActive
+															? 'bg-gray-200 dark:bg-black-700 translate-x-2.5 hover:translate-x-0 transition-transform duration-200'
+															: 'hover:translate-x-2 transition-transform duration-200'
+													}`}
+												>
+													<Icon
+														name={l.svgname}
+														class={`w-6 h-6  transition duration-75 group-hover:text-gray-900 dark:group-hover:text-white ${isActive ? 'dark:text-black-400 text-white-500' : 'dark:text-gray-400 text-gray-500'}`}
+													/>
+													<span
+														class={`ml-3 ${isActive ? 'dark:text-black-400 text-white-500' : 'dark:text-gray-400 text-gray-500'}`}
+														sidebar-toggle-item
+													>
+														{l.label}
+													</span>
+												</a>
+											</li>
+										);
+									})
 							}
 						</ul>
 					</li>
 				</ul>
 
-				<div class="pt-2 space-y-2">
+				<div
+					class="pt-2 space-y-2 border-t dark:border-black-600 border-white-500"
+				>
 					{
 						[
 							{
@@ -128,7 +180,7 @@ const visibleMenu = menuItems.filter(
 							<a
 								href={l.link}
 								target="_blank"
-								class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-[#101522]"
+								class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-black-700"
 							>
 								<Icon
 									name={l.svgname}
@@ -144,14 +196,14 @@ const visibleMenu = menuItems.filter(
 			</div>
 		</div>
 		<div
-			class="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-neutral-200 lg:flex dark:bg-black-900"
+			class="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-white-300 lg:flex dark:bg-black-900"
 			sidebar-bottom-menu
 		>
 			<form action="/api/auth/signout">
 				<button
 					type="submit"
 					data-tooltip-target="tooltip-cerrar"
-					class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-red-600 hover:bg-gray-100 dark:hover:bg-[#101522] dark:hover:text-red-600"
+					class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-red-600 hover:bg-gray-100 dark:hover:bg-black-700 dark:hover:text-red-600"
 					role="menuitem"
 					><svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -176,7 +228,7 @@ const visibleMenu = menuItems.filter(
 			<a
 				href="/settings/"
 				data-tooltip-target="tooltip-settings"
-				class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-[#101522] dark:hover:text-white"
+				class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-black-700 dark:hover:text-white"
 			>
 				<svg
 					class="w-6 h-6"
@@ -209,62 +261,3 @@ const visibleMenu = menuItems.filter(
 	id="sidebarBackdrop"
 >
 </div>
-
-<script>
-	const sidebar = document.getElementById('sidebar');
-
-	if (sidebar) {
-		const toggleSidebarMobile = (
-			sidebar: HTMLElement,
-			sidebarBackdrop: HTMLElement,
-			toggleSidebarMobileHamburger: HTMLElement,
-			toggleSidebarMobileClose: HTMLElement,
-		) => {
-			sidebar.classList.toggle('hidden');
-			sidebarBackdrop.classList.toggle('hidden');
-			toggleSidebarMobileHamburger.classList.toggle('hidden');
-			toggleSidebarMobileClose.classList.toggle('hidden');
-		};
-
-		const toggleSidebarMobileEl = document.getElementById(
-			'toggleSidebarMobile',
-		);
-		const sidebarBackdrop = document.getElementById('sidebarBackdrop')!;
-		const toggleSidebarMobileHamburger = document.getElementById(
-			'toggleSidebarMobileHamburger',
-		)!;
-		const toggleSidebarMobileClose = document.getElementById(
-			'toggleSidebarMobileClose',
-		)!;
-		const toggleSidebarMobileSearch = document.getElementById(
-			'toggleSidebarMobileSearch',
-		)!;
-
-		toggleSidebarMobileSearch?.addEventListener('click', () => {
-			toggleSidebarMobile(
-				sidebar,
-				sidebarBackdrop,
-				toggleSidebarMobileHamburger,
-				toggleSidebarMobileClose,
-			);
-		});
-
-		toggleSidebarMobileEl?.addEventListener('click', () => {
-			toggleSidebarMobile(
-				sidebar,
-				sidebarBackdrop,
-				toggleSidebarMobileHamburger,
-				toggleSidebarMobileClose,
-			);
-		});
-
-		sidebarBackdrop?.addEventListener('click', () => {
-			toggleSidebarMobile(
-				sidebar,
-				sidebarBackdrop,
-				toggleSidebarMobileHamburger,
-				toggleSidebarMobileClose,
-			);
-		});
-	}
-</script>
