@@ -3,26 +3,10 @@ import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import '@styles/datatables.css';
 import logonotificaciones from '/src/assets/avatarSCI.png';
-import { createSupabaseServerClient } from '@lib/supabase';
-const supabase = createSupabaseServerClient(Astro);
 import Alerta from '@components/feedback/alertageneral.astro';
+import { getNotificacionesGeneral } from '@lib/tablas/notificaciones';
 
-const { data: notificaciones } = await supabase
-	.from('notifications')
-	.select(
-		`
-    id,
-    user_id,
-    message,
-    is_read,
-    leido_en,
-    created_at,
-    link,
-	mensaje_link
-  `,
-		{ count: 'exact' },
-	)
-	.order('created_at', { ascending: false });
+const notificaciones = await getNotificacionesGeneral();
 ---
 
 <Alerta />
@@ -76,7 +60,7 @@ const { data: notificaciones } = await supabase
 						</tr>
 					</thead>
 					<tbody
-						class="bg-white divide-y divide-gray-200 dark:bg-[#192033] dark:divide-gray-700"
+						class="bg-white divide-y divide-gray-200 dark:bg-black-800 dark:divide-gray-700"
 					>
 						{
 							notificaciones?.map((user) => (
@@ -160,7 +144,7 @@ const { data: notificaciones } = await supabase
 											<button
 												id={`dd-btn-${user.id}`}
 												data-dropdown-toggle={`dd-${user.id}`}
-												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-[#192033] dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
 												aria-expanded="false"
@@ -177,7 +161,7 @@ const { data: notificaciones } = await supabase
 											</button>
 											<div
 												id={`dd-${user.id}`}
-												class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-[#192033] dark:divide-gray-600"
+												class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-800 dark:divide-gray-600"
 												role="menu"
 												aria-labelledby={`dd-btn-${user.id}`}
 												data-dropdown-placement="bottom-start"
@@ -241,7 +225,7 @@ const { data: notificaciones } = await supabase
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
+		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -308,13 +292,13 @@ const { data: notificaciones } = await supabase
 		</div>
 	</div>
 </div>
-<script>
+<script is:inline>
 	document.addEventListener('DOMContentLoaded', () => {
-		// Tipar los botones como HTMLElement (con dataset)
-		const btns = document.querySelectorAll<HTMLElement>('[data-edit-user]');
+		// Seleccionar los botones
+		const btns = document.querySelectorAll('[data-edit-user]');
 
 		// Función auxiliar para setear el texto en cualquier elemento de visualización
-		function setTextContent(id: string, text: string) {
+		function setTextContent(id, text) {
 			const el = document.getElementById(id);
 			if (el) {
 				el.textContent = text ?? '';
@@ -322,7 +306,7 @@ const { data: notificaciones } = await supabase
 		}
 
 		// Función auxiliar para establecer atributos (como href, class, src)
-		function setAttributeValue(id: string, attribute: string, value: string) {
+		function setAttributeValue(id, attribute, value) {
 			const el = document.getElementById(id);
 			if (el) {
 				el.setAttribute(attribute, value ?? '');
@@ -330,16 +314,13 @@ const { data: notificaciones } = await supabase
 		}
 
 		// Nota: Mantenemos setValue solo si todavía lo necesitas para inputs en el modal.
-		function setValue(id: string, val: string) {
-			const el = document.getElementById(id) as
-				| HTMLInputElement
-				| HTMLTextAreaElement
-				| null;
+		function setValue(id, val) {
+			const el = document.getElementById(id);
 			if (el) el.value = val ?? '';
 		}
 
 		// Función: Formatea el string ISO de fecha/hora a un formato de fecha corto
-		const formatFecha = (fechaStr: string): string => {
+		const formatFecha = (fechaStr) => {
 			if (!fechaStr) return 'N/A';
 
 			try {
@@ -411,7 +392,7 @@ const { data: notificaciones } = await supabase
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
+		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -448,7 +429,7 @@ const { data: notificaciones } = await supabase
 								type="email"
 								name="correo_create"
 								id="email"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 								placeholder="correo@ejemplo.com"
 								required
 							/>
@@ -477,7 +458,7 @@ const { data: notificaciones } = await supabase
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-[#101521]">
+		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
 			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
@@ -514,7 +495,7 @@ const { data: notificaciones } = await supabase
 								type="text"
 								name="nombre_rol"
 								id="rol-create"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 								placeholder="admin"
 								required
 							/>
@@ -545,7 +526,7 @@ const { data: notificaciones } = await supabase
 	<div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
 		<!-- Modal content -->
 		<div
-			class="relative p-4 bg-white rounded-lg shadow dark:bg-[#192033] sm:p-5"
+			class="relative p-4 bg-white rounded-lg shadow dark:bg-black-800 sm:p-5"
 		>
 			<!-- Modal header -->
 			<div
@@ -612,7 +593,7 @@ const { data: notificaciones } = await supabase
 		</div>
 	</div>
 </div>
-<script>
+<script is:inline>
 	document.addEventListener('DOMContentLoaded', () => {
 		const form = document.getElementById('updaterolForm');
 		const uidInput = document.getElementById('updaterol_user_id');
@@ -659,7 +640,7 @@ const { data: notificaciones } = await supabase
 		const el = document.querySelector('#myTable');
 		if (!el) return;
 		if (el.dataset.dtInit === '1') return;
-
+		ñ;
 		const dt = new DataTable(el, {
 			searchable: true,
 			perPage: 25,

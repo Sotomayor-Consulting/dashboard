@@ -1,7 +1,7 @@
 ---
 //import FooterStacked from '../navigation/FooterStacked.astro';
 import LayoutCommon from './LayoutCommon.astro';
-import NavBarStacked from '../navigation/NavBarStacked.astro';
+import NavBarStacked from '../navegation/NavBarStacked.astro';
 import { Image } from 'astro:assets';
 import fondo from '/src/assets/edificios-fondo.avif';
 ---
@@ -9,12 +9,13 @@ import fondo from '/src/assets/edificios-fondo.avif';
 <LayoutCommon>
 	<NavBarStacked />
 
-	<div class="flex pt-16 overflow-hidden bg-neutral-200 dark:bg-[#192033]">
+	<div class="flex pt-16 overflow-hidden bg-neutral-200 dark:bg-black-800">
 		<div class="">
 			<Image
 				src={fondo}
 				alt="Fondo edificios"
 				class="z-0 dark:opacity-10 opacity-10 absolute object-center object-cover w-full sm:min-h-svh h-[120%]"
+				loading="eager"
 			/>
 		</div>
 		<div

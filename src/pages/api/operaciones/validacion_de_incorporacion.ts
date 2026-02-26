@@ -87,7 +87,7 @@ const normSbErr = (e: any) => {
 	};
 };
 
-export const POST: APIRoute = async ({ request, cookies, url }) => {
+export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 	const debug_id = crypto.randomUUID().slice(0, 8);
 	const back = url.searchParams.get('back') || BACK_PATH; // (lo dejamos por si lo usas en front)
 
@@ -129,17 +129,15 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 			);
 		}
 
-		const { data: isAdminRes, error: rpcErr } = await supabase.rpc('is_admin', {
-			uid: actor.id,
-		});
-		const isAdmin = !rpcErr && Boolean(isAdminRes);
+		const userRoles = locals.userRoles || [];
+		const isAdmin = userRoles.includes('admin');
 		if (!isAdmin) {
 			return jsonOk(
 				{
 					ok: false,
 					debug_id,
 					step: 'auth.admin',
-					error: normSbErr(rpcErr) ?? { message: 'No autorizado' },
+					error: { message: 'No autorizado' },
 				},
 				403,
 			);

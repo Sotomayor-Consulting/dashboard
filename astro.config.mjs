@@ -5,13 +5,19 @@ import node from '@astrojs/node';
 import icon from 'astro-icon';
 
 export default defineConfig({
-  output: 'server',
-  adapter: node({
-    mode: 'standalone',
-  }),
-  base: '/',
-  integrations: [sitemap(), icon()],
-  vite: {
-    plugins: [tailwindcss()],
-  },
+	prefetch: {
+		defaultStrategy: 'tap',
+	},
+	output: 'server',
+	adapter: node({
+		mode: 'standalone',
+	}),
+	vite: {
+		plugins: [tailwindcss()],
+	},
+	base: '/',
+	integrations: [sitemap(), icon()],
+	image: {
+		remotePatterns: [{ protocol: 'https' }],
+	},
 });

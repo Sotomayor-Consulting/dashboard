@@ -9,11 +9,29 @@ const userRoles = Astro.locals.userRoles;
 const { id } = Astro.params;
 const supabase = createSupabaseServerClient(Astro);
 
-// Traer envío
-const { data: envio, error: envioErr } = await supabase
-	.from('formularios_envios')
-	.select(
-		`
+// 1) Sesión
+const at = cookies.get('sb-access-token');
+const rt = cookies.get('sb-refresh-token');
+if (!at || !rt) return redirect('/sign-in');
+
+await supabase.auth.setSession({
+	access_token: at.value,
+	refresh_token: rt.value,
+});
+
+// 2) Usuario
+const {
+	data: { user },
+	error: userErr,
+} = await supabase.auth.getUser();
+if (userErr || !user) return redirect('/sign-in');
+
+// 3) Traer envío y verificar rol admin (en paralelo)
+const [envioRes, usuarioData] = await Promise.all([
+	supabase
+		.from('formularios_envios')
+		.select(
+			`
       submission_id,
       form_id,
       user_id,
@@ -25,15 +43,30 @@ const { data: envio, error: envioErr } = await supabase
       formularios:formularios ( titulo, tema_json ),
       usuarios:usuarios ( nombre, apellido )
     `,
-	)
-	.eq('submission_id', id)
-	.single();
+		)
+		.eq('submission_id', id)
+		.single(),
+	supabase
+		.from('usuarios')
+		.select('*, roles (name)')
+		.eq('user_id', user.id)
+		.maybeSingle(),
+]);
 
-if (envioErr || !envio) return Astro.redirect('/');
+const { data: envio, error: envioErr } = envioRes;
 
-// Gate: dueño o admin
-const esAdmin = checkIsAdmin(userRoles);
-if (!esAdmin && envio.user_id !== user.id) return Astro.redirect('/');
+let userRole = 'guest';
+if (usuarioData?.roles) {
+	const rolArray = usuarioData.roles as { name: string }[];
+	userRole = rolArray?.[0]?.name || 'guest';
+}
+
+const isAdmin = userRole === 'admin';
+
+if (envioErr || !envio) return redirect('/');
+
+// 4) Gate: dueño o admin
+if (!isAdmin && envio.user_id !== user.id) return redirect('/');
 
 // 5) Accesos directos
 const titulo = envio.formularios?.titulo;

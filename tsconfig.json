@@ -11,7 +11,9 @@
 			"@app/*": ["./src/app/*"],
 			"@modules/*": ["./src/modules/*"],
 			"@types/*": ["./src/types/*"],
-			"@services/*": ["./src/services/*"]
+			"@services/*": ["./src/services/*"],
+			"@datatables/*": ["./src/lib/datatables/*"],
+			"@middleware/*": ["./src/middleware/*"]
 		}
 	}
 }

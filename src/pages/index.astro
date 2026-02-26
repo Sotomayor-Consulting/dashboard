@@ -3,8 +3,6 @@ import Alerta from '@components/feedback/alertageneral.astro';
 import Alertaempresas from '@components/feedback/alertaempresas.astro';
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import LandingReadme from '@modules/landing/LandingHome.astro';
-
-// Auth handled by middleware
 ---
 
 <LayoutSidebar>
@@ -21,7 +19,7 @@ import LandingReadme from '@modules/landing/LandingHome.astro';
 			const iconSuccess = document.getElementById('toast-icon-success');
 			const iconError = document.getElementById('toast-icon-error');
 
-			// 🔔 Helper para mostrar el toast
+			// Helper para mostrar el toast
 			function showToast(message, options = {}) {
 				const {
 					isSuccess = false,

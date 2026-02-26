@@ -7,10 +7,7 @@ import Alerta from '@components/feedback/alertageneral.astro';
 const { id } = Astro.params;
 
 if (!id) {
-	const mensaje = 'No se encontró esta empresa';
-	const mensajeCodificado = encodeURIComponent(mensaje);
-
-	return Astro.redirect(`/?status=error&msg=${mensajeCodificado}`);
+	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
 }
 ---
 

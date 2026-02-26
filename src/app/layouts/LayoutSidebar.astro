@@ -1,11 +1,11 @@
 ---
-//import FooterSidebar from '../navigation/FooterSidebar.astro';
-import Banner from '../../components/feedback/Banner.astro';
-import BannerPartner from '../../components/feedback/Banner_partner_profile.astro';
-import BannerIncorporacion from '../../components/feedback/Banner_formulario_de_incorporacion.astro';
+//import FooterSidebar from './FooterSidebar.astro';
+import Banner from '@components/feedback/Banner.astro';
+import BannerPartner from '@components/feedback/Banner_partner_profile.astro';
+import BannerIncorporacion from '@components/feedback/Banner_formulario_de_incorporacion.astro';
 import LayoutCommon from './LayoutCommon.astro';
-import NavBarSidebar from '../navigation/NavBarSidebar.astro';
-import SideBar from '../navigation/SideBar.astro';
+import NavBarSidebar from '../navegation/NavBarSidebar.astro';
+import SideBar from '../navegation/SideBar-copy.astro';
 ---
 
 <LayoutCommon>
@@ -13,10 +13,10 @@ import SideBar from '../navigation/SideBar.astro';
 
 	<SideBar />
 
-	<div class="flex pt-16 overflow-hidden bg-neutral-200 dark:bg-[#101521]">
+	<div class="flex pt-16 overflow-hidden bg-neutral-200 dark:bg-black-900">
 		<div
 			id="main-content"
-			class="relative w-full h-full bg-neutral-200 lg:ml-64 dark:bg-[#101521] min-h-screen"
+			class="relative w-full h-full bg-neutral-200 dark:bg-black-900 min-h-screen"
 		>
 			<Banner />
 			<BannerPartner />

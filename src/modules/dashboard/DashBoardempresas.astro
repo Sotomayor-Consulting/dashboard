@@ -1,39 +1,26 @@
 ---
 import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { getIncorporacionById } from '@lib/tablas/empresa_incorporaciones';
+import { getEstadoPorEmpresa } from '@lib/tablas/estados';
 
-const { id } = Astro.params; // ID dinámico de la URL
-
-// Auth handled by middleware
+const { id } = Astro.params;
 const user = Astro.locals.user;
-if (!user) {
-	return Astro.redirect('/sign-in');
+const userId = user?.id;
+const { redirect } = Astro;
+
+if (!id || !userId) {
+	return redirect('/');
 }
 
-const supabase = createSupabaseServerClient(Astro);
-
-const { data: empresa, error: empresaError } = await supabase
-	.from('empresas_incorporaciones')
-	.select('*')
-	.eq('empresa_incorporacion_id', id)
-	.eq('user_id', user.id)
-	.single();
-
-if (empresaError || !empresa) {
-	return Astro.redirect('/pages/empresas');
-}
+const empresa = await getIncorporacionById(id, userId);
 
 // Obtener estado de incorporación para el mapa
 let estadoMapa = null;
 if (empresa.estado_de_incorporacion) {
-	const { data: estadoData, error: estadoError } = await supabase
-		.from('estados')
-		.select('abreviatura, Estado')
-		.eq('Estado', empresa.estado_de_incorporacion)
-		.single();
+	const estadoData = await getEstadoPorEmpresa(empresa.estado_de_incorporacion);
 
-	if (!estadoError && estadoData) {
+	if (estadoData) {
 		estadoMapa = estadoData.Estado;
 	}
 }
@@ -72,7 +59,7 @@ const acciones = [
 		class="grid w-full grid-cols-1 gap-4 my-4 xl:grid-cols-2 2xl:grid-cols-3"
 	>
 		<div
-			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
+			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-black-800"
 		>
 			<div class="w-full">
 				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
@@ -381,7 +368,7 @@ const acciones = [
 		</div>
 
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800"
 		>
 			<div
 				class="flex items-center justify-between p-4 rounded-lg shadow-sm sm:flex sm:p-6"
@@ -409,8 +396,6 @@ const acciones = [
 							class="w-full h-full"
 							version="1.1"
 							id="svg1"
-							xmlns:xlink="http://www.w3.org/1999/xlink"
-							xmlns="http://www.w3.org/2000/svg"
 						>
 							<sodipodi:namedview
 								id="namedview1"
@@ -524,7 +509,7 @@ const acciones = [
 		</div>
 
 		<div
-			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
+			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-black-800"
 		>
 			<div class="w-full">
 				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
@@ -549,7 +534,7 @@ const acciones = [
 	>
 		<!-- Main widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-black-800"
 		>
 			<div class="flex items-center justify-between mb-4">
 				<div class="shrink-0">
@@ -580,7 +565,7 @@ const acciones = [
 		</div>
 		<!--Tabs widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#192033]"
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800"
 		>
 			<h3
 				class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white"
@@ -607,10 +592,13 @@ const acciones = [
 				data-popover
 				id="popover-description"
 				role="tooltip"
-				class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-[#192033] dark:border-gray-600 dark:text-gray-400"
+				class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-black-800 dark:border-gray-600 dark:text-gray-400"
 			>
 				<div class="p-3 space-y-2">
-					<h3 class="font-semibold text-gray-900 dark:text-white">
+					<h3
+						class="font-semibold text-gray-900 dark:text-white"
+						aria-label="Acciones rapidas"
+					>
 						Acciones rapidas
 					</h3>
 					<p>
@@ -672,7 +660,7 @@ const acciones = [
 		</div>
 	</div>
 	<div
-		class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-[#192033] my-4"
+		class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800 my-4"
 	>
 		<!-- Card header -->
 		<div class="items-center justify-between lg:flex">
@@ -694,7 +682,7 @@ const acciones = [
 							class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
 							id="myTable"
 						>
-							<thead class="bg-gray-50 dark:bg-[#192033]">
+							<thead class="bg-gray-50 dark:bg-black-800">
 								<tr>
 									{
 										[
@@ -714,7 +702,7 @@ const acciones = [
 									}
 								</tr>
 							</thead>
-							<tbody class="bg-white dark:bg-[#192033]">
+							<tbody class="bg-white dark:bg-black-800">
 								<tr
 									class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4] cursor-pointer"
 								>
@@ -811,7 +799,7 @@ const acciones = [
 <style is:global>
 	/* chart styles */
 	.apexcharts-tooltip {
-		@apply bg-white dark:bg-[#192033] text-gray-500 dark:text-gray-400 border-0 rounded-lg shadow-lg !important;
+		@apply bg-white dark:bg-black-800 text-gray-500 dark:text-gray-400 border-0 rounded-lg shadow-lg !important;
 	}
 
 	.apexcharts-tooltip .apexcharts-tooltip-title {
@@ -819,7 +807,7 @@ const acciones = [
 	}
 
 	.apexcharts-xaxistooltip {
-		@apply text-gray-500 border-0 bg-white dark:bg-[#192033] dark:text-gray-300 rounded-lg shadow-lg !important;
+		@apply text-gray-500 border-0 bg-white dark:bg-black-800 dark:text-gray-300 rounded-lg shadow-lg !important;
 	}
 
 	.apexcharts-tooltip .apexcharts-tooltip-text-y-value {
@@ -835,15 +823,16 @@ const acciones = [
 		@apply border-0 !important;
 	}
 </style>
-<script type="module">
-	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+<script>
+	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
 
 	function initDT() {
-		const el = document.querySelector('#myTable');
+		const el = document.querySelector('#myTable') as HTMLElement | null;
 		if (!el) return;
-		if (el.dataset.dtInit === '1') return;
+		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
+			return;
 
-		const dt = new DataTable(el, {
+		new DataTable(el, {
 			searchable: true,
 			perPage: 25,
 			perPageSelect: [5, 10, 25, 50],
@@ -864,8 +853,8 @@ const acciones = [
 			},
 		});
 
-		el.dataset.dtInit = '1';
-		el.dataset.dtInstance = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
 	}
 
 	initDT();

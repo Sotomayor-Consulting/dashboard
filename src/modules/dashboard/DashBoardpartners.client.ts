@@ -17,8 +17,10 @@ async function fetchOdooData(params: Record<string, string> = {}) {
 
 async function fetchSupabaseData() {
 	// Obtener usuario actual de Supabase
-	const { data: { user } } = await supabase.auth.getUser();
-	
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
 	if (!user) throw new Error('Usuario no autenticado');
 
 	// Consultar referidos filtrando por partner_id y agrupando por fecha
@@ -30,13 +32,17 @@ async function fetchSupabaseData() {
 	if (error) throw new Error(error.message);
 
 	// Agrupar por fecha y contar cantidad
-	const groupedByDate: Record<string, number> = referidos?.reduce((acc: Record<string, number>, item: any) => {
-		const date = new Date(item.created_at).toISOString().split('T')[0]; // YYYY-MM-DD
-		if (date) {
-			acc[date] = (acc[date] || 0) + 1;
-		}
-		return acc;
-	}, {} as Record<string, number>) || {};
+	const groupedByDate: Record<string, number> =
+		referidos?.reduce(
+			(acc: Record<string, number>, item: any) => {
+				const date = new Date(item.created_at).toISOString().split('T')[0]; // YYYY-MM-DD
+				if (date) {
+					acc[date] = (acc[date] || 0) + 1;
+				}
+				return acc;
+			},
+			{} as Record<string, number>,
+		) || {};
 
 	// Convertir a arrays para el gráfico
 	const categories = Object.keys(groupedByDate).sort();
@@ -48,12 +54,14 @@ async function fetchSupabaseData() {
 async function fetchChartData(params: Record<string, string> = {}) {
 	const [odooData, supabaseData] = await Promise.all([
 		fetchOdooData(params),
-		fetchSupabaseData()
+		fetchSupabaseData(),
 	]);
 
 	// Combinar fechas únicas de ambas fuentes
-	const allCategories = [...new Set([...odooData.categories, ...supabaseData.categories])].sort();
-	
+	const allCategories = [
+		...new Set([...odooData.categories, ...supabaseData.categories]),
+	].sort();
+
 	// Opción 1: Datasets separados (actual)
 	/*const combinedSeries = [
 		{
@@ -75,19 +83,20 @@ async function fetchChartData(params: Record<string, string> = {}) {
 	];*/
 
 	// Opción 2: Combinados (comentado - descomentar para usar)
-	
+
 	const combinedSeries = [
 		{
 			name: 'Total Referidos',
-			data: allCategories.map(cat => {
-				const odooValue = odooData.series[odooData.categories.indexOf(cat)] || 0;
-				const supabaseValue = supabaseData.series[supabaseData.categories.indexOf(cat)] || 0;
+			data: allCategories.map((cat) => {
+				const odooValue =
+					odooData.series[odooData.categories.indexOf(cat)] || 0;
+				const supabaseValue =
+					supabaseData.series[supabaseData.categories.indexOf(cat)] || 0;
 				return [new Date(cat).getTime(), odooValue + supabaseValue];
 			}),
-			color: '#0059FF'
-		}
+			color: '#0059FF',
+		},
 	];
-	
 
 	return { categories: allCategories, series: combinedSeries };
 }
@@ -135,10 +144,10 @@ const getMainChartOptions = (seriesData: any[]) => {
 				return val.toString();
 			},
 		},
-		tooltip: { 
+		tooltip: {
 			style: { fontSize: '14px', fontFamily: 'Inter, sans-serif' },
 			x: {
-				format: 'dd MMM yyyy'
+				format: 'dd MMM yyyy',
 			},
 			y: {
 				formatter: function (val: number) {
@@ -165,8 +174,8 @@ const getMainChartOptions = (seriesData: any[]) => {
 					year: 'yyyy',
 					month: 'MMM yyyy',
 					day: 'dd MMM',
-					hour: 'HH:mm'
-				}
+					hour: 'HH:mm',
+				},
 			},
 			axisBorder: { color: mainChartColors.borderColor },
 			axisTicks: { color: mainChartColors.borderColor },
@@ -215,7 +224,9 @@ async function initMainChart() {
 
 	try {
 		const { series } = await fetchChartData();
-		const data = series?.length ? series : [{ name: 'Sin datos', data: [[Date.now(), 0]], color: '#1A56DB' }];
+		const data = series?.length
+			? series
+			: [{ name: 'Sin datos', data: [[Date.now(), 0]], color: '#1A56DB' }];
 
 		// ¡LIMPIA el contenedor antes de renderizar!
 		el.innerHTML = '';

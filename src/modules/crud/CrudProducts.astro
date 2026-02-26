@@ -1,35 +1,19 @@
 ---
-import '@styles/datatables.css';
-import { createSupabaseServerClient } from '@lib/supabase';
-const supabase = createSupabaseServerClient(Astro);
+import '@estilos/datatables.css';
 import Alerta from '@components/feedback/alertageneral.astro';
+import { ListaServiciosGeneral } from '@lib/tablas/servicios';
 
-const { data: servicio } = await supabase
-	.from('servicios')
-	.select(
-		`
-    id,
-    nombre,
-    categoria,
-    precio,
-    descripcion,
-    servicio_activo,
-    created_at
-  `,
-		{ count: 'exact' },
-	)
-	.order('created_at', { ascending: false });
+const servicio = await ListaServiciosGeneral();
 ---
 
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-></script>
+<script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] dark:border-gray-700"
+	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700"
 >
 	<Alerta />
 	<div class="w-full">
 		<div
-			class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] dark:border-gray-700 w-full"
+			class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700 w-full"
 		>
 			<div class="w-full mb-1">
 				<div class="mb-4">
@@ -275,7 +259,7 @@ const { data: servicio } = await supabase
 													id={`dd-btn-${sr.id}`}
 													@click="showTooltip = !showTooltip"
 													@click.outside="showTooltip = false"
-													class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-[#192033] dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+													class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 													type="button"
 													aria-haspopup="true"
 													aria-expanded="false"
@@ -294,7 +278,7 @@ const { data: servicio } = await supabase
 													id={`dd-${sr.id}`}
 													x-show="showTooltip"
 													x-transition
-													class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-[#101521] dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute right-2"
+													class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-900 dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute right-2"
 													role="menu"
 													aria-labelledby={`dd-btn-${sr.id}`}
 													data-dropdown-placement="bottom-start"
@@ -359,7 +343,7 @@ const { data: servicio } = await supabase
 		<!-- Edit Product Drawer -->
 		<div
 			id="drawer-update-product-default"
-			class="fixed top-0 right-0 z-40 w-full h-screen max-w-sm p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#192033]"
+			class="fixed top-0 right-0 z-40 w-full h-screen max-w-sm p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-800"
 			tabindex="-1"
 			aria-labelledby="drawer-label"
 			aria-hidden="true"
@@ -408,7 +392,7 @@ const { data: servicio } = await supabase
 							type="text"
 							name="nombre-service"
 							id="nombre_update-service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							value="Education Dashboard"
 							placeholder="inserta el nombre del servicio"
 							required=""
@@ -424,7 +408,7 @@ const { data: servicio } = await supabase
 							type="text"
 							name="categoria-service"
 							id="categoria_service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							value="Education Dashboard"
 							placeholder="Añade el nombre del servicio"
 							required=""
@@ -440,7 +424,7 @@ const { data: servicio } = await supabase
 							type="number"
 							name="precio-servicio"
 							id="precio-servicio"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							value="2999"
 							placeholder="$149"
 							required=""
@@ -456,7 +440,7 @@ const { data: servicio } = await supabase
 							id="descripcion-servicio"
 							name="descripcion-service"
 							rows="4"
-							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#967432] focus:border-[#967432] dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#967432] focus:border-[#967432] dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							placeholder="Añade una descripcion del producto"
 							>Start developing with an open-source library of over 450+ UI
 							components, sections, and pages built with the utility classes
@@ -487,7 +471,7 @@ const { data: servicio } = await supabase
 		<!-- Delete Product Drawer -->
 		<div
 			id="drawer-delete-product-default"
-			class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#192033]"
+			class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-800"
 			tabindex="-1"
 			aria-labelledby="drawer-label"
 			aria-hidden="true"
@@ -547,7 +531,7 @@ const { data: servicio } = await supabase
 					Si, estoy seguro
 				</button>
 				<button
-					class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
+					class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-black-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
 					type="button"
 					data-drawer-dismiss="drawer-delete-product-default"
 					aria-controls="drawer-delete-product-default"
@@ -560,7 +544,7 @@ const { data: servicio } = await supabase
 		<!-- desarchivar Product Drawer -->
 		<div
 			id="desarchivar-menu"
-			class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#192033]"
+			class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-800"
 			tabindex="-1"
 			aria-labelledby="drawer-label"
 			aria-hidden="true"
@@ -619,7 +603,7 @@ const { data: servicio } = await supabase
 					Si, estoy seguro
 				</button>
 				<button
-					class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#192033] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
+					class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-black-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
 					type="button"
 					data-drawer-dismiss="desarchivar-menu"
 					aria-controls="desarchivar-menu"
@@ -632,7 +616,7 @@ const { data: servicio } = await supabase
 		<!-- Add Product Drawer -->
 		<div
 			id="drawer-create-product-default"
-			class="fixed top-0 right-0 z-40 w-full h-screen max-w-sm p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#192033]"
+			class="fixed top-0 right-0 z-40 w-full h-screen max-w-sm p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-800"
 			tabindex="-1"
 			aria-labelledby="drawer-label"
 			aria-hidden="true"
@@ -674,7 +658,7 @@ const { data: servicio } = await supabase
 							type="text"
 							name="nombre-service"
 							id="nombre-service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							placeholder="Nombre del servicio"
 							required=""
 						/>
@@ -690,7 +674,7 @@ const { data: servicio } = await supabase
 							type="number"
 							name="precio-servicio"
 							id="price"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							placeholder="$2999"
 							required=""
 						/>
@@ -705,7 +689,7 @@ const { data: servicio } = await supabase
 							type="text"
 							name="categoria-service"
 							id="categoria-service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							placeholder="Categoria del servicio"
 							required=""
 						/>
@@ -720,7 +704,7 @@ const { data: servicio } = await supabase
 							id="descripcion-service"
 							name="descripcion-service"
 							rows="4"
-							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#967432] focus:border-[#967432] dark:bg-[#192033] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#967432] focus:border-[#967432] dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 							placeholder="Ingresa una descripcion del servicio"></textarea>
 					</div>
 
@@ -737,7 +721,7 @@ const { data: servicio } = await supabase
 							type="button"
 							data-drawer-dismiss="drawer-create-product-default"
 							aria-controls="drawer-create-product-default"
-							class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-[#192033] dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+							class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-black-800 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
 						>
 							<svg
 								aria-hidden="true"
@@ -843,15 +827,18 @@ const { data: servicio } = await supabase
 			});
 		</script>
 
-		<script type="module">
-			import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+		<script>
+			import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
 
 			function initDT() {
-				const el = document.querySelector('#myTable');
+				const el = document.querySelector('#myTable') as HTMLElement | null;
 				if (!el) return;
-				if (el.dataset.dtInit === '1') return;
+				if (
+					(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1'
+				)
+					return;
 
-				const dt = new DataTable(el, {
+				new DataTable(el, {
 					searchable: true,
 					perPage: 25,
 					perPageSelect: [5, 10, 25, 50],
@@ -860,8 +847,8 @@ const { data: servicio } = await supabase
 					labels: {
 						placeholder: 'Buscar...',
 						perPage: 'Filas',
-						noRows: 'No hay empresas',
-						noResults: 'No se encontraron resultados',
+						noRows: 'No hay servicios',
+						noResults: 'No se encontraron servicios aun',
 						info: 'Mostrando {start} a {end} de {rows} registros',
 					},
 
@@ -872,8 +859,9 @@ const { data: servicio } = await supabase
 					},
 				});
 
-				el.dataset.dtInit = '1';
-				el.dataset.dtInstance = '1';
+				(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+				(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance =
+					'1';
 			}
 
 			initDT();

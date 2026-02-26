@@ -1,27 +1,11 @@
 ---
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import Vistapartner from '@modules/partners/vista-partners.astro';
-import { isPartner } from '@lib/roles';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { getUsuarioById } from '@lib/tablas/usuarios';
 
-// Auth handled by middleware
-const user = Astro.locals.user!;
-const userRoles = Astro.locals.userRoles;
-
-// Middleware protects /partners/ for partner role, but double-check
-if (!isPartner(userRoles)) {
-	return Astro.redirect(
-		`/?status=error&msg=${encodeURIComponent('Acceso solo para partners')}`,
-	);
-}
-
-// Obtener datos del usuario para pasar al componente
-const supabase = createSupabaseServerClient(Astro);
-const { data: usuarioData } = await supabase
-	.from('usuarios')
-	.select('*')
-	.eq('user_id', user.id)
-	.single();
+const user = Astro.locals.user;
+const UserId = user?.id;
+const usuarioData = UserId ? await getUsuarioById(UserId) : null;
 ---
 
 <LayoutSidebar>

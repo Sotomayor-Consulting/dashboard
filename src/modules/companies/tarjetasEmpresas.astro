@@ -1,41 +1,12 @@
 ---
 import { Image } from 'astro:assets';
-import imagen from '@assets/imagen-no.png';
-import { isAdmin } from '@lib/roles';
-import { createSupabaseServerClient } from '@lib/supabase';
-
-// Auth handled by middleware — user & roles already in locals
+import imagen from '@assets/g31.avif';
+import { getEmpresasGenenralById } from '@lib/tablas/empresas.ts';
 const user = Astro.locals.user;
-const userRoles = Astro.locals.userRoles;
 
-// If admin → show nothing (admins see the crud panel instead)
-let empresas: any[] = [];
-if (user && !isAdmin(userRoles)) {
-	const supabase = createSupabaseServerClient({
-		headers: Astro.request.headers,
-		cookies: Astro.cookies,
-	});
+const userId = user?.id;
 
-	const { data } = await supabase
-		.from('empresas_incorporaciones')
-		.select(
-			`
-      user_id,
-      empresa_incorporacion_id,
-      tipo_de_negocio,
-      estado_de_incorporacion,
-      estado,
-      nombre_1,
-      nombre_2,
-      nombre_3,
-      updated_at
-    `,
-		)
-		.eq('user_id', user.id)
-		.order('updated_at', { ascending: true });
-
-	empresas = data ?? [];
-}
+const empresas = userId ? await getEmpresasGenenralById(userId) : null;
 ---
 
 <div class="mb-10">
@@ -95,102 +66,117 @@ if (user && !isAdmin(userRoles)) {
 				(empresas?.length ?? 0) === 0 ? (
 					<div class="p-6 border rounded-lg text-center text-gray-600 dark:text-gray-300 col-span-3 flex flex-col items-center">
 						<h3 class="text-lg font-semibold mb-5">No tienes empresas aún</h3>
-						<Image src={imagen} alt="Imagen tecnologia"/> 
+						<Image
+							src={imagen}
+							alt="Imagen tecnología"
+							width={400}
+							height={300}
+						/>
 					</div>
 				) : (
 					empresas?.map((fr) => (
-						<div class="flex flex-col items-end mb-4 bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-[#192033] dark:hover:bg-[#101522]">
-							<a
-								href={`/dashboard/${fr.empresa_incorporacion_id}`}
-								target="_blank"
-								title={`ver datos de tu empresa ${fr.nombre_1}`}
-								class="grid w-full lg:grid-cols-[auto,1fr] min-h-full"
-							>
-								<div>
-									<img
-										class="object-cover w-full rounded-t-lg md:h-full md:w-48 md:rounded-none md:rounded-s-lg hidden lg:block"
-										src="https://img.freepik.com/foto-gratis/edificio-moderno-fachada-cristal_181624-5817.jpg?t=st=1761661811~exp=1761665411~hmac=5fd1963c2936afbf9d31b5d4625260238fd4245b53dea2d295b82076800a09a7&w=1480"
-										alt=""
-									/>
-								</div>
-								<div class="grid lg:grid-cols-[1fr,auto]">
-									<div class="flex flex-col p-4 leading-normal items-start justify-start lg:place-self-center">
-										<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-											{fr.nombre_1} - {fr.tipo_de_negocio}
-										</h5>
-										<p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
-											{fr.estado_de_incorporacion}
-										</p>
+						<>
+							<div class="flex flex-col items-end mb-4 bg-white border border-gray-200 rounded-lg shadow-sm md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-black-800 dark:hover:bg-[#101522]">
+								<a
+									href={`/dashboard/${fr.empresa_incorporacion_id}`}
+									target="_blank"
+									title={`ver datos de tu empresa ${fr.nombre_1}`}
+									class="grid w-full lg:grid-cols-[auto,1fr] min-h-full"
+								>
+									<div>
+										<Image
+											class="object-cover w-full rounded-t-lg md:h-full md:w-48 md:rounded-none md:rounded-s-lg hidden lg:block"
+											src="https://img.freepik.com/foto-gratis/edificio-moderno-fachada-cristal_181624-5817.jpg?t=st=1761661811~exp=1761665411~hmac=5fd1963c2936afbf9d31b5d4625260238fd4245b53dea2d295b82076800a09a7&w=1480"
+											alt={`imagen empresa ${fr.nombre_1}`}
+											inferSize={true}
+											loading="eager"
+										/>
 									</div>
-									<div class="flex justify-end my-4">
-										{fr.estado === 'En proceso' ? (
-											<button
-												type="button"
-												data-popover-target={`tooltip-${fr.empresa_incorporacion_id}`}
-												data-popover-placement="bottom-end"
-												class="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-gray-400/20 dark:text-gray-300 flex justify-center items-center w-fit h-fit"
-											>
-												<div class="rounded-full bg-orange-500 w-2 h-2 mr-1 animate-pulse" />
-												{fr.estado}
-											</button>
-										) : (
-											<button
-												type="button"
-												class="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-gray-400/20 dark:text-gray-300 flex justify-center items-center w-fit h-fit"
-											>
-												<div class="rounded-full bg-green-500 w-2 h-2 mr-1 " />
-												{fr.estado}
-											</button>
-										)}
-									</div> 
+									<div class="grid lg:grid-cols-[1fr,auto]">
+										<div class="flex flex-col p-4 leading-normal items-start justify-start lg:place-self-center">
+											<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+												{fr.nombre_1} - {fr.tipo_de_negocio}
+											</h5>
+											<p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
+												{fr.estado_de_incorporacion}
+											</p>
+										</div>
+										<div class="flex justify-end my-4">
+											{fr.estado === 'En proceso' ? (
+												<button
+													type="button"
+													data-popover-target={`tooltip-${fr.empresa_incorporacion_id}`}
+													data-popover-placement="bottom-end"
+													class="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-gray-400/20 dark:text-gray-300 flex justify-center items-center w-fit h-fit"
+												>
+													<div class="rounded-full bg-orange-500 w-2 h-2 mr-1 animate-pulse" />
+													{fr.estado}
+												</button>
+											) : (
+												<button
+													type="button"
+													class="bg-gray-100 text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-gray-400/20 dark:text-gray-300 flex justify-center items-center w-fit h-fit"
+												>
+													<div class="rounded-full bg-green-500 w-2 h-2 mr-1 " />
+													{fr.estado}
+												</button>
+											)}
+										</div>
+									</div>
+								</a>
+							</div>
+							<div
+								data-popover
+								id={`tooltip-${fr.empresa_incorporacion_id}`}
+								role="tooltip"
+								class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-black-900 dark:border-gray-600 dark:text-gray-400"
+							>
+								<div class="p-3 space-y-2">
+									<h3
+										class="font-semibold text-gray-900 dark:text-white"
+										aria-label="¿Por qué mi empresa está en proceso?"
+									>
+										¿Por qué mi empresa está en proceso?
+									</h3>
+									<p>Tu empresa está en proceso por estas razones:</p>
+									<ul class="list-disc list-inside space-y-1">
+										<li>
+											Tu empresa aún no está configurada al 100% y está
+											pendiente el pago para iniciar el proceso de constitución.
+										</li>
+										<li>
+											Tu empresa está en proceso de incorporación legal (si ya
+											iniciaste el proceso de pago). Te informaremos por
+											notificaciones y correo el proceso y etapa de
+											incorporación legal.
+										</li>
+									</ul>
+									<a
+										href="/"
+										class="flex items-center font-medium text-blue-600 dark:text-blue-500 dark:hover:text-blue-600 hover:text-blue-700 hover:underline"
+										aria-label="Más información"
+									>
+										Más información
+										<svg
+											class="w-2 h-2 ms-1.5 rtl:rotate-180"
+											aria-hidden="true"
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 6 10"
+										>
+											<path
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="m1 9 4-4-4-4"
+											/>
+										</svg>
+									</a>
 								</div>
-							</a>
-						</div>
-                        <div
-                            data-popover
-                            id={`tooltip-${fr.empresa_incorporacion_id}`}
-                            role="tooltip"
-                            class="absolute z-10 invisible inline-block text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-xs opacity-0 w-72 dark:bg-[#101521] dark:border-gray-600 dark:text-gray-400"
-                        >
-                            <div class="p-3 space-y-2">
-                                <h3 class="font-semibold text-gray-900 dark:text-white">
-                                    ¿Por qué mi empresa está en proceso?
-                                </h3>
-                                <p>Tu empresa está en proceso por estas razones:</p>
-                                <ul class="list-disc list-inside space-y-1">
-                                    <li>
-                                        Tu empresa aún no está configurada al 100% y está pendiente el pago para
-                                        iniciar el proceso de constitución.
-                                    </li>
-                                    <li>
-                                        Tu empresa está en proceso de incorporación legal (si ya iniciaste el
-                                        proceso de pago). Te informaremos por notificaciones y correo el proceso
-                                        y etapa de incorporación legal.
-                                    </li>
-                                </ul>
-                                <a
-                                    href="#"
-                                    class="flex items-center font-medium text-blue-600 dark:text-blue-500 dark:hover:text-blue-600 hover:text-blue-700 hover:underline"
-                                >
-                                    Más información
-                                    <svg
-                                        class="w-2 h-2 ms-1.5 rtl:rotate-180"
-                                        aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 6 10"
-                                    >
-                                        <path
-                                            stroke="currentColor"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="m1 9 4-4-4-4"></path>
-                                    </svg>
-                                </a>
-                            </div>
-                            <div data-popper-arrow></div>
-                        </div>
+								<div data-popper-arrow />
+							</div>
+						</>
 					))
 				)
 			}

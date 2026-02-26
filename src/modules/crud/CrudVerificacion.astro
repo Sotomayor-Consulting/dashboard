@@ -1,24 +1,8 @@
 ---
-import '@styles/datatables.css';
-import { createSupabaseServerClient } from '@lib/supabase';
-const supabase = createSupabaseServerClient(Astro);
+import '@estilos/datatables.css';
+import { FormsEnviosVericacion } from '@lib/tablas/formulariosEnviados'
 
-const { data: formularios } = await supabase
-  .from('formularios_envios')
-  .select(
-    `
-    *,
-    formularios:formularios (form_id, titulo, slug, descripcion),
-    usuarios:usuarios (user_id, nombre, apellido)
-  `,
-  )
-  
-  .eq('status', 'submitted')
-  .eq('verificacion_operaciones', false)
-  .eq('formularios.titulo', 'Formulario de incorporación')
-  .order('updated_at', { ascending: true });
-
-  
+const formularios = await FormsEnviosVericacion();
 
 ---
 
@@ -60,7 +44,7 @@ const { data: formularios } = await supabase
 		<tbody>
 			{
 				formularios?.map((formularios) => (
-					<tr class="bg-white border-b dark:bg-[#101521] dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] cursor-pointer"
+					<tr class="bg-white border-b dark:bg-black-900 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] cursor-pointer"
 						onclick={`window.open('/forms/validaciones/${formularios.submission_id}', '_blank')`}
 					> 
 						<th
@@ -141,39 +125,38 @@ const { data: formularios } = await supabase
 	</table>
 </div>
 
-<script type="module">
-	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+<script>
+	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
 
 	function initDT() {
-		const el = document.querySelector('#myTable');
+		const el = document.querySelector('#myTable') as HTMLElement | null;
 		if (!el) return;
+		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
+			return;
 
-		// evita doble init con view transitions
-		if (el.dataset.dtInit === '1') return;
-
-		const dt = new DataTable(el, {
+		new DataTable(el, {
 			searchable: true,
 			perPage: 25,
 			perPageSelect: [5, 10, 25, 50],
 
-			// ✅ Textos en español
+			// Textos en español
 			labels: {
 				placeholder: 'Buscar...',
 				perPage: 'Filas',
-				noRows: 'No hay más formularios pendientes de verificación',
-				noResults: 'No se encontraron resultados',
+				noRows: 'No hay formularios a verificar',
+				noResults: 'No se encontraron formularios aun',
 				info: 'Mostrando {start} a {end} de {rows} registros',
 			},
 
-			// ✅ Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
 			layout: {
 				top: '{select}{search}',
 				bottom: '{info}{pager}',
 			},
 		});
 
-		el.dataset.dtInit = '1';
-		el.dataset.dtInstance = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
 	}
 
 	initDT();

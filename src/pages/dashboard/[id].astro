@@ -1,24 +1,21 @@
 ---
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import DashBoard from '@modules/dashboard/DashBoardempresas.astro';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { getIncorporacionById } from '@lib/tablas/empresa_incorporaciones';
 
-// Auth handled by middleware
-const user = Astro.locals.user!;
-const { id } = Astro.params; // Este será el empresa_incorporacion_id
-const supabase = createSupabaseServerClient(Astro);
+const { redirect } = Astro;
+const { id } = Astro.params;
+const user = Astro.locals.user;
+const userId = user?.id;
 
-// Consultar la empresa específica
-const { data: empresa, error: empresaError } = await supabase
-	.from('empresas_incorporaciones')
-	.select('*')
-	.eq('empresa_incorporacion_id', id)
-	.eq('user_id', user.id) // Asegurar que la empresa pertenece al usuario
-	.single();
+if (!id || !userId) {
+	return redirect('/pages/empresas');
+}
 
-// Si no existe o no pertenece al usuario, redirigir
-if (empresaError || !empresa) {
-	return Astro.redirect('/pages/empresas');
+const empresa = await getIncorporacionById(id, userId);
+
+if (!empresa) {
+	return redirect('/pages/empresas');
 }
 ---
 

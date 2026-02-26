@@ -1,0 +1,378 @@
+---
+import { ListaFormulariosSurvey } from '@lib/tablas/formularios';
+import { getPagosSurvey } from '@lib/tablas/pagos';
+
+const { id } = Astro.params;
+
+const formulario = id ? await ListaFormulariosSurvey(id) : null;
+
+// Si no existe, redirigir
+if (!formulario) {
+	return Astro.redirect('/');
+}
+
+// 3) Verificar pago para la empresa
+const empresaId = new URL(Astro.request.url).searchParams.get('empresa');
+if (empresaId) {
+	const pago = empresaId ? await getPagosSurvey(empresaId) : null;
+
+	// Si no hay pago exitoso o hay error, redirigir al inicio
+	if (!pago) {
+		return Astro.redirect('/');
+	}
+} else {
+	// Si no hay empresa_id en la URL, redirigir al inicio
+	return Astro.redirect('/');
+}
+
+const jsonConfig = formulario.schema_json;
+const themeJson = formulario.tema_json;
+
+import '@estilos/surveyjs.css';
+---
+
+<!doctype html>
+<html>
+	<head>
+		<title>{formulario?.titulo}</title>
+		<meta charset="utf-8" />
+		<script
+			type="text/javascript"
+			src="https://unpkg.com/survey-core@2.3.9/survey.core.min.js"></script>
+		<script
+			type="text/javascript"
+			src="https://unpkg.com/survey-js-ui@2.3.9/survey-js-ui.min.js"></script>
+		<script>
+			import 'flowbite';
+		</script>
+	</head>
+	<body>
+		<input type="hidden" id="modal_form_id" value={formulario?.form_id} />
+
+		<!-- Selector de idioma flotante -->
+		<div
+			class="fixed top-4 right-4 z-50 bg-neutral-200 p-3 rounded-lg shadow-md border border-gray-700"
+		>
+			<label for="languageSelector" class="text-sm font-medium text-black mr-2"
+				>🌐 Idioma:</label
+			>
+			<select
+				id="languageSelector"
+				class="border border-gray-400 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 bg-neutral-200 text-black"
+			>
+				<option value="es">Español</option>
+				<option value="en">English</option>
+			</select>
+		</div>
+
+		<div
+			id="surveyContainer"
+			style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; min-height: 100%; height:100%"
+		>
+		</div>
+	</body>
+</html>
+
+<script type="module" define:vars={{ jsonConfig, themeJson }}>
+	const spanishTranslations = {
+		pagePrevText: 'Anterior',
+		pageNextText: 'Siguiente',
+		completeText: 'Completar',
+		otherItemText: 'Otro (especificar)',
+		noneItemText: 'Ninguno',
+		selectAllItemText: 'Seleccionar todos',
+		progressText: 'Página {0} de {1}',
+		emptyRowsText: 'No hay filas',
+		requiredError: 'Este campo es obligatorio',
+		requiredInAllRowsError: 'Todos los campos son obligatorios',
+		numericError: 'Debe ser un número',
+		textMinLength: 'Debe tener al menos {0} caracteres',
+		textMaxLength: 'No debe exceder {0} caracteres',
+		textMinMaxLength: 'Debe tener entre {0} y {1} caracteres',
+		minRowCountError: 'Debe tener al menos {0} filas',
+		minSelectError: 'Seleccione al menos {0} opciones',
+		maxSelectError: 'No seleccione más de {0} opciones',
+		numericMinMax: 'Debe ser entre {0} y {1}',
+		numericMin: 'Debe ser al menos {0}',
+		numericMax: 'No debe exceder {0}',
+		invalidEmail: 'Ingrese un email válido',
+		invalidExpression: "La expresión {0} debe devolver 'verdadero'",
+		loadingFile: 'Cargando...',
+		chooseFile: 'Seleccionar archivo(s)...',
+		noFileChosen: 'No se seleccionó archivo',
+		confirmDelete: '¿Está seguro de que desea eliminar?',
+		keyDuplicationError: 'Este valor debe ser único',
+		addRow: 'Agregar fila',
+		removeRow: 'Eliminar',
+		addPanel: 'Agregar nuevo',
+		removePanel: 'Eliminar',
+		choices_Item: 'opción',
+		savingData: 'Guardando...',
+		savingDataError: 'Ocurrió un error al guardar',
+		savingDataSuccess: 'Datos guardados exitosamente',
+		timerLimitPage: 'Tiempo en esta página: {0} de {1}.',
+		timerLimitSurvey: 'Tiempo total: {0} de {1}.',
+		clearCaption: 'Limpiar',
+		signaturePlaceHolder: 'Firme aquí',
+		chooseCaption: 'Seleccionar',
+		removeFileCaption: 'Eliminar archivo',
+	};
+
+	Survey.surveyLocalization.locales['es'] = spanishTranslations;
+	Survey.surveyLocalization.currentLocale = 'es';
+
+	const survey = new Survey.Model(jsonConfig);
+
+	survey.storeOthersAsComment = false;
+	survey.showQuestionNumbers = 'off';
+	survey.makeNamesUnique = true;
+
+	// Función para asegurar que se usen los names correctos
+	function ensureValueNames() {
+		survey.getAllQuestions().forEach((question) => {
+			// Si la pregunta tiene un name definido, forzar que se use como valueName
+			if (question.name && question.name !== question.title) {
+				question.valueName = question.name;
+			}
+		});
+	}
+
+	// Aplicar al inicio
+	ensureValueNames();
+
+	survey.locale = 'es'; // Español por defecto
+
+	if (typeof themeJson !== 'undefined') survey.applyTheme(themeJson);
+
+	// === SELECTOR DE IDIOMA ===
+	const languageSelector = document.getElementById('languageSelector');
+
+	// Establecer valor inicial
+	languageSelector.value = survey.locale;
+
+	// Manejar cambio de idioma
+	languageSelector.addEventListener('change', function () {
+		const selectedLanguage = this.value;
+		survey.locale = selectedLanguage;
+
+		// Reforzar los valueNames después del cambio de idioma
+		setTimeout(ensureValueNames, 100);
+
+		// Opcional: Guardar preferencia en localStorage
+		try {
+			localStorage.setItem('survey-language-preference', selectedLanguage);
+		} catch (e) {
+			console.warn('No se pudo guardar preferencia de idioma:', e);
+		}
+	});
+
+	// Opcional: Cargar preferencia guardada
+	try {
+		const savedLanguage = localStorage.getItem('survey-language-preference');
+		if (savedLanguage && (savedLanguage === 'es' || savedLanguage === 'en')) {
+			survey.locale = savedLanguage;
+			languageSelector.value = savedLanguage;
+			// Reforzar valueNames después de cargar idioma guardado
+			setTimeout(ensureValueNames, 100);
+		}
+	} catch (e) {
+		console.warn('No se pudo cargar preferencia de idioma:', e);
+	}
+
+	// ID del form (para cache y backend)
+	const formId =
+		document.querySelector('#modal_form_id')?.value?.trim() ||
+		document.querySelector('input[name="service_id"]')?.value?.trim() ||
+		'';
+
+	// Valida UUID simple (evita requests con IDs inválidos)
+	const UUID_RE =
+		/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+	if (!UUID_RE.test(formId)) {
+		console.warn(
+			'[Survey] form_id inválido o ausente. No se harán requests al backend.',
+			{ formId },
+		);
+	}
+
+	// === EMPRESA_ID desde el link del form ===
+	// /forms/<form_id>?empresa=<empresa_incorporacion_id>
+	const empresaId = (() => {
+		try {
+			const v = new URLSearchParams(window.location.search)
+				.get('empresa')
+				?.trim();
+			return v && UUID_RE.test(v) ? v : '';
+		} catch {
+			return '';
+		}
+	})();
+
+	if (!empresaId) {
+		console.warn(
+			'[Survey] No se encontró empresa válida en la URL (?empresa=...)',
+		);
+	}
+
+	// === CACHE LOCAL ===
+	const STORAGE_KEY = `survey:${formId || 'unknown'}:state`;
+
+	// Restaura estado si existe
+	try {
+		const saved = localStorage.getItem(STORAGE_KEY);
+		if (saved) {
+			const state = JSON.parse(saved);
+			if (state?.data) survey.data = state.data;
+			if (Number.isInteger(state?.page)) survey.currentPageNo = state.page;
+		}
+	} catch {
+		/* ignore */
+	}
+
+	// Guardado local (debounce sencillo)
+	const saveLocal = (() => {
+		let t;
+		return () => {
+			clearTimeout(t);
+			t = setTimeout(() => {
+				try {
+					localStorage.setItem(
+						STORAGE_KEY,
+						JSON.stringify({ data: survey.data, page: survey.currentPageNo }),
+					);
+				} catch (e) {
+					console.warn('No se pudo guardar en localStorage:', e);
+				}
+			}, 200);
+		};
+	})();
+
+	// === AUTOSAVE BACKEND (borrador) === -> /api/forms/submit_incorp
+	async function autosaveDraft() {
+		if (!UUID_RE.test(formId)) return; // evita 400 si no hay UUID
+		if (!empresaId) return; // evita enviar sin empresa
+
+		try {
+			const progress = survey.pages?.length
+				? Math.round(((survey.currentPageNo + 1) / survey.pages.length) * 100)
+				: null;
+
+			await fetch(
+				`/api/forms/submit_incorp?empresa=${encodeURIComponent(empresaId)}`,
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						form_id: formId,
+						data: survey.data, // solo respondidas hasta ahora
+						progress_percent: progress, // 0..100
+						finalize: false, // borrador
+						empresa_incorporacion_id: empresaId, // fallback
+					}),
+				},
+			);
+		} catch (e) {
+			console.warn('Autosave draft falló:', e);
+		}
+	}
+
+	// Guardar local en cada cambio de valor
+	survey.onValueChanged.add(saveLocal);
+
+	// Al cambiar de página: guarda local + autosave backend
+	survey.onCurrentPageChanged.add(() => {
+		saveLocal();
+		autosaveDraft();
+	});
+
+	// (opcional) limpiar invisibles al completar (default)
+	survey.clearInvisibleValues = 'onComplete';
+
+	// === CORRECCIÓN FINAL DE DATOS ANTES DEL ENVÍO ===
+	survey.onCompleting.add((sender, options) => {
+		// Asegurar una última vez que todos los valueNames sean correctos
+		ensureValueNames();
+
+		// Verificar que los datos usen los names correctos
+		const correctedData = {};
+		let needsCorrection = false;
+
+		sender.getAllQuestions().forEach((question) => {
+			const correctName = question.name;
+			if (correctName) {
+				// Buscar el valor en los datos, puede estar bajo el title o bajo el name
+				let value = sender.data[correctName];
+				if (value === undefined) {
+					// Si no está bajo el name, buscar bajo el title (en cualquier idioma)
+					const possibleKeys = Object.keys(sender.data).filter(
+						(key) =>
+							key.includes(question.title.es) ||
+							key.includes(question.title.default || question.title),
+					);
+					if (possibleKeys.length > 0) {
+						value = sender.data[possibleKeys[0]];
+						needsCorrection = true;
+					}
+				}
+
+				if (value !== undefined) {
+					correctedData[correctName] = value;
+				}
+			}
+		});
+
+		// Si se detectó que necesitamos corregir, actualizar los datos
+		if (needsCorrection) {
+			// Mantener cualquier dato adicional que no esté en las preguntas
+			sender.data = { ...sender.data, ...correctedData };
+		}
+	});
+
+	// submit_incorp final -> /api/forms/submit_incorp con finalize:true
+	survey.onComplete.add(async (sender) => {
+		if (!UUID_RE.test(formId)) {
+			console.error('[Survey] form_id inválido: no se puede enviar.');
+			return;
+		}
+		if (!empresaId) {
+			console.error('[Survey] empresa inválida: falta ?empresa= en la URL.');
+			return;
+		}
+
+		// DEBUG: Verificar los datos finales
+		console.log('Datos a enviar:', JSON.stringify(sender.data, null, 2));
+		console.log('Keys en los datos:', Object.keys(sender.data));
+
+		const payload = {
+			form_id: formId,
+			data: sender.data,
+			finalize: true,
+			empresa_incorporacion_id: empresaId, // fallback
+		};
+
+		try {
+			const res = await fetch(
+				`/api/forms/submit_incorp?empresa=${encodeURIComponent(empresaId)}`,
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(payload),
+				},
+			);
+			const out = await res.json().catch(() => ({}));
+			if (!res.ok || !out.ok) {
+				console.error('submit_incorp error:', out);
+			} else {
+				console.log('OK submission_id:', out.id);
+				// limpiar cache local al final
+				localStorage.removeItem(STORAGE_KEY);
+			}
+		} catch (e) {
+			console.error('submit_incorp falló:', e);
+		}
+	});
+
+	// Render
+	survey.render(document.getElementById('surveyContainer'));
+</script>

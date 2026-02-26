@@ -1,154 +1,132 @@
-// ─── Astro Middleware: Auth Guard + RBAC (Role-Based Access Control) ─────
-import { defineMiddleware } from 'astro:middleware';
-import { createSupabaseServerClient } from '@lib/supabase';
-import type { AuthUser } from '@lib/auth';
-import { mapSupabaseUser, PATHS } from '@lib/auth';
-import {
-	ROLES,
-	hasAnyRole,
-	extractRoleNames,
-	type RouteRoleConfig,
-	type UserRoleRow,
-} from '@lib/roles';
+import { supabase } from '@lib/supabase';
 
-// ─── Rutas públicas (sin autenticación) ────────────────
-const PUBLIC_ROUTES: string[] = [
-	'/sign-in',
-	'/sign-up',
-	'/forgot-password',
-	'/reset-password',
-	'/api/auth',
-	'/callback',
-];
+export function onRequest(context: any, next: any) {
+	const { cookies, redirect, url } = context;
+	const pathname = url.pathname;
 
-const PUBLIC_PREFIXES: string[] = ['/api/'];
+	const publicRoutes = [
+		'/sign-in',
+		'/sign-up',
+		'/forgot-password',
+		'/reset-password',
+	];
+	const publicFolders = ['/api/'];
 
-// ─── Definición de acceso por rol ──────────────────────
-const ROLE_PROTECTED_ROUTES: RouteRoleConfig[] = [
-	{
-		path: '/crud/',
-		roles: [ROLES.ADMIN],
-		errorMsg: 'Acceso solo para admins',
-	},
-	{
-		path: '/admin/',
-		roles: [ROLES.ADMIN],
-		errorMsg: 'Acceso solo para admins',
-	},
-	{
-		path: '/operaciones/',
-		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
-		errorMsg: 'Acceso solo para operaciones',
-	},
-	{
-		path: '/partners/',
-		roles: [ROLES.PARTNER],
-		errorMsg: 'Acceso solo para partners',
-	},
-	{
-		path: '/afiliados/',
-		roles: [ROLES.PARTNER],
-		errorMsg: 'Acceso solo para partners',
-	},
-	{
-		path: '/pages/',
-		roles: [ROLES.PARTNER, ROLES.CLIENT],
-		errorMsg: 'Acceso solo para clientes o partners',
-	},
-	{
-		path: '/profile/',
-		roles: [ROLES.ADMIN, ROLES.PARTNER, ROLES.CLIENT, ROLES.OPERACIONES],
-		errorMsg: 'Acceso no autorizado',
-	},
-];
+	const isPublicRoute = publicRoutes.some((route) => pathname === route);
+	const isPublicFolder = publicFolders.some((folder) =>
+		pathname.startsWith(folder),
+	);
 
-/**
- * Normaliza el pathname eliminando el trailing slash
- * para evitar mismatches entre "/sign-in" y "/sign-in/"
- */
-function normalizePath(path: string): string {
-	if (path.length > 1 && path.endsWith('/')) {
-		return path.slice(0, -1);
-	}
-	return path;
+	return (async () => {
+		const accessToken = cookies.get('sb-access-token');
+		const refreshToken = cookies.get('sb-refresh-token');
+
+		let user = null;
+		let isValidSession = false;
+
+		if (accessToken && refreshToken) {
+			const { data: sessionData, error: sessionError } =
+				await supabase.auth.setSession({
+					access_token: accessToken.value,
+					refresh_token: refreshToken.value,
+				});
+
+			if (sessionError || !sessionData?.session) {
+				cookies.delete('sb-access-token', { path: '/' });
+				cookies.delete('sb-refresh-token', { path: '/' });
+				return redirect('/sign-in');
+			}
+
+			const {
+				data: { user: authUser },
+				error,
+			} = await supabase.auth.getUser(accessToken.value);
+
+			if (!error && authUser) {
+				user = authUser;
+				isValidSession = true;
+
+				const { data: usuarioData } = await supabase
+					.from('user_roles')
+					.select('*, roles (name)')
+					.eq('user_id', user.id);
+
+				const userRoles: string[] =
+					(usuarioData as any[])
+						?.map((ur: any) => ur.roles?.name)
+						.filter(Boolean) || [];
+
+				context.locals.user = user;
+				context.locals.userRoles = userRoles;
+			} else {
+				cookies.delete('sb-access-token', { path: '/' });
+				cookies.delete('sb-refresh-token', { path: '/' });
+			}
+		}
+
+		if (isPublicRoute || isPublicFolder) {
+			return next();
+		}
+
+		if (!user) {
+			return redirect('/sign-in');
+		}
+
+		const userRoles = context.locals.userRoles || [];
+
+		const adminFolders = ['/crud/', '/admin/'];
+		const partnerFolders = ['/partners/', '/afiliados/'];
+		const clientFolders = ['/pages/'];
+
+		const sharedFolders = [
+			{ path: '/pages/', roles: ['partner', 'client'] },
+			{ path: '/profile/', roles: ['admin', 'partner', 'client'] },
+		];
+
+		const checkRole = (requiredRoles: string[]) => {
+			return requiredRoles.some((role) => {
+				if (role === 'admin') return userRoles.includes('admin');
+				if (role === 'partner') return userRoles.includes('partner');
+				if (role === 'client') return userRoles.includes('cliente');
+				return false;
+			});
+		};
+
+		if (adminFolders.some((folder) => pathname.startsWith(folder))) {
+			if (!checkRole(['admin'])) {
+				return redirect(
+					`/?status=error&msg=${encodeURIComponent('Acceso solo para admins')}`,
+				);
+			}
+		}
+
+		if (partnerFolders.some((folder) => pathname.startsWith(folder))) {
+			if (!checkRole(['partner'])) {
+				return redirect(
+					`/?status=error&msg=${encodeURIComponent('Acceso solo para partners')}`,
+				);
+			}
+		}
+
+		if (clientFolders.some((folder) => pathname.startsWith(folder))) {
+			if (!checkRole(['client'])) {
+				return redirect(
+					`/?status=error&msg=${encodeURIComponent('Acceso solo para clientes')}`,
+				);
+			}
+		}
+
+		for (const shared of sharedFolders) {
+			if (pathname.startsWith(shared.path)) {
+				if (!checkRole(shared.roles)) {
+					return redirect(
+						`/?status=error&msg=${encodeURIComponent('Acceso no autorizado')}`,
+					);
+				}
+				break;
+			}
+		}
+
+		return next();
+	})();
 }
-
-export const onRequest = defineMiddleware(async (context, next) => {
-	const { cookies, url, redirect, request } = context;
-	const pathname = normalizePath(url.pathname);
-
-	// ─── 1. Crear cliente Supabase per-request ─────────────
-	const supabase = createSupabaseServerClient({
-		headers: request.headers,
-		cookies,
-	});
-
-	// ─── 2. Obtener usuario autenticado ────────────────────
-	let user: AuthUser | null = null;
-
-	try {
-		const { data, error } = await supabase.auth.getUser();
-		if (!error && data.user) {
-			user = mapSupabaseUser(data.user);
-		}
-	} catch {
-		// Usuario no autenticado — se maneja abajo
-	}
-
-	// ─── 3. Almacenar usuario en locals ────────────────────
-	context.locals.user = user;
-	context.locals.userRoles = [];
-
-	// ─── 4. Rutas públicas — dejar pasar siempre ──────────
-	const isPublicRoute = PUBLIC_ROUTES.some(
-		(route) => pathname === route || pathname.startsWith(`${route}/`),
-	);
-	const isPublicPrefix = PUBLIC_PREFIXES.some((prefix) =>
-		pathname.startsWith(prefix),
-	);
-
-	if (isPublicRoute || isPublicPrefix) {
-		return next();
-	}
-
-	// ─── 4b. Redirigir usuarios no autenticados (excepto ruta raíz) ──
-	if (!user && pathname !== '/') {
-		return redirect(PATHS.signIn);
-	}
-
-	// ─── 5. Obtener roles del usuario ──────────────────────
-	if (user) {
-		const { data: userRolesData, error: rolesError } = await supabase
-			.from('user_roles')
-			.select('rol_id, roles ( name )')
-			.eq('user_id', user.id);
-
-		if (rolesError) {
-			console.error('[middleware] Error al obtener roles:', rolesError.message);
-		}
-
-		const userRoles = extractRoleNames(
-			userRolesData as unknown as UserRoleRow[] | null,
-		);
-
-		context.locals.userRoles = userRoles;
-	}
-
-	// ─── 6. Ruta raíz — dejar pasar (la página decide qué mostrar) ──
-	if (pathname === '/') {
-		return next();
-	}
-
-	// ─── 7. RBAC: Verificar acceso por rol ────────────────
-	const matchedRoute = ROLE_PROTECTED_ROUTES.find((config) =>
-		pathname.startsWith(config.path),
-	);
-
-	if (matchedRoute && !hasAnyRole(context.locals.userRoles, matchedRoute.roles)) {
-		return redirect(
-			`/?status=error&msg=${encodeURIComponent(matchedRoute.errorMsg)}`,
-		);
-	}
-
-	return next();
-});

@@ -1,17 +1,6 @@
 ---
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
-import DashBoard from '@modules/partners/datos-referidos.astro';
-import { isPartner } from '@lib/roles';
-
-// Auth handled by middleware
-const userRoles = Astro.locals.userRoles;
-
-// Middleware protects /partners/ for partner role, but double-check
-if (!isPartner(userRoles)) {
-	return Astro.redirect(
-		`/?status=error&msg=${encodeURIComponent('Acceso solo para partners')}`,
-	);
-}
+import DashBoard from '@modules/dashboard/dasboard-referidos.astro';
 ---
 
 <LayoutSidebar>

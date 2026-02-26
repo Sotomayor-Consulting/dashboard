@@ -1,39 +1,34 @@
 ---
-import { createSupabaseServerClient } from '@lib/supabase';
-const { slug } = Astro.params;
+import { getUsuarioAvatar } from '@lib/tablas/usuarios';
+import Image from 'astro/components/Image.astro';
 
-// Auth handled by middleware
 const user = Astro.locals.user;
-const supabase = createSupabaseServerClient(Astro);
-
-let imagen = null;
-if (user) {
-	const { data } = await supabase
-		.from('usuarios')
-		.select('avatar_url')
-		.eq('user_id', user.id)
-		.single();
-	imagen = data;
-}
+const userId = user?.id;
+const imagen = userId ? await getUsuarioAvatar(userId) : null;
 
 interface Props {
 	title: string;
 }
 const { title } = Astro.props;
+const { slug } = Astro.params;
 ---
 
 {
 	imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
-		<img
-			src={`https://api.dicebear.com/9.x/thumbs/svg?seed=`}
+		<Image
+			src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId || ''}`}
 			class="mb-4 rounded-lg w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0"
 			alt="avatar"
+			loading="eager"
+			inferSize={true}
 		/>
 	) : (
-		<img
+		<Image
 			class="mb-4 rounded-lg w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0"
 			src={imagen?.avatar_url}
 			alt="Foto de perfil"
+			inferSize={true}
+			loading="eager"
 		/>
 	)
 }
@@ -43,7 +38,7 @@ const { title } = Astro.props;
 		{title}
 	</h3>
 	<div class="mb-4 text-sm text-gray-500 dark:text-gray-400">
-		JPG, PNG o WEBP. tamaño maximo de 5M.
+		JPG, PNG o WEBP. tamaño máximo de 5M.
 	</div>
 	<div class="flex items-center space-x-4">
 		<form
@@ -53,7 +48,7 @@ const { title } = Astro.props;
 		>
 			<input type="hidden" name="slug" value={slug} />
 			<label
-				class="inline-flex items-center px-5 py-2.5 dark:bg-[#101521] dark:text-white rounded-lg cursor-pointer dark:hover:bg-[#05121d] transition mb-5 bg-neutral-200 border border-neutral-400"
+				class="inline-flex items-center px-5 py-2.5 dark:bg-black-900 dark:text-white rounded-lg cursor-pointer dark:hover:bg-[#05121d] transition mb-5 bg-neutral-200 border border-neutral-400"
 			>
 				<span>Seleccionar archivo</span>
 				<input

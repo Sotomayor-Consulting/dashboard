@@ -1,35 +1,16 @@
 ---
-import '@styles/datatables.css';
-import { createSupabaseServerClient } from '@lib/supabase';
-const supabase = createSupabaseServerClient(Astro);
+import '@estilos/datatables.css';
 import Alerta from '@components/feedback/alertageneral.astro';
+import { ListaFormulariosGeneral } from '@lib/tablas/formularios';
 
-const { data: servicio } = await supabase
-	.from('formularios')
-	.select(
-		`
-    form_id,
- 	slug,
-    revision,
-    titulo,
-    descripcion,
-    estado,
-	schema_json,
-	tema_json,
-	created_at,
-	updated_at
-  `,
-		{ count: 'exact' },
-	)
-	.order('titulo', { ascending: false });
+const servicio = await ListaFormulariosGeneral();
 ---
 
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-></script>
+<script src="@lib/alpinejs/alpine.js"></script>
 <Alerta />
 <div>
 	<div
-		class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-[#101521] dark:border-gray-700 w-full"
+		class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700 w-full"
 	>
 		<div class="w-full mb-1">
 			<div class="mb-4">
@@ -305,7 +286,7 @@ const { data: servicio } = await supabase
 												data-id={sr.form_id}
 												data-modal-target="course-modal"
 												data-modal-toggle="course-modal"
-												class="text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-[#101521] dark:border-gray-700 dark:text-white dark:hover:bg-[#101522]"
+												class="text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-black-900 dark:border-gray-700 dark:text-white dark:hover:bg-[#101522]"
 											>
 												<svg
 													class="w-4 h-4"
@@ -321,7 +302,7 @@ const { data: servicio } = await supabase
 												id={`dd-btn-${sr.form_id}`}
 												@click="showTooltip = !showTooltip"
 												@click.outside="showTooltip = false"
-												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-[#101521] dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-900 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
 												aria-expanded="false"
@@ -338,7 +319,7 @@ const { data: servicio } = await supabase
 											</button>
 											<div
 												id={`dd-${sr.form_id}`}
-												class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-[#101521] dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute right-2"
+												class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-900 dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute right-2"
 												role="menu"
 												x-show="showTooltip"
 												x-transition
@@ -412,7 +393,7 @@ const { data: servicio } = await supabase
 	<!-- Edit Product Drawer -->
 	<div
 		id="drawer-update-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-lg p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-lg p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-900"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -456,7 +437,7 @@ const { data: servicio } = await supabase
 						type="text"
 						name="titulo-form"
 						id="titulo-update-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						value=""
 						placeholder="inserta el titulo del formulario"
 						required=""
@@ -472,7 +453,7 @@ const { data: servicio } = await supabase
 						type="text"
 						name="categoria-form"
 						id="categoria-form-update"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						value=""
 						placeholder="Añade la categoria del formulario"
 						required=""
@@ -487,7 +468,7 @@ const { data: servicio } = await supabase
 					<textarea
 						name="json-update"
 						id="json-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade el Json del formulario"
 						required=""
 						rows="10"></textarea>
@@ -502,7 +483,7 @@ const { data: servicio } = await supabase
 						id="tema-form"
 						name="tema-form-update"
 						rows="2"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade el codigo json del tema de tu formulario"
 					></textarea>
 				</div>
@@ -516,7 +497,7 @@ const { data: servicio } = await supabase
 						id="descripcion-form"
 						name="descripcion-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade una descripcion para el form"></textarea>
 				</div>
 				<div>
@@ -528,7 +509,7 @@ const { data: servicio } = await supabase
 					<select
 						id="update-form-estado"
 						name="estado"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 					>
 						<option value="" disabled="" selected="">--</option>
 						<option value="true">Activo</option>
@@ -548,7 +529,7 @@ const { data: servicio } = await supabase
 				<button
 					data-drawer-hide="drawer-update-product-default"
 					type="button"
-					class="w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900 dark:bg-[#101521]"
+					class="w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900 dark:bg-black-900"
 				>
 					Cancelar
 				</button>
@@ -559,7 +540,7 @@ const { data: servicio } = await supabase
 	<!-- Delete Product Drawer -->
 	<div
 		id="drawer-delete-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-900"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -619,7 +600,7 @@ const { data: servicio } = await supabase
 				Si, estoy seguro
 			</button>
 			<button
-				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#101521] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
+				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-black-900 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
 				type="button"
 				data-drawer-dismiss="drawer-delete-product-default"
 				aria-controls="drawer-delete-product-default"
@@ -632,7 +613,7 @@ const { data: servicio } = await supabase
 	<!-- desarchivar Product Drawer -->
 	<div
 		id="desarchivar-menu"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-900"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -691,7 +672,7 @@ const { data: servicio } = await supabase
 				Si, estoy seguro
 			</button>
 			<button
-				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-[#101521] dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
+				class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-black-900 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
 				type="button"
 				data-drawer-dismiss="desarchivar-menu"
 				aria-controls="desarchivar-menu"
@@ -704,7 +685,7 @@ const { data: servicio } = await supabase
 	<!-- Add Product Drawer -->
 	<div
 		id="drawer-create-product-default"
-		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-[#101521]"
+		class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-900"
 		tabindex="-1"
 		aria-labelledby="drawer-label"
 		aria-hidden="true"
@@ -746,7 +727,7 @@ const { data: servicio } = await supabase
 						type="text"
 						name="titulo-form"
 						id="nombre-service"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Nombre del formulario"
 						required=""
 					/>
@@ -762,7 +743,7 @@ const { data: servicio } = await supabase
 						type="text"
 						name="categoria-form"
 						id="categoria-form"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade la categoria del form"
 						required=""
 					/>
@@ -777,7 +758,7 @@ const { data: servicio } = await supabase
 						id="json-update"
 						name="json-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Pega aqui el Json del formulario"></textarea>
 				</div>
 				<div>
@@ -790,7 +771,7 @@ const { data: servicio } = await supabase
 						id="tema-form-update"
 						name="tema-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Pega el Json del tema"></textarea>
 				</div>
 				<div>
@@ -803,7 +784,7 @@ const { data: servicio } = await supabase
 						id="descripcion-form-update"
 						name="descripcion-form-update"
 						rows="4"
-						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#8c681d] focus:border-[#8c681d] dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						placeholder="Añade una descripcion del formulario"></textarea>
 				</div>
 				<div>
@@ -815,7 +796,7 @@ const { data: servicio } = await supabase
 					<select
 						id="estado"
 						name="estado"
-						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#101521] dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 					>
 						<option value="" disabled="" selected="">--</option>
 						<option value="true">Activo</option>
@@ -836,7 +817,7 @@ const { data: servicio } = await supabase
 						type="button"
 						data-drawer-dismiss="drawer-create-product-default"
 						aria-controls="drawer-create-product-default"
-						class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-[#101521] dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+						class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-black-900 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
 					>
 						<svg
 							aria-hidden="true"
@@ -867,7 +848,7 @@ const { data: servicio } = await supabase
 	>
 		<div class="relative p-4 w-full max-w-lg max-h-full">
 			<!-- Modal content -->
-			<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#101521]">
+			<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-900">
 				<!-- Modal header -->
 				<div class="flex items-center justify-between p-4 md:p-5">
 					<h3 class="text-lg text-gray-500 dark:text-gray-400">
@@ -915,7 +896,7 @@ const { data: servicio } = await supabase
 							id="copias"
 							data-copy-to-clipboard-target="share-id"
 							data-tooltip-target="tooltip-share-id"
-							class="absolute end-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#05121d] rounded-lg p-2 inline-flex items-center justify-center dark:bg-[#101521]"
+							class="absolute end-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#05121d] rounded-lg p-2 inline-flex items-center justify-center dark:bg-black-900"
 						>
 							<span id="default-icon-share-id">
 								<svg
@@ -1119,15 +1100,18 @@ const { data: servicio } = await supabase
 			});
 		});
 	</script>
-	<script type="module">
-		import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+	<script>
+		import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
 
 		function initDT() {
-			const el = document.querySelector('#myTable');
+			const el = document.querySelector('#myTable') as HTMLElement | null;
 			if (!el) return;
-			if (el.dataset.dtInit === '1') return;
+			if (
+				(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1'
+			)
+				return;
 
-			const dt = new DataTable(el, {
+			new DataTable(el, {
 				searchable: true,
 				perPage: 25,
 				perPageSelect: [5, 10, 25, 50],
@@ -1136,7 +1120,7 @@ const { data: servicio } = await supabase
 				labels: {
 					placeholder: 'Buscar...',
 					perPage: 'Filas',
-					noRows: 'No hay empresas',
+					noRows: 'No hay formularios',
 					noResults: 'No se encontraron resultados',
 					info: 'Mostrando {start} a {end} de {rows} registros',
 				},
@@ -1148,8 +1132,8 @@ const { data: servicio } = await supabase
 				},
 			});
 
-			el.dataset.dtInit = '1';
-			el.dataset.dtInstance = '1';
+			(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+			(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
 		}
 
 		initDT();

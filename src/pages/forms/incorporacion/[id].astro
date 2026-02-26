@@ -1,33 +1,24 @@
 ---
-import { createSupabaseServerClient } from '@lib/supabase';
+import { ListaFormulariosSurvey } from '@lib/tablas/formularios';
+import { getPagosSurvey } from '@lib/tablas/pagos';
 
 // Auth handled by middleware
 const { id } = Astro.params;
-const supabase = createSupabaseServerClient(Astro);
 
-const { data: formulario, error } = await supabase
-	.from('formularios')
-	.select('form_id, titulo, descripcion, schema_json, tema_json')
-	.eq('form_id', id)
-	.single();
+const formulario = id ? await ListaFormulariosSurvey(id) : null;
 
 // Si no existe, redirigir
-if (error || !formulario) {
+if (!formulario) {
 	return Astro.redirect('/');
 }
 
 // 3) Verificar pago para la empresa
 const empresaId = new URL(Astro.request.url).searchParams.get('empresa');
 if (empresaId) {
-	const { data: pago, error: pagoError } = await supabase
-		.from('pagos')
-		.select('status')
-		.eq('empresa_incorporacion_id', empresaId)
-		.eq('status', 'succeeded')
-		.single();
+	const pago = empresaId ? await getPagosSurvey(empresaId) : null;
 
 	// Si no hay pago exitoso o hay error, redirigir al inicio
-	if (pagoError || !pago) {
+	if (!pago) {
 		return Astro.redirect('/');
 	}
 } else {
@@ -228,35 +219,24 @@ import '@styles/surveyjs.css';
 	// === CACHE LOCAL ===
 	const STORAGE_KEY = `survey:${formId || 'unknown'}:state`;
 
-	// Restaura estado si existe
+	// Limpiar localStorage al inicio para evitar datos obsoletos de sesiones anteriores
 	try {
-		const saved = localStorage.getItem(STORAGE_KEY);
-		if (saved) {
-			const state = JSON.parse(saved);
-			if (state?.data) survey.data = state.data;
-			if (Number.isInteger(state?.page)) survey.currentPageNo = state.page;
-		}
-	} catch {
-		/* ignore */
+		localStorage.removeItem(STORAGE_KEY);
+	} catch (e) {
+		console.warn('No se pudo limpiar localStorage:', e);
 	}
 
-	// Guardado local (debounce sencillo)
-	const saveLocal = (() => {
-		let t;
-		return () => {
-			clearTimeout(t);
-			t = setTimeout(() => {
-				try {
-					localStorage.setItem(
-						STORAGE_KEY,
-						JSON.stringify({ data: survey.data, page: survey.currentPageNo }),
-					);
-				} catch (e) {
-					console.warn('No se pudo guardar en localStorage:', e);
-				}
-			}, 200);
-		};
-	})();
+	// Guardado local instantáneo
+	function saveLocal() {
+		try {
+			localStorage.setItem(
+				STORAGE_KEY,
+				JSON.stringify({ data: survey.data, page: survey.currentPageNo }),
+			);
+		} catch (e) {
+			console.warn('No se pudo guardar en localStorage:', e);
+		}
+	}
 
 	// === AUTOSAVE BACKEND (borrador) === -> /api/forms/submit_incorp
 	async function autosaveDraft() {
@@ -375,11 +355,25 @@ import '@styles/surveyjs.css';
 				console.error('submit_incorp error:', out);
 			} else {
 				console.log('OK submission_id:', out.id);
-				// limpiar cache local al final
-				localStorage.removeItem(STORAGE_KEY);
 			}
 		} catch (e) {
 			console.error('submit_incorp falló:', e);
+		} finally {
+			// Siempre limpiar localStorage al completar (éxito o error)
+			try {
+				localStorage.removeItem(STORAGE_KEY);
+			} catch (e) {
+				console.warn('No se pudo limpiar localStorage:', e);
+			}
+		}
+	});
+
+	// Limpiar localStorage cuando el usuario abandone la página
+	window.addEventListener('beforeunload', () => {
+		try {
+			localStorage.removeItem(STORAGE_KEY);
+		} catch (e) {
+			/* ignore */
 		}
 	});
 

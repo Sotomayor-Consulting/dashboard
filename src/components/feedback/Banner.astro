@@ -2,19 +2,10 @@
 import { Image } from 'astro:assets';
 import icono from '/src/assets/icono.png';
 import icono2 from '/src/assets/icono-negro.png';
-import { createSupabaseServerClient } from '@lib/supabase';
-
-// Auth handled by middleware
-const user = Astro.locals.user;
-const supabase = createSupabaseServerClient(Astro);
+import { getEstadoIncorporacionByUserId } from '@lib/tablas/empresa_incorporaciones';
 
 let shouldShowBanner = false;
 
-// 2. Definición de la Condición
-const CONDITION_STATUS = 'En proceso';
-const TARGET_TABLE = 'empresas_incorporaciones';
-
-// Datos fijos para el banner
 const BANNER_PROPS = {
 	title: 'Tu compañía esta pendiente a incorporar. Desbloquea sus beneficios.',
 	btnId: 'dismiss-incorp-banner',
@@ -22,29 +13,15 @@ const BANNER_PROPS = {
 	url: '/incorporacion-y-pago',
 };
 
-// 3. Consulta de datos (SSR)
-if (user) {
-	try {
-		// 3c. Consulta a la tabla adaptada: 'empresas_incorporaciones'
-		const { data: incorporaciones, error } = await supabase
-			.from(TARGET_TABLE)
-			.select('estado') // Solo necesitamos la columna 'estado'
-			.eq('user_id', user.id); // Filtrar por el usuario actual
+const user = Astro.locals.user;
+const UserId = user?.id;
 
-		if (error) {
-			console.error(
-				`[Banner] Error al obtener estado de ${TARGET_TABLE}:`,
-				error,
-			);
-		} else if (incorporaciones && incorporaciones.length > 0) {
-			// 3d. Verificar la condición: ¿Alguna está 'En proceso'?
-			shouldShowBanner = incorporaciones.some(
-				(c) => c.estado === CONDITION_STATUS,
-			);
-		}
-	} catch (e) {
-		console.error('[Banner] Error de sesión o conexión con Supabase:', e);
-	}
+const incorporaciones = UserId
+	? await getEstadoIncorporacionByUserId(UserId)
+	: null;
+
+if (incorporaciones && incorporaciones.length > 0) {
+	shouldShowBanner = incorporaciones.some((c) => c.estado === 'En proceso');
 }
 ---
 
@@ -54,7 +31,7 @@ if (user) {
 			<div
 				id="marketing-banner"
 				tabindex="-1"
-				class="flex flex-col md:flex-row justify-between w-full p-4 bg-white border border-gray-100 shadow-xs top-28 dark:bg-[#192033] dark:border-gray-600 right-4 animate-fade-in"
+				class="flex flex-col md:flex-row justify-between w-full p-4 bg-white border border-gray-100 shadow-xs top-28 dark:bg-black-800 dark:border-gray-600 right-4 animate-fade-in"
 			>
 				<div class="flex mb-3 me-4 items-center flex-row md:mb-0">
 					<a
@@ -66,12 +43,14 @@ if (user) {
 							width="32"
 							alt="Sotomayor consulting Logo"
 							class="me-2 hidden dark:block"
+							loading="eager"
 						/>
 						<Image
 							src={icono2}
 							width="32"
 							alt="Sotomayor consulting Logo"
 							class="me-2 dark:hidden block"
+							loading="eager"
 						/>
 					</a>
 					<p class="flex items-center text-base font-normal text-black dark:text-white">

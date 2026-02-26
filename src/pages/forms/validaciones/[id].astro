@@ -1,41 +1,20 @@
 ---
-// src/pages/forms/validaciones/[id].astro
-import { createSupabaseServerClient } from '@lib/supabase';
-import { isAdmin as checkIsAdmin } from '@lib/roles';
+import { getFormularioEnviadoDetalle } from '@lib/tablas/formulariosEnviados';
 
-// Auth handled by middleware
-const user = Astro.locals.user!;
-const userRoles = Astro.locals.userRoles;
 const { id } = Astro.params;
-const supabase = createSupabaseServerClient(Astro);
+const user = Astro.locals.user;
+const userId = user?.id;
+const userRoles = Astro.locals.userRoles || [];
 
-// Traer envío
-const { data: envio, error: envioErr } = await supabase
-	.from('formularios_envios')
-	.select(
-		`
-      submission_id,
-      form_id,
-      user_id,
-      status,
-      data_json,
-      schema_snapshot,
-      created_at,
-      submitted_at,
-      empresa_incorporacion_id,
-      formularios:formularios ( titulo, tema_json ),
-      usuarios:usuarios ( nombre, apellido )
-    `,
-	)
-	.eq('submission_id', id)
-	.single();
+const isAdmin = userRoles.includes('admin');
+
+const { data: envio, error: envioErr } = await getFormularioEnviadoDetalle(id!);
 
 if (envioErr || !envio) return Astro.redirect('/');
 
-// Gate: dueño o admin
-const esAdmin = checkIsAdmin(userRoles);
-const canEdit = esAdmin;
-if (!esAdmin && envio.user_id !== user.id) return Astro.redirect('/');
+// 4) Gate: dueño o admin
+const canEdit = isAdmin;
+if (!isAdmin && envio.user_id !== userId) return Astro.redirect('/');
 
 // 5) Accesos directos
 const titulo = envio.formularios?.titulo;

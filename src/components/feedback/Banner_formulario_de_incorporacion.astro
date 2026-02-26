@@ -2,70 +2,26 @@
 import { Image } from 'astro:assets';
 import icono from '/src/assets/icono.png';
 import icono2 from '/src/assets/icono-negro.png';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { getBannerIncorporacionData } from '../../lib/tablas/empresa_incorporaciones';
 
-// Auth handled by middleware
-const user = Astro.locals.user;
-const supabase = createSupabaseServerClient(Astro);
+const locals = (Astro as any).locals;
+const user = locals?.user;
 
 let shouldShowBanner = false;
+let empresaId: string | null = null;
 
-// 2. Definición de la Condición
-const TARGET_TABLE = 'empresas_incorporaciones';
-const FORMULARIOS_TABLE = 'formularios_envios';
+if (user?.id) {
+	const data = await getBannerIncorporacionData(user.id);
+	shouldShowBanner = data.shouldShow;
+	empresaId = data.empresaId;
+}
 
-// Datos fijos para el banner
 const BANNER_PROPS = {
 	title:
 		'Proceda con la formalización de la incorporación de su empresa a través del siguiente formulario.',
 	btnId: 'dismiss-incorp-banner-icorp',
 	btnTitle: 'Comenzar ahora',
 };
-
-// 3. Consulta de datos (SSR)
-let empresaId: string | null = null;
-
-if (user) {
-	try {
-		// 3c. Consulta una sola empresa activa del usuario (más escalable)
-		const { data: empresaActiva, error: errorIncorp } = await supabase
-			.from(TARGET_TABLE)
-			.select('empresa_incorporacion_id')
-			.eq('user_id', user.id)
-			.eq('estado', 'Activo')
-			.single(); // .single() devuelve solo un registro o null
-
-		// 3d. Consulta si ya existe un formulario enviado por el usuario actual
-		const { data: formularios, error: errorForm } = await supabase
-			.from(FORMULARIOS_TABLE)
-			.select('status')
-			.eq('user_id', user.id)
-			.eq('status', 'submitted')
-			.maybeSingle(); // .maybeSingle() permite null sin error
-
-		if (errorIncorp && errorIncorp.code !== 'PGRST116') {
-			// Ignorar error de "no rows returned"
-			console.error(
-				'[Banner] Error al consultar empresa activa:',
-				errorIncorp,
-			);
-		} else if (errorForm && errorForm.code !== 'PGRST116') {
-			// Ignorar error de "no rows returned"
-			console.error('[Banner] Error al consultar formulario:', errorForm);
-		} else {
-			// 3e. Condición: mostrar si hay empresa 'Activo' Y NO hay formulario 'submitted'
-			const tieneEmpresaActiva = !!empresaActiva;
-			const tieneFormularioEnviado = !!formularios;
-
-			shouldShowBanner = tieneEmpresaActiva && !tieneFormularioEnviado;
-			if (tieneEmpresaActiva && empresaActiva.empresa_incorporacion_id) {
-				empresaId = empresaActiva.empresa_incorporacion_id;
-			}
-		}
-	} catch (e) {
-		console.error('[Banner] Error de sesión o conexión con Supabase:', e);
-	}
-}
 ---
 
 {
@@ -74,7 +30,7 @@ if (user) {
 			<div
 				id="banner_forms_incorp"
 				tabindex="-1"
-				class="flex flex-col md:flex-row justify-between w-full p-4 bg-white border border-gray-100 shadow-xs top-28 dark:bg-[#192033] dark:border-gray-600 right-4 animate-fade-in"
+				class="flex flex-col md:flex-row justify-between w-full p-4 bg-white border border-gray-100 shadow-xs top-28 dark:bg-black-800 dark:border-gray-600 right-4 animate-fade-in"
 			>
 				<div class="flex mb-3 me-4 items-center flex-row md:mb-0">
 					<a

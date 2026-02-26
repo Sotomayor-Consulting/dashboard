@@ -10,9 +10,9 @@ const { data: formularios } = await supabase
 		`
 	empresa_incorporacion_id,
     data_json,
-    formularios:formularios (form_id, titulo, slug, descripcion),
-    usuarios:usuarios (user_id, nombre, apellido),
-    empresas_incorporaciones:empresas_incorporaciones (nombre_1, estado)
+    formularios (form_id, titulo, slug, descripcion),
+    usuarios (user_id, nombre, apellido),
+    empresas_incorporaciones (nombre_1, estado)
   `,
 	)
 	.eq('submission_id', id)
@@ -36,8 +36,7 @@ const { data: actividades } = await supabase
 const managers = formularios?.data_json?.Managers || [];
 ---
 
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-></script>
+<script src="@lib/alpinejs/alpine.js"></script>
 
 <div class="grid grid-cols-1 px-4 pt-6 xl:grid-cols-2 xl:gap-4">
 	<div class="mb-4 col-span-full xl:mb-2">
@@ -95,7 +94,9 @@ const managers = formularios?.data_json?.Managers || [];
 						<span
 							class="ml-1 text-neutral-400 md:ml-2 dark:text-neutral-500"
 							aria-current="page"
-							>Empresa {formularios?.empresas_incorporaciones?.nombre_1}</span
+							>Empresa {
+								formularios?.empresas_incorporaciones?.[0]?.nombre_1
+							}</span
 						>
 					</div>
 				</li>
@@ -123,7 +124,7 @@ const managers = formularios?.data_json?.Managers || [];
 				hidden
 			/>
 			<div
-				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800"
 			>
 				<h3 class="mb-4 text-xl font-semibold dark:text-white">
 					Actividad de la compañía
@@ -142,7 +143,7 @@ const managers = formularios?.data_json?.Managers || [];
 						>
 						<select
 							name="Ingresos_de_EEUU"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<!-- Opción por defecto (placeholder) -->
 							<option
@@ -190,7 +191,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="actividad_manual"
 									value={`${formularios?.data_json?.codigo_actividad} - ${formularios?.data_json?.descripcion_actividad}`}
 									id="actividad_manual"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									placeholder="114110 - Pesca"
 								/>
 							</div>
@@ -204,7 +205,7 @@ const managers = formularios?.data_json?.Managers || [];
 								</label>
 								<select
 									name="actividad"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								>
 									<option
 										value=""
@@ -241,7 +242,7 @@ const managers = formularios?.data_json?.Managers || [];
 							name="forma_de_administrar"
 							id="forma_de_administrar"
 							x-model="formadeAdministracion"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<option
 								value=""
@@ -277,7 +278,7 @@ const managers = formularios?.data_json?.Managers || [];
 						>
 						<select
 							name="forma_de_tributar"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<option
 								value=""
@@ -315,7 +316,7 @@ const managers = formularios?.data_json?.Managers || [];
 							name="direccion_operativa_eeuu"
 							id="direccion_operativa_eeuu"
 							x-model="direccionEEUU"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<option
 								value=""
@@ -368,7 +369,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="direccion"
 								value={formularios?.data_json?.Direccion}
 								id="address"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="ejem. Av. Juan Molineros"
 							/>
 						</div>
@@ -385,7 +386,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="condado"
 								value={formularios?.data_json?.Condado}
 								id="condado"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="ejem. Miami-Dade"
 							/>
 						</div>
@@ -402,7 +403,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="ciudad"
 								value={formularios?.data_json?.Ciudad}
 								id="ciudad"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="ejem. Miami"
 							/>
 						</div>
@@ -416,7 +417,7 @@ const managers = formularios?.data_json?.Managers || [];
 							>
 							<select
 								name="estado"
-								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							>
 								<option
 									value=""
@@ -424,7 +425,7 @@ const managers = formularios?.data_json?.Managers || [];
 									hidden
 									selected={formularios?.data_json?.Estado == null}
 								>
-									Seleccione un pais
+									Seleccione un país
 								</option>
 
 								{
@@ -454,7 +455,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="Codigo_postal"
 								value={formularios?.data_json?.Ciudad}
 								id="Codigo_postal"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="ejem. Miami-Dade"
 							/>
 						</div>
@@ -472,7 +473,7 @@ const managers = formularios?.data_json?.Managers || [];
 							>
 							<select
 								name="Pais_operativo"
-								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 							>
 								<option
 									value=""
@@ -511,7 +512,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="direccion_empresa"
 								value={formularios?.data_json?.direccion_empresa}
 								id="direccion_empresa"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								placeholder="Av. Juan Molineros"
 							/>
 						</div>
@@ -541,7 +542,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="factura_servicio_basico"
 									value={formularios?.data_json?.direccion_empresa}
 									id="factura_servicio_basico"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
 									placeholder="Av. Juan Molineros"
 								/>
 
@@ -555,7 +556,7 @@ const managers = formularios?.data_json?.Managers || [];
 											class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
 										>
 											<div class="relative p-4 w-full max-w-2xl max-h-full">
-												<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
+												<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-800">
 													<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
 														<h3 class="text-xl font-semibold text-black dark:text-white">
 															Factura de servicio básico
@@ -597,7 +598,7 @@ const managers = formularios?.data_json?.Managers || [];
 														<button
 															data-modal-hide="static-modal"
 															type="button"
-															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-[#101521] dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
+															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-black-900 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
 														>
 															Cerrar
 														</button>
@@ -617,7 +618,7 @@ const managers = formularios?.data_json?.Managers || [];
 			</div>
 			<div
 				id="datos-socios"
-				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800"
 			>
 				<h3 class="mb-4 text-xl font-semibold dark:text-white">
 					Datos de los socios - total ( {
@@ -626,479 +627,481 @@ const managers = formularios?.data_json?.Managers || [];
 				</h3>
 
 				{
-					formularios?.data_json.panel_socios.map((socio, index) => (
-						<div class="grid grid-cols-6 gap-6">
-							<div class="col-span-6 sm:col-span-3">
-								<label
-									for="Nombres_completos_socio"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Nombres completos
-								</label>
-								<input
-									type="text"
-									name="Nombres_completos_socio"
-									value={socio?.Nombres_completos}
-									id={`Nombres_completos_socio-${index}`}
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
-									placeholder="Av. Juan Molineros"
-								/>
-							</div>
-							<div class="col-span-6 sm:col-span-3">
-								<label
-									for="correo_electronico"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Correo electronico
-								</label>
-								<input
-									name="correo_electronico"
-									value={socio?.correoelectronico}
-									type="email"
-									id="correo_electronico"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
-									placeholder="correo@ejemplo.com"
-									required
-								/>
-							</div>
-							<div class="col-span-6 sm:col-span-3">
-								<label
-									for="Tipo_de_socio"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Tipo de socio
-								</label>
-								<select
-									name="Tipo_de_socio"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
-								>
-									<option
-										value=""
-										disabled
-										hidden
-										selected={socio?.tipo_socio == null}
-									>
-										Seleccione un tipo de socio
-									</option>
-
-									<option
-										value="Persona Natural"
-										selected={socio?.tipo_socio === 'Persona Natural'}
-									>
-										Persona Natural
-									</option>
-
-									<option
-										value="Empresa"
-										selected={socio?.tipo_socio === 'Empresa'}
-									>
-										Empresa
-									</option>
-								</select>
-							</div>
-							<div class="col-span-6 sm:col-span-3">
-								<div class="relative">
+					formularios?.data_json.panel_socios.map(
+						(socio: any, index: number) => (
+							<div class="grid grid-cols-6 gap-6">
+								<div class="col-span-6 sm:col-span-3">
 									<label
-										for="estado_civil"
+										for="Nombres_completos_socio"
 										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
 									>
-										Estado civil
+										Nombres completos
+									</label>
+									<input
+										type="text"
+										name="Nombres_completos_socio"
+										value={socio?.Nombres_completos}
+										id={`Nombres_completos_socio-${index}`}
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+										placeholder="Av. Juan Molineros"
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="correo_electronico"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Correo electronico
+									</label>
+									<input
+										name="correo_electronico"
+										value={socio?.correoelectronico}
+										type="email"
+										id="correo_electronico"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="correo@ejemplo.com"
+										required
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="Tipo_de_socio"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Tipo de socio
 									</label>
 									<select
-										name="estado_civil"
-										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										name="Tipo_de_socio"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									>
 										<option
 											value=""
 											disabled
 											hidden
-											selected={socio?.estado_civil == null}
+											selected={socio?.tipo_socio == null}
 										>
 											Seleccione un tipo de socio
 										</option>
 
 										<option
-											value="Casado"
-											selected={socio?.estado_civil === 'Casado'}
+											value="Persona Natural"
+											selected={socio?.tipo_socio === 'Persona Natural'}
 										>
-											Casado
+											Persona Natural
 										</option>
 
 										<option
-											value="Soltero"
-											selected={socio?.estado_civil === 'Soltero'}
+											value="Empresa"
+											selected={socio?.tipo_socio === 'Empresa'}
 										>
-											Soltero
-										</option>
-
-										<option
-											value="Divorciado"
-											selected={socio?.estado_civil === 'Divorciado'}
-										>
-											Divorciado
-										</option>
-
-										<option
-											value="Viudo"
-											selected={socio?.estado_civil === 'Viudo'}
-										>
-											Viudo
+											Empresa
 										</option>
 									</select>
 								</div>
-							</div>
-							<div class="col-span-6">
-								<label
-									for="porcentaje"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Porcentaje
-								</label>
-								<input
-									type="number"
-									name="porcentaje"
-									value={socio?.Porcentaje}
-									id="porcentaje"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
-									placeholder="80"
-									required
-								/>
-							</div>
-							<div class="col-span-6 sm:col-span-3">
-								<label
-									for="residente_fiscal_eeuu"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Residente fiscal en EE.UU
-								</label>
-								<select
-									name="estado_civil"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
-								>
-									<option
-										value=""
-										disabled
-										hidden
-										selected={socio?.residente_fiscal_eeuu == null}
-									>
-										Seleccione si es residente fiscal en EE.UU.
-									</option>
-
-									<option
-										value="Si"
-										selected={socio?.residente_fiscal_eeuu === 'Si'}
-									>
-										Si
-									</option>
-
-									<option
-										value="No"
-										selected={socio?.residente_fiscal_eeuu === 'No'}
-									>
-										No
-									</option>
-								</select>
-							</div>
-							<div class="col-span-6 sm:col-span-3">
-								<label
-									for="numero_pasaporte"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Numero de pasaporte
-								</label>
-								<input
-									type="text"
-									name="numero_pasaporte"
-									value={socio?.numero_pasaporte}
-									id="numero_pasaporte"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
-									placeholder="Av. Siempre Viva 123 y Calle Alguna"
-									required
-								/>
-							</div>
-							<div class="col-span-6">
-								<div class="w-full space-y-3">
-									<div>
+								<div class="col-span-6 sm:col-span-3">
+									<div class="relative">
 										<label
-											for="nacionalidad"
+											for="estado_civil"
 											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
 										>
-											Pais de nacionalidad
+											Estado civil
 										</label>
 										<select
-											name="nacionalidad"
-											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+											name="estado_civil"
+											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 										>
 											<option
 												value=""
 												disabled
 												hidden
-												selected={socio?.nacionalidad == null}
+												selected={socio?.estado_civil == null}
 											>
-												Seleccione un pais
+												Seleccione un tipo de socio
 											</option>
 
-											{paises?.map((paises) => (
-												<option
-													value={paises.nombre_paises}
-													selected={
-														socio?.nacionalidad === paises.nombre_paises
-													}
-												>
-													{paises.nombre_paises}
-												</option>
-											))}
+											<option
+												value="Casado"
+												selected={socio?.estado_civil === 'Casado'}
+											>
+												Casado
+											</option>
+
+											<option
+												value="Soltero"
+												selected={socio?.estado_civil === 'Soltero'}
+											>
+												Soltero
+											</option>
+
+											<option
+												value="Divorciado"
+												selected={socio?.estado_civil === 'Divorciado'}
+											>
+												Divorciado
+											</option>
+
+											<option
+												value="Viudo"
+												selected={socio?.estado_civil === 'Viudo'}
+											>
+												Viudo
+											</option>
 										</select>
 									</div>
 								</div>
-							</div>
-							<div class="col-span-6 sm:col-span-3">
-								<label
-									for="numero_p"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Pasaporte
-								</label>
-
-								{socio?.Pasaporte?.map((ps) => (
-									<div class="flex gap-1 items-center">
-										<img
-											src={ps?.content}
-											class="w-20 cursor-zoom-in"
-											alt={ps?.name}
-											data-modal-target="static-modal-pasaporte"
-											data-modal-toggle="static-modal-pasaporte"
-										/>
-
-										<input
-											type="file"
-											name="factura_servicio_basico"
-											id="factura_servicio_basico"
-											class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
-										/>
-										<div
-											id="static-modal-pasaporte"
-											data-modal-backdrop="static"
-											tabindex="-1"
-											aria-hidden="true"
-											class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
-										>
-											<div class="relative p-4 w-full max-w-2xl max-h-full">
-												<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
-													<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
-														<h3 class="text-xl font-semibold text-black dark:text-white">
-															Pasaporte de {socio?.Nombres_completos}
-														</h3>
-														<button
-															type="button"
-															class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
-															data-modal-hide="static-modal-pasaporte"
-														>
-															<svg
-																class="w-3 h-3"
-																aria-hidden="true"
-																xmlns="http://www.w3.org/2000/svg"
-																fill="none"
-																viewBox="0 0 14 14"
-															>
-																<path
-																	stroke="currentColor"
-																	stroke-linecap="round"
-																	stroke-linejoin="round"
-																	stroke-width="2"
-																	d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-																/>
-															</svg>
-															<span class="sr-only">Cerrar modal</span>
-														</button>
-													</div>
-
-													<div class="p-4 md:p-5 space-y-4">
-														<img src={ps?.content} alt={ps?.name} />
-													</div>
-
-													<div class="flex items-center p-4 md:p-5 border-t border-neutral-200 rounded-b dark:border-neutral-600">
-														<button
-															data-modal-hide="static-modal-pasaporte"
-															type="button"
-															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-[#101521] dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
-														>
-															Cerrar
-														</button>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								))}
-							</div>
-							<div class="col-span-6 sm:col-span-3">
-								<label
-									for="numero_ssn"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Numero de SSN
-								</label>
-								<input
-									type="text"
-									name="numero_ssn"
-									value={socio?.ssn}
-									id="numero_ssn"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
-									placeholder="Av. Siempre Viva 123 y Calle Alguna"
-								/>
-							</div>
-							<div class="col-span-6 sm:col-span-3">
-								<label
-									for="numero_ssn"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Numero de ITIN
-								</label>
-								<input
-									type="text"
-									name="numero_ssn"
-									value={socio?.itin}
-									id="numero_ssn"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
-									placeholder="Av. Siempre Viva 123 y Calle Alguna"
-								/>
-							</div>
-							<div class="col-span-6 sm:col-span-3">
-								<label
-									for="pais_factura_servicio_basico"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Pais de factura de servicio basico
-								</label>
-								<select
-									name="pais_factura_servicio_basico"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2  dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
-								>
-									<option
-										value=""
-										disabled
-										hidden
-										selected={socio?.pais_factura_servicio_basico == null}
+								<div class="col-span-6">
+									<label
+										for="porcentaje"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
 									>
-										Seleccione un pais
-									</option>
-
-									{paises?.map((paises) => (
+										Porcentaje
+									</label>
+									<input
+										type="number"
+										name="porcentaje"
+										value={socio?.Porcentaje}
+										id="porcentaje"
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="80"
+										required
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="residente_fiscal_eeuu"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Residente fiscal en EE.UU
+									</label>
+									<select
+										name="estado_civil"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									>
 										<option
-											value={paises.nombre_paises}
-											selected={
-												socio?.pais_factura_servicio_basico ===
-												paises.nombre_paises
-											}
+											value=""
+											disabled
+											hidden
+											selected={socio?.residente_fiscal_eeuu == null}
 										>
-											{paises.nombre_paises}
+											Seleccione si es residente fiscal en EE.UU.
 										</option>
-									))}
-								</select>
-							</div>
-							<div class="col-span-6 sm:col-span-3">
-								<label
-									for="direccion_planilla_socio"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Direccion de la planilla del socio
-								</label>
-								<input
-									type="text"
-									name="direccion_planilla_socio"
-									value={socio?.direccion_planilla_socio}
-									id="direccion_planilla_socio"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
-									placeholder="Av. Siempre Viva 123 y Calle Alguna"
-								/>
-							</div>
-							<div class="col-span-6 sm:col-span-3">
-								<label
-									for="numero_p"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
-								>
-									Factura de servicio basico
-								</label>
 
-								{socio?.factura_servicio_basico_socio?.map((fc) => (
-									<div class="flex gap-1 items-center">
-										<img
-											src={fc?.content}
-											class="w-20 cursor-zoom-in"
-											alt={fc?.name}
-											data-modal-target="static-modal-factura"
-											data-modal-toggle="static-modal-factura"
-										/>
-
-										<input
-											type="file"
-											name="factura_servicio_basico"
-											id="factura_servicio_basico"
-											class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
-										/>
-
-										<div
-											id="static-modal-factura"
-											data-modal-backdrop="static"
-											tabindex="-1"
-											aria-hidden="true"
-											class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+										<option
+											value="Si"
+											selected={socio?.residente_fiscal_eeuu === 'Si'}
 										>
-											<div class="relative p-4 w-full max-w-2xl max-h-full">
-												<div class="relative bg-white rounded-lg shadow-sm dark:bg-[#192033]">
-													<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
-														<h3 class="text-xl font-semibold text-black dark:text-white">
-															Factura de servicio basico de{' '}
-															{socio?.Nombres_completos}
-														</h3>
-														<button
-															type="button"
-															class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
-															data-modal-hide="static-modal-factura"
-														>
-															<svg
-																class="w-3 h-3"
-																aria-hidden="true"
-																xmlns="http://www.w3.org/2000/svg"
-																fill="none"
-																viewBox="0 0 14 14"
+											Si
+										</option>
+
+										<option
+											value="No"
+											selected={socio?.residente_fiscal_eeuu === 'No'}
+										>
+											No
+										</option>
+									</select>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="numero_pasaporte"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Numero de pasaporte
+									</label>
+									<input
+										type="text"
+										name="numero_pasaporte"
+										value={socio?.numero_pasaporte}
+										id="numero_pasaporte"
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="Av. Siempre Viva 123 y Calle Alguna"
+										required
+									/>
+								</div>
+								<div class="col-span-6">
+									<div class="w-full space-y-3">
+										<div>
+											<label
+												for="nacionalidad"
+												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											>
+												Pais de nacionalidad
+											</label>
+											<select
+												name="nacionalidad"
+												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+											>
+												<option
+													value=""
+													disabled
+													hidden
+													selected={socio?.nacionalidad == null}
+												>
+													Seleccione un pais
+												</option>
+
+												{paises?.map((paises) => (
+													<option
+														value={paises.nombre_paises}
+														selected={
+															socio?.nacionalidad === paises.nombre_paises
+														}
+													>
+														{paises.nombre_paises}
+													</option>
+												))}
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="numero_p"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Pasaporte
+									</label>
+
+									{socio?.Pasaporte?.map((ps: any) => (
+										<div class="flex gap-1 items-center">
+											<img
+												src={ps?.content}
+												class="w-20 cursor-zoom-in"
+												alt={ps?.name}
+												data-modal-target="static-modal-pasaporte"
+												data-modal-toggle="static-modal-pasaporte"
+											/>
+
+											<input
+												type="file"
+												name="factura_servicio_basico"
+												id="factura_servicio_basico"
+												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+											/>
+											<div
+												id="static-modal-pasaporte"
+												data-modal-backdrop="static"
+												tabindex="-1"
+												aria-hidden="true"
+												class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+											>
+												<div class="relative p-4 w-full max-w-2xl max-h-full">
+													<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-800">
+														<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
+															<h3 class="text-xl font-semibold text-black dark:text-white">
+																Pasaporte de {socio?.Nombres_completos}
+															</h3>
+															<button
+																type="button"
+																class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
+																data-modal-hide="static-modal-pasaporte"
 															>
-																<path
-																	stroke="currentColor"
-																	stroke-linecap="round"
-																	stroke-linejoin="round"
-																	stroke-width="2"
-																	d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-																/>
-															</svg>
-															<span class="sr-only">Cerrar modal</span>
-														</button>
-													</div>
+																<svg
+																	class="w-3 h-3"
+																	aria-hidden="true"
+																	xmlns="http://www.w3.org/2000/svg"
+																	fill="none"
+																	viewBox="0 0 14 14"
+																>
+																	<path
+																		stroke="currentColor"
+																		stroke-linecap="round"
+																		stroke-linejoin="round"
+																		stroke-width="2"
+																		d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+																	/>
+																</svg>
+																<span class="sr-only">Cerrar modal</span>
+															</button>
+														</div>
 
-													<div class="p-4 md:p-5 space-y-4">
-														<img src={fc?.content} alt={fc?.name} />
-													</div>
+														<div class="p-4 md:p-5 space-y-4">
+															<img src={ps?.content} alt={ps?.name} />
+														</div>
 
-													<div class="flex items-center p-4 md:p-5 border-t border-neutral-200 rounded-b dark:border-neutral-600">
-														<button
-															data-modal-hide="static-modal-factura"
-															type="button"
-															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-[#101521] dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
-														>
-															Cerrar
-														</button>
+														<div class="flex items-center p-4 md:p-5 border-t border-neutral-200 rounded-b dark:border-neutral-600">
+															<button
+																data-modal-hide="static-modal-pasaporte"
+																type="button"
+																class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-black-900 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
+															>
+																Cerrar
+															</button>
+														</div>
 													</div>
 												</div>
 											</div>
 										</div>
-									</div>
-								))}
-							</div>
+									))}
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="numero_ssn"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Numero de SSN
+									</label>
+									<input
+										type="text"
+										name="numero_ssn"
+										value={socio?.ssn}
+										id="numero_ssn"
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="Av. Siempre Viva 123 y Calle Alguna"
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="numero_ssn"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Numero de ITIN
+									</label>
+									<input
+										type="text"
+										name="numero_ssn"
+										value={socio?.itin}
+										id="numero_ssn"
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="Av. Siempre Viva 123 y Calle Alguna"
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="pais_factura_servicio_basico"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Pais de factura de servicio basico
+									</label>
+									<select
+										name="pais_factura_servicio_basico"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2  dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									>
+										<option
+											value=""
+											disabled
+											hidden
+											selected={socio?.pais_factura_servicio_basico == null}
+										>
+											Seleccione un pais
+										</option>
 
-							<hr class="h-px my-8 bg-neutral-200 border-0 dark:bg-[#192033] col-span-6" />
-						</div>
-					))
+										{paises?.map((paises) => (
+											<option
+												value={paises.nombre_paises}
+												selected={
+													socio?.pais_factura_servicio_basico ===
+													paises.nombre_paises
+												}
+											>
+												{paises.nombre_paises}
+											</option>
+										))}
+									</select>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="direccion_planilla_socio"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Direccion de la planilla del socio
+									</label>
+									<input
+										type="text"
+										name="direccion_planilla_socio"
+										value={socio?.direccion_planilla_socio}
+										id="direccion_planilla_socio"
+										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										placeholder="Av. Siempre Viva 123 y Calle Alguna"
+									/>
+								</div>
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="numero_p"
+										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Factura de servicio basico
+									</label>
+
+									{socio?.factura_servicio_basico_socio?.map((fc: any) => (
+										<div class="flex gap-1 items-center">
+											<img
+												src={fc?.content}
+												class="w-20 cursor-zoom-in"
+												alt={fc?.name}
+												data-modal-target="static-modal-factura"
+												data-modal-toggle="static-modal-factura"
+											/>
+
+											<input
+												type="file"
+												name="factura_servicio_basico"
+												id="factura_servicio_basico"
+												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+											/>
+
+											<div
+												id="static-modal-factura"
+												data-modal-backdrop="static"
+												tabindex="-1"
+												aria-hidden="true"
+												class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+											>
+												<div class="relative p-4 w-full max-w-2xl max-h-full">
+													<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-800">
+														<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
+															<h3 class="text-xl font-semibold text-black dark:text-white">
+																Factura de servicio basico de{' '}
+																{socio?.Nombres_completos}
+															</h3>
+															<button
+																type="button"
+																class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
+																data-modal-hide="static-modal-factura"
+															>
+																<svg
+																	class="w-3 h-3"
+																	aria-hidden="true"
+																	xmlns="http://www.w3.org/2000/svg"
+																	fill="none"
+																	viewBox="0 0 14 14"
+																>
+																	<path
+																		stroke="currentColor"
+																		stroke-linecap="round"
+																		stroke-linejoin="round"
+																		stroke-width="2"
+																		d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+																	/>
+																</svg>
+																<span class="sr-only">Cerrar modal</span>
+															</button>
+														</div>
+
+														<div class="p-4 md:p-5 space-y-4">
+															<img src={fc?.content} alt={fc?.name} />
+														</div>
+
+														<div class="flex items-center p-4 md:p-5 border-t border-neutral-200 rounded-b dark:border-neutral-600">
+															<button
+																data-modal-hide="static-modal-factura"
+																type="button"
+																class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-black-900 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
+															>
+																Cerrar
+															</button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									))}
+								</div>
+
+								<hr class="h-px my-8 bg-neutral-200 border-0 dark:bg-black-800 col-span-6" />
+							</div>
+						),
+					)
 				}
 			</div>
 			<template
@@ -1108,7 +1111,7 @@ const managers = formularios?.data_json?.Managers || [];
 			>
 				<div
 					id="datos-managers"
-					class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+					class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800"
 					x-data="{ espartedelosMiembros: '' }"
 					x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
 				>
@@ -1135,7 +1138,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="informacion_miembros"
 									id="informacion_miembros"
 									x-model="asignarManager"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 								>
 									<option
 										value=""
@@ -1173,7 +1176,7 @@ const managers = formularios?.data_json?.Managers || [];
 										name="manager_parte_miembros"
 										id="manager_parte_miembros"
 										x-model="manager_parte_miembros"
-										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 									>
 										<option
 											value=""
@@ -1212,7 +1215,7 @@ const managers = formularios?.data_json?.Managers || [];
 										Miembros que son managers
 									</label>
 									{
-										formularios?.data_json?.panel_socios.map((socio) => (
+										formularios?.data_json?.panel_socios.map((socio: any) => (
 											<div class="flex items-center mb-4">
 												<input
 													id={`miembros-managers-${socio?.Nombres_completos}`}
@@ -1269,14 +1272,14 @@ const managers = formularios?.data_json?.Managers || [];
 						>
 							<div>
 								<hr
-									class="h-px my-8 bg-neutral-200 border-0 dark:bg-[#192033] col-span-6"
+									class="h-px my-8 bg-neutral-200 border-0 dark:bg-black-800 col-span-6"
 								/>
 								<h3 class="mb-4 text-xl font-semibold dark:text-white">
 									Añadir manager
 								</h3>
 								{
 									managers.length > 0 &&
-										managers.map((manager, index) => (
+										managers.map((manager: any, index: number) => (
 											<div
 												class="grid grid-cols-6 gap-6"
 												id={`contenedor-managers-${index}`}
@@ -1293,7 +1296,7 @@ const managers = formularios?.data_json?.Managers || [];
 														name={`Nombres_y_apellidos_manager-${index}`}
 														value={manager?.Nombres_manager || ''}
 														id={`Nombres_y_apellidos_manager-${index}`}
-														class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+														class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
 													/>
 												</div>
 											</div>
@@ -1315,7 +1318,7 @@ const managers = formularios?.data_json?.Managers || [];
 													name="Nombres_y_apellidos_manager"
 													value=""
 													id="Nombres_y_apellidos_manager"
-													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
 												/>
 											</div>
 										</div>
@@ -1329,7 +1332,7 @@ const managers = formularios?.data_json?.Managers || [];
 
 			<div
 				id="datos-info-adicional"
-				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-[#192033]"
+				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800"
 			>
 				<h3 class="mb-4 text-xl font-semibold dark:text-white">
 					Informacion Adicional
@@ -1345,7 +1348,7 @@ const managers = formularios?.data_json?.Managers || [];
 						</label>
 						<select
 							name="informacion_miembros"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<option
 								value=""
@@ -1382,7 +1385,7 @@ const managers = formularios?.data_json?.Managers || [];
 						</label>
 						<select
 							name="responsable_irs"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-[#192033] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
 						>
 							<option
 								value=""
@@ -1394,7 +1397,7 @@ const managers = formularios?.data_json?.Managers || [];
 							</option>
 
 							{
-								formularios?.data_json?.panel_socios.map((socio) => (
+								formularios?.data_json?.panel_socios.map((socio: any) => (
 									<option
 										value={socio?.Nombres_completos}
 										selected={
@@ -1434,141 +1437,3 @@ const managers = formularios?.data_json?.Managers || [];
 		</form>
 	</div>
 </div>
-
-<!-- <div class="grid grid-cols-1 px-4 xl:grid-cols-2 xl:gap-4">
-	<div
-		class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm dark:border-neutral-700 sm:p-6 dark:bg-[#192033] xl:mb-0"
-	>
-		<div class="flow-root">
-			<h3 class="text-xl font-semibold dark:text-white">
-				Alerts & Notifications
-			</h3>
-			<p class="text-sm font-normal text-neutral-500 dark:text-neutral-400">
-				You can set up Themesberg to get notifications
-			</p>
-			<div class="divide-y divide-neutral-200 dark:divide-neutral-700">
-				
-				<div class="flex items-center justify-between py-4">
-					<div class="flex flex-col flex-grow">
-						<div class="text-lg font-semibold text-neutral-900 dark:text-white">
-							Company News
-						</div>
-						<div class="text-base font-normal text-neutral-500 dark:text-neutral-400">
-							Get Themesberg news, announcements, and product updates
-						</div>
-					</div>
-					<ToggleSwitch id="company-news" />
-				</div>
-				
-				<div class="flex items-center justify-between py-4">
-					<div class="flex flex-col flex-grow">
-						<div class="text-lg font-semibold text-neutral-900 dark:text-white">
-							Account Activity
-						</div>
-						<div class="text-base font-normal text-neutral-500 dark:text-neutral-400">
-							Get important notifications about you or activity you've missed
-						</div>
-					</div>
-
-					<ToggleSwitch id="account-activity" checked />
-				</div>
-				
-				<div class="flex items-center justify-between py-4">
-					<div class="flex flex-col flex-grow">
-						<div class="text-lg font-semibold text-neutral-900 dark:text-white">
-							Meetups Near You
-						</div>
-						<div class="text-base font-normal text-neutral-500 dark:text-neutral-400">
-							Get an email when a Dribbble Meetup is posted close to my location
-						</div>
-					</div>
-					<ToggleSwitch id="meetups" />
-				</div>
-				
-				<div class="flex items-center justify-between pt-4">
-					<div class="flex flex-col flex-grow">
-						<div class="text-lg font-semibold text-neutral-900 dark:text-white">
-							New Messages
-						</div>
-						<div class="text-base font-normal text-neutral-500 dark:text-neutral-400">
-							Get Themesberg news, announcements, and product updates
-						</div>
-					</div>
-					<ToggleSwitch id="new-messages" />
-				</div>
-			</div>
-			<div class="mt-6">
-				<button
-					class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-					>Save all</button
-				>
-			</div>
-		</div>
-	</div>
-	<div
-		class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm dark:border-neutral-700 sm:p-6 dark:bg-[#192033] xl:mb-0"
-	>
-		<div class="flow-root">
-			<h3 class="text-xl font-semibold dark:text-white">Email Notifications</h3>
-			<p class="text-sm font-normal text-neutral-500 dark:text-neutral-400">
-				You can set up Themesberg to get email notifications
-			</p>
-			<div class="divide-y divide-neutral-200 dark:divide-neutral-700">
-				
-				<div class="flex items-center justify-between py-4">
-					<div class="flex flex-col flex-grow">
-						<div class="text-lg font-semibold text-neutral-900 dark:text-white">
-							Rating reminders
-						</div>
-						<div class="text-base font-normal text-neutral-500 dark:text-neutral-400">
-							Send an email reminding me to rate an item a week after purchase
-						</div>
-					</div>
-					<ToggleSwitch id="rating-reminders" />
-				</div>
-				
-				<div class="flex items-center justify-between py-4">
-					<div class="flex flex-col flex-grow">
-						<div class="text-lg font-semibold text-neutral-900 dark:text-white">
-							Item update notifications
-						</div>
-						<div class="text-base font-normal text-neutral-500 dark:text-neutral-400">
-							Send user and product notifications for you
-						</div>
-					</div>
-					<ToggleSwitch id="item-update" />
-				</div>
-				
-				<div class="flex items-center justify-between py-4">
-					<div class="flex flex-col flex-grow">
-						<div class="text-lg font-semibold text-neutral-900 dark:text-white">
-							Item comment notifications
-						</div>
-						<div class="text-base font-normal text-neutral-500 dark:text-neutral-400">
-							Send me an email when someone comments on one of my items
-						</div>
-					</div>
-					<ToggleSwitch id="item-comment" />
-				</div>
-				
-				<div class="flex items-center justify-between pt-4">
-					<div class="flex flex-col flex-grow">
-						<div class="text-lg font-semibold text-neutral-900 dark:text-white">
-							Buyer review notifications
-						</div>
-						<div class="text-base font-normal text-neutral-500 dark:text-neutral-400">
-							Send me an email when someone leaves a review with their rating
-						</div>
-					</div>
-					<ToggleSwitch id="buyer-rev" />
-				</div>
-			</div>
-			<div class="mt-6">
-				<button
-					class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-					>Save all</button
-				>
-			</div>
-		</div>
-	</div>
-</div> -->

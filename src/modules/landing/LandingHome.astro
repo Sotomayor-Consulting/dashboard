@@ -1,238 +1,41 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { Image } from 'astro:assets';
 import MenuCard from '@components/display/MenuCard.astro';
-import logo1 from '@assets/SC-INTER.png';
-import logo2 from '@assets/SC-INTER-NG.png';
-import { ROLES, isAdmin as checkAdmin } from '@lib/roles';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { getUserWithRole } from '@lib/tablas/menu';
+import { getFormulariosPendientes } from '@lib/tablas/formulariosEnviados';
+import { getPagosPorLeer } from '@lib/tablas/PagosPorLeer';
+import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
-// --- 1. Roles desde middleware (ya resueltos, sin queries extra) ---
-const userRoles = Astro.locals.userRoles ?? [];
+const user = Astro.locals.user;
+const userId = user?.id;
 
-const isAdmin = checkAdmin(userRoles);
+const [userData, formularioData] = await Promise.all([
+	getUserWithRole(userId),
+	getFormulariosPendientes(),
+]);
 
-// --- 2. Configuración del Menú (Data-Driven) ---
-// Usa los valores de ROLES para consistencia con la BD:
-// 'admin', 'partner', 'cliente', 'operaciones', 'all'
-const menuItems = [
-	{
-		id: 'llc',
-		label: 'Crea una LLC',
-		href: '/start/',
-		tooltip: 'Crea una nueva LLC',
-		roles: [ROLES.CLIENT, ROLES.PARTNER],
-		svgname: 'ri:building-2-fill',
-	},
-	{
-		id: 'companias',
-		label: 'Tus compañias',
-		href: '/pages/companias',
-		tooltip: 'Mira tus compañias y su estado',
-		roles: [ROLES.CLIENT, ROLES.PARTNER],
-		svgname: 'ri:hand-coin-fill',
-	},
-	{
-		id: 'mantenimiento_anual',
-		label: 'mantenimiento',
-		href: '/pages/mantenimiento',
-		tooltip: 'Mira fechas de tu compania y su mantenimiento anual',
-		roles: [ROLES.CLIENT, ROLES.PARTNER],
-		svgname: 'ri:time-zone-fill',
-	},
-	{
-		id: 'documentos',
-		label: 'Documentos',
-		href: '/pages/tus-formularios',
-		tooltip: 'Mira tus documentos y formularios',
-		roles: [ROLES.CLIENT, ROLES.PARTNER],
-		svgname: 'ri:file-copy-2-line',
-	},
-	{
-		id: 'partners',
-		label: 'Partners',
-		href: '/partners/datos-referidos/',
-		tooltip: 'Mira tus referidos',
-		roles: [ROLES.PARTNER],
-		svgname: 'ri:shake-hands-fill',
-	},
-	{
-		id: 'partners-configuracion',
-		label: 'Configuracion',
-		href: '/partners/configuracion-partners/',
-		tooltip: 'Configuracion de partner',
-		roles: [ROLES.PARTNER],
-		svgname: 'ri:settings-3-fill',
-	},
+const { role: userRole, roles: userRoles } = userData;
+const { count: formularioPendientesCount } = formularioData;
 
-	{
-		id: 'partners-soporte',
-		label: 'Agendar',
-		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
-		tooltip: 'Agenda una reunion con Sotomayor Consulting',
-		roles: [ROLES.CLIENT, ROLES.PARTNER],
-		svgname: 'ri:calendar-fill',
-	},
-	{
-		id: 'partners-configuracion-perfil',
-		label: 'Perfil',
-		href: '/settings/',
-		tooltip: 'Configure su perfil y datos',
-		roles: ['all'],
-		svgname: 'ri:account-circle-fill',
-	},
-	{
-		id: 'crud-users',
-		label: 'Clientes',
-		href: '/crud/users',
-		tooltip: 'Gestionar clientes',
-		roles: [ROLES.ADMIN],
-		svgname: 'ri:user-add-fill',
-	},
-	{
-		id: 'crud-empresas',
-		label: 'Empresas',
-		href: '/crud/empresas',
-		tooltip: 'Gestionar clientes',
-		roles: [ROLES.ADMIN],
-		svgname: 'ri:building-2-fill',
-	},
-	{
-		id: 'verificacion-formulario-incorp',
-		label: 'Incorporación',
-		href: '/crud/verficacion-incorporacion',
-		tooltip: 'Gestiona y verifica los datos del formulario de incorporación',
-		roles: [ROLES.ADMIN],
-		svgname: 'ri:archive-stack-fill',
-	},
-	{
-		id: 'menu-vista-de-pagos',
-		label: 'Pagos',
-		href: '/crud/pagos',
-		tooltip: 'verifica y gestiona los pagos realizados por los clientes',
-		roles: [ROLES.ADMIN],
-		svgname: 'ri:coins-fill',
-	},
-	{
-		id: 'menu-subir-documentos-de-usuario',
-		label: 'subir docs',
-		href: '/crud/subir-documentos',
-		tooltip: 'Sube documentos específicos para los clientes',
-		roles: [ROLES.ADMIN],
-		svgname: 'ri:upload-cloud-2-fill',
-	},
-	{
-		id: 'menu-notificaciones-a-usuarios',
-		label: 'Notificaciones',
-		href: '/crud/notificaciones-personalizadas',
-		tooltip: 'Notifica a los usuarios con mensajes personalizados',
-		roles: [ROLES.ADMIN],
-		svgname: 'ri:chat-ai-4-fill',
-	},
-	{
-		id: 'menu-mailing',
-		label: 'Mailing',
-		href: '/crud/mailing',
-		tooltip: 'Envía correos personalizados a los usuarios',
-		roles: [ROLES.ADMIN],
-		svgname: 'ri:mail-ai-fill',
-	},
-	{
-		id: 'crud-servicios',
-		label: 'Servicios',
-		href: '/crud/services',
-		tooltip: 'Gestionar servicios',
-		roles: [ROLES.ADMIN],
-		svgname: 'ri:function-add-fill',
-	},
-	{
-		id: 'crud-formularios',
-		label: 'Formularios',
-		href: '/crud/formularios',
-		tooltip: 'Crea y gestiona formularios',
-		roles: [ROLES.ADMIN],
-		svgname: 'ri:file-edit-fill',
-	},
-	{
-		id: 'crud-formularios-enviados',
-		label: 'Docs Enviados',
-		href: '/crud/formularios-enviados',
-		tooltip: 'Gestiona las respuestas y estados de documentos',
-		roles: [ROLES.ADMIN],
-		svgname: 'ri:file-check-fill',
-	},
-	{
-		id: 'otros-servicios',
-		label: 'Otros servicios',
-		href: '/pages/otros-servicios',
-		tooltip: 'Explora otros servicios disponibles',
-		roles: ['all'],
-		svgname: 'ri:dashboard-horizontal-fill',
-	},
-];
+const { count: pagosCount } = await getPagosPorLeer(userRole);
 
-// --- 3. Consultas de datos admin (solo si es admin) ---
-let formularioPendientesCount = 0;
-let pagosCount = 0;
-
-if (isAdmin) {
-	const supabase = createSupabaseServerClient({
-		headers: Astro.request.headers,
-		cookies: Astro.cookies,
-	});
-
-	const [{ data: formularios }, { data: pagosCountData }] = await Promise.all([
-		supabase
-			.from('formularios_envios')
-			.select(
-				`
-				*,
-				formularios:formularios (form_id, titulo, slug, descripcion),
-				usuarios:usuarios (user_id, nombre, apellido)
-			`,
-			)
-			.eq('status', 'submitted')
-			.eq('verificacion_operaciones', false)
-			.eq('formularios.titulo', 'Formulario de incorporación')
-			.order('updated_at', { ascending: true }),
-		supabase
-			.from('pagos')
-			.select('*')
-			.eq('status', 'succeeded')
-			.eq('visto_por_operaciones', false),
-	]);
-
-	formularioPendientesCount = formularios?.length || 0;
-	pagosCount = pagosCountData?.length || 0;
-}
-
-// Filtramos el menú: el item es visible si incluye 'all' o si el usuario tiene alguno de los roles del item
 const visibleMenu = menuItems.filter(
 	(item) =>
-		item.roles.includes('all' as any) ||
-		item.roles.some((role) => userRoles.includes(role as any)),
+		(item.roles.includes('all') && userRoles.length > 0) ||
+		item.roles.includes('todos') ||
+		item.roles.some((r) => userRoles.includes(r)),
 );
 ---
 
 <div
-	class="bg-neutral-200 dark:bg-[#101521] dark:text-slate-100 p-4 lg:p-16 h-full mb-20 mt-10"
+	class="bg-neutral-200 dark:bg-black-900 dark:text-slate-100 p-4 lg:p-16 h-full mb-20 mt-10"
 >
 	<header
 		class="p-8 flex justify-center items-center flex-wrap flex-col w-full mt-5"
 	>
 		<div class="flex justify-center w-full">
-			<Image
-				src={logo1}
-				width="320"
-				alt="Sotomayor Logo"
-				class="dark:block hidden"
-			/>
-			<Image
-				src={logo2}
-				width="320"
-				alt="Sotomayor Logo"
-				class="dark:hidden hidden sm:block"
-			/>
+			<Icon name="logo-en-negro" class="dark:hidden block text-5xl" />
+			<Icon name="logo-en-blanco" class="hidden dark:block text-5xl" />
 		</div>
 	</header>
 
@@ -257,7 +60,12 @@ const visibleMenu = menuItems.filter(
 										: null
 							}
 						>
-							<Icon name={item.svgname} class="text-5xl" />
+							<Icon
+								name={item.svgname}
+								class="text-5xl"
+								aria-label={item.label}
+								title={item.label}
+							/>
 						</MenuCard>
 					))
 			}
