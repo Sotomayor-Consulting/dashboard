@@ -56,17 +56,17 @@ const acciones = [
 
 <div class="px-4 pt-6">
 	<div
-		class="grid w-full grid-cols-1 gap-4 my-4 xl:grid-cols-2 2xl:grid-cols-3"
+		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
 	>
 		<div
-			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-black-800"
+			class="dark:bg-black-800 items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
 		>
 			<div class="w-full">
 				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
 					Nombre de tu empresa
 				</h3>
 				<span
-					class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white"
+					class="text-2xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
 					>{empresa.nombre_1}</span
 				>
 				<p
@@ -368,17 +368,17 @@ const acciones = [
 		</div>
 
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800"
+			class="dark:bg-black-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700"
 		>
 			<div
-				class="flex items-center justify-between p-4 rounded-lg shadow-sm sm:flex sm:p-6"
+				class="flex items-center justify-between rounded-lg p-4 shadow-sm sm:flex sm:p-6"
 			>
 				<div class="w-full">
 					<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
 						Tipo de negocio
 					</h3>
 					<span
-						class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white"
+						class="text-2xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
 						>{empresa.tipo_de_negocio}</span
 					>
 				</div>
@@ -393,7 +393,7 @@ const acciones = [
 
 						<svg
 							viewBox="0 0 212.3251 80.717765"
-							class="w-full h-full"
+							class="h-full w-full"
 							version="1.1"
 							id="svg1"
 						>
@@ -509,14 +509,14 @@ const acciones = [
 		</div>
 
 		<div
-			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-black-800"
+			class="dark:bg-black-800 items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
 		>
 			<div class="w-full">
 				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
 					Porcentaje de incorporación
 				</h3>
 				<span
-					class="text-xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white"
+					class="text-xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
 					>{empresa.porcentaje_de_incorporacion}%</span
 				>
 			</div>
@@ -530,16 +530,16 @@ const acciones = [
 		</div>
 	</div>
 	<div
-		class="grid w-full grid-cols-1 gap-4 my-4 xl:grid-cols-2 2xl:grid-cols-3"
+		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
 	>
 		<!-- Main widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-black-800"
+			class="dark:bg-black-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700"
 		>
-			<div class="flex items-center justify-between mb-4">
+			<div class="mb-4 flex items-center justify-between">
 				<div class="shrink-0">
 					<span
-						class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white"
+						class="text-xl leading-none font-bold text-gray-900 sm:text-2xl dark:text-white"
 						>{empresa.estado_de_incorporacion}</span
 					>
 					<h3 class="text-base font-light text-gray-500 dark:text-gray-400">
@@ -547,16 +547,16 @@ const acciones = [
 					</h3>
 				</div>
 			</div>
-			<div id="datamap-container" class="w-full h-full relative">
+			<div id="datamap-container" class="relative h-full w-full">
 				<div
 					class="map-loader absolute inset-0 flex items-center justify-center rounded-lg"
 				>
 					<div class="text-center">
 						<div
-							class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#967432] mx-auto mb-4"
+							class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-[#967432]"
 						>
 						</div>
-						<div class="text-gray-600 dark:text-gray-300 text-sm font-medium">
+						<div class="text-sm font-medium text-gray-600 dark:text-gray-300">
 							Cargando mapa...
 						</div>
 					</div>
@@ -565,10 +565,10 @@ const acciones = [
 		</div>
 		<!--Tabs widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800"
+			class="dark:bg-black-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700"
 		>
 			<h3
-				class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white"
+				class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white"
 			>
 				Acciones rapidas
 				<button
@@ -576,7 +576,7 @@ const acciones = [
 					data-popover-placement="bottom-end"
 					type="button"
 					><svg
-						class="w-4 h-4 ml-2 text-gray-400 hover:text-gray-500"
+						class="ml-2 h-4 w-4 text-gray-400 hover:text-gray-500"
 						aria-hidden="true"
 						fill="currentColor"
 						viewBox="0 0 20 20"
@@ -592,9 +592,9 @@ const acciones = [
 				data-popover
 				id="popover-description"
 				role="tooltip"
-				class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-black-800 dark:border-gray-600 dark:text-gray-400"
+				class="dark:bg-black-800 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 bg-white text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600 dark:text-gray-400"
 			>
-				<div class="p-3 space-y-2">
+				<div class="space-y-2 p-3">
 					<h3
 						class="font-semibold text-gray-900 dark:text-white"
 						aria-label="Acciones rapidas"
@@ -616,13 +616,13 @@ const acciones = [
 							acciones.map((data) => (
 								<li class="py-3 sm:py-4">
 									<div class="flex items-center justify-between">
-										<div class="flex items-center min-w-0">
+										<div class="flex min-w-0 items-center">
 											<Icon
 												name={data.icono}
-												class="w-10 h-10 dark:text-white text-[#967432] hover:scale-105"
+												class="h-10 w-10 text-[#967432] hover:scale-105 dark:text-white"
 											/>
 											<div class="ml-3">
-												<p class="font-medium text-gray-900 truncate dark:text-white">
+												<p class="truncate font-medium text-gray-900 dark:text-white">
 													{data.title}
 												</p>
 											</div>
@@ -630,11 +630,11 @@ const acciones = [
 										<a
 											target="_blank"
 											href={data.link}
-											class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+											class="me-2 inline-flex items-center rounded-lg bg-[#967432] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#967432] focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 										>
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
-												class="w-3.5 h-3.5 me-2"
+												class="me-2 h-3.5 w-3.5"
 												viewBox="0 0 16 16"
 											>
 												<>
@@ -660,7 +660,7 @@ const acciones = [
 		</div>
 	</div>
 	<div
-		class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800 my-4"
+		class="dark:bg-black-800 my-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700"
 	>
 		<!-- Card header -->
 		<div class="items-center justify-between lg:flex">
@@ -674,7 +674,7 @@ const acciones = [
 			</div>
 		</div>
 		<!-- Table -->
-		<div class="flex flex-col mt-6">
+		<div class="mt-6 flex flex-col">
 			<div class="overflow-x-auto rounded-lg">
 				<div class="inline-block min-w-full align-middle">
 					<div class="overflow-hidden shadow sm:rounded-lg">
@@ -682,7 +682,7 @@ const acciones = [
 							class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
 							id="myTable"
 						>
-							<thead class="bg-gray-50 dark:bg-black-800">
+							<thead class="dark:bg-black-800 bg-gray-50">
 								<tr>
 									{
 										[
@@ -694,7 +694,7 @@ const acciones = [
 										].map((th) => (
 											<th
 												scope="col"
-												class="p-4 text-xs font-medium tracking-wider text-left text-neutral-600 uppercase dark:text-white"
+												class="p-4 text-left text-xs font-medium tracking-wider text-neutral-600 uppercase dark:text-white"
 											>
 												{th}
 											</th>
@@ -702,28 +702,28 @@ const acciones = [
 									}
 								</tr>
 							</thead>
-							<tbody class="bg-white dark:bg-black-800">
+							<tbody class="dark:bg-black-800 bg-white">
 								<tr
-									class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4] cursor-pointer"
+									class="odd:bg-white-100 cursor-pointer even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
 								>
 									<td
-										class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white"
+										class="p-4 text-sm font-normal whitespace-nowrap text-gray-900 dark:text-white"
 									>
 										Payment from <span class="font-semibold">Bonnie Green</span>
 									</td>
 									<td
-										class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400"
+										class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400"
 									>
 										Apr 23 ,2021
 									</td>
 									<td class="p-4 whitespace-nowrap">
 										<span
-											class="text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:text-green-400 border border-green-500 dark:border-green-500 mx-auto"
+											class="mx-auto mr-2 rounded-md border border-green-500 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:border-green-500 dark:text-green-400"
 											>Completado</span
 										>
 									</td>
 									<td
-										class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-neutral-500"
+										class="p-4 text-sm font-semibold whitespace-nowrap text-gray-900 dark:text-neutral-500"
 									>
 										<a
 											href="http://"
@@ -732,7 +732,7 @@ const acciones = [
 											title="Ver documento"
 											><svg
 												xmlns="http://www.w3.org/2000/svg"
-												class="dark:hover:text-white transition-colors hover:text-neutral-600 text-neutral-900 dark:text-neutral-500"
+												class="text-neutral-900 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-white"
 												width="24"
 												height="24"
 												viewBox="0 0 24 24"
@@ -744,11 +744,11 @@ const acciones = [
 										>
 									</td>
 									<td
-										class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-neutral-500"
+										class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-neutral-500"
 									>
 										<a href="" title="Descargar el documento">
 											<svg
-												class="dark:hover:text-white text-neutral-700 transition-colors"
+												class="text-neutral-700 transition-colors dark:hover:text-white"
 												width="24"
 												height="24"
 												fill="currentColor"

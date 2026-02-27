@@ -15,7 +15,7 @@ const notificaciones = await getNotificacionesGeneral();
 		<div class="inline-block min-w-full align-middle">
 			<div class="overflow-hidden shadow">
 				<table
-					class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
+					class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600"
 					id="myTable"
 				>
 					<thead class="bg-gray-100 dark:bg-[#374151]">
@@ -32,12 +32,12 @@ const notificaciones = await getNotificacionesGeneral();
 								].map((th) => (
 									<th
 										scope="col"
-										class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
 									>
 										<span class="flex items-center">
 											{th}
 											<svg
-												class="w-4 h-4 ms-1"
+												class="ms-1 h-4 w-4"
 												aria-hidden="true"
 												xmlns="http://www.w3.org/2000/svg"
 												width="24"
@@ -60,12 +60,12 @@ const notificaciones = await getNotificacionesGeneral();
 						</tr>
 					</thead>
 					<tbody
-						class="bg-white divide-y divide-gray-200 dark:bg-black-800 dark:divide-gray-700"
+						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
 					>
 						{
 							notificaciones?.map((user) => (
 								<div>
-									<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
+									<tr class="odd:bg-white-100 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
 										<td class="w-4 pl-4">
 											<Image
 												src={logonotificaciones}
@@ -74,23 +74,23 @@ const notificaciones = await getNotificacionesGeneral();
 												class="rounded-full"
 											/>
 										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-gray-500 overflow-hidden truncate max-w-sm xl:max-w-xs">
+										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-medium whitespace-nowrap text-gray-900 xl:max-w-xs dark:text-gray-500">
 											#{user.id}
 										</td>
-										<td class="max-w-sm p-4  text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+										<td class="max-w-sm truncate p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
 											{user.message}
 										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 											<a
 												href={user.link}
 												target="_blank"
-												class="text-white bg-[#967432] hover:bg-[#8c681d] focus:outline-none focus:ring-4 focus:ring-[#8c681d] font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67] flex items-center gap-4 w-fit"
+												class="me-2 mb-2 flex w-fit items-center gap-4 rounded-full bg-[#967432] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 											>
 												{user.mensaje_link}
 												<Icon name="ri:external-link-line" />
 											</a>
 										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 											{user.created_at &&
 												new Date(user.created_at)
 													.toLocaleDateString('es-ES', {
@@ -101,18 +101,18 @@ const notificaciones = await getNotificacionesGeneral();
 													.replace(/\//g, '-')}
 										</td>
 
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 											<div class="flex items-center">
 												{user.is_read === true ? (
-													<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
 												) : (
-													<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
 												)}
 												{user.is_read ? 'Leído' : 'No leído'}
 											</div>
 										</td>
 
-										<td class="p-4 space-x-2 whitespace-nowrap">
+										<td class="space-x-2 p-4 whitespace-nowrap">
 											<button
 												type="button"
 												data-modal-target="edit-user-modal"
@@ -126,11 +126,11 @@ const notificaciones = await getNotificacionesGeneral();
 												data-creado={user.created_at || ''}
 												data-link={user.link || ''}
 												data-mensajelink={user.mensaje_link ?? ''}
-												class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#967432] hover:bg-[#8c681d] focus:ring-4 focus:ring-[#967432] dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+												class="inline-flex items-center rounded-lg bg-[#967432] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-[#967432] dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 											>
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
-													class="w-4 h-4 mr-2"
+													class="mr-2 h-4 w-4"
 													viewBox="0 0 24 24"
 												>
 													<path
@@ -144,13 +144,13 @@ const notificaciones = await getNotificacionesGeneral();
 											<button
 												id={`dd-btn-${user.id}`}
 												data-dropdown-toggle={`dd-${user.id}`}
-												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+												class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
 												aria-expanded="false"
 											>
 												<svg
-													class="w-5 h-5"
+													class="h-5 w-5"
 													aria-hidden="true"
 													xmlns="http://www.w3.org/2000/svg"
 													fill="currentColor"
@@ -161,7 +161,7 @@ const notificaciones = await getNotificacionesGeneral();
 											</button>
 											<div
 												id={`dd-${user.id}`}
-												class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-800 dark:divide-gray-600"
+												class="dark:bg-black-800 z-10 hidden w-44 divide-y divide-gray-100 rounded-lg bg-white shadow-sm dark:divide-gray-600"
 												role="menu"
 												aria-labelledby={`dd-btn-${user.id}`}
 												data-dropdown-placement="bottom-start"
@@ -174,7 +174,7 @@ const notificaciones = await getNotificacionesGeneral();
 														{user.is_read === true ? (
 															<a
 																href="/notificaciones"
-																class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+																class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
 																role="menuitem"
 															>
 																Marcar como leído
@@ -196,7 +196,7 @@ const notificaciones = await getNotificacionesGeneral();
 																/>
 																<button
 																	type="submit"
-																	class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+																	class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
 																	role="menuitem"
 																>
 																	Marcar como leído
@@ -220,15 +220,15 @@ const notificaciones = await getNotificacionesGeneral();
 
 <!-- Edit User Modal -->
 <div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
 	id="edit-user-modal"
 >
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+	<div class="relative h-full w-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
 			<!-- Modal header -->
 			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
 			>
 				<h3 class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
 					Notificación #<span
@@ -237,11 +237,11 @@ const notificaciones = await getNotificacionesGeneral();
 				</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="edit-user-modal"
 				>
 					<svg
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -253,7 +253,7 @@ const notificaciones = await getNotificacionesGeneral();
 				</button>
 			</div>
 			<!-- Modal body -->
-			<div class="p-4 md:p-5 space-y-4">
+			<div class="space-y-4 p-4 md:p-5">
 				<div class="flex justify-between">
 					<p
 						class="text-sm leading-relaxed text-gray-500 dark:text-gray-400"
@@ -268,7 +268,7 @@ const notificaciones = await getNotificacionesGeneral();
 				</div>
 				<div>
 					<p
-						class="text-base leading-relaxed text-gray-500 dark:text-gray-400 mb-3"
+						class="mb-3 text-base leading-relaxed text-gray-500 dark:text-gray-400"
 					>
 						Mensaje:
 					</p>
@@ -285,7 +285,7 @@ const notificaciones = await getNotificacionesGeneral();
 						target="_blank"
 						rel="noopener noreferrer"
 						id="enlace_display_link"
-						class="text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-800 dark:focus:ring-blue-800"
+						class="rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-800 dark:focus:ring-blue-800"
 						title="ir"></a>
 				</div>
 			</div>
@@ -387,24 +387,24 @@ const notificaciones = await getNotificacionesGeneral();
 </script>
 <!-- Añadir usuario -->
 <div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
 	id="add-user-modal"
 >
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+	<div class="relative h-full w-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
 			<!-- Modal header -->
 			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
 			>
 				<h3 class="text-xl font-semibold dark:text-white">Invitar usuario</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="add-user-modal"
 				>
 					<svg
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -417,19 +417,19 @@ const notificaciones = await getNotificacionesGeneral();
 			</div>
 			<!-- Modal body -->
 			<form action="/api/update/admin-invite" method="post">
-				<div class="p-6 space-y-6">
+				<div class="space-y-6 p-6">
 					<div class="grid gap-6">
 						<div class="">
 							<label
 								for="email"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Correo</label
 							>
 							<input
 								type="email"
 								name="correo_create"
 								id="email"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
 								placeholder="correo@ejemplo.com"
 								required
 							/>
@@ -438,10 +438,10 @@ const notificaciones = await getNotificacionesGeneral();
 
 					<!-- Modal footer -->
 					<div
-						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
+							class="hover:bg-primary-800 focus:ring-primary-300 dark:focus:ring-primary-800 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
 							type="submit">Invitar Usuario</button
 						>
 					</div>
@@ -453,24 +453,24 @@ const notificaciones = await getNotificacionesGeneral();
 
 <!-- Añadir rol Modal -->
 <div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
 	id="rol-modal-admin"
 >
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+	<div class="relative h-full w-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
 			<!-- Modal header -->
 			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
 			>
 				<h3 class="text-xl font-semibold dark:text-white">Añadir Rol</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="rol-modal-admin"
 				>
 					<svg
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -483,19 +483,19 @@ const notificaciones = await getNotificacionesGeneral();
 			</div>
 			<!-- Modal body -->
 			<form action="/api/create/admin-new-rol" method="post">
-				<div class="p-6 space-y-6">
+				<div class="space-y-6 p-6">
 					<div class="grid gap-6">
 						<div class="">
 							<label
 								for="nombre_rol"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Añade el nombre del rol</label
 							>
 							<input
 								type="text"
 								name="nombre_rol"
 								id="rol-create"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
 								placeholder="admin"
 								required
 							/>
@@ -504,10 +504,10 @@ const notificaciones = await getNotificacionesGeneral();
 
 					<!-- Modal footer -->
 					<div
-						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-[#8c681d] hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
+							class="hover:bg-primary-800 focus:ring-primary-300 dark:focus:ring-primary-800 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
 							type="submit">Añadir rol</button
 						>
 					</div>
@@ -521,28 +521,28 @@ const notificaciones = await getNotificacionesGeneral();
 	id="updaterol"
 	tabindex="-1"
 	aria-hidden="true"
-	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
+	class="h-modal fixed top-0 right-0 left-0 z-50 hidden w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0 md:h-full"
 >
-	<div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
+	<div class="relative h-full w-full max-w-2xl p-4 md:h-auto">
 		<!-- Modal content -->
 		<div
-			class="relative p-4 bg-white rounded-lg shadow dark:bg-black-800 sm:p-5"
+			class="dark:bg-black-800 relative rounded-lg bg-white p-4 shadow sm:p-5"
 		>
 			<!-- Modal header -->
 			<div
-				class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600"
+				class="mb-4 flex items-center justify-between rounded-t border-b pb-4 sm:mb-5 dark:border-gray-600"
 			>
 				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
 					Selecciona el estado del cliente
 				</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 					data-modal-toggle="updaterol"
 				>
 					<svg
 						aria-hidden="true"
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -557,9 +557,9 @@ const notificaciones = await getNotificacionesGeneral();
 			<!-- Modal body -->
 			<form action="/api/update/admin-update" method="post" id="updaterolForm">
 				<input type="hidden" name="user_id" id="updaterol_user_id" />
-				<div class="p-4 md:p-5 text-center">
+				<div class="p-4 text-center md:p-5">
 					<svg
-						class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+						class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200"
 						aria-hidden="true"
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -578,14 +578,14 @@ const notificaciones = await getNotificacionesGeneral();
 					<button
 						data-modal-hide="updaterol"
 						type="button"
-						class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+						class="inline-flex items-center rounded-lg bg-red-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-red-800 focus:ring-4 focus:ring-red-300 focus:outline-none dark:focus:ring-red-800"
 					>
 						Yes, I'm sure
 					</button>
 					<button
 						data-modal-hide="updaterol"
 						type="button"
-						class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
+						class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
 						>No, cancel</button
 					>
 				</div>

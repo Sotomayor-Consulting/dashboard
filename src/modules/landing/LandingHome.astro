@@ -28,20 +28,20 @@ const visibleMenu = menuItems.filter(
 ---
 
 <div
-	class="bg-neutral-200 dark:bg-black-900 dark:text-slate-100 p-4 lg:p-16 h-full mb-20 mt-10"
+	class="bg-white-100 dark:bg-black-900 mt-10 mb-20 h-full p-4 lg:p-16 dark:text-slate-100"
 >
 	<header
-		class="p-8 flex justify-center items-center flex-wrap flex-col w-full mt-5"
+		class="mt-5 flex w-full flex-col flex-wrap items-center justify-center p-8"
 	>
-		<div class="flex justify-center w-full">
-			<Icon name="logo-en-negro" class="dark:hidden block text-5xl" />
-			<Icon name="logo-en-blanco" class="hidden dark:block text-5xl" />
+		<div class="flex w-full justify-center">
+			<Icon name="logo-en-negro" class="block text-5xl dark:hidden" />
+			<Icon name="logo-en-blanco" class="hidden text-5xl dark:block" />
 		</div>
 	</header>
 
-	<article class="flex justify-center pt-20 pb-32 h-full">
+	<article class="flex h-full justify-center pt-20 pb-32">
 		<div
-			class="grid grid-flow-row grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 md:gap-10 gap-y-10"
+			class="grid grid-flow-row grid-cols-2 gap-y-10 sm:grid-cols-3 md:grid-cols-4 md:gap-10 lg:grid-cols-5"
 		>
 			{
 				visibleMenu &&

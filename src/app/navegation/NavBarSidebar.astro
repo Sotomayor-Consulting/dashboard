@@ -26,7 +26,7 @@ export { notifications, totalUnread, user };
 ---
 
 <nav
-	class="fixed z-30 w-full bg-neutral-200 border-b border-neutral-300 dark:bg-black-900 dark:border-gray-700"
+	class="bg-white-100 dark:bg-black-900 fixed z-30 w-full border-b border-neutral-300 dark:border-gray-700"
 >
 	<div class="px-3 py-3 lg:px-5 lg:pl-3">
 		<div class="flex items-center justify-between">
@@ -37,11 +37,11 @@ export { notifications, totalUnread, user };
 					data-drawer-show="sidebar"
 					aria-controls="sidebar"
 					aria-expanded="true"
-					class="p-2 text-gray-600 rounded cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-neutral-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white"
+					class="cursor-pointer rounded p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:ring-2 focus:ring-gray-100 lg:hidden dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:bg-neutral-700 dark:focus:ring-gray-700"
 				>
 					<svg
 						id="toggleSidebarMobileHamburger"
-						class="w-6 h-6"
+						class="h-6 w-6"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -52,7 +52,7 @@ export { notifications, totalUnread, user };
 					>
 					<svg
 						id="toggleSidebarMobileClose"
-						class="hidden w-6 h-6"
+						class="hidden h-6 w-6"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -62,15 +62,15 @@ export { notifications, totalUnread, user };
 							clip-rule="evenodd"></path></svg
 					>
 				</button>
-				<a href="/" class="ml-2 md:mr-24 md:flex hidden">
+				<a href="/" class="ml-2 hidden md:mr-24 md:flex">
 					<Icon
 						name="logo-en-negro"
-						class="dark:hidden block text-3xl"
+						class="block text-3xl dark:hidden"
 						title="Logo Sotomayor Consulting"
 					/>
 					<Icon
 						name="logo-en-blanco"
-						class="mr-3 hidden dark:block text-3xl"
+						class="mr-3 hidden text-3xl dark:block"
 						title="Logo Sotomayor Consulting"
 					/>
 				</a>
@@ -80,7 +80,7 @@ export { notifications, totalUnread, user };
 				<!-- Dropdown menu -->
 				<div
 					id="dropdownNavbar"
-					class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-black-800 dark:divide-gray-600"
+					class="dark:bg-black-800 z-10 hidden w-44 divide-y divide-gray-100 rounded-lg bg-white shadow dark:divide-gray-600"
 				>
 					<ul
 						class="py-2 text-sm text-gray-700 dark:text-gray-400"
@@ -111,7 +111,7 @@ export { notifications, totalUnread, user };
 					<div class="py-2">
 						<a
 							href="#"
-							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white"
+							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
 							>Sign out</a
 						>
 					</div>
@@ -122,12 +122,12 @@ export { notifications, totalUnread, user };
 						type="button"
 						id="notifications-toggle"
 						data-dropdown-toggle="notification-dropdown"
-						class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-[#101522] relative"
+						class="relative rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-white dark:hover:bg-[#101522] dark:hover:text-white"
 					>
 						<span class="sr-only">Ver Notificaciones</span>
 						<!-- Bell icon -->
 						<svg
-							class="w-6 h-6"
+							class="h-6 w-6"
 							fill="currentColor"
 							viewBox="0 0 20 20"
 							xmlns="http://www.w3.org/2000/svg"
@@ -137,7 +137,7 @@ export { notifications, totalUnread, user };
 						>
 						{
 							totalUnread > 0 && (
-								<span class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-neutral-300 rounded-full -top-2 -end-2 dark:border-[#223848] animate-pulse">
+								<span class="absolute -end-2 -top-2 inline-flex h-6 w-6 animate-pulse items-center justify-center rounded-full border-2 border-neutral-300 bg-red-500 text-xs font-bold text-white dark:border-[#223848]">
 									{totalUnread}
 								</span>
 							)
@@ -145,48 +145,48 @@ export { notifications, totalUnread, user };
 					</button>
 					<!-- Dropdown menu -->
 					<div
-						class="z-20 hidden max-w-sm min-w-[24rem] my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 shadow-lg dark:divide-gray-600 dark:bg-black-800 rounded-xl"
+						class="dark:bg-black-800 z-20 my-4 hidden max-w-sm min-w-[24rem] list-none divide-y divide-gray-100 overflow-hidden rounded-xl bg-white text-base shadow-lg dark:divide-gray-600"
 						id="notification-dropdown"
 					>
 						<div
-							class="block px-4 py-2 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-black-800 dark:text-gray-400"
+							class="dark:bg-black-800 block bg-gray-50 px-4 py-2 text-center text-base font-medium text-gray-700 dark:text-gray-400"
 						>
 							Notificaciones
 						</div>
 						<div
 							id="notifications-list"
-							class="overflow-y-auto h-96 scrollbar-thin scrollbar-thumb-neutral-400"
+							class="scrollbar-thin scrollbar-thumb-neutral-400 h-96 overflow-y-auto"
 						>
 							{
 								notifications.length === 0 ? (
-									<div class="flex px-4 py-3  dark:text-neutral-500 text-neutral-500">
+									<div class="flex px-4 py-3 text-neutral-500 dark:text-neutral-500">
 										No hay notificaciones
 									</div>
 								) : (
 									notifications.map((notification: any) => (
 										<div
-											class="flex px-4 py-3 border-b hover:bg-gray-100 dark:hover:bg-[#101522]/5 dark:border-gray-600"
+											class="flex border-b px-4 py-3 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-[#101522]/5"
 											data-id={notification.id}
 										>
 											<div class="shrink-0">
-											<img
-												src={logonotificaciones.src}
-												width="44"
-												height="44"
-												alt="Logo notificación Sotomayor Consulting"
-												class="rounded-full"
-												loading="lazy"
-											/>
+												<img
+													src={logonotificaciones.src}
+													width="44"
+													height="44"
+													alt="Logo notificación Sotomayor Consulting"
+													class="rounded-full"
+													loading="lazy"
+												/>
 											</div>
 											<div class="w-full pl-3">
-												<div class="text-gray-500 font-normal text-sm mb-1.5 dark:text-gray-400 flex flex-col">
+												<div class="mb-1.5 flex flex-col text-sm font-normal text-gray-500 dark:text-gray-400">
 													<span class="font-semibold text-gray-900 dark:text-white">
 														{notification.message}
 													</span>
 													<a
 														href={notification.link}
 														target="_blank"
-														class="my-1 text-primary-500 hover:text-blue-600"
+														class="text-primary-500 my-1 hover:text-blue-600"
 													>
 														{notification.mensaje_link}
 													</a>
@@ -199,7 +199,7 @@ export { notifications, totalUnread, user };
 													</span>
 													{!notification.is_read && (
 														<button
-															class="mark-as-read text-xs font-medium text-[#8c681d] dark:text-neutral-400 inline-flex hover:dark:text-primary-400"
+															class="mark-as-read hover:dark:text-primary-400 inline-flex text-xs font-medium text-[#8c681d] dark:text-neutral-400"
 															data-id={notification.id}
 														>
 															Marcar como leída
@@ -214,7 +214,7 @@ export { notifications, totalUnread, user };
 						</div>
 						<a
 							href="/notificaciones"
-							class="block py-2 text-base font-normal text-center text-gray-900 bg-gray-50 hover:bg-gray-100 dark:hover:bg-[#192033]/50 dark:bg-black-800 dark:text-white dark:hover:underline group hover:text-neutral-400"
+							class="dark:bg-black-800 group block bg-gray-50 py-2 text-center text-base font-normal text-gray-900 hover:bg-gray-100 hover:text-neutral-400 dark:text-white dark:hover:bg-[#192033]/50 dark:hover:underline"
 						>
 							<div class="inline-flex items-center gap-2">
 								<Icon
@@ -230,27 +230,27 @@ export { notifications, totalUnread, user };
 				<ColorModeSwitcher />
 
 				<!-- Profile -->
-				<div class="flex items-center ml-3">
+				<div class="ml-3 flex items-center">
 					<div>
 						<button
 							type="button"
-							class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+							class="flex rounded-full bg-gray-800 text-sm focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
 							id="user-menu-button-2"
 							aria-expanded="false"
 							data-dropdown-toggle="dropdown-2"
 						>
-						<span class="sr-only">Open user menu</span>
+							<span class="sr-only">Open user menu</span>
 							{
 								imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
 									<img
 										src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId || ''}`}
-										class="w-8 h-8 rounded-full"
+										class="h-8 w-8 rounded-full"
 										alt="avatar general aleatorio"
 										loading="eager"
 									/>
 								) : (
 									<img
-										class="w-8 h-8 rounded-full"
+										class="h-8 w-8 rounded-full"
 										src={imagen?.avatar_url}
 										alt={`user avatar ${userId}`}
 										loading="eager"
@@ -261,7 +261,7 @@ export { notifications, totalUnread, user };
 					</div>
 					<!-- Dropdown menu -->
 					<div
-						class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-black-800 dark:divide-gray-600"
+						class="dark:bg-black-800 z-50 my-4 hidden list-none divide-y divide-gray-100 rounded bg-white text-base shadow dark:divide-gray-600"
 						id="dropdown-2"
 					>
 						<div class="px-4 py-3" role="none">
@@ -270,7 +270,7 @@ export { notifications, totalUnread, user };
 								{usuario?.apellido ?? ''}
 							</p>
 							<p
-								class="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
+								class="truncate text-sm font-medium text-gray-900 dark:text-gray-300"
 								role="none"
 							>
 								{email}

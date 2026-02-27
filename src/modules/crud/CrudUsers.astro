@@ -14,11 +14,11 @@ const [usuarios, roles, paises] = await Promise.all([
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700"
+	class="bg-white-100 dark:bg-black-900 block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
-	<div class="w-full mb-1">
+	<div class="mb-1 w-full">
 		<div class="">
-			<nav class="flex mb-5" aria-label="Breadcrumb">
+			<nav class="mb-5 flex" aria-label="Breadcrumb">
 				<ol
 					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
 				>
@@ -28,7 +28,7 @@ const [usuarios, roles, paises] = await Promise.all([
 							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
 						>
 							<svg
-								class="w-5 h-5 mr-2.5"
+								class="mr-2.5 h-5 w-5"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -42,7 +42,7 @@ const [usuarios, roles, paises] = await Promise.all([
 					<li>
 						<div class="flex items-center">
 							<svg
-								class="w-6 h-6 text-gray-400"
+								class="h-6 w-6 text-gray-400"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -67,15 +67,15 @@ const [usuarios, roles, paises] = await Promise.all([
 			</h1>
 		</div>
 		<div class="sm:flex">
-			<div class="flex items-center ml-auto space-x-2 sm:space-x-3">
+			<div class="ml-auto flex items-center space-x-2 sm:space-x-3">
 				<button
 					type="button"
 					data-modal-target="add-user-modal"
 					data-modal-toggle="add-user-modal"
-					class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+					class="focus:ring-primary-300 inline-flex w-1/2 items-center justify-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 				>
 					<svg
-						class="w-5 h-5 mr-2 -ml-1"
+						class="mr-2 -ml-1 h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -89,11 +89,11 @@ const [usuarios, roles, paises] = await Promise.all([
 				<button
 					id="dropdownMenuIconButton"
 					data-dropdown-toggle="dropdownDots2"
-					class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+					class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 					type="button"
 				>
 					<svg
-						class="w-5 h-5"
+						class="h-5 w-5"
 						aria-hidden="true"
 						xmlns="http://www.w3.org/2000/svg"
 						fill="currentColor"
@@ -107,10 +107,10 @@ const [usuarios, roles, paises] = await Promise.all([
 				<!-- Dropdown menu -->
 				<div
 					id="dropdownDots2"
-					class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-800 dark:divide-gray-600"
+					class="dark:bg-black-800 z-10 hidden w-44 divide-y divide-gray-100 rounded-lg bg-white shadow-sm dark:divide-gray-600"
 				>
 					<ul
-						class="py-2 text-sm text-gray-700 dark:text-gray-200 text-start"
+						class="py-2 text-start text-sm text-gray-700 dark:text-gray-200"
 						aria-labelledby="dropdownMenuIconButton"
 					>
 						<li>
@@ -118,7 +118,7 @@ const [usuarios, roles, paises] = await Promise.all([
 								type="button"
 								data-modal-target="rol-modal-admin"
 								data-modal-toggle="rol-modal-admin"
-								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white w-full text-start"
+								class="block w-full px-4 py-2 text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
 								>Añadir rol</button
 							>
 						</li>
@@ -133,10 +133,10 @@ const [usuarios, roles, paises] = await Promise.all([
 		<div class="inline-block min-w-full align-middle">
 			<div class="overflow-hidden shadow">
 				<table
-					class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
+					class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600"
 					id="myTable"
 				>
-					<thead class="bg-gray-100 dark:bg-black-900">
+					<thead class="dark:bg-black-900 bg-gray-100">
 						<tr>
 							{
 								[
@@ -151,12 +151,12 @@ const [usuarios, roles, paises] = await Promise.all([
 								].map((th) => (
 									<th
 										scope="col"
-										class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-white"
+										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-white"
 									>
 										<span class="flex items-center">
 											{th}
 											<svg
-												class="w-4 h-4 ms-1"
+												class="ms-1 h-4 w-4"
 												aria-hidden="true"
 												xmlns="http://www.w3.org/2000/svg"
 												width="24"
@@ -179,16 +179,16 @@ const [usuarios, roles, paises] = await Promise.all([
 						</tr>
 					</thead>
 					<tbody
-						class="bg-white divide-y divide-gray-200 dark:bg-black-800 dark:divide-gray-700"
+						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
 					>
 						{
 							usuarios?.map((user) => (
 								<div>
-									<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
+									<tr class="odd:bg-white-100 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
 										<td class="w-4 pl-4">
 											{user.avatar_url === 'NULL' || !user.avatar_url ? (
 												<Image
-													class="w-10 h-10 rounded-full"
+													class="h-10 w-10 rounded-full"
 													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
 													alt={`Avatar de ${user.nombre}`}
 													inferSize={true}
@@ -196,7 +196,7 @@ const [usuarios, roles, paises] = await Promise.all([
 												/>
 											) : (
 												<Image
-													class="w-10 h-10 rounded-full"
+													class="h-10 w-10 rounded-full"
 													src={user.avatar_url}
 													alt={`Avatar de ${user.nombre}`}
 													inferSize={true}
@@ -204,7 +204,7 @@ const [usuarios, roles, paises] = await Promise.all([
 												/>
 											)}
 										</td>
-										<td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
+										<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">
 											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
 												<div class="text-base font-semibold text-gray-900 dark:text-white">
 													{user.nombre} {user.apellido}
@@ -214,44 +214,44 @@ const [usuarios, roles, paises] = await Promise.all([
 												</div>
 											</div>
 										</td>
-										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
 											{user.organizacion}
 										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 											{user.cargo}
 										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 											{user.paises?.nombre_paises ?? '—'}
 										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 											<div class="flex items-center">
 												{user.estado === 'activo' ? (
-													<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
 												) : (
-													<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
 												)}
 												{user.estado}
 											</div>
 										</td>
-										<td class="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
+										<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
 											<div class="flex items-center">
 												{user.rol_id === 1 ? (
 													<span
-														class="text-purple-600 font-medium"
+														class="font-medium text-purple-600"
 														title="Administrador"
 													>
 														Admin
 													</span>
 												) : user.rol_id === 2 ? (
 													<span
-														class="text-[#8c681d] font-medium"
+														class="font-medium text-[#8c681d]"
 														title="Partner"
 													>
 														Partner
 													</span>
 												) : (
 													<span
-														class="text-green-600 font-medium"
+														class="font-medium text-green-600"
 														title="Cliente"
 													>
 														Cliente
@@ -260,7 +260,7 @@ const [usuarios, roles, paises] = await Promise.all([
 											</div>
 										</td>
 										<td
-											class="p-4 space-x-2 whitespace-nowrap"
+											class="space-x-2 p-4 whitespace-nowrap"
 											x-data="{ showTooltip: false }"
 										>
 											<button
@@ -287,10 +287,10 @@ const [usuarios, roles, paises] = await Promise.all([
 													user.numero_de_identificacion || ''
 												}
 												data-tipo={user.tipo_persona ?? ''}
-												class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+												class="focus:ring-primary-300 inline-flex items-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 											>
 												<svg
-													class="w-4 h-4 mr-2"
+													class="mr-2 h-4 w-4"
 													fill="currentColor"
 													viewBox="0 0 20 20"
 													xmlns="http://www.w3.org/2000/svg"
@@ -311,13 +311,13 @@ const [usuarios, roles, paises] = await Promise.all([
 												id={`dd-btn-${user.user_id}`}
 												@click="showTooltip = !showTooltip"
 												@click.outside="showTooltip = false"
-												class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+												class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
 												aria-expanded="false"
 											>
 												<svg
-													class="w-5 h-5"
+													class="h-5 w-5"
 													aria-hidden="true"
 													xmlns="http://www.w3.org/2000/svg"
 													fill="currentColor"
@@ -331,7 +331,7 @@ const [usuarios, roles, paises] = await Promise.all([
 												id={`dd-${user.user_id}`}
 												x-show="showTooltip"
 												x-transition
-												class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-800 dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute"
+												class="dark:bg-black-800 absolute z-20 mt-1 w-44 divide-y divide-gray-100 rounded-lg border border-neutral-300 bg-white shadow-sm dark:divide-gray-600 dark:border-neutral-500"
 												role="menu"
 												aria-labelledby={`dd-btn-${user.user_id}`}
 											>
@@ -348,7 +348,7 @@ const [usuarios, roles, paises] = await Promise.all([
 															data-user-name={`${user.nombre} ${user.apellido}`.trim()}
 															data-modal-target="updaterol"
 															data-modal-toggle="updaterol"
-															class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+															class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
 															role="menuitem"
 														>
 															Archivar
@@ -370,24 +370,24 @@ const [usuarios, roles, paises] = await Promise.all([
 
 <!-- Edit User Modal -->
 <div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
 	id="edit-user-modal"
 >
-	<div class="relative w-full h-full max-w-4xl px-4 md:h-auto">
+	<div class="relative h-full w-full max-w-4xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
 			<!-- Modal header -->
 			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
 			>
 				<h3 class="text-xl font-semibold dark:text-white">Editar usuario</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="edit-user-modal"
 				>
 					<svg
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -400,13 +400,13 @@ const [usuarios, roles, paises] = await Promise.all([
 			</div>
 			<!-- Modal body -->
 			<form action="/api/update/admin-update" method="post">
-				<div class="p-6 space-y-6">
+				<div class="space-y-6 p-6">
 					<div class="grid grid-cols-6 gap-6">
 						<input type="hidden" name="user_id" id="modal_user_id" />
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="first-name"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Nombre</label
 							>
 							<input
@@ -414,14 +414,14 @@ const [usuarios, roles, paises] = await Promise.all([
 								name="nombre"
 								value="Bonnie"
 								id="modal_nombre"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="Bonnie"
 							/>
 						</div>
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="last-name"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Apellido</label
 							>
 							<input
@@ -429,21 +429,21 @@ const [usuarios, roles, paises] = await Promise.all([
 								name="apellido"
 								value="Green"
 								id="modal_apellido"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="Green"
 							/>
 						</div>
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="correo"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Correo</label
 							>
 							<input
 								type="email"
 								name="correo"
 								id="modal_correo"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="example@company.com"
 							/>
 						</div>
@@ -451,7 +451,7 @@ const [usuarios, roles, paises] = await Promise.all([
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="position"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Compania</label
 							>
 							<input
@@ -459,20 +459,20 @@ const [usuarios, roles, paises] = await Promise.all([
 								name="compania"
 								value="React Developer"
 								id="modal_compania"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="Sotomayor Consulting"
 							/>
 						</div>
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="pais"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Pais</label
 							>
 							<select
 								id="pais"
 								name="pais_modal"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 							>
 								<option selected hidden disabled>Selecciona un pais</option>
 								{
@@ -485,7 +485,7 @@ const [usuarios, roles, paises] = await Promise.all([
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="ciudad"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>ciudad</label
 							>
 							<input
@@ -493,14 +493,14 @@ const [usuarios, roles, paises] = await Promise.all([
 								value=""
 								id="ciudad"
 								name="ciudad_modal"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="Quito"
 							/>
 						</div>
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="direccion_linea1"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Direccion linea 1</label
 							>
 							<input
@@ -508,14 +508,14 @@ const [usuarios, roles, paises] = await Promise.all([
 								name="direccion_linea1"
 								value=""
 								id="direccion_linea1"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="Av Juan molineros"
 							/>
 						</div>
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="direccion_linea2"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Direccion linea 2</label
 							>
 							<input
@@ -523,48 +523,48 @@ const [usuarios, roles, paises] = await Promise.all([
 								name="direccion_linea2"
 								value=""
 								id="direccion_linea2"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="Y de los Guayacanes"
 							/>
 						</div>
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="modal_telefono"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Telefono</label
 							>
 							<input
 								type="tel"
 								id="modal_telefono"
 								name="modal_telefono"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="0912345678"
 							/>
 						</div>
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="fecha_nacimiento"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Fecha nacimiento</label
 							>
 							<input
 								type="date"
 								name="fecha_nacimiento"
 								id="fecha_nacimiento"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="0912345678"
 							/>
 						</div>
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="tipo_identificacion"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Tipo de identificacion</label
 							>
 							<select
 								id="tipo_identificacion"
 								name="tipo_identificacion"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 							>
 								<option value="" hidden disabled selected
 									>Tipo de documento</option
@@ -581,27 +581,27 @@ const [usuarios, roles, paises] = await Promise.all([
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="numero_de_identificacion"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Numero de identificacion</label
 							>
 							<input
 								type="text"
 								name="numero_de_identificacion"
 								id="numero_de_identificacion"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="1712345678"
 							/>
 						</div>
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="tipo_persona"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Tipo de persona</label
 							>
 							<select
 								id="tipo_persona"
 								name="tipo_persona"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 							>
 								<option value="" hidden="">Tipo de persona</option>
 								<option value="Natural"> Natural </option>
@@ -614,22 +614,22 @@ const [usuarios, roles, paises] = await Promise.all([
 								Añade un rol
 							</h3>
 							<ul
-								class="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-black-900 dark:border-gray-600 dark:text-white"
+								class="dark:bg-black-900 w-full items-center rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-900 sm:flex dark:border-gray-600 dark:text-white"
 							>
 								{
 									roles?.map((rol) => (
-										<li class="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+										<li class="w-full border-b border-gray-200 sm:border-r sm:border-b-0 dark:border-gray-600">
 											<div class="flex items-center ps-3">
 												<input
 													id="modal_id_rol"
 													type="radio"
 													value={rol.id}
 													name="rol_id"
-													class="w-4 h-4 text-[#8c681d] bg-gray-100 border-gray-300 focus:ring-[#8c681d] dark:focus:ring-[#323f67] dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+													class="h-4 w-4 border-gray-300 bg-gray-100 text-[#8c681d] focus:ring-2 focus:ring-[#8c681d] dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-700 dark:focus:ring-[#323f67] dark:focus:ring-offset-gray-700"
 												/>
 												<label
 													for="modal_id_rol"
-													class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+													class="ms-2 w-full py-3 text-sm font-medium text-gray-900 dark:text-gray-300"
 												>
 													{rol.nombre}
 												</label>
@@ -643,10 +643,10 @@ const [usuarios, roles, paises] = await Promise.all([
 
 					<!-- Modal footer -->
 					<div
-						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+							class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 							type="submit">Guardar</button
 						>
 					</div>
@@ -725,24 +725,24 @@ const [usuarios, roles, paises] = await Promise.all([
 </script>
 <!-- Añadir usuario -->
 <div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
 	id="add-user-modal"
 >
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+	<div class="relative h-full w-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
 			<!-- Modal header -->
 			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
 			>
 				<h3 class="text-xl font-semibold dark:text-white">Invitar usuario</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="add-user-modal"
 				>
 					<svg
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -755,19 +755,19 @@ const [usuarios, roles, paises] = await Promise.all([
 			</div>
 			<!-- Modal body -->
 			<form action="/api/update/admin-invite" method="post">
-				<div class="p-6 space-y-6">
+				<div class="space-y-6 p-6">
 					<div class="grid gap-6">
 						<div class="">
 							<label
 								for="email"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Correo</label
 							>
 							<input
 								type="email"
 								name="correo_create"
 								id="email"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="correo@ejemplo.com"
 								required
 							/>
@@ -776,10 +776,10 @@ const [usuarios, roles, paises] = await Promise.all([
 
 					<!-- Modal footer -->
 					<div
-						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+							class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 							type="submit">Invitar Usuario</button
 						>
 					</div>
@@ -790,24 +790,24 @@ const [usuarios, roles, paises] = await Promise.all([
 </div>
 <!-- Añadir rol Modal -->
 <div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
 	id="rol-modal-admin"
 >
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+	<div class="relative h-full w-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
 			<!-- Modal header -->
 			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
 			>
 				<h3 class="text-xl font-semibold dark:text-white">Añadir Rol</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="rol-modal-admin"
 				>
 					<svg
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -820,19 +820,19 @@ const [usuarios, roles, paises] = await Promise.all([
 			</div>
 			<!-- Modal body -->
 			<form action="/api/create/admin-new-rol" method="post">
-				<div class="p-6 space-y-6">
+				<div class="space-y-6 p-6">
 					<div class="grid gap-6">
 						<div class="">
 							<label
 								for="nombre_rol"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Añade el nombre del rol</label
 							>
 							<input
 								type="text"
 								name="nombre_rol"
 								id="rol-create"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="admin"
 								required
 							/>
@@ -841,10 +841,10 @@ const [usuarios, roles, paises] = await Promise.all([
 
 					<!-- Modal footer -->
 					<div
-						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+							class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 							type="submit">Añadir rol</button
 						>
 					</div>
@@ -858,28 +858,28 @@ const [usuarios, roles, paises] = await Promise.all([
 	id="updaterol"
 	tabindex="-1"
 	aria-hidden="true"
-	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
+	class="h-modal fixed top-0 right-0 left-0 z-50 hidden w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0 md:h-full"
 >
-	<div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
+	<div class="relative h-full w-full max-w-2xl p-4 md:h-auto">
 		<!-- Modal content -->
 		<div
-			class="relative p-4 bg-white rounded-lg shadow dark:bg-black-800 sm:p-5"
+			class="dark:bg-black-800 relative rounded-lg bg-white p-4 shadow sm:p-5"
 		>
 			<!-- Modal header -->
 			<div
-				class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600"
+				class="mb-4 flex items-center justify-between rounded-t border-b pb-4 sm:mb-5 dark:border-gray-600"
 			>
 				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
 					Selecciona el estado del cliente
 				</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 					data-modal-toggle="updaterol"
 				>
 					<svg
 						aria-hidden="true"
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -894,17 +894,17 @@ const [usuarios, roles, paises] = await Promise.all([
 			<!-- Modal body -->
 			<form action="/api/update/admin-update" method="post" id="updaterolForm">
 				<input type="hidden" name="user_id" id="updaterol_user_id" />
-				<div class="grid gap-4 mb-4">
+				<div class="mb-4 grid gap-4">
 					<div>
 						<label
 							for="updaterol_estado"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Rol</label
 						>
 						<select
 							id="updaterol_estado"
 							name="estado"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 						>
 							<option value="" disabled="" selected="">--</option>
 							{
@@ -918,14 +918,14 @@ const [usuarios, roles, paises] = await Promise.all([
 				<div class="flex items-center space-x-4">
 					<button
 						type="submit"
-						class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+						class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:outline-none dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 					>
 						Actualizar estado
 					</button>
 					<button
 						data-modal-toggle="updaterol"
 						type="button"
-						class="text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+						class="inline-flex items-center rounded-lg border border-red-600 px-5 py-2.5 text-center text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white focus:ring-4 focus:ring-red-300 focus:outline-none dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
 					>
 						Cancelar
 					</button>

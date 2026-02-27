@@ -39,8 +39,8 @@ const managers = formularios?.data_json?.Managers || [];
 <script src="@lib/alpinejs/alpine.js"></script>
 
 <div class="grid grid-cols-1 px-4 pt-6 xl:grid-cols-2 xl:gap-4">
-	<div class="mb-4 col-span-full xl:mb-2">
-		<nav class="flex mb-5" aria-label="Breadcrumb">
+	<div class="col-span-full mb-4 xl:mb-2">
+		<nav class="mb-5 flex" aria-label="Breadcrumb">
 			<ol
 				class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
 			>
@@ -50,7 +50,7 @@ const managers = formularios?.data_json?.Managers || [];
 						class="inline-flex items-center text-neutral-700 hover:text-[#967432] dark:text-neutral-300 dark:hover:text-white"
 					>
 						<svg
-							class="w-5 h-5 mr-2.5"
+							class="mr-2.5 h-5 w-5"
 							fill="currentColor"
 							viewBox="0 0 20 20"
 							xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +67,7 @@ const managers = formularios?.data_json?.Managers || [];
 						class="inline-flex items-center text-neutral-700 hover:text-[#967432] dark:text-neutral-300 dark:hover:text-white"
 					>
 						<svg
-							class="w-6 h-6 text-neutral-400"
+							class="h-6 w-6 text-neutral-400"
 							fill="currentColor"
 							viewBox="0 0 20 20"
 							xmlns="http://www.w3.org/2000/svg"
@@ -82,7 +82,7 @@ const managers = formularios?.data_json?.Managers || [];
 				<li>
 					<div class="flex items-center">
 						<svg
-							class="w-6 h-6 text-neutral-400"
+							class="h-6 w-6 text-neutral-400"
 							fill="currentColor"
 							viewBox="0 0 20 20"
 							xmlns="http://www.w3.org/2000/svg"
@@ -124,7 +124,7 @@ const managers = formularios?.data_json?.Managers || [];
 				hidden
 			/>
 			<div
-				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800"
+				class="dark:bg-black-800 mb-4 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
 			>
 				<h3 class="mb-4 text-xl font-semibold dark:text-white">
 					Actividad de la compañía
@@ -138,12 +138,12 @@ const managers = formularios?.data_json?.Managers || [];
 					<div class="col-span-6 sm:col-span-3">
 						<label
 							for="Ingresos_de_EEUU"
-							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 							>¿La LLC obtendrá ingresos provenientes de Estados Unidos?</label
 						>
 						<select
 							name="Ingresos_de_EEUU"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 						>
 							<!-- Opción por defecto (placeholder) -->
 							<option
@@ -182,7 +182,7 @@ const managers = formularios?.data_json?.Managers || [];
 							<div class="col-span-6 sm:col-span-3">
 								<label
 									for="actividad_manual"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 								>
 									Actividad registrada de forma manual
 								</label>
@@ -191,7 +191,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="actividad_manual"
 									value={`${formularios?.data_json?.codigo_actividad} - ${formularios?.data_json?.descripcion_actividad}`}
 									id="actividad_manual"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 									placeholder="114110 - Pesca"
 								/>
 							</div>
@@ -199,13 +199,13 @@ const managers = formularios?.data_json?.Managers || [];
 							<div class="col-span-6 sm:col-span-3">
 								<label
 									for="actividad"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 								>
 									Actividad
 								</label>
 								<select
 									name="actividad"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								>
 									<option
 										value=""
@@ -235,14 +235,14 @@ const managers = formularios?.data_json?.Managers || [];
 					<div class="col-span-6 sm:col-span-3">
 						<label
 							for="forma_de_administrar"
-							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 							>Forma de administrar</label
 						>
 						<select
 							name="forma_de_administrar"
 							id="forma_de_administrar"
 							x-model="formadeAdministracion"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 						>
 							<option
 								value=""
@@ -273,12 +273,12 @@ const managers = formularios?.data_json?.Managers || [];
 					<div class="col-span-6 sm:col-span-3">
 						<label
 							for="forma_de_tributar"
-							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 							>Forma de tributar</label
 						>
 						<select
 							name="forma_de_tributar"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 						>
 							<option
 								value=""
@@ -309,14 +309,14 @@ const managers = formularios?.data_json?.Managers || [];
 					<div class="col-span-6 sm:col-span-3">
 						<label
 							for="city"
-							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 							>¿Tiene dirección operativa en EE.UU.?</label
 						>
 						<select
 							name="direccion_operativa_eeuu"
 							id="direccion_operativa_eeuu"
 							x-model="direccionEEUU"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 						>
 							<option
 								value=""
@@ -361,7 +361,7 @@ const managers = formularios?.data_json?.Managers || [];
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="direccion"
-								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 								>Dirección</label
 							>
 							<input
@@ -369,7 +369,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="direccion"
 								value={formularios?.data_json?.Direccion}
 								id="address"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="ejem. Av. Juan Molineros"
 							/>
 						</div>
@@ -378,7 +378,7 @@ const managers = formularios?.data_json?.Managers || [];
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="condado"
-								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 								>Condado</label
 							>
 							<input
@@ -386,7 +386,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="condado"
 								value={formularios?.data_json?.Condado}
 								id="condado"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="ejem. Miami-Dade"
 							/>
 						</div>
@@ -395,7 +395,7 @@ const managers = formularios?.data_json?.Managers || [];
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="ciudad"
-								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 								>Ciudad</label
 							>
 							<input
@@ -403,7 +403,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="ciudad"
 								value={formularios?.data_json?.Ciudad}
 								id="ciudad"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="ejem. Miami"
 							/>
 						</div>
@@ -412,12 +412,12 @@ const managers = formularios?.data_json?.Managers || [];
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="estado"
-								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 								>Estado</label
 							>
 							<select
 								name="estado"
-								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 							>
 								<option
 									value=""
@@ -447,7 +447,7 @@ const managers = formularios?.data_json?.Managers || [];
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="Codigo_postal"
-								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 								>Codigo Postal</label
 							>
 							<input
@@ -455,7 +455,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="Codigo_postal"
 								value={formularios?.data_json?.Ciudad}
 								id="Codigo_postal"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="ejem. Miami-Dade"
 							/>
 						</div>
@@ -468,12 +468,12 @@ const managers = formularios?.data_json?.Managers || [];
 						><div class="col-span-6 sm:col-span-3">
 							<label
 								for="Pais_operativo"
-								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 								>Pais</label
 							>
 							<select
 								name="Pais_operativo"
-								class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 							>
 								<option
 									value=""
@@ -504,7 +504,7 @@ const managers = formularios?.data_json?.Managers || [];
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="direccion_empresa"
-								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 								>Dirección Empresa</label
 							>
 							<input
@@ -512,7 +512,7 @@ const managers = formularios?.data_json?.Managers || [];
 								name="direccion_empresa"
 								value={formularios?.data_json?.direccion_empresa}
 								id="direccion_empresa"
-								class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+								class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								placeholder="Av. Juan Molineros"
 							/>
 						</div>
@@ -521,10 +521,10 @@ const managers = formularios?.data_json?.Managers || [];
 						<div class="col-span-6 sm:col-span-3">
 							<label
 								for="factura_servicio_basico"
-								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 								>Factura de servicio básico</label
 							>
-							<div class="flex gap-1 items-center">
+							<div class="flex items-center gap-1">
 								{
 									formularios?.data_json?.factura_servicio_basico && (
 										<img
@@ -542,7 +542,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="factura_servicio_basico"
 									value={formularios?.data_json?.direccion_empresa}
 									id="factura_servicio_basico"
-									class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+									class="dark:bg-black-800 block h-fit w-full rounded-lg border border-neutral-300 bg-neutral-50 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 									placeholder="Av. Juan Molineros"
 								/>
 
@@ -553,21 +553,21 @@ const managers = formularios?.data_json?.Managers || [];
 											data-modal-backdrop="static"
 											tabindex="-1"
 											aria-hidden="true"
-											class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+											class="fixed top-0 right-0 left-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0"
 										>
-											<div class="relative p-4 w-full max-w-2xl max-h-full">
-												<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-800">
-													<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
+											<div class="relative max-h-full w-full max-w-2xl p-4">
+												<div class="dark:bg-black-800 relative rounded-lg bg-white shadow-sm">
+													<div class="flex items-center justify-between rounded-t border-b border-neutral-200 p-4 md:p-5 dark:border-neutral-600">
 														<h3 class="text-xl font-semibold text-black dark:text-white">
 															Factura de servicio básico
 														</h3>
 														<button
 															type="button"
-															class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
+															class="hover:bg-white-100 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-neutral-400 hover:text-neutral-900 dark:hover:bg-neutral-600 dark:hover:text-white"
 															data-modal-hide="static-modal"
 														>
 															<svg
-																class="w-3 h-3"
+																class="h-3 w-3"
 																aria-hidden="true"
 																xmlns="http://www.w3.org/2000/svg"
 																fill="none"
@@ -585,7 +585,7 @@ const managers = formularios?.data_json?.Managers || [];
 														</button>
 													</div>
 
-													<div class="p-4 md:p-5 space-y-4">
+													<div class="space-y-4 p-4 md:p-5">
 														<img
 															src={
 																formularios?.data_json?.factura_servicio_basico
@@ -594,11 +594,11 @@ const managers = formularios?.data_json?.Managers || [];
 														/>
 													</div>
 
-													<div class="flex items-center p-4 md:p-5 border-t border-neutral-200 rounded-b dark:border-neutral-600">
+													<div class="flex items-center rounded-b border-t border-neutral-200 p-4 md:p-5 dark:border-neutral-600">
 														<button
 															data-modal-hide="static-modal"
 															type="button"
-															class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-black-900 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
+															class="dark:bg-black-900 ms-3 rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-medium text-neutral-900 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 focus:outline-none dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-neutral-700"
 														>
 															Cerrar
 														</button>
@@ -618,7 +618,7 @@ const managers = formularios?.data_json?.Managers || [];
 			</div>
 			<div
 				id="datos-socios"
-				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800"
+				class="dark:bg-black-800 mb-4 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
 			>
 				<h3 class="mb-4 text-xl font-semibold dark:text-white">
 					Datos de los socios - total ( {
@@ -633,7 +633,7 @@ const managers = formularios?.data_json?.Managers || [];
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="Nombres_completos_socio"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Nombres completos
 									</label>
@@ -642,14 +642,14 @@ const managers = formularios?.data_json?.Managers || [];
 										name="Nombres_completos_socio"
 										value={socio?.Nombres_completos}
 										id={`Nombres_completos_socio-${index}`}
-										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+										class="dark:bg-black-800 block h-fit w-full rounded-lg border border-neutral-300 bg-neutral-50 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 										placeholder="Av. Juan Molineros"
 									/>
 								</div>
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="correo_electronico"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Correo electronico
 									</label>
@@ -658,7 +658,7 @@ const managers = formularios?.data_json?.Managers || [];
 										value={socio?.correoelectronico}
 										type="email"
 										id="correo_electronico"
-										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 										placeholder="correo@ejemplo.com"
 										required
 									/>
@@ -666,13 +666,13 @@ const managers = formularios?.data_json?.Managers || [];
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="Tipo_de_socio"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Tipo de socio
 									</label>
 									<select
 										name="Tipo_de_socio"
-										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 									>
 										<option
 											value=""
@@ -702,13 +702,13 @@ const managers = formularios?.data_json?.Managers || [];
 									<div class="relative">
 										<label
 											for="estado_civil"
-											class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+											class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 										>
 											Estado civil
 										</label>
 										<select
 											name="estado_civil"
-											class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+											class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 										>
 											<option
 												value=""
@@ -752,7 +752,7 @@ const managers = formularios?.data_json?.Managers || [];
 								<div class="col-span-6">
 									<label
 										for="porcentaje"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Porcentaje
 									</label>
@@ -761,7 +761,7 @@ const managers = formularios?.data_json?.Managers || [];
 										name="porcentaje"
 										value={socio?.Porcentaje}
 										id="porcentaje"
-										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 										placeholder="80"
 										required
 									/>
@@ -769,13 +769,13 @@ const managers = formularios?.data_json?.Managers || [];
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="residente_fiscal_eeuu"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Residente fiscal en EE.UU
 									</label>
 									<select
 										name="estado_civil"
-										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 									>
 										<option
 											value=""
@@ -804,7 +804,7 @@ const managers = formularios?.data_json?.Managers || [];
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="numero_pasaporte"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Numero de pasaporte
 									</label>
@@ -813,7 +813,7 @@ const managers = formularios?.data_json?.Managers || [];
 										name="numero_pasaporte"
 										value={socio?.numero_pasaporte}
 										id="numero_pasaporte"
-										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 										placeholder="Av. Siempre Viva 123 y Calle Alguna"
 										required
 									/>
@@ -823,13 +823,13 @@ const managers = formularios?.data_json?.Managers || [];
 										<div>
 											<label
 												for="nacionalidad"
-												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 											>
 												Pais de nacionalidad
 											</label>
 											<select
 												name="nacionalidad"
-												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+												class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 											>
 												<option
 													value=""
@@ -857,13 +857,13 @@ const managers = formularios?.data_json?.Managers || [];
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="numero_p"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Pasaporte
 									</label>
 
 									{socio?.Pasaporte?.map((ps: any) => (
-										<div class="flex gap-1 items-center">
+										<div class="flex items-center gap-1">
 											<img
 												src={ps?.content}
 												class="w-20 cursor-zoom-in"
@@ -876,28 +876,28 @@ const managers = formularios?.data_json?.Managers || [];
 												type="file"
 												name="factura_servicio_basico"
 												id="factura_servicio_basico"
-												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+												class="dark:bg-black-800 block h-fit w-full rounded-lg border border-neutral-300 bg-neutral-50 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 											/>
 											<div
 												id="static-modal-pasaporte"
 												data-modal-backdrop="static"
 												tabindex="-1"
 												aria-hidden="true"
-												class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+												class="fixed top-0 right-0 left-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0"
 											>
-												<div class="relative p-4 w-full max-w-2xl max-h-full">
-													<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-800">
-														<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
+												<div class="relative max-h-full w-full max-w-2xl p-4">
+													<div class="dark:bg-black-800 relative rounded-lg bg-white shadow-sm">
+														<div class="flex items-center justify-between rounded-t border-b border-neutral-200 p-4 md:p-5 dark:border-neutral-600">
 															<h3 class="text-xl font-semibold text-black dark:text-white">
 																Pasaporte de {socio?.Nombres_completos}
 															</h3>
 															<button
 																type="button"
-																class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
+																class="hover:bg-white-100 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-neutral-400 hover:text-neutral-900 dark:hover:bg-neutral-600 dark:hover:text-white"
 																data-modal-hide="static-modal-pasaporte"
 															>
 																<svg
-																	class="w-3 h-3"
+																	class="h-3 w-3"
 																	aria-hidden="true"
 																	xmlns="http://www.w3.org/2000/svg"
 																	fill="none"
@@ -915,15 +915,15 @@ const managers = formularios?.data_json?.Managers || [];
 															</button>
 														</div>
 
-														<div class="p-4 md:p-5 space-y-4">
+														<div class="space-y-4 p-4 md:p-5">
 															<img src={ps?.content} alt={ps?.name} />
 														</div>
 
-														<div class="flex items-center p-4 md:p-5 border-t border-neutral-200 rounded-b dark:border-neutral-600">
+														<div class="flex items-center rounded-b border-t border-neutral-200 p-4 md:p-5 dark:border-neutral-600">
 															<button
 																data-modal-hide="static-modal-pasaporte"
 																type="button"
-																class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-black-900 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
+																class="dark:bg-black-900 ms-3 rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-medium text-neutral-900 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 focus:outline-none dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-neutral-700"
 															>
 																Cerrar
 															</button>
@@ -937,7 +937,7 @@ const managers = formularios?.data_json?.Managers || [];
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="numero_ssn"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Numero de SSN
 									</label>
@@ -946,14 +946,14 @@ const managers = formularios?.data_json?.Managers || [];
 										name="numero_ssn"
 										value={socio?.ssn}
 										id="numero_ssn"
-										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 										placeholder="Av. Siempre Viva 123 y Calle Alguna"
 									/>
 								</div>
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="numero_ssn"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Numero de ITIN
 									</label>
@@ -962,20 +962,20 @@ const managers = formularios?.data_json?.Managers || [];
 										name="numero_ssn"
 										value={socio?.itin}
 										id="numero_ssn"
-										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 										placeholder="Av. Siempre Viva 123 y Calle Alguna"
 									/>
 								</div>
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="pais_factura_servicio_basico"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Pais de factura de servicio basico
 									</label>
 									<select
 										name="pais_factura_servicio_basico"
-										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2  dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 									>
 										<option
 											value=""
@@ -1002,7 +1002,7 @@ const managers = formularios?.data_json?.Managers || [];
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="direccion_planilla_socio"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Direccion de la planilla del socio
 									</label>
@@ -1011,20 +1011,20 @@ const managers = formularios?.data_json?.Managers || [];
 										name="direccion_planilla_socio"
 										value={socio?.direccion_planilla_socio}
 										id="direccion_planilla_socio"
-										class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 										placeholder="Av. Siempre Viva 123 y Calle Alguna"
 									/>
 								</div>
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="numero_p"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Factura de servicio basico
 									</label>
 
 									{socio?.factura_servicio_basico_socio?.map((fc: any) => (
-										<div class="flex gap-1 items-center">
+										<div class="flex items-center gap-1">
 											<img
 												src={fc?.content}
 												class="w-20 cursor-zoom-in"
@@ -1037,7 +1037,7 @@ const managers = formularios?.data_json?.Managers || [];
 												type="file"
 												name="factura_servicio_basico"
 												id="factura_servicio_basico"
-												class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+												class="dark:bg-black-800 block h-fit w-full rounded-lg border border-neutral-300 bg-neutral-50 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 											/>
 
 											<div
@@ -1045,22 +1045,22 @@ const managers = formularios?.data_json?.Managers || [];
 												data-modal-backdrop="static"
 												tabindex="-1"
 												aria-hidden="true"
-												class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+												class="fixed top-0 right-0 left-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0"
 											>
-												<div class="relative p-4 w-full max-w-2xl max-h-full">
-													<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-800">
-														<div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-neutral-600 border-neutral-200">
+												<div class="relative max-h-full w-full max-w-2xl p-4">
+													<div class="dark:bg-black-800 relative rounded-lg bg-white shadow-sm">
+														<div class="flex items-center justify-between rounded-t border-b border-neutral-200 p-4 md:p-5 dark:border-neutral-600">
 															<h3 class="text-xl font-semibold text-black dark:text-white">
 																Factura de servicio basico de{' '}
 																{socio?.Nombres_completos}
 															</h3>
 															<button
 																type="button"
-																class="text-neutral-400 bg-transparent hover:bg-neutral-200 hover:text-neutral-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-neutral-600 dark:hover:text-white"
+																class="hover:bg-white-100 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-neutral-400 hover:text-neutral-900 dark:hover:bg-neutral-600 dark:hover:text-white"
 																data-modal-hide="static-modal-factura"
 															>
 																<svg
-																	class="w-3 h-3"
+																	class="h-3 w-3"
 																	aria-hidden="true"
 																	xmlns="http://www.w3.org/2000/svg"
 																	fill="none"
@@ -1078,15 +1078,15 @@ const managers = formularios?.data_json?.Managers || [];
 															</button>
 														</div>
 
-														<div class="p-4 md:p-5 space-y-4">
+														<div class="space-y-4 p-4 md:p-5">
 															<img src={fc?.content} alt={fc?.name} />
 														</div>
 
-														<div class="flex items-center p-4 md:p-5 border-t border-neutral-200 rounded-b dark:border-neutral-600">
+														<div class="flex items-center rounded-b border-t border-neutral-200 p-4 md:p-5 dark:border-neutral-600">
 															<button
 																data-modal-hide="static-modal-factura"
 																type="button"
-																class="py-2.5 px-5 ms-3 text-sm font-medium text-neutral-900 focus:outline-none bg-white rounded-lg border border-neutral-200 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 dark:focus:ring-neutral-700 dark:bg-black-900 dark:text-neutral-400 dark:border-neutral-600 dark:hover:text-white dark:hover:bg-[#101522]"
+																class="dark:bg-black-900 ms-3 rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-medium text-neutral-900 hover:bg-neutral-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-neutral-100 focus:outline-none dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-neutral-700"
 															>
 																Cerrar
 															</button>
@@ -1098,7 +1098,7 @@ const managers = formularios?.data_json?.Managers || [];
 									))}
 								</div>
 
-								<hr class="h-px my-8 bg-neutral-200 border-0 dark:bg-black-800 col-span-6" />
+								<hr class="bg-white-100 dark:bg-black-800 col-span-6 my-8 h-px border-0" />
 							</div>
 						),
 					)
@@ -1111,7 +1111,7 @@ const managers = formularios?.data_json?.Managers || [];
 			>
 				<div
 					id="datos-managers"
-					class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800"
+					class="dark:bg-black-800 mb-4 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
 					x-data="{ espartedelosMiembros: '' }"
 					x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
 				>
@@ -1130,7 +1130,7 @@ const managers = formularios?.data_json?.Managers || [];
 							<div class="col-span-6 sm:col-span-3">
 								<label
 									for="informacion_miembros"
-									class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+									class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 								>
 									Sotomayor Consulting International asigna al Manager
 								</label>
@@ -1138,7 +1138,7 @@ const managers = formularios?.data_json?.Managers || [];
 									name="informacion_miembros"
 									id="informacion_miembros"
 									x-model="asignarManager"
-									class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+									class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								>
 									<option
 										value=""
@@ -1168,7 +1168,7 @@ const managers = formularios?.data_json?.Managers || [];
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="manager_parte_miembros"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										El manager es parte de los miembros
 									</label>
@@ -1176,7 +1176,7 @@ const managers = formularios?.data_json?.Managers || [];
 										name="manager_parte_miembros"
 										id="manager_parte_miembros"
 										x-model="manager_parte_miembros"
-										class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+										class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 									>
 										<option
 											value=""
@@ -1210,19 +1210,19 @@ const managers = formularios?.data_json?.Managers || [];
 								<div class="col-span-6 sm:col-span-3">
 									<label
 										for="managers"
-										class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										Miembros que son managers
 									</label>
 									{
 										formularios?.data_json?.panel_socios.map((socio: any) => (
-											<div class="flex items-center mb-4">
+											<div class="mb-4 flex items-center">
 												<input
 													id={`miembros-managers-${socio?.Nombres_completos}`}
 													name={`miembros-managers-${socio?.Nombres_completos}`}
 													type="checkbox"
 													value={socio?.Nombres_completos}
-													class="w-4 h-4 text-[#8c681d] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#8c681d] dark:focus:ring-[#323f67] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+													class="h-4 w-4 rounded-sm border-gray-300 bg-gray-100 text-[#8c681d] focus:ring-2 focus:ring-[#8c681d] dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-[#323f67]"
 													checked={formularios?.data_json?.Seleccion_managers?.includes(
 														socio?.Nombres_completos,
 													)}
@@ -1241,21 +1241,21 @@ const managers = formularios?.data_json?.Managers || [];
 							<template x-if="manager_parte_miembros === 'Si'">
 								<div class="col-span-6 sm:col-span-3">
 									<label
-										class="mb-2 text-sm font-medium text-neutral-900 dark:text-white block"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 									>
 										¿Añadir otro(s) socio(s) fuera de la lista?
-										<div class="flex cursor-pointer mt-2">
+										<div class="mt-2 flex cursor-pointer">
 											<input
 												type="checkbox"
 												name="otros-miembros-fuera-de-lista"
 												id="otros-miembros-fuera-de-lista"
 												x-model="otrosMiembrosfuera"
-												class="sr-only peer"
+												class="peer sr-only"
 												checked={formularios?.data_json
 													?.agregar_otros_socios === true}
 											/>
 											<div
-												class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-[#8c681d] rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#8c681d] dark:peer-checked:bg-[#8c681d]"
+												class="peer relative h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-[#8c681d] peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-[#8c681d] dark:peer-focus:ring-[#8c681d]"
 											>
 											</div>
 											<span
@@ -1272,7 +1272,7 @@ const managers = formularios?.data_json?.Managers || [];
 						>
 							<div>
 								<hr
-									class="h-px my-8 bg-neutral-200 border-0 dark:bg-black-800 col-span-6"
+									class="bg-white-100 dark:bg-black-800 col-span-6 my-8 h-px border-0"
 								/>
 								<h3 class="mb-4 text-xl font-semibold dark:text-white">
 									Añadir manager
@@ -1287,7 +1287,7 @@ const managers = formularios?.data_json?.Managers || [];
 												<div class="col-span-6 sm:col-span-3">
 													<label
 														for={`informacion_miembros-${index}`}
-														class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+														class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 													>
 														Nombres y Apellidos
 													</label>
@@ -1296,7 +1296,7 @@ const managers = formularios?.data_json?.Managers || [];
 														name={`Nombres_y_apellidos_manager-${index}`}
 														value={manager?.Nombres_manager || ''}
 														id={`Nombres_y_apellidos_manager-${index}`}
-														class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+														class="dark:bg-black-800 block h-fit w-full rounded-lg border border-neutral-300 bg-neutral-50 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 													/>
 												</div>
 											</div>
@@ -1309,7 +1309,7 @@ const managers = formularios?.data_json?.Managers || [];
 											<div class="col-span-6 sm:col-span-3">
 												<label
 													for="informacion_miembros"
-													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 												>
 													Nombres y Apellidos
 												</label>
@@ -1318,7 +1318,7 @@ const managers = formularios?.data_json?.Managers || [];
 													name="Nombres_y_apellidos_manager"
 													value=""
 													id="Nombres_y_apellidos_manager"
-													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d] h-fit"
+													class="dark:bg-black-800 block h-fit w-full rounded-lg border border-neutral-300 bg-neutral-50 text-neutral-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 												/>
 											</div>
 										</div>
@@ -1332,7 +1332,7 @@ const managers = formularios?.data_json?.Managers || [];
 
 			<div
 				id="datos-info-adicional"
-				class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800"
+				class="dark:bg-black-800 mb-4 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
 			>
 				<h3 class="mb-4 text-xl font-semibold dark:text-white">
 					Informacion Adicional
@@ -1342,13 +1342,13 @@ const managers = formularios?.data_json?.Managers || [];
 					<div class="col-span-6 sm:col-span-3">
 						<label
 							for="informacion_miembros"
-							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 						>
 							Informacion de los miembros
 						</label>
 						<select
 							name="informacion_miembros"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 						>
 							<option
 								value=""
@@ -1379,13 +1379,13 @@ const managers = formularios?.data_json?.Managers || [];
 					<div class="col-span-6 sm:col-span-3">
 						<label
 							for="responsable_irs"
-							class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 						>
 							Responsable frente al IRS
 						</label>
 						<select
 							name="responsable_irs"
-							class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#8c681d] focus:border-[#8c681d] block w-full p-2.5 dark:bg-black-800 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#8c681d]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 						>
 							<option
 								value=""
@@ -1416,7 +1416,7 @@ const managers = formularios?.data_json?.Managers || [];
 						<div class="relative">
 							<label
 								for="estado_civil"
-								class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 							>
 								Firma
 							</label>
@@ -1424,9 +1424,9 @@ const managers = formularios?.data_json?.Managers || [];
 						</div>
 					</div>
 
-					<div class="col-span-6 sm:col-full">
+					<div class="sm:col-full col-span-6">
 						<button
-							class="text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+							class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 							type="submit"
 						>
 							Guardar datos

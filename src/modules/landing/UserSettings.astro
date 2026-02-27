@@ -1,6 +1,5 @@
 ---
 import { createSupabaseServerClient } from '@lib/supabase';
-import PictureUploader from '@components/forms/PictureUploader.astro';
 import PersonalInfoForm from './components/PersonalInfoForm.astro';
 import UserAccountPanel from './components/UserAccountPanel.astro';
 import BillingForm from './components/BillingForm.astro';
@@ -32,7 +31,7 @@ const { data: facturacion } = await supabase
 	.eq('user_id', user?.id)
 	.single();
 
-const email = user?.email;
+const email = user?.email ?? undefined;
 ---
 
 <div class="grid grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4">

@@ -8,16 +8,16 @@ const servicio = await ListaServiciosGeneral();
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700"
+	class="dark:bg-black-900 block items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<Alerta />
 	<div class="w-full">
 		<div
-			class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700 w-full"
+			class="dark:bg-black-900 block w-full items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 		>
-			<div class="w-full mb-1">
+			<div class="mb-1 w-full">
 				<div class="mb-4">
-					<nav class="flex mb-5" aria-label="Breadcrumb">
+					<nav class="mb-5 flex" aria-label="Breadcrumb">
 						<ol
 							class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
 						>
@@ -27,7 +27,7 @@ const servicio = await ListaServiciosGeneral();
 									class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
 								>
 									<svg
-										class="w-5 h-5 mr-2.5"
+										class="mr-2.5 h-5 w-5"
 										fill="currentColor"
 										viewBox="0 0 20 20"
 										xmlns="http://www.w3.org/2000/svg"
@@ -41,7 +41,7 @@ const servicio = await ListaServiciosGeneral();
 							<li>
 								<div class="flex items-center">
 									<svg
-										class="w-6 h-6 text-gray-400"
+										class="h-6 w-6 text-gray-400"
 										fill="currentColor"
 										viewBox="0 0 20 20"
 										xmlns="http://www.w3.org/2000/svg"
@@ -65,15 +65,15 @@ const servicio = await ListaServiciosGeneral();
 						Todos los servicios
 					</h1>
 				</div>
-				<div class="items-center justify-between block sm:flex">
-					<div class="flex items-center ml-auto space-x-2 sm:space-x-3">
+				<div class="block items-center justify-between sm:flex">
+					<div class="ml-auto flex items-center space-x-2 sm:space-x-3">
 						<a
 							href="/crud/services/"
 							type="button"
-							class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d]focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
+							class="hover:bg-[#8c681d]focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-800 inline-flex w-1/2 items-center justify-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
 						>
 							<svg
-								class="w-5 h-5 mr-2 -ml-1"
+								class="mr-2 -ml-1 h-5 w-5"
 								fill="none"
 								stroke="currentColor"
 								stroke-width="1.5"
@@ -91,7 +91,7 @@ const servicio = await ListaServiciosGeneral();
 						</a>
 						<button
 							id="createProductButton"
-							class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d]focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
+							class="hover:bg-[#8c681d]focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-800 inline-flex w-1/2 items-center justify-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
 							type="button"
 							data-drawer-target="drawer-create-product-default"
 							data-drawer-show="drawer-create-product-default"
@@ -99,7 +99,7 @@ const servicio = await ListaServiciosGeneral();
 							data-drawer-placement="right"
 						>
 							<svg
-								class="w-5 h-5 mr-2 -ml-1"
+								class="mr-2 -ml-1 h-5 w-5"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -120,7 +120,7 @@ const servicio = await ListaServiciosGeneral();
 				<div class="inline-block min-w-full align-middle">
 					<div class="overflow-hidden shadow">
 						<table
-							class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
+							class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600"
 							id="myTable"
 						>
 							<thead class="bg-gray-100 dark:bg-[#1f2937]">
@@ -138,12 +138,12 @@ const servicio = await ListaServiciosGeneral();
 										].map((th) => (
 											<th
 												scope="col"
-												class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+												class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
 											>
 												<span class="flex items-center uppercase">
 													{th}
 													<svg
-														class="w-4 h-4 ms-1"
+														class="ms-1 h-4 w-4"
 														aria-hidden="true"
 														xmlns="http://www.w3.org/2000/svg"
 														width="24"
@@ -169,8 +169,8 @@ const servicio = await ListaServiciosGeneral();
 							<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
 								{
 									servicio?.map((sr) => (
-										<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
-											<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+										<tr class="odd:bg-white-100 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+											<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
 												<div class="text-base font-semibold text-gray-900 dark:text-white">
 													<data value="name">{sr.nombre}</data>
 												</div>
@@ -179,19 +179,19 @@ const servicio = await ListaServiciosGeneral();
 												</div>
 											</td>
 
-											<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+											<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
 												<data value="description">{sr.categoria}</data>
 											</td>
-											<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+											<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
 												<data value="description">{sr.descripcion}</data>
 											</td>
-											<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 												#<data value="price">{sr.id}</data>
 											</td>
-											<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 												$<data value="price">{sr.precio}</data>
 											</td>
-											<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 												<data value="price">
 													{sr.created_at &&
 														new Date(sr.created_at)
@@ -203,16 +203,16 @@ const servicio = await ListaServiciosGeneral();
 															.replace(/\//g, '-')}
 												</data>
 											</td>
-											<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+											<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 												<div class="flex items-center">
 													{sr.servicio_activo === true ? (
 														<>
-															<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
+															<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
 															<span>Activo</span>
 														</>
 													) : (
 														<>
-															<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
+															<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
 															<span>Inactivo</span>
 														</>
 													)}
@@ -220,7 +220,7 @@ const servicio = await ListaServiciosGeneral();
 											</td>
 
 											<td
-												class="p-4 space-x-2 whitespace-nowrap"
+												class="space-x-2 p-4 whitespace-nowrap"
 												x-data="{ showTooltip: false }"
 											>
 												<button
@@ -236,10 +236,10 @@ const servicio = await ListaServiciosGeneral();
 													data-drawer-show="drawer-update-product-default"
 													aria-controls="drawer-update-product-default"
 													data-drawer-placement="right"
-													class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+													class="focus:ring-primary-300 inline-flex items-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 												>
 													<svg
-														class="w-4 h-4 mr-2"
+														class="mr-2 h-4 w-4"
 														fill="currentColor"
 														viewBox="0 0 20 20"
 														xmlns="http://www.w3.org/2000/svg"
@@ -259,13 +259,13 @@ const servicio = await ListaServiciosGeneral();
 													id={`dd-btn-${sr.id}`}
 													@click="showTooltip = !showTooltip"
 													@click.outside="showTooltip = false"
-													class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+													class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 													type="button"
 													aria-haspopup="true"
 													aria-expanded="false"
 												>
 													<svg
-														class="w-5 h-5"
+														class="h-5 w-5"
 														aria-hidden="true"
 														xmlns="http://www.w3.org/2000/svg"
 														fill="currentColor"
@@ -278,7 +278,7 @@ const servicio = await ListaServiciosGeneral();
 													id={`dd-${sr.id}`}
 													x-show="showTooltip"
 													x-transition
-													class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-900 dark:divide-gray-600 mt-1 border border-neutral-300 dark:border-neutral-500 absolute right-2"
+													class="dark:bg-black-900 absolute right-2 z-20 mt-1 w-44 divide-y divide-gray-100 rounded-lg border border-neutral-300 bg-white shadow-sm dark:divide-gray-600 dark:border-neutral-500"
 													role="menu"
 													aria-labelledby={`dd-btn-${sr.id}`}
 													data-dropdown-placement="bottom-start"
@@ -301,7 +301,7 @@ const servicio = await ListaServiciosGeneral();
 																data-drawer-show="drawer-delete-product-default"
 																aria-controls="drawer-delete-product-default"
 																data-drawer-placement="right"
-																class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+																class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
 																role="menuitem"
 															>
 																Archivar
@@ -321,7 +321,7 @@ const servicio = await ListaServiciosGeneral();
 																data-drawer-show="desarchivar-menu"
 																aria-controls="desarchivar-menu"
 																data-drawer-placement="right"
-																class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+																class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
 																role="menuitem"
 															>
 																Desarchivar
@@ -343,14 +343,14 @@ const servicio = await ListaServiciosGeneral();
 		<!-- Edit Product Drawer -->
 		<div
 			id="drawer-update-product-default"
-			class="fixed top-0 right-0 z-40 w-full h-screen max-w-sm p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-800"
+			class="dark:bg-black-800 fixed top-0 right-0 z-40 h-screen w-full max-w-sm translate-x-full overflow-y-auto bg-white p-4 transition-transform"
 			tabindex="-1"
 			aria-labelledby="drawer-label"
 			aria-hidden="true"
 		>
 			<h5
 				id="drawer-label"
-				class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+				class="mb-6 inline-flex items-center text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
 			>
 				Actualizar servicio
 			</h5>
@@ -358,11 +358,11 @@ const servicio = await ListaServiciosGeneral();
 				type="button"
 				data-drawer-dismiss="drawer-update-product-default"
 				aria-controls="drawer-update-product-default"
-				class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+				class="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 			>
 				<svg
 					aria-hidden="true"
-					class="w-5 h-5"
+					class="h-5 w-5"
 					fill="currentColor"
 					viewBox="0 0 20 20"
 					xmlns="http://www.w3.org/2000/svg"
@@ -385,14 +385,14 @@ const servicio = await ListaServiciosGeneral();
 					<div>
 						<label
 							for="nombre_update-service"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Nombre</label
 						>
 						<input
 							type="text"
 							name="nombre-service"
 							id="nombre_update-service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 							value="Education Dashboard"
 							placeholder="inserta el nombre del servicio"
 							required=""
@@ -401,14 +401,14 @@ const servicio = await ListaServiciosGeneral();
 					<div>
 						<label
 							for="categoria_service"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Categoria</label
 						>
 						<input
 							type="text"
 							name="categoria-service"
 							id="categoria_service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 							value="Education Dashboard"
 							placeholder="Añade el nombre del servicio"
 							required=""
@@ -417,14 +417,14 @@ const servicio = await ListaServiciosGeneral();
 					<div>
 						<label
 							for="precio-servicio"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Precio</label
 						>
 						<input
 							type="number"
 							name="precio-servicio"
 							id="precio-servicio"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 							value="2999"
 							placeholder="$149"
 							required=""
@@ -433,14 +433,14 @@ const servicio = await ListaServiciosGeneral();
 					<div>
 						<label
 							for="descripcion-servicio"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Descripcion</label
 						>
 						<textarea
 							id="descripcion-servicio"
 							name="descripcion-service"
 							rows="4"
-							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#967432] focus:border-[#967432] dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 							placeholder="Añade una descripcion del producto"
 							>Start developing with an open-source library of over 450+ UI
 							components, sections, and pages built with the utility classes
@@ -449,18 +449,18 @@ const servicio = await ListaServiciosGeneral();
 					</div>
 				</div>
 				<div
-					class="bottom-0 left-0 flex justify-center w-full pb-4 mt-4 space-x-4 sm:absolute sm:px-4 sm:mt-0"
+					class="bottom-0 left-0 mt-4 flex w-full justify-center space-x-4 pb-4 sm:absolute sm:mt-0 sm:px-4"
 				>
 					<button
 						type="submit"
-						class="w-full justify-center text-white bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:outline-none focus:ring-[#8c681d] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+						class="w-full justify-center rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 					>
 						Actualizar
 					</button>
 					<button
 						data-drawer-hide="drawer-update-product-default"
 						type="button"
-						class="w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+						class="inline-flex w-full items-center justify-center rounded-lg border border-red-600 px-5 py-2.5 text-center text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white focus:ring-4 focus:ring-red-300 focus:outline-none dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
 					>
 						Cancelar
 					</button>
@@ -471,7 +471,7 @@ const servicio = await ListaServiciosGeneral();
 		<!-- Delete Product Drawer -->
 		<div
 			id="drawer-delete-product-default"
-			class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-800"
+			class="dark:bg-black-800 fixed top-0 right-0 z-40 h-screen w-full max-w-xs translate-x-full overflow-y-auto bg-white p-4 transition-transform"
 			tabindex="-1"
 			aria-labelledby="drawer-label"
 			aria-hidden="true"
@@ -486,11 +486,11 @@ const servicio = await ListaServiciosGeneral();
 				type="button"
 				data-drawer-dismiss="drawer-delete-product-default"
 				aria-controls="drawer-delete-product-default"
-				class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+				class="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 			>
 				<svg
 					aria-hidden="true"
-					class="w-5 h-5"
+					class="h-5 w-5"
 					fill="currentColor"
 					viewBox="0 0 20 20"
 					xmlns="http://www.w3.org/2000/svg"
@@ -502,7 +502,7 @@ const servicio = await ListaServiciosGeneral();
 				<span class="sr-only">Cerrar menu</span>
 			</button>
 			<svg
-				class="w-10 h-10 mt-8 mb-4 text-red-600"
+				class="mt-8 mb-4 h-10 w-10 text-red-600"
 				fill="none"
 				stroke="currentColor"
 				viewBox="0 0 24 24"
@@ -526,12 +526,12 @@ const servicio = await ListaServiciosGeneral();
 				<input type="hidden" name="servicio_activo" value="false" />
 				<button
 					type="submit"
-					class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-900"
+					class="mr-2 inline-flex items-center rounded-lg bg-red-600 px-3 py-2.5 text-center text-sm font-medium text-white hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900"
 				>
 					Si, estoy seguro
 				</button>
 				<button
-					class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-black-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
+					class="focus:ring-primary-300 dark:bg-black-800 inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
 					type="button"
 					data-drawer-dismiss="drawer-delete-product-default"
 					aria-controls="drawer-delete-product-default"
@@ -544,7 +544,7 @@ const servicio = await ListaServiciosGeneral();
 		<!-- desarchivar Product Drawer -->
 		<div
 			id="desarchivar-menu"
-			class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-800"
+			class="dark:bg-black-800 fixed top-0 right-0 z-40 h-screen w-full max-w-xs translate-x-full overflow-y-auto bg-white p-4 transition-transform"
 			tabindex="-1"
 			aria-labelledby="drawer-label"
 			aria-hidden="true"
@@ -559,11 +559,11 @@ const servicio = await ListaServiciosGeneral();
 				type="button"
 				data-drawer-dismiss="desarchivar-menu"
 				aria-controls="desarchivar-menu"
-				class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+				class="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 			>
 				<svg
 					aria-hidden="true"
-					class="w-5 h-5"
+					class="h-5 w-5"
 					fill="currentColor"
 					viewBox="0 0 20 20"
 					xmlns="http://www.w3.org/2000/svg"
@@ -577,7 +577,7 @@ const servicio = await ListaServiciosGeneral();
 
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
-				class="w-10 h-10 mt-8 mb-4 text-emerald-500"
+				class="mt-8 mb-4 h-10 w-10 text-emerald-500"
 				viewBox="0 0 24 24"
 				><path
 					fill="currentColor"
@@ -598,12 +598,12 @@ const servicio = await ListaServiciosGeneral();
 				<input type="hidden" name="des_servicio_activo" value="true" />
 				<button
 					type="submit"
-					class="text-white bg-emerald-500 hover:bg-emerald-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-emerald-500"
+					class="mr-2 inline-flex items-center rounded-lg bg-emerald-500 px-3 py-2.5 text-center text-sm font-medium text-white hover:bg-emerald-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-emerald-500"
 				>
 					Si, estoy seguro
 				</button>
 				<button
-					class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-3 py-2.5 text-center dark:bg-black-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-700"
+					class="focus:ring-primary-300 dark:bg-black-800 inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
 					type="button"
 					data-drawer-dismiss="desarchivar-menu"
 					aria-controls="desarchivar-menu"
@@ -616,14 +616,14 @@ const servicio = await ListaServiciosGeneral();
 		<!-- Add Product Drawer -->
 		<div
 			id="drawer-create-product-default"
-			class="fixed top-0 right-0 z-40 w-full h-screen max-w-sm p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-800"
+			class="dark:bg-black-800 fixed top-0 right-0 z-40 h-screen w-full max-w-sm translate-x-full overflow-y-auto bg-white p-4 transition-transform"
 			tabindex="-1"
 			aria-labelledby="drawer-label"
 			aria-hidden="true"
 		>
 			<h5
 				id="drawer-label"
-				class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+				class="mb-6 inline-flex items-center text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
 			>
 				Nuevo Servicio
 			</h5>
@@ -631,11 +631,11 @@ const servicio = await ListaServiciosGeneral();
 				type="button"
 				data-drawer-dismiss="drawer-create-product-default"
 				aria-controls="drawer-create-product-default"
-				class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+				class="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 			>
 				<svg
 					aria-hidden="true"
-					class="w-5 h-5"
+					class="h-5 w-5"
 					fill="currentColor"
 					viewBox="0 0 20 20"
 					xmlns="http://www.w3.org/2000/svg"
@@ -651,14 +651,14 @@ const servicio = await ListaServiciosGeneral();
 					<div>
 						<label
 							for="nombre-service"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Nombre</label
 						>
 						<input
 							type="text"
 							name="nombre-service"
 							id="nombre-service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 							placeholder="Nombre del servicio"
 							required=""
 						/>
@@ -667,14 +667,14 @@ const servicio = await ListaServiciosGeneral();
 					<div>
 						<label
 							for="precio-servicio"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Precio</label
 						>
 						<input
 							type="number"
 							name="precio-servicio"
 							id="price"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 							placeholder="$2999"
 							required=""
 						/>
@@ -682,14 +682,14 @@ const servicio = await ListaServiciosGeneral();
 					<div>
 						<label
 							for="categoria-service"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Categoria</label
 						>
 						<input
 							type="text"
 							name="categoria-service"
 							id="categoria-service"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 							placeholder="Categoria del servicio"
 							required=""
 						/>
@@ -697,23 +697,23 @@ const servicio = await ListaServiciosGeneral();
 					<div>
 						<label
 							for="descripcion-service"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Descripcion</label
 						>
 						<textarea
 							id="descripcion-service"
 							name="descripcion-service"
 							rows="4"
-							class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-[#967432] focus:border-[#967432] dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 							placeholder="Ingresa una descripcion del servicio"></textarea>
 					</div>
 
 					<div
-						class="bottom-0 left-0 flex justify-center w-full pb-4 space-x-4 md:px-4 md:absolute"
+						class="bottom-0 left-0 flex w-full justify-center space-x-4 pb-4 md:absolute md:px-4"
 					>
 						<button
 							type="submit"
-							class="text-white w-full justify-center bg-[#8c681d] hover:bg-[#8c681d]focus:ring-4 focus:outline-none focus:ring-[#967432] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#967432]"
+							class="hover:bg-[#8c681d]focus:ring-4 w-full justify-center rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-[#967432] focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#967432]"
 						>
 							Añadir servicio
 						</button>
@@ -721,11 +721,11 @@ const servicio = await ListaServiciosGeneral();
 							type="button"
 							data-drawer-dismiss="drawer-create-product-default"
 							aria-controls="drawer-create-product-default"
-							class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-black-800 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+							class="focus:ring-primary-300 dark:bg-black-800 inline-flex w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:ring-4 focus:outline-none dark:border-gray-500 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
 						>
 							<svg
 								aria-hidden="true"
-								class="w-5 h-5 -ml-1 sm:mr-1"
+								class="-ml-1 h-5 w-5 sm:mr-1"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"

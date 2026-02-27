@@ -1,6 +1,7 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { menuItems } from '@lib/interfaz/itemsNavegacion';
+import Breadcrumb from '@components/ui/breadcrumb.astro';
 
 const userRoles = Astro.locals.userRoles;
 
@@ -11,54 +12,55 @@ const visibleMenu = menuItems.filter(
 		item.roles.some((r) => userRoles.includes(r)),
 );
 
-const ruta = Astro.url.pathname; 
+const ruta = Astro.url.pathname;
 ---
 
-<div class="hidden top-1/2 z-40 fixed lg:block">
+<div class="fixed top-1/2 z-40 hidden lg:block">
 	<button
 		type="button"
-		class="text-white dark:bg-black-800 bg-white-100 box-border border border-transparent hover:bg-white-200 focus:ring-1 focus:ring-brand-medium dark:focus:ring-black-700 shadow-xs font-medium leading-5 rounded-e-base text-sm py-6 focus:outline-none group dark:hover:border-black-800 dark:hover:bg-black-900"
+		class="dark:bg-black-800 bg-white-100 hover:bg-white-200 focus:ring-brand-medium dark:focus:ring-black-700 rounded-e-base group dark:hover:border-black-800 dark:hover:bg-black-900 box-border border border-transparent py-6 text-sm leading-5 font-medium text-white shadow-xs focus:ring-1 focus:outline-none"
 		data-drawer-target="sidebar"
 		data-drawer-show="sidebar"
 		aria-controls="sidebar"
 	>
 		<Icon
 			name="ri:arrow-right-s-fill"
-			class="text-xl text-white-600 dark:text-white group-hover:translate-x-0.5 transition-transform ease-in duration-200"
+			class="text-white-600 text-xl transition-transform duration-200 ease-in group-hover:translate-x-0.5 dark:text-white"
 			title="Menu"
 		/>
 	</button>
 </div>
+
 <aside
 	id="sidebar"
-	class="fixed top-0 left-0 z-40 w-64 h-screen overflow-hidden transition-transform -translate-x-full bg-neutral-primary-soft border-e border-default"
+	class="bg-neutral-primary-soft border-default fixed top-0 left-0 z-40 h-screen w-64 -translate-x-full overflow-hidden border-e transition-transform"
 	tabindex="-1"
 	aria-labelledby="sidebar-label"
 >
 	<div
-		class="relative flex flex-col flex-1 min-h-0 pt-0 bg-white-300 border-r border-neutral-300 dark:bg-black-900 dark:border-gray-700 h-full"
+		class="bg-white-300 dark:bg-black-900 relative flex h-full min-h-0 flex-1 flex-col border-r border-neutral-300 pt-0 dark:border-gray-700"
 	>
 		<div
 			class:list={[
-				'flex flex-col flex-1 pt-5 pb-28 overflow-y-auto',
+				'flex flex-1 flex-col overflow-y-auto pt-5 pb-28',
 				'scrollbar scrollbar-w-2 scrollbar-thumb-rounded-[0.1667rem]',
 				'scrollbar-thumb-slate-200 scrollbar-track-gray-400',
 				'dark:scrollbar-thumb-neutral-700 dark:scrollbar-track-neutral-800',
 			]}
 		>
 			<div
-				class="flex-1 px-3 space-y-1 bg-white-300 dark:bg-black-900 overflow-auto scrollbar-none"
+				class="bg-white-300 dark:bg-black-900 scrollbar-none flex-1 space-y-1 overflow-auto px-3"
 			>
-				<div class="flex items-center justify-start mb-5">
+				<div class="mb-5 flex items-center justify-start">
 					<a href="/">
 						<Icon
 							name="logo-en-negro"
-							class="dark:hidden block text-3xl"
+							class="block text-3xl dark:hidden"
 							title="Logo Sotomayor Consulting"
 						/>
 						<Icon
 							name="logo-en-blanco"
-							class="mr-3 hidden dark:block text-3xl"
+							class="mr-3 hidden text-3xl dark:block"
 							title="Logo Sotomayor Consulting"
 						/>
 					</a>
@@ -67,13 +69,13 @@ const ruta = Astro.url.pathname;
 						type="button"
 						data-drawer-hide="sidebar"
 						aria-controls="sidebar"
-						class="text-body bg-transparent hover:text-heading hover:bg-neutral-tertiary rounded-base p-2 h-fit flex items-center justify-center"
+						class="text-body hover:text-heading hover:bg-neutral-tertiary rounded-base flex h-fit items-center justify-center bg-transparent p-2"
 					>
-						<Icon name="ri:close-line" class="w-5 h-5" />
+						<Icon name="ri:close-line" class="h-5 w-5" />
 						<span class="sr-only">Close menu</span>
 					</button>
 				</div>
-				<ul class="pb-2 space-y-2 overflow-hidden">
+				<ul class="space-y-2 overflow-hidden pb-2">
 					<li>
 						<a
 							href="/"
@@ -99,18 +101,18 @@ const ruta = Astro.url.pathname;
 					<li>
 						<button
 							type="button"
-							class="flex items-center p-2 w-full text-base font-medium text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+							class="group flex w-full items-center rounded-lg p-2 text-base font-medium text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
 							aria-controls="dropdown-pages"
 							data-collapse-toggle="dropdown-pages"
 						>
 							<Icon
 								name="ri:apps-2-add-fill"
-								class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+								class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
 							/>
-							<span class="flex-1 ml-3 text-left whitespace-nowrap">Menu</span>
+							<span class="ml-3 flex-1 text-left whitespace-nowrap">Menu</span>
 							<svg
 								aria-hidden="true"
-								class="w-6 h-6"
+								class="h-6 w-6"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -121,7 +123,7 @@ const ruta = Astro.url.pathname;
 									clip-rule="evenodd"></path>
 							</svg>
 						</button>
-						<ul id="dropdown-pages" class="py-2 space-y-2 ml-1">
+						<ul id="dropdown-pages" class="ml-1 space-y-2 py-2">
 							{
 								visibleMenu &&
 									visibleMenu.map((l) => {
@@ -131,18 +133,18 @@ const ruta = Astro.url.pathname;
 											<li>
 												<a
 													href={l.href}
-													class={`flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-black-700 ${
+													class={`group dark:hover:bg-black-700 flex items-center rounded-lg p-2 text-base text-gray-900 hover:bg-gray-100 dark:text-gray-200 ${
 														isActive
-															? 'bg-gray-200 dark:bg-black-700 translate-x-2.5 hover:translate-x-0 transition-transform duration-200'
-															: 'hover:translate-x-2 transition-transform duration-200'
+															? 'dark:bg-black-700 translate-x-2.5 bg-gray-200 transition-transform duration-200 hover:translate-x-0'
+															: 'transition-transform duration-200 hover:translate-x-2'
 													}`}
 												>
 													<Icon
 														name={l.svgname}
-														class={`w-6 h-6  transition duration-75 group-hover:text-gray-900 dark:group-hover:text-black-400 ${isActive ? 'dark:text-black-400 text-white-500' : 'dark:text-gray-400 text-gray-500'}`}
+														class={`dark:group-hover:text-black-400 h-6 w-6 transition duration-75 group-hover:text-gray-900 ${isActive ? 'dark:text-black-400 text-white-500' : 'text-gray-500 dark:text-gray-400'}`}
 													/>
 													<span
-														class={`ml-3 ${isActive ? 'dark:text-black-400 text-white-500' : 'dark:text-gray-400 text-gray-500'}`}
+														class={`ml-3 ${isActive ? 'dark:text-black-400 text-white-500' : 'text-gray-500 dark:text-gray-400'}`}
 														sidebar-toggle-item
 													>
 														{l.label}
@@ -157,7 +159,7 @@ const ruta = Astro.url.pathname;
 				</ul>
 
 				<div
-					class="pt-2 space-y-2 border-t dark:border-black-600 border-white-500"
+					class="dark:border-black-600 border-white-500 space-y-2 border-t pt-2"
 				>
 					{
 						[
@@ -180,11 +182,11 @@ const ruta = Astro.url.pathname;
 							<a
 								href={l.link}
 								target="_blank"
-								class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-black-700"
+								class="group dark:hover:bg-black-700 flex items-center rounded-lg p-2 text-base text-gray-900 transition duration-75 hover:bg-gray-100 dark:text-gray-200"
 							>
 								<Icon
 									name={l.svgname}
-									class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+									class="h-6 w-6 flex-shrink-0 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
 								/>
 								<span class="ml-3" sidebar-toggle-item>
 									{l.span}
@@ -196,18 +198,18 @@ const ruta = Astro.url.pathname;
 			</div>
 		</div>
 		<div
-			class="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-white-300 lg:flex dark:bg-black-900"
+			class="bg-white-300 dark:bg-black-900 absolute bottom-0 left-0 hidden w-full justify-center space-x-4 p-4 lg:flex"
 			sidebar-bottom-menu
 		>
 			<form action="/api/auth/signout">
 				<button
 					type="submit"
 					data-tooltip-target="tooltip-cerrar"
-					class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-red-600 hover:bg-gray-100 dark:hover:bg-black-700 dark:hover:text-red-600"
+					class="dark:hover:bg-black-700 inline-flex cursor-pointer justify-center rounded p-2 text-gray-500 hover:bg-gray-100 hover:text-red-600 dark:hover:text-red-600"
 					role="menuitem"
 					><svg
 						xmlns="http://www.w3.org/2000/svg"
-						class="w-6 h-6"
+						class="h-6 w-6"
 						viewBox="0 0 24 24"
 						><path
 							fill="currentColor"
@@ -219,7 +221,7 @@ const ruta = Astro.url.pathname;
 			<div
 				id="tooltip-cerrar"
 				role="tooltip"
-				class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-neutral-500 rounded-lg shadow-sm opacity-0 tooltip dark:bg-black-800"
+				class="tooltip dark:bg-black-800 invisible absolute z-10 inline-block rounded-lg bg-neutral-500 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300"
 			>
 				Cerrar sesión
 				<div class="tooltip-arrow" data-popper-arrow></div>
@@ -228,10 +230,10 @@ const ruta = Astro.url.pathname;
 			<a
 				href="/settings/"
 				data-tooltip-target="tooltip-settings"
-				class="inline-flex justify-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-black-700 dark:hover:text-white"
+				class="dark:hover:bg-black-700 inline-flex cursor-pointer justify-center rounded p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:text-white"
 			>
 				<svg
-					class="w-6 h-6"
+					class="h-6 w-6"
 					fill="currentColor"
 					viewBox="0 0 20 20"
 					xmlns="http://www.w3.org/2000/svg"
@@ -247,7 +249,7 @@ const ruta = Astro.url.pathname;
 			<div
 				id="tooltip-settings"
 				role="tooltip"
-				class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-neutral-500 rounded-lg shadow-sm opacity-0 tooltip dark:bg-black-800"
+				class="tooltip dark:bg-black-800 invisible absolute z-10 inline-block rounded-lg bg-neutral-500 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300"
 			>
 				Configuración
 				<div class="tooltip-arrow" data-popper-arrow></div>

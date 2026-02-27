@@ -15,7 +15,7 @@ interface FacturacionRow {
 	nombre_o_razon_social?: string | null;
 	correo?: string | null;
 	telefono?: string | null;
-	direccion?: string | null;
+	direccion_linea_1?: string | null;
 	pais?: string | null;
 	ciudad?: string | null;
 	tipo_de_documento?: string | null;
@@ -99,7 +99,7 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 			<FormInput
 				label="Dirección"
 				name="direccion_factura"
-				value={facturacion?.direccion ?? ''}
+				value={facturacion?.direccion_linea_1 ?? ''}
 				placeholder="Av. Siempre Viva 123 y Calle Alguna"
 				required
 				class="col-span-6"

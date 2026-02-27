@@ -16,12 +16,12 @@ console.log(pagos);
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700"
+	class="dark:bg-black-900 block items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<Alerta />
-	<div class="w-full mb-1">
+	<div class="mb-1 w-full">
 		<div class="mb-4">
-			<nav class="flex mb-5" aria-label="Breadcrumb">
+			<nav class="mb-5 flex" aria-label="Breadcrumb">
 				<ol
 					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
 				>
@@ -31,7 +31,7 @@ console.log(pagos);
 							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
 						>
 							<svg
-								class="w-5 h-5 mr-2.5"
+								class="mr-2.5 h-5 w-5"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -45,7 +45,7 @@ console.log(pagos);
 					<li>
 						<div class="flex items-center">
 							<svg
-								class="w-6 h-6 text-gray-400"
+								class="h-6 w-6 text-gray-400"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +76,7 @@ console.log(pagos);
 		<div class="inline-block min-w-full align-middle">
 			<div class="overflow-hidden shadow">
 				<table
-					class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
+					class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600"
 					id="myTable"
 				>
 					<thead class="bg-gray-100 dark:bg-[#374151]">
@@ -94,12 +94,12 @@ console.log(pagos);
 								].map((th) => (
 									<th
 										scope="col"
-										class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
+										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
 									>
 										<span class="flex items-center uppercase">
 											{th}
 											<svg
-												class="w-4 h-4 ms-1"
+												class="ms-1 h-4 w-4"
 												aria-hidden="true"
 												xmlns="http://www.w3.org/2000/svg"
 												width="24"
@@ -122,29 +122,29 @@ console.log(pagos);
 						</tr>
 					</thead>
 					<tbody
-						class="bg-white divide-y divide-gray-200 dark:bg-black-800 dark:divide-gray-700"
+						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
 					>
 						{
 							pagos?.map((p) => (
 								<div>
-									<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
+									<tr class="odd:bg-white-100 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
 										<td class="w-4 pl-4">
 											{p.usuarios.avatar_url === 'NULL' ||
 											!p.usuarios.avatar_url ? (
 												<img
-													class="w-10 h-10 rounded-full"
+													class="h-10 w-10 rounded-full"
 													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${p.usuarios.nombre}`}
 													alt={`Avatar de ${p.usuarios.nombre}`}
 												/>
 											) : (
 												<img
-													class="w-10 h-10 rounded-full"
+													class="h-10 w-10 rounded-full"
 													src={p.usuarios.avatar_url}
 													alt={`Avatar de ${p.usuarios.nombre}`}
 												/>
 											)}
 										</td>
-										<td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
+										<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">
 											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
 												<div class="text-base font-semibold text-gray-900 dark:text-white">
 													{p.usuarios.nombre} {p.usuarios.apellido}
@@ -154,45 +154,45 @@ console.log(pagos);
 												</div>
 											</div>
 										</td>
-										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
 											{p.empresas_incorporaciones.nombre_1}
 										</td>
-										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
 											{p.empresas_incorporaciones.porcentaje_de_incorporacion} %
 										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 											{p.servicios.nombre}
 										</td>
 
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 											<div class="flex items-center">
 												{p.status === 'succeeded' ? (
-													<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
 												) : (
-													<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
 												)}
 												{p.status}
 											</div>
 										</td>
-										<td class="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
+										<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
 											<div class="flex items-center">
 												{p.usuarios.rol_id === 1 ? (
 													<span
-														class="text-purple-600 font-medium"
+														class="font-medium text-purple-600"
 														title="Administrador"
 													>
 														Admin
 													</span>
 												) : p.usuarios.rol_id === 2 ? (
 													<span
-														class="text-[#8c681d] font-medium"
+														class="font-medium text-[#8c681d]"
 														title="Partner"
 													>
 														Partner
 													</span>
 												) : (
 													<span
-														class="text-green-600 font-medium"
+														class="font-medium text-green-600"
 														title="Cliente"
 													>
 														Cliente
@@ -200,13 +200,13 @@ console.log(pagos);
 												)}
 											</div>
 										</td>
-										<td class="p-4 space-x-2 flex">
+										<td class="flex space-x-2 p-4">
 											<button
 												data-modal-target="top-right-modal"
 												data-modal-toggle="top-right-modal"
 												data-user-notification
 												data-user-id={p.user_id}
-												class="block w-full md:w-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+												class="block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 												type="button"
 											>
 												Enviar notificación
@@ -228,27 +228,27 @@ console.log(pagos);
 	id="top-right-modal"
 	data-modal-placement="top-right"
 	tabindex="-1"
-	class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-full"
+	class="fixed top-0 right-0 left-0 z-50 hidden h-full w-full overflow-x-hidden overflow-y-auto p-4 md:inset-0"
 >
-	<div class="relative w-full max-w-2xl h-full">
+	<div class="relative h-full w-full max-w-2xl">
 		<!-- Modal content -->
 		<div
-			class="relative bg-white rounded-lg shadow-sm dark:bg-[#0e2738] h-full"
+			class="relative h-full rounded-lg bg-white shadow-sm dark:bg-[#0e2738]"
 		>
 			<!-- Modal header -->
 			<div
-				class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200"
+				class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600"
 			>
 				<h3 class="text-xl font-medium text-gray-900 dark:text-white">
 					Subir archivo
 				</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 					data-modal-hide="top-right-modal"
 				>
 					<svg
-						class="w-3 h-3"
+						class="h-3 w-3"
 						aria-hidden="true"
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -265,7 +265,7 @@ console.log(pagos);
 				</button>
 			</div>
 			<!-- Modal body -->
-			<div class="p-4 md:p-5 space-y-4">
+			<div class="space-y-4 p-4 md:p-5">
 				<form action="/api/update/admin-notifications-update" method="post">
 					<input
 						type="text"
@@ -273,18 +273,18 @@ console.log(pagos);
 						id="user_id_modal"
 						hidden
 					/>
-					<div class="grid gap-4 mb-4 sm:grid-cols-2">
+					<div class="mb-4 grid gap-4 sm:grid-cols-2">
 						<div>
 							<label
 								for="descripcion-link-notificacion"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Descripción del link</label
 							>
 							<input
 								type="text"
 								name="descripcion-link-notificacion"
 								id="descripcion-link-notificacion"
-								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 								placeholder="Inserta el link"
 								required=""
 							/>
@@ -292,46 +292,46 @@ console.log(pagos);
 						<div>
 							<label
 								for="link-notificacion"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Link</label
 							>
 							<input
 								type="text"
 								name="link-notificacion"
 								id="link-notificacion"
-								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 								placeholder="Inserta el asunto del correo"
 								required=""
 							/>
 						</div>
-						<div class="sm:col-span-2 h-full">
+						<div class="h-full sm:col-span-2">
 							<label
 								for="mensaje-notificacion"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Mensaje</label
 							>
 							<textarea
 								id="mensaje-notificacion"
 								name="mensaje-notificacion"
 								rows="28"
-								class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432] h-full mb-2"
+								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 mb-2 block h-full w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 								placeholder="Escribe un mensaje corto para el usuario"
 								required></textarea>
 						</div>
 					</div>
 					<div
-						class="flex items-center p-4 md:p-5 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b dark:border-gray-600"
+						class="flex items-center space-x-3 rounded-b border-t border-gray-200 p-4 md:p-5 rtl:space-x-reverse dark:border-gray-600"
 					>
 						<button
 							data-modal-hide="top-right-modal"
 							type="submit"
-							class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+							class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 							>Enviar notificación</button
 						>
 						<button
 							data-modal-hide="top-right-modal"
 							type="button"
-							class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
+							class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
 							>Cancelar</button
 						>
 					</div>

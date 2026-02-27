@@ -10,29 +10,29 @@ interface Props {
 const { href, label, tooltipId, tooltipText, badge } = Astro.props;
 ---
 
-<div class="flex justify-center items-center flex-col">
+<div class="flex flex-col items-center justify-center">
 	<a
 		href={href}
 		data-tooltip-target={tooltipId}
 		data-tooltip-placement="top"
-		class="backdrop-blur-[20px] backdrop-saturate-100 dark:bg-black-800 bg-slate-300 border-2 dark:border-black-700 border-white-300 rounded-md p-5 flex justify-center w-fit hover:-translate-y-0.5 transition-all duration-200 ease-in-out dark:hover:border-black-600 hover:border-white-400 text-[#967432] dark:text-slate-200"
+		class="dark:bg-black-800 dark:border-black-700 border-white-200 dark:hover:border-black-600 hover:border-white-300 text-white-800 bg-white-50 flex w-fit justify-center rounded-md border-2 p-5 backdrop-blur-[20px] backdrop-saturate-100 transition-all duration-200 ease-in-out hover:-translate-y-0.5 dark:text-slate-200"
 	>
 		<slot />
 		{
 			badge && (
-				<span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold animate-pulse">
+				<span class="absolute -top-2 -right-2 flex h-6 w-6 animate-pulse items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
 					{badge > 99 ? '99+' : badge}
 				</span>
 			)
 		}
 	</a>
 
-	<span class="pt-3 text-center max-w-30 dark:text-slate-300">{label}</span>
+	<span class="max-w-30 pt-3 text-center dark:text-slate-300">{label}</span>
 
 	<div
 		id={tooltipId}
 		role="tooltip"
-		class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-black dark:text-white bg-neutral-300 rounded-lg shadow-xs opacity-0 tooltip dark:bg-black-800 transition-all duration-300"
+		class="tooltip dark:bg-black-800 invisible absolute z-10 inline-block rounded-lg bg-neutral-50 px-3 py-2 text-sm font-medium text-black opacity-0 shadow-xs transition-all duration-300 dark:text-white"
 	>
 		{tooltipText}
 		<div class="tooltip-arrow" data-popper-arrow></div>

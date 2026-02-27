@@ -31,22 +31,22 @@ const datosName = [
 <div
 	id="modalCard"
 	aria-hidden="true"
-	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 max-h-full bg-neutral-800 bg-opacity-70 h-full"
+	class="bg-opacity-70 fixed top-0 right-0 left-0 z-50 hidden h-full max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto bg-neutral-800 md:inset-0"
 >
-	<div class="relative p-4 w-full max-w-screen-lg">
+	<div class="relative w-full max-w-screen-lg p-4">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow-sm dark:bg-black-900">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow-sm">
 			<!-- Modal header -->
 			<div
-				class="flex items-center justify-between p-4 md:p-5 rounded-t dark:border-gray-600"
+				class="flex items-center justify-between rounded-t p-4 md:p-5 dark:border-gray-600"
 			>
 				<button
 					type="button"
 					id="closeBtn"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 				>
 					<svg
-						class="w-3 h-3"
+						class="h-3 w-3"
 						aria-hidden="true"
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -64,15 +64,15 @@ const datosName = [
 			</div>
 			<!-- Modal body -->
 			<div
-				class="p-4 md:p-5 space-y-4 text-center flex-col justify-center items-center"
+				class="flex-col items-center justify-center space-y-4 p-4 text-center md:p-5"
 			>
 				<h3
-					class="text-3xl font-semibold text-neutral-900 dark:text-white text-center md:w-3/5 w-4/5 mx-auto mb-10"
+					class="mx-auto mb-10 w-4/5 text-center text-3xl font-semibold text-neutral-900 md:w-3/5 dark:text-white"
 				>
 					Encuentre el tipo de entidad adecuado para su negocio
 				</h3>
 				<p
-					class="text-lg leading-relaxed text-neutral-500 dark:text-gray-400 md:w-3/5 w-4/5 mx-auto my-10 text-justify"
+					class="mx-auto my-10 w-4/5 text-justify text-lg leading-relaxed text-neutral-500 md:w-3/5 dark:text-gray-400"
 				>
 					La elección de tu entidad legal es el primer gran paso. Evita riesgos
 					fiscales y legales. Nuestros consultores te brindan una asesoría
@@ -80,7 +80,7 @@ const datosName = [
 					un crecimiento sólido y protegido en EE. UU.
 				</p>
 				<div
-					class="flex justify-center w-full h-full dark:text-white text-neutral-500 mt-10"
+					class="mt-10 flex h-full w-full justify-center text-neutral-500 dark:text-white"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -102,20 +102,20 @@ const datosName = [
 			</div>
 			<!-- Modal footer -->
 			<div
-				class="flex items-center p-4 md:p-5 rounded-b dark:border-gray-600 justify-center gap-2 lg:flex-row flex-col"
+				class="flex flex-col items-center justify-center gap-2 rounded-b p-4 md:p-5 lg:flex-row dark:border-gray-600"
 			>
 				<a
 					type="button"
 					target="_blank"
 					href="https://sotomayorconsulting.com/diagnostico-llc/"
-					class="text-white focus:ring-4 focus:outline-none font-medium rounded-lg lg:text-base text-sm px-5 py-2.5 text-center bg-[#967432] hover:bg-[#8c681d] focus:ring-neutral-500 lg:w-2/5 w-full"
+					class="w-full rounded-lg bg-[#967432] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-neutral-500 focus:outline-none lg:w-2/5 lg:text-base"
 					>Realiza un Diagnostico breve</a
 				>
 				<a
 					type="button"
 					target="_blank"
 					href="https://zcal.co/t/agendar-asesoria-llc/60min"
-					class="text-white focus:ring-4 focus:outline-none font-medium rounded-lg lg:text-base text-sm px-5 py-2.5 text-center bg-[#967432] hover:bg-[#8c681d] focus:ring-neutral-500 lg:w-2/5 w-full"
+					class="w-full rounded-lg bg-[#967432] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-neutral-500 focus:outline-none lg:w-2/5 lg:text-base"
 					>Agendar una cita</a
 				>
 			</div>
@@ -125,34 +125,34 @@ const datosName = [
 	</div>
 </div>
 
-<div class="w-full flex justify-center items-center my-8">
-	<div class="w-full lg:min-h-[700px] lg:flex lg:flex-col hidden ml-5">
+<div class="my-8 flex w-full items-center justify-center">
+	<div class="ml-5 hidden w-full lg:flex lg:min-h-[700px] lg:flex-col">
 		<div class="mt-16">
-			<h3 class="dark:text-white text-2xl">
+			<h3 class="text-2xl dark:text-white">
 				Inicie su empresa en EE. UU. en minutos.
 			</h3>
-			<p class="text-gray-500 w-3/4">
+			<p class="w-3/4 text-gray-500">
 				Responda algunas preguntas para ayudarnos a formar su nueva empresa.
 			</p>
 		</div>
-		<ol class="overflow-hidden space-y-8 w-full mt-8">
+		<ol class="mt-8 w-full space-y-8 overflow-hidden">
 			<li
 				id="stepli-1"
-				class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:bg-[#8c681d] after:inline-block after:absolute after:-bottom-11 after:left-1/4"
+				class="relative flex-1 after:absolute after:-bottom-11 after:left-1/4 after:inline-block after:h-full after:w-0.5 after:bg-[#8c681d] after:content-['']"
 			>
 				<button
-					class="flex items-center justify-center gap-8 w-full max-w-sm"
+					class="flex w-full max-w-sm items-center justify-center gap-8"
 					id="paso1btn"
 				>
 					<div
 						id="stepdiv1-1"
-						class="flex items-center gap-3.5 bg-[#192033] p-3.5 rounded-xl relative z-10 border border-[#8c681d] w-full text-left"
+						class="relative z-10 flex w-full items-center gap-3.5 rounded-xl border border-[#8c681d] bg-[#192033] p-3.5 text-left"
 					>
 						<div
 							id="stepdiv2-1"
-							class="rounded-lg bg-[#8c681d] flex items-center justify-center"
+							class="flex items-center justify-center rounded-lg bg-[#8c681d]"
 						>
-							<span id="stepspan-1" class="text-white p-3">
+							<span id="stepspan-1" class="p-3 text-white">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -167,10 +167,10 @@ const datosName = [
 								</svg>
 							</span>
 						</div>
-						<div class="flex items-start rounded-md justify-center flex-col">
+						<div class="flex flex-col items-start justify-center rounded-md">
 							<h6
 								id="steph6-1"
-								class="text-base font-semibold dark:text-white text-neutral-700 mb-0.5"
+								class="mb-0.5 text-base font-semibold text-neutral-700 dark:text-white"
 							>
 								Tipo de empresa
 							</h6>
@@ -184,23 +184,23 @@ const datosName = [
 			</li>
 			<li
 				id="stepli-2"
-				class="relative flex-1 after:content-[''] after:w-0.5 after:h-full after:bg-gray-200 after:inline-block after:absolute after:-bottom-12 after:left-1/4"
+				class="relative flex-1 after:absolute after:-bottom-12 after:left-1/4 after:inline-block after:h-full after:w-0.5 after:bg-gray-200 after:content-['']"
 			>
 				<button
-					class="flex items-center justify-center gap-8 w-full max-w-sm text-left"
+					class="flex w-full max-w-sm items-center justify-center gap-8 text-left"
 					id="paso2btn"
 				>
 					<div
 						id="stepdiv1-2"
-						class="flex items-center gap-3.5 bg-[#192033] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
+						class="group relative z-10 flex w-full items-center gap-3.5 rounded-xl border border-transparent bg-[#192033] p-3.5 transition-all hover:border-[#8c681d]"
 					>
 						<div
 							id="stepdiv2-2"
-							class="rounded-lg bg-[#8c681d] group-hover:bg-[#8c681d] flex items-center justify-center transition-all"
+							class="flex items-center justify-center rounded-lg bg-[#8c681d] transition-all group-hover:bg-[#8c681d]"
 						>
 							<span
 								id="stepspan-2"
-								class="text-gray-600 p-3 group-hover:text-white transition-all"
+								class="p-3 text-gray-600 transition-all group-hover:text-white"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -217,16 +217,16 @@ const datosName = [
 								>
 							</span>
 						</div>
-						<div class="flex items-start rounded-md justify-center flex-col">
+						<div class="flex flex-col items-start justify-center rounded-md">
 							<h6
 								id="steph6-2"
-								class="text-base font-semibold text-gray-500 mb-0.5 group-hover:text-white transition-all"
+								class="mb-0.5 text-base font-semibold text-gray-500 transition-all group-hover:text-white"
 							>
 								Estado de registro
 							</h6>
 							<p
 								id="stepp-2"
-								class="text-xs font-normal text-gray-500 group-hover:text-gray-400 transition-all"
+								class="text-xs font-normal text-gray-500 transition-all group-hover:text-gray-400"
 							>
 								Elija su estado de registro
 							</p>
@@ -236,20 +236,20 @@ const datosName = [
 			</li>
 			<li id="stepli-3" class="relative flex-1">
 				<button
-					class="flex items-center justify-center gap-8 w-full max-w-sm text-left"
+					class="flex w-full max-w-sm items-center justify-center gap-8 text-left"
 					id="paso3btn"
 				>
 					<div
 						id="stepdiv1-3"
-						class="flex items-center gap-3.5 bg-[#192033] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
+						class="group relative z-10 flex w-full items-center gap-3.5 rounded-xl border border-transparent bg-[#192033] p-3.5 transition-all hover:border-[#8c681d]"
 					>
 						<div
 							id="stepdiv2-3"
-							class="rounded-lg bg-[#8c681d] group-hover:bg-[#8c681d] flex items-center justify-center transition-all"
+							class="flex items-center justify-center rounded-lg bg-[#8c681d] transition-all group-hover:bg-[#8c681d]"
 						>
 							<span
 								id="stepspan-3"
-								class="text-gray-600 p-3 group-hover:text-white transition-all"
+								class="p-3 text-gray-600 transition-all group-hover:text-white"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -266,16 +266,16 @@ const datosName = [
 								>
 							</span>
 						</div>
-						<div class="flex items-start rounded-md justify-center flex-col">
+						<div class="flex flex-col items-start justify-center rounded-md">
 							<h6
 								id="steph6-3"
-								class="text-base font-semibold text-gray-500 mb-0.5 group-hover:text-white transition-all"
+								class="mb-0.5 text-base font-semibold text-gray-500 transition-all group-hover:text-white"
 							>
 								Elije el nombre de tu empresa
 							</h6>
 							<p
 								id="stepp-3"
-								class="text-xs font-normal text-gray-500 group-hover:text-gray-400 transition-all"
+								class="text-xs font-normal text-gray-500 transition-all group-hover:text-gray-400"
 							>
 								Elije tres opciones de nombre para tu empresa
 							</p>
@@ -285,20 +285,20 @@ const datosName = [
 			</li>
 			<li id="stepli-4" class="relative flex-1">
 				<button
-					class="flex items-center justify-center gap-8 w-full max-w-sm text-left"
+					class="flex w-full max-w-sm items-center justify-center gap-8 text-left"
 					id="paso4btn"
 				>
 					<div
 						id="stepdiv1-4"
-						class="flex items-center gap-3.5 bg-[#192033] p-3.5 rounded-xl relative z-10 border hover:border-[#8c681d] w-full border-transparent transition-all group"
+						class="group relative z-10 flex w-full items-center gap-3.5 rounded-xl border border-transparent bg-[#192033] p-3.5 transition-all hover:border-[#8c681d]"
 					>
 						<div
 							id="stepdiv2-4"
-							class="rounded-lg bg-[#8c681d] group-hover:bg-[#8c681d] flex items-center justify-center transition-all"
+							class="flex items-center justify-center rounded-lg bg-[#8c681d] transition-all group-hover:bg-[#8c681d]"
 						>
 							<span
 								id="stepspan-4"
-								class="text-gray-600 p-3 group-hover:text-white transition-all"
+								class="p-3 text-gray-600 transition-all group-hover:text-white"
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -314,16 +314,16 @@ const datosName = [
 								>
 							</span>
 						</div>
-						<div class="flex items-start rounded-md justify-center flex-col">
+						<div class="flex flex-col items-start justify-center rounded-md">
 							<h6
 								id="steph6-4"
-								class="text-base font-semibold text-gray-500 mb-0.5 group-hover:text-white transition-all"
+								class="mb-0.5 text-base font-semibold text-gray-500 transition-all group-hover:text-white"
 							>
 								Verifica tus datos y registraté
 							</h6>
 							<p
 								id="stepp-4"
-								class="text-xs font-normal text-gray-500 group-hover:text-gray-400 transition-all"
+								class="text-xs font-normal text-gray-500 transition-all group-hover:text-gray-400"
 							>
 								Verifica los datos que seleccionaste y registrate para entrar a
 								nuestra plataforma.
@@ -335,33 +335,33 @@ const datosName = [
 		</ol>
 	</div>
 	<div
-		class="rounded-lg w-full flex justify-center flex-col items-center m-auto h-full drop-shadow-xl place-self-center test bg-center bg-cover dark:bg-black-900 bg-neutral-500 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-20 backdrop-saturate-100 backdrop-contrast-100 py-20 md:mr-5 z-20"
+		class="test dark:bg-black-900 bg-opacity-20 z-20 m-auto flex h-full w-full flex-col items-center justify-center place-self-center rounded-lg bg-neutral-500 bg-cover bg-clip-padding bg-center py-20 drop-shadow-xl backdrop-blur-md backdrop-contrast-100 backdrop-saturate-100 backdrop-filter md:mr-5"
 	>
 		<form id="business-form" class="w-full">
 			<input type="hidden" name="estado_de" value="En proceso" />
 			<div id="paso1">
-				<div class="text-center pb-10">
-					<h3 class="dark:text-white text-neutral-800 text-3xl">
+				<div class="pb-10 text-center">
+					<h3 class="text-3xl text-neutral-800 dark:text-white">
 						Estructura de la empresa
 					</h3>
-					<p class="dark:text-gray-400 text-neutral-700">
+					<p class="text-neutral-700 dark:text-gray-400">
 						Elija el tipo de entidad adecuada para su negocio.
 					</p>
 				</div>
-				<ul class="grid w-full gap-6 place-items-center">
-					<li class="md:w-3/5 w-4/5">
+				<ul class="grid w-full place-items-center gap-6">
+					<li class="w-4/5 md:w-3/5">
 						<input
 							type="radio"
 							id="LLC_radio_btn"
 							name="tipo_de_empresa"
 							value="LLC"
-							class="hidden peer"
+							class="peer hidden"
 							checked
 							required
 						/>
 						<label
 							for="LLC_radio_btn"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-black-900 dark:hover:bg-[#192033] dark:peer-checked:bg-[#192033] peer-checked:bg-neutral-200"
+							class="dark:bg-black-900 peer-checked:bg-white-100 inline-flex w-full cursor-pointer items-center justify-between rounded-lg border border-neutral-700 bg-neutral-400 p-5 text-neutral-500 peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-neutral-900 dark:text-gray-400 dark:peer-checked:bg-[#192033] dark:hover:bg-[#192033] dark:hover:text-white"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">LLC</div>
@@ -370,7 +370,7 @@ const datosName = [
 								</div>
 							</div>
 							<svg
-								class="w-5 h-5 ms-3 rtl:rotate-180"
+								class="ms-3 h-5 w-5 rtl:rotate-180"
 								aria-hidden="true"
 								xmlns="http://www.w3.org/2000/svg"
 								fill="none"
@@ -385,18 +385,18 @@ const datosName = [
 							</svg>
 						</label>
 					</li>
-					<li class="md:w-3/5 w-4/5">
+					<li class="w-4/5 md:w-3/5">
 						<input
 							type="radio"
 							id="C_coorp_btn_radio"
 							name="tipo_de_empresa"
 							value="C-corporation"
-							class="hidden peer"
+							class="peer hidden"
 							required
 						/>
 						<label
 							for="C_coorp_btn_radio"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-500 bg-neutral-400 dark:bg-black-900 dark:hover:bg-[#192033] dark:peer-checked:bg-[#192033] peer-checked:bg-neutral-200"
+							class="dark:bg-black-900 peer-checked:bg-white-100 inline-flex w-full cursor-pointer items-center justify-between rounded-lg border border-neutral-700 bg-neutral-400 p-5 text-neutral-500 peer-checked:border-[#8c681d] peer-checked:text-[#8c681d] hover:text-neutral-900 dark:text-gray-400 dark:peer-checked:bg-[#192033] dark:hover:bg-[#192033] dark:hover:text-white"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">C-corporation</div>
@@ -405,7 +405,7 @@ const datosName = [
 								</div>
 							</div>
 							<svg
-								class="w-5 h-5 ms-3 rtl:rotate-180"
+								class="ms-3 h-5 w-5 rtl:rotate-180"
 								aria-hidden="true"
 								xmlns="http://www.w3.org/2000/svg"
 								fill="none"
@@ -420,11 +420,11 @@ const datosName = [
 							</svg>
 						</label>
 					</li>
-					<li class="md:w-3/5 w-4/5">
+					<li class="w-4/5 md:w-3/5">
 						<button
 							id="openBtnxd"
 							type="button"
-							class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-900 border-neutral-700 focus:text-[#8c681d] focus:border-[#8c681d] dark:text-gray-400 dark:bg-black-900 bg-neutral-400 dark:hover:bg-[#101521] dark:focus:bg-[#192033] text-left text-neutral-500"
+							class="dark:bg-black-900 inline-flex w-full cursor-pointer items-center justify-between rounded-lg border border-neutral-700 bg-neutral-400 p-5 text-left text-neutral-500 hover:text-neutral-900 focus:border-[#8c681d] focus:text-[#8c681d] dark:text-gray-400 dark:hover:bg-[#101521] dark:hover:text-white dark:focus:bg-[#192033]"
 						>
 							<div class="block max-w-[90%]">
 								<div class="w-full text-lg font-semibold">Ayúdame a elegir</div>
@@ -434,7 +434,7 @@ const datosName = [
 								</div>
 							</div>
 							<svg
-								class="w-5 h-5 ms-3 rtl:rotate-180"
+								class="ms-3 h-5 w-5 rtl:rotate-180"
 								aria-hidden="true"
 								xmlns="http://www.w3.org/2000/svg"
 								fill="none"
@@ -450,11 +450,11 @@ const datosName = [
 						</button>
 					</li>
 				</ul>
-				<div class="w-full flex justify-center mt-8">
+				<div class="mt-8 flex w-full justify-center">
 					<button
 						type="button"
 						id="continuarBtn"
-						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
+						class="me-2 mb-2 w-4/5 rounded-lg bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] px-5 py-2.5 text-center font-medium text-white hover:bg-gradient-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:w-3/5 md:text-lg dark:focus:ring-neutral-500"
 						>Continuar</button
 					>
 				</div>
@@ -464,7 +464,7 @@ const datosName = [
 					<button
 						type="button"
 						id="atrasBtn"
-						class="text-neutral-500 font-medium text-center flex items-center absolute left-5 bottom-10"
+						class="absolute bottom-10 left-5 flex items-center text-center font-medium text-neutral-500"
 						><span
 							><svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -479,33 +479,33 @@ const datosName = [
 						> atrás</button
 					>
 				</div>
-				<div class="text-center pb-5">
-					<h3 class="dark:text-white text-neutral-800 text-3xl">
+				<div class="pb-5 text-center">
+					<h3 class="text-3xl text-neutral-800 dark:text-white">
 						Elija el estado de registro
 					</h3>
-					<p class="dark:text-gray-400 text-neutral-700">Estados populares</p>
+					<p class="text-neutral-700 dark:text-gray-400">Estados populares</p>
 					<ol class="mt-3 flex justify-center">
 						<li>
 							<span
-								class="bg-[#967432] text-white text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-[#134aed] dark:text-white"
+								class="me-2 rounded-full bg-[#967432] px-2.5 py-0.5 text-sm font-medium text-white dark:bg-[#134aed] dark:text-white"
 								>Delaware</span
 							>
 						</li>
 						<li>
 							<span
-								class="bg-[#967432] text-white text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-[#134aed] dark:text-white"
+								class="me-2 rounded-full bg-[#967432] px-2.5 py-0.5 text-sm font-medium text-white dark:bg-[#134aed] dark:text-white"
 								>Wyoming</span
 							>
 						</li>
 					</ol>
 				</div>
-				<ul class="grid w-full gap-3 place-items-center">
-					<li class="md:w-3/5 w-4/5">
+				<ul class="grid w-full place-items-center gap-3">
+					<li class="w-4/5 md:w-3/5">
 						<div id="seleccionar" class="mt-5">
 							<select
 								id="estados"
 								name="estado_de_empresa"
-								class="inline-flex items-center justify-between w-full p-5 border rounded-lg cursor-pointer dark:hover:text-white hover:text-neutral-800 border-[#967432] peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-700 dark:bg-black-900 bg-neutral-200 dark:hover:bg-[#192033] hover:bg-neutral-300 dark:peer-checked:bg-[#101521] peer-checked:bg-neutral-700 focus:ring-[#967432]"
+								class="dark:bg-black-900 bg-white-100 inline-flex w-full cursor-pointer items-center justify-between rounded-lg border border-[#967432] p-5 text-neutral-700 peer-checked:border-[#8c681d] peer-checked:bg-neutral-700 peer-checked:text-[#8c681d] hover:bg-neutral-300 hover:text-neutral-800 focus:ring-[#967432] dark:text-gray-400 dark:peer-checked:bg-[#101521] dark:hover:bg-[#192033] dark:hover:text-white"
 								required
 							>
 								{
@@ -522,11 +522,11 @@ const datosName = [
 						</div>
 					</li>
 				</ul>
-				<div class="w-full flex justify-center mt-8">
+				<div class="mt-8 flex w-full justify-center">
 					<button
 						type="button"
 						id="continuarBtn2"
-						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
+						class="me-2 mb-2 w-4/5 rounded-lg bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] px-5 py-2.5 text-center font-medium text-white hover:bg-gradient-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:w-3/5 md:text-lg dark:focus:ring-neutral-500"
 						>Continuar</button
 					>
 				</div>
@@ -536,7 +536,7 @@ const datosName = [
 					<button
 						type="button"
 						id="atrasBtn4"
-						class="text-neutral-500 font-medium text-center flex items-center absolute left-5 bottom-10"
+						class="absolute bottom-10 left-5 flex items-center text-center font-medium text-neutral-500"
 						><span
 							><svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -551,28 +551,28 @@ const datosName = [
 						> atrás</button
 					>
 				</div>
-				<div class="text-center pb-10">
-					<h3 class="dark:text-white text-neutral-800 text-3xl">
+				<div class="pb-10 text-center">
+					<h3 class="text-3xl text-neutral-800 dark:text-white">
 						Escoge el nombre de tu empresa
 					</h3>
-					<p class="dark:text-gray-400 text-neutral-700">
+					<p class="text-neutral-700 dark:text-gray-400">
 						Elije los nombres que mas se adapten a tu empresa
 					</p>
 				</div>
-				<ul class="flex w-full gap-2 place-items-center flex-col px-10">
+				<ul class="flex w-full flex-col place-items-center gap-2 px-10">
 					{
 						datosName.map((name) => (
-							<li class="m-2 w-full md:w-3/5 h-full">
+							<li class="m-2 h-full w-full md:w-3/5">
 								<label
 									for={name.id}
-									class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
+									class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-400"
 								>
 									{name.nombre}
 								</label>
 								<div class="flex">
-									<span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border rounded-e-0 border-gray-300 border-e-0 rounded-s-md dark:bg-[#8c681d] dark:text-gray-400 dark:border-gray-600">
+									<span class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:bg-[#8c681d] dark:text-gray-400">
 										<svg
-											class="w-4 h-4 text-neutral-700 dark:text-white"
+											class="h-4 w-4 text-neutral-700 dark:text-white"
 											viewBox="0 0 48 48"
 										>
 											<g
@@ -598,7 +598,7 @@ const datosName = [
 										type="text"
 										id={name.id}
 										name={name.name}
-										class="rounded-none rounded-e-lg border focus:ring-[#8c681d] focus:border-[#8c681d] min-w-10 w-full text-sm p-2.5 dark:bg-black-900 bg-neutral-200 dark:border-[#8c681d] border-neutral-500/10 placeholder-gray-500 dark:text-white text-neutral-900"
+										class="dark:bg-black-900 bg-white-100 w-full min-w-10 rounded-none rounded-e-lg border border-neutral-500/10 p-2.5 text-sm text-neutral-900 placeholder-gray-500 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-[#8c681d] dark:text-white"
 										placeholder="Sotomayor Consulting"
 										required
 									/>
@@ -607,11 +607,11 @@ const datosName = [
 						))
 					}
 				</ul>
-				<div class="w-full flex justify-center mt-8">
+				<div class="mt-8 flex w-full justify-center">
 					<button
 						type="button"
 						id="continuarBtn3"
-						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
+						class="me-2 mb-2 w-4/5 rounded-lg bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] px-5 py-2.5 text-center font-medium text-white hover:bg-gradient-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:w-3/5 md:text-lg dark:focus:ring-neutral-500"
 						>Continuar</button
 					>
 				</div>
@@ -621,7 +621,7 @@ const datosName = [
 					<button
 						type="button"
 						id="atrasBtn2"
-						class="text-neutral-500 font-medium text-center flex items-center absolute left-5 bottom-10"
+						class="absolute bottom-10 left-5 flex items-center text-center font-medium text-neutral-500"
 						><span
 							><svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -636,30 +636,30 @@ const datosName = [
 						> atrás</button
 					>
 				</div>
-				<div class="text-center pb-5">
-					<h3 class="dark:text-white text-neutral-800 text-3xl">
+				<div class="pb-5 text-center">
+					<h3 class="text-3xl text-neutral-800 dark:text-white">
 						Revisar e iniciar sesion
 					</h3>
-					<p class="dark:text-gray-400 text-neutral-700">
+					<p class="text-neutral-700 dark:text-gray-400">
 						Ya casi terminas. 🎉
 					</p>
-					<p class="dark:text-gray-400 text-neutral-700">
+					<p class="text-neutral-700 dark:text-gray-400">
 						Por favor revisa tu información y procede a registrarte.
 					</p>
 				</div>
-				<ul class="grid w-full gap-3 place-items-center">
-					<li class="md:w-3/5 w-4/5">
+				<ul class="grid w-full place-items-center gap-3">
+					<li class="w-4/5 md:w-3/5">
 						<div id="respuestasradio" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-black-900 bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="dark:bg-black-900 bg-white-100 flex w-full items-center justify-between rounded-lg border border-neutral-700 p-5 text-neutral-600 peer-checked:border-[#8c681d] peer-checked:bg-[#1d1d1d] peer-checked:text-[#8c681d] hover:text-neutral-200 focus:ring-neutral-600 dark:text-gray-400 dark:hover:text-white"
 							>
 								<div>
-									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">
+									<p class="mt-1 text-sm text-neutral-600 dark:text-gray-400">
 										Tipo de empresa
 									</p>
 									<h3
 										id="radioResultado"
-										class="dark:text-white text-neutral-700 text-xl"
+										class="text-xl text-neutral-700 dark:text-white"
 									>
 										No has seleccionada nada
 									</h3>
@@ -667,7 +667,7 @@ const datosName = [
 								<button
 									id="editar1"
 									type="button"
-									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-black-900 bg-neutral-400 dark:hover:bg-[#134aed]/80 hover:bg-[#8c681d]"
+									class="dark:bg-black-900 flex cursor-pointer items-center justify-center rounded-lg border bg-neutral-400 p-1 hover:bg-[#8c681d] dark:hover:bg-[#134aed]/80"
 									title="editar"
 								>
 									<svg
@@ -685,15 +685,15 @@ const datosName = [
 						</div>
 						<div id="respuesta_estado" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-black-900 bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="dark:bg-black-900 bg-white-100 flex w-full items-center justify-between rounded-lg border border-neutral-700 p-5 text-neutral-600 peer-checked:border-[#8c681d] peer-checked:bg-[#1d1d1d] peer-checked:text-[#8c681d] hover:text-neutral-200 focus:ring-neutral-600 dark:text-gray-400 dark:hover:text-white"
 							>
 								<div>
-									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">
+									<p class="mt-1 text-sm text-neutral-600 dark:text-gray-400">
 										Estado en el cual se va a registrar
 									</p>
 									<h3
 										id="selectResultado"
-										class="dark:text-white text-neutral-700 text-xl"
+										class="text-xl text-neutral-700 dark:text-white"
 									>
 										No has seleccionada nada
 									</h3>
@@ -701,7 +701,7 @@ const datosName = [
 								<button
 									id="editar2"
 									type="button"
-									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-black-900 bg-neutral-400 dark:hover:bg-[#134aed]/80 hover:bg-[#8c681d]"
+									class="dark:bg-black-900 flex cursor-pointer items-center justify-center rounded-lg border bg-neutral-400 p-1 hover:bg-[#8c681d] dark:hover:bg-[#134aed]/80"
 									title="editar"
 								>
 									<svg
@@ -719,15 +719,15 @@ const datosName = [
 						</div>
 						<div id="respuesta_plan" class="mt-5">
 							<div
-								class="flex justify-between items-center w-full p-5 border rounded-lg dark:hover:text-white hover:text-neutral-200 border-neutral-700 peer-checked:text-[#8c681d] peer-checked:border-[#8c681d] dark:text-gray-400 text-neutral-600 dark:bg-black-900 bg-neutral-200 peer-checked:bg-[#1d1d1d] focus:ring-neutral-600"
+								class="dark:bg-black-900 bg-white-100 flex w-full items-center justify-between rounded-lg border border-neutral-700 p-5 text-neutral-600 peer-checked:border-[#8c681d] peer-checked:bg-[#1d1d1d] peer-checked:text-[#8c681d] hover:text-neutral-200 focus:ring-neutral-600 dark:text-gray-400 dark:hover:text-white"
 							>
 								<div>
-									<p class="text-neutral-600 dark:text-gray-400 mt-1 text-sm">
+									<p class="mt-1 text-sm text-neutral-600 dark:text-gray-400">
 										El nombre que seleccionaste
 									</p>
 									<h3
 										id="ResultadoPlan"
-										class="dark:text-white text-neutral-700 text-xl"
+										class="text-xl text-neutral-700 dark:text-white"
 									>
 										No has seleccionada nada
 									</h3>
@@ -735,7 +735,7 @@ const datosName = [
 								<button
 									id="editar3"
 									type="button"
-									class="flex justify-center items-center p-1 border rounded-lg cursor-pointer dark:bg-black-900 bg-neutral-400 dark:hover:bg-[#134aed]/80 hover:bg-[#8c681d]"
+									class="dark:bg-black-900 flex cursor-pointer items-center justify-center rounded-lg border bg-neutral-400 p-1 hover:bg-[#8c681d] dark:hover:bg-[#134aed]/80"
 									title="editar"
 								>
 									<svg
@@ -753,11 +753,11 @@ const datosName = [
 						</div>
 					</li>
 				</ul>
-				<div class="w-full flex justify-center mt-8">
+				<div class="mt-8 flex w-full justify-center">
 					<button
 						type="button"
 						id="boton-verificar"
-						class="text-white bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-neutral-600 dark:focus:ring-neutral-500 font-medium rounded-lg md:text-lg px-5 py-2.5 text-center me-2 mb-2 md:w-3/5 w-4/5"
+						class="me-2 mb-2 w-4/5 rounded-lg bg-gradient-to-r from-[#8c681d] via-[#795918] to-[#5f4610] px-5 py-2.5 text-center font-medium text-white hover:bg-gradient-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:w-3/5 md:text-lg dark:focus:ring-neutral-500"
 						>Verificar información</button
 					>
 				</div>
@@ -765,25 +765,25 @@ const datosName = [
 		</form>
 		<div
 			id="contenedor-registro"
-			class="w-full flex-col items-center justify-center px-6 pt-8 mx-auto pt:mt-0 hidden"
+			class="pt:mt-0 mx-auto hidden w-full flex-col items-center justify-center px-6 pt-8"
 		>
 			<!-- Card -->
 			<div
-				class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-gray-200 rounded-lg shadow dark:bg-black-900"
+				class="dark:bg-black-900 w-full max-w-xl space-y-8 rounded-lg bg-gray-200 p-6 shadow sm:p-8"
 			>
 				<a
 					href="#"
-					class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white"
+					class="mb-8 flex items-center justify-center text-2xl font-semibold lg:mb-10 dark:text-white"
 				>
 					<img
 						src="/src/assets/SC-INTER.png"
 						alt="Sotomayor Logo"
-						class="mr-4 h-11 dark:block hidden"
+						class="mr-4 hidden h-11 dark:block"
 					/>
 					<img
 						src="/src/assets/SC-INTER-NG.png"
 						alt="Sotomayor Logo"
-						class="mr-4 h-11 dark:hidden block"
+						class="mr-4 block h-11 dark:hidden"
 					/>
 				</a>
 				<h2 class="text-2xl font-bold text-gray-900 dark:text-white">
@@ -794,14 +794,14 @@ const datosName = [
 						<div class="col">
 							<label
 								for="name"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Nombre</label
 							>
 							<input
 								type="text"
 								name="name"
 								id="name"
-								class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
 								placeholder="Nombre"
 								required
 							/>
@@ -809,14 +809,14 @@ const datosName = [
 						<div class="col">
 							<label
 								for="last-name"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Apellido</label
 							>
 							<input
 								type="text"
 								name="last-name"
 								id="last-name"
-								class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
 								placeholder="Apellido"
 								required
 							/>
@@ -825,14 +825,14 @@ const datosName = [
 					<div>
 						<label
 							for="email"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Tu correo</label
 						>
 						<input
 							type="email"
 							name="email"
 							id="email"
-							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
 							placeholder="correo@ejemplo.com"
 							required
 						/>
@@ -840,7 +840,7 @@ const datosName = [
 					<div>
 						<label
 							for="password"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Contraseña</label
 						>
 						<input
@@ -851,14 +851,14 @@ const datosName = [
 							title="Mínimo 8 caracteres, una mayúscula, una minúscula y un número"
 							id="password"
 							placeholder="••••••••"
-							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
 							required
 						/>
 					</div>
 					<div>
 						<label
 							for="confirm-password"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Confirmar contraseña</label
 						>
 						<input
@@ -866,18 +866,18 @@ const datosName = [
 							name="confirm-password"
 							id="confirm-password"
 							placeholder="••••••••"
-							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
 							required
 						/>
 					</div>
 					<div class="flex items-start">
-						<div class="flex items-center h-5">
+						<div class="flex h-5 items-center">
 							<input
 								id="remember"
 								aria-describedby="remember"
 								name="remember"
 								type="checkbox"
-								class="w-4 h-4 border-gray-500 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-[#967432] dark:ring-offset-gray-800 dark:bg-black-900 dark:border-gray-600 text-[#967432]"
+								class="focus:ring-primary-300 dark:bg-black-900 h-4 w-4 rounded border-gray-500 bg-gray-50 text-[#967432] focus:ring-3 dark:border-gray-600 dark:ring-offset-gray-800 dark:focus:ring-[#967432]"
 								required
 							/>
 						</div>
@@ -896,14 +896,14 @@ const datosName = [
 					</div>
 					<button
 						type="submit"
-						class="w-full px-5 py-3 text-base font-medium text-center text-white bg-[#967432] rounded-lg hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+						class="w-full rounded-lg bg-[#967432] px-5 py-3 text-center text-base font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 						>Crear una cuenta</button
 					>
 				</form>
 				<div>
-					<div class="inline-flex items-center justify-center w-full">
+					<div class="inline-flex w-full items-center justify-center">
 						<hr
-							class="w-11/12 h-px my-2 border-0 dark:bg-black-900 bg-gray-300"
+							class="dark:bg-black-900 my-2 h-px w-11/12 border-0 bg-gray-300"
 						/>
 						<span
 							class="absolute px-5 font-medium text-gray-900 dark:text-white"
@@ -915,7 +915,7 @@ const datosName = [
 				<div>
 					<form action="/api/auth/google" method="post">
 						<button
-							class="w-full flex border dark:border-white border-gray-500 rounded-lg dark:text-white gap-2 items-center justify-center p-2.5 dark:hover:bg-slate-300/10 hover:bg-slate-700/10"
+							class="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-500 p-2.5 hover:bg-slate-700/10 dark:border-white dark:text-white dark:hover:bg-slate-300/10"
 							name="provider"
 							id="googleBtn"
 							type="submit"
@@ -991,7 +991,7 @@ const datosName = [
 		'items-center',
 		'gap-3.5',
 		'dark:bg-black-900',
-		'bg-neutral-200',
+		'bg-white-100',
 		'p-3.5',
 		'rounded-xl',
 		'relative',
