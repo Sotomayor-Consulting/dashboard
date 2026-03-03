@@ -46,10 +46,10 @@ if (isPartner && user) {
 
 <div class="px-4 pt-6">
 	<div
-		class="grid gap-4 w-full grid-cols-1 my-4 xl:grid-cols-2 2xl:grid-cols-3"
+		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
 	>
 		<div
-			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-black-800"
+			class="dark:bg-black-800 items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
 		>
 			<div class="w-full">
 				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
@@ -62,7 +62,7 @@ if (isPartner && user) {
 						<input
 							id="npm-install-input"
 							type="text"
-							class="block w-full text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white bg-white rounded-xl dark:bg-black-800 border-0 p-0"
+							class="dark:bg-black-800 block w-full rounded-xl border-0 bg-white p-0 text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white"
 							value={usuario.codigo_de_partner}
 							disabled
 							readonly
@@ -71,13 +71,11 @@ if (isPartner && user) {
 							id="npm-install-copy-button"
 							data-copy-to-clipboard-target="npm-install-input"
 							data-tooltip-target="tooltip-copy-npm-install-copy-button"
-							class="absolute
-						end-2 top-1/2 -translate-y-1/2 text-white hover:bg-gray-100
-						dark:hover:bg-[#967432] rounded-lg p-2 inline-flex items-center justify-center bg-[#967432]"
+							class="absolute end-2 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-lg bg-[#967432] p-2 text-white hover:bg-[#967432]/80 dark:hover:bg-[#967432]"
 						>
 							<span id="default-icon">
 								<svg
-									class="w-7 h-7"
+									class="h-7 w-7"
 									aria-hidden="true"
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -95,7 +93,7 @@ if (isPartner && user) {
 							</span>
 							<span id="success-icon" class="hidden">
 								<svg
-									class="w-7 h-7 text-fg-brand"
+									class="h-7 w-7"
 									aria-hidden="true"
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -111,12 +109,12 @@ if (isPartner && user) {
 									></path></svg
 								>
 							</span>
-							<span class="ml-1 md:block hidden">Copiar código</span>
+							<span class="ml-1 hidden md:block">Copiar código</span>
 						</button>
 						<div
 							id="tooltip-copy-npm-install-copy-button"
 							role="tooltip"
-							class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-black-900"
+							class="tooltip dark:bg-black-900 invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300"
 						>
 							<span id="default-tooltip-message">Copiar codigo de partners</span
 							>
@@ -134,15 +132,15 @@ if (isPartner && user) {
 		</div>
 
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800"
+			class="dark:bg-black-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700"
 		>
 			<div
-				class="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm sm:flex sm:p-6 dark:bg-black-800"
+				class="dark:bg-black-800 flex items-center justify-between rounded-lg bg-white p-4 shadow-sm sm:flex sm:p-6"
 			>
 				<div class="w-full">
 					<div class="flex items-center">
 						<h3
-							class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white"
+							class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white"
 						>
 							Estado de tu contrato de partner:
 							<button
@@ -150,7 +148,7 @@ if (isPartner && user) {
 								data-popover-placement="bottom-end"
 								type="button"
 								><svg
-									class="w-4 h-4 ml-2 text-gray-400 hover:text-gray-500"
+									class="ml-2 h-4 w-4 text-gray-400 hover:text-gray-500"
 									aria-hidden="true"
 									fill="currentColor"
 									viewBox="0 0 20 20"
@@ -166,9 +164,9 @@ if (isPartner && user) {
 							data-popover
 							id="popover-description-2"
 							role="tooltip"
-							class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-black-800 dark:border-gray-600 dark:text-gray-400"
+							class="dark:bg-black-800 bg-white-50 dark:text-white-900 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-100 text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600"
 						>
-							<div class="p-3 space-y-2">
+							<div class="space-y-2 p-3">
 								<h3 class="font-semibold text-gray-900 dark:text-white">
 									Contrato de partner
 								</h3>
@@ -187,13 +185,13 @@ if (isPartner && user) {
 							Array.isArray(documentos) &&
 							documentos.length > 0 &&
 							documentos.find((d: any) => d.estado)?.estado === 'activo' ? (
-								<span class="bg-green-100 text-green-800 text-lg font-medium me-5 px-5 py-2 rounded-full dark:bg-green-900 dark:text-green-300 flex justify-center items-center w-fit">
-									<span class="size-3 inline-block rounded-full bg-green-400 dark:bg-green-400 mr-2" />
+								<span class="me-5 flex w-fit items-center justify-center rounded-full bg-green-100 px-5 py-2 text-lg font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
+									<span class="mr-2 inline-block size-3 rounded-full bg-green-400 dark:bg-green-400" />
 									Activo
 								</span>
 							) : (
-								<span class="bg-yellow-100 text-yellow-800 text-lg font-medium me-5 px-5 py-2 rounded-full dark:bg-yellow-900 dark:text-yellow-300 flex justify-center items-center w-fit">
-									<span class="size-3 inline-block rounded-full bg-yellow-400 dark:bg-yellow-400 mr-2" />
+								<span class="me-5 flex w-fit items-center justify-center rounded-full bg-yellow-100 px-5 py-2 text-lg font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+									<span class="mr-2 inline-block size-3 rounded-full bg-yellow-400 dark:bg-yellow-400" />
 									En proceso
 								</span>
 							)
@@ -204,16 +202,16 @@ if (isPartner && user) {
 		</div>
 
 		<div
-			class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm flex dark:border-gray-700 sm:p-6 dark:bg-black-800"
+			class="dark:bg-black-800 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700"
 		>
 			<div class="w-full">
 				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
 					Contrato de partner:
 				</h3>
-				<div class="flex justify-between mt-5 items-center flex-col">
+				<div class="mt-5 flex flex-col items-center justify-between">
 					<Icon
 						name="ri:file-ai-2-fill"
-						class="dark:text-white mb-3"
+						class="text-white-500 mb-3 dark:text-white"
 						width="70"
 						height="70"
 					/>
@@ -227,16 +225,16 @@ if (isPartner && user) {
 		</div>
 	</div>
 	<div
-		class="grid gap-4 w-full grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 my-4"
+		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
 	>
 		<!-- Main widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-xl shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-black-800"
+			class="dark:bg-black-800 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700"
 		>
-			<div class="flex items-center justify-between mb-4">
+			<div class="mb-4 flex items-center justify-between">
 				<div class="flex-shrink-0">
 					<span
-						class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white"
+						class="text-xl leading-none font-bold text-gray-900 sm:text-2xl dark:text-white"
 						>Sube o Actualiza tu contrato</span
 					>
 					<h3 class="text-base font-light text-gray-500 dark:text-gray-400">
@@ -245,21 +243,21 @@ if (isPartner && user) {
 				</div>
 			</div>
 
-			<div class="flex items-center justify-center w-full flex-col">
+			<div class="flex w-full flex-col items-center justify-center">
 				{
 					perfilCompleto ? (
 						<>
 							<form
 								id="my-dropzone"
-								class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-black-900 dark:border-gray-600 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80"
+								class="dropzone dark:bg-black-900 h-96 w-full rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 dark:border-gray-600 dark:hover:bg-neutral-800/80"
 								action="/api/update/contrato-partner-upload"
 								method="post"
 								enctype="multipart/form-data"
 							>
-								<div class="dz-message dark:text-white w-full flex flex-col">
+								<div class="dz-message flex w-full flex-col dark:text-white">
 									<Icon
 										name="ri:upload-cloud-2-line"
-										class="text-5xl mb-4 text-gray-500 dark:text-gray-400"
+										class="mb-4 text-5xl text-gray-500 dark:text-gray-400"
 									/>
 									Arrastra tu contrato aquí o haz clic para subir.
 								</div>
@@ -268,7 +266,7 @@ if (isPartner && user) {
 								<button
 									type="button"
 									id="btn-confirm-upload"
-									class="px-4 py-2 rounded-lg bg-[#967432] hover:bg-[#967432] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+									class="rounded-lg bg-[#967432] px-4 py-2 text-white hover:bg-[#967432] disabled:cursor-not-allowed disabled:opacity-50"
 									disabled
 								>
 									Subir contrato
@@ -276,9 +274,9 @@ if (isPartner && user) {
 							</div>
 						</>
 					) : (
-						<div class="dropzone border-dashed border-2 border-gray-300 bg-gray-50 dark:bg-black-900 dark:border-orange-500 w-full p-6 h-96 rounded-2xl dark:hover:bg-neutral-800/80 cursor-not-allowed">
-							<div class="text-white flex flex-col">
-								<Icon name="ri:alert-fill" class="w-10 h-10" />
+						<div class="dropzone dark:bg-black-900 h-96 w-full cursor-not-allowed rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 dark:border-orange-500 dark:hover:bg-neutral-800/80">
+							<div class="flex flex-col text-white">
+								<Icon name="ri:alert-fill" class="h-10 w-10" />
 								<span>
 									Completa tu información de perfil para subir el contrato de
 									partner.
@@ -287,7 +285,7 @@ if (isPartner && user) {
 									href="/settings/"
 									target="_blank"
 									rel="noopener noreferrer"
-									class="text-yellow-400 hover:text-white border border-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-yellow-300 dark:text-yellow-300 dark:hover:text-white dark:hover:bg-yellow-400 dark:focus:ring-yellow-900 mt-5"
+									class="me-2 mt-5 mb-2 rounded-lg border border-yellow-400 px-5 py-2.5 text-center text-sm font-medium text-yellow-400 hover:bg-yellow-500 hover:text-white focus:ring-4 focus:ring-yellow-300 focus:outline-none dark:border-yellow-300 dark:text-yellow-300 dark:hover:bg-yellow-400 dark:hover:text-white dark:focus:ring-yellow-900"
 								>
 									Ir a mi perfil
 								</a>
@@ -299,10 +297,10 @@ if (isPartner && user) {
 		</div>
 		<!--Tabs widget -->
 		<div
-			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800"
+			class="dark:bg-black-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700"
 		>
 			<h3
-				class="flex items-center mb-4 text-lg font-semibold text-gray-900 dark:text-white"
+				class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white"
 			>
 				Acciones rapidas
 				<button
@@ -310,7 +308,7 @@ if (isPartner && user) {
 					data-popover-placement="bottom-end"
 					type="button"
 					><svg
-						class="w-4 h-4 ml-2 text-gray-400 hover:text-gray-500"
+						class="ml-2 h-4 w-4 text-gray-400 hover:text-gray-500"
 						aria-hidden="true"
 						fill="currentColor"
 						viewBox="0 0 20 20"
@@ -326,9 +324,9 @@ if (isPartner && user) {
 				data-popover
 				id="popover-description"
 				role="tooltip"
-				class="absolute z-10 invisible inline-block text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 w-72 dark:bg-black-800 dark:border-gray-600 dark:text-gray-400"
+				class="dark:bg-black-800 bg-white-50 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600 dark:text-gray-400"
 			>
-				<div class="p-3 space-y-2">
+				<div class="space-y-2 p-3">
 					<h3 class="font-semibold text-gray-900 dark:text-white">
 						Acciones rapidas
 					</h3>
@@ -376,13 +374,13 @@ if (isPartner && user) {
 							].map((ac) => (
 								<li class="py-3 sm:py-4">
 									<div class="flex items-center justify-between">
-										<div class="flex items-center min-w-0">
+										<div class="flex min-w-0 items-center">
 											<Icon
 												name={ac.icono}
-												class="w-10 h-10 text-white hover:scale-105"
+												class="text-white-500 h-10 w-10 hover:scale-105 dark:text-white"
 											/>
 											<div class="ml-3">
-												<p class="font-medium text-gray-900 truncate dark:text-white">
+												<p class="truncate font-medium text-gray-900 dark:text-white">
 													{ac.nombre}
 												</p>
 											</div>
@@ -390,11 +388,11 @@ if (isPartner && user) {
 										<a
 											target="_blank"
 											href={ac.link}
-											class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+											class="me-2 inline-flex items-center rounded-lg bg-[#967432] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#967432] focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 										>
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
-												class="w-3.5 h-3.5 me-2"
+												class="me-2 h-3.5 w-3.5"
 												viewBox="0 0 16 16"
 											>
 												<>
@@ -420,7 +418,7 @@ if (isPartner && user) {
 		</div>
 	</div>
 	<div
-		class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-black-800 my-4"
+		class="dark:bg-black-800 my-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700"
 	>
 		<!-- Card header -->
 		<div class="items-center justify-between lg:flex">
@@ -434,14 +432,14 @@ if (isPartner && user) {
 			</div>
 		</div>
 		<!-- Table -->
-		<div class="flex flex-col mt-6">
+		<div class="mt-6 flex flex-col">
 			<div class="overflow-x-auto rounded-lg">
 				<div class="inline-block min-w-full align-middle">
 					<div class="overflow-hidden shadow sm:rounded-lg">
 						<table
 							class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
 						>
-							<thead class="bg-gray-50 dark:bg-black-800">
+							<thead class="dark:bg-black-800 bg-gray-50">
 								<tr>
 									{
 										[
@@ -453,7 +451,7 @@ if (isPartner && user) {
 										].map((th) => (
 											<th
 												scope="col"
-												class="p-4 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-white"
+												class="p-4 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-white"
 											>
 												{th}
 											</th>
@@ -461,32 +459,32 @@ if (isPartner && user) {
 									}
 								</tr>
 							</thead>
-							<tbody class="bg-white dark:bg-black-800">
+							<tbody class="dark:bg-black-800 bg-white">
 								<tr>
 									{
 										documentos && documentos.length > 0 ? (
 											documentos.map((documento) => (
 												<tr>
-													<td class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white">
+													<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-900 dark:text-white">
 														<span class="font-semibold">
 															{documento?.nombre_archivo}
 														</span>
 													</td>
-													<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+													<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
 														{documento?.created_at}
 													</td>
 													<td class="p-4 whitespace-nowrap">
 														{documento?.estado === 'activo' ? (
-															<span class="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:bg-black-800 dark:text-green-400 border border-green-100 dark:border-green-500 mx-auto">
+															<span class="dark:bg-black-800 mx-auto mr-2 rounded-md border border-green-100 bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:border-green-500 dark:text-green-400">
 																Completado
 															</span>
 														) : (
-															<span class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:bg-black-800 dark:text-yellow-400 border border-yellow-100 dark:border-yellow-500 mx-auto">
+															<span class="dark:bg-black-800 mx-auto mr-2 rounded-md border border-yellow-100 bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:border-yellow-500 dark:text-yellow-400">
 																En proceso
 															</span>
 														)}
 													</td>
-													<td class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-neutral-500">
+													<td class="p-4 text-sm font-semibold whitespace-nowrap text-gray-900 dark:text-neutral-500">
 														<a
 															href={`/api/documentos/contrato-partners?user_id=${documento?.user_id}&filename=${documento?.nombre_archivo}`}
 															target="_blank"
@@ -495,7 +493,7 @@ if (isPartner && user) {
 														>
 															<svg
 																xmlns="http://www.w3.org/2000/svg"
-																class="hover:text-white transition-colors"
+																class="transition-colors hover:text-white"
 																width="24"
 																height="24"
 																viewBox="0 0 24 24"
@@ -507,7 +505,7 @@ if (isPartner && user) {
 															</svg>
 														</a>
 													</td>
-													<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-neutral-500">
+													<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-neutral-500">
 														<a
 															href={`/api/documentos/contrato-partners?user_id=${documento?.user_id}&filename=${documento?.nombre_archivo}&mode=download`}
 															title="Descargar el documento"
@@ -515,7 +513,7 @@ if (isPartner && user) {
 															download={documento?.nombre_archivo}
 														>
 															<svg
-																class="hover:text-white transition-colors"
+																class="transition-colors hover:text-white"
 																width="24"
 																height="24"
 																fill="currentColor"
@@ -541,7 +539,7 @@ if (isPartner && user) {
 												>
 													<Icon
 														name="ri:file-copy-2-fill"
-														class="w-10 h-10 mx-auto"
+														class="mx-auto h-10 w-10"
 													/>
 													<p class="mt-4 text-lg font-medium">
 														No hay documentos registrados

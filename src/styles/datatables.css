@@ -42,6 +42,7 @@ html.dark .datatable-pagination {
 	color: rgb(107 114 128);
 	background-color: rgb(255 255 255);
 	border: 1px solid rgb(209 213 219);
+	cursor: pointer;
 }
 
 .datatable-pagination-list-item-link:hover {
@@ -50,13 +51,13 @@ html.dark .datatable-pagination {
 }
 
 html.dark .datatable-pagination-list-item-link {
-	background-color: #262626;
+	background-color: #000510;
 	border-color: rgb(55 65 81);
 	color: rgb(156 163 175);
 }
 
 html.dark .datatable-pagination-list-item-link:hover {
-	background-color: #404040;
+	background-color: #00122c;
 	color: rgb(255 255 255);
 }
 
@@ -205,8 +206,8 @@ html.dark thead {
 .datatable-pagination .datatable-active button,
 .datatable-pagination .datatable-active button:focus,
 .datatable-pagination .datatable-active button:hover {
-	background-color: #c7c7c7;
-	cursor: default;
+	background-color: #b7b7b7;
+	cursor: pointer;
 }
 
 html.dark .datatable-pagination .datatable-active a,
@@ -215,7 +216,7 @@ html.dark .datatable-pagination .datatable-active a:hover,
 html.dark .datatable-pagination .datatable-active button,
 html.dark .datatable-pagination .datatable-active button:focus,
 html.dark .datatable-pagination .datatable-active button:hover {
-	background-color: #404040;
+	background-color: #002142;
 }
 
 .datatable-empty {
@@ -232,4 +233,5 @@ html.dark .datatable-empty {
 
 .datatable-sorter {
 	text-transform: uppercase;
+	cursor: pointer;
 }

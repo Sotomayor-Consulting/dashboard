@@ -2,19 +2,20 @@
 import '@styles/datatables.css';
 import { Image } from 'astro:assets';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
-import { RolesGeneral } from '@lib/tablas/roles';
+import { RolesGeneral, RolesGeneralUsers } from '@lib/tablas/roles';
 import { PaisesGeneral } from '@lib/tablas/paises';
 
-const [usuarios, roles, paises] = await Promise.all([
+const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 	getAllUsuarios(),
 	RolesGeneral(),
 	PaisesGeneral(),
+	RolesGeneralUsers(),
 ]);
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="bg-white-100 dark:bg-black-900 block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
+	class="bg-white-300 dark:bg-black-900 block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<div class="mb-1 w-full">
 		<div class="">
@@ -89,7 +90,7 @@ const [usuarios, roles, paises] = await Promise.all([
 				<button
 					id="dropdownMenuIconButton"
 					data-dropdown-toggle="dropdownDots2"
-					class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+					class="dark:bg-black-800 dark:hover:bg-black-700 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:focus:ring-gray-600"
 					type="button"
 				>
 					<svg
@@ -184,7 +185,7 @@ const [usuarios, roles, paises] = await Promise.all([
 						{
 							usuarios?.map((user) => (
 								<div>
-									<tr class="odd:bg-white-100 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+									<tr class="dark:hover:bg-black-700 odd:bg-white-300 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467]">
 										<td class="w-4 pl-4">
 											{user.avatar_url === 'NULL' || !user.avatar_url ? (
 												<Image
@@ -234,28 +235,41 @@ const [usuarios, roles, paises] = await Promise.all([
 											</div>
 										</td>
 										<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											<div class="flex items-center">
-												{user.rol_id === 1 ? (
-													<span
-														class="font-medium text-purple-600"
-														title="Administrador"
-													>
-														Admin
-													</span>
-												) : user.rol_id === 2 ? (
-													<span
-														class="font-medium text-[#8c681d]"
-														title="Partner"
-													>
-														Partner
-													</span>
-												) : (
-													<span
-														class="font-medium text-green-600"
-														title="Cliente"
-													>
-														Cliente
-													</span>
+											<div class="flex items-center gap-1">
+												{rolesGeneral?.map(
+													(rol) =>
+														user.user_id === rol.user_id &&
+														(() => {
+															// Definir clases según el nombre del rol
+															let badgeClass =
+																'text-xs font-medium px-1.5 py-0.5 rounded ';
+
+															switch (rol.roles.name) {
+																case 'admin':
+																	badgeClass +=
+																		'bg-danger-soft text-fg-danger-strong';
+																	break;
+																case 'cliente':
+																	badgeClass +=
+																		'bg-success-soft text-fg-success-strong';
+																	break;
+																case 'partner':
+																	badgeClass +=
+																		'bg-warning-soft text-fg-warning';
+																	break;
+																case 'operaciones':
+																	badgeClass +=
+																		'bg-warning-soft text-fg-warning';
+																	break;
+																default:
+																	badgeClass +=
+																		'bg-success-soft text-fg-success-strong';
+															}
+
+															return (
+																<span class={badgeClass}>{rol.roles.name}</span>
+															);
+														})(),
 												)}
 											</div>
 										</td>
@@ -311,7 +325,7 @@ const [usuarios, roles, paises] = await Promise.all([
 												id={`dd-btn-${user.user_id}`}
 												@click="showTooltip = !showTooltip"
 												@click.outside="showTooltip = false"
-												class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+												class="dark:hover:bg-black-700 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:bg-[#134aed] dark:text-white dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
 												aria-expanded="false"
@@ -383,7 +397,7 @@ const [usuarios, roles, paises] = await Promise.all([
 				<h3 class="text-xl font-semibold dark:text-white">Editar usuario</h3>
 				<button
 					type="button"
-					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
+					class="dark:hover:bg-black-700 ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:text-white"
 					data-modal-toggle="edit-user-modal"
 				>
 					<svg
@@ -738,7 +752,7 @@ const [usuarios, roles, paises] = await Promise.all([
 				<h3 class="text-xl font-semibold dark:text-white">Invitar usuario</h3>
 				<button
 					type="button"
-					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
+					class="dark:hover:bg-black-700 ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:text-white"
 					data-modal-toggle="add-user-modal"
 				>
 					<svg
@@ -803,7 +817,7 @@ const [usuarios, roles, paises] = await Promise.all([
 				<h3 class="text-xl font-semibold dark:text-white">Añadir Rol</h3>
 				<button
 					type="button"
-					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
+					class="dark:hover:bg-black-700 ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:text-white"
 					data-modal-toggle="rol-modal-admin"
 				>
 					<svg

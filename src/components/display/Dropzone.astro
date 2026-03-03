@@ -1,0 +1,135 @@
+---
+import '@styles/dropzone.css';
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	endpoint: string;
+}
+
+const { endpoint } = Astro.props;
+---
+
+<div class="flex flex-col items-center justify-center">
+	<form
+		id="my-dropzone"
+		class="dropzone dark:bg-black-900 h-96 w-full rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 dark:border-gray-600 dark:hover:bg-neutral-800/80"
+		action={endpoint}
+		method="post"
+		enctype="multipart/form-data"
+	>
+		<div class="dz-message flex w-full flex-col dark:text-white">
+			<Icon
+				name="ri:upload-cloud-2-line"
+				class="mb-4 text-5xl text-gray-500 dark:text-gray-400"
+			/>
+			Arrastra el documento aquí o haz clic para subir.
+		</div>
+	</form>
+	<div class="mt-4 flex gap-3">
+		<button
+			type="button"
+			id="btn-confirm-upload"
+			class="rounded-lg bg-[#967432] px-4 py-2 text-white hover:bg-[#967432] disabled:cursor-not-allowed disabled:opacity-50"
+			disabled
+		>
+			Subir documento
+		</button>
+	</div>
+
+	<script src="@lib/dropzone/dropzone.min.js"></script>
+
+	<script is:inline>
+		document.addEventListener('DOMContentLoaded', function () {
+			if (typeof Dropzone === 'undefined') {
+				console.error('Dropzone no está definido.');
+				return;
+			}
+
+			Dropzone.autoDiscover = false;
+
+			var form = document.getElementById('my-dropzone');
+			var confirmBtn = document.getElementById('btn-confirm-upload');
+			var tempTimeoutId = null;
+
+			if (!form || !confirmBtn) return;
+
+			var dz = new Dropzone(form, {
+				url: form.getAttribute('action'),
+				method: 'post',
+
+				// nombre que lee tu endpoint: formData.get("contract_file")
+				paramName: 'contract_file',
+
+				autoProcessQueue: false,
+				maxFiles: 1,
+				uploadMultiple: false,
+				acceptedFiles: 'application/pdf',
+				maxFilesize: 5, // MB
+
+				addRemoveLinks: true,
+				dictDefaultMessage:
+					'Arrastra aquí tu documento o haz clic para seleccionar.',
+				dictRemoveFile: 'Eliminar archivo',
+			});
+
+			// Habilitar botón cuando hay archivo
+			dz.on('addedfile', function (file) {
+				// Sólo queremos un archivo
+				if (dz.files.length > 1) {
+					dz.removeFile(dz.files[0]); // elimina el anterior
+				}
+
+				confirmBtn.disabled = false;
+
+				// Limpiar timeout previo si existe
+				if (tempTimeoutId) clearTimeout(tempTimeoutId);
+
+				// Programar expiración en 2 minutos (120000 ms)
+				tempTimeoutId = setTimeout(
+					function () {
+						dz.removeAllFiles(true);
+						confirmBtn.disabled = true;
+						alert(
+							'El archivo temporal ha expirado. Vuelve a subir el documento.',
+						);
+					},
+					2 * 60 * 1000,
+				);
+			});
+
+			// Si el usuario elimina el archivo manualmente
+			dz.on('removedfile', function () {
+				confirmBtn.disabled = true;
+				if (tempTimeoutId) clearTimeout(tempTimeoutId);
+			});
+
+			// Botón de "Guardar contrato" → ahora sí hacemos POST
+			confirmBtn.addEventListener('click', function () {
+				if (dz.getQueuedFiles().length === 0) {
+					return;
+				}
+
+				confirmBtn.disabled = true;
+
+				dz.processQueue(); // 🔥 aquí recién se hace el POST al endpoint
+			});
+
+			// Manejo de éxito: seguir la redirección de tu endpoint
+			dz.on('success', function (file) {
+				if (tempTimeoutId) clearTimeout(tempTimeoutId);
+
+				var xhr = file.xhr;
+				if (xhr && xhr.responseURL) {
+					window.location.href = xhr.responseURL;
+				}
+			});
+
+			dz.on('error', function (file, errorMessage) {
+				console.error('Error al subir el documento:', errorMessage);
+				confirmBtn.disabled = false;
+				if (tempTimeoutId) clearTimeout(tempTimeoutId);
+				alert('Hubo un error al subir el documento. Intenta de nuevo.');
+			});
+		});
+	</script>
+</div>

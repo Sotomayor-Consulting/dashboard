@@ -1,22 +1,14 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
+import { pagosRealizadosPorSubir } from '@lib/tablas/PagosPorLeer';
 import '@styles/datatables.css';
-import { supabase } from '@lib/supabase';
 
-const { data: pagos } = await supabase
-	.from('pagos')
-	.select(
-		'*, usuarios( nombre, apellido, correo, avatar_url, rol_id), servicios(nombre), empresas_incorporaciones(nombre_1, porcentaje_de_incorporacion)',
-	)
-
-	.order('created_at', { ascending: false });
-
-console.log(pagos);
+const empresas = await pagosRealizadosPorSubir();
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="dark:bg-black-900 block items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
+	class="dark:bg-black-900 block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<Alerta />
 	<div class="mb-1 w-full">
@@ -82,16 +74,7 @@ console.log(pagos);
 					<thead class="bg-gray-100 dark:bg-[#374151]">
 						<tr>
 							{
-								[
-									'Foto',
-									'Nombre',
-									'Empresa',
-									'Porcentaje de incorporación',
-									'Plan',
-									'Pago',
-									'Estado',
-									'Acciones',
-								].map((th) => (
+								['Cliente', 'Empresa', 'Plan', 'Estado'].map((th) => (
 									<th
 										scope="col"
 										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
@@ -125,92 +108,38 @@ console.log(pagos);
 						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
 					>
 						{
-							pagos?.map((p) => (
+							empresas?.map((e) => (
 								<div>
-									<tr class="odd:bg-white-100 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
-										<td class="w-4 pl-4">
-											{p.usuarios.avatar_url === 'NULL' ||
-											!p.usuarios.avatar_url ? (
-												<img
-													class="h-10 w-10 rounded-full"
-													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${p.usuarios.nombre}`}
-													alt={`Avatar de ${p.usuarios.nombre}`}
-												/>
-											) : (
-												<img
-													class="h-10 w-10 rounded-full"
-													src={p.usuarios.avatar_url}
-													alt={`Avatar de ${p.usuarios.nombre}`}
-												/>
-											)}
-										</td>
+									<tr
+										class="odd:bg-white-100 cursor-pointer even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
+										onclick={`window.open('/forms/upload_documents/${e.empresas_incorporaciones.empresa_incorporacion_id}', '_blank')`}
+									>
 										<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">
 											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
 												<div class="text-base font-semibold text-gray-900 dark:text-white">
-													{p.usuarios.nombre} {p.usuarios.apellido}
+													{e.usuarios.nombre} {e.usuarios.apellido}
 												</div>
 												<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-													{p.usuarios.correo}
+													{e.usuarios.correo}
 												</div>
 											</div>
 										</td>
 										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-											{p.empresas_incorporaciones.nombre_1}
+											{e.empresas_incorporaciones.nombre_1}
 										</td>
 										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-											{p.empresas_incorporaciones.porcentaje_de_incorporacion} %
-										</td>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											{p.servicios.nombre}
+											{e.servicios.nombre}
 										</td>
 
 										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 											<div class="flex items-center">
-												{p.status === 'succeeded' ? (
+												{e.empresas_incorporaciones.estado === 'Activo' ? (
 													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
 												) : (
 													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
 												)}
-												{p.status}
+												{e.empresas_incorporaciones.estado}
 											</div>
-										</td>
-										<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											<div class="flex items-center">
-												{p.usuarios.rol_id === 1 ? (
-													<span
-														class="font-medium text-purple-600"
-														title="Administrador"
-													>
-														Admin
-													</span>
-												) : p.usuarios.rol_id === 2 ? (
-													<span
-														class="font-medium text-[#8c681d]"
-														title="Partner"
-													>
-														Partner
-													</span>
-												) : (
-													<span
-														class="font-medium text-green-600"
-														title="Cliente"
-													>
-														Cliente
-													</span>
-												)}
-											</div>
-										</td>
-										<td class="flex space-x-2 p-4">
-											<button
-												data-modal-target="top-right-modal"
-												data-modal-toggle="top-right-modal"
-												data-user-notification
-												data-user-id={p.user_id}
-												class="block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-												type="button"
-											>
-												Enviar notificación
-											</button>
 										</td>
 									</tr>
 								</div>

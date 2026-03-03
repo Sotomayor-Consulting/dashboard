@@ -1,4 +1,19 @@
 ---
+import Stripelogo from '@assets/stripe.svg';
+import { Icon } from 'astro-icon/components';
+import { getIncorporacionesEnProceso } from '@lib/tablas/empresa_incorporaciones';
+import { ListaServiciosStripe } from '@lib/tablas/servicios';
+import { ListaDeMicroServiciosActivos } from '@lib/tablas/microservicios';
+
+const User = Astro.locals.user;
+const userId = User?.id || '';
+
+const [empresas, servicios, microservicios] = await Promise.all([
+	getIncorporacionesEnProceso(userId),
+	ListaServiciosStripe(),
+	ListaDeMicroServiciosActivos(),
+]);
+
 const planBasico = servicios?.find((s) => s.nombre === 'Plan Básico');
 const planEstandar = servicios?.find((s) => s.nombre === 'Plan Estándar');
 const planBusiness = servicios?.find((s) => s.nombre === 'Plan Business');
@@ -34,7 +49,7 @@ const opcionesllc =
 				<select
 					name="empresa"
 					id="empresa-select"
-					class="bg-white-100 dark:bg-black-800 mb-5 block w-full rounded-lg border-neutral-600 px-4 py-3 pe-9 text-sm focus:border-[#8c681d] focus:ring-[#8c681d] disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+					class="bg-white-300 dark:bg-black-800 mb-5 block w-full rounded-lg border-neutral-600 px-4 py-3 pe-9 text-sm focus:border-[#8c681d] focus:ring-[#8c681d] disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
 				>
 					{
 						empresas?.map((empresa) => (
@@ -165,8 +180,13 @@ const opcionesllc =
 												clip-rule="evenodd"
 												fill-rule="evenodd"
 											>
-												<title />
-												<path d="m12 17.275l-4.15 2.5q-.275.175-.575.15t-.525-.2t-.35-.437t-.05-.588l1.1-4.725L3.775 10.8q-.25-.225-.312-.513t.037-.562t.3-.45t.55-.225l4.85-.425l1.875-4.45q.125-.3.388-.45t.537-.15t.537.15t.388.45l1.875 4.45l4.85.425q.35.05.55.225t.3.45t.038.563t-.313.512l-3.675 3.175l1.1 4.725q.075.325-.05.588t-.35.437t-.525.2t-.575-.15z" />
+												<>
+													<title />
+													<path
+														d="m12 17.275l-4.15 2.5q-.275.175-.575.15t-.525-.2t-.35-.437t-.05-.588l1.1-4.725L3.775 10.8q-.25-.225-.312-.513t.037-.562t.3-.45t.55-.225l4.85-.425l1.875-4.45q.125-.3.388-.45t.537-.15t.537.15t.388.45l1.875 4.45l4.85.425q.35.05.55.225t.3.45t.038.563t-.313.512l-3.675 3.175l1.1 4.725q.075.325-.05.588t-.35.437t-.525.2t-.575-.15z"
+														class=""
+													/>
+												</>
 											</svg>
 											<span class="text-left text-gray-800 dark:text-neutral-400">
 												Planificación y diseño de LLC
@@ -181,8 +201,13 @@ const opcionesllc =
 												clip-rule="evenodd"
 												fill-rule="evenodd"
 											>
-												<title />
-												<path d="M7.194 2.101a.9.9 0 0 1 1.614 0l1.521 3.082l3.401.495a.9.9 0 0 1 .5 1.535l-2.462 2.399l.581 3.387a.9.9 0 0 1-1.306.949l-3.042-1.6l-3.042 1.6a.9.9 0 0 1-1.306-.949l.58-3.387l-2.46-2.4a.9.9 0 0 1 .499-1.534l3.4-.495zM8 2.726L6.546 5.673a.9.9 0 0 1-.677.492l-3.253.473L4.97 8.932a.9.9 0 0 1 .258.797l-.555 3.24l2.91-1.53a.9.9 0 0 1 .837 0l2.91 1.53l-.556-3.24a.9.9 0 0 1 .258-.797l2.354-2.294l-3.253-.473a.9.9 0 0 1-.677-.492z" />
+												<>
+													<title />
+													<path
+														d="M7.194 2.101a.9.9 0 0 1 1.614 0l1.521 3.082l3.401.495a.9.9 0 0 1 .5 1.535l-2.462 2.399l.581 3.387a.9.9 0 0 1-1.306.949l-3.042-1.6l-3.042 1.6a.9.9 0 0 1-1.306-.949l.58-3.387l-2.46-2.4a.9.9 0 0 1 .499-1.534l3.4-.495zM8 2.726L6.546 5.673a.9.9 0 0 1-.677.492l-3.253.473L4.97 8.932a.9.9 0 0 1 .258.797l-.555 3.24l2.91-1.53a.9.9 0 0 1 .837 0l2.91 1.53l-.556-3.24a.9.9 0 0 1 .258-.797l2.354-2.294l-3.253-.473a.9.9 0 0 1-.677-.492z"
+														class=""
+													/>
+												</>
 											</svg>
 											<span class="text-left text-gray-800 dark:text-neutral-400">
 												Servicio de acompañamiento para abrir tu cuenta bancaria
@@ -283,11 +308,13 @@ const opcionesllc =
 												viewBox="0 0 24 24"
 											>
 												<g fill="none">
-													<path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
-													<path
-														fill="currentColor"
-														d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
-													/>
+													<>
+														<path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
+														<path
+															fill="currentColor"
+															d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m0 14a1 1 0 1 0 0 2a1 1 0 0 0 0-2m0-9.5a3.625 3.625 0 0 0-3.625 3.625a1 1 0 1 0 2 0a1.625 1.625 0 1 1 2.23 1.51c-.676.27-1.605.962-1.605 2.115V14a1 1 0 1 0 2 0c0-.244.05-.366.261-.47l.087-.04A3.626 3.626 0 0 0 12 6.5"
+														/>
+													</>
 												</g>
 											</svg>
 										</button>
@@ -423,7 +450,7 @@ const opcionesllc =
 						<h2 id="accordion-collapse-heading-1">
 							<button
 								type="button"
-								class="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400 dark:hover:bg-[#101522]"
+								class="dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400"
 								data-accordion-target="#accordion-collapse-body-1"
 								aria-expanded="true"
 								aria-controls="accordion-collapse-body-1"
@@ -452,7 +479,7 @@ const opcionesllc =
 							aria-labelledby="accordion-collapse-heading-1"
 						>
 							<div
-								class="dark:bg-black-900 bg-white-100 rounded-xl border border-gray-200 p-5 dark:border-gray-700"
+								class="dark:bg-black-900 bg-white-300 rounded-xl border border-gray-200 p-5 dark:border-gray-700"
 							>
 								<ul class="grid w-full gap-6 md:grid-cols-3">
 									{
@@ -469,7 +496,7 @@ const opcionesllc =
 												/>
 												<label
 													for={`opcion-popular-${opciones.id_micro_servicios}`}
-													class="dark:bg-black-800 peer-checked:bg-white-100 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+													class="dark:bg-black-800 peer-checked:bg-white-300 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
 												>
 													<div class="block w-full">
 														<div class="flex w-full items-center justify-between">
@@ -499,7 +526,7 @@ const opcionesllc =
 						<h2 id="accordion-collapse-heading-2">
 							<button
 								type="button"
-								class="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400 dark:hover:bg-[#101522]"
+								class="dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400"
 								data-accordion-target="#accordion-collapse-body-2"
 								aria-expanded="false"
 								aria-controls="accordion-collapse-body-2"
@@ -528,7 +555,7 @@ const opcionesllc =
 							aria-labelledby="accordion-collapse-heading-2"
 						>
 							<div
-								class="dark:bg-black-900 bg-white-100 rounded-xl border border-gray-200 p-5 dark:border-gray-700"
+								class="dark:bg-black-900 bg-white-300 rounded-xl border border-gray-200 p-5 dark:border-gray-700"
 							>
 								<ul class="grid w-full gap-6 md:grid-cols-3">
 									{
@@ -545,7 +572,7 @@ const opcionesllc =
 												/>
 												<label
 													for={`opcion-llc-${opciones.id_micro_servicios}`}
-													class="dark:bg-black-800 peer-checked:bg-white-100 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+													class="dark:bg-black-800 peer-checked:bg-white-300 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
 												>
 													<div class="block w-full">
 														<div class="flex w-full items-center justify-between">
@@ -575,7 +602,7 @@ const opcionesllc =
 						<h2 id="accordion-collapse-heading-3">
 							<button
 								type="button"
-								class="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400 dark:hover:bg-[#101522]"
+								class="dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400"
 								data-accordion-target="#accordion-collapse-body-3"
 								aria-expanded="false"
 								aria-controls="accordion-collapse-body-3"
@@ -604,7 +631,7 @@ const opcionesllc =
 							aria-labelledby="accordion-collapse-heading-3"
 						>
 							<div
-								class="dark:bg-black-900 bg-white-100 rounded-xl border border-gray-200 p-5 dark:border-gray-700"
+								class="dark:bg-black-900 bg-white-300 rounded-xl border border-gray-200 p-5 dark:border-gray-700"
 							>
 								<ul class="grid w-full gap-6 md:grid-cols-3">
 									{
@@ -621,7 +648,7 @@ const opcionesllc =
 												/>
 												<label
 													for={`opcion-tec-${opciones.id_micro_servicios}`}
-													class="dark:bg-black-800 peer-checked:bg-white-100 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+													class="dark:bg-black-800 peer-checked:bg-white-300 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
 												>
 													<div class="block w-full">
 														<div class="flex w-full items-center justify-between">

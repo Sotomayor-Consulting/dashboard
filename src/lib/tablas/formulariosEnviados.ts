@@ -142,6 +142,8 @@ export const FormsEnviadosForId = async (userId: string) => {
 			'*, formularios ( form_id, titulo, slug, descripcion ),usuarios ( user_id, nombre, apellido )',
 		)
 		.eq('user_id', userId)
+		.eq('status', 'submitted')
+
 		.order('submitted_at', { ascending: true });
 	if (error) {
 		console.error(

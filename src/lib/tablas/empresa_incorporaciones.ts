@@ -30,6 +30,20 @@ export const getIncorporacionById = async (id: string, userId: string) => {
 	return data;
 };
 
+export const getIncorporacionByIdempresa = async (id: string) => {
+	const { data, error } = await supabase
+		.from('empresas_incorporaciones')
+		.select('*')
+		.eq('empresa_incorporacion_id', id)
+		.single();
+	if (error) {
+		console.error('Error fetching incorporaciones by ID de empresa:', error);
+		return [];
+	}
+
+	return data;
+};
+
 export const getIncorporacionesEnProceso = async (userId: string) => {
 	const { data, error } = await supabase
 		.from('empresas_incorporaciones')
@@ -96,6 +110,20 @@ export const getEstadoIncorporacionByUserId = async (userId: string) => {
 
 	if (error) {
 		console.error('Error fetching estado incorporacion by user ID:', error);
+		return [];
+	}
+
+	return data;
+};
+
+export const getIncorporacionesDocs = async () => {
+	const { data, error } = await supabase
+		.from('empresas_incorporaciones')
+		.select(
+			'empresa_incorporacion_id, nombre_1, estado, user_id, tipo_de_negocio, usuarios(nombre, apellido, correo)',
+		);
+	if (error) {
+		console.log('error fetching empresas a subir documentos', error);
 		return [];
 	}
 

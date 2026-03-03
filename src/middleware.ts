@@ -10,14 +10,23 @@ export function onRequest(context: any, next: any) {
 		'/forgot-password',
 		'/reset-password',
 	];
+
+	const allAccess = [
+		'/start',
+	];
 	const publicFolders = ['/api/'];
 
 	const isPublicRoute = publicRoutes.some((route) => pathname === route);
+	const isAllAccess = allAccess.some((route) => pathname.startsWith(route));
 	const isPublicFolder = publicFolders.some((folder) =>
 		pathname.startsWith(folder),
 	);
 
 	return (async () => {
+		if (isPublicRoute || isPublicFolder || isAllAccess) {
+			return next();
+		}
+
 		const accessToken = cookies.get('sb-access-token');
 		const refreshToken = cookies.get('sb-refresh-token');
 
@@ -60,10 +69,6 @@ export function onRequest(context: any, next: any) {
 				cookies.delete('sb-access-token', { path: '/' });
 				cookies.delete('sb-refresh-token', { path: '/' });
 			}
-		}
-
-		if (isPublicRoute || isPublicFolder) {
-			return next();
 		}
 
 		if (!user) {

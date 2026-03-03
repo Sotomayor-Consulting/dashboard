@@ -2,8 +2,12 @@
 import Alerta from '@components/feedback/alertageneral.astro';
 import '@styles/datatables.css';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
+import { RolesGeneralUsers } from '@lib/tablas/roles';
 
-const usuarios = await getAllUsuarios();
+const [usuarios, roles] = await Promise.all([
+	getAllUsuarios(),
+	RolesGeneralUsers(),
+]);
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>
@@ -165,28 +169,41 @@ const usuarios = await getAllUsuarios();
 											</div>
 										</td>
 										<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											<div class="flex items-center">
-												{user.rol_id === 1 ? (
-													<span
-														class="font-medium text-purple-600"
-														title="Administrador"
-													>
-														Admin
-													</span>
-												) : user.rol_id === 2 ? (
-													<span
-														class="font-medium text-[#8c681d]"
-														title="Partner"
-													>
-														Partner
-													</span>
-												) : (
-													<span
-														class="font-medium text-green-600"
-														title="Cliente"
-													>
-														Cliente
-													</span>
+											<div class="flex items-center gap-1">
+												{roles?.map(
+													(rol) =>
+														user.user_id === rol.user_id &&
+														(() => {
+															// Definir clases según el nombre del rol
+															let badgeClass =
+																'text-xs font-medium px-1.5 py-0.5 rounded ';
+
+															switch (rol.roles.name) {
+																case 'admin':
+																	badgeClass +=
+																		'bg-danger-soft text-fg-danger-strong';
+																	break;
+																case 'cliente':
+																	badgeClass +=
+																		'bg-success-soft text-fg-success-strong';
+																	break;
+																case 'partner':
+																	badgeClass +=
+																		'bg-warning-soft text-fg-warning';
+																	break;
+																case 'operaciones':
+																	badgeClass +=
+																		'bg-warning-soft text-fg-warning';
+																	break;
+																default:
+																	badgeClass +=
+																		'bg-success-soft text-fg-success-strong';
+															}
+
+															return (
+																<span class={badgeClass}>{rol.roles.name}</span>
+															);
+														})(),
 												)}
 											</div>
 										</td>

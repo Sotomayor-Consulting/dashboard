@@ -9,13 +9,14 @@ import { getNotificacionesGeneral } from '@lib/tablas/notificaciones';
 const notificaciones = await getNotificacionesGeneral();
 ---
 
+<script src="@lib/alpinejs/alpine.js"></script>
 <Alerta />
 <div class="flex flex-col">
 	<div class="overflow-x-auto">
 		<div class="inline-block min-w-full align-middle">
 			<div class="overflow-hidden shadow">
 				<table
-					class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600"
+					class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
 					id="myTable"
 				>
 					<thead class="bg-gray-100 dark:bg-[#374151]">
@@ -112,7 +113,10 @@ const notificaciones = await getNotificacionesGeneral();
 											</div>
 										</td>
 
-										<td class="space-x-2 p-4 whitespace-nowrap">
+										<td
+											class="space-x-2 p-4 whitespace-nowrap"
+											x-data="{ showTooltip: false }"
+										>
 											<button
 												type="button"
 												data-modal-target="edit-user-modal"
@@ -143,7 +147,8 @@ const notificaciones = await getNotificacionesGeneral();
 
 											<button
 												id={`dd-btn-${user.id}`}
-												data-dropdown-toggle={`dd-${user.id}`}
+												@click="showTooltip = !showTooltip"
+												@click.outside="showTooltip = false"
 												class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
 												type="button"
 												aria-haspopup="true"
@@ -163,6 +168,8 @@ const notificaciones = await getNotificacionesGeneral();
 												id={`dd-${user.id}`}
 												class="dark:bg-black-800 z-10 hidden w-44 divide-y divide-gray-100 rounded-lg bg-white shadow-sm dark:divide-gray-600"
 												role="menu"
+												x-show="showTooltip"
+												x-transition
 												aria-labelledby={`dd-btn-${user.id}`}
 												data-dropdown-placement="bottom-start"
 											>
@@ -385,214 +392,7 @@ const notificaciones = await getNotificacionesGeneral();
 		});
 	});
 </script>
-<!-- Añadir usuario -->
-<div
-	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
-	id="add-user-modal"
->
-	<div class="relative h-full w-full max-w-2xl px-4 md:h-auto">
-		<!-- Modal content -->
-		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
-			<!-- Modal header -->
-			<div
-				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
-			>
-				<h3 class="text-xl font-semibold dark:text-white">Invitar usuario</h3>
-				<button
-					type="button"
-					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
-					data-modal-toggle="add-user-modal"
-				>
-					<svg
-						class="h-5 w-5"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							fill-rule="evenodd"
-							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							clip-rule="evenodd"></path></svg
-					>
-				</button>
-			</div>
-			<!-- Modal body -->
-			<form action="/api/update/admin-invite" method="post">
-				<div class="space-y-6 p-6">
-					<div class="grid gap-6">
-						<div class="">
-							<label
-								for="email"
-								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Correo</label
-							>
-							<input
-								type="email"
-								name="correo_create"
-								id="email"
-								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-								placeholder="correo@ejemplo.com"
-								required
-							/>
-						</div>
-					</div>
 
-					<!-- Modal footer -->
-					<div
-						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
-					>
-						<button
-							class="hover:bg-primary-800 focus:ring-primary-300 dark:focus:ring-primary-800 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
-							type="submit">Invitar Usuario</button
-						>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
-
-<!-- Añadir rol Modal -->
-<div
-	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
-	id="rol-modal-admin"
->
-	<div class="relative h-full w-full max-w-2xl px-4 md:h-auto">
-		<!-- Modal content -->
-		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
-			<!-- Modal header -->
-			<div
-				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
-			>
-				<h3 class="text-xl font-semibold dark:text-white">Añadir Rol</h3>
-				<button
-					type="button"
-					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
-					data-modal-toggle="rol-modal-admin"
-				>
-					<svg
-						class="h-5 w-5"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							fill-rule="evenodd"
-							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							clip-rule="evenodd"></path></svg
-					>
-				</button>
-			</div>
-			<!-- Modal body -->
-			<form action="/api/create/admin-new-rol" method="post">
-				<div class="space-y-6 p-6">
-					<div class="grid gap-6">
-						<div class="">
-							<label
-								for="nombre_rol"
-								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Añade el nombre del rol</label
-							>
-							<input
-								type="text"
-								name="nombre_rol"
-								id="rol-create"
-								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-								placeholder="admin"
-								required
-							/>
-						</div>
-					</div>
-
-					<!-- Modal footer -->
-					<div
-						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
-					>
-						<button
-							class="hover:bg-primary-800 focus:ring-primary-300 dark:focus:ring-primary-800 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
-							type="submit">Añadir rol</button
-						>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
-
-<div
-	id="updaterol"
-	tabindex="-1"
-	aria-hidden="true"
-	class="h-modal fixed top-0 right-0 left-0 z-50 hidden w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0 md:h-full"
->
-	<div class="relative h-full w-full max-w-2xl p-4 md:h-auto">
-		<!-- Modal content -->
-		<div
-			class="dark:bg-black-800 relative rounded-lg bg-white p-4 shadow sm:p-5"
-		>
-			<!-- Modal header -->
-			<div
-				class="mb-4 flex items-center justify-between rounded-t border-b pb-4 sm:mb-5 dark:border-gray-600"
-			>
-				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-					Selecciona el estado del cliente
-				</h3>
-				<button
-					type="button"
-					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-					data-modal-toggle="updaterol"
-				>
-					<svg
-						aria-hidden="true"
-						class="h-5 w-5"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							fill-rule="evenodd"
-							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							clip-rule="evenodd"></path></svg
-					>
-					<span class="sr-only">Close modal</span>
-				</button>
-			</div>
-			<!-- Modal body -->
-			<form action="/api/update/admin-update" method="post" id="updaterolForm">
-				<input type="hidden" name="user_id" id="updaterol_user_id" />
-				<div class="p-4 text-center md:p-5">
-					<svg
-						class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200"
-						aria-hidden="true"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 20 20"
-					>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
-					</svg>
-					<h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-						Are you sure you want to delete this product?
-					</h3>
-					<button
-						data-modal-hide="updaterol"
-						type="button"
-						class="inline-flex items-center rounded-lg bg-red-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-red-800 focus:ring-4 focus:ring-red-300 focus:outline-none dark:focus:ring-red-800"
-					>
-						Yes, I'm sure
-					</button>
-					<button
-						data-modal-hide="updaterol"
-						type="button"
-						class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
-						>No, cancel</button
-					>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
 <script is:inline>
 	document.addEventListener('DOMContentLoaded', () => {
 		const form = document.getElementById('updaterolForm');
@@ -632,16 +432,16 @@ const notificaciones = await getNotificacionesGeneral();
 		});
 	});
 </script>
-
-<script type="module">
-	import { DataTable } from 'https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3/dist/module.js';
+<script>
+	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
 
 	function initDT() {
-		const el = document.querySelector('#myTable');
+		const el = document.querySelector('#myTable') as HTMLElement | null;
 		if (!el) return;
-		if (el.dataset.dtInit === '1') return;
-		ñ;
-		const dt = new DataTable(el, {
+		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
+			return;
+
+		new DataTable(el, {
 			searchable: true,
 			perPage: 25,
 			perPageSelect: [5, 10, 25, 50],
@@ -650,7 +450,7 @@ const notificaciones = await getNotificacionesGeneral();
 			labels: {
 				placeholder: 'Buscar...',
 				perPage: 'Filas',
-				noRows: 'No hay notificaciones',
+				noRows: 'No hay usuarios',
 				noResults: 'No se encontraron resultados',
 				info: 'Mostrando {start} a {end} de {rows} registros',
 			},
@@ -662,8 +462,8 @@ const notificaciones = await getNotificacionesGeneral();
 			},
 		});
 
-		el.dataset.dtInit = '1';
-		el.dataset.dtInstance = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
 	}
 
 	initDT();

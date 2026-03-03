@@ -38,7 +38,7 @@
 	--dropzone-preview-bg: #ffffff;
 	--dropzone-preview-text: #1a202c;
 	--dropzone-preview-border: #cbd5e0;
-	--dropzone-progress-bg: #967432;
+	--dropzone-progress-bg: #134aed;
 	--dropzone-progress-border: #1a202c;
 	--dropzone-success-bg: rgba(0, 0, 0, 0.8);
 	--dropzone-error-bg: #b10606;
@@ -226,8 +226,8 @@
 }
 
 .dropzone .dz-preview .dz-details .dz-filename:hover span {
-	border: 1px solid rgba(200, 200, 200, 0.8);
-	background-color: #967432;
+
+	background-color: var(--dropzone-progress-bg);
 }
 
 .dropzone .dz-preview .dz-details .dz-filename:not(:hover) {
@@ -241,7 +241,7 @@
 
 .dropzone .dz-preview .dz-details .dz-filename span,
 .dropzone .dz-preview .dz-details .dz-size span {
-	background-color: #967432;
+	background-color: var(--dropzone-progress-bg);
 	padding: 0 0.4em;
 	border-radius: 3px;
 	color: white;

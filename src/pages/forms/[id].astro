@@ -1,18 +1,13 @@
 ---
-import { createSupabaseServerClient } from '@lib/supabase';
+import { ListaFormulariosSurvey } from '@lib/tablas/formularios';
 
 // Auth handled by middleware
 const { id } = Astro.params;
-const supabase = createSupabaseServerClient(Astro);
 
-const { data: formulario, error } = await supabase
-	.from('formularios')
-	.select('form_id, titulo, descripcion, schema_json, tema_json')
-	.eq('form_id', id)
-	.single(); // .single() porque esperamos solo 1 resultado
+const formulario = id ? await ListaFormulariosSurvey(id) : null;
 
 // Si no existe, redirigir
-if (error || !formulario) {
+if (!formulario) {
 	return Astro.redirect('/');
 }
 
