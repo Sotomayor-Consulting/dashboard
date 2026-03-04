@@ -1,14 +1,25 @@
 ---
 import Dropzone from '@components/display/Dropzone.astro';
 import { Icon } from 'astro-icon/components';
+import { Image } from 'astro:assets';
 import { pagosRealizadosPorSubirById } from '@lib/tablas/PagosPorLeer';
+import { getUserFolders } from '@lib/storage/test';
+import imagen from '@assets/g31.avif';
 
 interface Props {
 	empresaId: string;
 }
 
+const user = Astro.locals.user;
+const userId = user?.id;
 const { empresaId } = Astro.props;
-const empresa = empresaId ? await pagosRealizadosPorSubirById(empresaId) : null;
+//const empresa = empresaId ? await pagosRealizadosPorSubirById(empresaId) : null;
+//const documentos = userId ? await getUserFolders(userId, empresaId) : null;
+
+const [empresa, documentos] = await Promise.all([
+	pagosRealizadosPorSubirById(empresaId),
+	userId ? getUserFolders(userId, empresaId) : Promise.resolve([]),
+]);
 ---
 
 <div class="my-4 grid w-full gap-4 xl:grid-cols-2 2xl:grid-cols-3">
@@ -38,7 +49,7 @@ const empresa = empresaId ? await pagosRealizadosPorSubirById(empresaId) : null;
 		class="to-black-600 from-black-900 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-linear-to-tl"
 	>
 		<div
-			class="flex items-center justify-between rounded-lg p-4 shadow-sm sm:flex sm:p-6"
+			class="flex items-center justify-between rounded-lg p-4 sm:flex sm:p-6"
 		>
 			<div class="w-full">
 				<div class="flex items-center">
@@ -69,12 +80,16 @@ const empresa = empresaId ? await pagosRealizadosPorSubirById(empresaId) : null;
 						class="dark:bg-black-800 bg-white-50 dark:text-white-50 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-100 text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600"
 					>
 						<div class="space-y-2 p-3">
-							<h3 class="font-semibold text-gray-900 dark:text-white">
+							<h3
+								class="font-semibold text-gray-900 dark:text-white"
+								aria-label="Plan upgrade"
+							>
 								Plan upgrade
 							</h3>
 							<p>
 								Recuerda cargar y verificar en el plan upgrade el informe de
-								planificación y diseño de la LLC.
+								planificación y diseño de la LLC, en caso de que sea el primer
+								documento a subir.
 							</p>
 						</div>
 						<div data-popper-arrow></div>
@@ -121,7 +136,9 @@ const empresa = empresaId ? await pagosRealizadosPorSubirById(empresaId) : null;
 		class="from-black-600 to-black-900 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 xl:col-span-2 dark:border-gray-700 dark:bg-linear-to-tr"
 	>
 		<div class="w-full">
-			<Dropzone endpoint="test" />
+			<Dropzone
+				endpoint={`/api/documentos/upload_documents?empresaId=${empresaId}`}
+			/>
 		</div>
 	</div>
 	<div
@@ -132,26 +149,78 @@ const empresa = empresaId ? await pagosRealizadosPorSubirById(empresaId) : null;
 				Últimos documentos
 			</h3>
 			<div class="flow-root">
-				<ul role="list" class="divide-default divide-y">
-					<li class="py-4 sm:py-4">
-						<div class="flex items-center gap-2">
-							<div class="shrink-0">
-								<Icon
-									name="ri:folder-check-fill"
-									class="text-white-900 dark:text-white-50 text-3xl"
-								/>
-							</div>
-							<div class="ms-2 min-w-0 flex-1">
-								<p class="text-heading truncate font-medium">Neil Sims</p>
-								<p class="text-body truncate text-sm">email@windster.com</p>
-							</div>
-							<div class="text-heading inline-flex items-center font-medium">
-								$320
-							</div>
-						</div>
-					</li>
+				<ul
+					role="list"
+					class="divide-default scrollbar scrollbar-w-3 scrollbar-thumb-rounded-xs max-h-96 divide-y overflow-y-auto"
+				>
+					{
+						documentos && documentos.length > 0 ? (
+							documentos.map((d) => (
+								<li class="mr-5 py-4 sm:py-4">
+									<div class="flex items-center gap-2">
+										<div class="shrink-0">
+											<Icon
+												name="ri:folder-check-fill"
+												class="text-white-900 dark:text-white-50 text-3xl"
+											/>
+										</div>
+										<div class="ms-2 min-w-0 flex-1">
+											<p class="text-heading truncate font-medium">{d.name}</p>
+										</div>
+										<div class="text-heading inline-flex items-center font-medium">
+											<button
+												class="btn-ver-documento cursor-pointer"
+												data-path={`${userId}/companies/${empresaId}/documents/${d.name}`}
+												title="Ver documento"
+											>
+												<Icon
+													name="ri:eye-fill"
+													class="text-2xl text-neutral-900 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-white"
+												/>
+											</button>
+										</div>
+									</div>
+								</li>
+							))
+						) : (
+							<li class="py-4 sm:py-4">
+								<div class="flex h-full flex-col items-center justify-center gap-2">
+									<h2 class="dark:text-white-400 text-white-500 w-full">
+										No hay documentos subidos aun...
+									</h2>
+									<Image
+										src={imagen}
+										height={300}
+										alt="imagen de nube"
+										loading="eager"
+									/>
+								</div>
+							</li>
+						)
+					}
 				</ul>
 			</div>
 		</div>
 	</div>
 </div>
+
+<script>
+	import { getSignedUrlClient } from '@lib/storage/test.client';
+
+	document.addEventListener('click', async (e) => {
+		const target = e.target as HTMLElement;
+		const btn = target.closest('.btn-ver-documento');
+		if (!btn) return;
+
+		const path = (btn as HTMLElement).dataset.path;
+		if (!path) return;
+
+		try {
+			const url = await getSignedUrlClient(path);
+			window.open(url, '_blank');
+		} catch (error) {
+			console.error('Error al obtener documento:', error);
+			alert('Error al cargar el documento');
+		}
+	});
+</script>

@@ -1,6 +1,7 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
 import { pagosRealizadosPorSubir } from '@lib/tablas/PagosPorLeer';
+
 import '@styles/datatables.css';
 
 const empresas = await pagosRealizadosPorSubir();
@@ -34,6 +35,7 @@ const empresas = await pagosRealizadosPorSubir();
 							Inicio
 						</a>
 					</li>
+
 					<li>
 						<div class="flex items-center">
 							<svg
@@ -46,19 +48,17 @@ const empresas = await pagosRealizadosPorSubir();
 									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
 									clip-rule="evenodd"></path></svg
 							>
-							<a
-								href="/crud/notificaciones-personalizadas"
-								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
-								>Notificaciones</a
-							>
+							<p class="dark:text-white-50 ml-1 text-gray-700 md:ml-2">
+								Subir documentos
+							</p>
 						</div>
 					</li>
 				</ol>
 			</nav>
 			<h1
-				class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
+				class="text-white-900 text-xl font-semibold sm:text-2xl dark:text-white"
 			>
-				Lista de usuarios
+				Lista de empresas
 			</h1>
 		</div>
 	</div>

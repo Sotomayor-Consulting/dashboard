@@ -29,7 +29,7 @@ const { endpoint } = Astro.props;
 		<button
 			type="button"
 			id="btn-confirm-upload"
-			class="rounded-lg bg-[#967432] px-4 py-2 text-white hover:bg-[#967432] disabled:cursor-not-allowed disabled:opacity-50"
+			class="cursor-pointer rounded-lg bg-[#967432] px-4 py-2 text-white hover:bg-[#967432] disabled:cursor-not-allowed disabled:opacity-50"
 			disabled
 		>
 			Subir documento
@@ -56,15 +56,15 @@ const { endpoint } = Astro.props;
 			var dz = new Dropzone(form, {
 				url: form.getAttribute('action'),
 				method: 'post',
-
-				// nombre que lee tu endpoint: formData.get("contract_file")
-				paramName: 'contract_file',
+				//name del input para endpoint
+				paramName: 'file',
 
 				autoProcessQueue: false,
 				maxFiles: 1,
 				uploadMultiple: false,
-				acceptedFiles: 'application/pdf',
-				maxFilesize: 5, // MB
+				acceptedFiles:
+					'.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.webp',
+				maxFilesize: 15,
 
 				addRemoveLinks: true,
 				dictDefaultMessage:
@@ -111,7 +111,7 @@ const { endpoint } = Astro.props;
 
 				confirmBtn.disabled = true;
 
-				dz.processQueue(); // 🔥 aquí recién se hace el POST al endpoint
+				dz.processQueue(); // POST al endpoint
 			});
 
 			// Manejo de éxito: seguir la redirección de tu endpoint

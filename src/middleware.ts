@@ -45,10 +45,26 @@ export function onRequest(context: any, next: any) {
 				return redirect('/sign-in');
 			}
 
+			cookies.set('sb-access-token', sessionData.session.access_token, {
+				path: '/',
+				sameSite: 'lax',
+				secure: true,
+				httpOnly: true,
+				maxAge: Math.floor(sessionData.session.expires_in),
+			});
+			cookies.set('sb-refresh-token', sessionData.session.refresh_token, {
+				path: '/',
+				sameSite: 'lax',
+				secure: true,
+				httpOnly: true,
+			});
+
+			const accessTokenValue = sessionData.session.access_token;
+
 			const {
 				data: { user: authUser },
 				error,
-			} = await supabase.auth.getUser(accessToken.value);
+			} = await supabase.auth.getUser(accessTokenValue);
 
 			if (!error && authUser) {
 				user = authUser;
