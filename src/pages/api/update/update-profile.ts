@@ -2,12 +2,15 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const BACK_PATH = '/settings';
 
-export const POST: APIRoute = async ({ request, redirect, url, locals }) => {
+export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }) => {
 	const back = url.searchParams.get('back') || BACK_PATH;
+
+	// Crear cliente Supabase para este request
+	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
 	// Usuario ya verificado por el middleware
 	const user = locals?.user;

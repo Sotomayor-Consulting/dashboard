@@ -1,11 +1,14 @@
 // src/pages/api/generales/estado-incorporacion.ts
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase'; // Ajusta tu ruta
+import { createSupabaseServerClient } from '@lib/supabase';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ request, cookies, url }) => {
 	try {
+		// Cliente Supabase SSR
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+
 		// === 1. OBTENER empresaId DEL QUERY ===
 		const empresaId = url.searchParams.get('empresaId');
 		console.log('empresaId recibido:', empresaId);

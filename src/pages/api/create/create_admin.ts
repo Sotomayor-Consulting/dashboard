@@ -2,24 +2,17 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const BACK_PATH = '/crud/users';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const back = url.searchParams.get('back') || BACK_PATH;
 
-	// 1) Sesión
-	const at = cookies.get('sb-access-token');
-	const rt = cookies.get('sb-refresh-token');
-	if (!at || !rt) {
-		return redirect(
-			`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
-		);
-	}
-	await supabase.auth.setSession({
-		access_token: at.value,
-		refresh_token: rt.value,
+	// 1) Cliente per-request con contexto de cookies
+	const supabase = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
 	});
 
 	// 2) Actor + verificación admin
@@ -72,15 +65,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	if (organizacion) payload.organizacion = organizacion;
 	if (rol_id !== undefined) payload.rol_id = rol_id;
 
-	// 5) Inserción (elige uno de los dos: INSERT puro o UPSERT)
-
-	// A) INSERT puro (fallará si ya existe esa fila)
+	// 5) Inserción
 	const { error } = await supabase.from('usuarios').insert(payload);
-
-	// // B) Si prefieres idempotencia, usa UPSERT (descomenta y comenta el INSERT de arriba)
-	// const { error } = await supabase
-	//   .from("usuarios")
-	//   .upsert(payload, { onConflict: "user_id" });
 
 	if (error) {
 		const msg = encodeURIComponent(`DB: ${error.message}`);

@@ -1,23 +1,25 @@
 ---
 import { Icon } from 'astro-icon/components';
 import MenuCard from '@components/display/MenuCard.astro';
+import { createSupabaseServerClient } from '@lib/supabase';
 import { getUserWithRole } from '@lib/tablas/menu';
 import { getFormulariosPendientes } from '@lib/tablas/formulariosEnviados';
 import { getPagosPorLeer } from '@lib/tablas/PagosPorLeer';
 import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
+const supabase = createSupabaseServerClient(Astro);
 const user = Astro.locals.user;
 const userId = user?.id;
 
 const [userData, formularioData] = await Promise.all([
-	getUserWithRole(userId),
-	getFormulariosPendientes(),
+	getUserWithRole(supabase, userId),
+	getFormulariosPendientes(supabase),
 ]);
 
 const { role: userRole, roles: userRoles } = userData;
 const { count: formularioPendientesCount } = formularioData;
 
-const { count: pagosCount } = await getPagosPorLeer(userRole);
+const { count: pagosCount } = await getPagosPorLeer(supabase, userRole);
 
 const visibleMenu = menuItems.filter(
 	(item) =>

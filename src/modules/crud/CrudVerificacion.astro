@@ -1,8 +1,11 @@
 ---
 import '@styles/datatables.css';
+import { createSupabaseServerClient } from '@lib/supabase';
 import { FormsEnviosVericacion } from '@lib/tablas/formulariosEnviados'
 
-const formularios = await FormsEnviosVericacion();
+const supabase = createSupabaseServerClient(Astro);
+
+const formularios = await FormsEnviosVericacion(supabase);
 
 ---
 

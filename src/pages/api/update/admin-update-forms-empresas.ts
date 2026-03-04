@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const FALLBACK_BACK = '/crud/formularios';
 
@@ -22,26 +22,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 	try {
 		// 1) Sesión
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
-		if (!at || !rt) {
-			return redirect(
-				`${backPath()}?status=error&msg=${encodeURIComponent('No autenticado')}`,
-			);
-		}
-		const { error: sErr } = await supabase.auth.setSession({
-			access_token: at.value,
-			refresh_token: rt.value,
-		});
-		if (sErr) {
-			return redirect(
-				`${backPath()}?status=error&msg=${encodeURIComponent('No fue posible establecer su sesión')}`,
-			);
-		}
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
 		// 2) Usuario
-		const { data: userRes, error: userErr } = await supabase.auth.getUser();
-		const actor = userRes?.user;
+		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
 		if (userErr || !actor) {
 			return redirect(
 				`${backPath()}?status=error&msg=${encodeURIComponent('No autenticado')}`,

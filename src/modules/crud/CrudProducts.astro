@@ -1,9 +1,12 @@
 ---
 import '@styles/datatables.css';
 import Alerta from '@components/feedback/alertageneral.astro';
+import { createSupabaseServerClient } from '@lib/supabase';
 import { ListaServiciosGeneral } from '@lib/tablas/servicios';
 
-const servicio = await ListaServiciosGeneral();
+const supabase = createSupabaseServerClient(Astro);
+
+const servicio = await ListaServiciosGeneral(supabase);
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>

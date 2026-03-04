@@ -1,6 +1,6 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const ListaServiciosGeneral = async () => {
+export const ListaServiciosGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('servicios')
 		.select('*', { count: 'exact' })
@@ -13,7 +13,7 @@ export const ListaServiciosGeneral = async () => {
 	return data;
 };
 
-export const ListaServiciosStripe = async () => {
+export const ListaServiciosStripe = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('servicios')
 		.select(

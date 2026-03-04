@@ -1,4 +1,5 @@
 ---
+import { createSupabaseServerClient } from '@lib/supabase';
 import { getMissingPartnerFields, type PartnerRequiredField } from '@lib/tablas/usuarios';
 
 const FIELD_LABELS: Record<PartnerRequiredField, string> = {
@@ -26,7 +27,8 @@ const BANNER_PROPS = {
 const isPartner = userRoles.includes('partner');
 
 if (isPartner && user) {
-	missingFields = await getMissingPartnerFields(user.id);
+	const supabase = createSupabaseServerClient(Astro);
+	missingFields = await getMissingPartnerFields(supabase, user.id);
 	shouldShowBanner = missingFields.length > 0;
 }
 ---
@@ -37,7 +39,7 @@ if (isPartner && user) {
 			<div
 				id="profile-banner"
 				tabindex="-1"
-				class="flex flex-col md:flex-row justify-between w-full p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg shadow-xs dark:from-yellow-900/20 dark:to-orange-900/20 dark:border-yellow-800 animate-fade-in mt-3"
+				class="flex flex-col md:flex-row justify-between w-full p-4 bg-linear-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg shadow-xs dark:from-yellow-900/20 dark:to-orange-900/20 dark:border-yellow-800 animate-fade-in mt-3"
 			>
 				<div class="flex flex-col items-start mb-3 me-4 md:items-center md:flex-row md:mb-0">
 					<div class="flex items-center mb-2 border-yellow-200 md:pe-4 md:me-4 md:border-e md:mb-0 dark:border-yellow-700">

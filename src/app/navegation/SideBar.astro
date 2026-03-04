@@ -199,7 +199,7 @@ const ruta = Astro.url.pathname;
 			class="absolute bottom-0 left-0 justify-center hidden w-full p-4 space-x-4 bg-white-300 lg:flex dark:bg-black-900"
 			sidebar-bottom-menu
 		>
-			<form action="/api/auth/signout">
+			<form action="/api/auth/signout" method="post">
 				<button
 					type="submit"
 					data-tooltip-target="tooltip-cerrar"

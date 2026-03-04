@@ -1,5 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
+import { createSupabaseServerClient } from '@lib/supabase';
 import { getMissingPartnerFields } from '@lib/tablas/usuarios';
 
 interface Props {
@@ -7,6 +8,8 @@ interface Props {
 	templateName?: string;
 	reportName?: string;
 }
+
+const supabase = createSupabaseServerClient(Astro);
 
 const { data, templateName, reportName } = Astro.props;
 const btnId = `btn-imprimir-${Math.random().toString(36).slice(2, 9)}`;
@@ -19,7 +22,7 @@ let perfilCompleto = false;
 const isPartner = userRoles.includes('partner');
 
 if (isPartner && user) {
-	const camposFaltantes = await getMissingPartnerFields(user.id);
+	const camposFaltantes = await getMissingPartnerFields(supabase, user.id);
 	perfilCompleto = camposFaltantes.length === 0;
 }
 ---

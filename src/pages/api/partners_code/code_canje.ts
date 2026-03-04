@@ -2,25 +2,15 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const BACK_PATH = '/settings';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const back = url.searchParams.get('back') || BACK_PATH;
 
-	// 1) Sesión (mismo patrón que tu endpoint que funciona)
-	const accessToken = cookies.get('sb-access-token');
-	const refreshToken = cookies.get('sb-refresh-token');
-	if (!accessToken || !refreshToken) {
-		const msg = encodeURIComponent('No autenticado');
-		return redirect(`${back}?status=error&msg=${msg}`);
-	}
-
-	await supabase.auth.setSession({
-		access_token: accessToken.value,
-		refresh_token: refreshToken.value,
-	});
+	// 1) Cliente Supabase SSR
+	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
 	// 2) Usuario autenticado
 	const {

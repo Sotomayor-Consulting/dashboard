@@ -1,6 +1,6 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const getAllUsuarios = async () => {
+export const getAllUsuarios = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('usuarios')
 		.select('*, paises ( id, nombre_paises )')
@@ -14,7 +14,10 @@ export const getAllUsuarios = async () => {
 	return data;
 };
 
-export const getUsuarioById = async (userId: string) => {
+export const getUsuarioById = async (
+	supabase: SupabaseClient,
+	userId: string,
+) => {
 	const { data, error } = await supabase
 		.from('usuarios')
 		.select('*')
@@ -29,7 +32,10 @@ export const getUsuarioById = async (userId: string) => {
 	return data;
 };
 
-export const getUsuarioAvatar = async (userId: string) => {
+export const getUsuarioAvatar = async (
+	supabase: SupabaseClient,
+	userId: string,
+) => {
 	const { data, error } = await supabase
 		.from('usuarios')
 		.select('avatar_url')
@@ -44,7 +50,10 @@ export const getUsuarioAvatar = async (userId: string) => {
 	return data;
 };
 
-export const getUsuarioPerfilPartner = async (userId: string) => {
+export const getUsuarioPerfilPartner = async (
+	supabase: SupabaseClient,
+	userId: string,
+) => {
 	const { data, error } = await supabase
 		.from('usuarios')
 		.select('direccion_linea1, direccion_linea2, tipo_identificacion, numero_de_identificacion, tipo_persona')
@@ -69,9 +78,12 @@ export const PARTNER_REQUIRED_FIELDS = [
 
 export type PartnerRequiredField = (typeof PARTNER_REQUIRED_FIELDS)[number];
 
-export const getMissingPartnerFields = async (userId: string): Promise<PartnerRequiredField[]> => {
-	const profile = await getUsuarioPerfilPartner(userId);
-	
+export const getMissingPartnerFields = async (
+	supabase: SupabaseClient,
+	userId: string,
+): Promise<PartnerRequiredField[]> => {
+	const profile = await getUsuarioPerfilPartner(supabase, userId);
+
 	if (!profile) return [];
 
 	return PARTNER_REQUIRED_FIELDS.filter((field): field is PartnerRequiredField => {

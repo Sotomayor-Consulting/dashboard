@@ -16,9 +16,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const name = form.get('name')?.toString().trim() ?? '';
 		const lastName = form.get('last-name')?.toString().trim() ?? '';
 		const email = form.get('email')?.toString().trim() ?? '';
-		const password = form.get('password')?.toString().trim() ?? '';
+		const password = form.get('password')?.toString() ?? '';
 		const confirmPassword =
-			form.get('confirm-password')?.toString().trim() ?? '';
+			form.get('confirm-password')?.toString() ?? '';
 
 		if (password !== confirmPassword) {
 			return redirectWithMessage(

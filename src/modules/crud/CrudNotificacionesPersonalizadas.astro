@@ -1,9 +1,12 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
 import '@styles/datatables.css';
+import { createSupabaseServerClient } from '@lib/supabase';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
 
-const usuarios = await getAllUsuarios();
+const supabase = createSupabaseServerClient(Astro);
+
+const usuarios = await getAllUsuarios(supabase);
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>

@@ -1,4 +1,4 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export interface FormularioEnviadoDetalle {
 	submission_id: string;
@@ -21,6 +21,7 @@ export interface FormularioEnviadoDetalle {
 }
 
 export async function getFormularioEnviadoDetalle(
+	supabase: SupabaseClient,
 	submissionId: string,
 ): Promise<{ data: FormularioEnviadoDetalle | null; error: Error | null }> {
 	const { data, error } = await supabase
@@ -68,7 +69,9 @@ export interface FormularioPendiente {
 	};
 }
 
-export async function getFormulariosPendientes(): Promise<{
+export async function getFormulariosPendientes(
+	supabase: SupabaseClient,
+): Promise<{
 	count: number;
 	data: FormularioPendiente[];
 }> {
@@ -91,7 +94,7 @@ export async function getFormulariosPendientes(): Promise<{
 	return { count, data: formularios || [] };
 }
 
-export const FormsEnviosVericacion = async () => {
+export const FormsEnviosVericacion = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('formularios_envios')
 		.select(
@@ -113,7 +116,7 @@ export const FormsEnviosVericacion = async () => {
 	return data;
 };
 
-export const FormsEnviadosDataGeneral = async () => {
+export const FormsEnviadosDataGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('formularios_envios')
 		.select(
@@ -135,7 +138,10 @@ export const FormsEnviadosDataGeneral = async () => {
 	return data;
 };
 
-export const FormsEnviadosForId = async (userId: string) => {
+export const FormsEnviadosForId = async (
+	supabase: SupabaseClient,
+	userId: string,
+) => {
 	const { data, error } = await supabase
 		.from('formularios_envios')
 		.select(

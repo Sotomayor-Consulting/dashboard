@@ -1,20 +1,6 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const getUserEmail = async (context: any) => {
-	// Restaurar sesión desde cookies
-	const { cookies } = context;
-	const accessToken = cookies.get('sb-access-token');
-	const refreshToken = cookies.get('sb-refresh-token');
-
-	if (!accessToken || !refreshToken) {
-		return null;
-	}
-
-	await supabase.auth.setSession({
-		access_token: accessToken.value,
-		refresh_token: refreshToken.value,
-	});
-
+export const getUserEmail = async (supabase: SupabaseClient) => {
 	const {
 		data: { user },
 		error,
@@ -28,21 +14,7 @@ export const getUserEmail = async (context: any) => {
 	return user?.email || null;
 };
 
-export const UsersGeneral = async (context: any) => {
-	// Restaurar sesión desde cookies
-	const { cookies } = context;
-	const accessToken = cookies.get('sb-access-token');
-	const refreshToken = cookies.get('sb-refresh-token');
-
-	if (!accessToken || !refreshToken) {
-		return null;
-	}
-
-	await supabase.auth.setSession({
-		access_token: accessToken.value,
-		refresh_token: refreshToken.value,
-	});
-
+export const UsersGeneral = async (supabase: SupabaseClient) => {
 	const {
 		data: { user },
 		error,

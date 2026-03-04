@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase, supabaseAdmin } from '@lib/supabase';
+import { createSupabaseServerClient, supabaseAdmin } from '@lib/supabase';
 
 const BACK_PATH = '/crud/users';
 
@@ -10,22 +10,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const back = url.searchParams.get('back') || BACK_PATH;
 
 	try {
-		// 1) Verificar sesión con el cliente normal
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
-		if (!at || !rt) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
-			);
-		}
+		// 1) Sesión
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
-		await supabase.auth.setSession({
-			access_token: at.value,
-			refresh_token: rt.value,
-		});
-
-		const { data: userRes, error: userErr } = await supabase.auth.getUser();
-		const actor = userRes?.user;
+		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
 		if (userErr || !actor) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
@@ -54,7 +42,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		}
 
 		// 4) Enviar invitación usando el cliente ADMIN (service_role)
-		const redirectTo = `${url.origin}/auth/callback`;
+		const redirectTo = `${url.origin}/api/auth/invite-callback`;
 
 		const { error: inviteError } =
 			await supabaseAdmin.auth.admin.inviteUserByEmail(email, {

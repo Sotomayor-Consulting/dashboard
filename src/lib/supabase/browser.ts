@@ -1,13 +1,14 @@
-// src/lib/supabaseBrowser.ts
-import { createClient } from '@supabase/supabase-js';
+// src/lib/supabase/browser.ts
+// ─── Cliente Supabase para el browser (singleton via @supabase/ssr) ─────
+import { createBrowserClient } from '@supabase/ssr';
 
-export const supabaseBrowser = createClient(
+export const supabaseBrowser = createBrowserClient(
 	import.meta.env.PUBLIC_SUPABASE_URL!,
 	import.meta.env.PUBLIC_SUPABASE_ANON_KEY!,
 	{
-		auth: {
-			persistSession: true, // o false si prefieres no usar localStorage
-			autoRefreshToken: true,
+		isSingleton: true,
+		global: {
+			headers: {},
 		},
 		realtime: { params: { eventsPerSecond: 10 } },
 	},

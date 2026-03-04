@@ -1,12 +1,14 @@
 ---
 import { Image } from 'astro:assets';
 import imagen from '@assets/g31.avif';
+import { createSupabaseServerClient } from '@lib/supabase';
 import { getEmpresasGenenralById } from '@lib/tablas/empresas.ts';
 const user = Astro.locals.user;
+const supabase = createSupabaseServerClient(Astro);
 
 const userId = user?.id;
 
-const empresas = userId ? await getEmpresasGenenralById(userId) : null;
+const empresas = userId ? await getEmpresasGenenralById(supabase, userId) : null;
 ---
 
 <div class="mb-10">

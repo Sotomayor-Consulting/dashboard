@@ -4,7 +4,7 @@ import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { AuthService, PATHS } from '@lib/auth';
 
-export const GET: APIRoute = async ({ request, cookies, redirect }) => {
+export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const supabase = createSupabaseServerClient({
 		headers: request.headers,
 		cookies,

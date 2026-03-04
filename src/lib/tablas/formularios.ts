@@ -1,6 +1,6 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const ListaFormulariosGeneral = async () => {
+export const ListaFormulariosGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('formularios')
 		.select('*', { count: 'exact' })
@@ -13,7 +13,10 @@ export const ListaFormulariosGeneral = async () => {
 	return data;
 };
 
-export const ListaFormulariosSurvey = async (FormId: string) => {
+export const ListaFormulariosSurvey = async (
+	supabase: SupabaseClient,
+	FormId: string,
+) => {
 	const { data, error } = await supabase
 		.from('formularios')
 		.select('form_id, titulo, descripcion, schema_json, tema_json')

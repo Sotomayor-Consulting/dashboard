@@ -3,6 +3,7 @@ import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
 import imagenempresa from '@assets/edificios-vista.avif';
+import { createSupabaseServerClient } from '@lib/supabase';
 import { getSociosByEmpresa } from '@lib/tablas/socios';
 import { actividadesGeneral } from '@lib/tablas/actividades';
 import { getManagerByEmpresa } from '@lib/tablas/managers';
@@ -15,15 +16,16 @@ interface Props {
 }
 
 const { empresaId } = Astro.props;
+const supabase = createSupabaseServerClient(Astro);
 
 const [socios, managers, actividades, paises, estados, empresa] =
 	await Promise.all([
-		getSociosByEmpresa(empresaId),
-		getManagerByEmpresa(empresaId),
-		actividadesGeneral(),
-		PaisesGeneral(),
-		EstadosGeneral(),
-		getEmpresaById(empresaId),
+		getSociosByEmpresa(supabase, empresaId),
+		getManagerByEmpresa(supabase, empresaId),
+		actividadesGeneral(supabase),
+		PaisesGeneral(supabase),
+		EstadosGeneral(supabase),
+		getEmpresaById(supabase, empresaId),
 	]);
 
 const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';

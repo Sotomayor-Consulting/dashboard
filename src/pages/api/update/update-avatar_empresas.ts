@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const FALLBACK_BACK = '/settings';
 
@@ -21,17 +21,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const back = () => (slug ? `/empresas/${slug}/settings` : FALLBACK_BACK);
 
 		// 1) Sesión
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
-		if (!at || !rt) {
-			return redirect(
-				`${back()}?status=error&msg=${encodeURIComponent('No autenticado')}`,
-			);
-		}
-		await supabase.auth.setSession({
-			access_token: at.value,
-			refresh_token: rt.value,
-		});
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
 		// 2) Usuario
 		const {

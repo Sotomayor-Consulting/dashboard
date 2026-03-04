@@ -1,7 +1,10 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { User } from '@supabase/supabase-js';
 
-export const getIncorporacionesByUserId = async (userId: string) => {
+export const getIncorporacionesByUserId = async (
+	supabase: SupabaseClient,
+	userId: string,
+) => {
 	const { data, error } = await supabase
 		.from('empresas_incorporaciones')
 		.select('*')
@@ -15,7 +18,11 @@ export const getIncorporacionesByUserId = async (userId: string) => {
 	return data;
 };
 
-export const getIncorporacionById = async (id: string, userId: string) => {
+export const getIncorporacionById = async (
+	supabase: SupabaseClient,
+	id: string,
+	userId: string,
+) => {
 	const { data, error } = await supabase
 		.from('empresas_incorporaciones')
 		.select('*')
@@ -30,7 +37,10 @@ export const getIncorporacionById = async (id: string, userId: string) => {
 	return data;
 };
 
-export const getIncorporacionesEnProceso = async (userId: string) => {
+export const getIncorporacionesEnProceso = async (
+	supabase: SupabaseClient,
+	userId: string,
+) => {
 	const { data, error } = await supabase
 		.from('empresas_incorporaciones')
 		.select(
@@ -60,7 +70,9 @@ export const getIncorporacionesEnProceso = async (userId: string) => {
 	return data;
 };
 
-export const IncorporacionesEmpresasBase = async () => {
+export const IncorporacionesEmpresasBase = async (
+	supabase: SupabaseClient,
+) => {
 	const { data, error } = await supabase
 		.from('empresas_incorporaciones')
 		.select(
@@ -88,7 +100,10 @@ export const IncorporacionesEmpresasBase = async () => {
 	return data;
 };
 
-export const getEstadoIncorporacionByUserId = async (userId: string) => {
+export const getEstadoIncorporacionByUserId = async (
+	supabase: SupabaseClient,
+	userId: string,
+) => {
 	const { data, error } = await supabase
 		.from('empresas_incorporaciones')
 		.select('estado')
@@ -102,63 +117,13 @@ export const getEstadoIncorporacionByUserId = async (userId: string) => {
 	return data;
 };
 
-export const getUserWithSession = async (
-	accessToken: string | undefined,
-	refreshToken: string | undefined,
-): Promise<{ user: User | null; error: Error | null }> => {
-	if (!accessToken || !refreshToken) {
-		return { user: null, error: null };
-	}
-
-	try {
-		await supabase.auth.setSession({
-			refresh_token: refreshToken,
-			access_token: accessToken,
-		});
-
-		const {
-			data: { user },
-			error,
-		} = await supabase.auth.getUser();
-
-		if (error) {
-			console.error('[Banner] Error getting user:', error);
-			return { user: null, error };
-		}
-
-		return { user, error: null };
-	} catch (e) {
-		console.error('[Banner] Error de sesión:', e);
-		return { user: null, error: e as Error };
-	}
-};
-
-export const getUser = async (): Promise<{
-	user: User | null;
-	error: Error | null;
-}> => {
-	try {
-		const {
-			data: { user },
-			error,
-		} = await supabase.auth.getUser();
-
-		if (error) {
-			return { user: null, error };
-		}
-
-		return { user, error: null };
-	} catch (e) {
-		return { user: null, error: e as Error };
-	}
-};
-
 export const checkUserIncorporacionesEnProceso = async (
+	supabase: SupabaseClient,
 	user: User | null,
 ): Promise<boolean> => {
 	if (!user) return false;
 
-	const incorporaciones = await getEstadoIncorporacionByUserId(user.id);
+	const incorporaciones = await getEstadoIncorporacionByUserId(supabase, user.id);
 
 	if (!incorporaciones || incorporaciones.length === 0) return false;
 
@@ -171,6 +136,7 @@ export interface BannerIncorporacionData {
 }
 
 export const getBannerIncorporacionData = async (
+	supabase: SupabaseClient,
 	userId: string,
 ): Promise<BannerIncorporacionData> => {
 	const { data: empresaActiva } = await supabase

@@ -1,6 +1,10 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const getNotifications = async (userId: string, limit = 5) => {
+export const getNotifications = async (
+	supabase: SupabaseClient,
+	userId: string,
+	limit = 5,
+) => {
 	if (!userId) {
 		return { notifications: [], totalUnread: 0 };
 	}
@@ -23,6 +27,7 @@ export const getNotifications = async (userId: string, limit = 5) => {
 };
 
 export const markNotificationAsRead = async (
+	supabase: SupabaseClient,
 	notificationId: string,
 	userId: string,
 ) => {
@@ -39,7 +44,7 @@ export const markNotificationAsRead = async (
 	return { success: true, error: null };
 };
 
-export const getNotificacionesGeneral = async () => {
+export const getNotificacionesGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('notifications')
 		.select(

@@ -19,11 +19,7 @@ import {
 	mapSupabaseUser,
 	VALID_OAUTH_PROVIDERS,
 } from './auth.types';
-import {
-	AUTH_COOKIE_NAMES,
-	AUTH_COOKIE_OPTIONS,
-	VALIDATION,
-} from './auth.config';
+import { VALIDATION } from './auth.config';
 import { friendlyAuthError } from './auth.helpers';
 
 /**
@@ -44,14 +40,14 @@ import { friendlyAuthError } from './auth.helpers';
 export class AuthService {
 	constructor(
 		private readonly supabase: SupabaseClient,
-		private readonly cookies: AstroCookies,
+		_cookies?: AstroCookies,
 	) {}
 
 	// ─── Email/Password Auth ────────────────────────────────
 
 	/**
 	 * Inicia sesión con email y contraseña.
-	 * Setea cookies de sesión en caso de éxito.
+	 * Las cookies de sesión se gestionan automáticamente por @supabase/ssr.
 	 */
 	async signInWithPassword(dto: SignInWithPasswordDto): Promise<AuthResult> {
 		if (!dto.email || !dto.password) {
@@ -71,17 +67,12 @@ export class AuthService {
 			throw new AuthError('No se pudo iniciar sesión. Inténtalo nuevamente.');
 		}
 
-		this.setSessionCookies(
-			data.session.access_token,
-			data.session.refresh_token,
-		);
-
 		return mapAuthResult(data.user, data.session);
 	}
 
 	/**
 	 * Registra un nuevo usuario con email, contraseña y metadatos.
-	 * No setea cookies (requiere confirmación de email por defecto).
+	 * Las cookies se gestionan automáticamente por @supabase/ssr si no requiere confirmación.
 	 */
 	async register(
 		dto: RegisterDto,
@@ -127,12 +118,9 @@ export class AuthService {
 			);
 		}
 
-		// Si se devuelve sesión (email confirmation deshabilitada), setear cookies
+		// Si se devuelve sesión (email confirmation deshabilitada),
+		// @supabase/ssr ya seteó las cookies automáticamente via setAll()
 		if (data.session) {
-			this.setSessionCookies(
-				data.session.access_token,
-				data.session.refresh_token,
-			);
 			return {
 				requiresEmailConfirmation: false,
 				user: mapSupabaseUser(data.user!),
@@ -177,7 +165,8 @@ export class AuthService {
 
 	/**
 	 * Intercambia un código de autorización OAuth por una sesión.
-	 * Setea cookies de sesión. Incluye retry para errores PKCE.
+	 * Las cookies se gestionan automáticamente por @supabase/ssr.
+	 * Incluye retry para errores PKCE.
 	 */
 	async exchangeCodeForSession(code: string): Promise<AuthResult> {
 		const MAX_ATTEMPTS = 2;
@@ -201,11 +190,6 @@ export class AuthService {
 					);
 				}
 
-				this.setSessionCookies(
-					data.session.access_token,
-					data.session.refresh_token,
-				);
-
 				return mapAuthResult(data.user, data.session);
 			} catch (err) {
 				if (err instanceof AuthError) throw err;
@@ -227,11 +211,11 @@ export class AuthService {
 	// ─── Session Management ───────────────────────────────
 
 	/**
-	 * Cierra la sesión del usuario y limpia las cookies.
+	 * Cierra la sesión del usuario.
+	 * @supabase/ssr limpia las cookies automáticamente via setAll().
 	 */
 	async signOut(): Promise<void> {
 		await this.supabase.auth.signOut();
-		this.clearSessionCookies();
 	}
 
 	/**
@@ -265,9 +249,13 @@ export class AuthService {
 
 	/**
 	 * Obtiene el access token actual (para uso con APIs externas como SurveyJS).
+	 * Lee el token desde la sesión de Supabase en vez de cookies manuales.
 	 */
-	getAccessToken(): string | undefined {
-		return this.cookies.get(AUTH_COOKIE_NAMES.accessToken)?.value;
+	async getAccessToken(): Promise<string | undefined> {
+		const {
+			data: { session },
+		} = await this.supabase.auth.getSession();
+		return session?.access_token;
 	}
 
 	// ─── Password Recovery ────────────────────────────────
@@ -299,10 +287,37 @@ export class AuthService {
 		// Siempre respondemos lo mismo por seguridad
 	}
 
+	/**
+	 * Establece una nueva contraseña para el usuario autenticado.
+	 * Se usa después de que el usuario accede via el link de reset password.
+	 */
+	async resetPassword(newPassword: string): Promise<void> {
+		if (!newPassword || newPassword.length < VALIDATION.passwordMinLength) {
+			throw new AuthError(
+				`La contraseña debe tener al menos ${VALIDATION.passwordMinLength} caracteres.`,
+			);
+		}
+
+		const { error } = await this.supabase.auth.updateUser({
+			password: newPassword,
+		});
+
+		if (error) {
+			console.error(
+				'[AuthService.resetPassword] Error:',
+				error.message,
+			);
+			throw new AuthError(
+				friendlyAuthError(error.message, error.code),
+			);
+		}
+	}
+
 	// ─── Invite Handling ──────────────────────────────────
 
 	/**
 	 * Procesa un callback de invitación usando código o token.
+	 * Las cookies se gestionan automáticamente por @supabase/ssr.
 	 */
 	async handleInviteCallback(params: {
 		code?: string | undefined;
@@ -322,11 +337,6 @@ export class AuthService {
 				throw new AuthError('No se pudo verificar el token de invitación.');
 			}
 
-			this.setSessionCookies(
-				data.session.access_token,
-				data.session.refresh_token,
-			);
-
 			return mapAuthResult(data.user!, data.session);
 		}
 
@@ -334,24 +344,6 @@ export class AuthService {
 	}
 
 	// ─── Private Helpers ──────────────────────────────────
-
-	private setSessionCookies(accessToken: string, refreshToken: string): void {
-		this.cookies.set(
-			AUTH_COOKIE_NAMES.accessToken,
-			accessToken,
-			AUTH_COOKIE_OPTIONS,
-		);
-		this.cookies.set(
-			AUTH_COOKIE_NAMES.refreshToken,
-			refreshToken,
-			AUTH_COOKIE_OPTIONS,
-		);
-	}
-
-	private clearSessionCookies(): void {
-		this.cookies.delete(AUTH_COOKIE_NAMES.accessToken, { path: '/' });
-		this.cookies.delete(AUTH_COOKIE_NAMES.refreshToken, { path: '/' });
-	}
 
 	private isPkceError(message: string): boolean {
 		const pkceErrors = [

@@ -1,7 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 // Define la ruta a la que se redirige después de la operación (ajusta si es necesario)
 const BACK_PATH = '/notificaciones'; // <-- AJUSTA ESTA RUTA
@@ -9,18 +9,8 @@ const BACK_PATH = '/notificaciones'; // <-- AJUSTA ESTA RUTA
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const back = new URL(request.url).searchParams.get('back') || BACK_PATH;
 
-	// 1) Sesión y Usuario (Mismo chequeo que tu ejemplo)
-	const accessToken = cookies.get('sb-access-token');
-	const refreshToken = cookies.get('sb-refresh-token');
-	if (!accessToken || !refreshToken) {
-		const msg = encodeURIComponent('No autenticado');
-		return redirect(`${back}?status=error&msg=${msg}`);
-	}
-
-	await supabase.auth.setSession({
-		access_token: accessToken.value,
-		refresh_token: refreshToken.value,
-	});
+	// 1) Sesión y Usuario
+	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
 	const {
 		data: { user },

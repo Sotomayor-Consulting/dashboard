@@ -45,10 +45,15 @@ export function buildOAuthRedirectUrl(
 	const envRedirect = (process.env.SUPABASE_OAUTH_REDIRECT_TO ?? '').trim();
 	if (envRedirect) return envRedirect;
 
-	// 2. Construir desde Host header
+	// 2. Construir desde Host header (validado contra hosts permitidos)
 	const host = request.headers.get('host');
-	if (host) {
-		const scheme = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+	const allowedHosts = [
+		'dashboard.sotomayorconsulting.com',
+		'localhost:4321',
+		'localhost:3000',
+	];
+	if (host && allowedHosts.some((h) => host === h)) {
+		const scheme = host.startsWith('localhost') ? 'http' : 'https';
 		return `${scheme}://${host}${callbackPath}`;
 	}
 
@@ -121,13 +126,13 @@ export function friendlyAuthError(
 		return 'Los datos proporcionados no son válidos. Revisa tu correo y contraseña.';
 	}
 	if (msg.includes('unexpected') || code === 'unexpected_failure') {
-		return `Error inesperado del servidor de autenticación. Inténtalo nuevamente. (${errorMessage})`;
+		return 'Error inesperado del servidor de autenticación. Inténtalo nuevamente.';
 	}
 
-	// Fallback: incluir el mensaje original para facilitar depuración
+	// Fallback: loguear internamente pero no exponer detalles al usuario
 	console.warn('[friendlyAuthError] Error no mapeado:', {
 		errorMessage,
 		errorCode,
 	});
-	return `Ocurrió un error inesperado. Inténtalo nuevamente. (Detalle: ${errorMessage})`;
+	return 'Ocurrió un error inesperado. Inténtalo nuevamente.';
 }

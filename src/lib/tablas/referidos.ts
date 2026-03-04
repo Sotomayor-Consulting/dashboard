@@ -1,6 +1,9 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const getReferidos = async (UserId: string) => {
+export const getReferidos = async (
+	supabase: SupabaseClient,
+	UserId: string,
+) => {
 	const { data, error } = await supabase
 		.from('referidos')
 		.select(

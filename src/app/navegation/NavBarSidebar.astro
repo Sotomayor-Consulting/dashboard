@@ -1,9 +1,12 @@
 ---
 import { Icon } from 'astro-icon/components';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
+import { createSupabaseServerClient } from '@lib/supabase';
 import { getUsuarioAvatar, getUsuarioById } from '@lib/tablas/usuarios';
 import { getNotifications } from '@lib/tablas/notificaciones';
 import logonotificaciones from '@assets/avatarSCI.png';
+
+const supabase = createSupabaseServerClient(Astro);
 
 const user = Astro.locals?.user;
 const userId = user?.id;
@@ -15,9 +18,9 @@ let notificationsData: any = { notifications: [], totalUnread: 0 };
 
 if (user && userId) {
 	[imagen, usuario, notificationsData] = await Promise.all([
-		getUsuarioAvatar(userId),
-		getUsuarioById(userId),
-		getNotifications(userId),
+		getUsuarioAvatar(supabase, userId),
+		getUsuarioById(supabase, userId),
+		getNotifications(supabase, userId),
 	]);
 }
 
@@ -292,7 +295,7 @@ export { notifications, totalUnread, user };
 								>
 							</li>
 							<li>
-								<form action="/api/auth/signout">
+								<form action="/api/auth/signout" method="post">
 									<button
 										type="submit"
 										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
