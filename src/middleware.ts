@@ -1,12 +1,13 @@
 // src/middleware.ts
 // ─── Middleware de autenticación y autorización ─────────
-// Valida sesión via @supabase/ssr y aplica control de acceso por rol.
+// Valida sesión via @supabase/ssr (getClaims) y aplica control de acceso por rol.
 
 import { createSupabaseServerClient } from '@lib/supabase';
 import { PATHS } from '@lib/auth';
 import type { RouteRoleConfig } from '@lib/roles';
 import { ROLES, extractRoleNames, hasAnyRole } from '@lib/roles';
 import type { UserRoleRow } from '@lib/roles';
+import type { User } from '@supabase/supabase-js';
 
 // ─── Rutas públicas y de autenticación ──────────────────
 // Definidas aquí (única fuente de verdad) para evitar
@@ -85,22 +86,36 @@ export function onRequest(context: any, next: any) {
 			cookies: context.cookies,
 		});
 
+		// 2) Validar sesión — getClaims() verifica el JWT localmente (más rápido
+		//    que getUser() que hace una llamada HTTP al servidor de auth).
+		//    También refresca tokens expirados y actualiza cookies automáticamente.
+		//    IMPORTANTE: No ejecutar código entre createServerClient y getClaims().
+		const { data, error } = await supabase.auth.getClaims();
+
 		// Exponer el cliente para que los componentes lo reutilicen
 		// sin crear instancias adicionales (evita ResponseSentError)
 		context.locals.supabase = supabase;
 
-		// 2) Validar sesión — siempre usar getUser() (verificado server-side)
-		const {
-			data: { user },
-			error,
-		} = await supabase.auth.getUser();
-
 		// 3) Poblar locals si hay usuario autenticado
-		if (!error && user) {
+		if (!error && data?.claims) {
+			const claims = data.claims;
+
+			// Construir objeto User-compatible desde los JWT claims.
+			// Los componentes downstream usan user.id, user.email y user.user_metadata.
+			const user: User = {
+				id: claims.sub,
+				email: claims.email ?? '',
+				user_metadata: claims.user_metadata ?? {},
+				app_metadata: claims.app_metadata ?? {},
+				aud: typeof claims.aud === 'string' ? claims.aud : (claims.aud[0] ?? ''),
+				created_at: new Date(claims.iat * 1000).toISOString(),
+				is_anonymous: claims.is_anonymous ?? false,
+			} as User;
+
 			const { data: usuarioData } = await supabase
 				.from('user_roles')
 				.select('rol_id, roles (name)')
-				.eq('user_id', user.id);
+				.eq('user_id', claims.sub);
 
 			const userRoles = extractRoleNames(
 				(usuarioData as UserRoleRow[] | null) ?? null,
@@ -121,7 +136,7 @@ export function onRequest(context: any, next: any) {
 		// 5) Auth routes: si ya está logueado, redirigir al dashboard
 		const isAuthRoute = AUTH_ROUTES.some((route) => pathname === route);
 		if (isAuthRoute) {
-			if (user) {
+			if (context.locals.user) {
 				return redirect(PATHS.home);
 			}
 			return next();
@@ -133,7 +148,7 @@ export function onRequest(context: any, next: any) {
 		}
 
 		// 7) Usuario no autenticado en ruta protegida → sign-in
-		if (!user) {
+		if (!context.locals.user) {
 			return redirect(PATHS.signIn);
 		}
 
