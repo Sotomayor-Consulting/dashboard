@@ -24,14 +24,7 @@ export {
 } from './auth.types';
 
 // Config
-export {
-	AUTH_COOKIE_OPTIONS,
-	PROTECTED_ROUTES,
-	AUTH_ROUTES,
-	PUBLIC_ROUTES,
-	PATHS,
-	VALIDATION,
-} from './auth.config';
+export { PATHS, VALIDATION } from './auth.config';
 
 // Helpers
 export {

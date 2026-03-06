@@ -3,14 +3,30 @@
 // Valida sesión via @supabase/ssr y aplica control de acceso por rol.
 
 import { createSupabaseServerClient } from '@lib/supabase';
-import {
-	AUTH_ROUTES,
-	PUBLIC_ROUTES,
-	PATHS,
-} from '@lib/auth';
+import { PATHS } from '@lib/auth';
 import type { RouteRoleConfig } from '@lib/roles';
 import { ROLES, extractRoleNames, hasAnyRole } from '@lib/roles';
 import type { UserRoleRow } from '@lib/roles';
+
+// ─── Rutas públicas y de autenticación ──────────────────
+// Definidas aquí (única fuente de verdad) para evitar
+// desincronización con constantes externas.
+
+/** Rutas siempre públicas (nunca bloquear) */
+const PUBLIC_ROUTES: readonly string[] = [
+	'/api',
+	'/start',
+	'/incorporacion-y-pago',
+	'/test',
+	'/playground',
+];
+
+/** Rutas de autenticación (redirigir al dash si ya está logueado) */
+const AUTH_ROUTES: readonly string[] = [
+	'/sign-in',
+	'/sign-up',
+	'/forgot-password',
+];
 
 // ─── Configuración de acceso por rol ────────────────────
 // Evaluadas en orden: la primera que coincida decide.

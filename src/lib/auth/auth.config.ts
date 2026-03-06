@@ -1,55 +1,12 @@
 // src/lib/auth/auth.config.ts
 // ─── Configuración centralizada del módulo de autenticación ─
-
-import type { AstroCookieSetOptions } from 'astro';
-
-// ─── Cookie Configuration ───────────────────────────────
-
-const isProduction = import.meta.env.PROD;
-
-/**
- * Opciones por defecto para las cookies de autenticación.
- * httpOnly: true → no accesible desde JS del browser (más seguro).
- * sameSite: 'lax' → protección CSRF, permite navegación normal.
- * secure: true en producción → solo HTTPS.
- */
-export const AUTH_COOKIE_OPTIONS: AstroCookieSetOptions = {
-	path: '/',
-	httpOnly: true,
-	secure: isProduction,
-	sameSite: 'lax',
-	maxAge: 60 * 60 * 24 * 7, // 7 días
-};
+// Las cookies de sesión son gestionadas automáticamente por @supabase/ssr
+// a través del callback setAll() en createSupabaseServerClient.
 
 // ─── Route Configuration ────────────────────────────────
-
-/** Rutas que requieren autenticación */
-export const PROTECTED_ROUTES: readonly string[] = [
-	'/dashboard',
-	'/settings',
-	'/profile',
-	'/empresas',
-	'/partners',
-	'/crud',
-	'/notificaciones',
-	'/forms',
-];
-
-/** Rutas de autenticación (redirigir al dash si ya está logueado) */
-export const AUTH_ROUTES: readonly string[] = [
-	'/sign-in',
-	'/sign-up',
-	'/forgot-password',
-];
-
-/** Rutas siempre públicas (nunca bloquear) */
-export const PUBLIC_ROUTES: readonly string[] = [
-	'/api',
-	'/start',
-	'/incorporacion-y-pago',
-	'/test',
-	'/playground',
-];
+// Las rutas protegidas, públicas y de auth se definen directamente
+// en src/middleware.ts (ROLE_ROUTES, PUBLIC_ROUTES, AUTH_ROUTES).
+// No duplicar aquí para evitar desincronización.
 
 // ─── Default Paths ──────────────────────────────────────
 

@@ -252,9 +252,13 @@ export class AuthService {
 	 * Primero valida el usuario server-side con getUser(), luego obtiene el token.
 	 */
 	async getAccessToken(): Promise<string | undefined> {
+		// 1. SIEMPRE validar primero con getUser() (server-verified)
 		const { data: { user }, error } = await this.supabase.auth.getUser();
 		if (error || !user) return undefined;
-
+	// 2. getSession() aquí es seguro porque:
+    //    - getUser() ya verificó la autenticidad del usuario
+    //    - Solo necesitamos el access_token para APIs externas (SurveyJS)
+    //    - El token fue refrescado por getUser() si estaba expirado
 		const { data: { session } } = await this.supabase.auth.getSession();
 		return session?.access_token;
 	}

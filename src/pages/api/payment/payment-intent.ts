@@ -1,17 +1,40 @@
+// src/pages/api/payment/payment-intent.ts
+// ─── Crear PaymentIntent en Stripe ──────────────────────
+// Requiere autenticación. Valida que el userId del body
+// coincida con el usuario autenticado (previene suplantación).
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
-import { supabaseAdmin } from '@lib/supabase';
+import { createSupabaseServerClient, supabaseAdmin } from '@lib/supabase';
 
-// Stripe backend
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY as string);
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
+	// ─── 1) Autenticación (server-verified via getUser) ──
+	const supabase = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
+	});
+	const {
+		data: { user },
+		error: authError,
+	} = await supabase.auth.getUser();
+
+	if (authError || !user) {
+		return new Response(
+			JSON.stringify({ error: 'No autenticado' }),
+			{
+				status: 401,
+				headers: { 'Content-Type': 'application/json' },
+			},
+		);
+	}
+
 	try {
-		// 1) Body: requerimos empresaId y microservicios
+		// ─── 2) Parsear body (una sola vez — el stream es de lectura única) ──
 		const body = (await request.json().catch(() => null)) as {
 			planId?: string;
-			userId?: string; // UUID del usuario
-			empresaId?: string; // UUID de empresas_incorporaciones.empresa_incorporacion_id
+			userId?: string;
+			empresaId?: string;
 			microservicios?: Array<{ id: string; name: string; price: number }>;
 		} | null;
 
@@ -25,9 +48,20 @@ export const POST: APIRoute = async ({ request }) => {
 			);
 		}
 
+		// ─── 3) Validar que el userId del body sea el usuario autenticado ──
+		if (body.userId !== user.id) {
+			return new Response(
+				JSON.stringify({ error: 'No autorizado para este usuario' }),
+				{
+					status: 403,
+					headers: { 'Content-Type': 'application/json' },
+				},
+			);
+		}
+
 		const { planId, userId, empresaId, microservicios = [] } = body;
 
-		// 2) Servicio vigente (precio/activo)
+		// ─── 4) Servicio vigente (precio/activo) ─────────
 		const { data: servicio, error: serviciosErr } = await supabaseAdmin
 			.from('servicios')
 			.select('id_servicios, nombre, precio, servicio_activo')
@@ -46,21 +80,28 @@ export const POST: APIRoute = async ({ request }) => {
 			);
 		}
 
-		// 3) Validar y obtener precios de microservicios desde la base de datos
+		// ─── 5) Validar y obtener precios de microservicios desde la BD ──
 		let microserviciosTotal = 0;
-		let microserviciosValidados: Array<{ id: string; name: string; price: number }> = [];
+		let microserviciosValidados: Array<{
+			id: string;
+			name: string;
+			price: number;
+		}> = [];
 
 		if (microservicios.length > 0) {
-			// Obtener los microservicios desde la base de datos para validar precios
-			const microserviciosIds = microservicios.map(m => m.id);
-			const { data: microserviciosDB, error: microserviciosErr } = await supabaseAdmin
-				.from('micro_servicios')
-				.select('id_micro_servicios, nombre, precio, estado')
-				.in('id_micro_servicios', microserviciosIds)
-				.eq('estado', true);
+			const microserviciosIds = microservicios.map((m) => m.id);
+			const { data: microserviciosDB, error: microserviciosErr } =
+				await supabaseAdmin
+					.from('micro_servicios')
+					.select('id_micro_servicios, nombre, precio, estado')
+					.in('id_micro_servicios', microserviciosIds)
+					.eq('estado', true);
 
 			if (microserviciosErr) {
-				console.error('Error obteniendo microservicios:', microserviciosErr);
+				console.error(
+					'Error obteniendo microservicios:',
+					microserviciosErr,
+				);
 				return new Response(
 					JSON.stringify({ error: 'Error validando microservicios' }),
 					{
@@ -70,30 +111,33 @@ export const POST: APIRoute = async ({ request }) => {
 				);
 			}
 
-			// Validar que todos los microservicios solicitados existan y estén activos
 			for (const solicitado of microservicios) {
-				const dbItem = microserviciosDB?.find(db => db.id_micro_servicios === solicitado.id);
+				const dbItem = microserviciosDB?.find(
+					(db) => db.id_micro_servicios === solicitado.id,
+				);
 				if (!dbItem) {
 					return new Response(
-						JSON.stringify({ error: `Microservicio ${solicitado.id} no encontrado o inactivo` }),
+						JSON.stringify({
+							error: `Microservicio ${solicitado.id} no encontrado o inactivo`,
+						}),
 						{
 							status: 400,
 							headers: { 'Content-Type': 'application/json' },
 						},
 					);
 				}
-				
-				// Usar el precio de la base de datos (seguro) en lugar del del frontend
+
+				// Usar el precio de la BD (seguro) en lugar del del frontend
 				microserviciosValidados.push({
 					id: dbItem.id_micro_servicios,
 					name: dbItem.nombre,
-					price: Number(dbItem.precio)
+					price: Number(dbItem.precio),
 				});
 				microserviciosTotal += Number(dbItem.precio);
 			}
 		}
 
-		// 4) Montos (USD→centavos) + 4.5% fee
+		// ─── 6) Montos (USD → centavos) + 4.5% fee ──────
 		const planBaseAmount = Number(servicio.precio) + microserviciosTotal;
 		const baseAmountCents = Math.round(planBaseAmount * 100);
 		const feePercent = 0.045;
@@ -110,7 +154,7 @@ export const POST: APIRoute = async ({ request }) => {
 			);
 		}
 
-		// 5) Metadata para Stripe (estructura optimizada para trigger)
+		// ─── 7) Metadata para Stripe ─────────────────────
 		const metadata: Record<string, string> = {
 			servicio_id: String(servicio.id_servicios),
 			user_id: String(userId),
@@ -122,50 +166,50 @@ export const POST: APIRoute = async ({ request }) => {
 			microservicios_count: String(microserviciosValidados.length),
 		};
 
-		// Estructura optimizada para trigger de Supabase
 		if (microserviciosValidados.length > 0) {
-			// Booleano para verificación rápida en trigger
 			metadata.microservicios_exist = 'true';
-			
-			// Array JSON bien estructurado para copia directa
-			const microserviciosArray = microserviciosValidados.map(m => ({
+
+			const microserviciosArray = microserviciosValidados.map((m) => ({
 				id: m.id,
 				name: m.name,
-				price: m.price
+				price: m.price,
 			}));
-			
-			// Guardar como string JSON en metadata (Stripe solo acepta strings)
+
 			metadata.microservicios_array = JSON.stringify(microserviciosArray);
-			
-			// Mantener compatibilidad con datos separados por comas (legacy)
-			metadata.microservicios_ids = microserviciosValidados.map(m => m.id).join(',');
-			metadata.microservicios_names = microserviciosValidados.map(m => m.name).join(',');
-			metadata.microservicios_prices = microserviciosValidados.map(m => m.price).join(',');
+
+			// Compatibilidad legacy (datos separados por comas)
+			metadata.microservicios_ids = microserviciosValidados
+				.map((m) => m.id)
+				.join(',');
+			metadata.microservicios_names = microserviciosValidados
+				.map((m) => m.name)
+				.join(',');
+			metadata.microservicios_prices = microserviciosValidados
+				.map((m) => m.price)
+				.join(',');
 		} else {
-			// Booleano para indicar que no hay microservicios
 			metadata.microservicios_exist = 'false';
 			metadata.microservicios_array = '[]';
 		}
 
-		// 6) PaymentIntent en Stripe
+		// ─── 8) Crear PaymentIntent en Stripe ────────────
 		let description = servicio.nombre ?? 'Servicio LLC';
 		if (microserviciosValidados.length > 0) {
-			const microserviciosNames = microserviciosValidados.map(m => m.name).join(', ');
+			const microserviciosNames = microserviciosValidados
+				.map((m) => m.name)
+				.join(', ');
 			description += ` + ${microserviciosNames}`;
 		}
 
-		const paymentIntent = await stripe.paymentIntents.create(
-			{
-				amount: totalAmountCents,
-				currency: 'usd',
-				description,
-				metadata,
-				payment_method_types: ['card'],
-			},
-			// , { idempotencyKey: `pi:${userId}:${planId}:${empresaId}:${totalAmountCents}` } // opcional
-		);
+		const paymentIntent = await stripe.paymentIntents.create({
+			amount: totalAmountCents,
+			currency: 'usd',
+			description,
+			metadata,
+			payment_method_types: ['card'],
+		});
 
-		// 6) Respuesta
+		// ─── 9) Respuesta ────────────────────────────────
 		return new Response(
 			JSON.stringify({ clientSecret: paymentIntent.client_secret }),
 			{
@@ -175,9 +219,12 @@ export const POST: APIRoute = async ({ request }) => {
 		);
 	} catch (err: any) {
 		console.error('Error en create-payment-intent:', err);
-		return new Response(JSON.stringify({ error: 'Internal server error' }), {
-			status: 500,
-			headers: { 'Content-Type': 'application/json' },
-		});
+		return new Response(
+			JSON.stringify({ error: 'Internal server error' }),
+			{
+				status: 500,
+				headers: { 'Content-Type': 'application/json' },
+			},
+		);
 	}
 };
