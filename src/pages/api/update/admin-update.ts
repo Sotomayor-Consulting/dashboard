@@ -24,7 +24,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			refresh_token: rt.value,
 		});
 
-		// 2) Actor + check admin
+		// 2) Actor + verificar admin desde user_roles
 		const { data: userRes, error: userErr } = await supabase.auth.getUser();
 		const actor = userRes?.user;
 		if (userErr || !actor) {
@@ -33,11 +33,17 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			);
 		}
 
-		const { data: isAdminRes, error: rpcErr } = await supabase.rpc('is_admin', {
-			uid: actor.id,
-		});
-		const isAdmin = !rpcErr && Boolean(isAdminRes);
-		if (!isAdmin) {
+		// Obtener roles del actor
+		const { data: actorRolesData } = await supabase
+			.from('user_roles')
+			.select('roles(name)')
+			.eq('user_id', actor.id);
+
+		const actorRoles: string[] = (actorRolesData as any[])
+			?.map((ur: any) => ur.roles?.name)
+			.filter(Boolean) || [];
+
+		if (!actorRoles.includes('admin')) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autorizado')}`,
 			);
@@ -57,7 +63,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const apellido = form.get('apellido')?.toString().trim();
 		const correo = form.get('correo')?.toString().trim();
 		const organizacion = form.get('compania')?.toString().trim();
-		const rolIdRaw = form.get('rol_id')?.toString().trim();
 		const estado = form.get('estado')?.toString().trim();
 		const pais = form.get('pais_modal')?.toString().trim();
 		const ciudad = form.get('ciudad_modal')?.toString().trim();
@@ -94,31 +99,57 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			payload.numero_de_identificacion = numero_de_identificacion;
 		if (tipo_persona) payload.tipo_persona = tipo_persona;
 
-		// rol (admin puede cambiar)
-		if (rolIdRaw !== undefined && rolIdRaw !== '') {
-			const rid = Number(rolIdRaw);
-			if (!Number.isNaN(rid)) payload.rol_id = rid;
-		}
-
 		// (Opcional) marca de tiempo
 		// payload.updated_at = new Date().toISOString();
 
-		if (Object.keys(payload).length === 0) {
-			// Nada que actualizar
+		// Roles desde checkboxes (soporta UUID o número)
+		const rolesRaw = form.getAll('roles[]');
+		const roles = rolesRaw
+			.map(r => r.toString().trim())
+			.filter(r => r !== '');
+
+		// Si no hay cambios en payload ni roles, salir
+		if (Object.keys(payload).length === 0 && roles.length === 0) {
 			return redirect(
 				`${back}?status=success&msg=${encodeURIComponent('Sin cambios')}`,
 			);
 		}
 
 		// 5) Update por user_id
-		const { error } = await supabase
-			.from('usuarios')
-			.update(payload)
-			.eq('user_id', targetUserId);
+		if (Object.keys(payload).length > 0) {
+			const { error } = await supabase
+				.from('usuarios')
+				.update(payload)
+				.eq('user_id', targetUserId);
 
-		if (error) {
-			const msg = encodeURIComponent(`DB: ${error.message}`);
-			return redirect(`${back}?status=error&msg=${msg}`);
+			if (error) {
+				const msg = encodeURIComponent(`DB: ${error.message}`);
+				return redirect(`${back}?status=error&msg=${msg}`);
+			}
+		}
+
+		// Insertar roles en user_roles
+		if (roles.length > 0) {
+			// Eliminar roles existentes del usuario
+			await supabase
+				.from('user_roles')
+				.delete()
+				.eq('user_id', targetUserId);
+
+			// Insertar los nuevos roles
+			const rolesToInsert = roles.map(rolId => ({
+				user_id: targetUserId,
+				rol_id: rolId, // UUID o número según la tabla roles
+			}));
+
+			const { error: rolesError } = await supabase
+				.from('user_roles')
+				.insert(rolesToInsert);
+
+			if (rolesError) {
+				const msg = encodeURIComponent(`DB roles: ${rolesError.message}`);
+				return redirect(`${back}?status=error&msg=${msg}`);
+			}
 		}
 
 		return redirect(

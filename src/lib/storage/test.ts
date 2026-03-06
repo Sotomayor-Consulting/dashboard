@@ -5,7 +5,7 @@ export const getUserFolders = async (userId: string, empresaId: string) => {
 	const { data, error } = await supabase.storage.from('test').list(path, {
 		limit: 100,
 		offset: 0,
-		sortBy: { column: 'name', order: 'asc' },
+		sortBy: { column: 'created_at', order: 'desc' },
 	});
 
 	if (error) throw error;

@@ -179,16 +179,20 @@ export { notifications, totalUnread, user };
 												/>
 											</div>
 											<div class="w-full pl-3">
-												<div class="mb-1.5 flex flex-col text-sm font-normal text-gray-500 dark:text-gray-400">
+												<div class="mb-1.5 flex flex-col gap-2 text-sm font-normal text-gray-500 dark:text-gray-400">
 													<span class="font-semibold text-gray-900 dark:text-white">
 														{notification.message}
 													</span>
 													<a
 														href={notification.link}
 														target="_blank"
-														class="text-primary-500 my-1 hover:text-blue-600"
+														class="bg-brand hover:bg-brand-strong focus:ring-brand-medium rounded-base group box-border flex w-fit items-center gap-1 border border-transparent px-2 py-1 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
 													>
 														{notification.mensaje_link}
+														<Icon
+															name="ri:arrow-right-s-fill"
+															class="transition-all delay-105 ease-in-out group-hover:translate-x-1"
+														/>
 													</a>
 												</div>
 												<div class="flex justify-between">

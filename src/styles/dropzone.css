@@ -1,6 +1,6 @@
 :root {
 	--dropzone-bg: #ffffff;
-	--dropzone-border: #e2e8f0;
+	--dropzone-border: #000000;
 	--dropzone-text: #1a202c;
 	--dropzone-preview-bg: #ffffff;
 	--dropzone-preview-text: #1a202c;
@@ -16,7 +16,7 @@
 @media (prefers-color-scheme: dark) {
 	:root {
 		--dropzone-bg: #ffffff;
-		--dropzone-border: #e2e8f0;
+		--dropzone-border: #555555;
 		--dropzone-text: #1a202c;
 		--dropzone-preview-bg: #ffffff;
 		--dropzone-preview-text: #1a202c;
@@ -328,7 +328,7 @@
 }
 
 .dropzone .dz-preview .dz-progress .dz-upload {
-	background: #967432;
+	background: var(--dropzone-progress-bg);
 	display: block;
 	position: relative;
 	height: 100%;

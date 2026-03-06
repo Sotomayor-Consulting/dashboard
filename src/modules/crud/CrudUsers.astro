@@ -301,6 +301,11 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 													user.numero_de_identificacion || ''
 												}
 												data-tipo={user.tipo_persona ?? ''}
+												data-user-roles={JSON.stringify(
+													rolesGeneral
+														?.filter((r) => r.user_id === user.user_id)
+														.map((r) => r.rol_id) || [],
+												)}
 												class="focus:ring-primary-300 inline-flex items-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 											>
 												<svg
@@ -466,7 +471,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 							<label
 								for="position"
 								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Compania</label
+								>Compañía</label
 							>
 							<input
 								type="text"
@@ -481,7 +486,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 							<label
 								for="pais"
 								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Pais</label
+								>País</label
 							>
 							<select
 								id="pais"
@@ -515,7 +520,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 							<label
 								for="direccion_linea1"
 								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Direccion linea 1</label
+								>Dirección linea 1</label
 							>
 							<input
 								type="text"
@@ -530,7 +535,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 							<label
 								for="direccion_linea2"
 								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Direccion linea 2</label
+								>Dirección linea 2</label
 							>
 							<input
 								type="text"
@@ -545,7 +550,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 							<label
 								for="modal_telefono"
 								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Telefono</label
+								>Teléfono</label
 							>
 							<input
 								type="tel"
@@ -573,7 +578,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 							<label
 								for="tipo_identificacion"
 								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Tipo de identificacion</label
+								>Tipo de identificación</label
 							>
 							<select
 								id="tipo_identificacion"
@@ -596,7 +601,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 							<label
 								for="numero_de_identificacion"
 								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Numero de identificacion</label
+								>Numero de identificación</label
 							>
 							<input
 								type="text"
@@ -628,24 +633,24 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 								Añade un rol
 							</h3>
 							<ul
-								class="dark:bg-black-900 w-full items-center rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-900 sm:flex dark:border-gray-600 dark:text-white"
+								class="dark:bg-black-900 w-full items-center gap-2 rounded-lg bg-white text-sm font-medium text-gray-900 sm:flex dark:border-gray-600 dark:text-white"
 							>
 								{
-									roles?.map((rol) => (
-										<li class="w-full border-b border-gray-200 sm:border-r sm:border-b-0 dark:border-gray-600">
-											<div class="flex items-center ps-3">
+									roles?.map((rol, index) => (
+										<li class="w-full">
+											<div class="bg-neutral-primary-soft border-default rounded-base flex items-center border ps-4 shadow-xs">
 												<input
-													id="modal_id_rol"
-													type="radio"
+													id={`bordered-checkbox-${index}`}
+													type="checkbox"
 													value={rol.id}
-													name="rol_id"
-													class="h-4 w-4 border-gray-300 bg-gray-100 text-[#8c681d] focus:ring-2 focus:ring-[#8c681d] dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-700 dark:focus:ring-[#323f67] dark:focus:ring-offset-gray-700"
+													name="roles[]"
+													class="border-default-medium bg-neutral-secondary-medium focus:ring-brand-soft h-4 w-4 rounded-xs border focus:ring-2"
 												/>
 												<label
-													for="modal_id_rol"
-													class="ms-2 w-full py-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+													for={`bordered-checkbox-${index}`}
+													class="text-heading ms-2 w-full py-4 text-sm font-medium select-none"
 												>
-													{rol.nombre}
+													{rol.name}
 												</label>
 											</div>
 										</li>
@@ -733,6 +738,14 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 				document.querySelectorAll('input[name="estado"]').forEach((r) => {
 					r.checked = String(r.value) === String(estado);
 				});
+
+				// Checkboxes de roles
+				const userRoles = JSON.parse(btn.dataset.userRoles || '[]');
+				document
+					.querySelectorAll('input[name="roles[]"]')
+					.forEach((checkbox) => {
+						checkbox.checked = userRoles.includes(checkbox.value);
+					});
 			});
 		});
 	});

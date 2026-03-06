@@ -190,7 +190,7 @@ html.dark .datatable-selector:focus {
 }
 
 thead {
-	background: #f3f4f6;
+	background: #dadada;
 	font-size: 0.75rem;
 	line-height: 1rem;
 	border-radius: 0.5rem;

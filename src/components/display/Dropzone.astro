@@ -4,32 +4,38 @@ import { Icon } from 'astro-icon/components';
 
 interface Props {
 	endpoint: string;
+	id: string;
+	icon: string;
+	mensaje: string;
+	fileId?: string;
 }
 
-const { endpoint } = Astro.props;
+const { endpoint, id, icon, mensaje, fileId } = Astro.props;
 ---
 
 <div class="flex flex-col items-center justify-center">
 	<form
-		id="my-dropzone"
-		class="dropzone dark:bg-black-900 h-96 w-full rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 dark:border-gray-600 dark:hover:bg-neutral-800/80"
+		id={id}
+		data-dropzone-id={id}
+		class="dropzone dark:bg-black-900 border-white-900 h-96 w-full rounded-2xl border-2 border-dashed bg-gray-50 p-6 dark:border-gray-600 dark:hover:bg-neutral-800/80"
 		action={endpoint}
 		method="post"
 		enctype="multipart/form-data"
 	>
+		{fileId && <input type="hidden" name="fileId" value={fileId} />}
 		<div class="dz-message flex w-full flex-col dark:text-white">
 			<Icon
-				name="ri:upload-cloud-2-line"
+				name={icon}
 				class="mb-4 text-5xl text-gray-500 dark:text-gray-400"
 			/>
-			Arrastra el documento aquí o haz clic para subir.
+			{mensaje}
 		</div>
 	</form>
 	<div class="mt-4 flex gap-3">
 		<button
 			type="button"
-			id="btn-confirm-upload"
-			class="rounded-lg bg-[#967432] px-4 py-2 text-white hover:bg-[#967432] disabled:cursor-not-allowed disabled:opacity-50"
+			id={`btn-confirm-${id}`}
+			class="dark:bg-brand dark:hover:bg-brand/80 cursor-pointer rounded-lg bg-[#967432] px-4 py-2 text-white hover:bg-[#967432] disabled:cursor-not-allowed disabled:opacity-50"
 			disabled
 		>
 			Subir documento
@@ -47,88 +53,85 @@ const { endpoint } = Astro.props;
 
 			Dropzone.autoDiscover = false;
 
-			var form = document.getElementById('my-dropzone');
-			var confirmBtn = document.getElementById('btn-confirm-upload');
-			var tempTimeoutId = null;
+			const forms = document.querySelectorAll('form[data-dropzone-id]');
 
-			if (!form || !confirmBtn) return;
+			forms.forEach((form) => {
+				const dropzoneId = form.getAttribute('data-dropzone-id');
+				const confirmBtn = document.getElementById(`btn-confirm-${dropzoneId}`);
+				let tempTimeoutId = null;
 
-			var dz = new Dropzone(form, {
-				url: form.getAttribute('action'),
-				method: 'post',
+				if (!form || !confirmBtn) return;
 
-				// nombre que lee tu endpoint: formData.get("contract_file")
-				paramName: 'contract_file',
+				var dz = new Dropzone(form, {
+					url: form.getAttribute('action'),
+					method: 'post',
 
-				autoProcessQueue: false,
-				maxFiles: 1,
-				uploadMultiple: false,
-				acceptedFiles: 'application/pdf',
-				maxFilesize: 5, // MB
+					paramName: 'file',
 
-				addRemoveLinks: true,
-				dictDefaultMessage:
-					'Arrastra aquí tu documento o haz clic para seleccionar.',
-				dictRemoveFile: 'Eliminar archivo',
-			});
+					autoProcessQueue: false,
+					maxFiles: 1,
+					uploadMultiple: false,
+					acceptedFiles:
+						'.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.webp',
+					maxFilesize: 15,
 
-			// Habilitar botón cuando hay archivo
-			dz.on('addedfile', function (file) {
-				// Sólo queremos un archivo
-				if (dz.files.length > 1) {
-					dz.removeFile(dz.files[0]); // elimina el anterior
-				}
+					addRemoveLinks: true,
+					dictDefaultMessage:
+						'Arrastra aquí tu documento o haz clic para seleccionar.',
+					dictRemoveFile: 'Eliminar archivo',
+				});
 
-				confirmBtn.disabled = false;
+				dz.on('addedfile', function (file) {
+					if (dz.files.length > 1) {
+						dz.removeFile(dz.files[0]);
+					}
 
-				// Limpiar timeout previo si existe
-				if (tempTimeoutId) clearTimeout(tempTimeoutId);
+					confirmBtn.disabled = false;
 
-				// Programar expiración en 2 minutos (120000 ms)
-				tempTimeoutId = setTimeout(
-					function () {
-						dz.removeAllFiles(true);
-						confirmBtn.disabled = true;
-						alert(
-							'El archivo temporal ha expirado. Vuelve a subir el documento.',
-						);
-					},
-					2 * 60 * 1000,
-				);
-			});
+					if (tempTimeoutId) clearTimeout(tempTimeoutId);
 
-			// Si el usuario elimina el archivo manualmente
-			dz.on('removedfile', function () {
-				confirmBtn.disabled = true;
-				if (tempTimeoutId) clearTimeout(tempTimeoutId);
-			});
+					tempTimeoutId = setTimeout(
+						function () {
+							dz.removeAllFiles(true);
+							confirmBtn.disabled = true;
+							alert(
+								'El archivo temporal ha expirado. Vuelve a subir el documento.',
+							);
+						},
+						2 * 60 * 1000,
+					);
+				});
 
-			// Botón de "Guardar contrato" → ahora sí hacemos POST
-			confirmBtn.addEventListener('click', function () {
-				if (dz.getQueuedFiles().length === 0) {
-					return;
-				}
+				dz.on('removedfile', function () {
+					confirmBtn.disabled = true;
+					if (tempTimeoutId) clearTimeout(tempTimeoutId);
+				});
 
-				confirmBtn.disabled = true;
+				confirmBtn.addEventListener('click', function () {
+					if (dz.getQueuedFiles().length === 0) {
+						return;
+					}
 
-				dz.processQueue(); // 🔥 aquí recién se hace el POST al endpoint
-			});
+					confirmBtn.disabled = true;
 
-			// Manejo de éxito: seguir la redirección de tu endpoint
-			dz.on('success', function (file) {
-				if (tempTimeoutId) clearTimeout(tempTimeoutId);
+					dz.processQueue();
+				});
 
-				var xhr = file.xhr;
-				if (xhr && xhr.responseURL) {
-					window.location.href = xhr.responseURL;
-				}
-			});
+				dz.on('success', function (file) {
+					if (tempTimeoutId) clearTimeout(tempTimeoutId);
 
-			dz.on('error', function (file, errorMessage) {
-				console.error('Error al subir el documento:', errorMessage);
-				confirmBtn.disabled = false;
-				if (tempTimeoutId) clearTimeout(tempTimeoutId);
-				alert('Hubo un error al subir el documento. Intenta de nuevo.');
+					var xhr = file.xhr;
+					if (xhr && xhr.responseURL) {
+						window.location.href = xhr.responseURL;
+					}
+				});
+
+				dz.on('error', function (file, errorMessage) {
+					console.error('Error al subir el documento:', errorMessage);
+					confirmBtn.disabled = false;
+					if (tempTimeoutId) clearTimeout(tempTimeoutId);
+					alert('Hubo un error al subir el documento. Intenta de nuevo.');
+				});
 			});
 		});
 	</script>

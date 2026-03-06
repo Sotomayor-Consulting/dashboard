@@ -1,4 +1,5 @@
 ---
+import Alerta from '@components/feedback/alertageneral.astro';
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import DashBoard from '@modules/dashboard/DashBoardempresas.astro';
 import { getIncorporacionById } from '@lib/tablas/empresa_incorporaciones';
@@ -20,5 +21,6 @@ if (!empresa) {
 ---
 
 <LayoutSidebar>
-	<DashBoard />
+	<Alerta />
+	<DashBoard empresaId={id} />
 </LayoutSidebar>

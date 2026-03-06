@@ -12,10 +12,16 @@ const supabaseBrowser = createClient(
 );
 
 export const getSignedUrlClient = async (path: string) => {
+	const { data: { session } } = await supabaseBrowser.auth.getSession();
+	console.log('Session:', session);
+	
 	const { data, error } = await supabaseBrowser.storage
 		.from('test')
 		.createSignedUrl(path, 3600);
 
-	if (error) throw error;
+	if (error) {
+		console.error('Storage error:', error);
+		throw error;
+	}
 	return data.signedUrl;
 };
