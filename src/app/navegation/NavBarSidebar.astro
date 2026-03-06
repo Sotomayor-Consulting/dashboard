@@ -1,12 +1,12 @@
 ---
 import { Icon } from 'astro-icon/components';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
-import { createSupabaseServerClient } from '@lib/supabase';
+
 import { getUsuarioAvatar, getUsuarioById } from '@lib/tablas/usuarios';
 import { getNotifications } from '@lib/tablas/notificaciones';
 import logonotificaciones from '@assets/avatarSCI.png';
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const user = Astro.locals?.user;
 const userId = user?.id;
@@ -319,7 +319,7 @@ export { notifications, totalUnread, user };
 	}}
 	is:inline
 >
-	import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+	import { createBrowserClient } from 'https://esm.sh/@supabase/ssr@0.7.0';
 
 	const start = async () => {
 		const listEl = document.getElementById('notifications-list');
@@ -333,22 +333,9 @@ export { notifications, totalUnread, user };
 		if (!USER_ID)
 			return console.info('[notifications] Sin usuario; no suscribo');
 
-		const supabase = createClient(SB_URL, SB_ANON, {
-			auth: { persistSession: true, autoRefreshToken: true },
+		const supabase = createBrowserClient(SB_URL, SB_ANON, {
+			isSingleton: true,
 		});
-
-		const readCookie = (name) =>
-			document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))?.[2] ??
-			null;
-
-		const at = readCookie('sb-access-token'),
-			rt = readCookie('sb-refresh-token');
-		if (at && rt) {
-			await supabase.auth.setSession({
-				access_token: at,
-				refresh_token: rt,
-			});
-		}
 
 		const getBadgeEl = () => bellBtn?.querySelector('span.inline-flex.w-6.h-6');
 		const refreshBadgeFromDOM = () => {

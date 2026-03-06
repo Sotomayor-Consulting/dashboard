@@ -1,9 +1,7 @@
 ---
 import { ListaFormulariosSurvey } from '@lib/tablas/formularios';
 import { getPagosSurvey } from '@lib/tablas/pagos';
-import { createSupabaseServerClient } from '@lib/supabase';
-
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 // Auth handled by middleware
 const { id } = Astro.params;

@@ -1,10 +1,9 @@
 ---
 import '@styles/datatables.css';
 import Alerta from '@components/feedback/alertageneral.astro';
-import { createSupabaseServerClient } from '@lib/supabase';
 import { ListaServiciosGeneral } from '@lib/tablas/servicios';
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const servicio = await ListaServiciosGeneral(supabase);
 ---

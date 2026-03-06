@@ -1,10 +1,9 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
 import '@styles/datatables.css';
-import { createSupabaseServerClient } from '@lib/supabase';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const usuarios = await getAllUsuarios(supabase);
 ---

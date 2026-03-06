@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 
 import ApexCharts from 'apexcharts';
-import { supabase } from '@lib/supabase';
+import { supabaseBrowser } from '@lib/supabase';
 
 async function fetchOdooData(params: Record<string, string> = {}) {
 	const url = new URL('/api/charts/odooParners', window.location.origin);
@@ -19,12 +19,12 @@ async function fetchSupabaseData() {
 	// Obtener usuario actual de Supabase
 	const {
 		data: { user },
-	} = await supabase.auth.getUser();
+	} = await supabaseBrowser.auth.getUser();
 
 	if (!user) throw new Error('Usuario no autenticado');
 
 	// Consultar referidos filtrando por partner_id y agrupando por fecha
-	const { data: referidos, error } = await supabase
+	const { data: referidos, error } = await supabaseBrowser
 		.from('referidos')
 		.select('created_at, partner_id')
 		.eq('partner_id', user.id);

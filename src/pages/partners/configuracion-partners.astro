@@ -2,9 +2,7 @@
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import Vistapartner from '@modules/partners/vista-partners.astro';
 import { getUsuarioById } from '@lib/tablas/usuarios';
-import { createSupabaseServerClient } from '@lib/supabase';
-
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const user = Astro.locals.user;
 const UserId = user?.id;

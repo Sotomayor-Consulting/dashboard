@@ -69,6 +69,10 @@ export function onRequest(context: any, next: any) {
 			cookies: context.cookies,
 		});
 
+		// Exponer el cliente para que los componentes lo reutilicen
+		// sin crear instancias adicionales (evita ResponseSentError)
+		context.locals.supabase = supabase;
+
 		// 2) Validar sesión — siempre usar getUser() (verificado server-side)
 		const {
 			data: { user },

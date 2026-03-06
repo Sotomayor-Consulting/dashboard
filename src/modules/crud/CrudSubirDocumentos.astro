@@ -1,8 +1,7 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
 import '@styles/datatables.css';
-import { supabase } from '@lib/supabase';
-
+const supabase = Astro.locals.supabase;
 const { data: pagos } = await supabase
 	.from('pagos')
 	.select(

@@ -1,12 +1,11 @@
 ---
 import '@styles/datatables.css';
 import { Image } from 'astro:assets';
-import { createSupabaseServerClient } from '@lib/supabase';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
 import { RolesGeneral } from '@lib/tablas/roles';
 import { PaisesGeneral } from '@lib/tablas/paises';
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const [usuarios, roles, paises] = await Promise.all([
 	getAllUsuarios(supabase),

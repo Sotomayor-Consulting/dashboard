@@ -1,8 +1,6 @@
 ---
 import { getFormularioEnviadoDetalle } from '@lib/tablas/formulariosEnviados';
-import { createSupabaseServerClient } from '@lib/supabase';
-
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const { id } = Astro.params;
 const user = Astro.locals.user;

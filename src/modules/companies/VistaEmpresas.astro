@@ -3,7 +3,6 @@ import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
 import imagenempresa from '@assets/edificios-vista.avif';
-import { createSupabaseServerClient } from '@lib/supabase';
 import { getSociosByEmpresa } from '@lib/tablas/socios';
 import { actividadesGeneral } from '@lib/tablas/actividades';
 import { getManagerByEmpresa } from '@lib/tablas/managers';
@@ -16,7 +15,7 @@ interface Props {
 }
 
 const { empresaId } = Astro.props;
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const [socios, managers, actividades, paises, estados, empresa] =
 	await Promise.all([

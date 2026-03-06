@@ -1,13 +1,12 @@
 ---
 import { Icon } from 'astro-icon/components';
 import MenuCard from '@components/display/MenuCard.astro';
-import { createSupabaseServerClient } from '@lib/supabase';
 import { getUserWithRole } from '@lib/tablas/menu';
 import { getFormulariosPendientes } from '@lib/tablas/formulariosEnviados';
 import { getPagosPorLeer } from '@lib/tablas/PagosPorLeer';
 import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
 

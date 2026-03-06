@@ -249,12 +249,13 @@ export class AuthService {
 
 	/**
 	 * Obtiene el access token actual (para uso con APIs externas como SurveyJS).
-	 * Lee el token desde la sesión de Supabase en vez de cookies manuales.
+	 * Primero valida el usuario server-side con getUser(), luego obtiene el token.
 	 */
 	async getAccessToken(): Promise<string | undefined> {
-		const {
-			data: { session },
-		} = await this.supabase.auth.getSession();
+		const { data: { user }, error } = await this.supabase.auth.getUser();
+		if (error || !user) return undefined;
+
+		const { data: { session } } = await this.supabase.auth.getSession();
 		return session?.access_token;
 	}
 

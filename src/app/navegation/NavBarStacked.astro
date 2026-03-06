@@ -1,9 +1,9 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { createSupabaseServerClient } from '@lib/supabase';
+
 import { UsersGeneral } from '@lib/tablas/userAuth';
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 const user = await UsersGeneral(supabase);
 ---
 

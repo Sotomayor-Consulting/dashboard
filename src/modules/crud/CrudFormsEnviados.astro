@@ -2,10 +2,9 @@
 import '@styles/datatables.css';
 import Alerta from '@components/feedback/alertageneral.astro';
 import { Icon } from 'astro-icon/components';
-import { createSupabaseServerClient } from '@lib/supabase';
 import { FormsEnviadosDataGeneral } from '@lib/tablas/formulariosEnviados';
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const formularios_envios = await FormsEnviadosDataGeneral(supabase);
 ---

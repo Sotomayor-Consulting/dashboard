@@ -1,6 +1,5 @@
 ---
-import { createSupabaseServerClient } from '@lib/supabase';
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const { id } = Astro.params;
 

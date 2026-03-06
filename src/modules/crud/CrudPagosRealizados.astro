@@ -2,10 +2,9 @@
 import '@styles/datatables.css';
 import Alerta from '@components/feedback/alertageneral.astro';
 import { Icon } from 'astro-icon/components';
-import { createSupabaseServerClient } from '@lib/supabase';
 import { pagosRealizadosData } from '@lib/tablas/PagosPorLeer';
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const pagosRealizados = await pagosRealizadosData(supabase);
 ---

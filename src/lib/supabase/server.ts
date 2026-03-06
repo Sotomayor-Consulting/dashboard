@@ -77,10 +77,17 @@ export function createSupabaseServerClient(context: SupabaseContext) {
 						typeof c.value === 'string',
 				);
 			},
-			setAll(cookiesToSet) {
-				cookiesToSet.forEach(({ name, value, options }) => {
-					cookies.set(name, value, options);
-				});
+		setAll(cookiesToSet) {
+				try {
+					cookiesToSet.forEach(({ name, value, options }) => {
+						cookies.set(name, value, options);
+					});
+				} catch {
+					// En Astro SSR, si la respuesta ya se envió al browser
+					// (e.g. dentro de un componente nested), cookies.set() lanza
+					// ResponseSentError. Esto es seguro de ignorar porque el
+					// middleware ya refrescó los tokens antes del render.
+				}
 			},
 		},
 	});

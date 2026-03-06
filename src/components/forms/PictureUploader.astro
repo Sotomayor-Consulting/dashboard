@@ -1,9 +1,8 @@
 ---
-import { createSupabaseServerClient } from '@lib/supabase';
 import { getUsuarioAvatar } from '@lib/tablas/usuarios';
 import Image from 'astro/components/Image.astro';
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const user = Astro.locals.user;
 const userId = user?.id;

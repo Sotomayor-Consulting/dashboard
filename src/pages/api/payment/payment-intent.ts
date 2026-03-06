@@ -1,16 +1,9 @@
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@lib/supabase';
 
 // Stripe backend
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY as string);
-
-// Supabase backend (SERVICE ROLE en backend; ANON como fallback)
-const supabase = createClient(
-	import.meta.env.PUBLIC_SUPABASE_URL as string,
-	(import.meta.env.SUPABASE_SERVICE_ROLE_KEY as string) ||
-		(import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string),
-);
 
 export const POST: APIRoute = async ({ request }) => {
 	try {
@@ -35,7 +28,7 @@ export const POST: APIRoute = async ({ request }) => {
 		const { planId, userId, empresaId, microservicios = [] } = body;
 
 		// 2) Servicio vigente (precio/activo)
-		const { data: servicio, error: serviciosErr } = await supabase
+		const { data: servicio, error: serviciosErr } = await supabaseAdmin
 			.from('servicios')
 			.select('id_servicios, nombre, precio, servicio_activo')
 			.eq('id_servicios', planId)
@@ -60,7 +53,7 @@ export const POST: APIRoute = async ({ request }) => {
 		if (microservicios.length > 0) {
 			// Obtener los microservicios desde la base de datos para validar precios
 			const microserviciosIds = microservicios.map(m => m.id);
-			const { data: microserviciosDB, error: microserviciosErr } = await supabase
+			const { data: microserviciosDB, error: microserviciosErr } = await supabaseAdmin
 				.from('micro_servicios')
 				.select('id_micro_servicios, nombre, precio, estado')
 				.in('id_micro_servicios', microserviciosIds)

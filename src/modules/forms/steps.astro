@@ -1,8 +1,8 @@
 ---
 import WhatsappBtn from '@components/display/WhatsappBtn.astro';
-import { supabase } from '@lib/supabase';
 import Alerta from '@components/feedback/alertageneral.astro';
 
+const supabase = Astro.locals.supabase;
 const { data: estados } = await supabase.from('estados').select('Estado');
 
 const datosName = [

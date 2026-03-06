@@ -4,10 +4,9 @@ import { Icon } from 'astro-icon/components';
 import '@styles/datatables.css';
 import logonotificaciones from '/src/assets/avatarSCI.png';
 import Alerta from '@components/feedback/alertageneral.astro';
-import { createSupabaseServerClient } from '@lib/supabase';
 import { getNotificacionesGeneral } from '@lib/tablas/notificaciones';
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 const notificaciones = await getNotificacionesGeneral(supabase);
 ---
 

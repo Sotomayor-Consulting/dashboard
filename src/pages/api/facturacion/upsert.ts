@@ -1,11 +1,6 @@
 // src/pages/api/billing/upsert.ts
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-	import.meta.env.PUBLIC_SUPABASE_URL as string,
-	import.meta.env.SUPABASE_SERVICE_ROLE_KEY as string, // clave de backend (no exponer)
-);
+import { supabaseAdmin } from '@lib/supabase';
 
 export const POST: APIRoute = async ({ request }) => {
 	try {
@@ -48,7 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
 		row['personería'] = (persona || '').toLowerCase(); // "natural" | "juridica"
 
 		// Insertar
-		const { data, error } = await supabase
+		const { data, error } = await supabaseAdmin
 			.from('facturacion')
 			.insert([row])
 			.select('id')

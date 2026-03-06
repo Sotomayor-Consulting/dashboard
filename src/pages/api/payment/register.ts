@@ -1,38 +1,8 @@
 // /api/payment/register
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
-
-function jwtRole(jwt: string | undefined) {
-	try {
-		if (!jwt) return null;
-		const payload = JSON.parse(
-			Buffer.from(jwt.split('.')[1], 'base64').toString('utf8'),
-		);
-		return payload?.role ?? null;
-	} catch {
-		return null;
-	}
-}
+import { supabaseAdmin } from '@lib/supabase';
 
 export const POST: APIRoute = async ({ request }) => {
-	const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY as
-		| string
-		| undefined;
-	if (!serviceKey) {
-		// 👉 si ves este error en consola, el problema es que NO estás cargando la SERVICE_ROLE en tu .env/dev/Netlify
-		return new Response(
-			JSON.stringify({ error: 'Missing SUPABASE_SERVICE_ROLE_KEY' }),
-			{ status: 500 },
-		);
-	}
-	// Logea SOLO el rol para confirmar que es service_role
-	console.log('[register] using role:', jwtRole(serviceKey)); // debe imprimir "service_role"
-
-	const supabaseAdmin = createClient(
-		import.meta.env.PUBLIC_SUPABASE_URL as string,
-		serviceKey,
-	);
-
 	try {
 		const { paymentIntentId } = (await request.json()) as {
 			paymentIntentId?: string;
@@ -49,7 +19,6 @@ export const POST: APIRoute = async ({ request }) => {
 		);
 
 		if (error) {
-			// Devuelve el motivo REAL del permiso denegado (temporal para depurar)
 			return new Response(
 				JSON.stringify({
 					error: error.message,

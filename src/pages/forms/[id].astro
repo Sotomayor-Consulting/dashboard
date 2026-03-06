@@ -1,9 +1,7 @@
 ---
-import { createSupabaseServerClient } from '@lib/supabase';
-
 // Auth handled by middleware
 const { id } = Astro.params;
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const { data: formulario, error } = await supabase
 	.from('formularios')

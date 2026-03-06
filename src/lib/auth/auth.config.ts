@@ -21,11 +21,6 @@ export const AUTH_COOKIE_OPTIONS: AstroCookieSetOptions = {
 	maxAge: 60 * 60 * 24 * 7, // 7 días
 };
 
-export const AUTH_COOKIE_NAMES = {
-	accessToken: 'sb-access-token',
-	refreshToken: 'sb-refresh-token',
-} as const;
-
 // ─── Route Configuration ────────────────────────────────
 
 /** Rutas que requieren autenticación */

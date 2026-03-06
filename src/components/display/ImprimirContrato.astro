@@ -1,6 +1,5 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { createSupabaseServerClient } from '@lib/supabase';
 import { getMissingPartnerFields } from '@lib/tablas/usuarios';
 
 interface Props {
@@ -9,7 +8,7 @@ interface Props {
 	reportName?: string;
 }
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const { data, templateName, reportName } = Astro.props;
 const btnId = `btn-imprimir-${Math.random().toString(36).slice(2, 9)}`;

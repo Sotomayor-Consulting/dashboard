@@ -1,5 +1,4 @@
 ---
-import { createSupabaseServerClient } from '@lib/supabase';
 import PictureUploader from '@components/forms/PictureUploader.astro';
 import PersonalInfoForm from './components/PersonalInfoForm.astro';
 import UserAccountPanel from './components/UserAccountPanel.astro';
@@ -7,7 +6,7 @@ import BillingForm from './components/BillingForm.astro';
 
 // Auth handled by middleware
 const user = Astro.locals.user;
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 let testRow = null;
 if (user) {

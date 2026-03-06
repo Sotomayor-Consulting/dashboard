@@ -2,13 +2,12 @@
 import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
-import { createSupabaseServerClient } from '@lib/supabase';
 import { IncorporacionesEmpresasBase } from '@lib/tablas/empresa_incorporaciones';
 import { actividadesGeneral } from '@lib/tablas/actividades';
 import { EstadosGeneral } from '@lib/tablas/estados';
 import { PaisesGeneral } from '@lib/tablas/paises';
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const [empresas, actividades, estados, paises] = await Promise.all([
 	IncorporacionesEmpresasBase(supabase),

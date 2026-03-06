@@ -1,5 +1,4 @@
 ---
-import { createSupabaseServerClient } from '@lib/supabase';
 import { getMissingPartnerFields, type PartnerRequiredField } from '@lib/tablas/usuarios';
 
 const FIELD_LABELS: Record<PartnerRequiredField, string> = {
@@ -27,7 +26,7 @@ const BANNER_PROPS = {
 const isPartner = userRoles.includes('partner');
 
 if (isPartner && user) {
-	const supabase = createSupabaseServerClient(Astro);
+	const supabase = Astro.locals.supabase;
 	missingFields = await getMissingPartnerFields(supabase, user.id);
 	shouldShowBanner = missingFields.length > 0;
 }
