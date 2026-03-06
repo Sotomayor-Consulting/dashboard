@@ -4,7 +4,6 @@ import { Icon } from 'astro-icon/components';
 import ImprimirContrato from '@components/display/ImprimirContrato.astro';
 import { getUsuarioById, getMissingPartnerFields } from '@lib/tablas/usuarios';
 import { getDocumentosGenerales } from '@lib/tablas/documentos';
-
 const user = Astro.locals.user;
 const userRoles = Astro.locals.userRoles || [];
 const UserId = user?.id;
@@ -302,7 +301,7 @@ if (isPartner && user) {
 			<h3
 				class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white"
 			>
-				Acciones rapidas
+				Acciones rápidas
 				<button
 					data-popover-target="popover-description"
 					data-popover-placement="bottom-end"

@@ -63,3 +63,29 @@ export const getNotificacionesGeneral = async () => {
 
 	return data;
 };
+
+export const getNotificacionesGeneralPorId = async (userId: string) => {
+	const { data, error } = await supabase
+		.from('notifications')
+		.select(
+			`
+    id,
+    user_id,
+    message,
+    is_read,
+    leido_en,
+    created_at,
+    link,
+	mensaje_link
+  `,
+			{ count: 'exact' },
+		)
+		.eq('user_id', userId)
+		.order('created_at', { ascending: false });
+	if (error) {
+		console.error('Error fetching notificaciones:', error);
+		throw error;
+	}
+
+	return data;
+};

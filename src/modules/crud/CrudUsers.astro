@@ -1,6 +1,6 @@
 ---
 import '@styles/datatables.css';
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
 import { RolesGeneral, RolesGeneralUsers } from '@lib/tablas/roles';
 import { PaisesGeneral } from '@lib/tablas/paises';
@@ -188,7 +188,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 									<tr class="dark:hover:bg-black-700 odd:bg-white-300 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467]">
 										<td class="w-4 pl-4">
 											{user.avatar_url === 'NULL' || !user.avatar_url ? (
-												<Image
+												<Picture
 													class="h-10 w-10 rounded-full"
 													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
 													alt={`Avatar de ${user.nombre}`}
@@ -196,7 +196,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 													loading="eager"
 												/>
 											) : (
-												<Image
+												<Picture
 													class="h-10 w-10 rounded-full"
 													src={user.avatar_url}
 													alt={`Avatar de ${user.nombre}`}

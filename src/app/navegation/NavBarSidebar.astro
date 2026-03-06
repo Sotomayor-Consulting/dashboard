@@ -4,6 +4,7 @@ import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
 import { getUsuarioAvatar, getUsuarioById } from '@lib/tablas/usuarios';
 import { getNotifications } from '@lib/tablas/notificaciones';
 import logonotificaciones from '@assets/avatarSCI.png';
+import { Picture } from 'astro:assets';
 
 const user = Astro.locals?.user;
 const userId = user?.id;
@@ -246,18 +247,20 @@ export { notifications, totalUnread, user };
 							<span class="sr-only">Open user menu</span>
 							{
 								imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
-									<img
+									<Picture
 										src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId || ''}`}
 										class="h-8 w-8 rounded-full"
 										alt="avatar general aleatorio"
 										loading="eager"
+										inferSize={true}
 									/>
 								) : (
-									<img
+									<Picture
 										class="h-8 w-8 rounded-full"
 										src={imagen?.avatar_url}
 										alt={`user avatar ${userId}`}
 										loading="eager"
+										inferSize={true}
 									/>
 								)
 							}

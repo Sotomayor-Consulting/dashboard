@@ -4,9 +4,14 @@ import { Icon } from 'astro-icon/components';
 import '@styles/datatables.css';
 import logonotificaciones from '/src/assets/avatarSCI.png';
 import Alerta from '@components/feedback/alertageneral.astro';
-import { getNotificacionesGeneral } from '@lib/tablas/notificaciones';
+import { getNotificacionesGeneralPorId } from '@lib/tablas/notificaciones';
 
-const notificaciones = await getNotificacionesGeneral();
+const user = Astro.locals.user;
+const userId = user?.id;
+
+const notificaciones = userId
+	? await getNotificacionesGeneralPorId(userId)
+	: null;
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>
