@@ -192,3 +192,112 @@ const selectedCountry = usuario?.pais_id ? String(usuario.pais_id) : '';
 		</div>
 	</form>
 </div>
+
+<script>
+	import { personalInfoSchema } from '@lib/schemas/personalInfo.schema';
+	import {
+		validateFormData,
+		formDataToObject,
+	} from '@lib/validation/formValidator';
+
+	function initPersonalInfoValidation() {
+		const form = document.getElementById(
+			'personal-info-form',
+		) as HTMLFormElement | null;
+		if (!form) return;
+
+		form.addEventListener('submit', (e) => {
+			clearErrors(form);
+
+			const formData = new FormData(form);
+			const data = formDataToObject(formData);
+			const result = validateFormData(personalInfoSchema, data);
+
+			if (!result.success) {
+				e.preventDefault();
+				showErrors(form, result.fieldErrors);
+				scrollToFirstError(form);
+			}
+		});
+
+		// Limpiar error individual al escribir/cambiar
+		form.addEventListener('input', (e) => {
+			const target = e.target as HTMLElement;
+			const fieldName = target.getAttribute('name')
+				|| target.dataset.field;
+			if (fieldName) clearFieldError(form, fieldName);
+		});
+		form.addEventListener('change', (e) => {
+			const target = e.target as HTMLElement;
+			const fieldName = target.getAttribute('name')
+				|| target.dataset.field;
+			if (fieldName) clearFieldError(form, fieldName);
+		});
+	}
+
+	function showErrors(
+		form: HTMLFormElement,
+		fieldErrors: Record<string, string[]>,
+	) {
+		for (const [field, messages] of Object.entries(fieldErrors)) {
+			const errorEl = form.querySelector(
+				`[data-error="${field}"]`,
+			) as HTMLElement | null;
+			const inputEl = form.querySelector(
+				`[data-field="${field}"]`,
+			) as HTMLElement | null;
+
+			if (errorEl) {
+				errorEl.textContent = messages[0];
+				errorEl.classList.remove('hidden');
+			}
+			if (inputEl) {
+				inputEl.classList.add('border-red-500', 'dark:border-red-500');
+				inputEl.classList.remove(
+					'border-gray-300',
+					'dark:border-gray-600',
+				);
+			}
+		}
+	}
+
+	function clearErrors(form: HTMLFormElement) {
+		form.querySelectorAll<HTMLElement>('[data-error]').forEach((el) => {
+			el.textContent = '';
+			el.classList.add('hidden');
+		});
+		form.querySelectorAll<HTMLElement>('[data-field]').forEach((el) => {
+			el.classList.remove('border-red-500', 'dark:border-red-500');
+			el.classList.add('border-gray-300', 'dark:border-gray-600');
+		});
+	}
+
+	function clearFieldError(form: HTMLFormElement, fieldName: string) {
+		const errorEl = form.querySelector(
+			`[data-error="${fieldName}"]`,
+		) as HTMLElement | null;
+		const inputEl = form.querySelector(
+			`[data-field="${fieldName}"]`,
+		) as HTMLElement | null;
+
+		if (errorEl) {
+			errorEl.textContent = '';
+			errorEl.classList.add('hidden');
+		}
+		if (inputEl) {
+			inputEl.classList.remove('border-red-500', 'dark:border-red-500');
+			inputEl.classList.add('border-gray-300', 'dark:border-gray-600');
+		}
+	}
+
+	function scrollToFirstError(form: HTMLFormElement) {
+		const firstError = form.querySelector(
+			'.border-red-500',
+		) as HTMLElement | null;
+		firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		(firstError as HTMLInputElement | null)?.focus();
+	}
+
+	document.addEventListener('DOMContentLoaded', initPersonalInfoValidation);
+	document.addEventListener('astro:page-load', initPersonalInfoValidation);
+</script>

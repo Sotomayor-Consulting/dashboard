@@ -29,7 +29,7 @@ export { notifications, totalUnread, user };
 ---
 
 <nav
-	class="fixed z-30 w-full bg-neutral-200 border-b border-neutral-300 dark:bg-black-900 dark:border-gray-700"
+	class="sb-nav-offset fixed z-30 w-full bg-neutral-200 border-b border-neutral-300 dark:bg-black-900 dark:border-gray-700"
 >
 	<div class="px-3 py-3 lg:px-5 lg:pl-3">
 		<div class="flex items-center justify-between">
@@ -140,7 +140,7 @@ export { notifications, totalUnread, user };
 						>
 						{
 							totalUnread > 0 && (
-								<span class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-neutral-300 rounded-full -top-2 -end-2 dark:border-[#223848] animate-pulse">
+								<span class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-neutral-300 rounded-full -top-2 -inset-2 dark:border-[#223848] animate-pulse">
 									{totalUnread}
 								</span>
 							)
@@ -295,10 +295,10 @@ export { notifications, totalUnread, user };
 								>
 							</li>
 							<li>
-								<form action="/api/auth/signout" method="post">
+								<form action="/api/auth/signout" method="post" class="w-full">
 									<button
 										type="submit"
-										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+										class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
 										role="menuitem">Cerrar sesión</button
 									>
 								</form>

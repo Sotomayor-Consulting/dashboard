@@ -84,7 +84,7 @@ import DashBoard from '@modules/dashboard/DashBoard.astro';
 
 ### Authentication & Middleware
 
-- `src/middleware.ts` — Valida sesión via `supabase.auth.getUser()` (server-verified, nunca `getSession()`). Popula `context.locals.user` y `context.locals.userRoles` en cada request.
+- `src/middleware.ts` — Valida sesión via `supabase.auth.getClaims()` (verificación local del JWT, más rápido que `getUser()`). Construye un objeto `User`-compatible desde los JWT claims y popula `context.locals.user` y `context.locals.userRoles` en cada request. **IMPORTANTE**: No ejecutar código entre `createServerClient` y `getClaims()` — puede causar logouts aleatorios.
 - Control de acceso por rol basado en la ruta:
   - `/crud/`, `/admin/` → solo `admin`
   - `/partners/`, `/afiliados/` → solo `partner`

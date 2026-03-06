@@ -14,6 +14,7 @@ interface Props {
 	id?: string | undefined;
 	class?: string | undefined;
 	placeholder?: string | undefined;
+	error?: string | undefined;
 }
 
 const {
@@ -26,15 +27,19 @@ const {
 	id = name,
 	class: wrapperClass = 'col-span-6 sm:col-span-3',
 	placeholder = 'Seleccione una opción',
+	error,
 } = Astro.props;
 
 const selectClasses = [
-	'block w-full rounded-lg border border-gray-300 bg-neutral-200 p-2.5',
+	'block w-full rounded-lg border bg-neutral-200 p-2.5',
 	'text-gray-900 shadow-sm sm:text-sm',
 	'focus:border-[#8c681d] focus:ring-[#8c681d]',
-	'dark:border-gray-600 dark:bg-[#101521] dark:text-white',
+	'dark:bg-[#101521] dark:text-white',
 	'dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]',
 	disabled && 'cursor-not-allowed opacity-50',
+	error
+		? 'border-red-500 dark:border-red-500'
+		: 'border-gray-300 dark:border-gray-600',
 ]
 	.filter(Boolean)
 	.join(' ');
@@ -53,6 +58,7 @@ const selectClasses = [
 		required={required}
 		disabled={disabled}
 		class={selectClasses}
+		data-field={name}
 	>
 		<option value="" disabled selected={!value}>
 			{placeholder}
@@ -65,4 +71,10 @@ const selectClasses = [
 			))
 		}
 	</select>
+	<p
+		class="mt-1 hidden text-sm text-red-600 dark:text-red-400"
+		data-error={name}
+	>
+		{error}
+	</p>
 </div>
