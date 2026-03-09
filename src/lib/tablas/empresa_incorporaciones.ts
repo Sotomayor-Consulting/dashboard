@@ -139,19 +139,21 @@ export const getBannerIncorporacionData = async (
 	supabase: SupabaseClient,
 	userId: string,
 ): Promise<BannerIncorporacionData> => {
-	const { data: empresaActiva } = await supabase
-		.from('empresas_incorporaciones')
-		.select('empresa_incorporacion_id')
-		.eq('user_id', userId)
-		.eq('estado', 'Activo')
-		.maybeSingle();
-
-	const { data: formularioEnviado } = await supabase
-		.from('formularios_envios')
-		.select('status')
-		.eq('user_id', userId)
-		.eq('status', 'submitted')
-		.maybeSingle();
+	const [{ data: empresaActiva }, { data: formularioEnviado }] =
+		await Promise.all([
+			supabase
+				.from('empresas_incorporaciones')
+				.select('empresa_incorporacion_id')
+				.eq('user_id', userId)
+				.eq('estado', 'Activo')
+				.maybeSingle(),
+			supabase
+				.from('formularios_envios')
+				.select('status')
+				.eq('user_id', userId)
+				.eq('status', 'submitted')
+				.maybeSingle(),
+		]);
 
 	const shouldShow = !!empresaActiva && !formularioEnviado;
 

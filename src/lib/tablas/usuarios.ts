@@ -86,8 +86,22 @@ export const getMissingPartnerFields = async (
 
 	if (!profile) return [];
 
-	return PARTNER_REQUIRED_FIELDS.filter((field): field is PartnerRequiredField => {
-		const value = profile[field];
-		return value === null || value === undefined || value === '';
-	});
+	return getMissingFieldsFromProfile(profile);
+};
+
+/**
+ * Extrae campos faltantes de un perfil de usuario ya cargado,
+ * evitando una query extra a la base de datos.
+ */
+export const getMissingFieldsFromProfile = (
+	profile: Record<string, any>,
+): PartnerRequiredField[] => {
+	if (!profile) return [];
+
+	return PARTNER_REQUIRED_FIELDS.filter(
+		(field): field is PartnerRequiredField => {
+			const value = profile[field];
+			return value === null || value === undefined || value === '';
+		},
+	);
 };

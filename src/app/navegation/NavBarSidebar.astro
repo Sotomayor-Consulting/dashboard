@@ -1,35 +1,26 @@
 ---
 import { Icon } from 'astro-icon/components';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
-
-import { getUsuarioAvatar, getUsuarioById } from '@lib/tablas/usuarios';
-import { getNotifications } from '@lib/tablas/notificaciones';
 import logonotificaciones from '@assets/avatarSCI.png';
 
-const supabase = Astro.locals.supabase;
+// Datos recibidos desde LayoutSidebar (ya consultados en paralelo)
+const { usuario: usuarioProp, notificationsData: notifProp } = Astro.props;
 
 const user = Astro.locals?.user;
 const userId = user?.id;
 const email = user?.email;
 
-let imagen: any = null;
-let usuario: any = null;
-let notificationsData: any = { notifications: [], totalUnread: 0 };
-
-if (user && userId) {
-	[imagen, usuario, notificationsData] = await Promise.all([
-		getUsuarioAvatar(supabase, userId),
-		getUsuarioById(supabase, userId),
-		getNotifications(supabase, userId),
-	]);
-}
-
-const { notifications, totalUnread } = notificationsData;
-export { notifications, totalUnread, user };
+const usuario = usuarioProp ?? null;
+const imagen = usuario; // avatar_url viene incluido en getUsuarioById (select *)
+const { notifications, totalUnread } = notifProp ?? {
+	notifications: [],
+	totalUnread: 0,
+};
 ---
 
 <nav
 	class="fixed z-30 w-full bg-neutral-200 border-b border-neutral-300 dark:bg-black-900 dark:border-gray-700"
+	transition:persist="navbar"
 >
 	<div class="px-3 py-3 lg:px-5 lg:pl-3">
 		<div class="flex items-center justify-between">

@@ -60,15 +60,23 @@
 	function initThemeToggle() {
 		const darkIcon = document.getElementById('theme-toggle-dark-icon');
 		const lightIcon = document.getElementById('theme-toggle-light-icon');
-		const toggleBtn = document.getElementById('theme-toggle');
+		const toggleBtn = document.getElementById(
+			'theme-toggle',
+		) as HTMLElement | null;
 		if (!darkIcon || !lightIcon || !toggleBtn) return;
 
-		// Estado inicial
+		// Sincronizar iconos con el estado actual del tema
 		if (isDark()) {
+			hideIcon(darkIcon);
 			showIcon(lightIcon);
 		} else {
+			hideIcon(lightIcon);
 			showIcon(darkIcon);
 		}
+
+		// Evitar registrar múltiples listeners cuando el navbar persiste entre navegaciones (transition:persist)
+		if (toggleBtn.dataset.themeInit) return;
+		toggleBtn.dataset.themeInit = 'true';
 
 		toggleBtn.addEventListener('click', () => {
 			const goingDark =
@@ -77,19 +85,19 @@
 			if (goingDark) {
 				document.documentElement.classList.add('dark');
 				localStorage.setItem('color-theme', 'dark');
-				hideIcon(darkIcon);
-				showIcon(lightIcon);
+				hideIcon(darkIcon!);
+				showIcon(lightIcon!);
 			} else {
 				document.documentElement.classList.remove('dark');
 				localStorage.setItem('color-theme', 'light');
-				hideIcon(lightIcon);
-				showIcon(darkIcon);
+				hideIcon(lightIcon!);
+				showIcon(darkIcon!);
 			}
 
 			document.dispatchEvent(new Event('dark-mode'));
 		});
 	}
 
-	document.addEventListener('DOMContentLoaded', initThemeToggle);
+	// astro:page-load se dispara tanto en la carga inicial como en cada navegación con View Transitions
 	document.addEventListener('astro:page-load', initThemeToggle);
 </script>

@@ -1,5 +1,5 @@
 ---
-import { getMissingPartnerFields, type PartnerRequiredField } from '@lib/tablas/usuarios';
+import type { PartnerRequiredField } from '@lib/tablas/usuarios';
 
 const FIELD_LABELS: Record<PartnerRequiredField, string> = {
 	direccion_linea1: 'Dirección línea 1',
@@ -9,12 +9,11 @@ const FIELD_LABELS: Record<PartnerRequiredField, string> = {
 	tipo_persona: 'Tipo de persona',
 };
 
-// Auth handled by middleware — user & roles already in locals
-const user = Astro.locals.user;
-const userRoles = Astro.locals.userRoles || [];
-
-let shouldShowBanner = false;
-let missingFields: PartnerRequiredField[] = [];
+// Datos calculados en LayoutSidebar y pasados como props
+const {
+	shouldShowBanner = false,
+	missingFields = [] as PartnerRequiredField[],
+} = Astro.props;
 
 const BANNER_PROPS = {
 	title: 'Completa tu información de perfil para continuar como partner.',
@@ -23,13 +22,10 @@ const BANNER_PROPS = {
 	url: '/settings/',
 };
 
-const isPartner = userRoles.includes('partner');
-
-if (isPartner && user) {
-	const supabase = Astro.locals.supabase;
-	missingFields = await getMissingPartnerFields(supabase, user.id);
-	shouldShowBanner = missingFields.length > 0;
-}
+const typedMissingFields = missingFields as PartnerRequiredField[];
+const missingFieldsText = typedMissingFields
+	.map((f: PartnerRequiredField) => FIELD_LABELS[f] ?? f)
+	.join(', ');
 ---
 
 {
@@ -67,9 +63,7 @@ if (isPartner && user) {
 							<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
 								Campos incompletos:{' '}
 								<span class="font-medium text-yellow-700 dark:text-yellow-400">
-									{missingFields
-										.map((f) => FIELD_LABELS[f] ?? f)
-										.join(', ')}
+								{missingFieldsText}
 								</span>
 							</p>
 						)}

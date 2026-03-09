@@ -2,6 +2,7 @@
 import pkg from '../../../package.json' with { type: 'json' };
 import { url } from '../../lib/data.js';
 import { SITE_TITLE } from '../constants.js';
+import { ClientRouter } from 'astro:transitions';
 import '../../styles/global.css';
 
 const { class: clazz } = Astro.props;
@@ -36,7 +37,55 @@ const { class: clazz } = Astro.props;
 			} else {
 				document.documentElement.classList.remove('dark');
 			}
+
+			// Aplicar modo de sidebar antes del primer pintado para evitar flash
+			(function() {
+				var saved = localStorage.getItem('sidebar-mode');
+				if (saved === 'expanded' || saved === 'collapsed' || saved === 'hover') {
+					document.documentElement.setAttribute('data-sidebar', saved);
+				} else {
+					document.documentElement.setAttribute('data-sidebar', 'hover');
+				}
+			})();
 		</script>
+
+		<ClientRouter />
+
+		<!-- Progress bar de navegación -->
+		<style is:global>
+			#nav-progress {
+				position: fixed;
+				top: 0;
+				left: 0;
+				height: 2px;
+				background: #B89329;
+				z-index: 9999;
+				width: 0%;
+				opacity: 0;
+				pointer-events: none;
+				transition: none;
+			}
+			:where(.dark) #nav-progress {
+				background: #3B82F6;
+			}
+			#nav-progress.loading {
+				opacity: 1;
+				animation: nav-progress-grow 8s cubic-bezier(0.2, 0.5, 0, 1) forwards;
+			}
+			#nav-progress.done {
+				width: 100% !important;
+				opacity: 0;
+				transition: opacity 300ms ease-out;
+			}
+			@keyframes nav-progress-grow {
+				0% { width: 0%; }
+				10% { width: 30%; }
+				30% { width: 55%; }
+				50% { width: 70%; }
+				80% { width: 85%; }
+				100% { width: 95%; }
+			}
+		</style>
 	</head>
 	<body
 		class:list={[
@@ -48,10 +97,69 @@ const { class: clazz } = Astro.props;
 			'dark:scrollbar-track-gray-900 dark:scrollbar-thumb-gray-700',
 		]}
 	>
+		<!-- Progress bar de navegación -->
+		<div id="nav-progress"></div>
 		<slot />
 	</body>
 </html>
 
 <script>
-	import 'flowbite';
+	import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
+	import { initFlowbite } from 'flowbite';
+
+	// ── Progress bar: feedback visual instantáneo durante navegación ──
+	function getProgressBar() {
+		return document.getElementById('nav-progress');
+	}
+
+	// Inicia la barra al comenzar la preparación (fetch de la nueva página)
+	document.addEventListener('astro:before-preparation', () => {
+		const bar = getProgressBar();
+		if (bar) {
+			bar.classList.remove('done');
+			bar.style.width = '';
+			// Forzar reflow para reiniciar la animación
+			void bar.offsetWidth;
+			bar.classList.add('loading');
+		}
+	});
+
+	// Completa la barra cuando el swap termina
+	document.addEventListener('astro:after-swap', () => {
+		const bar = document.getElementById('nav-progress');
+		if (bar) {
+			bar.classList.remove('loading');
+			bar.classList.add('done');
+			// Limpiar después de la transición de opacidad
+			setTimeout(() => {
+				bar.classList.remove('done');
+				bar.style.width = '0%';
+			}, 350);
+		}
+	});
+
+	// Preservar atributos del <html> durante View Transitions (dark mode, sidebar)
+	document.addEventListener('astro:before-swap', (e) => {
+		const event = e as TransitionBeforeSwapEvent;
+		const currentHtml = document.documentElement;
+		const newHtml = event.newDocument.documentElement;
+
+		// Preservar clase dark
+		if (currentHtml.classList.contains('dark')) {
+			newHtml.classList.add('dark');
+		} else {
+			newHtml.classList.remove('dark');
+		}
+
+		// Preservar modo de sidebar
+		const sidebarMode = currentHtml.getAttribute('data-sidebar');
+		if (sidebarMode) {
+			newHtml.setAttribute('data-sidebar', sidebarMode);
+		}
+	});
+
+	// Re-inicializar Flowbite en cada navegación (View Transitions)
+	document.addEventListener('astro:page-load', () => {
+		initFlowbite();
+	});
 </script>

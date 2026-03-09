@@ -1,15 +1,55 @@
 ---
-//import FooterSidebar from './FooterSidebar.astro';
+import { fade } from 'astro:transitions';
 import Banner from '@components/feedback/Banner.astro';
 import BannerPartner from '@components/feedback/Banner_partner_profile.astro';
 import BannerIncorporacion from '@components/feedback/Banner_formulario_de_incorporacion.astro';
 import LayoutCommon from './LayoutCommon.astro';
 import NavBarSidebar from '../navegation/NavBarSidebar.astro';
 import SideBar from '../navegation/SideBar.astro';
+
+import { getUsuarioById, getMissingFieldsFromProfile, type PartnerRequiredField } from '@lib/tablas/usuarios';
+import { getNotifications } from '@lib/tablas/notificaciones';
+import { getEstadoIncorporacionByUserId, getBannerIncorporacionData } from '@lib/tablas/empresa_incorporaciones';
+
+const supabase = Astro.locals.supabase;
+const user = Astro.locals.user;
+const userId = user?.id;
+const userRoles = Astro.locals.userRoles || [];
+const isPartner = userRoles.includes('partner');
+
+// ── Todas las queries del layout en un solo Promise.all ──
+// Esto elimina el waterfall secuencial entre navbar → banner → banner_partner → banner_incorp
+let usuario: any = null;
+let notificationsData: any = { notifications: [], totalUnread: 0 };
+let incorporaciones: any[] = [];
+let bannerIncorpData = { shouldShow: false, empresaId: null as string | null };
+
+if (user && userId) {
+	[usuario, notificationsData, incorporaciones, bannerIncorpData] =
+		await Promise.all([
+			getUsuarioById(supabase, userId),
+			getNotifications(supabase, userId),
+			getEstadoIncorporacionByUserId(supabase, userId),
+			getBannerIncorporacionData(supabase, userId),
+		]);
+}
+
+// Derivar datos de banner desde los resultados
+const showBannerEnProceso =
+	incorporaciones?.length > 0 &&
+	incorporaciones.some((c: any) => c.estado === 'En proceso');
+
+// Reusar datos del usuario para verificar campos de partner (0 queries extra)
+const missingPartnerFields: PartnerRequiredField[] =
+	isPartner && usuario ? getMissingFieldsFromProfile(usuario) : [];
+const showBannerPartner = missingPartnerFields.length > 0;
 ---
 
 <LayoutCommon>
-	<NavBarSidebar />
+	<NavBarSidebar
+		usuario={usuario}
+		notificationsData={notificationsData}
+	/>
 
 	<SideBar />
 
@@ -17,10 +57,17 @@ import SideBar from '../navegation/SideBar.astro';
 		<div
 			id="main-content"
 			class="relative w-full h-full bg-neutral-200 dark:bg-black-900 min-h-screen px-6"
+			transition:animate={fade({ duration: '0.1s' })}
 		>
-			<Banner />
-			<BannerPartner />
-			<BannerIncorporacion />
+			<Banner shouldShowBanner={showBannerEnProceso} />
+			<BannerPartner
+				shouldShowBanner={showBannerPartner}
+				missingFields={missingPartnerFields}
+			/>
+			<BannerIncorporacion
+				shouldShowBanner={bannerIncorpData.shouldShow}
+				empresaId={bannerIncorpData.empresaId}
+			/>
 			<slot />
 		</div>
 	</div>
