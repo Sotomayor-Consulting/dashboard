@@ -10,29 +10,47 @@ interface Props {
 const { href, label, tooltipId, tooltipText, badge } = Astro.props;
 ---
 
-<div class="flex justify-center items-center flex-col">
+<div class="menu-card-wrap group flex flex-col items-center gap-3">
 	<a
 		href={href}
 		data-tooltip-target={tooltipId}
 		data-tooltip-placement="top"
-		class="backdrop-blur-[20px] backdrop-saturate-100 dark:bg-black-800 bg-slate-300 border-2 dark:border-black-700 border-white-300 rounded-md p-5 flex justify-center w-fit hover:-translate-y-0.5 transition-all duration-200 ease-in-out dark:hover:border-black-600 hover:border-white-400 text-[#967432] dark:text-slate-200"
+		class:list={[
+			'menu-card relative flex items-center justify-center',
+			'w-[4.5rem] h-[4.5rem] rounded-2xl',
+			'bg-white border border-gray-200/80',
+			'shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
+			'transition-all duration-300 ease-out',
+			'hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(184,147,41,0.15)]',
+			'hover:border-[#B89329]/40',
+			'text-[#8c681d]',
+			'dark:bg-black-800 dark:border-white/[0.06]',
+			'dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)]',
+			'dark:hover:shadow-[0_8px_24px_rgba(19,74,237,0.2)]',
+			'dark:hover:border-[#134aed]/40',
+			'dark:text-blue-400',
+		]}
 	>
-		<slot />
+		<div class="text-[2.25rem] leading-none [&>svg]:w-9 [&>svg]:h-9">
+			<slot />
+		</div>
 		{
 			badge && (
-				<span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold animate-pulse">
+				<span class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[0.65rem] font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white dark:ring-black-800 animate-pulse">
 					{badge > 99 ? '99+' : badge}
 				</span>
 			)
 		}
 	</a>
 
-	<span class="pt-3 text-center max-w-30 dark:text-slate-300">{label}</span>
+	<span class="text-[0.8rem] font-medium text-center leading-tight max-w-[5.5rem] text-gray-600 dark:text-gray-400 group-hover:text-[#8c681d] dark:group-hover:text-blue-300 transition-colors duration-300">
+		{label}
+	</span>
 
 	<div
 		id={tooltipId}
 		role="tooltip"
-		class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-black dark:text-white bg-neutral-300 rounded-lg shadow-xs opacity-0 tooltip dark:bg-black-800 transition-all duration-300"
+		class="absolute z-10 invisible inline-block px-3 py-2 text-xs font-medium rounded-lg shadow-lg opacity-0 tooltip bg-gray-900 text-white dark:bg-gray-700 transition-all duration-200"
 	>
 		{tooltipText}
 		<div class="tooltip-arrow" data-popper-arrow></div>

@@ -13,7 +13,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 	>
 		<!-- Card -->
 		<div
-			class="w-full max-w-xl p-6 space-y-8 sm:p-8 rounded-lg shadow dark:bg-black-900 bg-neutral-200"
+			class="w-full max-w-xl p-6 space-y-8 sm:p-8 rounded-lg shadow dark:bg-black-900 bg-gray-50"
 		>
 			<a
 				href="/sign-up"
@@ -47,7 +47,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 							type="text"
 							name="name"
 							id="name"
-							class="border sm:text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5
+							class="border sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
 							dark:bg-[#05121d] border-gray-600 placeholder-gray-400 dark:text-white bg-white"
 							placeholder="Nombre"
 							required
@@ -63,7 +63,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 							type="text"
 							name="last-name"
 							id="last-name"
-							class="border sm:text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5
+							class="border sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
 							dark:bg-[#05121d] border-gray-600 placeholder-gray-400 dark:text-white bg-white"
 							placeholder="Apellido"
 							required
@@ -80,7 +80,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 						type="email"
 						name="email"
 						id="email"
-						class="border sm:text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5
+						class="border sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
 							dark:bg-[#05121d] border-gray-600 placeholder-gray-400 dark:text-white bg-white"
 						placeholder="correo@ejemplo.com"
 						required
@@ -112,7 +112,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 						name="confirm-password"
 						id="confirm-password"
 						placeholder="••••••••"
-						class="border sm:text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5
+						class="border sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
 							dark:bg-[#05121d] border-gray-600 placeholder-gray-400 dark:text-white bg-white"
 						required
 					/>
@@ -124,7 +124,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 							aria-describedby="remember"
 							name="remember"
 							type="checkbox"
-							class="w-4 h-4 rounded focus:ring-3 focus:ring-[#967432] ring-offset-gray-800 dark:bg-[#05121d] bg-white border-gray-600 text-[#967432]"
+							class="w-4 h-4 rounded focus:ring-3 focus:ring-primary-500 ring-offset-gray-800 dark:bg-[#05121d] bg-white border-gray-600 text-primary-600"
 							required
 						/>
 					</div>
@@ -135,7 +135,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 							>Al registrarte, estás creando una cuenta de Sotomayor consulting
 							y aceptas los <a
 								href="https://sotomayorconsulting.com/inicio/politicas/"
-								class="text-[#8c681d] hover:underline"
+								class="text-primary-600 hover:underline"
 								>Términos de uso y la Política de privacidad</a
 							> de Sotomayor Consulting.
 						</label>
@@ -143,7 +143,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 				</div>
 				<button
 					type="submit"
-					class="w-full px-5 py-3 text-base font-medium text-center text-white bg-[#8c681d] rounded-lg hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
+					class="w-full px-5 py-3 text-base font-medium text-center text-white bg-primary-600 rounded-lg hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
 					>Crear una cuenta</button
 				>
 			</form>
@@ -158,7 +158,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 				</div>
 			</div>
 			<div>
-				<form action="/api/auth/signin" method="post">
+				<form action="/api/auth/signin" method="post" data-astro-reload>
 					<button
 						class="w-full flex border dark:border-white border-gray-500 rounded-lg dark:text-white gap-2 items-center justify-center p-2.5 dark:hover:bg-slate-300/10 hover:bg-slate-700/10"
 						value="google"
@@ -198,7 +198,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 			<div class="text-sm font-medium text-gray-500 dark:text-gray-400">
 				¿Ya tienes una cuenta? <a
 					href="/sign-in"
-					class="text-[#8c681d] hover:underline">Inicia sesión</a
+					class="text-primary-600 hover:underline">Inicia sesión</a
 				>
 			</div>
 		</div>
@@ -211,7 +211,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 				class="flex items-center mb-5 justify-center lg:justify-start lg:text-left text-center"
 			>
 				<svg
-					class="w-7 text-[#967432] mr-4 lg:block hidden"
+					class="w-7 text-primary-600 mr-4 lg:block hidden"
 					fill="currentColor"
 					viewBox="0 0 20 20"
 					xmlns="http://www.w3.org/2000/svg"
@@ -238,7 +238,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 				class="flex items-center mb-5 justify-center lg:justify-start lg:text-left text-center"
 			>
 				<svg
-					class="w-7 text-[#967432] mr-4 lg:block hidden"
+					class="w-7 text-primary-600 mr-4 lg:block hidden"
 					fill="currentColor"
 					viewBox="0 0 20 20"
 					xmlns="http://www.w3.org/2000/svg"

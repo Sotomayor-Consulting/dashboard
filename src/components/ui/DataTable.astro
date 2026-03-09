@@ -1,0 +1,148 @@
+---
+/**
+ * Componente reutilizable de tabla interactiva con simple-datatables.
+ *
+ * Encapsula la estructura HTML wrapper, los headers con icono de sort,
+ * los estilos de datatables y el script de inicializacion.
+ *
+ * Uso:
+ * ```astro
+ * <DataTable headers={['Col1', 'Col2']} noRowsMessage="No hay datos">
+ *   {data?.map(item => (
+ *     <tr class="hover:bg-gray-100 dark:hover:bg-[#101522] ...">
+ *       <td>...</td>
+ *     </tr>
+ *   ))}
+ * </DataTable>
+ * ```
+ */
+import '@styles/datatables.css';
+
+interface Props {
+	/** ID del elemento <table>. Default: 'myTable' */
+	id?: string;
+	/** Array de strings con los nombres de las columnas */
+	headers: string[];
+	/** Mensaje cuando no hay filas. Default: 'No hay registros' */
+	noRowsMessage?: string;
+	/** Mensaje cuando la busqueda no encuentra resultados */
+	noResultsMessage?: string;
+	/** Filas por pagina. Default: 25 */
+	perPage?: number;
+	/** Opciones de filas por pagina */
+	perPageSelect?: number[];
+	/** Habilitar busqueda. Default: true */
+	searchable?: boolean;
+	/** Clase CSS adicional para el <table> */
+	class?: string;
+}
+
+const {
+	id = 'myTable',
+	headers,
+	noRowsMessage = 'No hay registros',
+	noResultsMessage = 'No se encontraron resultados',
+	perPage = 25,
+	perPageSelect = [5, 10, 25, 50],
+	searchable = true,
+	class: className = '',
+} = Astro.props;
+---
+
+<div class="flex flex-col shadow">
+	<table
+			class:list={[
+				'min-w-full divide-y divide-gray-200 dark:divide-gray-600',
+				className,
+			]}
+			id={id}
+			data-no-rows={noRowsMessage}
+			data-no-results={noResultsMessage}
+			data-per-page={perPage}
+			data-per-page-select={JSON.stringify(perPageSelect)}
+			data-searchable={searchable}
+		>
+			<thead class="bg-gray-100 dark:bg-[#28314c]">
+				<tr>
+					{
+						headers.map((th) => (
+							<th
+								scope="col"
+								class="p-4 text-xs font-medium text-left text-gray-500 uppercase whitespace-nowrap dark:text-gray-400"
+							>
+								<span class="flex items-center uppercase">
+									{th}
+									<svg
+										class="w-4 h-4 ms-1 shrink-0"
+										aria-hidden="true"
+										xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										fill="none"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke="currentColor"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="m8 15 4 4 4-4m0-6-4-4-4 4"
+										/>
+									</svg>
+								</span>
+							</th>
+						))
+					}
+				</tr>
+			</thead>
+
+			<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+				<slot />
+			</tbody>
+		</table>
+</div>
+
+<script>
+	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
+
+	function initAllDataTables() {
+		const tables = document.querySelectorAll<HTMLTableElement>(
+			'table[data-no-rows]',
+		);
+
+		tables.forEach((el) => {
+			if (el.dataset.dtInit === '1') return;
+
+			const noRows = el.dataset.noRows || 'No hay registros';
+			const noResults =
+				el.dataset.noResults || 'No se encontraron resultados';
+			const perPage = parseInt(el.dataset.perPage || '25', 10);
+			const perPageSelect = JSON.parse(
+				el.dataset.perPageSelect || '[5,10,25,50]',
+			);
+			const searchable = el.dataset.searchable !== 'false';
+
+			new DataTable(el, {
+				searchable,
+				perPage,
+				perPageSelect,
+				labels: {
+					placeholder: 'Buscar...',
+					perPage: 'Filas',
+					noRows,
+					noResults,
+					info: 'Mostrando {start} a {end} de {rows} registros',
+				},
+				layout: {
+					top: '{select}{search}',
+					bottom: '{info}{pager}',
+				},
+			});
+
+			el.dataset.dtInit = '1';
+		});
+	}
+
+	initAllDataTables();
+	document.addEventListener('astro:page-load', initAllDataTables);
+</script>

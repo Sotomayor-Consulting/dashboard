@@ -1,0 +1,52 @@
+---
+/**
+ * Badge de rol coloreado.
+ * admin=morado, partner=dorado, cliente=verde, operaciones=azul.
+ *
+ * Uso:
+ * <RoleBadge rolId={user.rol_id} />
+ */
+interface Props {
+	/** ID del rol: 1=Admin, 2=Partner, 3=Cliente, 4=Operaciones */
+	rolId: number | null | undefined;
+}
+
+const { rolId } = Astro.props;
+
+const roles: Record<number, { label: string; class: string; title: string }> = {
+	1: {
+		label: 'Admin',
+		class: 'text-purple-600 font-medium',
+		title: 'Administrador',
+	},
+	2: {
+		label: 'Partner',
+		class: 'text-[#8c681d] font-medium',
+		title: 'Partner',
+	},
+	3: {
+		label: 'Cliente',
+		class: 'text-green-600 font-medium',
+		title: 'Cliente',
+	},
+	4: {
+		label: 'Operaciones',
+		class: 'text-blue-600 font-medium',
+		title: 'Operaciones',
+	},
+};
+
+const role = rolId ? roles[rolId] : null;
+---
+
+<div class="flex items-center">
+	{
+		role ? (
+			<span class={role.class} title={role.title}>
+				{role.label}
+			</span>
+		) : (
+			<span class="text-gray-400">—</span>
+		)
+	}
+</div>

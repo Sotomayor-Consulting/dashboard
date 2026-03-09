@@ -1,6 +1,10 @@
 ---
+import DataTable from '@components/ui/DataTable.astro';
+import StatusBadge from '@components/ui/StatusBadge.astro';
+import AvatarCell from '@components/ui/AvatarCell.astro';
+import StackedText from '@components/ui/StackedText.astro';
+import RoleBadge from '@components/ui/RoleBadge.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
-import '@styles/datatables.css';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
 
 const supabase = Astro.locals.supabase;
@@ -22,7 +26,7 @@ const usuarios = await getAllUsuarios(supabase);
 					<li class="inline-flex items-center">
 						<a
 							href="/"
-							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
+							class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
 						>
 							<svg
 								class="w-5 h-5 mr-2.5"
@@ -50,7 +54,7 @@ const usuarios = await getAllUsuarios(supabase);
 							>
 							<a
 								href="/crud/notificaciones-personalizadas"
-								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
+								class="ml-1 text-gray-700 hover:text-primary-600 md:ml-2 dark:text-gray-300 dark:hover:text-white"
 								>Notificaciones</a
 							>
 						</div>
@@ -65,155 +69,68 @@ const usuarios = await getAllUsuarios(supabase);
 		</div>
 	</div>
 </div>
-<div class="flex flex-col">
-	<div class="overflow-x-auto">
-		<div class="inline-block min-w-full align-middle">
-			<div class="overflow-hidden shadow">
-				<table
-					class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
-					id="myTable"
-				>
-					<thead class="bg-gray-100 dark:bg-[#374151]">
-						<tr>
-							{
-								[
-									'Foto',
-									'Nombre',
-									'Compañía',
-									'Cargo',
-									'País',
-									'Estado',
-									'Rol',
-									'Acciones',
-								].map((th) => (
-									<th
-										scope="col"
-										class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-									>
-										<span class="flex items-center uppercase">
-											{th}
-											<svg
-												class="w-4 h-4 ms-1"
-												aria-hidden="true"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												fill="none"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke="currentColor"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="m8 15 4 4 4-4m0-6-4-4-4 4"
-												/>
-											</svg>
-										</span>
-									</th>
-								))
-							}
-						</tr>
-					</thead>
-					<tbody
-						class="bg-white divide-y divide-gray-200 dark:bg-black-800 dark:divide-gray-700"
+<DataTable
+	headers={[
+		'Foto',
+		'Nombre',
+		'Compañía',
+		'Cargo',
+		'País',
+		'Estado',
+		'Rol',
+		'Acciones',
+	]}
+	noRowsMessage="No hay usuarios"
+	noResultsMessage="No se encontraron usuarios"
+>
+	{
+		usuarios?.map((user) => (
+			<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-gray-50 even:bg-gray-100">
+				<td class="w-4 pl-4">
+					<AvatarCell src={user.avatar_url} name={user.nombre} />
+				</td>
+				<td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
+					<StackedText
+						title={`${user.nombre} ${user.apellido}`}
+						subtitle={user.correo}
+					/>
+				</td>
+				<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+					{user.organizacion}
+				</td>
+				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+					{user.cargo}
+				</td>
+				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+					{user.paises?.nombre_paises ?? '—'}
+				</td>
+				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+					<StatusBadge
+						active={user.estado === 'activo'}
+						label={user.estado}
+						activeColor="bg-green-400"
+						inactiveColor="bg-red-500"
+					/>
+				</td>
+				<td class="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
+					<RoleBadge rolId={user.rol_id} />
+				</td>
+				<td class="p-4 space-x-2 flex">
+					<button
+						data-modal-target="top-right-modal"
+						data-modal-toggle="top-right-modal"
+						data-user-notification
+						data-user-id={user.user_id}
+						class="block w-full md:w-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+						type="button"
 					>
-						{
-							usuarios?.map((user) => (
-								<div>
-									<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
-										<td class="w-4 pl-4">
-											{user.avatar_url === 'NULL' || !user.avatar_url ? (
-												<img
-													class="w-10 h-10 rounded-full"
-													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
-													alt={`Avatar de ${user.nombre}`}
-												/>
-											) : (
-												<img
-													class="w-10 h-10 rounded-full"
-													src={user.avatar_url}
-													alt={`Avatar de ${user.nombre}`}
-												/>
-											)}
-										</td>
-										<td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
-											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-												<div class="text-base font-semibold text-gray-900 dark:text-white">
-													{user.nombre} {user.apellido}
-												</div>
-												<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-													{user.correo}
-												</div>
-											</div>
-										</td>
-										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-											{user.organizacion}
-										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-											{user.cargo}
-										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-											{user.paises?.nombre_paises ?? '—'}
-										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-											<div class="flex items-center">
-												{user.estado === 'activo' ? (
-													<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
-												) : (
-													<div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2" />
-												)}
-												{user.estado}
-											</div>
-										</td>
-										<td class="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
-											<div class="flex items-center">
-												{user.rol_id === 1 ? (
-													<span
-														class="text-purple-600 font-medium"
-														title="Administrador"
-													>
-														Admin
-													</span>
-												) : user.rol_id === 2 ? (
-													<span
-														class="text-[#8c681d] font-medium"
-														title="Partner"
-													>
-														Partner
-													</span>
-												) : (
-													<span
-														class="text-green-600 font-medium"
-														title="Cliente"
-													>
-														Cliente
-													</span>
-												)}
-											</div>
-										</td>
-										<td class="p-4 space-x-2 flex">
-											<button
-												data-modal-target="top-right-modal"
-												data-modal-toggle="top-right-modal"
-												data-user-notification
-												data-user-id={user.user_id}
-												class="block w-full md:w-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-												type="button"
-											>
-												Enviar notificación
-											</button>
-										</td>
-									</tr>
-								</div>
-							))
-						}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-</div>
+						Enviar notificación
+					</button>
+				</td>
+			</tr>
+		))
+	}
+</DataTable>
 
 <!-- Top Right Modal -->
 <div
@@ -276,7 +193,7 @@ const usuarios = await getAllUsuarios(supabase);
 								type="text"
 								name="descripcion-link-notificacion"
 								id="descripcion-link-notificacion"
-								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 								placeholder="Inserta el link"
 								required=""
 							/>
@@ -291,7 +208,7 @@ const usuarios = await getAllUsuarios(supabase);
 								type="text"
 								name="link-notificacion"
 								id="link-notificacion"
-								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#967432] focus:border-[#967432] block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
 								placeholder="Inserta el asunto del correo"
 								required=""
 							/>
@@ -362,41 +279,4 @@ const usuarios = await getAllUsuarios(supabase);
 			});
 		});
 	});
-</script>
-<script>
-	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
-
-	function initDT() {
-		const el = document.querySelector('#myTable') as HTMLElement | null;
-		if (!el) return;
-		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
-			return;
-
-		new DataTable(el, {
-			searchable: true,
-			perPage: 25,
-			perPageSelect: [5, 10, 25, 50],
-
-			// Textos en español
-			labels: {
-				placeholder: 'Buscar...',
-				perPage: 'Filas',
-				noRows: 'No hay usuarios',
-				noResults: 'No se encontraron usuarios',
-				info: 'Mostrando {start} a {end} de {rows} registros',
-			},
-
-			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
-			layout: {
-				top: '{select}{search}',
-				bottom: '{info}{pager}',
-			},
-		});
-
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
-	}
-
-	initDT();
-	document.addEventListener('astro:page-load', initDT);
 </script>

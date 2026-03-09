@@ -1,24 +1,27 @@
 ---
-import '@styles/datatables.css';
+import DataTable from '@components/ui/DataTable.astro';
+import DateCell from '@components/ui/DateCell.astro';
+import StatusBadge from '@components/ui/StatusBadge.astro';
 import { Icon } from 'astro-icon/components';
 import { getIncorporacionById } from '@lib/tablas/empresa_incorporaciones';
 import { getEstadoPorEmpresa } from '@lib/tablas/estados';
+import { createSupabaseServerClient } from '@lib/supabase';
 
+const supabase = createSupabaseServerClient(Astro);
 const { id } = Astro.params;
 const user = Astro.locals.user;
 const userId = user?.id;
-const { redirect } = Astro;
 
 if (!id || !userId) {
-	return redirect('/');
+	return Astro.redirect('/');
 }
 
-const empresa = await getIncorporacionById(id, userId);
+const empresa = await getIncorporacionById(supabase, id, userId);
 
 // Obtener estado de incorporación para el mapa
 let estadoMapa = null;
 if (empresa.estado_de_incorporacion) {
-	const estadoData = await getEstadoPorEmpresa(empresa.estado_de_incorporacion);
+	const estadoData = await getEstadoPorEmpresa(supabase, empresa.estado_de_incorporacion);
 
 	if (estadoData) {
 		estadoMapa = estadoData.Estado;
@@ -553,7 +556,7 @@ const acciones = [
 				>
 					<div class="text-center">
 						<div
-							class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#967432] mx-auto mb-4"
+							class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"
 						>
 						</div>
 						<div class="text-gray-600 dark:text-gray-300 text-sm font-medium">
@@ -619,7 +622,7 @@ const acciones = [
 										<div class="flex items-center min-w-0">
 											<Icon
 												name={data.icono}
-												class="w-10 h-10 dark:text-white text-[#967432] hover:scale-105"
+												class="w-10 h-10 dark:text-white text-primary-600 hover:scale-105"
 											/>
 											<div class="ml-3">
 												<p class="font-medium text-gray-900 truncate dark:text-white">
@@ -630,7 +633,7 @@ const acciones = [
 										<a
 											target="_blank"
 											href={data.link}
-											class="text-white bg-[#967432] hover:bg-[#967432] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+											class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 										>
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
@@ -674,103 +677,81 @@ const acciones = [
 			</div>
 		</div>
 		<!-- Table -->
-		<div class="flex flex-col mt-6">
-			<div class="overflow-x-auto rounded-lg">
-				<div class="inline-block min-w-full align-middle">
-					<div class="overflow-hidden shadow sm:rounded-lg">
-						<table
-							class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
-							id="myTable"
+		<div class="mt-6">
+			<DataTable
+				headers={[
+					'Nombre del documento',
+					'Fecha',
+					'Estado del documento',
+					'Ver documento',
+					'Descargar',
+				]}
+				noRowsMessage="No hay documentos de tu empresa"
+			>
+				<tr
+					class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-gray-50 even:bg-gray-100 cursor-pointer"
+				>
+					<td
+						class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white"
+					>
+						Payment from <span class="font-semibold">Bonnie Green</span>
+					</td>
+					<td
+						class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400"
+					>
+						<DateCell date="2021-04-23" />
+					</td>
+					<td class="p-4 whitespace-nowrap">
+						<StatusBadge
+							active={true}
+							activeLabel="Completado"
+							activeColor="bg-green-400"
+						/>
+					</td>
+					<td
+						class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-neutral-500"
+					>
+						<a
+							href="http://"
+							target="_blank"
+							rel="noopener noreferrer"
+							title="Ver documento"
+							><svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="dark:hover:text-white transition-colors hover:text-neutral-600 text-neutral-900 dark:text-neutral-500"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								><path
+									fill="currentColor"
+									d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"
+								></path></svg
+							></a
 						>
-							<thead class="bg-gray-50 dark:bg-black-800">
-								<tr>
-									{
-										[
-											'Nombre del documento',
-											'Fecha',
-											'estado del documento',
-											'Ver documento',
-											'Descargar',
-										].map((th) => (
-											<th
-												scope="col"
-												class="p-4 text-xs font-medium tracking-wider text-left text-neutral-600 uppercase dark:text-white"
-											>
-												{th}
-											</th>
-										))
-									}
-								</tr>
-							</thead>
-							<tbody class="bg-white dark:bg-black-800">
-								<tr
-									class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4] cursor-pointer"
-								>
-									<td
-										class="p-4 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white"
-									>
-										Payment from <span class="font-semibold">Bonnie Green</span>
-									</td>
-									<td
-										class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400"
-									>
-										Apr 23 ,2021
-									</td>
-									<td class="p-4 whitespace-nowrap">
-										<span
-											class="text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-md dark:text-green-400 border border-green-500 dark:border-green-500 mx-auto"
-											>Completado</span
-										>
-									</td>
-									<td
-										class="p-4 text-sm font-semibold text-gray-900 whitespace-nowrap dark:text-neutral-500"
-									>
-										<a
-											href="http://"
-											target="_blank"
-											rel="noopener noreferrer"
-											title="Ver documento"
-											><svg
-												xmlns="http://www.w3.org/2000/svg"
-												class="dark:hover:text-white transition-colors hover:text-neutral-600 text-neutral-900 dark:text-neutral-500"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												><path
-													fill="currentColor"
-													d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"
-												></path></svg
-											></a
-										>
-									</td>
-									<td
-										class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-neutral-500"
-									>
-										<a href="" title="Descargar el documento">
-											<svg
-												class="dark:hover:text-white text-neutral-700 transition-colors"
-												width="24"
-												height="24"
-												fill="currentColor"
-												viewBox="0 0 24 24"
-												xmlns="http://www.w3.org/2000/svg"
-												aria-hidden="true"
-												data-astro-cid-d52ol5io=""
-											>
-												<path
-													clip-rule="evenodd"
-													fill-rule="evenodd"
-													d="M12 2.25a.75.75 0 01.75.75v11.69l3.22-3.22a.75.75 0 111.06 1.06l-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 111.06-1.06l3.22 3.22V3a.75.75 0 01.75-.75zm-9 13.5a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5V16.5a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V16.5a.75.75 0 01.75-.75z"
-													data-astro-cid-d52ol5io=""></path>
-											</svg>
-										</a>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
+					</td>
+					<td
+						class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-neutral-500"
+					>
+						<a href="" title="Descargar el documento">
+							<svg
+								class="dark:hover:text-white text-neutral-700 transition-colors"
+								width="24"
+								height="24"
+								fill="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+								aria-hidden="true"
+							>
+								<path
+									clip-rule="evenodd"
+									fill-rule="evenodd"
+									d="M12 2.25a.75.75 0 01.75.75v11.69l3.22-3.22a.75.75 0 111.06 1.06l-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 111.06-1.06l3.22 3.22V3a.75.75 0 01.75-.75zm-9 13.5a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5V16.5a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V16.5a.75.75 0 01.75-.75z"
+								></path>
+							</svg>
+						</a>
+					</td>
+				</tr>
+			</DataTable>
 		</div>
 	</div>
 </div>
@@ -823,43 +804,6 @@ const acciones = [
 		@apply border-0 !important;
 	}
 </style> -->
-<script>
-	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
-
-	function initDT() {
-		const el = document.querySelector('#myTable') as HTMLElement | null;
-		if (!el) return;
-		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
-			return;
-
-		new DataTable(el, {
-			searchable: true,
-			perPage: 25,
-			perPageSelect: [5, 10, 25, 50],
-
-			// Textos en español
-			labels: {
-				placeholder: 'Buscar...',
-				perPage: 'Filas',
-				noRows: 'No hay documentos de tu empresa',
-				noResults: 'No se encontraron resultados',
-				info: 'Mostrando {start} a {end} de {rows} registros',
-			},
-
-			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
-			layout: {
-				top: '{select}{search}',
-				bottom: '{info}{pager}',
-			},
-		});
-
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
-	}
-
-	initDT();
-	document.addEventListener('astro:page-load', initDT);
-</script>
 
 <script type="module" define:vars={{ estadoMapa }} is:inline>
 	import { Chart, registerables } from 'https://esm.sh/chart.js';
@@ -935,8 +879,8 @@ const acciones = [
 										},
 										borderColor: '#b8860b',
 										borderWidth: 1,
-										hoverBackgroundColor: '#967432', // highlightFill
-										hoverBorderColor: '#967432',
+										hoverBackgroundColor: '#2563eb', // highlightFill
+										hoverBorderColor: '#2563eb',
 										hoverBorderWidth: 2,
 										skip: false,
 									},

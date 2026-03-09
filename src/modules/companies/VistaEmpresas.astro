@@ -37,7 +37,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 			id="default-tab"
 			data-tabs-toggle="#default-tab-content"
 			role="tablist"
-			data-tabs-active-classes="text-[#8c681d] hover:text-[#8c681d] dark:text-[#8c681d] dark:hover:text-[#8c681d] border-[#8c681d] dark:border-[#8c681d]"
+			data-tabs-active-classes="text-primary-600 hover:text-primary-600 dark:text-[#8c681d] dark:hover:text-[#8c681d] border-primary-500 dark:border-[#8c681d]"
 			data-tabs-inactive-classes="dark:border-transparent text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 border-neutral-100 hover:border-neutral-300 dark:border-neutral-700 dark:hover:text-neutral-300"
 		>
 			{
@@ -193,9 +193,9 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							</p>
 						</div>
 					</div>
-					<div class="w-full bg-neutral-200 rounded-full dark:bg-black-800">
+					<div class="w-full bg-gray-50 rounded-full dark:bg-black-800">
 						<div
-							class="bg-[#8c681d] dark:bg-[#134aed] text-blue-100 text-center p-1 leading-none rounded-full"
+							class="bg-primary-600 dark:bg-[#134aed] text-blue-100 text-center p-1 leading-none rounded-full"
 							style={`width: ${empresa.porcentaje_de_incorporacion}%`}
 						>
 						</div>
@@ -1084,7 +1084,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 							<div class="grid xl:grid-cols-2 2xl:grid-cols-3 gap-4">
 								{
 									socios?.map((s, index) => (
-										<div class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-black-900  lg:rounded-lg justify-self-center">
+										<div class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-gray-50 p-3 shadow-sm dark:border-gray-700 dark:bg-black-900  lg:rounded-lg justify-self-center">
 											<span class="sr-only">Open user menu</span>
 											<div class="flex w-full items-center justify-between">
 												<div class="flex items-center">
@@ -1675,7 +1675,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 									</h3>
 									{
 										managers?.map((m, index) => (
-											<div class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-neutral-200 p-3 shadow-sm dark:border-gray-700 dark:bg-black-900  lg:rounded-lg justify-self-center">
+											<div class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-gray-50 p-3 shadow-sm dark:border-gray-700 dark:bg-black-900  lg:rounded-lg justify-self-center">
 												<span class="sr-only">Open user menu</span>
 												<div class="flex w-full items-center justify-between">
 													<div class="flex items-center">

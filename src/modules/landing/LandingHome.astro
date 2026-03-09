@@ -29,20 +29,21 @@ const visibleMenu = menuItems.filter(
 ---
 
 <div
-	class="bg-neutral-200 dark:bg-black-900 dark:text-slate-100 p-4 lg:p-16 h-full mb-20 mt-10"
+	class="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-gray-50 dark:bg-black-900 px-4 py-8 lg:px-16"
 >
-	<header
-		class="p-8 flex justify-center items-center flex-wrap flex-col w-full mt-5"
-	>
-		<div class="flex justify-center w-full">
-			<Icon name="logo-en-negro" class="dark:hidden block text-5xl" />
-			<Icon name="logo-en-blanco" class="hidden dark:block text-5xl" />
-		</div>
+	<!-- Logo -->
+	<header class="flex justify-center mb-10">
+		<Icon name="logo-en-negro" class="dark:hidden block text-5xl" />
+		<Icon name="logo-en-blanco" class="hidden dark:block text-5xl" />
 	</header>
 
-	<article class="flex justify-center pt-20 pb-32 h-full">
+	<!-- Línea decorativa dorada -->
+	<div class="w-16 h-0.5 bg-gradient-to-r from-transparent via-[#B89329] to-transparent dark:via-[#134aed] mb-10 rounded-full"></div>
+
+	<!-- Menu cards -->
+	<article class="w-full max-w-3xl">
 		<div
-			class="grid grid-flow-row grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 md:gap-10 gap-y-10"
+			class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-x-6 gap-y-8 justify-items-center"
 		>
 			{
 				visibleMenu &&

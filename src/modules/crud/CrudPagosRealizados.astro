@@ -1,5 +1,8 @@
 ---
-import '@styles/datatables.css';
+import DataTable from '@components/ui/DataTable.astro';
+import StatusBadge from '@components/ui/StatusBadge.astro';
+import DateCell from '@components/ui/DateCell.astro';
+import StackedText from '@components/ui/StackedText.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
 import { Icon } from 'astro-icon/components';
 import { pagosRealizadosData } from '@lib/tablas/PagosPorLeer';
@@ -12,7 +15,7 @@ const pagosRealizados = await pagosRealizadosData(supabase);
 <Alerta />
 <div>
 	<div
-		class="p-4 bg-neutral-200 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 w-full"
+		class="p-4 bg-gray-50 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 w-full"
 	>
 		<div class="w-full mb-1">
 			<div class="mb-4">
@@ -23,7 +26,7 @@ const pagosRealizados = await pagosRealizadosData(supabase);
 						<li class="inline-flex items-center">
 							<a
 								href="/"
-								class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
+								class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
 							>
 								<svg
 									class="w-5 h-5 mr-2.5"
@@ -51,7 +54,7 @@ const pagosRealizados = await pagosRealizadosData(supabase);
 								>
 								<a
 									href="/crud/formularios-enviados"
-									class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
+									class="ml-1 text-gray-700 hover:text-primary-600 md:ml-2 dark:text-gray-300 dark:hover:text-white"
 									>Formularios</a
 								>
 							</div>
@@ -69,7 +72,7 @@ const pagosRealizados = await pagosRealizadosData(supabase);
 				<a
 						href="/crud/pagos"
 						type="button"
-						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#8c681d] hover:bg-[#8c681d] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67] h-full"
+						class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67] h-full"
 					>
 						<svg
 							class="w-5 h-5 mr-2 -ml-1"
@@ -93,249 +96,140 @@ const pagosRealizados = await pagosRealizadosData(supabase);
 		</div>
 	</div>
 
-	<div class="flex flex-col">
-		<div class="overflow-x-auto">
-			<div class="inline-block min-w-full align-middle">
-				<div class="overflow-hidden shadow">
-					<table
-						class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600"
-						id="myTable"
-					>
-						<thead class="bg-gray-100 dark:bg-black-800">
-							<tr>
-								{
-									[
-										'id de Stripe',
-										'Pago hecho por',
-										'Empresa asociada al pago',
-										'Servicio pagado',
-										'cantidad',
-										'Estado del pago',
-										'Leído',
-										'Fecha de pago',
-										'Acciones',
-									].map((th) => (
-										<th
-											scope="col"
-											class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-										>
-											<span class="flex items-center uppercase">
-												{th}
-												<svg
-													class="w-4 h-4 ms-1"
-													aria-hidden="true"
-													xmlns="http://www.w3.org/2000/svg"
-													width="24"
-													height="24"
-													fill="none"
-													viewBox="0 0 24 24"
-												>
-													<path
-														stroke="currentColor"
-														stroke-linecap="round"
-														stroke-linejoin="round"
-														stroke-width="2"
-														d="m8 15 4 4 4-4m0-6-4-4-4 4"
-													/>
-												</svg>
-											</span>
-										</th>
-									))
-								}
-							</tr>
-						</thead>
+	<DataTable
+		headers={[
+			'id de Stripe',
+			'Pago hecho por',
+			'Empresa asociada al pago',
+			'Servicio pagado',
+			'cantidad',
+			'Estado del pago',
+			'Leído',
+			'Fecha de pago',
+			'Acciones',
+		]}
+		noRowsMessage="No hay pagos realizados"
+		noResultsMessage="No se encontraron pagos recientes"
+	>
+		{
+			pagosRealizados?.map((sr) => (
+				<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-gray-50 even:bg-gray-100">
+					<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+						<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
+							<data value="name">
+								{sr.stripe_payment_intent_id ?? '— sin id —'}
+							</data>
+						</div>
+					</td>
+					<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+						<data>
+							{sr.usuarios.nombre} {sr.usuarios.apellido}
+						</data>
+					</td>
+					<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+						<StackedText
+							title={sr.empresas_incorporaciones.nombre_1}
+							subtitle={sr.empresas_incorporaciones.empresa_incorporacion_id}
+						/>
+					</td>
+					<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
+						<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
+							<data>{sr.servicios.nombre}</data>
+						</div>
+					</td>
+					<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
+						<data>
+							{sr.amount &&
+								(sr.amount / 100).toLocaleString('en-US', {
+									style: 'currency',
+									currency: 'USD',
+									minimumFractionDigits: 2,
+								})}
+						</data>
+					</td>
+					<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
+						<StatusBadge
+							active={sr.status === 'succeeded'}
+							activeLabel="Pago exitoso"
+							inactiveLabel="Error de pago"
+							activeColor="bg-green-400"
+							inactiveColor="bg-orange-400"
+						/>
+					</td>
+					<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
+						<StatusBadge
+							active={sr.visto_por_operaciones === true}
+							activeLabel="Leído"
+							inactiveLabel="Sin leer"
+							activeColor="bg-green-400"
+							inactiveColor="bg-orange-400"
+						/>
+					</td>
+					<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+						<DateCell date={sr.created_at} />
+					</td>
+					<td class="p-4 space-x-2 whitespace-nowrap text-center">
+						<div class="h-full flex justify-center items-center gap-2">
+							{sr.visto_por_operaciones === false ? (
+								<form
+									action="/api/update/operaciones-update-lectura-de-pagos"
+									method="post"
+								>
+									<input
+										type="text"
+										value={sr.id_pagos}
+										hidden
+										name="pago_id"
+									/>
+									<input
+										type="text"
+										value="true"
+										hidden
+										name="marcar_como_visto"
+									/>
+									<button
+										type="submit"
+										title="marcar como leído"
+										data-tooltip-target={`tool-tip-${sr.id_pagos}`}
+									>
+										<Icon
+											name="ri:check-double-fill"
+											class="text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-300 text-2xl hover:scale-105"
+										/>
+									</button>
+								</form>
+							) : (
+								<div
+									data-tooltip-target={`tool-tip-${sr.id_pagos}-read`}
+								>
+									<Icon
+										name="ri:checkbox-circle-fill"
+										class="text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-300 text-2xl hover:scale-105"
+									/>
+								</div>
+							)}
 
-						<tbody
-							class="bg-white divide-y divide-gray-200 dark:bg-black-800 dark:divide-gray-700"
-						>
-							{
-								pagosRealizados?.map((sr) => (
-									<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-neutral-200 even:bg-[#d4d4d4]">
-										<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
-											<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
-												<data value="name">
-													{sr.stripe_payment_intent_id ?? '— sin id —'}
-												</data>
-											</div>
-										</td>
-										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-											<data>
-												{sr.usuarios.nombre} {sr.usuarios.apellido}
-											</data>
-										</td>
-										<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-											<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
-												<data>{sr.empresas_incorporaciones.nombre_1}</data>
-											</div>
+							<div
+								id={`tool-tip-${sr.id_pagos}`}
+								role="tooltip"
+								class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-black-800"
+							>
+								Marcar como leído
+								<div class="tooltip-arrow" data-popper-arrow />
+							</div>
 
-											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-												<data>
-													{sr.empresas_incorporaciones.empresa_incorporacion_id}
-												</data>
-											</div>
-										</td>
-										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<data />
-											<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
-												<data>{sr.servicios.nombre}</data>
-											</div>
-										</td>
-										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<data>
-												{sr.amount &&
-													(sr.amount / 100).toLocaleString('en-US', {
-														style: 'currency',
-														currency: 'USD',
-														minimumFractionDigits: 2,
-													})}
-											</data>
-										</td>
-										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<div class="flex items-center">
-												{sr.status === 'succeeded' ? (
-													<>
-														<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
-														<span>Pago exitoso</span>
-													</>
-												) : (
-													<>
-														<div class="h-2.5 w-2.5 rounded-full bg-orange-400 mr-2" />
-														<span>Error de pago</span>
-													</>
-												)}
-											</div>
-										</td>
-										<td class="max-w-sm p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white truncate">
-											<div class="flex items-center">
-												{sr.visto_por_operaciones === true ? (
-													<>
-														<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2" />
-														<span>Leído</span>
-													</>
-												) : (
-													<>
-														<div class="h-2.5 w-2.5 rounded-full bg-orange-400 mr-2" />
-														<span>Sin leer</span>
-													</>
-												)}
-											</div>
-										</td>
-										<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-											<div class="flex items-center">
-												{sr.created_at &&
-													new Date(sr.created_at)
-														.toLocaleDateString('es-ES', {
-															day: '2-digit',
-															month: '2-digit',
-															year: 'numeric',
-														})
-														.replace(/\//g, '-')}
-											</div>
-										</td>
-										<td class="p-4 space-x-2 whitespace-nowrap text-center">
-											<div class="h-full flex justify-center items-center gap-2">
-												{sr.visto_por_operaciones === false ? (
-													<form
-														action="/api/update/operaciones-update-lectura-de-pagos"
-														method="post"
-													>
-														<input
-															type="text"
-															value={sr.id_pagos}
-															hidden
-															name="pago_id"
-														/>
-														<input
-															type="text"
-															value="true"
-															hidden
-															name="marcar_como_visto"
-														/>
-														<button
-															type="submit"
-															title="marcar como leído"
-															data-tooltip-target={`tool-tip-${sr.id_pagos}`}
-														>
-															<Icon
-																name="ri:check-double-fill"
-																class="text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-300 text-2xl hover:scale-105"
-															/>
-														</button>
-													</form>
-												) : (
-													<div
-														data-tooltip-target={`tool-tip-${sr.id_pagos}-read`}
-													>
-														<Icon
-															name="ri:checkbox-circle-fill"
-															class="text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-300 text-2xl hover:scale-105"
-														/>
-													</div>
-												)}
-
-												<div
-													id={`tool-tip-${sr.id_pagos}`}
-													role="tooltip"
-													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-black-800"
-												>
-													Marcar como leído
-													<div class="tooltip-arrow" data-popper-arrow />
-												</div>
-
-												<div
-													id={`tool-tip-${sr.id_pagos}-read`}
-													role="tooltip"
-													class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-black-800"
-												>
-													Leído
-													<div class="tooltip-arrow" data-popper-arrow />
-												</div>
-											</div>
-										</td>
-									</tr>
-								))
-							}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</div>
+							<div
+								id={`tool-tip-${sr.id_pagos}-read`}
+								role="tooltip"
+								class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-black-800"
+							>
+								Leído
+								<div class="tooltip-arrow" data-popper-arrow />
+							</div>
+						</div>
+					</td>
+				</tr>
+			))
+		}
+	</DataTable>
 </div>
-<script>
-	import { DataTable } from '../../lib/simple-data-tables/simple-data-table.js';
-
-	function initDT() {
-		const el = document.querySelector('#myTable') as HTMLElement | null;
-		if (!el) return;
-		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
-			return;
-
-		new DataTable(el, {
-			searchable: true,
-			perPage: 25,
-			perPageSelect: [5, 10, 25, 50],
-
-			// Textos en español
-			labels: {
-				placeholder: 'Buscar...',
-				perPage: 'Filas',
-				noRows: 'No hay pagos realizados',
-				noResults: 'No se encontraron pagos recientes',
-				info: 'Mostrando {start} a {end} de {rows} registros',
-			},
-
-			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
-			layout: {
-				top: '{select}{search}',
-				bottom: '{info}{pager}',
-			},
-		});
-
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
-	}
-
-	initDT();
-	document.addEventListener('astro:page-load', initDT);
-</script>

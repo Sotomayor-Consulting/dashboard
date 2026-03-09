@@ -19,7 +19,7 @@ const { notifications, totalUnread } = notifProp ?? {
 ---
 
 <nav
-	class="fixed z-30 w-full bg-neutral-200 border-b border-neutral-300 dark:bg-black-900 dark:border-gray-700"
+	class="fixed z-30 w-full bg-white/80 backdrop-blur-md border-b border-gray-200/60 dark:bg-black-900/80 dark:backdrop-blur-md dark:border-gray-700"
 	transition:persist="navbar"
 >
 	<div class="px-3 py-3 lg:px-5 lg:pl-3">
@@ -116,7 +116,7 @@ const { notifications, totalUnread } = notifProp ?? {
 						type="button"
 						id="notifications-toggle"
 						data-dropdown-toggle="notification-dropdown"
-						class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-[#101522] relative"
+						class="p-2 text-gray-400 rounded-lg hover:text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-[#101522] relative"
 					>
 						<span class="sr-only">Ver Notificaciones</span>
 						<!-- Bell icon -->
@@ -193,7 +193,7 @@ const { notifications, totalUnread } = notifProp ?? {
 													</span>
 													{!notification.is_read && (
 														<button
-															class="mark-as-read text-xs font-medium text-[#8c681d] dark:text-neutral-400 inline-flex hover:dark:text-primary-400"
+															class="mark-as-read text-xs font-medium text-primary-600 dark:text-neutral-400 inline-flex hover:dark:text-primary-400"
 															data-id={notification.id}
 														>
 															Marcar como leída

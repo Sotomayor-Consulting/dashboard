@@ -1,15 +1,27 @@
 /* =========================
-   LIGHT (default)
+   simple-datatables — Estilos custom
+   Importado por DataTable.astro
    ========================= */
+
+/* --- Wrapper (simple-datatables genera .datatable-wrapper) --- */
+.datatable-wrapper {
+	overflow: visible;
+}
+
+.datatable-wrapper .datatable-container {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+/* --- Layout --- */
 .datatable-top {
 	display: flex;
 	justify-content: space-between;
 	padding: 1rem;
 	align-items: center;
-
-	/* invertido */
 	flex-direction: row-reverse;
 	gap: 1rem;
+	flex-wrap: wrap;
 }
 
 .datatable-bottom {
@@ -17,8 +29,39 @@
 	flex-direction: row-reverse;
 	justify-content: space-between;
 	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	padding: 0.5rem 0;
 }
 
+@media (max-width: 640px) {
+	.datatable-top {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.datatable-top .datatable-search {
+		width: 100%;
+	}
+
+	.datatable-top .datatable-dropdown {
+		width: 100%;
+	}
+
+	.datatable-bottom {
+		flex-direction: column;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 1rem;
+	}
+
+	.datatable-info {
+		padding: 0.5rem;
+		text-align: center;
+	}
+}
+
+/* --- Paginacion --- */
 .datatable-pagination {
 	color: black;
 }
@@ -60,145 +103,6 @@ html.dark .datatable-pagination-list-item-link:hover {
 	color: rgb(255 255 255);
 }
 
-.datatable-dropdown label {
-	color: #000000;
-	display: flex;
-	gap: 1rem;
-	align-items: center;
-	flex-direction: row-reverse;
-}
-
-.datatable-selector {
-	display: block;
-	border-radius: 0.5rem;
-	border: 1px solid #967432;
-	background-color: #ffffff;
-	/* light */
-	padding: 0.625rem;
-	font-size: 0.875rem;
-	color: #000000;
-}
-
-.datatable-wrapper .datatable-search {
-	position: relative;
-}
-
-.datatable-input {
-	display: block;
-	width: 100%;
-	padding-left: 2.5rem;
-	font-size: 0.875rem;
-	line-height: 1.25rem;
-	color: #1c1c1c;
-	border: 1px solid rgb(209 213 219);
-	border-radius: 0.5rem;
-	background-color: rgb(249 250 251);
-	outline: 2px solid transparent;
-	outline-offset: 2px;
-}
-
-.datatable-search::before {
-	content: '';
-	position: absolute;
-	left: 0.75rem;
-	top: 50%;
-	transform: translateY(-50%);
-	width: 1rem;
-	height: 1rem;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-size: contain;
-	pointer-events: none;
-	z-index: 1;
-}
-
-.datatable-input:focus {
-	border-color: #967432;
-	box-shadow: 0 0 0 3px #967432;
-}
-
-.datatable-info {
-	color: #404040;
-	padding: 2rem;
-}
-
-/* =========================
-   DARK (cuando html tiene .dark)
-   ========================= */
-html.dark .datatable-dropdown label {
-	color: #ffffff;
-}
-
-/* Input en dark */
-html.dark .datatable-input {
-	background-color: #28314c;
-	border-color: rgb(75 85 99);
-	color: rgb(255 255 255);
-}
-
-html.dark .datatable-input::placeholder {
-	color: rgb(156 163 175);
-}
-
-html.dark .datatable-input:focus {
-	border-color: #134aed;
-	box-shadow: 0 0 0 3px #134aed;
-}
-
-html.dark .datatable-search::before {
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
-}
-
-/* Info en dark */
-html.dark .datatable-info {
-	color: #e5e5e5;
-}
-
-.datatable-selector {
-	background-color: rgb(249 250 251);
-	border: 1px solid rgb(209 213 219);
-	color: #1c1c1c;
-	font-size: 0.875rem;
-	line-height: 1.25rem;
-	border-radius: 0.5rem;
-	outline: 2px solid transparent;
-	outline-offset: 2px;
-	display: block;
-	width: 100%;
-	padding: 0.625rem;
-}
-
-.datatable-selector:focus {
-	border-color: #967432;
-	box-shadow: 0 0 0 3px #967432;
-}
-
-html.dark .datatable-selector {
-	background-color: #28314c;
-	border-color: rgb(75 85 99);
-	color: rgb(255 255 255);
-}
-
-html.dark .datatable-selector::placeholder {
-	color: rgb(156 163 175);
-}
-
-html.dark .datatable-selector:focus {
-	border-color: #134aed;
-	box-shadow: 0 0 0 3px #134aed;
-}
-
-thead {
-	background: #f3f4f6;
-	font-size: 0.75rem;
-	line-height: 1rem;
-	border-radius: 0.5rem;
-}
-
-html.dark thead {
-	background: #28314c;
-}
-
 .datatable-pagination .datatable-active a,
 .datatable-pagination .datatable-active a:focus,
 .datatable-pagination .datatable-active a:hover,
@@ -218,6 +122,118 @@ html.dark .datatable-pagination .datatable-active button:hover {
 	background-color: #404040;
 }
 
+/* --- Dropdown (filas por pagina) --- */
+.datatable-dropdown label {
+	color: #000000;
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	flex-direction: row-reverse;
+}
+
+html.dark .datatable-dropdown label {
+	color: #ffffff;
+}
+
+.datatable-selector {
+	display: block;
+	width: 100%;
+	padding: 0.625rem;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	color: #1c1c1c;
+	background-color: rgb(249 250 251);
+	border: 1px solid rgb(209 213 219);
+	border-radius: 0.5rem;
+	outline: 2px solid transparent;
+	outline-offset: 2px;
+}
+
+.datatable-selector:focus {
+	border-color: #967432;
+	box-shadow: 0 0 0 3px #967432;
+}
+
+html.dark .datatable-selector {
+	background-color: #28314c;
+	border-color: rgb(75 85 99);
+	color: rgb(255 255 255);
+}
+
+html.dark .datatable-selector:focus {
+	border-color: #134aed;
+	box-shadow: 0 0 0 3px #134aed;
+}
+
+/* --- Search input --- */
+.datatable-wrapper .datatable-search {
+	position: relative;
+}
+
+.datatable-search::before {
+	content: '';
+	position: absolute;
+	left: 0.75rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 1rem;
+	height: 1rem;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-size: contain;
+	pointer-events: none;
+	z-index: 1;
+}
+
+html.dark .datatable-search::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.datatable-input {
+	display: block;
+	width: 100%;
+	padding-left: 2.5rem;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	color: #1c1c1c;
+	border: 1px solid rgb(209 213 219);
+	border-radius: 0.5rem;
+	background-color: rgb(249 250 251);
+	outline: 2px solid transparent;
+	outline-offset: 2px;
+}
+
+.datatable-input:focus {
+	border-color: #967432;
+	box-shadow: 0 0 0 3px #967432;
+}
+
+html.dark .datatable-input {
+	background-color: #28314c;
+	border-color: rgb(75 85 99);
+	color: rgb(255 255 255);
+}
+
+html.dark .datatable-input::placeholder {
+	color: rgb(156 163 175);
+}
+
+html.dark .datatable-input:focus {
+	border-color: #134aed;
+	box-shadow: 0 0 0 3px #134aed;
+}
+
+/* --- Info text --- */
+.datatable-info {
+	color: #404040;
+	padding: 2rem;
+}
+
+html.dark .datatable-info {
+	color: #e5e5e5;
+}
+
+/* --- Empty state --- */
 .datatable-empty {
 	text-align: center;
 	color: black;
@@ -227,9 +243,9 @@ html.dark .datatable-pagination .datatable-active button:hover {
 
 html.dark .datatable-empty {
 	color: white;
-
 }
 
+/* --- Sorter header --- */
 .datatable-sorter {
 	text-transform: uppercase;
 }

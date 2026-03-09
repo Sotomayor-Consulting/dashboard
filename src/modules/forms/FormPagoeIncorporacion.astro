@@ -34,7 +34,7 @@ const opcionesllc =
 				<select
 					name="empresa"
 					id="empresa-select"
-					class="py-3 px-4 pe-9 block w-full border-neutral-600 rounded-lg text-sm focus:border-[#8c681d] focus:ring-[#8c681d] disabled:opacity-50 disabled:pointer-events-none bg-neutral-200 dark:bg-black-800 dark:border-neutral-700 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 mb-5"
+					class="py-3 px-4 pe-9 block w-full border-neutral-600 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none bg-gray-50 dark:bg-black-800 dark:border-neutral-700 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 mb-5"
 				>
 					{
 						empresas?.map((empresa) => (
@@ -46,7 +46,7 @@ const opcionesllc =
 				</select>
 				<button
 					id="btn-paso1"
-					class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-[#8c681d] text-white hover:bg-[#8c681d]/80 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none text-center w-fit"
+					class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700/80 focus:outline-hidden focus:outline-hidden focus:bg-primary-600/80 disabled:opacity-50 disabled:pointer-events-none text-center w-fit"
 				>
 					Continuar</button
 				>
@@ -85,7 +85,7 @@ const opcionesllc =
 								/>
 								<label
 									for={planBasico.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-primary-600 cursor-pointer"
 								>
 									<h4 class="font-medium text-lg text-gray-800 dark:text-neutral-200">
 										{planBasico.nombre}
@@ -105,7 +105,7 @@ const opcionesllc =
 											<li class="flex gap-x-2">
 												<Icon
 													name="ri:check-line"
-													class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+													class="shrink-0 mt-0.5 size-4 text-primary-600"
 												/>
 												<span class="text-gray-800 dark:text-neutral-400 text-left">
 													{li}
@@ -133,10 +133,10 @@ const opcionesllc =
 								/>
 								<label
 									for={planBusiness.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-primary-600 cursor-pointer"
 								>
 									<p class="mb-3">
-										<span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs uppercase font-semibold bg-[#8c681d] text-white dark:bg-[#8c681d] dark:text-white animate-pulse">
+										<span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs uppercase font-semibold bg-primary-600 text-white dark:bg-[#8c681d] dark:text-white animate-pulse">
 											Más popular
 										</span>
 									</p>
@@ -159,7 +159,7 @@ const opcionesllc =
 										</li>
 										<li class="flex gap-x-2">
 											<svg
-												class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+												class="shrink-0 mt-0.5 size-4 text-primary-600"
 												viewBox="0 0 24 24"
 												fill="currentColor"
 												clip-rule="evenodd"
@@ -177,7 +177,7 @@ const opcionesllc =
 
 										<li class="flex gap-x-2">
 											<svg
-												class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+												class="shrink-0 mt-0.5 size-4 text-primary-600"
 												viewBox="0 0 16 16"
 												fill="currentColor"
 												clip-rule="evenodd"
@@ -213,7 +213,7 @@ const opcionesllc =
 								/>
 								<label
 									for={planEstandar.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-primary-600 cursor-pointer"
 								>
 									<h4 class="font-medium text-lg text-gray-800 dark:text-neutral-200">
 										{planEstandar.nombre}
@@ -239,7 +239,7 @@ const opcionesllc =
 											<li class="flex gap-x-2">
 												<Icon
 													name="ri:check-line"
-													class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+													class="shrink-0 mt-0.5 size-4 text-primary-600"
 												/>
 												<span class="text-gray-800 dark:text-neutral-400 text-left">
 													{li}
@@ -271,7 +271,7 @@ const opcionesllc =
 								/>
 								<label
 									for={planDiseno.id_servicios}
-									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-[#8c681d] cursor-pointer"
+									class="flex flex-col bg-white border border-gray-200 text-center rounded-2xl p-4 md:p-8 dark:bg-black-900 dark:border-neutral-800 peer-checked:border-primary-600 cursor-pointer"
 								>
 									<div class="col-span-2 mt-2">
 										<button
@@ -373,7 +373,7 @@ const opcionesllc =
 										<li class="flex gap-x-2">
 											<Icon
 												name="ri:check-line"
-												class="shrink-0 mt-0.5 size-4 text-[#8c681d]"
+												class="shrink-0 mt-0.5 size-4 text-primary-600"
 											/>
 											<span class="text-gray-800 dark:text-neutral-400 text-left">
 												Planificación y diseño de LLC
@@ -388,14 +388,14 @@ const opcionesllc =
 				<div class="flex justify-center items-center mt-10 gap-4 flex-col">
 					<button
 						id="btn-paso2"
-						class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-[#8c681d] text-white hover:bg-[#8c681d]/80 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none text-center w-fit"
+						class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700/80 focus:outline-hidden focus:outline-hidden focus:bg-primary-600/80 disabled:opacity-50 disabled:pointer-events-none text-center w-fit"
 					>
 						Continuar</button
 					>
 					<button
 						type="button"
 						id="btn-atras"
-						class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-zinc-500 text-white hover:bg-zinc-600 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none w-fit"
+						class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-zinc-500 text-white hover:bg-zinc-600 focus:outline-hidden focus:outline-hidden focus:bg-primary-600/80 disabled:opacity-50 disabled:pointer-events-none w-fit"
 					>
 						Regresar
 					</button>
@@ -456,7 +456,7 @@ const opcionesllc =
 							aria-labelledby="accordion-collapse-heading-1"
 						>
 							<div
-								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-black-900 bg-neutral-200"
+								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-black-900 bg-gray-50"
 							>
 								<ul class="grid w-full gap-6 md:grid-cols-3">
 									{
@@ -473,7 +473,7 @@ const opcionesllc =
 												/>
 												<label
 													for={`opcion-popular-${opciones.id_micro_servicios}`}
-													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-black-800 dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
+													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-primary-600 dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-black-800 dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-gray-100"
 												>
 													<div class="block w-full">
 														<div class="flex items-center justify-between w-full">
@@ -532,7 +532,7 @@ const opcionesllc =
 							aria-labelledby="accordion-collapse-heading-2"
 						>
 							<div
-								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-black-900 bg-neutral-200"
+								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-black-900 bg-gray-50"
 							>
 								<ul class="grid w-full gap-6 md:grid-cols-3">
 									{
@@ -549,7 +549,7 @@ const opcionesllc =
 												/>
 												<label
 													for={`opcion-llc-${opciones.id_micro_servicios}`}
-													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-black-800 dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
+													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-primary-600 dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-black-800 dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-gray-100"
 												>
 													<div class="block w-full">
 														<div class="flex items-center justify-between w-full">
@@ -608,7 +608,7 @@ const opcionesllc =
 							aria-labelledby="accordion-collapse-heading-3"
 						>
 							<div
-								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-black-900 bg-neutral-200"
+								class="p-5 border rounded-xl border-gray-200 dark:border-gray-700 dark:bg-black-900 bg-gray-50"
 							>
 								<ul class="grid w-full gap-6 md:grid-cols-3">
 									{
@@ -625,7 +625,7 @@ const opcionesllc =
 												/>
 												<label
 													for={`opcion-tec-${opciones.id_micro_servicios}`}
-													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-[#8c681d] dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-black-800 dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-neutral-200"
+													class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-primary-600 dark:peer-checked:border-[#8c681d] hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-black-800 dark:hover:bg-gray-700 h-full peer-checked:dark:bg-[#224c69] peer-checked:bg-gray-100"
 												>
 													<div class="block w-full">
 														<div class="flex items-center justify-between w-full">
@@ -661,7 +661,7 @@ const opcionesllc =
 						<button
 							type="button"
 							id="btn-continue"
-							class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-[#8c681d] text-white hover:bg-[#8c681d]/80 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none"
+							class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700/80 focus:outline-hidden focus:outline-hidden focus:bg-primary-600/80 disabled:opacity-50 disabled:pointer-events-none"
 						>
 							Continuar con el pago
 						</button>
@@ -670,7 +670,7 @@ const opcionesllc =
 						<button
 							type="button"
 							id="btn-atras2"
-							class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-zinc-500 text-white hover:bg-zinc-600 focus:outline-hidden focus:outline-hidden focus:bg-[#8c681d]/80 disabled:opacity-50 disabled:pointer-events-none"
+							class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-zinc-500 text-white hover:bg-zinc-600 focus:outline-hidden focus:outline-hidden focus:bg-primary-600/80 disabled:opacity-50 disabled:pointer-events-none"
 						>
 							Regresar
 						</button>
@@ -724,7 +724,7 @@ const opcionesllc =
 						<button
 							type="submit"
 							id="pay-button"
-							class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-[#8c681d] text-white hover:bg-[#8c681d]/80 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none"
+							class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700/80 focus:outline-hidden disabled:opacity-50 disabled:pointer-events-none"
 						>
 							Pagar ahora
 						</button>
