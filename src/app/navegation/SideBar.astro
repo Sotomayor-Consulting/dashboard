@@ -379,6 +379,11 @@ const inactiveClass =
 			sidebar.classList.remove('transform-none');
 			sidebar.removeAttribute('aria-modal');
 			sidebar.removeAttribute('role');
+
+			// Quitar foco de cualquier link dentro del sidebar oculto
+			// para evitar "Blocked aria-hidden on an element because its descendant retained focus"
+			const focused = sidebar.querySelector(':focus') as HTMLElement | null;
+			if (focused) focused.blur();
 		}
 		if (backdrop) {
 			backdrop.classList.add('hidden');
