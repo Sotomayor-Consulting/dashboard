@@ -22,7 +22,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 <script src="@lib/alpinejs/alpine.js"></script>
 
 <div
-	class="p-4 bg-gray-50 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700"
+	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200/60 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700"
 >
 	<div class="w-full mb-1">
 		<div class="mb-4">
@@ -105,7 +105,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 	{
 		empresas?.map((empresa) => (
 			<tr
-				class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-gray-50 even:bg-gray-100 cursor-pointer"
+				class="hover:bg-gray-50 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] transition-colors cursor-pointer"
 				onclick={`window.open('/crud/empresa/${empresa.empresa_incorporacion_id}', '_blank')`}
 			>
 				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">

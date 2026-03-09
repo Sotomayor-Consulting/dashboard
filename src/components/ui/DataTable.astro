@@ -49,10 +49,10 @@ const {
 } = Astro.props;
 ---
 
-<div class="flex flex-col shadow">
+<div class="flex flex-col border-t border-gray-200/80 bg-white dark:border-gray-700/60 dark:bg-black-800">
 	<table
 			class:list={[
-				'min-w-full divide-y divide-gray-200 dark:divide-gray-600',
+				'min-w-full divide-y divide-gray-200/80 dark:divide-gray-700/60',
 				className,
 			]}
 			id={id}
@@ -62,18 +62,18 @@ const {
 			data-per-page-select={JSON.stringify(perPageSelect)}
 			data-searchable={searchable}
 		>
-			<thead class="bg-gray-100 dark:bg-[#28314c]">
+			<thead class="bg-gray-50 dark:bg-[#28314c]">
 				<tr>
 					{
 						headers.map((th) => (
 							<th
 								scope="col"
-								class="p-4 text-xs font-medium text-left text-gray-500 uppercase whitespace-nowrap dark:text-gray-400"
+								class="p-4 text-[11px] font-semibold tracking-wider text-left text-gray-400 uppercase whitespace-nowrap dark:text-gray-500"
 							>
 								<span class="flex items-center uppercase">
 									{th}
 									<svg
-										class="w-4 h-4 ms-1 shrink-0"
+										class="w-3.5 h-3.5 ms-1 shrink-0 opacity-40"
 										aria-hidden="true"
 										xmlns="http://www.w3.org/2000/svg"
 										width="24"
@@ -96,7 +96,7 @@ const {
 				</tr>
 			</thead>
 
-			<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+			<tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
 				<slot />
 			</tbody>
 		</table>

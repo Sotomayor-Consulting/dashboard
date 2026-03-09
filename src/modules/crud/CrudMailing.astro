@@ -100,7 +100,7 @@ const { data: usuarios } = await supabase
 >
 	{
 		usuarios?.map((user) => (
-			<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-gray-50 even:bg-gray-100">
+			<tr class="hover:bg-gray-50 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] transition-colors">
 				<td class="w-4 pl-4">
 					<AvatarCell src={user.avatar_url} name={user.nombre} />
 				</td>

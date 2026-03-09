@@ -136,7 +136,7 @@ const servicio = await ListaServiciosGeneral(supabase);
 		>
 			{
 				servicio?.map((sr) => (
-					<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-gray-50 even:bg-gray-100">
+					<tr class="hover:bg-gray-50 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] transition-colors">
 						<td class="p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
 							<StackedText title={sr.nombre} subtitle={sr.categoria} />
 						</td>
