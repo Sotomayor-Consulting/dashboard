@@ -3,9 +3,10 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { AuthService, PATHS, redirectWithMessage } from '@lib/auth';
+import { safeBack } from '@lib/security/headers';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
-	const back = url.searchParams.get('back') ?? PATHS.signIn;
+	const back = safeBack(url.searchParams.get('back'), PATHS.signIn);
 
 	try {
 		const form = await request.formData();
@@ -47,7 +48,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 };
 
 export const GET: APIRoute = async ({ redirect, url }) => {
-	const back = url.searchParams.get('back') ?? PATHS.signIn;
+	const back = safeBack(url.searchParams.get('back'), PATHS.signIn);
 	return redirectWithMessage(
 		redirect,
 		'Usa el formulario para solicitar recuperación de contraseña.',

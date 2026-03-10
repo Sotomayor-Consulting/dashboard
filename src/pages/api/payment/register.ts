@@ -4,6 +4,7 @@
 // con el paymentIntentId proporcionado.
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient, supabaseAdmin } from '@lib/supabase';
+import { SECURITY_HEADERS } from '@lib/security/headers';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	// ─── 1) Autenticación (server-verified via getUser) ──
@@ -21,7 +22,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			JSON.stringify({ error: 'No autenticado' }),
 			{
 				status: 401,
-				headers: { 'Content-Type': 'application/json' },
+				headers: SECURITY_HEADERS,
 			},
 		);
 	}
@@ -37,7 +38,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				JSON.stringify({ error: 'paymentIntentId is required' }),
 				{
 					status: 400,
-					headers: { 'Content-Type': 'application/json' },
+					headers: SECURITY_HEADERS,
 				},
 			);
 		}
@@ -58,21 +59,21 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				}),
 				{
 					status: 400,
-					headers: { 'Content-Type': 'application/json' },
+					headers: SECURITY_HEADERS,
 				},
 			);
 		}
 
 		return new Response(JSON.stringify({ pago: data }), {
 			status: 200,
-			headers: { 'Content-Type': 'application/json' },
+			headers: SECURITY_HEADERS,
 		});
 	} catch (err: any) {
 		return new Response(
 			JSON.stringify({ error: err?.message || 'Internal server error' }),
 			{
 				status: 500,
-				headers: { 'Content-Type': 'application/json' },
+				headers: SECURITY_HEADERS,
 			},
 		);
 	}

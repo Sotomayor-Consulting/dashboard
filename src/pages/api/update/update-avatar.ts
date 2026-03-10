@@ -3,12 +3,13 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
+import { safeBack } from '@lib/security/headers';
 
 const BACK_PATH = '/settings';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	try {
-		const back = url.searchParams.get('back') || BACK_PATH;
+		const back = safeBack(url.searchParams.get('back'), BACK_PATH);
 
 		// 1) Sesión
 		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });

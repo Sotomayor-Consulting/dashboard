@@ -8,6 +8,7 @@ import {
 	validateFormData,
 	formDataToObject,
 } from '@lib/validation/formValidator';
+import { safeBack } from '@lib/security/headers';
 
 const BACK_PATH = '/settings';
 
@@ -34,11 +35,9 @@ export const POST: APIRoute = async ({
 	request,
 	cookies,
 	redirect,
-	url,
 	locals,
 }) => {
-	const back = url.searchParams.get('back') || BACK_PATH;
-
+	const back = safeBack(new URL(request.url).searchParams.get('back'), BACK_PATH);
 	// Crear cliente Supabase para este request
 	const supabase = createSupabaseServerClient({
 		headers: request.headers,

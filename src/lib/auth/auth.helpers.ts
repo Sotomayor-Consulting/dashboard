@@ -3,6 +3,7 @@
 
 import type { RedirectStatus } from './auth.types';
 import { PATHS } from './auth.config';
+import { SECURITY_HEADERS } from '@lib/security/headers';
 
 type AstroRedirectFn = (
 	path: string,
@@ -67,7 +68,7 @@ export function buildOAuthRedirectUrl(
 export function jsonResponse<T>(data: T, status: number = 200): Response {
 	return new Response(JSON.stringify(data), {
 		status,
-		headers: { 'Content-Type': 'application/json' },
+		headers: { ...SECURITY_HEADERS },
 	});
 }
 

@@ -1367,9 +1367,14 @@ class="text-white bg-gradient-to-r from-primary-600 via-primary-700 to-primary-8
 		function showFlowbiteAlert(message: string, isSuccess = false) {
 			if (!alertBox || !alertMessage) return;
 
-			// Configurar el mensaje
+			// Configurar el mensaje (usar textContent para prevenir XSS)
 			const prefix = isSuccess ? '¡Éxito!' : 'Error:';
-			alertMessage.innerHTML = `<span class="font-medium">${prefix}</span> ${message}`;
+			alertMessage.textContent = '';
+			const span = document.createElement('span');
+			span.className = 'font-medium';
+			span.textContent = prefix;
+			alertMessage.appendChild(span);
+			alertMessage.appendChild(document.createTextNode(` ${message}`));
 
 			// Configurar estilos según tipo
 			if (isSuccess) {

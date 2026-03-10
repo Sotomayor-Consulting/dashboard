@@ -975,10 +975,18 @@ const acciones = [
 				console.error('Error al inicializar El mapa:', error);
 				const container = document.getElementById('datamap-container');
 				if (container) {
-					container.innerHTML =
-						'<div style="display:flex;align-items:center;justify-content:center;height:400px;color:#666;flex-direction:column;"><div style="margin-bottom:10px;">Error: ' +
-						error.message +
-						'</div><div style="font-size:12px;">Verificá que las dependencias se cargaron correctamente</div></div>';
+					container.innerHTML = '';
+					const errWrapper = document.createElement('div');
+					errWrapper.style.cssText = 'display:flex;align-items:center;justify-content:center;height:400px;color:#666;flex-direction:column;';
+					const errMsg = document.createElement('div');
+					errMsg.style.marginBottom = '10px';
+					errMsg.textContent = 'Error: ' + error.message;
+					const errHint = document.createElement('div');
+					errHint.style.fontSize = '12px';
+					errHint.textContent = 'Verificá que las dependencias se cargaron correctamente';
+					errWrapper.appendChild(errMsg);
+					errWrapper.appendChild(errHint);
+					container.appendChild(errWrapper);
 				}
 			}
 		}, 1500);

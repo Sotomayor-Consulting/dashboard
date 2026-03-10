@@ -1045,11 +1045,11 @@ if (empresaError || !empresa) {
 				renderizarMapaEstados('mapa-estados', '#967432', empresaId).catch(
 					(error) => {
 						console.error('Error al renderizar el mapa:', error);
-						container.innerHTML = `
-              <div style="color:red; text-align:center; padding:2rem;">
-                Error cargando el mapa: ${error.message}
-              </div>
-            `;
+						container.innerHTML = '';
+						const errDiv = document.createElement('div');
+						errDiv.style.cssText = 'color:red; text-align:center; padding:2rem;';
+						errDiv.textContent = `Error cargando el mapa: ${error.message}`;
+						container.appendChild(errDiv);
 					},
 				);
 			}

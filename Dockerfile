@@ -28,9 +28,9 @@ ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=4321
 
-# Si su runtime realmente necesita deps en runtime:
+# Solo copiar package files e instalar dependencias de producción (sin devDependencies)
 COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
+RUN npm ci --omit=dev
 
 # Artefactos SSR
 COPY --from=builder /app/dist ./dist
