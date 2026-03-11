@@ -3,8 +3,107 @@ import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 ---
 
 <LayoutSidebar>
-	<div id="root" class="p-2">
-		<div id="wrapper"></div>
+	<div class="p-4">
+		<h1 class="mb-4 text-2xl font-bold">Firmar Documento PDF</h1>
+
+		<div class="mb-4">
+			<label class="mb-2 block">Seleccionar PDF:</label>
+			<input
+				type="file"
+				id="pdfInput"
+				accept=".pdf"
+				class="rounded border p-2"
+			/>
+		</div>
+
+		<div class="mb-4">
+			<label class="mb-2 block">Certificado (.p12):</label>
+			<input
+				type="file"
+				id="certInput"
+				accept=".p12,.pfx"
+				class="rounded border p-2"
+			/>
+		</div>
+
+		<div class="mb-4">
+			<label class="mb-2 block">Contraseña del certificado:</label>
+			<input type="password" id="passwordInput" class="rounded border p-2" />
+		</div>
+
+		<button
+			id="signBtn"
+			class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+		>
+			Firmar Documento
+		</button>
+
+		<p id="status" class="mt-4 text-gray-600"></p>
 	</div>
-	<script type="module" src="./testtables.ts"></script>
+
+	<script>
+		import { PDF, P12Signer } from '@libpdf/core';
+
+		document.getElementById('signBtn')?.addEventListener('click', async () => {
+			const pdfInput = document.getElementById('pdfInput') as HTMLInputElement;
+			const certInput = document.getElementById(
+				'certInput',
+			) as HTMLInputElement;
+			const passwordInput = document.getElementById(
+				'passwordInput',
+			) as HTMLInputElement;
+			const status = document.getElementById('status');
+
+			if (
+				!pdfInput.files?.[0] ||
+				!certInput.files?.[0] ||
+				!passwordInput.value
+			) {
+				status!.textContent = 'Por favor completa todos los campos';
+				return;
+			}
+
+			status!.textContent = 'Firmando documento...';
+
+			try {
+				const pdfFile = pdfInput.files[0];
+				const certFile = certInput.files[0];
+				const password = passwordInput.value;
+
+				const pdfArrayBuffer = await pdfFile.arrayBuffer();
+				const pdfBytes = new Uint8Array(pdfArrayBuffer);
+
+				const certArrayBuffer = await certFile.arrayBuffer();
+				const certBytes = new Uint8Array(certArrayBuffer);
+
+				const pdf = await PDF.load(pdfBytes);
+
+				const signer = await P12Signer.create(certBytes, password);
+
+				const signed = await pdf.sign({ signer });
+
+				const signedBytes = new Uint8Array(
+					signed.bytes.buffer.slice(
+						signed.bytes.byteOffset,
+						signed.bytes.byteOffset + signed.bytes.byteLength,
+					),
+				);
+				const blob = new Blob([signedBytes], { type: 'application/pdf' });
+				const url = URL.createObjectURL(blob);
+
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = 'documento_firmado.pdf';
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+
+				status!.textContent = 'Documento firmado exitosamente!';
+			} catch (error) {
+				console.error(error);
+				status!.textContent = 'Error al firmar: ' + (error as Error).message;
+			}
+		});
+	</script>
 </LayoutSidebar>

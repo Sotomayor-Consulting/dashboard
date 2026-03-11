@@ -81,8 +81,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	}
 
 	const successMessage = isRead
-		? '✅ ¡Éxito! Notificación marcada como leída.'
-		: '✅ ¡Éxito! Estado de lectura actualizado.';
+		? '¡Éxito! Notificación marcada como leída.'
+		: '¡Éxito! Estado de lectura actualizado.';
 
 	const msg = encodeURIComponent(successMessage);
 	return redirect(`${back}?status=success&msg=${msg}`);

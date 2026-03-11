@@ -204,7 +204,7 @@ export { notifications, totalUnread, user };
 													</span>
 													{!notification.is_read && (
 														<button
-															class="mark-as-read hover:dark:text-primary-400 inline-flex text-xs font-medium text-[#8c681d] dark:text-neutral-400"
+															class="mark-as-read hover:dark:text-primary-400 hover:bg-brand-strong inline-flex cursor-pointer rounded-xl px-2 py-1 text-xs font-medium text-black hover:text-white dark:text-neutral-400"
 															data-id={notification.id}
 														>
 															Marcar como leída
@@ -378,13 +378,22 @@ export { notifications, totalUnread, user };
 			btn.remove();
 			refreshBadgeFromDOM();
 
-			const { error } = await supabase
-				.from('notifications')
-				.update({ is_read: true, leido_en: new Date().toISOString() })
-				.eq('id', id)
-				.eq('user_id', USER_ID);
+			try {
+				const formData = new FormData();
+				formData.append('id', id);
+				formData.append('estado_lectura', 'true');
 
-			if (error) {
+				const res = await fetch('/api/update/update-notification', {
+					method: 'POST',
+					body: formData,
+					credentials: 'include',
+				});
+
+				if (!res.ok) {
+					const err = await res.text();
+					console.error('[notifications] Error:', err);
+				}
+			} catch (error) {
 				console.error('[notifications] marcar como leída error:', error);
 			}
 		});

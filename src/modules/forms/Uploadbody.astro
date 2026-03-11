@@ -2,10 +2,7 @@
 import Dropzone from '@components/display/Dropzone.astro';
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
-import { Image } from 'astro:assets';
 import { pagosRealizadosPorSubirById } from '@lib/tablas/PagosPorLeer';
-import { getUserFolders } from '@lib/storage/test';
-import imagen from '@assets/g31.avif';
 import { getUserFolders } from '@lib/storage/test';
 import imagen from '@assets/g31.avif';
 
@@ -13,8 +10,6 @@ interface Props {
 	empresaId: string;
 }
 
-const user = Astro.locals.user;
-const userId = user?.id;
 const { empresaId } = Astro.props;
 
 const empresa = await pagosRealizadosPorSubirById(empresaId);
@@ -50,7 +45,6 @@ const documentos = userId ? await getUserFolders(userId, empresaId) : [];
 	>
 		<div
 			class="flex items-center justify-between rounded-lg p-4 sm:flex sm:p-6"
-			class="flex items-center justify-between rounded-lg p-4 sm:flex sm:p-6"
 		>
 			<div class="w-full">
 				<div class="flex items-center">
@@ -85,213 +79,207 @@ const documentos = userId ? await getUserFolders(userId, empresaId) : [];
 								class="font-semibold text-gray-900 dark:text-white"
 								aria-label="Plan upgrade"
 							>
-								<h3
-									class="font-semibold text-gray-900 dark:text-white"
-									aria-label="Plan upgrade"
-								>
-									Plan upgrade
-								</h3>
-								<p>
-									Recuerda cargar y verificar en el plan upgrade el informe de
-									planificación y diseño de la LLC, en caso de que sea el primer
-									documento a subir. planificación y diseño de la LLC, en caso
-									de que sea el primer documento a subir.
-								</p>
+								Plan upgrade
 							</h3>
-							<div data-popper-arrow></div>
+							<p>
+								Recuerda cargar y verificar en el plan upgrade el informe de
+								planificación y diseño de la LLC, en caso de que sea el primer
+								documento a subir.
+							</p>
 						</div>
-					</div>
-					<div>
-						<span
-							class="dark:text-fg-success-strong bg-success-soft dark:bg-success-soft text-fg-success-strong me-5 flex w-fit items-center justify-center rounded-full px-5 py-2 text-lg font-medium"
-						>
-							<span
-								class="bg-fg-success-strong dark:bg-fg-success-strong mr-2 inline-block size-3 rounded-full"
-							></span>
-							{empresa.servicios.nombre}
-						</span>
+						<div data-popper-arrow></div>
 					</div>
 				</div>
-			</div>
-		</div>
-
-		<div
-			class="to-black-600 from-black-900 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-linear-to-tr"
-		>
-			<div class="w-full">
-				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
-					Creador de la empresa
-				</h3>
-				<div class="w-full">
-					<div class="relative">
-						<h1 class="dark:text-white-50 text-white-900 text-2xl">
-							{empresa.usuarios.nombre}
-							{empresa.usuarios.apellido}
-						</h1>
-					</div>
-				</div>
-				<p
-					class="flex items-center text-base font-normal text-gray-500 dark:text-gray-400"
-				>
-					{empresa.usuarios.correo}
-				</p>
-			</div>
-		</div>
-
-		<div
-			class="from-black-600 to-black-900 flex flex-col items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 md:flex-row xl:col-span-2 dark:border-gray-700 dark:bg-linear-to-tr"
-		>
-			<div class="flex h-full w-full md:w-fit">
-				<ul
-					class="space-y text-body mb-4 flex w-full flex-row space-y-4 text-sm font-medium md:me-4 md:mb-0 md:flex-col"
-					id="default-tab"
-					data-tabs-toggle="#default-tab-content"
-					role="tablist"
-					data-tabs-active-classes="text-white dark:bg-brand bg-[#967432] rounded-base active w-full"
-					data-tabs-inactive-classes="hover:text-heading hover:bg-neutral-secondary-soft w-full"
-				>
-					<li class="me-2" role="presentation">
-						<button
-							class="rounded-base inline-flex cursor-pointer items-center px-4 py-3"
-							id="profile-tab"
-							data-tabs-target="#profile"
-							type="button"
-							role="tab"
-							aria-controls="profile"
-							aria-selected="false"
-						>
-							<Icon name="ri:upload-cloud-2-line" class="me-2 text-base" />
-							Documento</button
-						>
-					</li>
-					<li class="me-2" role="presentation">
-						<button
-							class="rounded-base inline-flex cursor-pointer items-center px-4 py-3"
-							id="dashboard-tab"
-							data-tabs-target="#dashboard"
-							type="button"
-							role="tab"
-							aria-controls="dashboard"
-							aria-selected="false"
-							><Icon name="ri:draft-line" class="me-2 text-base" />Por firmar</button
-						>
-					</li>
-				</ul>
-			</div>
-			<div id="default-tab-content" class="w-full">
-				<div
-					class="rounded-base hidden w-full p-4"
-					id="profile"
-					role="tabpanel"
-					aria-labelledby="profile-tab"
-				>
-					<Dropzone
-						mensaje="Arrastra el documento aquí o haz clic para subir."
-						icon="ri:upload-cloud-2-line"
-						id="SinFirma"
-						endpoint={`/api/documentos/upload_documents?empresaId=${empresaId}&userId=${empresa.usuarios.user_id}`}
-					/>
-				</div>
-				<div
-					class="rounded-base hidden w-full p-4"
-					id="dashboard"
-					role="tabpanel"
-					aria-labelledby="dashboard-tab"
-				>
-					<Dropzone
-						mensaje="Arrastra el documento pendiente a firmar aquí o haz clic para subir."
-						icon="ri:draft-line"
-						id="ConFirma"
-						endpoint={`/api/documentos/upload_documents_signed?empresaId=${empresaId}&userId=${empresa.usuarios.user_id}`}
-					/>
-				</div>
-			</div>
-		</div>
-		<div
-			class="to-black-900 from-black-600 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 xl:col-span-2 2xl:col-span-1 dark:border-gray-700 dark:bg-linear-to-tl"
-		>
-			<div class="h-full w-full">
-				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
-					Últimos documentos
-				</h3>
-				<div class="flow-root">
-					<ul
-						role="list"
-						class="divide-default scrollbar scrollbar-w-3 scrollbar-thumb-rounded-xs max-h-96 divide-y overflow-y-auto"
+				<div>
+					<span
+						class="dark:text-fg-success-strong bg-success-soft dark:bg-success-soft text-fg-success-strong me-5 flex w-fit items-center justify-center rounded-full px-5 py-2 text-lg font-medium"
 					>
-						{
-							documentos && documentos.length > 0 ? (
-								documentos.map((d) => (
-									<li class="mr-5 py-4 sm:py-4">
-										<div class="flex items-center gap-2">
-											<div class="shrink-0">
-												<Icon
-													name="ri:file-check-line"
-													class="text-white-900 dark:text-white-50 text-3xl"
-												/>
-											</div>
-											<div class="ms-2 min-w-0 flex-1">
-												<p class="text-heading font-medium">{d.name}</p>
-											</div>
-											<div class="text-heading inline-flex items-center font-medium">
-												<button
-													class="btn-ver-documento cursor-pointer"
-													data-path={`${userId}/companies/${empresaId}/documents/${d.name}`}
-													title="Ver documento"
-												>
-													<Icon
-														name="ri:eye-fill"
-														class="text-2xl text-neutral-900 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-white"
-													/>
-												</button>
-											</div>
-										</div>
-									</li>
-								))
-							) : (
-								<li class="py-4 sm:py-4">
-									<div class="flex h-full flex-col items-center justify-center gap-2">
-										<h2 class="dark:text-white-400 text-white-500 w-full">
-											No hay documentos subidos aun...
-										</h2>
-										<Image
-											src={imagen}
-											height={300}
-											alt="imagen de nube"
-											loading="eager"
-										/>
-									</div>
-								</li>
-							)
-						}
-					</ul>
+						<span
+							class="bg-fg-success-strong dark:bg-fg-success-strong mr-2 inline-block size-3 rounded-full"
+						></span>
+						{empresa.servicios.nombre}
+					</span>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<script>
-		document.addEventListener('click', async (e) => {
-			const target = e.target as HTMLElement;
-			const btn = target.closest('.btn-ver-documento');
-			if (!btn) return;
+	<div
+		class="to-black-600 from-black-900 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-linear-to-tr"
+	>
+		<div class="w-full">
+			<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+				Creador de la empresa
+			</h3>
+			<div class="w-full">
+				<div class="relative">
+					<h1 class="dark:text-white-50 text-white-900 text-2xl">
+						{empresa.usuarios.nombre}
+						{empresa.usuarios.apellido}
+					</h1>
+				</div>
+			</div>
+			<p
+				class="flex items-center text-base font-normal text-gray-500 dark:text-gray-400"
+			>
+				{empresa.usuarios.correo}
+			</p>
+		</div>
+	</div>
 
-			const path = (btn as HTMLElement).dataset.path;
-			if (!path) return;
-
-			try {
-				const res = await fetch('/api/storage/get-signed-url', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ path }),
-				});
-				const data = await res.json();
-				if (data.error) throw new Error(data.error);
-				window.open(data.signedUrl, '_blank');
-			} catch (error) {
-				console.error('Error al obtener documento:', error);
-				alert('Error al cargar el documento');
-			}
-		});
-	</script>
+	<div
+		class="from-black-600 to-black-900 flex flex-col items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 md:flex-row xl:col-span-2 dark:border-gray-700 dark:bg-linear-to-tr"
+	>
+		<div class="flex h-full w-full md:w-fit">
+			<ul
+				class="space-y text-body mb-4 flex w-full flex-row space-y-4 text-sm font-medium md:me-4 md:mb-0 md:flex-col"
+				id="default-tab"
+				data-tabs-toggle="#default-tab-content"
+				role="tablist"
+				data-tabs-active-classes="text-white dark:bg-brand bg-[#967432] rounded-base active w-full"
+				data-tabs-inactive-classes="hover:text-heading hover:bg-neutral-secondary-soft w-full"
+			>
+				<li class="me-2" role="presentation">
+					<button
+						class="rounded-base inline-flex cursor-pointer items-center px-4 py-3"
+						id="profile-tab"
+						data-tabs-target="#profile"
+						type="button"
+						role="tab"
+						aria-controls="profile"
+						aria-selected="false"
+					>
+						<Icon name="ri:upload-cloud-2-line" class="me-2 text-base" />
+						Documento</button
+					>
+				</li>
+				<li class="me-2" role="presentation">
+					<button
+						class="rounded-base inline-flex cursor-pointer items-center px-4 py-3"
+						id="dashboard-tab"
+						data-tabs-target="#dashboard"
+						type="button"
+						role="tab"
+						aria-controls="dashboard"
+						aria-selected="false"
+						><Icon name="ri:draft-line" class="me-2 text-base" />Por firmar</button
+					>
+				</li>
+			</ul>
+		</div>
+		<div id="default-tab-content" class="w-full">
+			<div
+				class="rounded-base hidden w-full p-4"
+				id="profile"
+				role="tabpanel"
+				aria-labelledby="profile-tab"
+			>
+				<Dropzone
+					mensaje="Arrastra el documento aquí o haz clic para subir."
+					icon="ri:upload-cloud-2-line"
+					id="SinFirma"
+					endpoint={`/api/documentos/upload_documents?empresaId=${empresaId}&userId=${empresa.usuarios.user_id}`}
+				/>
+			</div>
+			<div
+				class="rounded-base hidden w-full p-4"
+				id="dashboard"
+				role="tabpanel"
+				aria-labelledby="dashboard-tab"
+			>
+				<Dropzone
+					mensaje="Arrastra el documento pendiente a firmar aquí o haz clic para subir."
+					icon="ri:draft-line"
+					id="ConFirma"
+					endpoint={`/api/documentos/upload_documents_signed?empresaId=${empresaId}&userId=${empresa.usuarios.user_id}`}
+				/>
+			</div>
+		</div>
+	</div>
+	<div
+		class="to-black-900 from-black-600 flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 xl:col-span-2 2xl:col-span-1 dark:border-gray-700 dark:bg-linear-to-tl"
+	>
+		<div class="h-full w-full">
+			<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+				Últimos documentos
+			</h3>
+			<div class="flow-root">
+				<ul
+					role="list"
+					class="divide-default scrollbar scrollbar-w-3 scrollbar-thumb-rounded-xs max-h-96 divide-y overflow-y-auto"
+				>
+					{
+						documentos && documentos.length > 0 ? (
+							documentos.map((d) => (
+								<li class="mr-5 py-4 sm:py-4">
+									<div class="flex items-center gap-2">
+										<div class="shrink-0">
+											<Icon
+												name="ri:file-check-line"
+												class="text-white-900 dark:text-white-50 text-3xl"
+											/>
+										</div>
+										<div class="ms-2 min-w-0 flex-1">
+											<p class="text-heading font-medium">{d.name}</p>
+										</div>
+										<div class="text-heading inline-flex items-center font-medium">
+											<button
+												class="btn-ver-documento cursor-pointer"
+												data-path={`${userId}/companies/${empresaId}/documents/${d.name}`}
+												title="Ver documento"
+											>
+												<Icon
+													name="ri:eye-fill"
+													class="text-2xl text-neutral-900 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-white"
+												/>
+											</button>
+										</div>
+									</div>
+								</li>
+							))
+						) : (
+							<li class="py-4 sm:py-4">
+								<div class="flex h-full flex-col items-center justify-center gap-2">
+									<h2 class="dark:text-white-400 text-white-500 w-full">
+										No hay documentos subidos aun...
+									</h2>
+									<Image
+										src={imagen}
+										height={300}
+										alt="imagen de nube"
+										loading="eager"
+									/>
+								</div>
+							</li>
+						)
+					}
+				</ul>
+			</div>
+		</div>
+	</div>
 </div>
+
+<script>
+	document.addEventListener('click', async (e) => {
+		const target = e.target as HTMLElement;
+		const btn = target.closest('.btn-ver-documento');
+		if (!btn) return;
+
+		const path = (btn as HTMLElement).dataset.path;
+		if (!path) return;
+
+		try {
+			const res = await fetch('/api/storage/get-signed-url', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ path }),
+			});
+			const data = await res.json();
+			if (data.error) throw new Error(data.error);
+			window.open(data.signedUrl, '_blank');
+		} catch (error) {
+			console.error('Error al obtener documento:', error);
+			alert('Error al cargar el documento');
+		}
+	});
+</script>
