@@ -1,11 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { User } from '@supabase/supabase-js';
 
-export const getIncorporacionesByUserId = async (
-	supabase: SupabaseClient,
-	userId: string,
-) => {
 export const getIncorporacionesByUserId = async (
 	supabase: SupabaseClient,
 	userId: string,
@@ -28,11 +23,6 @@ export const getIncorporacionById = async (
 	id: string,
 	userId: string,
 ) => {
-export const getIncorporacionById = async (
-	supabase: SupabaseClient,
-	id: string,
-	userId: string,
-) => {
 	const { data, error } = await supabase
 		.from('empresas_incorporaciones')
 		.select('*')
@@ -47,10 +37,6 @@ export const getIncorporacionById = async (
 	return data;
 };
 
-export const getIncorporacionesEnProceso = async (
-	supabase: SupabaseClient,
-	userId: string,
-) => {
 export const getIncorporacionesEnProceso = async (
 	supabase: SupabaseClient,
 	userId: string,
@@ -116,10 +102,6 @@ export const getEstadoIncorporacionByUserId = async (
 	supabase: SupabaseClient,
 	userId: string,
 ) => {
-export const getEstadoIncorporacionByUserId = async (
-	supabase: SupabaseClient,
-	userId: string,
-) => {
 	const { data, error } = await supabase
 		.from('empresas_incorporaciones')
 		.select('estado')
@@ -134,7 +116,6 @@ export const getEstadoIncorporacionByUserId = async (
 };
 
 export const checkUserIncorporacionesEnProceso = async (
-	supabase: SupabaseClient,
 	supabase: SupabaseClient,
 	user: User | null,
 ): Promise<boolean> => {
@@ -157,24 +138,8 @@ export interface BannerIncorporacionData {
 
 export const getBannerIncorporacionData = async (
 	supabase: SupabaseClient,
-	supabase: SupabaseClient,
 	userId: string,
 ): Promise<BannerIncorporacionData> => {
-	const [{ data: empresaActiva }, { data: formularioEnviado }] =
-		await Promise.all([
-			supabase
-				.from('empresas_incorporaciones')
-				.select('empresa_incorporacion_id')
-				.eq('user_id', userId)
-				.eq('estado', 'Activo')
-				.maybeSingle(),
-			supabase
-				.from('formularios_envios')
-				.select('status')
-				.eq('user_id', userId)
-				.eq('status', 'submitted')
-				.maybeSingle(),
-		]);
 	const [{ data: empresaActiva }, { data: formularioEnviado }] =
 		await Promise.all([
 			supabase
