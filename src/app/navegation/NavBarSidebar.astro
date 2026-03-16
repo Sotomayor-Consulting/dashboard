@@ -7,6 +7,9 @@ import { Picture } from 'astro:assets';
 // Datos recibidos desde LayoutSidebar (ya consultados en paralelo)
 const { usuario: usuarioProp, notificationsData: notifProp } = Astro.props;
 
+// Datos recibidos desde LayoutSidebar (ya consultados en paralelo)
+const { usuario: usuarioProp, notificationsData: notifProp } = Astro.props;
+
 const user = Astro.locals?.user;
 const userId = user?.id;
 const email = user?.email;

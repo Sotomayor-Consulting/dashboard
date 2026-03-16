@@ -3,6 +3,7 @@ import pkg from '../../../package.json' with { type: 'json' };
 import { url } from '../../lib/data.js';
 import { SITE_TITLE } from '../constants.js';
 import { ClientRouter } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 import '../../styles/global.css';
 
 const { class: clazz } = Astro.props;
@@ -113,6 +114,8 @@ const { class: clazz } = Astro.props;
 			'dark:scrollbar-track-gray-900 dark:scrollbar-thumb-gray-700',
 		]}
 	>
+		<!-- Progress bar de navegación -->
+		<div id="nav-progress"></div>
 		<!-- Progress bar de navegación -->
 		<div id="nav-progress"></div>
 		<slot />

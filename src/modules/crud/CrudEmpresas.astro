@@ -7,9 +7,14 @@ import { actividadesGeneral } from '@lib/tablas/actividades';
 import { EstadosGeneral } from '@lib/tablas/estados';
 import { PaisesGeneral } from '@lib/tablas/paises';
 
+
 const supabase = Astro.locals.supabase;
 
 const [empresas, actividades, estados, paises] = await Promise.all([
+	IncorporacionesEmpresasBase(supabase),
+	actividadesGeneral(supabase),
+	EstadosGeneral(supabase),
+	PaisesGeneral(supabase),
 	IncorporacionesEmpresasBase(supabase),
 	actividadesGeneral(supabase),
 	EstadosGeneral(supabase),

@@ -69,6 +69,77 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 ];
 
 // ─── Middleware ──────────────────────────────────────────
+// src/middleware.ts
+// ─── Middleware de autenticación y autorización ─────────
+// Valida sesión via @supabase/ssr (getClaims) y aplica control de acceso por rol.
+
+import { createSupabaseServerClient } from '@lib/supabase';
+import { PATHS } from '@lib/auth';
+import type { RouteRoleConfig } from '@lib/roles';
+import { ROLES, extractRoleNames, hasAnyRole } from '@lib/roles';
+import type { UserRoleRow } from '@lib/roles';
+import type { User } from '@supabase/supabase-js';
+
+// ─── Rutas públicas y de autenticación ──────────────────
+// Definidas aquí (única fuente de verdad) para evitar
+// desincronización con constantes externas.
+
+/** Rutas siempre públicas (nunca bloquear) */
+const PUBLIC_ROUTES: readonly string[] = [
+	'/api',
+	'/start',
+	'/incorporacion-y-pago',
+	'/test',
+	'/playground',
+];
+
+/** Rutas de autenticación (redirigir al dash si ya está logueado) */
+const AUTH_ROUTES: readonly string[] = [
+	'/sign-in',
+	'/sign-up',
+	'/forgot-password',
+];
+
+// ─── Configuración de acceso por rol ────────────────────
+// Evaluadas en orden: la primera que coincida decide.
+// Shared folders van ANTES que single-role folders para evitar
+// que /pages/ bloquee a partners antes de llegar al check compartido.
+const ROLE_ROUTES: RouteRoleConfig[] = [
+	// Shared (multi-rol) — evaluar primero
+	{
+		path: '/profile/',
+		roles: [ROLES.ADMIN, ROLES.PARTNER, ROLES.CLIENT],
+		errorMsg: 'Acceso no autorizado',
+	},
+	{
+		path: '/pages/',
+		roles: [ROLES.PARTNER, ROLES.CLIENT],
+		errorMsg: 'Acceso no autorizado',
+	},
+	// Single-rol
+	{
+		path: '/crud/',
+		roles: [ROLES.ADMIN],
+		errorMsg: 'Acceso solo para admins',
+	},
+	{
+		path: '/admin/',
+		roles: [ROLES.ADMIN],
+		errorMsg: 'Acceso solo para admins',
+	},
+	{
+		path: '/partners/',
+		roles: [ROLES.PARTNER],
+		errorMsg: 'Acceso solo para partners',
+	},
+	{
+		path: '/afiliados/',
+		roles: [ROLES.PARTNER],
+		errorMsg: 'Acceso solo para partners',
+	},
+];
+
+// ─── Middleware ──────────────────────────────────────────
 
 export function onRequest(context: any, next: any) {
 	const { redirect, url } = context;
@@ -80,38 +151,31 @@ export function onRequest(context: any, next: any) {
 	);
 
 	return (async () => {
-		// 1) Crear cliente Supabase SSR (per-request)
-		const supabase = createSupabaseServerClient({
-			headers: context.request.headers,
-			cookies: context.cookies,
-		});
+		const accessToken = cookies.get('sb-access-token');
+		const refreshToken = cookies.get('sb-refresh-token');
 
-		// 2) Validar sesión — getClaims() verifica el JWT localmente (más rápido
-		//    que getUser() que hace una llamada HTTP al servidor de auth).
-		//    También refresca tokens expirados y actualiza cookies automáticamente.
-		//    IMPORTANTE: No ejecutar código entre createServerClient y getClaims().
-		const { data, error } = await supabase.auth.getClaims();
+		let user = null;
 
-		// Exponer el cliente para que los componentes lo reutilicen
-		// sin crear instancias adicionales (evita ResponseSentError)
-		context.locals.supabase = supabase;
+		if (accessToken && refreshToken) {
+			const { data: sessionData, error: sessionError } =
+				await supabase.auth.setSession({
+					access_token: accessToken.value,
+					refresh_token: refreshToken.value,
+				});
 
-		// 3) Poblar locals si hay usuario autenticado
-		if (!error && data?.claims) {
-			const claims = data.claims;
+			if (sessionError || !sessionData?.session) {
+				cookies.delete('sb-access-token', { path: '/' });
+				cookies.delete('sb-refresh-token', { path: '/' });
+				return redirect('/sign-in');
+			}
 
-			// Construir objeto User-compatible desde los JWT claims.
-			// Los componentes downstream usan user.id, user.email y user.user_metadata.
-			const user: User = {
-				id: claims.sub,
-				email: claims.email ?? '',
-				user_metadata: claims.user_metadata ?? {},
-				app_metadata: claims.app_metadata ?? {},
-				aud:
-					typeof claims.aud === 'string' ? claims.aud : (claims.aud[0] ?? ''),
-				created_at: new Date(claims.iat * 1000).toISOString(),
-				is_anonymous: claims.is_anonymous ?? false,
-			} as User;
+			const {
+				data: { user: authUser },
+				error,
+			} = await supabase.auth.getUser(accessToken.value);
+
+			if (!error && authUser) {
+				user = authUser;
 
 			const { data: usuarioData } = await supabase
 				.from('user_roles')

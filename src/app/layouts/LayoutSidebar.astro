@@ -70,6 +70,15 @@ const showBannerPartner = missingPartnerFields.length > 0;
 				shouldShowBanner={bannerIncorpData.shouldShow}
 				empresaId={bannerIncorpData.empresaId}
 			/>
+			<Banner shouldShowBanner={showBannerEnProceso} />
+			<BannerPartner
+				shouldShowBanner={showBannerPartner}
+				missingFields={missingPartnerFields}
+			/>
+			<BannerIncorporacion
+				shouldShowBanner={bannerIncorpData.shouldShow}
+				empresaId={bannerIncorpData.empresaId}
+			/>
 			<slot />
 		</div>
 	</div>

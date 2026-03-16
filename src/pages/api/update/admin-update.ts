@@ -12,15 +12,14 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 	try {
 		// 1) Sesión
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
-<<<<<<< HEAD
 		// 2) Actor + verificar admin desde user_roles
 		const { data: userRes, error: userErr } = await supabase.auth.getUser();
 		const actor = userRes?.user;
-=======
-		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
->>>>>>> origin/dashboard-alpha-v1
 		if (userErr || !actor) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
@@ -33,9 +32,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			.select('roles(name)')
 			.eq('user_id', actor.id);
 
-		const actorRoles: string[] = (actorRolesData as any[])
-			?.map((ur: any) => ur.roles?.name)
-			.filter(Boolean) || [];
+		const actorRoles: string[] =
+			(actorRolesData as any[])
+				?.map((ur: any) => ur.roles?.name)
+				.filter(Boolean) || [];
 
 		if (!actorRoles.includes('admin')) {
 			return redirect(
@@ -99,8 +99,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		// Roles desde checkboxes (soporta UUID o número)
 		const rolesRaw = form.getAll('roles[]');
 		const roles = rolesRaw
-			.map(r => r.toString().trim())
-			.filter(r => r !== '');
+			.map((r) => r.toString().trim())
+			.filter((r) => r !== '');
 
 		// Si no hay cambios en payload ni roles, salir
 		if (Object.keys(payload).length === 0 && roles.length === 0) {
@@ -125,13 +125,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		// Insertar roles en user_roles
 		if (roles.length > 0) {
 			// Eliminar roles existentes del usuario
-			await supabase
-				.from('user_roles')
-				.delete()
-				.eq('user_id', targetUserId);
+			await supabase.from('user_roles').delete().eq('user_id', targetUserId);
 
 			// Insertar los nuevos roles
-			const rolesToInsert = roles.map(rolId => ({
+			const rolesToInsert = roles.map((rolId) => ({
 				user_id: targetUserId,
 				rol_id: rolId, // UUID o número según la tabla roles
 			}));
