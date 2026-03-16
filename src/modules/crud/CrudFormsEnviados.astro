@@ -4,7 +4,9 @@ import Alerta from '@components/feedback/alertageneral.astro';
 import { Icon } from 'astro-icon/components';
 import { FormsEnviadosDataGeneral } from '@lib/tablas/formulariosEnviados';
 
-const formularios_envios = await FormsEnviadosDataGeneral();
+const supabase = Astro.locals.supabase;
+
+const formularios_envios = await FormsEnviadosDataGeneral(supabase);
 ---
 
 <Alerta />

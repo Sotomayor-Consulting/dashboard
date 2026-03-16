@@ -5,9 +5,10 @@ import { Icon } from 'astro-icon/components';
 
 const user = Astro.locals.user;
 const UserId = user?.id;
+const supabase = Astro.locals.supabase
 
-const rows = UserId ? await getReferidos(UserId) : null;
-const codigo = UserId ? await getCodigoDePartner(UserId) : null;
+const rows = UserId ? await getReferidos(supabase, UserId) : null;
+const codigo = UserId ? await getCodigoDePartner(supabase, UserId) : null;
 
 const referidosSupabase = (rows ?? []).map((r) => ({
 	name:

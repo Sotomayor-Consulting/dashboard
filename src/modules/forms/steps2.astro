@@ -1919,7 +1919,9 @@ import WhatsappBtn from '@components/display/WhatsappBtn.astro';
 
 		async function checkSession() {
 			try {
-				const response = await fetch('/api/auth/session-check');
+				const response = await fetch('/api/auth/session-check', {
+					credentials: 'include',
+				});
 				return await response.json();
 			} catch (error) {
 				return { isAuthenticated: false };

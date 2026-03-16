@@ -1,12 +1,10 @@
 ---
 // src/pages/envios/[id].astro
-import { createSupabaseServerClient } from '@lib/supabase';
-
 // Auth handled by middleware
 const user = Astro.locals.user!;
 const userRoles = Astro.locals.userRoles || [];
 const { id } = Astro.params;
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const isAdmin = userRoles.includes('admin');
 

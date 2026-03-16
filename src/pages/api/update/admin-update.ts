@@ -3,7 +3,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 // Ajusta esta ruta si tu estructura es distinta:
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const BACK_PATH = '/crud/users';
 
@@ -12,21 +12,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 	try {
 		// 1) Sesión
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
-		if (!at || !rt) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
-			);
-		}
-		await supabase.auth.setSession({
-			access_token: at.value,
-			refresh_token: rt.value,
-		});
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
+<<<<<<< HEAD
 		// 2) Actor + verificar admin desde user_roles
 		const { data: userRes, error: userErr } = await supabase.auth.getUser();
 		const actor = userRes?.user;
+=======
+		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
+>>>>>>> origin/dashboard-alpha-v1
 		if (userErr || !actor) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,

@@ -6,7 +6,8 @@ import icon from 'astro-icon';
 
 export default defineConfig({
 	prefetch: {
-		defaultStrategy: 'tap',
+		defaultStrategy: 'viewport',
+		prefetchAll: true,
 	},
 	output: 'server',
 	adapter: node({

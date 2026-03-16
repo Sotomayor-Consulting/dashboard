@@ -11,10 +11,13 @@ interface Props {
 }
 
 const { empresaId } = Astro.props;
+const supabase = Astro.locals.supabase;
 
-const empresa = await pagosRealizadosPorSubirById(empresaId);
+const empresa = await pagosRealizadosPorSubirById(supabase, empresaId);
 const userId = empresa?.usuarios?.user_id;
-const documentos = userId ? await getUserFolders(userId, empresaId) : [];
+const documentos = userId
+	? await getUserFolders(supabase, userId, empresaId)
+	: [];
 ---
 
 <div class="my-4 grid w-full gap-4 xl:grid-cols-2 2xl:grid-cols-3">
@@ -271,6 +274,7 @@ const documentos = userId ? await getUserFolders(userId, empresaId) : [];
 		try {
 			const res = await fetch('/api/storage/get-signed-url', {
 				method: 'POST',
+				credentials: 'include',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ path }),
 			});

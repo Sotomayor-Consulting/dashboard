@@ -1,12 +1,11 @@
 ---
-import { createSupabaseServerClient } from '@lib/supabase';
 const { id } = Astro.params; // ID dinámico de la URL
 
 // Auth handled by middleware
 const user = Astro.locals.user;
 if (!user) return Astro.redirect('/sign-in');
 
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const { data: empresa, error: empresaError } = await supabase
 	.from('empresas_incorporaciones')

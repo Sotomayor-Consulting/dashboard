@@ -1,55 +1,54 @@
-// /api/payment/register
+// src/pages/api/payment/register.ts
+// ─── Registrar pago desde Stripe ────────────────────────
+// Requiere autenticación. Llama al RPC registrar_pago_desde_stripe
+// con el paymentIntentId proporcionado.
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseServerClient, supabaseAdmin } from '@lib/supabase';
 
-function jwtRole(jwt: string | undefined) {
-	try {
-		if (!jwt) return null;
-		const payload = JSON.parse(
-			Buffer.from(jwt.split('.')[1], 'base64').toString('utf8'),
-		);
-		return payload?.role ?? null;
-	} catch {
-		return null;
-	}
-}
+export const POST: APIRoute = async ({ request, cookies }) => {
+	// ─── 1) Autenticación (server-verified via getUser) ──
+	const supabase = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
+	});
+	const {
+		data: { user },
+		error: authError,
+	} = await supabase.auth.getUser();
 
-export const POST: APIRoute = async ({ request }) => {
-	const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY as
-		| string
-		| undefined;
-	if (!serviceKey) {
-		// 👉 si ves este error en consola, el problema es que NO estás cargando la SERVICE_ROLE en tu .env/dev/Netlify
+	if (authError || !user) {
 		return new Response(
-			JSON.stringify({ error: 'Missing SUPABASE_SERVICE_ROLE_KEY' }),
-			{ status: 500 },
+			JSON.stringify({ error: 'No autenticado' }),
+			{
+				status: 401,
+				headers: { 'Content-Type': 'application/json' },
+			},
 		);
 	}
-	// Logea SOLO el rol para confirmar que es service_role
-	console.log('[register] using role:', jwtRole(serviceKey)); // debe imprimir "service_role"
-
-	const supabaseAdmin = createClient(
-		import.meta.env.PUBLIC_SUPABASE_URL as string,
-		serviceKey,
-	);
 
 	try {
+		// ─── 2) Parsear body ─────────────────────────────
 		const { paymentIntentId } = (await request.json()) as {
 			paymentIntentId?: string;
 		};
-		if (!paymentIntentId)
+
+		if (!paymentIntentId) {
 			return new Response(
 				JSON.stringify({ error: 'paymentIntentId is required' }),
-				{ status: 400 },
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				},
 			);
+		}
 
+		// ─── 3) Registrar pago via RPC (supabaseAdmin) ──
 		const { data, error } = await supabaseAdmin.rpc(
 			'registrar_pago_desde_stripe',
 			{ p_payment_intent_id: paymentIntentId },
 		);
 
 		if (error) {
-			// Devuelve el motivo REAL del permiso denegado (temporal para depurar)
 			return new Response(
 				JSON.stringify({
 					error: error.message,
@@ -57,15 +56,24 @@ export const POST: APIRoute = async ({ request }) => {
 					details: (error as any).details ?? null,
 					hint: (error as any).hint ?? null,
 				}),
-				{ status: 400, headers: { 'Content-Type': 'application/json' } },
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				},
 			);
 		}
 
-		return new Response(JSON.stringify({ pago: data }), { status: 200 });
+		return new Response(JSON.stringify({ pago: data }), {
+			status: 200,
+			headers: { 'Content-Type': 'application/json' },
+		});
 	} catch (err: any) {
 		return new Response(
 			JSON.stringify({ error: err?.message || 'Internal server error' }),
-			{ status: 500 },
+			{
+				status: 500,
+				headers: { 'Content-Type': 'application/json' },
+			},
 		);
 	}
 };

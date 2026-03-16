@@ -1,4 +1,4 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export interface PagoPorLeer {
 	id: string;
@@ -14,7 +14,10 @@ export interface PagoPorLeer {
 	};
 }
 
-export async function getPagosPorLeer(userRole?: string): Promise<{
+export async function getPagosPorLeer(
+	supabase: SupabaseClient,
+	userRole?: string,
+): Promise<{
 	count: number;
 	data: PagoPorLeer[];
 }> {
@@ -41,7 +44,7 @@ export async function getPagosPorLeer(userRole?: string): Promise<{
 	return { count: pagosCount, data: pagosData };
 }
 
-export const pagosRealizadosData = async () => {
+export const pagosRealizadosData = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('pagos')
 		.select(
@@ -63,7 +66,7 @@ export const pagosRealizadosData = async () => {
 	return data;
 };
 
-export const pagosRealizadosPorSubir = async () => {
+export const pagosRealizadosPorSubir = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('pagos')
 		.select(
@@ -86,7 +89,10 @@ export const pagosRealizadosPorSubir = async () => {
 	return data;
 };
 
-export const pagosRealizadosPorSubirById = async (empresaId: string) => {
+export const pagosRealizadosPorSubirById = async (
+	supabase: SupabaseClient,
+	empresaId: string,
+) => {
 	const { data, error } = await supabase
 		.from('pagos')
 		.select(

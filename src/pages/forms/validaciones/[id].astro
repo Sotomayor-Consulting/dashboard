@@ -1,6 +1,7 @@
 ---
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import { getFormularioEnviadoDetalle } from '@lib/tablas/formulariosEnviados';
+const supabase = Astro.locals.supabase;
 
 const { id } = Astro.params;
 const user = Astro.locals.user;
@@ -9,7 +10,7 @@ const userRoles = Astro.locals.userRoles || [];
 
 const isAdmin = userRoles.includes('admin');
 
-const { data: envio, error: envioErr } = await getFormularioEnviadoDetalle(id!);
+const { data: envio, error: envioErr } = await getFormularioEnviadoDetalle(supabase, id!);
 
 if (envioErr || !envio) return Astro.redirect('/');
 

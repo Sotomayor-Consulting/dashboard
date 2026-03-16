@@ -1,6 +1,9 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const getDocumentosGenerales = async (UserId: string) => {
+export const getDocumentosGenerales = async (
+	supabase: SupabaseClient,
+	UserId: string,
+) => {
 	const { data, error } = await supabase
 		.from('documentos_usuarios')
 		.select('*')

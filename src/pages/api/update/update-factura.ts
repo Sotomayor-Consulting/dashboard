@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const BACK_PATH = '/settings';
 
@@ -43,32 +43,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	};
 
 	try {
-		// 1) Verificar sesión
-		const accessToken = cookies.get('sb-access-token');
-		const refreshToken = cookies.get('sb-refresh-token');
+		// 1) Sesión
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
-		if (!accessToken?.value || !refreshToken?.value) {
-			return redirectWithMessage(
-				'error',
-				'No autenticado. Por favor inicia sesión.',
-			);
-		}
-
-		// 2) Establecer sesión en Supabase
-		const { error: sessionError } = await supabase.auth.setSession({
-			access_token: accessToken.value,
-			refresh_token: refreshToken.value,
-		});
-
-		if (sessionError) {
-			console.error('Error al establecer sesión en Supabase:', sessionError);
-			return redirectWithMessage(
-				'error',
-				'No se pudo establecer la sesión. Intenta nuevamente.',
-			);
-		}
-
-		// 3) Obtener usuario autenticado
+		// 2) Obtener usuario autenticado
 		const {
 			data: { user },
 			error: userErr,
@@ -78,7 +56,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			console.error('Error al obtener usuario autenticado:', userErr);
 			return redirectWithMessage(
 				'error',
-				'No se pudo verificar tu identidad. Intenta nuevamente.',
+				'No autenticado. Por favor inicia sesión.',
 			);
 		}
 

@@ -4,14 +4,16 @@ import { PaisesGeneral } from '@lib/tablas/paises';
 import { FacturacionbyId } from '@lib/tablas/facturacion';
 import { getUsuarioById } from '@lib/tablas/usuarios';
 
+const supabase = Astro.locals.supabase;
+
 const email = Astro.locals.user?.email;
 const user = Astro.locals.user;
 const userId = user?.id ?? '';
 
 const [paises, usuario, facturacion] = await Promise.all([
-	PaisesGeneral(),
-	getUsuarioById(userId),
-	FacturacionbyId(userId),
+	PaisesGeneral(supabase),
+	getUsuarioById(supabase, userId),
+	FacturacionbyId(supabase, userId),
 ]);
 
 type Opcion = {

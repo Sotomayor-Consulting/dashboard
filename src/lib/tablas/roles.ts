@@ -1,6 +1,6 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const RolesGeneral = async () => {
+export const RolesGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('roles')
 		.select('*')
@@ -15,7 +15,7 @@ export const RolesGeneral = async () => {
 	return data;
 };
 
-export const RolesGeneralUsers = async () => {
+export const RolesGeneralUsers = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('user_roles')
 		.select('*, roles (name)')

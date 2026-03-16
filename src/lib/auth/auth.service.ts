@@ -19,11 +19,7 @@ import {
 	mapSupabaseUser,
 	VALID_OAUTH_PROVIDERS,
 } from './auth.types';
-import {
-	AUTH_COOKIE_NAMES,
-	AUTH_COOKIE_OPTIONS,
-	VALIDATION,
-} from './auth.config';
+import { VALIDATION } from './auth.config';
 import { friendlyAuthError } from './auth.helpers';
 
 /**
@@ -44,14 +40,14 @@ import { friendlyAuthError } from './auth.helpers';
 export class AuthService {
 	constructor(
 		private readonly supabase: SupabaseClient,
-		private readonly cookies: AstroCookies,
+		_cookies?: AstroCookies,
 	) {}
 
 	// ─── Email/Password Auth ────────────────────────────────
 
 	/**
 	 * Inicia sesión con email y contraseña.
-	 * Setea cookies de sesión en caso de éxito.
+	 * Las cookies de sesión se gestionan automáticamente por @supabase/ssr.
 	 */
 	async signInWithPassword(dto: SignInWithPasswordDto): Promise<AuthResult> {
 		if (!dto.email || !dto.password) {
@@ -71,17 +67,12 @@ export class AuthService {
 			throw new AuthError('No se pudo iniciar sesión. Inténtalo nuevamente.');
 		}
 
-		this.setSessionCookies(
-			data.session.access_token,
-			data.session.refresh_token,
-		);
-
 		return mapAuthResult(data.user, data.session);
 	}
 
 	/**
 	 * Registra un nuevo usuario con email, contraseña y metadatos.
-	 * No setea cookies (requiere confirmación de email por defecto).
+	 * Las cookies se gestionan automáticamente por @supabase/ssr si no requiere confirmación.
 	 */
 	async register(
 		dto: RegisterDto,
@@ -111,12 +102,6 @@ export class AuthService {
 		});
 
 		if (error) {
-			console.error('[AuthService.register] Supabase error original:', {
-				message: error.message,
-				code: error.code,
-				status: error.status,
-				name: error.name,
-			});
 			throw new AuthError(friendlyAuthError(error.message, error.code));
 		}
 
@@ -127,12 +112,9 @@ export class AuthService {
 			);
 		}
 
-		// Si se devuelve sesión (email confirmation deshabilitada), setear cookies
+		// Si se devuelve sesión (email confirmation deshabilitada),
+		// @supabase/ssr ya seteó las cookies automáticamente via setAll()
 		if (data.session) {
-			this.setSessionCookies(
-				data.session.access_token,
-				data.session.refresh_token,
-			);
 			return {
 				requiresEmailConfirmation: false,
 				user: mapSupabaseUser(data.user!),
@@ -177,7 +159,8 @@ export class AuthService {
 
 	/**
 	 * Intercambia un código de autorización OAuth por una sesión.
-	 * Setea cookies de sesión. Incluye retry para errores PKCE.
+	 * Las cookies se gestionan automáticamente por @supabase/ssr.
+	 * Incluye retry para errores PKCE.
 	 */
 	async exchangeCodeForSession(code: string): Promise<AuthResult> {
 		const MAX_ATTEMPTS = 2;
@@ -201,11 +184,6 @@ export class AuthService {
 					);
 				}
 
-				this.setSessionCookies(
-					data.session.access_token,
-					data.session.refresh_token,
-				);
-
 				return mapAuthResult(data.user, data.session);
 			} catch (err) {
 				if (err instanceof AuthError) throw err;
@@ -227,16 +205,17 @@ export class AuthService {
 	// ─── Session Management ───────────────────────────────
 
 	/**
-	 * Cierra la sesión del usuario y limpia las cookies.
+	 * Cierra la sesión del usuario.
+	 * @supabase/ssr limpia las cookies automáticamente via setAll().
 	 */
 	async signOut(): Promise<void> {
 		await this.supabase.auth.signOut();
-		this.clearSessionCookies();
 	}
 
 	/**
 	 * Obtiene el usuario autenticado actual desde la sesión.
 	 * Retorna null si no hay sesión válida.
+	 * Usa getUser() - hace verificación HTTP al servidor de auth.
 	 */
 	async getCurrentUser(): Promise<AuthUser | null> {
 		const { data, error } = await this.supabase.auth.getUser();
@@ -246,6 +225,21 @@ export class AuthService {
 		}
 
 		return mapSupabaseUser(data.user);
+	}
+
+	/**
+	 * Obtiene el usuario desde la sesión local (cookies).
+	 * Más rápido que getUser() - verifica el JWT localmente sin llamada HTTP.
+	 * Similar a getClaims() del middleware.
+	 */
+	async getCurrentUserFromCookie(): Promise<AuthUser | null> {
+		const { data, error } = await this.supabase.auth.getSession();
+
+		if (error || !data.session) {
+			return null;
+		}
+
+		return mapSupabaseUser(data.session.user);
 	}
 
 	/**
@@ -264,10 +258,45 @@ export class AuthService {
 	}
 
 	/**
-	 * Obtiene el access token actual (para uso con APIs externas como SurveyJS).
+	 * Verifica la sesión desde cookies (local).
+	 * Usa getClaims() - mismo método que el middleware.
 	 */
-	getAccessToken(): string | undefined {
-		return this.cookies.get(AUTH_COOKIE_NAMES.accessToken)?.value;
+	async checkSessionFromCookie(): Promise<{
+		isAuthenticated: boolean;
+		user: AuthUser | null;
+	}> {
+		const { data, error } = await this.supabase.auth.getClaims();
+
+		if (error || !data?.claims) {
+			return { isAuthenticated: false, user: null };
+		}
+
+		const claims = data.claims;
+		const user: AuthUser = {
+			id: claims.sub,
+			email: claims.email ?? '',
+			name: claims.user_metadata?.nombre ?? claims.user_metadata?.name ?? '',
+			lastName: claims.user_metadata?.apellido ?? claims.user_metadata?.lastName ?? '',
+			createdAt: claims.iat ? new Date(claims.iat * 1000).toISOString() : new Date().toISOString(),
+		};
+
+		return { isAuthenticated: true, user };
+	}
+
+	/**
+	 * Obtiene el access token actual (para uso con APIs externas como SurveyJS).
+	 * Primero valida el usuario server-side con getUser(), luego obtiene el token.
+	 */
+	async getAccessToken(): Promise<string | undefined> {
+		// 1. SIEMPRE validar primero con getUser() (server-verified)
+		const { data: { user }, error } = await this.supabase.auth.getUser();
+		if (error || !user) return undefined;
+	// 2. getSession() aquí es seguro porque:
+    //    - getUser() ya verificó la autenticidad del usuario
+    //    - Solo necesitamos el access_token para APIs externas (SurveyJS)
+    //    - El token fue refrescado por getUser() si estaba expirado
+		const { data: { session } } = await this.supabase.auth.getSession();
+		return session?.access_token;
 	}
 
 	// ─── Password Recovery ────────────────────────────────
@@ -299,10 +328,37 @@ export class AuthService {
 		// Siempre respondemos lo mismo por seguridad
 	}
 
+	/**
+	 * Establece una nueva contraseña para el usuario autenticado.
+	 * Se usa después de que el usuario accede via el link de reset password.
+	 */
+	async resetPassword(newPassword: string): Promise<void> {
+		if (!newPassword || newPassword.length < VALIDATION.passwordMinLength) {
+			throw new AuthError(
+				`La contraseña debe tener al menos ${VALIDATION.passwordMinLength} caracteres.`,
+			);
+		}
+
+		const { error } = await this.supabase.auth.updateUser({
+			password: newPassword,
+		});
+
+		if (error) {
+			console.error(
+				'[AuthService.resetPassword] Error:',
+				error.message,
+			);
+			throw new AuthError(
+				friendlyAuthError(error.message, error.code),
+			);
+		}
+	}
+
 	// ─── Invite Handling ──────────────────────────────────
 
 	/**
 	 * Procesa un callback de invitación usando código o token.
+	 * Las cookies se gestionan automáticamente por @supabase/ssr.
 	 */
 	async handleInviteCallback(params: {
 		code?: string | undefined;
@@ -322,11 +378,6 @@ export class AuthService {
 				throw new AuthError('No se pudo verificar el token de invitación.');
 			}
 
-			this.setSessionCookies(
-				data.session.access_token,
-				data.session.refresh_token,
-			);
-
 			return mapAuthResult(data.user!, data.session);
 		}
 
@@ -334,24 +385,6 @@ export class AuthService {
 	}
 
 	// ─── Private Helpers ──────────────────────────────────
-
-	private setSessionCookies(accessToken: string, refreshToken: string): void {
-		this.cookies.set(
-			AUTH_COOKIE_NAMES.accessToken,
-			accessToken,
-			AUTH_COOKIE_OPTIONS,
-		);
-		this.cookies.set(
-			AUTH_COOKIE_NAMES.refreshToken,
-			refreshToken,
-			AUTH_COOKIE_OPTIONS,
-		);
-	}
-
-	private clearSessionCookies(): void {
-		this.cookies.delete(AUTH_COOKIE_NAMES.accessToken, { path: '/' });
-		this.cookies.delete(AUTH_COOKIE_NAMES.refreshToken, { path: '/' });
-	}
 
 	private isPkceError(message: string): boolean {
 		const pkceErrors = [

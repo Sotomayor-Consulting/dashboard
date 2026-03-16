@@ -1,7 +1,5 @@
 ---
-import { createSupabaseServerClient } from '@lib/supabase';
-import { Icon } from 'astro-icon/components';
-const supabase = createSupabaseServerClient(Astro);
+const supabase = Astro.locals.supabase;
 
 const { data: servicios, error: serviciosErr } = await supabase
 	.from('servicio_extra')

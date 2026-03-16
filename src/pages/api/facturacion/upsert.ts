@@ -1,17 +1,35 @@
-// src/pages/api/billing/upsert.ts
+// src/pages/api/facturacion/upsert.ts
+// ─── Insertar datos de facturación ──────────────────────
+// Requiere autenticación. Valida que el userId del body
+// coincida con el usuario autenticado (previene suplantación).
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseServerClient, supabaseAdmin } from '@lib/supabase';
 
-const supabase = createClient(
-	import.meta.env.PUBLIC_SUPABASE_URL as string,
-	import.meta.env.SUPABASE_SERVICE_ROLE_KEY as string, // clave de backend (no exponer)
-);
+export const POST: APIRoute = async ({ request, cookies }) => {
+	// ─── 1) Autenticación (server-verified via getUser) ──
+	const supabase = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
+	});
+	const {
+		data: { user },
+		error: authError,
+	} = await supabase.auth.getUser();
 
-export const POST: APIRoute = async ({ request }) => {
+	if (authError || !user) {
+		return new Response(
+			JSON.stringify({ error: 'No autenticado' }),
+			{
+				status: 401,
+				headers: { 'Content-Type': 'application/json' },
+			},
+		);
+	}
+
 	try {
+		// ─── 2) Parsear body ─────────────────────────────
 		const body = await request.json();
 
-		// Campos esperados desde el front (usa tus IDs actuales)
 		const {
 			userId,
 			persona, // "natural" | "juridica"
@@ -26,13 +44,27 @@ export const POST: APIRoute = async ({ request }) => {
 		} = body || {};
 
 		if (!userId) {
-			return new Response(JSON.stringify({ error: 'userId is required' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: 'userId is required' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				},
+			);
 		}
 
-		// Normalizar personería (usa exactamente el nombre de tu columna con tilde)
+		// ─── 3) Validar que el userId del body sea el usuario autenticado ──
+		if (userId !== user.id) {
+			return new Response(
+				JSON.stringify({ error: 'No autorizado para este usuario' }),
+				{
+					status: 403,
+					headers: { 'Content-Type': 'application/json' },
+				},
+			);
+		}
+
+		// ─── 4) Construir row e insertar ─────────────────
 		const row: Record<string, any> = {
 			user_id: userId,
 			nombre_o_razon_social: nombre_razon || '',
@@ -47,8 +79,7 @@ export const POST: APIRoute = async ({ request }) => {
 		// columna con tilde
 		row['personería'] = (persona || '').toLowerCase(); // "natural" | "juridica"
 
-		// Insertar
-		const { data, error } = await supabase
+		const { data, error } = await supabaseAdmin
 			.from('facturacion')
 			.insert([row])
 			.select('id')
@@ -56,10 +87,13 @@ export const POST: APIRoute = async ({ request }) => {
 
 		if (error) {
 			console.error('[billing/upsert] insert error:', error);
-			return new Response(JSON.stringify({ error: 'Insert failed' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			return new Response(
+				JSON.stringify({ error: 'Insert failed' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				},
+			);
 		}
 
 		return new Response(JSON.stringify({ id: data?.id || null }), {
@@ -68,9 +102,12 @@ export const POST: APIRoute = async ({ request }) => {
 		});
 	} catch (e: any) {
 		console.error('[billing/upsert] exception:', e);
-		return new Response(JSON.stringify({ error: 'Internal server error' }), {
-			status: 500,
-			headers: { 'Content-Type': 'application/json' },
-		});
+		return new Response(
+			JSON.stringify({ error: 'Internal server error' }),
+			{
+				status: 500,
+				headers: { 'Content-Type': 'application/json' },
+			},
+		);
 	}
 };

@@ -1,6 +1,8 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const ListaDeMicroServiciosActivos = async () => {
+export const ListaDeMicroServiciosActivos = async (
+	supabase: SupabaseClient,
+) => {
 	const { data, error } = await supabase
 		.from('micro_servicios')
 		.select('*')

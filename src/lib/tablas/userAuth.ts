@@ -1,57 +1,37 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const getUserEmail = async (context: any) => {
-	// Restaurar sesión desde cookies
-	const { cookies } = context;
-	const accessToken = cookies.get('sb-access-token');
-	const refreshToken = cookies.get('sb-refresh-token');
+export const getUserEmail = async (supabase: SupabaseClient) => {
+	try {
+		const {
+			data: { user },
+			error,
+		} = await supabase.auth.getUser();
 
-	if (!accessToken || !refreshToken) {
+		if (error) {
+			console.error('Error fetching user email:', error);
+			return null;
+		}
+
+		return user?.email || null;
+	} catch {
 		return null;
 	}
-
-	await supabase.auth.setSession({
-		access_token: accessToken.value,
-		refresh_token: refreshToken.value,
-	});
-
-	const {
-		data: { user },
-		error,
-	} = await supabase.auth.getUser();
-
-	if (error) {
-		console.error('Error fetching user email:', error);
-		return null;
-	}
-
-	return user?.email || null;
 };
 
-export const UsersGeneral = async (context: any) => {
-	// Restaurar sesión desde cookies
-	const { cookies } = context;
-	const accessToken = cookies.get('sb-access-token');
-	const refreshToken = cookies.get('sb-refresh-token');
+export const UsersGeneral = async (supabase: SupabaseClient) => {
+	try {
+		const {
+			data: { user },
+			error,
+		} = await supabase.auth.getUser();
 
-	if (!accessToken || !refreshToken) {
+		if (error) {
+			console.error('Error fetching user:', error);
+			return null;
+		}
+
+		return user;
+	} catch {
 		return null;
 	}
-
-	await supabase.auth.setSession({
-		access_token: accessToken.value,
-		refresh_token: refreshToken.value,
-	});
-
-	const {
-		data: { user },
-		error,
-	} = await supabase.auth.getUser();
-
-	if (error) {
-		console.error('Error fetching user:', error);
-		return null;
-	}
-
-	return user;
 };

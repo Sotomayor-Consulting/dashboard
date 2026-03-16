@@ -15,15 +15,16 @@ interface Props {
 }
 
 const { empresaId } = Astro.props;
+const supabase = Astro.locals.supabase;
 
 const [socios, managers, actividades, paises, estados, empresa] =
 	await Promise.all([
-		getSociosByEmpresa(empresaId),
-		getManagerByEmpresa(empresaId),
-		actividadesGeneral(),
-		PaisesGeneral(),
-		EstadosGeneral(),
-		getEmpresaById(empresaId),
+		getSociosByEmpresa(supabase, empresaId),
+		getManagerByEmpresa(supabase, empresaId),
+		actividadesGeneral(supabase),
+		PaisesGeneral(supabase),
+		EstadosGeneral(supabase),
+		getEmpresaById(supabase, empresaId),
 	]);
 
 const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';

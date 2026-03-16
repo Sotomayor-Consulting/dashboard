@@ -5,11 +5,12 @@ import { getAllUsuarios } from '@lib/tablas/usuarios';
 import { RolesGeneral, RolesGeneralUsers } from '@lib/tablas/roles';
 import { PaisesGeneral } from '@lib/tablas/paises';
 
+const supabase = Astro.locals.supabase;
 const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
-	getAllUsuarios(),
-	RolesGeneral(),
-	PaisesGeneral(),
-	RolesGeneralUsers(),
+	getAllUsuarios(supabase),
+	RolesGeneral(supabase),
+	PaisesGeneral(supabase),
+	RolesGeneralUsers(supabase),
 ]);
 ---
 
@@ -87,6 +88,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 					>
 					Invitar usuario
 				</button>
+
 				<button
 					id="dropdownMenuIconButton"
 					data-dropdown-toggle="dropdownDots2"
@@ -306,7 +308,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 														?.filter((r) => r.user_id === user.user_id)
 														.map((r) => r.rol_id) || [],
 												)}
-												class="focus:ring-primary-300 inline-flex items-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+												class="focus:ring-primary-300 inline-flex items-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:focus:ring-[#323f67]"
 											>
 												<svg
 													class="mr-2 h-4 w-4"
@@ -665,7 +667,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
 					>
 						<button
-							class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+							class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:focus:ring-[#323f67]"
 							type="submit">Guardar</button
 						>
 					</div>
@@ -752,7 +754,10 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 </script>
 <!-- Añadir usuario -->
 <div
-	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
+	tabindex="-1"
+	aria-hidden="true"
+	data-modal-backdrop="static"
+	class="h-modal fixed top-4 right-0 left-0 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
 	id="add-user-modal"
 >
 	<div class="relative h-full w-full max-w-2xl px-4 md:h-auto">
@@ -806,7 +811,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
 					>
 						<button
-							class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+							class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:focus:ring-[#323f67]"
 							type="submit">Invitar Usuario</button
 						>
 					</div>
@@ -871,7 +876,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
 					>
 						<button
-							class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+							class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:focus:ring-[#323f67]"
 							type="submit">Añadir rol</button
 						>
 					</div>
@@ -945,7 +950,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 				<div class="flex items-center space-x-4">
 					<button
 						type="submit"
-						class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:outline-none dark:bg-[#134aed] dark:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+						class="focus:ring-primary-300 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:outline-none dark:bg-[#134aed] dark:focus:ring-[#323f67]"
 					>
 						Actualizar estado
 					</button>

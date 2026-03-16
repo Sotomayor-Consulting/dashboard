@@ -7,10 +7,11 @@ import { getDocumentosGenerales } from '@lib/tablas/documentos';
 const user = Astro.locals.user;
 const userRoles = Astro.locals.userRoles || [];
 const UserId = user?.id;
+const supabase = Astro.locals.supabase;
 
 let datosParaReporte = {};
 
-let usuario = UserId ? await getUsuarioById(UserId) : null;
+let usuario = UserId ? await getUsuarioById(supabase, UserId) : null;
 
 if (!usuario && Astro.props.data) {
 	usuario = Astro.props.data;
@@ -26,7 +27,7 @@ if (usuario) {
 	};
 }
 
-const documentos = UserId ? await getDocumentosGenerales(UserId) : null;
+const documentos = UserId ? await getDocumentosGenerales(supabase, UserId) : null;
 
 interface Props {
 	data: object;
@@ -38,7 +39,7 @@ let perfilCompleto = false;
 const isPartner = userRoles.includes('partner');
 
 if (isPartner && user) {
-	const camposFaltantes = await getMissingPartnerFields(user.id);
+	const camposFaltantes = await getMissingPartnerFields(supabase, user.id);
 	perfilCompleto = camposFaltantes.length === 0;
 }
 ---

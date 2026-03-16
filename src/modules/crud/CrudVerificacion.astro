@@ -2,7 +2,9 @@
 import '@styles/datatables.css';
 import { FormsEnviosVericacion } from '@lib/tablas/formulariosEnviados'
 
-const formularios = await FormsEnviosVericacion();
+const supabase = Astro.locals.supabase;
+
+const formularios = await FormsEnviosVericacion(supabase);
 
 ---
 

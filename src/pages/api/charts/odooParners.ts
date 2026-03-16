@@ -1,6 +1,6 @@
 // src/pages/api/charts/referrals-odoo.ts
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseServerClient } from '@lib/supabase';
 import { getReferralsByEmail } from '@services/partnerService';
 
 type Referral = {
@@ -10,46 +10,10 @@ type Referral = {
 };
 
 export const GET: APIRoute = async ({ cookies, request }) => {
-	// 1) Supabase client
-	const supabase = createClient(
-		import.meta.env.PUBLIC_SUPABASE_URL,
-		import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-	);
+	// 1) Cliente Supabase SSR
+	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
-	const at = cookies.get('sb-access-token');
-	const rt = cookies.get('sb-refresh-token');
-
-	const accessToken = at?.value;
-	const refreshToken = rt?.value;
-
-	if (!accessToken || !refreshToken) {
-		return new Response(
-			JSON.stringify({ error: 'No autorizado: falta token de sesión' }),
-			{
-				status: 401,
-				headers: { 'Content-Type': 'application/json' },
-			},
-		);
-	}
-
-	// 2) Setear sesión
-	const { error: sessionErr } = await supabase.auth.setSession({
-		access_token: accessToken,
-		refresh_token: refreshToken,
-	});
-
-	if (sessionErr) {
-		console.error('[CHART-ODOO] Error setSession:', sessionErr);
-		return new Response(
-			JSON.stringify({ error: 'Sesión inválida o expirada' }),
-			{
-				status: 401,
-				headers: { 'Content-Type': 'application/json' },
-			},
-		);
-	}
-
-	// 3) Obtener usuario
+	// 2) Obtener usuario
 	const {
 		data: { user },
 		error: userErr,

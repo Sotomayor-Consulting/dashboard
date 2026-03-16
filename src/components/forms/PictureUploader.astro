@@ -2,9 +2,11 @@
 import { getUsuarioAvatar } from '@lib/tablas/usuarios';
 import Image from 'astro/components/Image.astro';
 
+const supabase = Astro.locals.supabase;
+
 const user = Astro.locals.user;
 const userId = user?.id;
-const imagen = userId ? await getUsuarioAvatar(userId) : null;
+const imagen = userId ? await getUsuarioAvatar(supabase, userId) : null;
 
 interface Props {
 	title: string;

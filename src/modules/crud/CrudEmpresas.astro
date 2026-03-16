@@ -7,11 +7,13 @@ import { actividadesGeneral } from '@lib/tablas/actividades';
 import { EstadosGeneral } from '@lib/tablas/estados';
 import { PaisesGeneral } from '@lib/tablas/paises';
 
+const supabase = Astro.locals.supabase;
+
 const [empresas, actividades, estados, paises] = await Promise.all([
-	IncorporacionesEmpresasBase(),
-	actividadesGeneral(),
-	EstadosGeneral(),
-	PaisesGeneral(),
+	IncorporacionesEmpresasBase(supabase),
+	actividadesGeneral(supabase),
+	EstadosGeneral(supabase),
+	PaisesGeneral(supabase),
 ]);
 ---
 
@@ -99,7 +101,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 		<div class="inline-block min-w-full align-middle">
 			<div class="overflow-hidden shadow">
 				<table
-					class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600"
+					class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
 					id="myTable"
 				>
 					<thead class="dark:bg-black-800 bg-gray-100" id="test">
@@ -111,7 +113,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 									'Tipo de Negocio',
 									'Estado de incorporación',
 									'Estado',
-									'Estado',
+									'Proceso',
 									'Creado en',
 								].map((th) => (
 									<th

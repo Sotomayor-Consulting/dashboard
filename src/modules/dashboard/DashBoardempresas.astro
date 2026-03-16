@@ -15,21 +15,22 @@ const { empresaId } = Astro.props;
 const { id } = Astro.params;
 const user = Astro.locals.user;
 const userId = user?.id;
+const supabase = Astro.locals.supabase
 
 if (!id || !userId) {
 	return Astro.redirect('/');
 }
 
 const [empresa, folderPath, porfirmar] = await Promise.all([
-	getIncorporacionById(id, userId),
-	getUserFolders(userId, id),
-	getDocumentosPorFirmar(userId, empresaId),
+	getIncorporacionById(supabase, id, userId),
+	getUserFolders(supabase, userId, id),
+	getDocumentosPorFirmar(supabase, userId, empresaId),
 ]);
 
 // Obtener estado de incorporación para el mapa
 let estadoMapa = null;
 if (empresa.estado_de_incorporacion) {
-	const estadoData = await getEstadoPorEmpresa(empresa.estado_de_incorporacion);
+	const estadoData = await getEstadoPorEmpresa(supabase, empresa.estado_de_incorporacion);
 
 	if (estadoData) {
 		estadoMapa = estadoData.Estado;

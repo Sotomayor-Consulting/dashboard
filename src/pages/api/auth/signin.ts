@@ -40,12 +40,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 			password: password ?? '',
 		});
 
-		return redirectWithMessage(
-			redirect,
-			'Sesión iniciada correctamente.',
-			'success',
-			PATHS.signIn,
-		);
+		return redirect(PATHS.home);
 	} catch (error) {
 		const message =
 			error instanceof AuthError

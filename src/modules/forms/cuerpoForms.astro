@@ -6,7 +6,8 @@ import { Icon } from 'astro-icon/components';
 
 const user = Astro.locals.user;
 const userId = user?.id;
-const formularios = userId ? await FormsEnviadosForId(userId) : null;
+const supabase = Astro.locals.supabase;
+const formularios = userId ? await FormsEnviadosForId(supabase, userId) : null;
 ---
 
 <div class="mb-10">
@@ -89,8 +90,11 @@ const formularios = userId ? await FormsEnviadosForId(userId) : null;
 									loading={'eager'}
 								/>
 							</a>
-							<div class="p-6 text-center">
-								<span class="bg-success-soft border-success-subtle text-fg-success inline-flex items-center rounded-sm border px-1.5 py-0.5 text-xs font-medium">
+							<a
+								href={`/forms/enviados/${fr.submission_id}`}
+								class="flex w-full flex-col items-center gap-2 p-6 text-center"
+							>
+								<span class="bg-success-soft border-success-subtle text-fg-success inline-flex w-fit items-center rounded-sm border px-1.5 py-0.5 text-xs font-medium">
 									<Icon name="ri:checkbox-circle-line" class="me-1 text-base" />
 									Terminado
 								</span>
@@ -101,7 +105,7 @@ const formularios = userId ? await FormsEnviadosForId(userId) : null;
 								<p class="mb-3 font-normal text-gray-700 dark:text-gray-400">
 									{fr.formularios.descripcion}
 								</p>
-							</div>
+							</a>
 							<div class="mr-2 mb-2 flex w-full justify-end">
 								<button
 									id="dropdownMenuIconButton"

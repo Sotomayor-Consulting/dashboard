@@ -1,11 +1,10 @@
 @import "tailwindcss";
 @import "flowbite/src/themes/default";
+@plugin "flowbite/plugin";
+
 @source "../../node_modules/flowbite";
 
 
-
-
-@plugin "flowbite/plugin";
 @plugin "flowbite-typography";
 
 @plugin "tailwind-scrollbar" {
@@ -61,8 +60,22 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+
 @layer utilities {
   .safelist-justify-evenly {
     justify-items: stretch;
+  }
+
+  /* Flowbite modal z-index fix - ensure backdrop is behind modal */
+  .fixed.inset-0.bg-gray-900\/50,
+  .fixed.inset-0.bg-gray-900\/80,
+  [data-modal-backdrop] {
+    z-index: 40 !important;
+  }
+  
+  .fixed.top-4.right-0.left-0.z-50,
+  [data-flowbite-modal],
+  [role="dialog"] {
+    z-index: 50 !important;
   }
 }

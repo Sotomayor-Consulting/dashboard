@@ -1,4 +1,12 @@
 ---
+import { getReferidos } from '@lib/tablas/referidos';
+
+const supabase = Astro.locals.supabase;
+const user = Astro.locals.user;
+const UserId = user?.id;
+
+const rows = UserId ? await getReferidos(supabase, UserId) : null;
+
 const referidosSupabase = (rows ?? []).map((r) => ({
 	name:
 		`${r.referido[0]?.nombre ?? ''} ${r.referido[0]?.apellido ?? ''}`.trim() ||
@@ -70,7 +78,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-black-800"
 		>
 			<div class="flex items-center justify-between mb-4">
-				<div class="flex-shrink-0">
+				<div class="shrink-0">
 					<span
 						class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white"
 						>Referidos</span
@@ -92,7 +100,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 					<p
 						class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 rounded-lg hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
 					>
-						Ultimos 10 dias
+						Últimos 10 días
 					</p>
 				</div>
 			</div>
@@ -153,7 +161,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 							referidosCombinados?.map((r) => (
 								<li class="py-3 sm:py-4">
 									<div class="flex items-center space-x-4">
-										<div class="flex-shrink-0">
+										<div class="shrink-0">
 											{!r.avatar || r.avatar === 'NULL' ? (
 												<img
 													class="w-10 h-10 rounded-full"

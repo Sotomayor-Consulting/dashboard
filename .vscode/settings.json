@@ -31,10 +31,19 @@
 	/* —————————————————————————————— Prettier ———————————————————————————————— */
 	/* Add support for `prettier-plugin-astro` */
 	"prettier.documentSelectors": ["**/*.astro"],
+	"prettier.useEditorConfig": false,
+	"prettier.requireConfig": true,
+	"prettier.resolveGlobalModules": false,
 	"editor.formatOnSave": true,
 	"prettier.enableDebugLogs": true,
 	"prettier.trace.server": "verbose",
 	"[astro]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[javascript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 

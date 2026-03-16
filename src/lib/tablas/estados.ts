@@ -1,6 +1,6 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const EstadosGeneral = async () => {
+export const EstadosGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase.from('estados').select('*');
 
 	if (error) {
@@ -11,7 +11,10 @@ export const EstadosGeneral = async () => {
 	return data;
 };
 
-export const getEstadoPorEmpresa = async (estado: string) => {
+export const getEstadoPorEmpresa = async (
+	supabase: SupabaseClient,
+	estado: string,
+) => {
 	const { data, error } = await supabase
 		.from('estados')
 		.select('abreviatura, Estado')

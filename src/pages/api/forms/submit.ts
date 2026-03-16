@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 import { createHash } from 'node:crypto';
 
 type SaveBody = {
@@ -25,24 +25,17 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		});
 
 	try {
-		// 1) Sesión (usuario autenticado; sin admin)
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
-		if (!at || !rt) return j(401, { ok: false, error: 'NO_AUTH_COOKIES' });
-		await supabase.auth.setSession({
-			access_token: at.value,
-			refresh_token: rt.value,
-		});
+		// 1) Cliente Supabase SSR
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
 		// 2) Usuario actual
-		const { data: userRes, error: userErr } = await supabase.auth.getUser();
+		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
 		if (userErr)
 			return j(401, {
 				ok: false,
 				error: 'GET_USER_ERROR',
 				detail: userErr.message,
 			});
-		const actor = userRes?.user;
 		if (!actor) return j(401, { ok: false, error: 'NO_AUTH_USER' });
 
 		// 3) Body

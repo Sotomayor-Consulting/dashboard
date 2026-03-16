@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const DEFAULT_BACK_PATH = '/partners/configuracion-partners/';
 const BUCKET_NAME = 'documentos_usuarios';
@@ -17,27 +17,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		redirect(`${back}?status=${status}&msg=${encodeURIComponent(msg)}`);
 
 	try {
-		// 1) Recuperar tokens desde cookies (con validación segura)
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
+		// 1) Sesión
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
-		if (!at?.value || !rt?.value) {
-			return redirectWithStatus('error', 'No autenticado (falta sesión)');
-		}
-
-		// 2) Establecer sesión en Supabase
-		const { error: sessionErr } = await supabase.auth.setSession({
-			access_token: at.value,
-			refresh_token: rt.value,
-		});
-
-		if (sessionErr) {
-			console.error('[UPLOAD-CONTRACT] Error al setear sesión:', sessionErr);
-			return redirectWithStatus('error', 'No autenticado (sesión inválida)');
-		}
-
-		const { data: userData, error: uerr } = await supabase.auth.getUser();
-		const user = userData?.user;
+		const { data: { user }, error: uerr } = await supabase.auth.getUser();
 
 		if (uerr || !user) {
 			console.error('[UPLOAD-CONTRACT] Error al obtener usuario:', uerr);

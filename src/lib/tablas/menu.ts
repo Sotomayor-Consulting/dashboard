@@ -1,4 +1,4 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export interface UserWithRole {
 	user: any;
@@ -12,7 +12,10 @@ export interface UserWithRole {
 	roles: string[];
 }
 
-export async function getUserWithRole(userId?: string): Promise<UserWithRole> {
+export async function getUserWithRole(
+	supabase: SupabaseClient,
+	userId?: string,
+): Promise<UserWithRole> {
 	if (!userId) {
 		return { user: null, role: 'guest', roles: [] };
 	}

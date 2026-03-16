@@ -1,6 +1,6 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const actividadesGeneral = async () => {
+export const actividadesGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase.from('actividades').select('*');
 
 	if (error) {

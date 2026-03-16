@@ -1,6 +1,7 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const getDocumentosPorFirmar = async (
+	supabase: SupabaseClient,
 	UserId: string,
 	empresaId: string,
 ) => {

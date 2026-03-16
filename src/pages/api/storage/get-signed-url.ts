@@ -1,26 +1,17 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	try {
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
-		if (!at?.value || !rt?.value) {
+		const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
+
+		if (sessionErr || !session) {
+			console.error('[SIGNED-URL] Sin sesión:', sessionErr?.message);
 			return new Response(JSON.stringify({ error: 'No autenticado' }), {
-				status: 401,
-			});
-		}
-
-		const { error: sessionErr } = await supabase.auth.setSession({
-			access_token: at.value,
-			refresh_token: rt.value,
-		});
-
-		if (sessionErr) {
-			return new Response(JSON.stringify({ error: 'Sesión inválida' }), {
 				status: 401,
 			});
 		}
@@ -51,9 +42,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		});
 	} catch (e: unknown) {
 		console.error('[SIGNED-URL] Excepción:', e);
-		return new Response(
-			JSON.stringify({ error: 'Error inesperado' }),
-			{ status: 500 },
-		);
+		return new Response(JSON.stringify({ error: 'Error inesperado' }), {
+			status: 500,
+		});
 	}
 };

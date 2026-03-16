@@ -2,108 +2,152 @@
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 ---
 
-<LayoutSidebar>
-	<div class="p-4">
-		<h1 class="mb-4 text-2xl font-bold">Firmar Documento PDF</h1>
+<script>
+	import 'flowbite';
+</script>
+<!-- Modal toggle -->
+<button
+	data-modal-target="crud-modal"
+	data-modal-toggle="crud-modal"
+	class="bg-brand hover:bg-brand-strong focus:ring-brand-medium rounded-base box-border border border-transparent px-4 py-2.5 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
+	type="button"
+>
+	Toggle modal
+</button>
 
-		<div class="mb-4">
-			<label class="mb-2 block">Seleccionar PDF:</label>
-			<input
-				type="file"
-				id="pdfInput"
-				accept=".pdf"
-				class="rounded border p-2"
-			/>
-		</div>
-
-		<div class="mb-4">
-			<label class="mb-2 block">Certificado (.p12):</label>
-			<input
-				type="file"
-				id="certInput"
-				accept=".p12,.pfx"
-				class="rounded border p-2"
-			/>
-		</div>
-
-		<div class="mb-4">
-			<label class="mb-2 block">Contraseña del certificado:</label>
-			<input type="password" id="passwordInput" class="rounded border p-2" />
-		</div>
-
-		<button
-			id="signBtn"
-			class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+<!-- Main modal -->
+<div
+	id="crud-modal"
+	tabindex="-1"
+	aria-hidden="true"
+	class="fixed top-0 right-0 left-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0"
+>
+	<div class="relative max-h-full w-full max-w-md p-4">
+		<!-- Modal content -->
+		<div
+			class="bg-neutral-primary-soft border-default rounded-base relative border p-4 shadow-sm md:p-6"
 		>
-			Firmar Documento
-		</button>
-
-		<p id="status" class="mt-4 text-gray-600"></p>
+			<!-- Modal header -->
+			<div
+				class="border-default flex items-center justify-between border-b pb-4 md:pb-5"
+			>
+				<h3 class="text-heading text-lg font-medium">Create new product</h3>
+				<button
+					type="button"
+					class="text-body hover:bg-neutral-tertiary hover:text-heading rounded-base ms-auto inline-flex h-9 w-9 items-center justify-center bg-transparent text-sm"
+					data-modal-hide="crud-modal"
+				>
+					<svg
+						class="h-5 w-5"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						fill="none"
+						viewBox="0 0 24 24"
+						><path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M6 18 17.94 6M18 18 6.06 6"></path></svg
+					>
+					<span class="sr-only">Close modal</span>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<form action="#">
+				<div class="grid grid-cols-2 gap-4 py-4 md:py-6">
+					<div class="col-span-2">
+						<label
+							for="name"
+							class="text-heading mb-2.5 block text-sm font-medium">Name</label
+						>
+						<input
+							type="text"
+							name="name"
+							id="name"
+							class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
+							placeholder="Type product name"
+							required=""
+						/>
+					</div>
+					<div class="col-span-2 sm:col-span-1">
+						<label
+							for="price"
+							class="text-heading mb-2.5 block text-sm font-medium">Price</label
+						>
+						<input
+							type="number"
+							name="price"
+							id="price"
+							class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
+							placeholder="$2999"
+							required=""
+						/>
+					</div>
+					<div class="col-span-2 sm:col-span-1">
+						<label
+							for="category"
+							class="text-heading mb-2.5 block text-sm font-medium"
+							>Category</label
+						>
+						<select
+							id="category"
+							class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
+						>
+							<option selected="">Select category</option>
+							<option value="TV">TV/Monitors</option>
+							<option value="PC">PC</option>
+							<option value="GA">Gaming/Console</option>
+							<option value="PH">Phones</option>
+						</select>
+					</div>
+					<div class="col-span-2">
+						<label
+							for="description"
+							class="text-heading mb-2.5 block text-sm font-medium"
+							>Product Description</label
+						>
+						<textarea
+							id="description"
+							rows="4"
+							class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border p-3.5 text-sm shadow-xs"
+							placeholder="Write product description here"></textarea>
+					</div>
+				</div>
+				<div
+					class="border-default flex items-center space-x-4 border-t pt-4 md:pt-6"
+				>
+					<button
+						type="submit"
+						class="bg-brand hover:bg-brand-strong focus:ring-brand-medium rounded-base box-border inline-flex items-center border border-transparent px-4 py-2.5 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
+					>
+						<svg
+							class="-ms-0.5 me-1.5 h-4 w-4"
+							aria-hidden="true"
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							fill="none"
+							viewBox="0 0 24 24"
+							><path
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M5 12h14m-7 7V5"></path></svg
+						>
+						Add new product
+					</button>
+					<button
+						data-modal-hide="crud-modal"
+						type="button"
+						class="text-body bg-neutral-secondary-medium border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-neutral-tertiary rounded-base box-border border px-4 py-2.5 text-sm leading-5 font-medium shadow-xs focus:ring-4 focus:outline-none"
+						>Cancel</button
+					>
+				</div>
+			</form>
+		</div>
 	</div>
-
-	<script>
-		import { PDF, P12Signer } from '@libpdf/core';
-
-		document.getElementById('signBtn')?.addEventListener('click', async () => {
-			const pdfInput = document.getElementById('pdfInput') as HTMLInputElement;
-			const certInput = document.getElementById(
-				'certInput',
-			) as HTMLInputElement;
-			const passwordInput = document.getElementById(
-				'passwordInput',
-			) as HTMLInputElement;
-			const status = document.getElementById('status');
-
-			if (
-				!pdfInput.files?.[0] ||
-				!certInput.files?.[0] ||
-				!passwordInput.value
-			) {
-				status!.textContent = 'Por favor completa todos los campos';
-				return;
-			}
-
-			status!.textContent = 'Firmando documento...';
-
-			try {
-				const pdfFile = pdfInput.files[0];
-				const certFile = certInput.files[0];
-				const password = passwordInput.value;
-
-				const pdfArrayBuffer = await pdfFile.arrayBuffer();
-				const pdfBytes = new Uint8Array(pdfArrayBuffer);
-
-				const certArrayBuffer = await certFile.arrayBuffer();
-				const certBytes = new Uint8Array(certArrayBuffer);
-
-				const pdf = await PDF.load(pdfBytes);
-
-				const signer = await P12Signer.create(certBytes, password);
-
-				const signed = await pdf.sign({ signer });
-
-				const signedBytes = new Uint8Array(
-					signed.bytes.buffer.slice(
-						signed.bytes.byteOffset,
-						signed.bytes.byteOffset + signed.bytes.byteLength,
-					),
-				);
-				const blob = new Blob([signedBytes], { type: 'application/pdf' });
-				const url = URL.createObjectURL(blob);
-
-				const a = document.createElement('a');
-				a.href = url;
-				a.download = 'documento_firmado.pdf';
-				document.body.appendChild(a);
-				a.click();
-				document.body.removeChild(a);
-				URL.revokeObjectURL(url);
-
-				status!.textContent = 'Documento firmado exitosamente!';
-			} catch (error) {
-				console.error(error);
-				status!.textContent = 'Error al firmar: ' + (error as Error).message;
-			}
-		});
-	</script>
-</LayoutSidebar>
+</div>

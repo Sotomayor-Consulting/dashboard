@@ -9,7 +9,10 @@ import { AuthService, AuthError, redirectWithMessage } from '@lib/auth';
 export const GET: APIRoute = async ({ request, cookies, redirect }) => {
 	const { searchParams } = new URL(request.url);
 	const code = searchParams.get('code');
-	const next = searchParams.get('next') ?? '/';
+	const rawNext = searchParams.get('next') ?? '/';
+	// Prevenir open redirect: solo aceptar rutas relativas del mismo origen
+	const next =
+		rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
 
 	if (!code) {
 		return redirectWithMessage(

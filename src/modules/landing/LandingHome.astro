@@ -6,18 +6,19 @@ import { getFormulariosPendientes } from '@lib/tablas/formulariosEnviados';
 import { getPagosPorLeer } from '@lib/tablas/PagosPorLeer';
 import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
+const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
 
 const [userData, formularioData] = await Promise.all([
-	getUserWithRole(userId),
-	getFormulariosPendientes(),
+	getUserWithRole(supabase, userId),
+	getFormulariosPendientes(supabase),
 ]);
 
 const { role: userRole, roles: userRoles } = userData;
 const { count: formularioPendientesCount } = formularioData;
 
-const { count: pagosCount } = await getPagosPorLeer(userRole);
+const { count: pagosCount } = await getPagosPorLeer(supabase, userRole);
 
 const visibleMenu = menuItems.filter(
 	(item) =>

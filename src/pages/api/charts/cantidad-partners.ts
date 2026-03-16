@@ -1,21 +1,11 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 export const GET: APIRoute = async ({ request, cookies }) => {
-	// 1) Sesión
-	const at = cookies.get('sb-access-token');
-	const rt = cookies.get('sb-refresh-token');
-	if (!at || !rt) {
-		return new Response(JSON.stringify({ error: 'No autenticado' }), {
-			status: 401,
-		});
-	}
-	await supabase.auth.setSession({
-		access_token: at.value,
-		refresh_token: rt.value,
-	});
+	// 1) Cliente Supabase SSR
+	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
 	// 2) Usuario
 	const {

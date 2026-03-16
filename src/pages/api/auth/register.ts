@@ -21,7 +21,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	if (password !== confirmPassword) {
 		return redirectWithMessage(
 			redirect,
-			'Las contraseñas no coinciden. Por favor, verifica e intena de nuevo. ',
+			'Las contraseñas no coinciden. Por favor, verifica e intenta de nuevo. ',
 			'error',
 			PATHS.signUp,
 		);

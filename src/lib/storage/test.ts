@@ -1,6 +1,10 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const getUserFolders = async (userId: string, empresaId: string) => {
+export const getUserFolders = async (
+	supabase: SupabaseClient,
+	userId: string,
+	empresaId: string,
+) => {
 	const path = `${userId}/companies/${empresaId}/documents`;
 	const { data, error } = await supabase.storage.from('test').list(path, {
 		limit: 100,

@@ -2,19 +2,9 @@
 import { Image } from 'astro:assets';
 import icono from '/src/assets/icono.png';
 import icono2 from '/src/assets/icono-negro.png';
-import { getBannerIncorporacionData } from '../../lib/tablas/empresa_incorporaciones';
 
-const locals = (Astro as any).locals;
-const user = locals?.user;
-
-let shouldShowBanner = false;
-let empresaId: string | null = null;
-
-if (user?.id) {
-	const data = await getBannerIncorporacionData(user.id);
-	shouldShowBanner = data.shouldShow;
-	empresaId = data.empresaId;
-}
+// Datos calculados en LayoutSidebar y pasados como props
+const { shouldShowBanner = false, empresaId = null } = Astro.props;
 
 const BANNER_PROPS = {
 	title:

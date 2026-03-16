@@ -3,11 +3,12 @@ import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import { Icon } from 'astro-icon/components';
 import { ListaFormulariosSurvey } from '@lib/tablas/formularios';
 import { getPagosSurvey } from '@lib/tablas/pagos';
+const supabase = Astro.locals.supabase;
 
 // Auth handled by middleware
 const { id } = Astro.params;
 
-const formulario = id ? await ListaFormulariosSurvey(id) : null;
+const formulario = id ? await ListaFormulariosSurvey(supabase, id) : null;
 
 // Si no existe, redirigir
 if (!formulario) {
@@ -17,7 +18,7 @@ if (!formulario) {
 // 3) Verificar pago para la empresa
 const empresaId = new URL(Astro.request.url).searchParams.get('empresa');
 if (empresaId) {
-	const pago = empresaId ? await getPagosSurvey(empresaId) : null;
+	const pago = empresaId ? await getPagosSurvey(supabase, empresaId) : null;
 
 	// Si no hay pago exitoso o hay error, redirigir al inicio
 	if (!pago) {

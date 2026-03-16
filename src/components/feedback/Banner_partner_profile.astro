@@ -1,5 +1,5 @@
 ---
-import { getMissingPartnerFields, type PartnerRequiredField } from '@lib/tablas/usuarios';
+import type { PartnerRequiredField } from '@lib/tablas/usuarios';
 
 const FIELD_LABELS: Record<PartnerRequiredField, string> = {
 	direccion_linea1: 'Dirección línea 1',
@@ -9,12 +9,11 @@ const FIELD_LABELS: Record<PartnerRequiredField, string> = {
 	tipo_persona: 'Tipo de persona',
 };
 
-// Auth handled by middleware — user & roles already in locals
-const user = Astro.locals.user;
-const userRoles = Astro.locals.userRoles || [];
-
-let shouldShowBanner = false;
-let missingFields: PartnerRequiredField[] = [];
+// Datos calculados en LayoutSidebar y pasados como props
+const {
+	shouldShowBanner = false,
+	missingFields = [] as PartnerRequiredField[],
+} = Astro.props;
 
 const BANNER_PROPS = {
 	title: 'Completa tu información de perfil para continuar como partner.',
@@ -23,12 +22,10 @@ const BANNER_PROPS = {
 	url: '/settings/',
 };
 
-const isPartner = userRoles.includes('partner');
-
-if (isPartner && user) {
-	missingFields = await getMissingPartnerFields(user.id);
-	shouldShowBanner = missingFields.length > 0;
-}
+const typedMissingFields = missingFields as PartnerRequiredField[];
+const missingFieldsText = typedMissingFields
+	.map((f: PartnerRequiredField) => FIELD_LABELS[f] ?? f)
+	.join(', ');
 ---
 
 {
@@ -37,7 +34,7 @@ if (isPartner && user) {
 			<div
 				id="profile-banner"
 				tabindex="-1"
-				class="flex flex-col md:flex-row justify-between w-full p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg shadow-xs dark:from-yellow-900/20 dark:to-orange-900/20 dark:border-yellow-800 animate-fade-in mt-3"
+				class="flex flex-col md:flex-row justify-between w-full p-4 bg-linear-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg shadow-xs dark:from-yellow-900/20 dark:to-orange-900/20 dark:border-yellow-800 animate-fade-in mt-3"
 			>
 				<div class="flex flex-col items-start mb-3 me-4 md:items-center md:flex-row md:mb-0">
 					<div class="flex items-center mb-2 border-yellow-200 md:pe-4 md:me-4 md:border-e md:mb-0 dark:border-yellow-700">
@@ -66,9 +63,7 @@ if (isPartner && user) {
 							<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
 								Campos incompletos:{' '}
 								<span class="font-medium text-yellow-700 dark:text-yellow-400">
-									{missingFields
-										.map((f) => FIELD_LABELS[f] ?? f)
-										.join(', ')}
+								{missingFieldsText}
 								</span>
 							</p>
 						)}

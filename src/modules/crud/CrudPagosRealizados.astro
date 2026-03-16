@@ -4,7 +4,9 @@ import Alerta from '@components/feedback/alertageneral.astro';
 import { Icon } from 'astro-icon/components';
 import { pagosRealizadosData } from '@lib/tablas/PagosPorLeer';
 
-const pagosRealizados = await pagosRealizadosData();
+const supabase = Astro.locals.supabase;
+
+const pagosRealizados = await pagosRealizadosData(supabase);
 ---
 
 <Alerta />

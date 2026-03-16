@@ -7,8 +7,8 @@ import { execSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import carbone from 'carbone';
 
-// Usa el mismo cliente Supabase que en tu endpoint insert.ts
-import { supabase } from '@lib/supabase';
+// Usa createSupabaseServerClient para SSR
+import { createSupabaseServerClient } from '@lib/supabase';
 
 export const prerender = false;
 const require = createRequire(import.meta.url);
@@ -97,18 +97,9 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 		}
 		debugStep('1.1 submission_id recibido', submissionId);
 
-		// 2) (Opcional) Sesión Supabase desde cookies, por si RLS lo requiere
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
-		if (at && rt) {
-			await supabase.auth.setSession({
-				access_token: at.value,
-				refresh_token: rt.value,
-			});
-			debugStep('1.2 Sesión Supabase establecida desde cookies');
-		} else {
-			debugStep('1.2 Sin cookies sb-access-token / sb-refresh-token');
-		}
+		// 2) Cliente Supabase SSR
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		debugStep('1.2 Cliente Supabase SSR creado');
 
 		// 3) Traer data_json desde formularios_envios usando submission_id
 		const { data: fila, error } = await supabase

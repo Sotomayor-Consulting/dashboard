@@ -1,23 +1,23 @@
 ---
 import WhatsappBtn from '@components/display/WhatsappBtn.astro';
-import { supabase } from '@lib/supabase';
 import Alerta from '@components/feedback/alertageneral.astro';
 
+const supabase = Astro.locals.supabase;
 const { data: estados } = await supabase.from('estados').select('Estado');
 
 const datosName = [
 	{
-		nombre: 'Nombre de tu empresa - (opcion #1)',
+		nombre: 'Nombre de tu empresa - (opción #1)',
 		id: 'nombre-empresa-1',
 		name: 'nombre_1',
 	},
 	{
-		nombre: 'Nombre de tu empresa - (opcion #2)',
+		nombre: 'Nombre de tu empresa - (opción #2)',
 		id: 'nombre-empresa-2',
 		name: 'nombre_2',
 	},
 	{
-		nombre: 'Nombre de tu empresa - (opcion #3)',
+		nombre: 'Nombre de tu empresa - (opción #3)',
 		id: 'nombre-empresa-3',
 		name: 'nombre_3',
 	},
@@ -1498,9 +1498,16 @@ const datosName = [
 
 		async function checkSession() {
 			try {
-				const response = await fetch('/api/auth/session-check');
-				return await response.json();
+				const response = await fetch('/api/auth/session-check', {
+					credentials: 'include',
+				});
+				const json = await response.json();
+				// jsonSuccess retorna { data: { isAuthenticated, user } }
+				const sessionData = json?.data ?? { isAuthenticated: false };
+				console.log('Session check data:', sessionData);
+				return sessionData;
 			} catch (error) {
+				console.error('Session check error:', error);
 				return { isAuthenticated: false };
 			}
 		}

@@ -1,6 +1,9 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const getEmpresaById = async (empresaId: string) => {
+export const getEmpresaById = async (
+	supabase: SupabaseClient,
+	empresaId: string,
+) => {
 	const { data: empresa, error } = await supabase
 		.from('empresas_incorporaciones')
 		.select(
@@ -19,7 +22,10 @@ export const getEmpresaById = async (empresaId: string) => {
 	return empresa;
 };
 
-export const getEmpresasGenenralById = async (userId: string) => {
+export const getEmpresasGenenralById = async (
+	supabase: SupabaseClient,
+	userId: string,
+) => {
 	const { data: empresas, error } = await supabase
 		.from('empresas_incorporaciones')
 		.select('*')

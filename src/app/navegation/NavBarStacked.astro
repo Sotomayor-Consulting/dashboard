@@ -1,7 +1,10 @@
 ---
 import { Icon } from 'astro-icon/components';
+
 import { UsersGeneral } from '@lib/tablas/userAuth';
-const user = await UsersGeneral(Astro);
+
+const supabase = Astro.locals.supabase;
+const user = await UsersGeneral(supabase);
 ---
 
 <nav

@@ -4,9 +4,10 @@ import '@styles/datatables.css';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
 import { RolesGeneralUsers } from '@lib/tablas/roles';
 
+const supabase = Astro.locals.supabase
 const [usuarios, roles] = await Promise.all([
-	getAllUsuarios(),
-	RolesGeneralUsers(),
+	getAllUsuarios(supabase),
+	RolesGeneralUsers(supabase),
 ]);
 ---
 

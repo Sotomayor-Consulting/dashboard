@@ -4,7 +4,8 @@ import { pagosRealizadosPorSubir } from '@lib/tablas/PagosPorLeer';
 
 import '@styles/datatables.css';
 
-const empresas = await pagosRealizadosPorSubir();
+const supabase = Astro.locals.supabase
+const empresas = await pagosRealizadosPorSubir(supabase);
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>

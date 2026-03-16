@@ -1,36 +1,20 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
-export const GET: APIRoute = async ({ cookies, url, redirect }) => {
+export const GET: APIRoute = async ({ request, cookies, url, redirect }) => {
 	try {
-		// 1) Verificar sesión
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
-
-		if (!at || !rt) {
-			return redirect('/login?error=No autenticado');
-		}
-
-		// Establecer sesión en supabase
-		const { error: sessionError } = await supabase.auth.setSession({
-			access_token: at.value,
-			refresh_token: rt.value,
-		});
-
-		if (sessionError) {
-			return redirect('/login?error=Sesión inválida');
-		}
+		// 1) Cliente Supabase SSR
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
 		// 2) Obtener usuario actual
-		const { data: userRes, error: userErr } = await supabase.auth.getUser();
+		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
 
-		if (userErr || !userRes?.user) {
+		if (userErr || !actor) {
 			return redirect('/login?error=Error de autenticación');
 		}
 
-		const actor = userRes.user;
 		const actorId = actor.id;
 
 		// 3) Obtener parámetros de la URL

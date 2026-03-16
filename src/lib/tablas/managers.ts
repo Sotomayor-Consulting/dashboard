@@ -1,6 +1,9 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const getManagerByEmpresa = async (empresaId: string) => {
+export const getManagerByEmpresa = async (
+	supabase: SupabaseClient,
+	empresaId: string,
+) => {
 	const { data, error } = await supabase
 		.from('managers_validados')
 		.select('*')
@@ -14,7 +17,7 @@ export const getManagerByEmpresa = async (empresaId: string) => {
 	return data;
 };
 
-export const getAllManagers = async () => {
+export const getAllManagers = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase.from('managers_validados').select('*');
 
 	if (error) {
@@ -25,7 +28,10 @@ export const getAllManagers = async () => {
 	return data;
 };
 
-export const getManagerById = async (id: string) => {
+export const getManagerById = async (
+	supabase: SupabaseClient,
+	id: string,
+) => {
 	const { data, error } = await supabase
 		.from('managers_validados')
 		.select('*')

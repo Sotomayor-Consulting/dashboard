@@ -1,10 +1,10 @@
 ---
-import { ListaFormulariosSurvey } from '@lib/tablas/formularios';
-
 // Auth handled by middleware
+import { ListaFormulariosSurvey } from '@lib/tablas/formularios';
 const { id } = Astro.params;
+const supabase = Astro.locals.supabase;
 
-const formulario = id ? await ListaFormulariosSurvey(id) : null;
+const formulario = id ? await ListaFormulariosSurvey(supabase, id) : null;
 
 // Si no existe, redirigir
 if (!formulario) {

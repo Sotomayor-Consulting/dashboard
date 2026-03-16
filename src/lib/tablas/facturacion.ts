@@ -1,6 +1,6 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const FacturacionGeneral = async () => {
+export const FacturacionGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('datos_facturacion')
 		.select('*')
@@ -15,7 +15,10 @@ export const FacturacionGeneral = async () => {
 	return data;
 };
 
-export const FacturacionbyId = async (userId: string) => {
+export const FacturacionbyId = async (
+	supabase: SupabaseClient,
+	userId: string,
+) => {
 	const { data, error } = await supabase
 		.from('datos_facturacion')
 		.select('*')

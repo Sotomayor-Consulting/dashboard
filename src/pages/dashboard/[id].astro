@@ -3,6 +3,7 @@ import Alerta from '@components/feedback/alertageneral.astro';
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import DashBoard from '@modules/dashboard/DashBoardempresas.astro';
 import { getIncorporacionById } from '@lib/tablas/empresa_incorporaciones';
+const supabase = Astro.locals.supabase;
 
 const { redirect } = Astro;
 const { id } = Astro.params;
@@ -13,7 +14,7 @@ if (!id || !userId) {
 	return redirect('/pages/empresas');
 }
 
-const empresa = await getIncorporacionById(id, userId);
+const empresa = await getIncorporacionById(supabase, id, userId);
 
 if (!empresa) {
 	return redirect('/pages/empresas');

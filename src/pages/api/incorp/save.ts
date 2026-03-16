@@ -1,7 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const BACK_PATH = '/';
 
@@ -9,22 +9,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	try {
 		const back = url.searchParams.get('back') || BACK_PATH;
 
-		// 1) Sesión
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
-		if (!at || !rt) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
-			);
-		}
-		await supabase.auth.setSession({
-			access_token: at.value,
-			refresh_token: rt.value,
-		});
+		// 1) Cliente Supabase SSR
+		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
 		// 2) Usuario
-		const { data: userRes, error: uerr } = await supabase.auth.getUser();
-		if (uerr || !userRes?.user) {
+		const { data: { user: actor }, error: uerr } = await supabase.auth.getUser();
+		if (uerr || !actor) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
 			);
@@ -65,7 +55,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		// 5) Insert
 		const { error } = await supabase.from('empresas_incorporaciones').insert([
 			{
-				user_id: userRes.user.id,
+				user_id: actor.id,
 				tipo_de_negocio: tipo_de_empresa,
 				estado_de_incorporacion: estado_de_empresa,
 				nombre_1: nombre_1.trim() || null,

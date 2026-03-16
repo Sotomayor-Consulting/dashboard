@@ -7,11 +7,12 @@ import { ListaDeMicroServiciosActivos } from '@lib/tablas/microservicios';
 
 const User = Astro.locals.user;
 const userId = User?.id || '';
+const supabase = Astro.locals.supabase;
 
 const [empresas, servicios, microservicios] = await Promise.all([
-	getIncorporacionesEnProceso(userId),
-	ListaServiciosStripe(),
-	ListaDeMicroServiciosActivos(),
+	getIncorporacionesEnProceso(supabase, userId),
+	ListaServiciosStripe(supabase),
+	ListaDeMicroServiciosActivos(supabase),
 ]);
 
 const planBasico = servicios?.find((s) => s.nombre === 'Plan Básico');
@@ -69,7 +70,7 @@ const opcionesllc =
 		</div>
 		<div class="relative hidden" id="panel2">
 			<div
-				class="mx-auto max-w-[85rem] px-4 pt-5 sm:px-6 lg:px-8 lg:pt-14"
+				class="mx-auto max-w-340 px-4 pt-5 sm:px-6 lg:px-8 lg:pt-14"
 				id="step-plans"
 			>
 				<!-- Title -->
@@ -427,7 +428,7 @@ const opcionesllc =
 		</div>
 		<div class="relative hidden" id="panel3">
 			<div
-				class="mx-auto max-w-[85rem] px-4 pt-5 sm:px-6 lg:px-8 lg:pt-14"
+				class="mx-auto max-w-340 px-4 pt-5 sm:px-6 lg:px-8 lg:pt-14"
 				id="step-microservicios"
 			>
 				<!-- Title -->
