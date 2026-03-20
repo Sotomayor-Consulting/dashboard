@@ -1,6 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createSupabaseServerClient } from '@lib/supabase';
 
 const BUCKET_NAME = 'test';
@@ -14,15 +15,14 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const redirectWithStatus = (status: 'success' | 'error', msg: string) =>
 		redirect(`${back}?status=${status}&msg=${encodeURIComponent(msg)}`);
 
-	try {
-		const supabase = createSupabaseServerClient({
-			headers: request.headers,
-			cookies,
-		});
+	const supabase: SupabaseClient = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
+	});
 
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
+	try {
+		const { data: userData } = await supabase.auth.getUser();
+		const user = userData?.user;
 
 		if (!user) {
 			return redirectWithStatus('error', 'No autenticado');
