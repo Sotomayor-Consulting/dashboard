@@ -1,7 +1,8 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const BUCKET_NAME = 'test';
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB
@@ -15,23 +16,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const redirectWithStatus = (status: 'success' | 'error', msg: string) =>
 		redirect(`${back}?status=${status}&msg=${encodeURIComponent(msg)}`);
 
+	const supabase: SupabaseClient = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
+	});
+
 	try {
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
-
-		if (!at?.value || !rt?.value) {
-			return redirectWithStatus('error', 'No autenticado');
-		}
-
-		const { error: sessionErr } = await supabase.auth.setSession({
-			access_token: at.value,
-			refresh_token: rt.value,
-		});
-
-		if (sessionErr) {
-			return redirectWithStatus('error', 'Sesión inválida');
-		}
-
 		const { data: userData } = await supabase.auth.getUser();
 		const user = userData?.user;
 
