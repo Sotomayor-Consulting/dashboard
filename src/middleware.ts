@@ -19,6 +19,8 @@ const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_HOST = SUPABASE_URL ? new URL(SUPABASE_URL).host : '';
 const SUPABASE_WSS = SUPABASE_HOST ? `wss://${SUPABASE_HOST}` : '';
 
+const IS_PRODUCTION = import.meta.env.PROD;
+
 const CSP_DIRECTIVES = [
 	// Fallback: bloquear todo lo no listado
 	"default-src 'self'",
@@ -39,10 +41,10 @@ const CSP_DIRECTIVES = [
 	"object-src 'none'",
 	// Base URI: solo 'self' (previene <base> injection)
 	"base-uri 'self'",
-	// Form actions: solo al mismo origen
-	"form-action 'self'",
-	// Upgrade insecure requests en producción
-	'upgrade-insecure-requests',
+	// Form actions: permitir redirects OAuth (self → Supabase → Google → callback)
+	`form-action 'self' ${SUPABASE_URL} https://accounts.google.com`,
+	// Upgrade insecure requests solo en producción (en dev rompe http://localhost)
+	...(IS_PRODUCTION ? ['upgrade-insecure-requests'] : []),
 ].join('; ');
 
 
