@@ -1,6 +1,6 @@
-import { supabase } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const GetDocumentosPartner = async () => {
+export const GetDocumentosPartner = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('documentos_usuarios')
 		.select(`*`, { count: 'exact' })

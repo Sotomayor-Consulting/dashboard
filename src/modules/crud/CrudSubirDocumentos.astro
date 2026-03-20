@@ -112,7 +112,7 @@ const empresas = await pagosRealizadosPorSubir(supabase);
 							empresas?.map((e) => (
 								<div>
 									<tr
-										class="odd:bg-white-100 cursor-pointer even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
+										class="odd:bg-white cursor-pointer even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
 										onclick={`window.open('/forms/upload_documents/${e.empresas_incorporaciones.empresa_incorporacion_id}', '_blank')`}
 									>
 										<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">

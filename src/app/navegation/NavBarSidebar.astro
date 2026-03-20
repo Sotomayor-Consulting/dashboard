@@ -20,7 +20,7 @@ const { notifications, totalUnread } = notifProp ?? {
 ---
 
 <nav
-	class="dark:bg-black-900 fixed z-30 w-full border-b border-neutral-300 bg-neutral-200 dark:border-gray-700"
+	class="fixed z-30 w-full bg-white/80 backdrop-blur-md border-b border-gray-200/60 dark:bg-black-900/90 dark:backdrop-blur-md dark:border-gray-700/50"
 	transition:persist="navbar"
 >
 	<div class="px-3 py-3 lg:px-5 lg:pl-3">
@@ -117,7 +117,7 @@ const { notifications, totalUnread } = notifProp ?? {
 						type="button"
 						id="notifications-toggle"
 						data-dropdown-toggle="notification-dropdown"
-						class="relative rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-white dark:hover:bg-[#101522] dark:hover:text-white"
+						class="relative rounded-lg p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-[#101522]"
 					>
 						<span class="sr-only">Ver Notificaciones</span>
 						<!-- Bell icon -->
@@ -132,7 +132,7 @@ const { notifications, totalUnread } = notifProp ?? {
 						>
 						{
 							totalUnread > 0 && (
-								<span class="absolute -inset-2 -top-2 inline-flex h-6 w-6 animate-pulse items-center justify-center rounded-full border-2 border-neutral-300 bg-red-500 text-xs font-bold text-white dark:border-[#223848]">
+								<span class="absolute -inset-2 -top-2 inline-flex h-6 w-6 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-bold text-white dark:border-[#223848]">
 									{totalUnread}
 								</span>
 							)
@@ -198,7 +198,7 @@ const { notifications, totalUnread } = notifProp ?? {
 													</span>
 													{!notification.is_read && (
 														<button
-															class="mark-as-read hover:dark:text-primary-400 hover:bg-brand-strong inline-flex cursor-pointer rounded-xl px-2 py-1 text-xs font-medium text-black hover:text-white dark:text-neutral-400"
+															class="mark-as-read inline-flex cursor-pointer rounded-lg px-2 py-1 text-xs font-medium text-primary-600 hover:bg-primary-50 hover:text-primary-700 dark:text-neutral-400 dark:hover:text-primary-400"
 															data-id={notification.id}
 														>
 															Marcar como leída

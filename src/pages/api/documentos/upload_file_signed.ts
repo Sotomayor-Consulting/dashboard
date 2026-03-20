@@ -1,7 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { supabase } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
 
 const BUCKET_NAME = 'test';
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB
@@ -15,20 +15,17 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		redirect(`${back}?status=${status}&msg=${encodeURIComponent(msg)}`);
 
 	try {
-		const at = cookies.get('sb-access-token');
-		const rt = cookies.get('sb-refresh-token');
-
-		if (!at?.value || !rt?.value) {
-			return redirectWithStatus('error', 'No autenticado');
-		}
-
-		const { error: sessionErr } = await supabase.auth.setSession({
-			access_token: at.value,
-			refresh_token: rt.value,
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
 		});
 
-		if (sessionErr) {
-			return redirectWithStatus('error', 'Sesión inválida');
+		const {
+			data: { user },
+		} = await supabase.auth.getUser();
+
+		if (!user) {
+			return redirectWithStatus('error', 'No autenticado');
 		}
 
 		if (!empresaId || !userId) {
