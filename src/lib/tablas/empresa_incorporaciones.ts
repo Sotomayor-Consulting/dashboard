@@ -70,9 +70,7 @@ export const getIncorporacionesEnProceso = async (
 	return data;
 };
 
-export const IncorporacionesEmpresasBase = async (
-	supabase: SupabaseClient,
-) => {
+export const IncorporacionesEmpresasBase = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('empresas_incorporaciones')
 		.select(
@@ -123,7 +121,10 @@ export const checkUserIncorporacionesEnProceso = async (
 ): Promise<boolean> => {
 	if (!user) return false;
 
-	const incorporaciones = await getEstadoIncorporacionByUserId(supabase, user.id);
+	const incorporaciones = await getEstadoIncorporacionByUserId(
+		supabase,
+		user.id,
+	);
 
 	if (!incorporaciones || incorporaciones.length === 0) return false;
 
@@ -162,3 +163,5 @@ export const getBannerIncorporacionData = async (
 		empresaId: empresaActiva?.empresa_incorporacion_id || null,
 	};
 };
+
+//test

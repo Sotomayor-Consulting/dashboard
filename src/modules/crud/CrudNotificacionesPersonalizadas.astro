@@ -1,35 +1,34 @@
 ---
-import DataTable from '@components/ui/DataTable.astro';
-import StatusBadge from '@components/ui/StatusBadge.astro';
-import AvatarCell from '@components/ui/AvatarCell.astro';
-import StackedText from '@components/ui/StackedText.astro';
-import RoleBadge from '@components/ui/RoleBadge.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
+import '@styles/datatables.css';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
+import { RolesGeneralUsers } from '@lib/tablas/roles';
 
-const supabase = Astro.locals.supabase;
-
-const usuarios = await getAllUsuarios(supabase);
+const supabase = Astro.locals.supabase
+const [usuarios, roles] = await Promise.all([
+	getAllUsuarios(supabase),
+	RolesGeneralUsers(supabase),
+]);
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700"
+	class="dark:bg-black-900 block items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<Alerta />
-	<div class="w-full mb-1">
+	<div class="mb-1 w-full">
 		<div class="mb-4">
-			<nav class="flex mb-5" aria-label="Breadcrumb">
+			<nav class="mb-5 flex" aria-label="Breadcrumb">
 				<ol
 					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
 				>
 					<li class="inline-flex items-center">
 						<a
 							href="/"
-							class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
 						>
 							<svg
-								class="w-5 h-5 mr-2.5"
+								class="mr-2.5 h-5 w-5"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +42,7 @@ const usuarios = await getAllUsuarios(supabase);
 					<li>
 						<div class="flex items-center">
 							<svg
-								class="w-6 h-6 text-gray-400"
+								class="h-6 w-6 text-gray-400"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -54,7 +53,7 @@ const usuarios = await getAllUsuarios(supabase);
 							>
 							<a
 								href="/crud/notificaciones-personalizadas"
-								class="ml-1 text-gray-700 hover:text-primary-600 md:ml-2 dark:text-gray-300 dark:hover:text-white"
+								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
 								>Notificaciones</a
 							>
 						</div>
@@ -69,95 +68,195 @@ const usuarios = await getAllUsuarios(supabase);
 		</div>
 	</div>
 </div>
-<DataTable
-	headers={[
-		'Foto',
-		'Nombre',
-		'Compañía',
-		'Cargo',
-		'País',
-		'Estado',
-		'Rol',
-		'Acciones',
-	]}
-	noRowsMessage="No hay usuarios"
-	noResultsMessage="No se encontraron usuarios"
->
-	{
-		usuarios?.map((user) => (
-			<tr class="hover:bg-gray-50 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] transition-colors">
-				<td class="w-4 pl-4">
-					<AvatarCell src={user.avatar_url} name={user.nombre} />
-				</td>
-				<td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
-					<StackedText
-						title={`${user.nombre} ${user.apellido}`}
-						subtitle={user.correo}
-					/>
-				</td>
-				<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-					{user.organizacion}
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					{user.cargo}
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					{user.paises?.nombre_paises ?? '—'}
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					<StatusBadge
-						active={user.estado === 'activo'}
-						label={user.estado}
-						activeColor="bg-green-400"
-						inactiveColor="bg-red-500"
-					/>
-				</td>
-				<td class="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
-					<RoleBadge rolId={user.rol_id} />
-				</td>
-				<td class="p-4 space-x-2 flex">
-					<button
-						data-modal-target="top-right-modal"
-						data-modal-toggle="top-right-modal"
-						data-user-notification
-						data-user-id={user.user_id}
-						class="block w-full md:w-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-						type="button"
+<div class="flex flex-col">
+	<div class="overflow-x-auto">
+		<div class="inline-block min-w-full align-middle">
+			<div class="overflow-hidden shadow">
+				<table
+					class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600"
+					id="myTable"
+				>
+					<thead class="bg-gray-100 dark:bg-[#374151]">
+						<tr>
+							{
+								[
+									'Foto',
+									'Nombre',
+									'Compañía',
+									'Cargo',
+									'País',
+									'Estado',
+									'Rol',
+									'Acciones',
+								].map((th) => (
+									<th
+										scope="col"
+										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
+									>
+										<span class="flex items-center uppercase">
+											{th}
+											<svg
+												class="ms-1 h-4 w-4"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												fill="none"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke="currentColor"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="m8 15 4 4 4-4m0-6-4-4-4 4"
+												/>
+											</svg>
+										</span>
+									</th>
+								))
+							}
+						</tr>
+					</thead>
+					<tbody
+						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
 					>
-						Enviar notificación
-					</button>
-				</td>
-			</tr>
-		))
-	}
-</DataTable>
+						{
+							usuarios?.map((user) => (
+								<div>
+									<tr class="odd:bg-white-100 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+										<td class="w-4 pl-4">
+											{user.avatar_url === 'NULL' || !user.avatar_url ? (
+												<img
+													class="h-10 w-10 rounded-full"
+													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
+													alt={`Avatar de ${user.nombre}`}
+												/>
+											) : (
+												<img
+													class="h-10 w-10 rounded-full"
+													src={user.avatar_url}
+													alt={`Avatar de ${user.nombre}`}
+												/>
+											)}
+										</td>
+										<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">
+											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+												<div class="text-base font-semibold text-gray-900 dark:text-white">
+													{user.nombre} {user.apellido}
+												</div>
+												<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+													{user.correo}
+												</div>
+											</div>
+										</td>
+										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+											{user.organizacion}
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											{user.cargo}
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											{user.paises?.nombre_paises ?? '—'}
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											<div class="flex items-center">
+												{user.estado === 'activo' ? (
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
+												) : (
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
+												)}
+												{user.estado}
+											</div>
+										</td>
+										<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+											<div class="flex items-center gap-1">
+												{roles?.map(
+													(rol) =>
+														user.user_id === rol.user_id &&
+														(() => {
+															// Definir clases según el nombre del rol
+															let badgeClass =
+																'text-xs font-medium px-1.5 py-0.5 rounded ';
+
+															switch (rol.roles.name) {
+																case 'admin':
+																	badgeClass +=
+																		'bg-danger-soft text-fg-danger-strong';
+																	break;
+																case 'cliente':
+																	badgeClass +=
+																		'bg-success-soft text-fg-success-strong';
+																	break;
+																case 'partner':
+																	badgeClass +=
+																		'bg-warning-soft text-fg-warning';
+																	break;
+																case 'operaciones':
+																	badgeClass +=
+																		'bg-warning-soft text-fg-warning';
+																	break;
+																default:
+																	badgeClass +=
+																		'bg-success-soft text-fg-success-strong';
+															}
+
+															return (
+																<span class={badgeClass}>{rol.roles.name}</span>
+															);
+														})(),
+												)}
+											</div>
+										</td>
+										<td class="flex space-x-2 p-4">
+											<button
+												data-modal-target="top-right-modal"
+												data-modal-toggle="top-right-modal"
+												data-user-notification
+												data-user-id={user.user_id}
+												class="block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+												type="button"
+											>
+												Enviar notificación
+											</button>
+										</td>
+									</tr>
+								</div>
+							))
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Top Right Modal -->
 <div
 	id="top-right-modal"
 	data-modal-placement="top-right"
 	tabindex="-1"
-	class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-full"
+	class="fixed top-0 right-0 left-0 z-50 hidden h-full w-full overflow-x-hidden overflow-y-auto p-4 md:inset-0"
 >
-	<div class="relative w-full max-w-2xl h-full">
+	<div class="relative h-full w-full max-w-2xl">
 		<!-- Modal content -->
 		<div
-			class="relative bg-white rounded-lg shadow-sm dark:bg-black-800 h-full"
+			class="dark:bg-black-800 relative h-full rounded-lg bg-white shadow-sm"
 		>
 			<!-- Modal header -->
 			<div
-				class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200"
+				class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600"
 			>
 				<h3 class="text-xl font-medium text-gray-900 dark:text-white">
 					Mensaje para el usuario
 				</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 					data-modal-hide="top-right-modal"
 				>
 					<svg
-						class="w-3 h-3"
+						class="h-3 w-3"
 						aria-hidden="true"
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -174,7 +273,7 @@ const usuarios = await getAllUsuarios(supabase);
 				</button>
 			</div>
 			<!-- Modal body -->
-			<div class="p-4 md:p-5 space-y-4">
+			<div class="space-y-4 p-4 md:p-5">
 				<form action="/api/update/admin-notifications-update" method="post">
 					<input
 						type="text"
@@ -182,18 +281,18 @@ const usuarios = await getAllUsuarios(supabase);
 						id="user_id_modal"
 						hidden
 					/>
-					<div class="grid gap-4 mb-4 sm:grid-cols-2">
+					<div class="mb-4 grid gap-4 sm:grid-cols-2">
 						<div>
 							<label
 								for="descripcion-link-notificacion"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Descripción del link</label
 							>
 							<input
 								type="text"
 								name="descripcion-link-notificacion"
 								id="descripcion-link-notificacion"
-								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 								placeholder="Inserta el link"
 								required=""
 							/>
@@ -201,46 +300,46 @@ const usuarios = await getAllUsuarios(supabase);
 						<div>
 							<label
 								for="link-notificacion"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Link</label
 							>
 							<input
 								type="text"
 								name="link-notificacion"
 								id="link-notificacion"
-								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 								placeholder="Inserta el asunto del correo"
 								required=""
 							/>
 						</div>
-						<div class="sm:col-span-2 h-full">
+						<div class="h-full sm:col-span-2">
 							<label
 								for="mensaje-notificacion"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Mensaje</label
 							>
 							<textarea
 								id="mensaje-notificacion"
 								name="mensaje-notificacion"
 								rows="28"
-								class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432] h-full mb-2"
+								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 mb-2 block h-full w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 								placeholder="Escribe un mensaje corto para el usuario"
 								required></textarea>
 						</div>
 					</div>
 					<div
-						class="flex items-center p-4 md:p-5 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b dark:border-gray-600"
+						class="flex items-center space-x-3 rounded-b border-t border-gray-200 p-4 md:p-5 rtl:space-x-reverse dark:border-gray-600"
 					>
 						<button
 							data-modal-hide="top-right-modal"
 							type="submit"
-							class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+							class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 							>Enviar notificación</button
 						>
 						<button
 							data-modal-hide="top-right-modal"
 							type="button"
-							class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
+							class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
 							>Cancelar</button
 						>
 					</div>
@@ -279,4 +378,41 @@ const usuarios = await getAllUsuarios(supabase);
 			});
 		});
 	});
+</script>
+<script>
+	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
+
+	function initDT() {
+		const el = document.querySelector('#myTable') as HTMLElement | null;
+		if (!el) return;
+		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
+			return;
+
+		new DataTable(el, {
+			searchable: true,
+			perPage: 25,
+			perPageSelect: [5, 10, 25, 50],
+
+			// Textos en español
+			labels: {
+				placeholder: 'Buscar...',
+				perPage: 'Filas',
+				noRows: 'No hay usuarios',
+				noResults: 'No se encontraron usuarios',
+				info: 'Mostrando {start} a {end} de {rows} registros',
+			},
+
+			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			layout: {
+				top: '{select}{search}',
+				bottom: '{info}{pager}',
+			},
+		});
+
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
+	}
+
+	initDT();
+	document.addEventListener('astro:page-load', initDT);
 </script>

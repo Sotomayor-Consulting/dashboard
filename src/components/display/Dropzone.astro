@@ -1,0 +1,138 @@
+---
+import '@styles/dropzone.css';
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	endpoint: string;
+	id: string;
+	icon: string;
+	mensaje: string;
+	fileId?: string;
+}
+
+const { endpoint, id, icon, mensaje, fileId } = Astro.props;
+---
+
+<div class="flex flex-col items-center justify-center">
+	<form
+		id={id}
+		data-dropzone-id={id}
+		class="dropzone dark:bg-black-900 border-white-900 h-96 w-full rounded-2xl border-2 border-dashed bg-gray-50 p-6 dark:border-gray-600 dark:hover:bg-neutral-800/80"
+		action={endpoint}
+		method="post"
+		enctype="multipart/form-data"
+	>
+		{fileId && <input type="hidden" name="fileId" value={fileId} />}
+		<div class="dz-message flex w-full flex-col dark:text-white">
+			<Icon
+				name={icon}
+				class="mb-4 text-5xl text-gray-500 dark:text-gray-400"
+			/>
+			{mensaje}
+		</div>
+	</form>
+	<div class="mt-4 flex gap-3">
+		<button
+			type="button"
+			id={`btn-confirm-${id}`}
+			class="dark:bg-brand dark:hover:bg-brand/80 cursor-pointer rounded-lg bg-[#967432] px-4 py-2 text-white hover:bg-[#967432] disabled:cursor-not-allowed disabled:opacity-50"
+			disabled
+		>
+			Subir documento
+		</button>
+	</div>
+
+	<script src="@lib/dropzone/dropzone.min.js"></script>
+
+	<script is:inline>
+		document.addEventListener('DOMContentLoaded', function () {
+			if (typeof Dropzone === 'undefined') {
+				console.error('Dropzone no está definido.');
+				return;
+			}
+
+			Dropzone.autoDiscover = false;
+
+			const forms = document.querySelectorAll('form[data-dropzone-id]');
+
+			forms.forEach((form) => {
+				const dropzoneId = form.getAttribute('data-dropzone-id');
+				const confirmBtn = document.getElementById(`btn-confirm-${dropzoneId}`);
+				let tempTimeoutId = null;
+
+				if (!form || !confirmBtn) return;
+
+				var dz = new Dropzone(form, {
+					url: form.getAttribute('action'),
+					method: 'post',
+
+					paramName: 'file',
+
+					autoProcessQueue: false,
+					maxFiles: 1,
+					uploadMultiple: false,
+					acceptedFiles:
+						'.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.webp',
+					maxFilesize: 15,
+
+					addRemoveLinks: true,
+					dictDefaultMessage:
+						'Arrastra aquí tu documento o haz clic para seleccionar.',
+					dictRemoveFile: 'Eliminar archivo',
+				});
+
+				dz.on('addedfile', function (file) {
+					if (dz.files.length > 1) {
+						dz.removeFile(dz.files[0]);
+					}
+
+					confirmBtn.disabled = false;
+
+					if (tempTimeoutId) clearTimeout(tempTimeoutId);
+
+					tempTimeoutId = setTimeout(
+						function () {
+							dz.removeAllFiles(true);
+							confirmBtn.disabled = true;
+							alert(
+								'El archivo temporal ha expirado. Vuelve a subir el documento.',
+							);
+						},
+						2 * 60 * 1000,
+					);
+				});
+
+				dz.on('removedfile', function () {
+					confirmBtn.disabled = true;
+					if (tempTimeoutId) clearTimeout(tempTimeoutId);
+				});
+
+				confirmBtn.addEventListener('click', function () {
+					if (dz.getQueuedFiles().length === 0) {
+						return;
+					}
+
+					confirmBtn.disabled = true;
+
+					dz.processQueue();
+				});
+
+				dz.on('success', function (file) {
+					if (tempTimeoutId) clearTimeout(tempTimeoutId);
+
+					var xhr = file.xhr;
+					if (xhr && xhr.responseURL) {
+						window.location.href = xhr.responseURL;
+					}
+				});
+
+				dz.on('error', function (file, errorMessage) {
+					console.error('Error al subir el documento:', errorMessage);
+					confirmBtn.disabled = false;
+					if (tempTimeoutId) clearTimeout(tempTimeoutId);
+					alert('Hubo un error al subir el documento. Intenta de nuevo.');
+				});
+			});
+		});
+	</script>
+</div>

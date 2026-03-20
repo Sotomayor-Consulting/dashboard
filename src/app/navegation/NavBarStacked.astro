@@ -8,43 +8,43 @@ const user = await UsersGeneral(supabase);
 ---
 
 <nav
-	class="fixed z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-200/60 sm:py-2 dark:bg-black-900/80 dark:backdrop-blur-md dark:border-gray-700"
+	class="bg-white-100 dark:bg-black-900 fixed z-50 w-full border-b border-gray-200 sm:py-2 dark:border-gray-700"
 >
-	<div class="container py-3 mx-auto">
+	<div class="container mx-auto py-3">
 		<div class="flex items-center justify-between">
 			<div class="flex items-center justify-start">
-				<a href="/" class="flex mr-4">
+				<a href="/" class="mr-4 flex">
 					<Icon
 						name="logo-en-blanco"
-						class="mx-3 hidden dark:block text-3xl"
+						class="mx-3 hidden text-3xl dark:block"
 						title="Logo Sotomayor Consulting"
 					/>
 					<Icon
 						name="logo-en-negro"
-						class="mx-3 block dark:hidden text-3xl"
+						class="mx-3 block text-3xl dark:hidden"
 						title="Logo Sotomayor Consulting"
 					/>
 				</a>
-				<div class="hidden sm:flex sm:ml-6">
+				<div class="hidden sm:ml-6 sm:flex">
 					<ul class="flex space-x-8">
 						<li>
 							<a
 								href="/"
-								class="text-sm font-medium text-gray-700 hover:text-primary-600 dark:text-gray-400 dark:hover:text-[#8c681d]"
+								class="text-sm font-medium text-gray-700 hover:text-[#8c681d] dark:text-gray-400 dark:hover:text-[#8c681d]"
 								aria-current="page">Inicio</a
 							>
 						</li>
 						<li>
 							<a
 								href="https://sotomayorconsulting.com/inicio/about/"
-								class="text-sm font-medium text-gray-700 hover:text-primary-600 dark:text-gray-400 dark:hover:text-[#8c681d]"
+								class="text-sm font-medium text-gray-700 hover:text-[#8c681d] dark:text-gray-400 dark:hover:text-[#8c681d]"
 								aria-current="page">Nosotros</a
 							>
 						</li>
 						<li>
 							<a
 								href="https://sotomayorconsulting.com/inicio/contact/"
-								class="text-sm font-medium text-gray-700 hover:text-primary-600 dark:text-gray-400 dark:hover:text-[#8c681d]"
+								class="text-sm font-medium text-gray-700 hover:text-[#8c681d] dark:text-gray-400 dark:hover:text-[#8c681d]"
 								aria-current="page">Contactos</a
 							>
 						</li>
@@ -58,10 +58,10 @@ const user = await UsersGeneral(supabase);
 						<a
 							href="/sign-in"
 							target="_blank"
-							class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center  items-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67] md:inline-flex hidden"
+							class="focus:ring-primary-300 hidden items-center rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 md:inline-flex dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 						>
 							<svg
-								class="w-5 h-5 mr-2 -ml-1"
+								class="mr-2 -ml-1 h-5 w-5"
 								fill="none"
 								stroke="currentColor"
 								viewBox="0 0 24 24"
@@ -77,11 +77,11 @@ const user = await UsersGeneral(supabase);
 							Iniciar sesión
 						</a>
 					) : (
-						<div class="md:flex items-end md:flex-col hidden">
-							<span class="font-semibold text-wite dark:text-white">
+						<div class="hidden items-end md:flex md:flex-col">
+							<span class="text-wite font-semibold dark:text-white">
 								{user.user_metadata?.full_name || 'Usuario'}
 							</span>
-							<span class="text-gray-600 text-sm">{user.email}</span>
+							<span class="text-sm text-gray-600">{user.email}</span>
 						</div>
 					)
 				}
@@ -89,14 +89,14 @@ const user = await UsersGeneral(supabase);
 				<button
 					data-collapse-toggle="mobile-menu"
 					type="button"
-					class="inline-flex items-center justify-center p-2 ml-3 text-gray-400 rounded-lg sm:hidden hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-300 dark:hover:bg-[#101522] dark:hover:text-white"
+					class="focus:ring-primary-300 ml-3 inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:text-gray-900 focus:ring-2 focus:outline-none sm:hidden dark:hover:bg-[#101522] dark:hover:text-white"
 					aria-controls="mobile-menu-2"
 					aria-expanded="false"
 				>
 					<span class="sr-only">Abrir menu</span>
 					<!-- Open mobile menu icon -->
 					<svg
-						class="w-6 h-6"
+						class="h-6 w-6"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -108,7 +108,7 @@ const user = await UsersGeneral(supabase);
 					</svg>
 					<!-- Close mobile menu icon -->
 					<svg
-						class="hidden w-6 h-6"
+						class="hidden h-6 w-6"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -128,21 +128,21 @@ const user = await UsersGeneral(supabase);
 			<li>
 				<a
 					href="#"
-					class="block py-2 pl-3 pr-4 text-base font-normal text-gray-900 bg-gray-100 dark:bg-black-900 dark:text-white"
+					class="dark:bg-black-900 block bg-gray-100 py-2 pr-4 pl-3 text-base font-normal text-gray-900 dark:text-white"
 					>Inicio</a
 				>
 			</li>
 			<li>
 				<a
 					href="https://sotomayorconsulting.com/inicio/about/"
-					class="block px-3 py-2 text-base font-normal text-gray-600 border-b border-gray-100 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:hover:bg-[#101522] dark:text-gray-400 dark:hover:text-white"
+					class="block border-b border-gray-100 px-3 py-2 text-base font-normal text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white"
 					>Nosotros</a
 				>
 			</li>
 			<li>
 				<a
 					href="https://sotomayorconsulting.com/inicio/contact/"
-					class="block px-3 py-2 text-base font-normal text-gray-600 border-b border-gray-100 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:hover:bg-[#101522] dark:text-gray-400 dark:hover:text-white"
+					class="block border-b border-gray-100 px-3 py-2 text-base font-normal text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white"
 					>Contactos</a
 				>
 			</li>
@@ -150,10 +150,10 @@ const user = await UsersGeneral(supabase);
 				<a
 					href="/sign-in"
 					target="_blank"
-					class="inline-flex items-center w-full px-3 py-2 text-base font-normal text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:hover:bg-[#101522] dark:text-gray-400 dark:hover:text-white"
+					class="inline-flex w-full items-center px-3 py-2 text-base font-normal text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white"
 				>
 					<svg
-						class="w-5 h-5 mr-2"
+						class="mr-2 h-5 w-5"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"

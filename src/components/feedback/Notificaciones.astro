@@ -1,180 +1,247 @@
 ---
 import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
-import DataTable from '@components/ui/DataTable.astro';
-import StatusBadge from '@components/ui/StatusBadge.astro';
-import DateCell from '@components/ui/DateCell.astro';
+import '@styles/datatables.css';
 import logonotificaciones from '/src/assets/avatarSCI.png';
 import Alerta from '@components/feedback/alertageneral.astro';
-import { getNotificacionesGeneral } from '@lib/tablas/notificaciones';
+import { getNotificacionesGeneralPorId } from '@lib/tablas/notificaciones';
 
+const user = Astro.locals.user;
+const userId = user?.id;
 const supabase = Astro.locals.supabase;
-const notificaciones = await getNotificacionesGeneral(supabase);
+
+const notificaciones = userId
+	? await getNotificacionesGeneralPorId(supabase, userId)
+	: null;
 ---
 
+<script src="@lib/alpinejs/alpine.js"></script>
 <Alerta />
-<DataTable
-	headers={[
-		'Icono',
-		'Id',
-		'Mensaje',
-		'Link',
-		'Fecha',
-		'Marcado como leído',
-		'Acciones',
-	]}
-	noRowsMessage="No hay notificaciones"
->
-	{
-		notificaciones?.map((user) => (
-			<tr class="hover:bg-gray-100 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] odd:bg-gray-50 even:bg-gray-100">
-				<td class="w-4 pl-4">
-					<Image
-						src={logonotificaciones}
-						width="44"
-						alt="Icono Sotomayor Consulting"
-						class="rounded-full"
-					/>
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-gray-500 overflow-hidden truncate max-w-sm xl:max-w-xs">
-					#{user.id}
-				</td>
-				<td class="max-w-sm p-4  text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-					{user.message}
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					<a
-						href={user.link}
-						target="_blank"
-						class="text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-500 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67] flex items-center gap-4 w-fit"
-					>
-						{user.mensaje_link}
-						<Icon name="ri:external-link-line" />
-					</a>
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					<DateCell date={user.created_at} />
-				</td>
-
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					<StatusBadge
-						active={user.is_read === true}
-						activeLabel="Leído"
-						inactiveLabel="No leído"
-					/>
-				</td>
-
-				<td class="p-4 space-x-2 whitespace-nowrap">
-					<button
-						type="button"
-						data-modal-target="edit-user-modal"
-						data-modal-toggle="edit-user-modal"
-						data-edit-user
-						data-user-id={user.id}
-						data-user-userid={user.user_id}
-						data-mensaje={user.message || ''}
-						data-isread={user.is_read || ''}
-						data-fecha-leido={user.leido_en || ''}
-						data-creado={user.created_at || ''}
-						data-link={user.link || ''}
-						data-mensajelink={user.mensaje_link ?? ''}
-						class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-500 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="w-4 h-4 mr-2"
-							viewBox="0 0 24 24"
-						>
-							<path
-								fill="currentColor"
-								d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"
-							/>
-						</svg>
-						Ver notificación
-					</button>
-
-					<button
-						id={`dd-btn-${user.id}`}
-						data-dropdown-toggle={`dd-${user.id}`}
-						class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
-						type="button"
-						aria-haspopup="true"
-						aria-expanded="false"
-					>
-						<svg
-							class="w-5 h-5"
-							aria-hidden="true"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="currentColor"
-							viewBox="0 0 4 15"
-						>
-							<path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-						</svg>
-					</button>
-					<div
-						id={`dd-${user.id}`}
-						class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-800 dark:divide-gray-600"
-						role="menu"
-						aria-labelledby={`dd-btn-${user.id}`}
-						data-dropdown-placement="bottom-start"
-					>
-						<ul
-							class="py-2 text-sm text-gray-700 dark:text-gray-200"
-							role="none"
-						>
-							<li>
-								{user.is_read === true ? (
-									<a
-										href="/notificaciones"
-										class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-										role="menuitem"
+<div class="flex flex-col">
+	<div class="overflow-x-auto">
+		<div class="inline-block min-w-full align-middle">
+			<div class="overflow-hidden shadow">
+				<table
+					class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
+					id="myTable"
+				>
+					<thead class="bg-gray-100 dark:bg-[#374151]">
+						<tr>
+							{
+								[
+									'Icono',
+									'Id',
+									'Mensaje',
+									'Link',
+									'Fecha',
+									'Marcado como leído',
+									'Acciones',
+								].map((th) => (
+									<th
+										scope="col"
+										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
 									>
-										Marcar como leído
-									</a>
-								) : (
-									<form
-										action="/api/update/update-notification"
-										method="post"
-									>
-										<input
-											type="hidden"
-											value="true"
-											name="estado_lectura"
-										/>
-										<input
-											type="hidden"
-											value={user.id}
-											name="id"
-										/>
-										<button
-											type="submit"
-											class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-											role="menuitem"
+										<span class="flex items-center">
+											{th}
+											<svg
+												class="ms-1 h-4 w-4"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												fill="none"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke="currentColor"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="m8 15 4 4 4-4m0-6-4-4-4 4"
+												/>
+											</svg>
+										</span>
+									</th>
+								))
+							}
+						</tr>
+					</thead>
+					<tbody
+						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
+					>
+						{
+							notificaciones?.map((user) => (
+								<div>
+									<tr class="odd:bg-white-100 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+										<td class="w-4 pl-4">
+											<Image
+												src={logonotificaciones}
+												width="44"
+												alt="Icono Sotomayor Consulting"
+												class="rounded-full"
+											/>
+										</td>
+										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-medium whitespace-nowrap text-gray-900 xl:max-w-xs dark:text-gray-500">
+											#{user.id}
+										</td>
+										<td class="max-w-sm truncate p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+											{user.message}
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											<a
+												href={user.link}
+												target="_blank"
+												class="me-2 mb-2 flex w-fit items-center gap-4 rounded-full bg-[#967432] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+											>
+												{user.mensaje_link}
+												<Icon name="ri:external-link-line" />
+											</a>
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											{user.created_at &&
+												new Date(user.created_at)
+													.toLocaleDateString('es-ES', {
+														day: '2-digit',
+														month: '2-digit',
+														year: 'numeric',
+													})
+													.replace(/\//g, '-')}
+										</td>
+
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											<div class="flex items-center">
+												{user.is_read === true ? (
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
+												) : (
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
+												)}
+												{user.is_read ? 'Leído' : 'No leído'}
+											</div>
+										</td>
+
+										<td
+											class="space-x-2 p-4 whitespace-nowrap"
+											x-data="{ showTooltip: false }"
 										>
-											Marcar como leído
-										</button>
-									</form>
-								)}
-							</li>
-						</ul>
-					</div>
-				</td>
-			</tr>
-		))
-	}
-</DataTable>
+											<button
+												type="button"
+												data-modal-target="edit-user-modal"
+												data-modal-toggle="edit-user-modal"
+												data-edit-user
+												data-user-id={user.id}
+												data-user-userid={user.user_id}
+												data-mensaje={user.message || ''}
+												data-isread={user.is_read || ''}
+												data-fecha-leido={user.leido_en || ''}
+												data-creado={user.created_at || ''}
+												data-link={user.link || ''}
+												data-mensajelink={user.mensaje_link ?? ''}
+												class="inline-flex items-center rounded-lg bg-[#967432] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-[#967432] dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+											>
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													class="mr-2 h-4 w-4"
+													viewBox="0 0 24 24"
+												>
+													<path
+														fill="currentColor"
+														d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"
+													/>
+												</svg>
+												Ver notificación
+											</button>
+
+											<button
+												id={`dd-btn-${user.id}`}
+												@click="showTooltip = !showTooltip"
+												@click.outside="showTooltip = false"
+												class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+												type="button"
+												aria-haspopup="true"
+												aria-expanded="false"
+											>
+												<svg
+													class="h-5 w-5"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													fill="currentColor"
+													viewBox="0 0 4 15"
+												>
+													<path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+												</svg>
+											</button>
+											<div
+												id={`dd-${user.id}`}
+												class="dark:bg-black-800 absolute z-10 mt-1 w-44 divide-y divide-gray-100 rounded-lg bg-white shadow-sm dark:divide-gray-600"
+												role="menu"
+												x-show="showTooltip"
+												x-transition
+												aria-labelledby={`dd-btn-${user.id}`}
+												data-dropdown-placement="bottom-start"
+											>
+												<ul
+													class="py-2 text-sm text-gray-700 dark:text-gray-200"
+													role="none"
+												>
+													<li>
+														{user.is_read === true ? (
+															<a
+																href="/notificaciones"
+																class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+																role="menuitem"
+															>
+																Marcar como leído
+															</a>
+														) : (
+															<form
+																action="/api/update/update-notification"
+																method="post"
+															>
+																<input
+																	type="hidden"
+																	value="true"
+																	name="estado_lectura"
+																/>
+																<input
+																	type="hidden"
+																	value={user.id}
+																	name="id"
+																/>
+																<button
+																	type="submit"
+																	class="block w-full cursor-pointer px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+																	role="menuitem"
+																>
+																	Marcar como leído
+																</button>
+															</form>
+														)}
+													</li>
+												</ul>
+											</div>
+										</td>
+									</tr>
+								</div>
+							))
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Edit User Modal -->
 <div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
 	id="edit-user-modal"
 >
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+	<div class="relative h-full w-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
 			<!-- Modal header -->
 			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
 			>
 				<h3 class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
 					Notificación #<span
@@ -183,11 +250,11 @@ const notificaciones = await getNotificacionesGeneral(supabase);
 				</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="edit-user-modal"
 				>
 					<svg
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -199,7 +266,7 @@ const notificaciones = await getNotificacionesGeneral(supabase);
 				</button>
 			</div>
 			<!-- Modal body -->
-			<div class="p-4 md:p-5 space-y-4">
+			<div class="space-y-4 p-4 md:p-5">
 				<div class="flex justify-between">
 					<p
 						class="text-sm leading-relaxed text-gray-500 dark:text-gray-400"
@@ -214,7 +281,7 @@ const notificaciones = await getNotificacionesGeneral(supabase);
 				</div>
 				<div>
 					<p
-						class="text-base leading-relaxed text-gray-500 dark:text-gray-400 mb-3"
+						class="mb-3 text-base leading-relaxed text-gray-500 dark:text-gray-400"
 					>
 						Mensaje:
 					</p>
@@ -231,7 +298,7 @@ const notificaciones = await getNotificacionesGeneral(supabase);
 						target="_blank"
 						rel="noopener noreferrer"
 						id="enlace_display_link"
-						class="text-white bg-blue-600 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-800 dark:focus:ring-blue-800"
+						class="rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-800 dark:focus:ring-blue-800"
 						title="ir"></a>
 				</div>
 			</div>
@@ -331,214 +398,7 @@ const notificaciones = await getNotificacionesGeneral(supabase);
 		});
 	});
 </script>
-<!-- Añadir usuario -->
-<div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
-	id="add-user-modal"
->
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
-		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
-			<!-- Modal header -->
-			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
-			>
-				<h3 class="text-xl font-semibold dark:text-white">Invitar usuario</h3>
-				<button
-					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
-					data-modal-toggle="add-user-modal"
-				>
-					<svg
-						class="w-5 h-5"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							fill-rule="evenodd"
-							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							clip-rule="evenodd"></path></svg
-					>
-				</button>
-			</div>
-			<!-- Modal body -->
-			<form action="/api/update/admin-invite" method="post">
-				<div class="p-6 space-y-6">
-					<div class="grid gap-6">
-						<div class="">
-							<label
-								for="email"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-								>Correo</label
-							>
-							<input
-								type="email"
-								name="correo_create"
-								id="email"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-								placeholder="correo@ejemplo.com"
-								required
-							/>
-						</div>
-					</div>
 
-					<!-- Modal footer -->
-					<div
-						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
-					>
-						<button
-							class="text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
-							type="submit">Invitar Usuario</button
-						>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
-
-<!-- Añadir rol Modal -->
-<div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
-	id="rol-modal-admin"
->
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
-		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
-			<!-- Modal header -->
-			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
-			>
-				<h3 class="text-xl font-semibold dark:text-white">Añadir Rol</h3>
-				<button
-					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
-					data-modal-toggle="rol-modal-admin"
-				>
-					<svg
-						class="w-5 h-5"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							fill-rule="evenodd"
-							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							clip-rule="evenodd"></path></svg
-					>
-				</button>
-			</div>
-			<!-- Modal body -->
-			<form action="/api/create/admin-new-rol" method="post">
-				<div class="p-6 space-y-6">
-					<div class="grid gap-6">
-						<div class="">
-							<label
-								for="nombre_rol"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-								>Añade el nombre del rol</label
-							>
-							<input
-								type="text"
-								name="nombre_rol"
-								id="rol-create"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-								placeholder="admin"
-								required
-							/>
-						</div>
-					</div>
-
-					<!-- Modal footer -->
-					<div
-						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
-					>
-						<button
-							class="text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
-							type="submit">Añadir rol</button
-						>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
-
-<div
-	id="updaterol"
-	tabindex="-1"
-	aria-hidden="true"
-	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
->
-	<div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
-		<!-- Modal content -->
-		<div
-			class="relative p-4 bg-white rounded-lg shadow dark:bg-black-800 sm:p-5"
-		>
-			<!-- Modal header -->
-			<div
-				class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600"
-			>
-				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-					Selecciona el estado del cliente
-				</h3>
-				<button
-					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-					data-modal-toggle="updaterol"
-				>
-					<svg
-						aria-hidden="true"
-						class="w-5 h-5"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							fill-rule="evenodd"
-							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							clip-rule="evenodd"></path></svg
-					>
-					<span class="sr-only">Close modal</span>
-				</button>
-			</div>
-			<!-- Modal body -->
-			<form action="/api/update/admin-update" method="post" id="updaterolForm">
-				<input type="hidden" name="user_id" id="updaterol_user_id" />
-				<div class="p-4 md:p-5 text-center">
-					<svg
-						class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
-						aria-hidden="true"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 20 20"
-					>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
-					</svg>
-					<h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-						Are you sure you want to delete this product?
-					</h3>
-					<button
-						data-modal-hide="updaterol"
-						type="button"
-						class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-					>
-						Yes, I'm sure
-					</button>
-					<button
-						data-modal-hide="updaterol"
-						type="button"
-						class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
-						>No, cancel</button
-					>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
 <script is:inline>
 	document.addEventListener('DOMContentLoaded', () => {
 		const form = document.getElementById('updaterolForm');
@@ -577,4 +437,41 @@ const notificaciones = await getNotificacionesGeneral(supabase);
 			if (submitBtn) submitBtn.disabled = true;
 		});
 	});
+</script>
+<script>
+	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
+
+	function initDT() {
+		const el = document.querySelector('#myTable') as HTMLElement | null;
+		if (!el) return;
+		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
+			return;
+
+		new DataTable(el, {
+			searchable: true,
+			perPage: 25,
+			perPageSelect: [5, 10, 25, 50],
+
+			// Textos en español
+			labels: {
+				placeholder: 'Buscar...',
+				perPage: 'Filas',
+				noRows: 'No hay usuarios',
+				noResults: 'No se encontraron resultados',
+				info: 'Mostrando {start} a {end} de {rows} registros',
+			},
+
+			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			layout: {
+				top: '{select}{search}',
+				bottom: '{info}{pager}',
+			},
+		});
+
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
+	}
+
+	initDT();
+	document.addEventListener('astro:page-load', initDT);
 </script>

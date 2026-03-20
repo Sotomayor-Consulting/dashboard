@@ -8,18 +8,18 @@ import fondo from '/src/assets/edificios-fondo.avif';
 <LayoutCommon>
 	<NavBarStacked />
 
-	<div class="flex pt-16 overflow-hidden bg-gray-100/50 dark:bg-black-800">
+	<div class="bg-white-100 dark:bg-black-800 flex overflow-hidden pt-16">
 		<div class="">
 			<Image
 				src={fondo}
 				alt="Fondo edificios"
-				class="z-0 dark:opacity-10 opacity-10 absolute object-center object-cover w-full sm:min-h-svh h-[120%]"
+				class="absolute z-0 h-[120%] w-full object-cover object-center opacity-10 sm:min-h-svh dark:opacity-10"
 				loading="eager"
 			/>
 		</div>
 		<div
 			id="main-content"
-			class="relative w-full max-w-screen-2xl mx-auto h-full overflow-y-auto min-h-screen z-10"
+			class="relative z-10 mx-auto h-full min-h-screen w-full max-w-screen-2xl overflow-y-auto"
 		>
 			<div class="px-4 pt-6 2xl:px-0">
 				<slot />

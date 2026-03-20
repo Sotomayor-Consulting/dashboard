@@ -1,5 +1,4 @@
 ---
-import { fade } from 'astro:transitions';
 import Banner from '@components/feedback/Banner.astro';
 import BannerPartner from '@components/feedback/Banner_partner_profile.astro';
 import BannerIncorporacion from '@components/feedback/Banner_formulario_de_incorporacion.astro';
@@ -7,9 +6,16 @@ import LayoutCommon from './LayoutCommon.astro';
 import NavBarSidebar from '../navegation/NavBarSidebar.astro';
 import SideBar from '../navegation/SideBar.astro';
 
-import { getUsuarioById, getMissingFieldsFromProfile, type PartnerRequiredField } from '@lib/tablas/usuarios';
+import {
+	getUsuarioById,
+	getMissingFieldsFromProfile,
+	type PartnerRequiredField,
+} from '@lib/tablas/usuarios';
 import { getNotifications } from '@lib/tablas/notificaciones';
-import { getEstadoIncorporacionByUserId, getBannerIncorporacionData } from '@lib/tablas/empresa_incorporaciones';
+import {
+	getEstadoIncorporacionByUserId,
+	getBannerIncorporacionData,
+} from '@lib/tablas/empresa_incorporaciones';
 
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
@@ -46,17 +52,14 @@ const showBannerPartner = missingPartnerFields.length > 0;
 ---
 
 <LayoutCommon>
-	<NavBarSidebar
-		usuario={usuario}
-		notificationsData={notificationsData}
-	/>
+	<NavBarSidebar usuario={usuario} notificationsData={notificationsData} />
 
 	<SideBar />
 
-	<div class="flex pt-16 bg-gray-100/50 dark:bg-black-900">
+	<div class="bg-white-100 dark:bg-black-900 flex overflow-hidden pt-16">
 		<div
 			id="main-content"
-			class="relative w-full bg-gray-100/50 dark:bg-black-900 min-h-[calc(100vh-4rem)] px-6"
+			class="dark:bg-black-900 relative h-full min-h-screen w-full bg-neutral-200 px-6"
 		>
 			<Banner shouldShowBanner={showBannerEnProceso} />
 			<BannerPartner

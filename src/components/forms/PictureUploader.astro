@@ -19,14 +19,14 @@ const { slug } = Astro.params;
 	imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
 		<Image
 			src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId || ''}`}
-			class="mb-4 rounded-lg w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0"
+			class="mb-4 h-28 w-28 rounded-lg sm:mb-0 xl:mb-4 2xl:mb-0"
 			alt="avatar"
 			loading="eager"
 			inferSize={true}
 		/>
 	) : (
 		<Image
-			class="mb-4 rounded-lg w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0"
+			class="mb-4 h-28 w-28 rounded-lg sm:mb-0 xl:mb-4 2xl:mb-0"
 			src={imagen?.avatar_url}
 			alt="Foto de perfil"
 			inferSize={true}
@@ -50,7 +50,7 @@ const { slug } = Astro.params;
 		>
 			<input type="hidden" name="slug" value={slug} />
 			<label
-				class="inline-flex items-center px-5 py-2.5 dark:bg-black-900 dark:text-white rounded-lg cursor-pointer dark:hover:bg-[#05121d] transition mb-5 bg-gray-50 border border-neutral-400"
+				class="dark:bg-black-900 bg-white-100 mb-5 inline-flex cursor-pointer items-center rounded-lg border border-neutral-400 px-5 py-2.5 transition dark:text-white dark:hover:bg-[#05121d]"
 			>
 				<span>Seleccionar archivo</span>
 				<input
@@ -64,10 +64,10 @@ const { slug } = Astro.params;
 
 			<button
 				type="submit"
-				class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-primary-500 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+				class="inline-flex items-center rounded-lg bg-[#967432] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 			>
 				<svg
-					class="w-4 h-4 mr-2 -ml-1"
+					class="mr-2 -ml-1 h-4 w-4"
 					fill="currentColor"
 					viewBox="0 0 20 20"
 					xmlns="http://www.w3.org/2000/svg"

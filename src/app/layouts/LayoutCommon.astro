@@ -39,9 +39,13 @@ const { class: clazz } = Astro.props;
 			}
 
 			// Aplicar modo de sidebar antes del primer pintado para evitar flash
-			(function() {
+			(function () {
 				var saved = localStorage.getItem('sidebar-mode');
-				if (saved === 'expanded' || saved === 'collapsed' || saved === 'hover') {
+				if (
+					saved === 'expanded' ||
+					saved === 'collapsed' ||
+					saved === 'hover'
+				) {
 					document.documentElement.setAttribute('data-sidebar', saved);
 				} else {
 					document.documentElement.setAttribute('data-sidebar', 'hover');
@@ -58,15 +62,15 @@ const { class: clazz } = Astro.props;
 				top: 0;
 				left: 0;
 				height: 2px;
-				background: #B89329;
-				z-index: 9999;
+				background: #b89329;
+				z-index: 38;
 				width: 0%;
 				opacity: 0;
 				pointer-events: none;
 				transition: none;
 			}
 			:where(.dark) #nav-progress {
-				background: #3B82F6;
+				background: #3b82f6;
 			}
 			#nav-progress.loading {
 				opacity: 1;
@@ -78,12 +82,24 @@ const { class: clazz } = Astro.props;
 				transition: opacity 300ms ease-out;
 			}
 			@keyframes nav-progress-grow {
-				0% { width: 0%; }
-				10% { width: 30%; }
-				30% { width: 55%; }
-				50% { width: 70%; }
-				80% { width: 85%; }
-				100% { width: 95%; }
+				0% {
+					width: 0%;
+				}
+				10% {
+					width: 30%;
+				}
+				30% {
+					width: 55%;
+				}
+				50% {
+					width: 70%;
+				}
+				80% {
+					width: 85%;
+				}
+				100% {
+					width: 95%;
+				}
 			}
 		</style>
 	</head>
@@ -91,12 +107,14 @@ const { class: clazz } = Astro.props;
 		class:list={[
 			//
 			clazz,
-			'bg-white dark:bg-black-800',
+			'dark:bg-black-800 bg-gray-50',
 			'scrollbar scrollbar-w-3 scrollbar-thumb-rounded-xs',
-			'scrollbar-track-gray-100 scrollbar-thumb-gray-300',
+			'scrollbar-track-slate-200 scrollbar-thumb-gray-400',
 			'dark:scrollbar-track-gray-900 dark:scrollbar-thumb-gray-700',
 		]}
 	>
+		<!-- Progress bar de navegación -->
+		<div id="nav-progress"></div>
 		<!-- Progress bar de navegación -->
 		<div id="nav-progress"></div>
 		<slot />
@@ -105,7 +123,6 @@ const { class: clazz } = Astro.props;
 
 <script>
 	import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
-	import { initFlowbite } from 'flowbite';
 
 	// ── Progress bar: feedback visual instantáneo durante navegación ──
 	function getProgressBar() {
@@ -157,9 +174,8 @@ const { class: clazz } = Astro.props;
 			newHtml.setAttribute('data-sidebar', sidebarMode);
 		}
 	});
-
-	// Re-inicializar Flowbite en cada navegación (View Transitions)
-	document.addEventListener('astro:page-load', () => {
-		initFlowbite();
-	});
+</script>
+<script>
+	import { initFlowbite } from 'flowbite';
+	initFlowbite();
 </script>

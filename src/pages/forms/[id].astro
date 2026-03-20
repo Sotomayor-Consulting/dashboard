@@ -1,16 +1,13 @@
 ---
 // Auth handled by middleware
+import { ListaFormulariosSurvey } from '@lib/tablas/formularios';
 const { id } = Astro.params;
 const supabase = Astro.locals.supabase;
 
-const { data: formulario, error } = await supabase
-	.from('formularios')
-	.select('form_id, titulo, descripcion, schema_json, tema_json')
-	.eq('form_id', id)
-	.single(); // .single() porque esperamos solo 1 resultado
+const formulario = id ? await ListaFormulariosSurvey(supabase, id) : null;
 
 // Si no existe, redirigir
-if (error || !formulario) {
+if (!formulario) {
 	return Astro.redirect('/');
 }
 
@@ -40,14 +37,14 @@ import '@styles/surveyjs.css';
 
 		<!-- Selector de idioma flotante -->
 		<div
-			class="fixed top-4 right-4 z-50 bg-gray-50 p-3 rounded-lg shadow-md border border-gray-300"
+			class="bg-white-100 fixed top-4 right-4 z-50 rounded-lg border border-gray-700 p-3 shadow-md"
 		>
-			<label for="languageSelector" class="text-sm font-medium text-black mr-2"
+			<label for="languageSelector" class="mr-2 text-sm font-medium text-black"
 				>🌐 Idioma:</label
 			>
 			<select
 				id="languageSelector"
-				class="border border-gray-400 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 bg-gray-50 text-black"
+				class="bg-white-100 rounded-lg border border-gray-400 p-2 text-sm text-black focus:border-blue-500 focus:ring-blue-500"
 			>
 				<option value="es">Español</option>
 				<option value="en">English</option>

@@ -52,11 +52,62 @@ export const pagosRealizadosData = async (supabase: SupabaseClient) => {
     *,
     usuarios ( user_id, nombre, apellido, correo ),
 	servicios (id_servicios, nombre, categoria),
-	empresas_incorporaciones (empresa_incorporacion_id, nombre_1)
+	empresas_incorporaciones (empresa_incorporacion_id, nombre_1, estado)
   `,
 			{ count: 'exact' },
 		)
 		.order('created_at', { ascending: false });
+
+	if (error) {
+		console.error('Error fetching all pagos data:', error);
+		throw error;
+	}
+
+	return data;
+};
+
+export const pagosRealizadosPorSubir = async (supabase: SupabaseClient) => {
+	const { data, error } = await supabase
+		.from('pagos')
+		.select(
+			`
+    *,
+    usuarios ( user_id, nombre, apellido, correo ),
+	servicios (id_servicios, nombre, categoria),
+	empresas_incorporaciones (empresa_incorporacion_id, nombre_1, estado)
+  `,
+			{ count: 'exact' },
+		)
+		.eq('status', 'succeeded')
+		.order('created_at', { ascending: false });
+
+	if (error) {
+		console.error('Error fetching all pagos data:', error);
+		throw error;
+	}
+
+	return data;
+};
+
+export const pagosRealizadosPorSubirById = async (
+	supabase: SupabaseClient,
+	empresaId: string,
+) => {
+	const { data, error } = await supabase
+		.from('pagos')
+		.select(
+			`
+    *,
+    usuarios ( user_id, nombre, apellido, correo ),
+	servicios (id_servicios, nombre, categoria),
+	empresas_incorporaciones (empresa_incorporacion_id, nombre_1, estado, tipo_de_negocio)
+  `,
+			{ count: 'exact' },
+		)
+		.eq('status', 'succeeded')
+		.eq('empresa_incorporacion_id', empresaId)
+		.order('created_at', { ascending: false })
+		.single();
 
 	if (error) {
 		console.error('Error fetching all pagos data:', error);

@@ -105,14 +105,6 @@ export const menuItems = [
 		svgname: 'ri:chat-ai-4-fill',
 	},
 	{
-		id: 'menu-mailing',
-		label: 'Mailing',
-		href: '/crud/mailing',
-		tooltip: 'Envía correos personalizados a los usuarios',
-		roles: ['admin'],
-		svgname: 'ri:mail-ai-fill',
-	},
-	{
 		id: 'crud-servicios',
 		label: 'Servicios',
 		href: '/crud/services',

@@ -6,30 +6,30 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 ---
 
 <div
-	class="w-full grid lg:grid-cols-2 grid-cols-1 px-6 pt-8 mx-auto pt:mt-0 gap-5 mb-5"
+	class="pt:mt-0 mx-auto mb-5 grid w-full grid-cols-1 gap-5 px-6 pt-8 lg:grid-cols-2"
 >
 	<div
-		class="w-full flex flex-col items-center justify-center px-6 pt-8 mx-auto pt:mt-0"
+		class="pt:mt-0 mx-auto flex w-full flex-col items-center justify-center px-6 pt-8"
 	>
 		<!-- Card -->
 		<div
-			class="w-full max-w-xl p-6 space-y-8 sm:p-8 rounded-lg shadow dark:bg-black-900 bg-gray-50"
+			class="dark:bg-black-900 bg-white-100 w-full max-w-xl space-y-8 rounded-lg p-6 shadow sm:p-8"
 		>
 			<a
 				href="/sign-up"
-				class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white"
+				class="mb-8 flex items-center justify-center text-2xl font-semibold lg:mb-10 dark:text-white"
 			>
 				<Image
 					src={logo1}
 					alt="Sotomayor Logo"
 					height="44"
-					class="mr-4 dark:block hidden"
+					class="mr-4 hidden dark:block"
 				/>
 				<Image
 					src={logo2}
 					alt="Sotomayor Logo"
 					height="44"
-					class="mr-4 dark:hidden block"
+					class="mr-4 block dark:hidden"
 				/>
 			</a>
 			<h2 class="text-2xl font-bold text-gray-900 dark:text-white">
@@ -40,15 +40,14 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 					<div class="col">
 						<label
 							for="name"
-							class="block mb-2 text-sm font-medium dark:text-white text-gray-900"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Nombre</label
 						>
 						<input
 							type="text"
 							name="name"
 							id="name"
-							class="border sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-							dark:bg-[#05121d] border-gray-600 placeholder-gray-400 dark:text-white bg-white"
+							class="block w-full rounded-lg border border-gray-600 bg-white p-2.5 placeholder-gray-400 focus:border-[#967432] focus:ring-[#967432] sm:text-sm dark:bg-[#05121d] dark:text-white"
 							placeholder="Nombre"
 							required
 						/>
@@ -56,15 +55,14 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 					<div class="col">
 						<label
 							for="last-name"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Apellido</label
 						>
 						<input
 							type="text"
 							name="last-name"
 							id="last-name"
-							class="border sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-							dark:bg-[#05121d] border-gray-600 placeholder-gray-400 dark:text-white bg-white"
+							class="block w-full rounded-lg border border-gray-600 bg-white p-2.5 placeholder-gray-400 focus:border-[#967432] focus:ring-[#967432] sm:text-sm dark:bg-[#05121d] dark:text-white"
 							placeholder="Apellido"
 							required
 						/>
@@ -73,15 +71,14 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 				<div>
 					<label
 						for="email"
-						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 						>Tu correo</label
 					>
 					<input
 						type="email"
 						name="email"
 						id="email"
-						class="border sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-							dark:bg-[#05121d] border-gray-600 placeholder-gray-400 dark:text-white bg-white"
+						class="block w-full rounded-lg border border-gray-600 bg-white p-2.5 placeholder-gray-400 focus:border-[#967432] focus:ring-[#967432] sm:text-sm dark:bg-[#05121d] dark:text-white"
 						placeholder="correo@ejemplo.com"
 						required
 					/>
@@ -89,7 +86,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 				<div>
 					<label
 						for="password"
-						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 						>Contraseña</label
 					>
 					<PasswordMeter
@@ -104,7 +101,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 				<div>
 					<label
 						for="confirm-password"
-						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 						>Confirmar contraseña</label
 					>
 					<input
@@ -112,19 +109,18 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 						name="confirm-password"
 						id="confirm-password"
 						placeholder="••••••••"
-						class="border sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-							dark:bg-[#05121d] border-gray-600 placeholder-gray-400 dark:text-white bg-white"
+						class="block w-full rounded-lg border border-gray-600 bg-white p-2.5 placeholder-gray-400 focus:border-[#967432] focus:ring-[#967432] sm:text-sm dark:bg-[#05121d] dark:text-white"
 						required
 					/>
 				</div>
 				<div class="flex items-start">
-					<div class="flex items-center h-5">
+					<div class="flex h-5 items-center">
 						<input
 							id="remember"
 							aria-describedby="remember"
 							name="remember"
 							type="checkbox"
-							class="w-4 h-4 rounded focus:ring-3 focus:ring-primary-500 ring-offset-gray-800 dark:bg-[#05121d] bg-white border-gray-600 text-primary-600"
+							class="h-4 w-4 rounded border-gray-600 bg-white text-[#967432] ring-offset-gray-800 focus:ring-3 focus:ring-[#967432] dark:bg-[#05121d]"
 							required
 						/>
 					</div>
@@ -135,7 +131,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 							>Al registrarte, estás creando una cuenta de Sotomayor consulting
 							y aceptas los <a
 								href="https://sotomayorconsulting.com/inicio/politicas/"
-								class="text-primary-600 hover:underline"
+								class="text-[#8c681d] hover:underline"
 								>Términos de uso y la Política de privacidad</a
 							> de Sotomayor Consulting.
 						</label>
@@ -143,14 +139,14 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 				</div>
 				<button
 					type="submit"
-					class="w-full px-5 py-3 text-base font-medium text-center text-white bg-primary-600 rounded-lg hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
+					class="hover:bg-primary-800 focus:ring-primary-300 dark:focus:ring-primary-800 w-full rounded-lg bg-[#8c681d] px-5 py-3 text-center text-base font-medium text-white focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
 					>Crear una cuenta</button
 				>
 			</form>
 			<div>
-				<div class="inline-flex items-center justify-center w-full">
+				<div class="inline-flex w-full items-center justify-center">
 					<hr
-						class="w-11/12 h-px my-2 border-0 dark:bg-black-800 bg-gray-300"
+						class="dark:bg-black-800 my-2 h-px w-11/12 border-0 bg-gray-300"
 					/>
 					<span class="absolute px-5 font-medium text-gray-900 dark:text-white">
 						o
@@ -158,9 +154,9 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 				</div>
 			</div>
 			<div>
-				<form action="/api/auth/signin" method="post" data-astro-reload>
+				<form action="/api/auth/signin" method="post">
 					<button
-						class="w-full flex border dark:border-white border-gray-500 rounded-lg dark:text-white gap-2 items-center justify-center p-2.5 dark:hover:bg-slate-300/10 hover:bg-slate-700/10"
+						class="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-500 p-2.5 hover:bg-slate-700/10 dark:border-white dark:text-white dark:hover:bg-slate-300/10"
 						value="google"
 						name="provider"
 						type="submit"
@@ -198,20 +194,20 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 			<div class="text-sm font-medium text-gray-500 dark:text-gray-400">
 				¿Ya tienes una cuenta? <a
 					href="/sign-in"
-					class="text-primary-600 hover:underline">Inicia sesión</a
+					class="text-[#8c681d] hover:underline">Inicia sesión</a
 				>
 			</div>
 		</div>
 	</div>
 	<div
-		class="w-full px-6 pt:mt-0 self-center h-full flex-col justify-center lg:items-start items-center lg:mt-0 mt-40 hidden lg:flex"
+		class="pt:mt-0 mt-40 hidden h-full w-full flex-col items-center justify-center self-center px-6 lg:mt-0 lg:flex lg:items-start"
 	>
-		<div class="flex flex-col w-4/5 my-5">
+		<div class="my-5 flex w-4/5 flex-col">
 			<div
-				class="flex items-center mb-5 justify-center lg:justify-start lg:text-left text-center"
+				class="mb-5 flex items-center justify-center text-center lg:justify-start lg:text-left"
 			>
 				<svg
-					class="w-7 text-primary-600 mr-4 lg:block hidden"
+					class="mr-4 hidden w-7 text-[#967432] lg:block"
 					fill="currentColor"
 					viewBox="0 0 20 20"
 					xmlns="http://www.w3.org/2000/svg"
@@ -226,19 +222,19 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 			</div>
 
 			<p
-				class="text-base text-gray-900 dark:text-white lg:text-left text-center"
+				class="text-center text-base text-gray-900 lg:text-left dark:text-white"
 			>
 				Crea tu empresa en minutos. Con nuestro proceso simplificado, solo
 				necesitas unos pocos clics para registrar tu LLC y empezar a operar. Nos
 				encargamos de todo el papeleo para que puedas enfocarte en tu negocio.
 			</p>
 		</div>
-		<div class="flex flex-col w-4/5 my-5">
+		<div class="my-5 flex w-4/5 flex-col">
 			<div
-				class="flex items-center mb-5 justify-center lg:justify-start lg:text-left text-center"
+				class="mb-5 flex items-center justify-center text-center lg:justify-start lg:text-left"
 			>
 				<svg
-					class="w-7 text-primary-600 mr-4 lg:block hidden"
+					class="mr-4 hidden w-7 text-[#967432] lg:block"
 					fill="currentColor"
 					viewBox="0 0 20 20"
 					xmlns="http://www.w3.org/2000/svg"
@@ -253,7 +249,7 @@ import PasswordMeter from '@components/forms/PasswordMeter.astro';
 			</div>
 
 			<p
-				class="text-base text-gray-900 dark:text-white lg:text-left text-center"
+				class="text-center text-base text-gray-900 lg:text-left dark:text-white"
 			>
 				Crea tu estructura empresarial en minutos. Ya sea para tu negocio, para
 				proteger tu patrimonio con una holding, operativas, trust o

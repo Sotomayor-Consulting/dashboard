@@ -11,12 +11,12 @@ const REQUIRED_FIELDS = {
 	tipo_de_persona: 'Tipo de persona',
 	razon_social: 'Razón social / Nombre',
 	correo_electronico_factura: 'Correo electrónico',
-	'bill-phone': 'Teléfono',
+	telefono: 'Teléfono',
 	direccion_factura: 'Dirección',
 	pais_factura: 'País',
 	ciudad_factura: 'Ciudad',
-	documento_de_identidad: 'Documento de identidad',
-	tipo_de_documento: 'Tipo de documento',
+	documento_de_identidad_factura: 'Documento de identidad',
+	tipo_de_documento_factura: 'Tipo de documento',
 } as const;
 
 type RequiredFieldKey = keyof typeof REQUIRED_FIELDS;
@@ -28,9 +28,6 @@ function isValidEmail(email: string): boolean {
 	return emailRegex.test(email);
 }
 
-function cleanPhoneNumber(raw: string): string {
-	return raw.replace(/\D/g, '');
-}
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	// Sanitizar parámetro "back" para evitar open redirects
@@ -95,14 +92,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			);
 		}
 
-		// 6) Validar formato del teléfono (al menos 8 dígitos numéricos)
-		const cleanPhone = cleanPhoneNumber(formData['bill-phone']);
-		if (cleanPhone.length < 8) {
-			return redirectWithMessage(
-				'error',
-				'El teléfono debe tener al menos 8 dígitos.',
-			);
-		}
+		
 
 		// 7) Preparar payload para la base de datos
 		const payload = {
@@ -110,13 +100,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			personería: formData.tipo_de_persona,
 			nombre_o_razon_social: formData.razon_social,
 			correo: formData.correo_electronico_factura,
-			telefono: cleanPhone,
+			telefono: formData.telefono,
 			direccion_linea_1: formData.direccion_factura,
 			ciudad: formData.ciudad_factura,
 			pais: formData.pais_factura,
-			documento_de_identidad: formData.documento_de_identidad,
-			tipo_de_documento: formData.tipo_de_documento,
-			// created_at lo maneja la DB
+			documento_de_identidad: formData.documento_de_identidad_factura,
+			tipo_de_documento: formData.tipo_de_documento_factura,
+			
 		};
 
 		// 8) Intentar upsert en la base de datos

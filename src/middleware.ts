@@ -252,7 +252,8 @@ export function onRequest(context: any, next: any) {
 				email: claims.email ?? '',
 				user_metadata: claims.user_metadata ?? {},
 				app_metadata: claims.app_metadata ?? {},
-				aud: typeof claims.aud === 'string' ? claims.aud : (claims.aud[0] ?? ''),
+				aud:
+					typeof claims.aud === 'string' ? claims.aud : (claims.aud[0] ?? ''),
 				created_at: new Date(claims.iat * 1000).toISOString(),
 				is_anonymous: claims.is_anonymous ?? false,
 			} as User;

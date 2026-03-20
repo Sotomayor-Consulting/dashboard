@@ -1,9 +1,6 @@
 ---
-import DataTable from '@components/ui/DataTable.astro';
-import StatusBadge from '@components/ui/StatusBadge.astro';
-import AvatarCell from '@components/ui/AvatarCell.astro';
-import StackedText from '@components/ui/StackedText.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
+import '@styles/datatables.css';
 const supabase = Astro.locals.supabase;
 const { data: usuarios } = await supabase
 	.from('usuarios')
@@ -29,22 +26,22 @@ const { data: usuarios } = await supabase
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700"
+	class="dark:bg-black-900 block items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<Alerta />
-	<div class="w-full mb-1">
+	<div class="mb-1 w-full">
 		<div class="mb-4">
-			<nav class="flex mb-5" aria-label="Breadcrumb">
+			<nav class="mb-5 flex" aria-label="Breadcrumb">
 				<ol
 					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
 				>
 					<li class="inline-flex items-center">
 						<a
 							href="/"
-							class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
 						>
 							<svg
-								class="w-5 h-5 mr-2.5"
+								class="mr-2.5 h-5 w-5"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +55,7 @@ const { data: usuarios } = await supabase
 					<li>
 						<div class="flex items-center">
 							<svg
-								class="w-6 h-6 text-gray-400"
+								class="h-6 w-6 text-gray-400"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -69,7 +66,7 @@ const { data: usuarios } = await supabase
 							>
 							<a
 								href="/crud/mailing"
-								class="ml-1 text-gray-700 hover:text-primary-600 md:ml-2 dark:text-gray-300 dark:hover:text-white"
+								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
 								>Mailing</a
 							>
 						</div>
@@ -84,149 +81,213 @@ const { data: usuarios } = await supabase
 		</div>
 	</div>
 </div>
-<DataTable
-	headers={[
-		'Foto',
-		'Nombre',
-		'Compañía',
-		'Cargo',
-		'País',
-		'Estado',
-		'Rol',
-		'Acciones',
-	]}
-	noRowsMessage="No hay empresas"
-	noResultsMessage="No se encontraron resultados"
->
-	{
-		usuarios?.map((user) => (
-			<tr class="hover:bg-gray-50 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] transition-colors">
-				<td class="w-4 pl-4">
-					<AvatarCell src={user.avatar_url} name={user.nombre} />
-				</td>
-				<td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
-					<StackedText
-						title={`${user.nombre} ${user.apellido}`}
-						subtitle={user.correo}
-					/>
-				</td>
-				<td class="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-					{user.organizacion}
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					{user.cargo}
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					{user.pais?.[0]?.nombre_paises ?? '—'}
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					<StatusBadge
-						active={user.estado === 'activo'}
-						label={user.estado}
-						activeColor="bg-green-400"
-						inactiveColor="bg-red-500"
-					/>
-				</td>
-				<td class="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
-					<div class="flex items-center">
-						{user.usuarios_empresas?.[0]?.rol_en_empresa ?? '—'}
-					</div>
-				</td>
-				<td
-					class="p-4 space-x-2 flex"
-					x-data="{ showTooltip: false }"
+<div class="flex flex-col">
+	<div class="overflow-x-auto">
+		<div class="inline-block min-w-full align-middle">
+			<div class="overflow-hidden shadow">
+				<table
+					class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600"
+					id="myTable"
 				>
-					<button
-						data-modal-target="top-right-modal"
-						data-modal-toggle="top-right-modal"
-						data-user-mail={user.correo}
-						class="block w-full md:w-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-						type="button"
+					<thead class="bg-gray-100 dark:bg-[#374151]">
+						<tr>
+							{
+								[
+									'Foto',
+									'Nombre',
+									'Compañía',
+									'Cargo',
+									'País',
+									'Estado',
+									'Rol',
+									'Acciones',
+								].map((th) => (
+									<th
+										scope="col"
+										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
+									>
+										<span class="flex items-center uppercase">
+											{th}
+											<svg
+												class="ms-1 h-4 w-4"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												fill="none"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke="currentColor"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="m8 15 4 4 4-4m0-6-4-4-4 4"
+												/>
+											</svg>
+										</span>
+									</th>
+								))
+							}
+						</tr>
+					</thead>
+					<tbody
+						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
 					>
-						Enviar correo
-					</button>
+						{
+							usuarios?.map((user) => (
+								<div>
+									<tr class="odd:bg-white-100 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+										<td class="w-4 pl-4">
+											{user.avatar_url === 'NULL' || !user.avatar_url ? (
+												<img
+													class="h-10 w-10 rounded-full"
+													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
+													alt={`Avatar de ${user.nombre}`}
+												/>
+											) : (
+												<img
+													class="h-10 w-10 rounded-full"
+													src={user.avatar_url}
+													alt={`Avatar de ${user.nombre}`}
+												/>
+											)}
+										</td>
+										<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">
+											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+												<div class="text-base font-semibold text-gray-900 dark:text-white">
+													{user.nombre} {user.apellido}
+												</div>
+												<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+													{user.correo}
+												</div>
+											</div>
+										</td>
+										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+											{user.organizacion}
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											{user.cargo}
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											{user.pais?.[0]?.nombre_paises ?? '—'}
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											<div class="flex items-center">
+												{user.estado === 'activo' ? (
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
+												) : (
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
+												)}
+												{user.estado}
+											</div>
+										</td>
+										<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+											<div class="flex items-center">
+												{user.usuarios_empresas?.[0]?.rol_en_empresa ?? '—'}
+											</div>
+										</td>
+										<td
+											class="flex space-x-2 p-4"
+											x-data="{ showTooltip: false }"
+										>
+											<button
+												data-modal-target="top-right-modal"
+												data-modal-toggle="top-right-modal"
+												data-user-mail={user.correo}
+												class="block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+												type="button"
+											>
+												Enviar correo
+											</button>
 
-					<button
-						id={`dd-btn-${user.user_id}`}
-						@click="showTooltip = !showTooltip"
-						@click.outside="showTooltip = false"
-						class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-black-800 dark:hover:bg-[#101522] dark:focus:ring-gray-600"
-						type="button"
-						aria-haspopup="true"
-						aria-expanded="false"
-					>
-						<svg
-							class="w-5 h-5"
-							aria-hidden="true"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="currentColor"
-							viewBox="0 0 4 15"
-						>
-							<path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-						</svg>
-					</button>
-					<div
-						id={`dd-${user.user_id}`}
-						x-show="showTooltip"
-						x-transition
-						class="z-20 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-black-900 dark:divide-gray-600 mt-11 border border-neutral-300 dark:border-neutral-500 absolute right-2"
-						role="menu"
-						aria-labelledby={`dd-btn-${user.user_id}`}
-						data-dropdown-placement="bottom-start"
-					>
-						<ul
-							class="py-2 text-sm text-gray-700 dark:text-gray-200"
-							role="none"
-						>
-							<li>
-								<button
-									type="button"
-									data-open-estado
-									data-user-id={user.user_id}
-									data-user-estado={user.estado || ''}
-									data-user-name={`${user.nombre} ${user.apellido}`.trim()}
-									data-modal-target="updaterol"
-									data-modal-toggle="updaterol"
-									class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-									role="menuitem"
-								>
-									Archivar
-								</button>
-							</li>
-						</ul>
-					</div>
-				</td>
-			</tr>
-		))
-	}
-</DataTable>
+											<button
+												id={`dd-btn-${user.user_id}`}
+												@click="showTooltip = !showTooltip"
+												@click.outside="showTooltip = false"
+												class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+												type="button"
+												aria-haspopup="true"
+												aria-expanded="false"
+											>
+												<svg
+													class="h-5 w-5"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													fill="currentColor"
+													viewBox="0 0 4 15"
+												>
+													<path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+												</svg>
+											</button>
+											<div
+												id={`dd-${user.user_id}`}
+												x-show="showTooltip"
+												x-transition
+												class="dark:bg-black-900 absolute right-2 z-20 mt-11 w-44 divide-y divide-gray-100 rounded-lg border border-neutral-300 bg-white shadow-sm dark:divide-gray-600 dark:border-neutral-500"
+												role="menu"
+												aria-labelledby={`dd-btn-${user.user_id}`}
+												data-dropdown-placement="bottom-start"
+											>
+												<ul
+													class="py-2 text-sm text-gray-700 dark:text-gray-200"
+													role="none"
+												>
+													<li>
+														<button
+															type="button"
+															data-open-estado
+															data-user-id={user.user_id}
+															data-user-estado={user.estado || ''}
+															data-user-name={`${user.nombre} ${user.apellido}`.trim()}
+															data-modal-target="updaterol"
+															data-modal-toggle="updaterol"
+															class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+															role="menuitem"
+														>
+															Archivar
+														</button>
+													</li>
+												</ul>
+											</div>
+										</td>
+									</tr>
+								</div>
+							))
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Top Right Modal -->
 <div
 	id="top-right-modal"
 	data-modal-placement="top-right"
 	tabindex="-1"
-	class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-full"
+	class="fixed top-0 right-0 left-0 z-50 hidden h-full w-full overflow-x-hidden overflow-y-auto p-4 md:inset-0"
 >
-	<div class="relative w-full max-w-2xl h-full">
+	<div class="relative h-full w-full max-w-2xl">
 		<!-- Modal content -->
 		<div
-			class="relative bg-white rounded-lg shadow-sm dark:bg-[#0e2738] h-full"
+			class="relative h-full rounded-lg bg-white shadow-sm dark:bg-[#0e2738]"
 		>
 			<!-- Modal header -->
 			<div
-				class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200"
+				class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600"
 			>
 				<h3 class="text-xl font-medium text-gray-900 dark:text-white">
 					Mensaje para el usuario
 				</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 					data-modal-hide="top-right-modal"
 				>
 					<svg
-						class="w-3 h-3"
+						class="h-3 w-3"
 						aria-hidden="true"
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -243,20 +304,20 @@ const { data: usuarios } = await supabase
 				</button>
 			</div>
 			<!-- Modal body -->
-			<div class="p-4 md:p-5 space-y-4">
+			<div class="space-y-4 p-4 md:p-5">
 				<form action="#">
-					<div class="grid gap-4 mb-4 sm:grid-cols-2">
+					<div class="mb-4 grid gap-4 sm:grid-cols-2">
 						<div>
 							<label
 								for="email"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Para:</label
 							>
 							<input
 								type="email"
 								name="email"
 								id="email"
-								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 								placeholder="Correo de"
 								value=""
 								disabled
@@ -266,29 +327,29 @@ const { data: usuarios } = await supabase
 						<div>
 							<label
 								for="Asunto"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Asunto</label
 							>
 							<input
 								type="text"
 								name="Asunto"
 								id="Asunto"
-								class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 								placeholder="Inserta el asunto del correo"
 								required=""
 							/>
 						</div>
 
-						<div class="sm:col-span-2 h-full">
+						<div class="h-full sm:col-span-2">
 							<label
 								for="description"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Cuerpo del correo</label
 							>
 							<textarea
 								id="description"
 								rows="29"
-								class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432] h-full"
+								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 block h-full w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 								placeholder="Escribe el cuerpo del correo aquí..."
 								required></textarea>
 						</div>
@@ -297,18 +358,18 @@ const { data: usuarios } = await supabase
 			</div>
 			<!-- Modal footer -->
 			<div
-				class="flex items-center p-4 md:p-5 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b dark:border-gray-600"
+				class="flex items-center space-x-3 rounded-b border-t border-gray-200 p-4 md:p-5 rtl:space-x-reverse dark:border-gray-600"
 			>
 				<button
 					data-modal-hide="top-right-modal"
 					type="button"
-					class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+					class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 					>Enviar correo</button
 				>
 				<button
 					data-modal-hide="top-right-modal"
 					type="button"
-					class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-[#101522]"
+					class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
 					>Cancelar</button
 				>
 			</div>
@@ -319,14 +380,14 @@ const { data: usuarios } = await supabase
 <!-- Edit User Modal -->
 <div
 	id="drawer-update-product-default"
-	class="fixed top-0 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-black-800"
+	class="dark:bg-black-800 fixed top-0 right-0 z-40 h-screen w-full max-w-xs translate-x-full overflow-y-auto bg-white p-4 transition-transform"
 	tabindex="-1"
 	aria-labelledby="drawer-label"
 	aria-hidden="true"
 >
 	<h5
 		id="drawer-label"
-		class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+		class="mb-6 inline-flex items-center text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
 	>
 		Actualizar Formulario
 	</h5>
@@ -334,11 +395,11 @@ const { data: usuarios } = await supabase
 		type="button"
 		data-drawer-dismiss="drawer-update-product-default"
 		aria-controls="drawer-update-product-default"
-		class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+		class="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 	>
 		<svg
 			aria-hidden="true"
-			class="w-5 h-5"
+			class="h-5 w-5"
 			fill="currentColor"
 			viewBox="0 0 20 20"
 			xmlns="http://www.w3.org/2000/svg"
@@ -356,14 +417,14 @@ const { data: usuarios } = await supabase
 			<div>
 				<label
 					for="nombre_update-service"
-					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 					>Titulo del formulario</label
 				>
 				<input
 					type="text"
 					name="titulo-form"
 					id="titulo-update-form"
-					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+					class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 					value=""
 					placeholder="inserta el titulo del formulario"
 					required=""
@@ -372,14 +433,14 @@ const { data: usuarios } = await supabase
 			<div>
 				<label
 					for="categoria_service"
-					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 					>Categoria</label
 				>
 				<input
 					type="text"
 					name="categoria-form"
 					id="categoria-form-update"
-					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+					class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 					value=""
 					placeholder="Añade la categoria del formulario"
 					required=""
@@ -388,53 +449,53 @@ const { data: usuarios } = await supabase
 			<div>
 				<label
 					for="precio-servicio"
-					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 					>Pega el JSON del formulario</label
 				>
 				<textarea
 					name="json-update"
 					id="json-form"
-					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+					class="dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 					placeholder="Añade el Json del formulario"
 					required=""></textarea>
 			</div>
 			<div>
 				<label
 					for="descripcion-servicio"
-					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 					>Tema del form (opcional)</label
 				>
 				<textarea
 					id="tema-form"
 					name="tema-form-update"
 					rows="4"
-					class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+					class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 					placeholder="Añade el codigo json del tema de tu formulario"
 				></textarea>
 			</div>
 			<div>
 				<label
 					for="descripcion-servicio"
-					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 					>Descripcion</label
 				>
 				<textarea
 					id="descripcion-form"
 					name="descripcion-form-update"
 					rows="4"
-					class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+					class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 					placeholder="Añade una descripcion para el form"></textarea>
 			</div>
 			<div>
 				<label
 					for="updaterol_estado"
-					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 					>Estado</label
 				>
 				<select
 					id="update-form-estado"
 					name="estado"
-					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+					class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 				>
 					<option value="" disabled="" selected="">--</option>
 					<option value="true">Activo</option>
@@ -443,18 +504,18 @@ const { data: usuarios } = await supabase
 			</div>
 		</div>
 		<div
-			class="bottom-0 left-0 flex justify-center w-full pb-4 mt-4 space-x-4 sm:absolute sm:px-4 sm:mt-0"
+			class="bottom-0 left-0 mt-4 flex w-full justify-center space-x-4 pb-4 sm:absolute sm:mt-0 sm:px-4"
 		>
 			<button
 				type="submit"
-				class="w-full justify-center text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
+				class="hover:bg-primary-800 focus:ring-primary-300 dark:focus:ring-primary-800 w-full justify-center rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
 			>
 				Actualizar
 			</button>
 			<button
 				data-drawer-hide="drawer-update-product-default"
 				type="button"
-				class="w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900 dark:bg-black-800"
+				class="dark:bg-black-800 inline-flex w-full items-center justify-center rounded-lg border border-red-600 px-5 py-2.5 text-center text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white focus:ring-4 focus:ring-red-300 focus:outline-none dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
 			>
 				Cancelar
 			</button>
@@ -510,24 +571,24 @@ const { data: usuarios } = await supabase
 </script>
 <!-- Añadir usuario -->
 <div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
 	id="add-user-modal"
 >
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+	<div class="relative h-full w-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
 			<!-- Modal header -->
 			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
 			>
 				<h3 class="text-xl font-semibold dark:text-white">Invitar usuario</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="add-user-modal"
 				>
 					<svg
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -540,19 +601,19 @@ const { data: usuarios } = await supabase
 			</div>
 			<!-- Modal body -->
 			<form action="/api/update/admin-invite" method="post">
-				<div class="p-6 space-y-6">
+				<div class="space-y-6 p-6">
 					<div class="grid gap-6">
 						<div class="">
 							<label
 								for="email"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Correo</label
 							>
 							<input
 								type="email"
 								name="correo_create"
 								id="email"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 								placeholder="correo@ejemplo.com"
 								required
 							/>
@@ -561,10 +622,10 @@ const { data: usuarios } = await supabase
 
 					<!-- Modal footer -->
 					<div
-						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
+							class="hover:bg-primary-800 focus:ring-primary-300 dark:focus:ring-primary-800 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
 							type="submit">Invitar Usuario</button
 						>
 					</div>
@@ -576,24 +637,24 @@ const { data: usuarios } = await supabase
 
 <!-- Añadir rol Modal -->
 <div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-4 md:inset-0 h-modal sm:h-full"
+	class="h-modal fixed top-4 right-0 left-0 z-50 hidden items-center justify-center overflow-x-hidden overflow-y-auto sm:h-full md:inset-0"
 	id="rol-modal-admin"
 >
-	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+	<div class="relative h-full w-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
 			<!-- Modal header -->
 			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
 			>
 				<h3 class="text-xl font-semibold dark:text-white">Añadir Rol</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="rol-modal-admin"
 				>
 					<svg
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -606,19 +667,19 @@ const { data: usuarios } = await supabase
 			</div>
 			<!-- Modal body -->
 			<form action="/api/create/admin-new-rol" method="post">
-				<div class="p-6 space-y-6">
+				<div class="space-y-6 p-6">
 					<div class="grid gap-6">
 						<div class="">
 							<label
 								for="nombre_rol"
-								class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 								>Añade el nombre del rol</label
 							>
 							<input
 								type="text"
 								name="nombre_rol"
 								id="rol-create"
-								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 								placeholder="admin"
 								required
 							/>
@@ -627,10 +688,10 @@ const { data: usuarios } = await supabase
 
 					<!-- Modal footer -->
 					<div
-						class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
+						class="items-center rounded-b border-t border-gray-200 p-6 dark:border-gray-700"
 					>
 						<button
-							class="text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
+							class="hover:bg-primary-800 focus:ring-primary-300 dark:focus:ring-primary-800 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
 							type="submit">Añadir rol</button
 						>
 					</div>
@@ -644,28 +705,28 @@ const { data: usuarios } = await supabase
 	id="updaterol"
 	tabindex="-1"
 	aria-hidden="true"
-	class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
+	class="h-modal fixed top-0 right-0 left-0 z-50 hidden w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0 md:h-full"
 >
-	<div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
+	<div class="relative h-full w-full max-w-2xl p-4 md:h-auto">
 		<!-- Modal content -->
 		<div
-			class="relative p-4 bg-white rounded-lg shadow dark:bg-black-800 sm:p-5"
+			class="dark:bg-black-800 relative rounded-lg bg-white p-4 shadow sm:p-5"
 		>
 			<!-- Modal header -->
 			<div
-				class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600"
+				class="mb-4 flex items-center justify-between rounded-t border-b pb-4 sm:mb-5 dark:border-gray-600"
 			>
 				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
 					Selecciona el estado del cliente
 				</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 					data-modal-toggle="updaterol"
 				>
 					<svg
 						aria-hidden="true"
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -680,17 +741,17 @@ const { data: usuarios } = await supabase
 			<!-- Modal body -->
 			<form action="/api/update/admin-update" method="post" id="updaterolForm">
 				<input type="hidden" name="user_id" id="updaterol_user_id" />
-				<div class="grid gap-4 mb-4">
+				<div class="mb-4 grid gap-4">
 					<div>
 						<label
 							for="updaterol_estado"
-							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 							>Rol</label
 						>
 						<select
 							id="updaterol_estado"
 							name="estado"
-							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-black-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-[#967432] dark:focus:border-[#967432]"
+							class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
 						>
 							<option value="" disabled="" selected="">--</option>
 							{
@@ -704,14 +765,14 @@ const { data: usuarios } = await supabase
 				<div class="flex items-center space-x-4">
 					<button
 						type="submit"
-						class="text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800"
+						class="hover:bg-primary-800 focus:ring-primary-300 dark:focus:ring-primary-800 rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
 					>
 						Actualizar estado
 					</button>
 					<button
 						data-modal-toggle="updaterol"
 						type="button"
-						class="text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
+						class="inline-flex items-center rounded-lg border border-red-600 px-5 py-2.5 text-center text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white focus:ring-4 focus:ring-red-300 focus:outline-none dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
 					>
 						Cancelar
 					</button>
@@ -758,4 +819,40 @@ const { data: usuarios } = await supabase
 			if (submitBtn) submitBtn.disabled = true;
 		});
 	});
+</script>
+<script type="module">
+	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
+
+	function initDT() {
+		const el = document.querySelector('#myTable');
+		if (!el) return;
+		if (el.dataset.dtInit === '1') return;
+
+		const dt = new DataTable(el, {
+			searchable: true,
+			perPage: 25,
+			perPageSelect: [5, 10, 25, 50],
+
+			// Textos en español
+			labels: {
+				placeholder: 'Buscar...',
+				perPage: 'Filas',
+				noRows: 'No hay empresas',
+				noResults: 'No se encontraron resultados',
+				info: 'Mostrando {start} a {end} de {rows} registros',
+			},
+
+			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			layout: {
+				top: '{select}{search}',
+				bottom: '{info}{pager}',
+			},
+		});
+
+		el.dataset.dtInit = '1';
+		el.dataset.dtInstance = '1';
+	}
+
+	initDT();
+	document.addEventListener('astro:page-load', initDT);
 </script>

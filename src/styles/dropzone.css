@@ -1,6 +1,6 @@
 :root {
 	--dropzone-bg: #ffffff;
-	--dropzone-border: #e2e8f0;
+	--dropzone-border: #000000;
 	--dropzone-text: #1a202c;
 	--dropzone-preview-bg: #ffffff;
 	--dropzone-preview-text: #1a202c;
@@ -16,7 +16,7 @@
 @media (prefers-color-scheme: dark) {
 	:root {
 		--dropzone-bg: #ffffff;
-		--dropzone-border: #e2e8f0;
+		--dropzone-border: #555555;
 		--dropzone-text: #1a202c;
 		--dropzone-preview-bg: #ffffff;
 		--dropzone-preview-text: #1a202c;
@@ -38,7 +38,7 @@
 	--dropzone-preview-bg: #ffffff;
 	--dropzone-preview-text: #1a202c;
 	--dropzone-preview-border: #cbd5e0;
-	--dropzone-progress-bg: #967432;
+	--dropzone-progress-bg: #134aed;
 	--dropzone-progress-border: #1a202c;
 	--dropzone-success-bg: rgba(0, 0, 0, 0.8);
 	--dropzone-error-bg: #b10606;
@@ -173,9 +173,6 @@
 	opacity: 1;
 }
 
-.dropzone .dz-preview.dz-image-preview {
-	background: var(--dropzone-preview-bg);
-}
 
 .dropzone .dz-preview.dz-image-preview .dz-details {
 	transition: opacity 0.2s linear;
@@ -226,8 +223,8 @@
 }
 
 .dropzone .dz-preview .dz-details .dz-filename:hover span {
-	border: 1px solid rgba(200, 200, 200, 0.8);
-	background-color: #967432;
+
+	background-color: var(--dropzone-progress-bg);
 }
 
 .dropzone .dz-preview .dz-details .dz-filename:not(:hover) {
@@ -241,15 +238,14 @@
 
 .dropzone .dz-preview .dz-details .dz-filename span,
 .dropzone .dz-preview .dz-details .dz-size span {
-	background-color: #967432;
+	background-color: var(--dropzone-progress-bg);
 	padding: 0 0.4em;
 	border-radius: 3px;
 	color: white;
 }
 
 .dropzone .dz-preview:hover .dz-image img {
-	transform: scale(1.05);
-	filter: blur(8px);
+	display: none;
 }
 
 .dropzone .dz-preview .dz-image {
@@ -257,12 +253,17 @@
 	overflow: hidden;
 	height: 20rem;
 	position: relative;
-	display: block;
-	z-index: 10;
+	display: flex;
+	justify-content: center;
+	align-items: start;
+	width: 100%;
+	z-index: 30;
+
 }
 
 .dropzone .dz-preview .dz-image img {
 	display: block;
+	width: fit-content;
 }
 
 .dropzone .dz-preview.dz-success .dz-success-mark {
@@ -328,7 +329,7 @@
 }
 
 .dropzone .dz-preview .dz-progress .dz-upload {
-	background: #967432;
+	background: var(--dropzone-progress-bg);
 	display: block;
 	position: relative;
 	height: 100%;

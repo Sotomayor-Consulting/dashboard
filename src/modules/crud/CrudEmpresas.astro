@@ -1,7 +1,5 @@
 ---
-import DataTable from '@components/ui/DataTable.astro';
-import StatusBadge from '@components/ui/StatusBadge.astro';
-import DateCell from '@components/ui/DateCell.astro';
+import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
 import { IncorporacionesEmpresasBase } from '@lib/tablas/empresa_incorporaciones';
@@ -9,9 +7,14 @@ import { actividadesGeneral } from '@lib/tablas/actividades';
 import { EstadosGeneral } from '@lib/tablas/estados';
 import { PaisesGeneral } from '@lib/tablas/paises';
 
+
 const supabase = Astro.locals.supabase;
 
 const [empresas, actividades, estados, paises] = await Promise.all([
+	IncorporacionesEmpresasBase(supabase),
+	actividadesGeneral(supabase),
+	EstadosGeneral(supabase),
+	PaisesGeneral(supabase),
 	IncorporacionesEmpresasBase(supabase),
 	actividadesGeneral(supabase),
 	EstadosGeneral(supabase),
@@ -22,21 +25,21 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 <script src="@lib/alpinejs/alpine.js"></script>
 
 <div
-	class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200/60 lg:mt-1.5 dark:bg-black-900 dark:border-gray-700"
+	class="bg-white-100 dark:bg-black-900 block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
-	<div class="w-full mb-1">
+	<div class="mb-1 w-full">
 		<div class="mb-4">
-			<nav class="flex mb-5" aria-label="Breadcrumb">
+			<nav class="mb-5 flex" aria-label="Breadcrumb">
 				<ol
 					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
 				>
 					<li class="inline-flex items-center">
 						<a
 							href="/"
-							class="inline-flex items-center text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-white"
+							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
 						>
 							<svg
-								class="w-5 h-5 mr-2.5"
+								class="mr-2.5 h-5 w-5"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +53,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 					<li>
 						<div class="flex items-center">
 							<svg
-								class="w-6 h-6 text-gray-400"
+								class="h-6 w-6 text-gray-400"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -61,7 +64,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							>
 							<a
 								href="/crud/empresas"
-								class="ml-1 text-gray-700 hover:text-primary-600 md:ml-2 dark:text-gray-300 dark:hover:text-white"
+								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
 								>Empresas</a
 							>
 						</div>
@@ -76,16 +79,16 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 		</div>
 	</div>
 </div>
-<div class="sm:flex border-b border-gray-200 dark:border-gray-700 p-5">
-	<div class="flex items-center ml-auto space-x-2 sm:space-x-3 mr-4">
+<div class="border-b border-gray-200 p-5 sm:flex dark:border-gray-700">
+	<div class="mr-4 ml-auto flex items-center space-x-2 sm:space-x-3">
 		<button
 			type="button"
 			data-modal-target="add-user-modal"
 			data-modal-toggle="add-user-modal"
-			class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-[#1349ec] hover:bg-[#1349ec] focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+			class="focus:ring-primary-300 inline-flex w-1/2 items-center justify-center rounded-lg bg-[#1349ec] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#1349ec] focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 		>
 			<svg
-				class="w-5 h-5 mr-2 -ml-1"
+				class="mr-2 -ml-1 h-5 w-5"
 				fill="currentColor"
 				viewBox="0 0 20 20"
 				xmlns="http://www.w3.org/2000/svg"
@@ -98,63 +101,132 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 		</button>
 	</div>
 </div>
-<DataTable
-	headers={['id', 'Usuario que la creo', 'Tipo de Negocio', 'Estado de incorporación', 'Estado', 'Creado en']}
-	noRowsMessage="No hay empresas"
->
-	{
-		empresas?.map((empresa) => (
-			<tr
-				class="hover:bg-gray-50 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] transition-colors cursor-pointer"
-				onclick={`window.open('/crud/empresa/${empresa.empresa_incorporacion_id}', '_blank')`}
-			>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					{empresa.nombre_1}
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					{empresa.usuarios[0]?.nombre}
-					{empresa.usuarios[0]?.apellido}
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					{empresa.tipo_de_negocio}
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					{empresa.porcentaje_de_incorporacion}%
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					{empresa.estado_de_incorporacion}
-				</td>
-				<td class="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-					<StatusBadge active={empresa.estado === 'Activo'} label={empresa.estado} />
-				</td>
-				<td class="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
-					<DateCell date={empresa.updated_at} />
-				</td>
-			</tr>
-		))
-	}
-</DataTable>
+<div class="flex flex-col">
+	<div class="overflow-x-auto">
+		<div class="inline-block min-w-full align-middle">
+			<div class="overflow-hidden shadow">
+				<table
+					class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
+					id="myTable"
+				>
+					<thead class="dark:bg-black-800 bg-gray-100" id="test">
+						<tr>
+							{
+								[
+									'id',
+									'Usuario que la creo',
+									'Tipo de Negocio',
+									'Estado de incorporación',
+									'Estado',
+									'Proceso',
+									'Creado en',
+								].map((th) => (
+									<th
+										scope="col"
+										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
+									>
+										<span class="flex items-center uppercase">
+											{th}
+											<svg
+												class="ms-1 h-4 w-4"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												fill="none"
+												viewBox="0 0 24 24"
+											>
+												<path
+													stroke="currentColor"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="m8 15 4 4 4-4m0-6-4-4-4 4"
+												/>
+											</svg>
+										</span>
+									</th>
+								))
+							}
+						</tr>
+					</thead>
+					<tbody
+						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
+					>
+						{
+							empresas?.map((empresa) => (
+								<div>
+									<tr
+										class="odd:bg-white-100 cursor-pointer even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
+										onclick={`window.open('/crud/empresa/${empresa.empresa_incorporacion_id}', '_blank')`}
+									>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											{empresa.nombre_1}
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											{empresa.usuarios[0]?.nombre}
+											{empresa.usuarios[0]?.apellido}
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											{empresa.tipo_de_negocio}
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											{empresa.porcentaje_de_incorporacion}%
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											{empresa.estado_de_incorporacion}
+										</td>
+										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+											<div class="flex items-center">
+												{empresa.estado === 'Activo' ? (
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
+												) : (
+													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
+												)}
+												{empresa.estado}
+											</div>
+										</td>
+										<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+											{empresa.updated_at &&
+												new Date(empresa.updated_at)
+													.toLocaleDateString('es-ES', {
+														day: '2-digit',
+														month: '2-digit',
+														year: 'numeric',
+													})
+													.replace(/\//g, '-')}
+										</td>
+									</tr>
+								</div>
+							))
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Añadir empresa -->
 <div
-	class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto md:inset-0 h-screen"
+	class="fixed right-0 left-0 z-50 hidden h-screen items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0"
 	id="add-user-modal"
 >
-	<div class="relative w-full px-4 h-5/6">
+	<div class="relative h-5/6 w-full px-4">
 		<!-- Modal content -->
-		<div class="relative bg-white rounded-lg shadow dark:bg-black-900">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
 			<!-- Modal header -->
 			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
+				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
 			>
 				<h3 class="text-xl font-semibold dark:text-white">Añadir empresa</h3>
 				<button
 					type="button"
-					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-[#101522] dark:hover:text-white"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
 					data-modal-toggle="add-user-modal"
 				>
 					<svg
-						class="w-5 h-5"
+						class="h-5 w-5"
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
@@ -168,7 +240,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 			<!-- Modal body -->
 			<form action="" method="post">
 				<div
-					class="md:p-4 p-0 rounded-lg grid md:grid-cols-[auto_1fr] md:space-x-4 space-x-0 w-full"
+					class="grid w-full space-x-0 rounded-lg p-0 md:grid-cols-[auto_1fr] md:space-x-4 md:p-4"
 					id="contacts"
 					role="tabpanel"
 					aria-labelledby="contacts-tab"
@@ -189,9 +261,9 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 				 managerMiembro = '';
 			}"
 				>
-					<div class="mb-4 dark:border-gray-700 md:max-w-72 md:min-w-72">
+					<div class="mb-4 md:max-w-72 md:min-w-72 dark:border-gray-700">
 						<ul
-							class="flex-column text-sm font-medium text-gray-500 dark:text-gray-400 dark:bg-black-800 p-5 rounded-lg space-y-5"
+							class="flex-column dark:bg-black-800 space-y-5 rounded-lg p-5 text-sm font-medium text-gray-500 dark:text-gray-400"
 							id="default-tab-2"
 							data-tabs-toggle="#default-tab-content-2"
 							role="tablist"
@@ -243,7 +315,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												role="tab"
 												aria-controls={i.tabs}
 												aria-selected="false"
-												class="p-4 flex items-center gap-2 w-full rounded-lg"
+												class="flex w-full items-center gap-2 rounded-lg p-4"
 											>
 												<Icon name={i.icono} class="text-lg" />
 												{i.label}
@@ -260,7 +332,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												x-show="formadeAdministracion === 'Member-Managed'"
 												aria-controls={i.tabs}
 												aria-selected="false"
-												class="p-4 flex items-center gap-2 w-full rounded-lg"
+												class="flex w-full items-center gap-2 rounded-lg p-4"
 											>
 												<Icon name={i.icono} class="text-lg" />
 												{i.label}
@@ -271,16 +343,16 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							}
 						</ul>
 					</div>
-					<div id="default-tab-content-2" class="min-w-full ml-0">
+					<div id="default-tab-content-2" class="ml-0 min-w-full">
 						<div
-							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800"
+							class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
 							id="generales"
 							role="tabpanel"
 							aria-labelledby="generales-tab"
 						>
-							<div class="bg-white rounded-lg shadow dark:bg-black-900 w-full">
+							<div class="dark:bg-black-900 w-full rounded-lg bg-white shadow">
 								<div
-									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800 min-w-full"
+									class="dark:bg-black-800 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
 								>
 									<h3 class="mb-4 text-xl font-semibold dark:text-white">
 										Datos Generales
@@ -290,14 +362,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 										<div class="col-span-6 sm:col-span-3">
 											<label
 												for="Ingresos_de_EEUU"
-												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 												>¿La LLC obtendrá ingresos provenientes de Estados
 												Unidos?</label
 											>
 											<select
 												name="Ingresos_de_EEUU"
 												id="Ingresos_de_EEUU"
-												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 											>
 												<!-- Opción por defecto (placeholder) -->
 												<option value="" disabled hidden selected>
@@ -312,12 +384,12 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											</select>
 										</div>
 
-										<div class="col-span-6 sm:col-span-3 flex items-end">
+										<div class="col-span-6 flex items-end sm:col-span-3">
 											<button
 												type="button"
 												data-modal-target="crud-modal"
 												data-modal-toggle="crud-modal"
-												class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 flex items-center gap-2"
+												class="flex items-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 											>
 												<Icon name="ri:add-line" /> Añadir actividad</button
 											>
@@ -325,7 +397,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 										<div class="col-span-6 sm:col-span-3">
 											<label
 												for="actividad-input"
-												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 											>
 												Actividad
 											</label>
@@ -335,7 +407,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												id="actividad-input"
 												name="actividad"
 												placeholder="Escribe para buscar actividad..."
-												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec] truncate w-full"
+												class="block w-full truncate rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 											/>
 
 											<datalist id="actividades-list">
@@ -350,14 +422,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 										<div class="col-span-6 sm:col-span-3">
 											<label
 												for="forma_de_administrar"
-												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 												>Forma de administrar</label
 											>
 											<select
 												name="forma_de_administrar"
 												id="forma_de_administrar"
 												x-model="formadeAdministracion"
-												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 											>
 												<option value="" selected hidden disabled
 													>Seleccione una forma de tibutar</option
@@ -375,13 +447,13 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 										<div class="col-span-6 sm:col-span-3">
 											<label
 												for="forma_de_tributar"
-												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 												>Forma de tributar</label
 											>
 											<select
 												name="forma_de_tributar"
 												id="forma_de_tributar"
-												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 											>
 												<option value="" hidden disabled selected
 													>Seleccione una forma de tributar</option
@@ -400,14 +472,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 										<div class="col-span-6 sm:col-span-3">
 											<label
 												for="informacion_miembros"
-												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 											>
 												Información de los miembros
 											</label>
 											<select
 												name="informacion_miembros"
 												id="informacion_miembros"
-												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 											>
 												<option value="" disabled hidden selected>
 													Seleccione una opcion
@@ -423,16 +495,16 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							</div>
 						</div>
 						<div
-							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800 min-w-full"
+							class="dark:bg-black-800 hidden min-w-full rounded-lg bg-gray-50 p-4"
 							id="ubicacion"
 							role="tabpanel"
 							aria-labelledby="ubicacion-tab"
 						>
 							<div
-								class="relative bg-white rounded-lg shadow dark:bg-black-900 min-w-full"
+								class="dark:bg-black-900 relative min-w-full rounded-lg bg-white shadow"
 							>
 								<div
-									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800 min-w-full"
+									class="dark:bg-black-800 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
 								>
 									<h3 class="mb-4 text-xl font-semibold dark:text-white">
 										Ubicación
@@ -442,14 +514,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 										<div class="col-span-6 sm:col-span-3">
 											<label
 												for="direccionOperativa"
-												class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 												>¿Tiene dirección operativa en EE.UU.?</label
 											>
 											<select
 												name="direccionOperativa"
 												id="direccionOperativa"
 												x-model="direccionOperativa"
-												class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+												class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 											>
 												<option value="" selected hidden disabled
 													>Selecciona una opción</option
@@ -476,14 +548,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											<div class="col-span-6 sm:col-span-3">
 												<label
 													for="direccion"
-													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 													>Dirección</label
 												>
 												<input
 													type="text"
 													name="direccion"
 													id="direccion"
-													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 													placeholder="ejem. Av. Juan Molineros"
 												/>
 											</div>
@@ -492,14 +564,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											<div class="col-span-6 sm:col-span-3">
 												<label
 													for="condado"
-													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 													>Condado</label
 												>
 												<input
 													type="text"
 													name="condado"
 													id="condado"
-													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 													placeholder="ejem. Miami-Dade"
 												/>
 											</div>
@@ -508,14 +580,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											<div class="col-span-6 sm:col-span-3">
 												<label
 													for="ciudad"
-													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 													>Ciudad</label
 												>
 												<input
 													type="text"
 													name="ciudad"
 													id="ciudad"
-													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 													placeholder="ejem. Miami"
 												/>
 											</div>
@@ -524,13 +596,13 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											<div class="col-span-6 sm:col-span-3">
 												<label
 													for="estado"
-													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 													>Estado</label
 												>
 												<select
 													name="estado"
 													id="estado"
-													class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 												>
 													<option value="" disabled hidden selected>
 														Seleccione un estado
@@ -550,14 +622,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											<div class="col-span-6 sm:col-span-3">
 												<label
 													for="Codigo_postal"
-													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 													>Codigo Postal</label
 												>
 												<input
 													type="text"
 													name="Codigo_postal"
 													id="Codigo_postal"
-													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 													placeholder="ejem. Miami-Dade"
 												/>
 											</div>
@@ -570,13 +642,13 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											><div class="col-span-6 sm:col-span-3">
 												<label
 													for="Pais_operativo"
-													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 													>Pais</label
 												>
 												<select
 													name="Pais_operativo"
 													id="Pais_operativo"
-													class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 												>
 													<option value="" disabled hidden selected>
 														Seleccione un pais
@@ -597,14 +669,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											<div class="col-span-6 sm:col-span-3">
 												<label
 													for="direccion_empresa"
-													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 													>Dirección Empresa</label
 												>
 												<input
 													type="text"
 													name="direccion_empresa"
 													id="direccion_empresa"
-													class="shadow-sm bg-neutral-50 border border-neutral-300 text-neutral-900 sm:text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 													placeholder="Av. Juan Molineros"
 												/>
 											</div>
@@ -617,21 +689,21 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							</div>
 						</div>
 						<div
-							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800"
+							class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
 							id="socios-edit"
 							role="tabpanel"
 							aria-labelledby="socios-edit-tab"
 						>
 							<div
 								id="datos-socios"
-								class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800 min-w-full"
+								class="dark:bg-black-800 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
 							>
 								<h3 class="mb-4 text-xl font-semibold dark:text-white">
 									Datos de los socios
 								</h3>
-								<div class="grid xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+								<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
 									<div
-										class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-gray-50 p-3 shadow-sm dark:border-gray-700 dark:bg-black-900 lg:rounded-lg justify-self-center"
+										class="bg-white-100 dark:bg-black-900 h-full w-full shrink-0 justify-self-center overflow-y-auto border border-gray-200 p-3 shadow-sm lg:rounded-lg dark:border-gray-700"
 									>
 										<span class="sr-only">Open user menu</span>
 										<div class="flex w-full items-center justify-between">
@@ -645,13 +717,13 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												/>
 												<div class="text-left">
 													<div
-														class="mb-0.5 font-semibold leading-none text-gray-900 dark:text-white"
+														class="mb-0.5 leading-none font-semibold text-gray-900 dark:text-white"
 													>
 														<input
 															type="text"
 															id={`nombre_de_socio_card_`}
 															name={`nombre_de_socio_card_`}
-															class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+															class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 														/>
 													</div>
 													<div class="">
@@ -659,7 +731,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 															type="text"
 															id={`correo-socio-`}
 															name={`correo-socio-`}
-															class="block w-full p-1 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg text-sm text-gray-500 dark:text-gray-400"
+															class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-sm leading-none font-semibold text-gray-500 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-gray-400 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 														/>
 													</div>
 												</div>
@@ -675,15 +747,15 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														id={`input-socios-natural-`}
 														name={`tipo-persona-`}
 														value="Persona Natural"
-														class="hidden peer"
+														class="peer hidden"
 														required
 													/>
 													<label
 														for={`input-socios-natural-`}
-														class="flex items-center justify-center w-full h-full p-2 text-gray-500 bg-purple-900 hover:bg-purple-800 border-2 border-gray-400 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-blue-600 dark:peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 dark:text-gray-400 dark:bg-purple-900 dark:hover:bg-purple-800"
+														class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg border-2 border-gray-400 bg-purple-900 p-2 text-gray-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:bg-purple-800 hover:text-gray-600 dark:border-gray-700 dark:bg-purple-900 dark:text-gray-400 dark:peer-checked:border-blue-600 dark:hover:bg-purple-800 dark:hover:text-gray-300"
 													>
 														<div
-															class="flex justify-center items-center flex-col"
+															class="flex flex-col items-center justify-center"
 														>
 															<span
 																class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-purple-800 group-hover:bg-purple-700 dark:bg-purple-800 dark:group-hover:bg-purple-700"
@@ -707,15 +779,15 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														id={`input-socios-empresa-`}
 														name={`tipo-persona-`}
 														value="Empresa"
-														class="hidden peer"
+														class="peer hidden"
 														required
 													/>
 													<label
 														for={`input-socios-empresa-`}
-														class="flex items-center justify-center w-full h-full p-2 text-gray-500 bg-teal-700 hover:bg-teal-800 border-2 border-gray-400 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-blue-600 dark:peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 dark:text-gray-400 dark:bg-teal-700 dark:hover:bg-teal-800"
+														class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg border-2 border-gray-400 bg-teal-700 p-2 text-gray-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:bg-teal-800 hover:text-gray-600 dark:border-gray-700 dark:bg-teal-700 dark:text-gray-400 dark:peer-checked:border-blue-600 dark:hover:bg-teal-800 dark:hover:text-gray-300"
 													>
 														<div
-															class="flex justify-center items-center flex-col"
+															class="flex flex-col items-center justify-center"
 														>
 															<span
 																class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-teal-800 group-hover:bg-teal-700 dark:bg-teal-800 dark:group-hover:bg-teal-700"
@@ -737,15 +809,15 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 										</div>
 										<ul class="space-y-2">
 											<li>
-												<div class="relative flex items-center w-full">
+												<div class="relative flex w-full items-center">
 													<button
 														type="button"
 														id="decrement-button"
 														data-input-counter-decrement={`bedrooms-input-`}
-														class="dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-s-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
+														class="h-11 rounded-s-lg border border-gray-300 p-3 hover:bg-gray-200 focus:ring-2 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
 													>
 														<svg
-															class="w-3 h-3 text-gray-900 dark:text-white"
+															class="h-3 w-3 text-gray-900 dark:text-white"
 															aria-hidden="true"
 															xmlns="http://www.w3.org/2000/svg"
 															fill="none"
@@ -766,12 +838,12 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														data-input-counter-min="1"
 														data-input-counter-max="100"
 														aria-describedby="helper-text-explanation"
-														class="bg-gray-50 border-x-0 border-gray-300 h-11 font-medium text-center text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full pb-6 dark:bg-black-900 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+														class="dark:bg-black-900 block h-11 w-full border-x-0 border-gray-300 bg-gray-50 pb-6 text-center text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 														placeholder=""
 														required
 													/>
 													<div
-														class="absolute bottom-1 inset-s-1/2 -translate-x-1/2 rtl:translate-x-1/2 flex items-center text-xs text-gray-400 space-x-1 rtl:space-x-reverse"
+														class="absolute start-1/2 bottom-1 flex -translate-x-1/2 items-center space-x-1 text-xs text-gray-400 rtl:translate-x-1/2 rtl:space-x-reverse"
 													>
 														<span>Porcentaje</span>
 													</div>
@@ -779,10 +851,10 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														type="button"
 														id="increment-button"
 														data-input-counter-increment={`bedrooms-input-`}
-														class="dark:hover:bg-gray-600 dark:border-gray-600 hover:bg-gray-200 border border-gray-300 rounded-e-lg p-3 h-11 focus:ring-gray-100 dark:focus:ring-gray-700 focus:ring-2 focus:outline-none"
+														class="h-11 rounded-e-lg border border-gray-300 p-3 hover:bg-gray-200 focus:ring-2 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
 													>
 														<svg
-															class="w-3 h-3 text-gray-900 dark:text-white"
+															class="h-3 w-3 text-gray-900 dark:text-white"
 															aria-hidden="true"
 															xmlns="http://www.w3.org/2000/svg"
 															fill="none"
@@ -800,7 +872,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											</li>
 											<li>
 												<div
-													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
 												>
 													<Icon
 														name="ri:earth-line"
@@ -815,7 +887,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														<select
 															id={`pais-socio-card-`}
 															name={`pais-socio-card-`}
-															class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-black-900 dark:group-hover:bg-gray-700"
+															class="peer dark:bg-black-900 block w-full appearance-none border-0 bg-transparent px-3 py-0 text-base font-medium text-gray-500 focus:border-gray-200 focus:ring-0 focus:outline-none dark:text-white dark:group-hover:bg-gray-700"
 														>
 															<option value="" disabled hidden selected>
 																Seleccione un pais
@@ -834,7 +906,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											</li>
 											<li>
 												<div
-													class="group flex items-center rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
 												>
 													<Icon
 														name="ri:diamond-ring-fill"
@@ -852,7 +924,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														<select
 															id={`estado-civil-socio-card-`}
 															name={`estado-civil-socio-card-`}
-															class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-black-900 dark:group-hover:bg-gray-700"
+															class="peer dark:bg-black-900 block w-full appearance-none border-0 bg-transparent px-3 py-0 text-base font-medium text-gray-500 focus:border-gray-200 focus:ring-0 focus:outline-none dark:text-white dark:group-hover:bg-gray-700"
 														>
 															<option selected hidden disabled>
 																Selecciona una opcion
@@ -874,20 +946,20 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 										>
 											<li>
 												<div
-													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
 												>
-													<div class="w-full flex">
+													<div class="flex w-full">
 														<label
-															class="inline-flex items-center cursor-pointer"
+															class="inline-flex cursor-pointer items-center"
 														>
 															<input
 																type="checkbox"
-																class="sr-only peer"
+																class="peer sr-only"
 																id={`residente-fiscal-socio-`}
 																name={`residente-fiscal-socio-`}
 															/>
 															<div
-																class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"
+																class="peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800"
 															>
 															</div>
 															<span
@@ -905,7 +977,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 										>
 											<li>
 												<div
-													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
 												>
 													<button
 														data-tooltip-target={`tooltip-default-`}
@@ -924,7 +996,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 													<div
 														id={`tooltip-default-`}
 														role="tooltip"
-														class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
 													>
 														Numero de Pasaporte
 														<div class="tooltip-arrow" data-popper-arrow></div>
@@ -934,13 +1006,13 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														type="text"
 														id={`´pasaporte-socios-card-`}
 														name={`´pasaporte-socios-card-`}
-														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 													/>
 												</div>
 											</li>
 											<li>
 												<div
-													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
 												>
 													<button
 														data-tooltip-target={`tooltip-seguro-`}
@@ -959,7 +1031,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 													<div
 														id={`tooltip-seguro-`}
 														role="tooltip"
-														class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
 													>
 														Numero de Seguro Social
 														<div class="tooltip-arrow" data-popper-arrow></div>
@@ -968,13 +1040,13 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														type="text"
 														id={`numero-seguro-socio-`}
 														name={`numero-seguro-socio-`}
-														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 													/>
 												</div>
 											</li>
 											<li>
 												<div
-													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
 												>
 													<button
 														data-tooltip-target={`tooltip-itin-`}
@@ -993,7 +1065,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 													<div
 														id={`tooltip-itin-`}
 														role="tooltip"
-														class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
 													>
 														Numero de ITIN
 														<div class="tooltip-arrow" data-popper-arrow></div>
@@ -1002,13 +1074,13 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														type="text"
 														id={`numero-itin-socio-card-`}
 														name={`numero-itin-socio-card-`}
-														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 													/>
 												</div>
 											</li>
 											<li>
 												<div
-													class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
 												>
 													<button
 														data-tooltip-target={`tooltip-direccion-`}
@@ -1027,7 +1099,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 													<div
 														id={`tooltip-direccion-`}
 														role="tooltip"
-														class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
 													>
 														Direccion de planilla
 														<div class="tooltip-arrow" data-popper-arrow></div>
@@ -1036,7 +1108,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														type="text"
 														id={`direccion-planilla-socio-card-`}
 														name={`direccion-planilla-socio-card-`}
-														class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 													/>
 												</div>
 											</li>
@@ -1046,7 +1118,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							</div>
 						</div>
 						<div
-							class="hidden p-4 rounded-lg bg-gray-50 dark:bg-black-800"
+							class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
 							id="manager"
 							role="tabpanel"
 							aria-labelledby="manager-tab"
@@ -1054,7 +1126,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							<template x-if="formadeAdministracion === 'Member-Managed'">
 								<div
 									id="datos-managers"
-									class="p-4 mb-4 bg-white border border-neutral-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-neutral-700 sm:p-6 dark:bg-black-800"
+									class="dark:bg-black-800 mb-4 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
 									x-data="{ espartedelosMiembros: '' }"
 									x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
 								>
@@ -1066,7 +1138,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											<div class="col-span-6 sm:col-span-3">
 												<label
 													for="informacion_miembros"
-													class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 												>
 													Sotomayor Consulting International asigna al Manager
 												</label>
@@ -1075,7 +1147,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 													id="informacion_miembros"
 													x-model="asignarManager"
 													x-init="$el.value ? asignarManager = $el.value : null"
-													class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 												>
 													<option value="" disabled hidden selected>
 														Seleccione una opcion
@@ -1090,7 +1162,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												<div class="col-span-6 sm:col-span-3">
 													<label
 														for="informacionmanager"
-														class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+														class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 													>
 														El manager es parte de los miembros
 													</label>
@@ -1099,7 +1171,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														id="informacionmanager"
 														x-model="managerMiembro"
 														x-init="$el.value ? managerMiembro = $el.value : null"
-														class="bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-[#1349ec] focus:border-[#1349ec] block w-full p-2.5 dark:bg-[#101522] dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-[#323f67] dark:focus:border-[#1349ec]"
+														class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
 													>
 														<option disabled hidden selected>
 															Seleccione una opcion
@@ -1115,17 +1187,17 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												<div class="col-span-6 sm:col-span-3">
 													<label
 														for="managers"
-														class="block mb-2 text-sm font-medium text-neutral-900 dark:text-white"
+														class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
 													>
 														Socios que son managers
 													</label>
 
-													<div class="flex items-center mb-4">
+													<div class="mb-4 flex items-center">
 														<input
 															id={`miembros-managers-`}
 															name={`miembros-managers-`}
 															type="checkbox"
-															class="w-4 h-4 text-[#1349ec] bg-gray-100 border-gray-300 rounded-sm focus:ring-[#1349ec] dark:focus:ring-[#323f67] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+															class="h-4 w-4 rounded-sm border-gray-300 bg-gray-100 text-[#1349ec] focus:ring-2 focus:ring-[#1349ec] dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-[#323f67]"
 														/>
 														<label
 															for={`miembros-managers-`}
@@ -1140,16 +1212,16 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 									</div>
 									<template x-if="asignarManager === 'No'">
 										<div
-											class="grid xl:grid-cols-2 2xl:grid-cols-3 gap-4 border border-neutral-600 rounded-lg p-5 mt-5"
+											class="mt-5 grid gap-4 rounded-lg border border-neutral-600 p-5 xl:grid-cols-2 2xl:grid-cols-3"
 										>
 											<h3
-												class="mb-4 text-xl font-semibold dark:text-white col-span-3"
+												class="col-span-3 mb-4 text-xl font-semibold dark:text-white"
 											>
 												Managers
 											</h3>
 
 											<div
-												class="h-full w-full shrink-0 overflow-y-auto border border-gray-200 bg-gray-50 p-3 shadow-sm dark:border-gray-700 dark:bg-black-900 lg:rounded-lg justify-self-center"
+												class="bg-white-100 dark:bg-black-900 h-full w-full shrink-0 justify-self-center overflow-y-auto border border-gray-200 p-3 shadow-sm lg:rounded-lg dark:border-gray-700"
 											>
 												<span class="sr-only">Open user menu</span>
 												<div class="flex w-full items-center justify-between">
@@ -1163,13 +1235,13 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														/>
 														<div class="text-left">
 															<div
-																class="mb-0.5 font-semibold leading-none text-gray-900 dark:text-white"
+																class="mb-0.5 leading-none font-semibold text-gray-900 dark:text-white"
 															>
 																<input
 																	type="text"
 																	id={`nombre-manager-card-`}
 																	name={`nombre-manager-card-`}
-																	class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+																	class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 																/>
 															</div>
 															<div class="">
@@ -1177,7 +1249,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 																	type="text"
 																	id={`nombre-manager-card-`}
 																	name={`nombre-manager-card-`}
-																	class="block w-full p-1 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg text-sm text-gray-500 dark:text-gray-400"
+																	class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-sm leading-none font-semibold text-gray-500 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-gray-400 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 																/>
 															</div>
 														</div>
@@ -1188,7 +1260,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												>
 													<li>
 														<div
-															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
 														>
 															<Icon
 																name="ri:earth-line"
@@ -1206,7 +1278,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 																<select
 																	id={`pais-manager-card-`}
 																	name={`pais-manager-card-`}
-																	class="block py-0 px-3 w-full text-gray-500 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer text-base font-medium dark:text-white border-0 dark:bg-black-900 dark:group-hover:bg-gray-700"
+																	class="peer dark:bg-black-900 block w-full appearance-none border-0 bg-transparent px-3 py-0 text-base font-medium text-gray-500 focus:border-gray-200 focus:ring-0 focus:outline-none dark:text-white dark:group-hover:bg-gray-700"
 																>
 																	<option value="" disabled hidden selected>
 																		Seleccione un pais
@@ -1229,20 +1301,20 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												>
 													<li>
 														<div
-															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
 														>
-															<div class="w-full flex">
+															<div class="flex w-full">
 																<label
-																	class="inline-flex items-center cursor-pointer"
+																	class="inline-flex cursor-pointer items-center"
 																>
 																	<input
 																		type="checkbox"
 																		id={`residente-fiscal-manager-card-`}
 																		name={`residente-fiscal-manager-card-`}
-																		class="sr-only peer"
+																		class="peer sr-only"
 																	/>
 																	<div
-																		class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"
+																		class="peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800"
 																	>
 																	</div>
 																	<span
@@ -1256,20 +1328,20 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 													</li>
 													<li>
 														<div
-															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 gap-2"
+															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
 														>
-															<div class="w-full flex">
+															<div class="flex w-full">
 																<label
-																	class="inline-flex items-center cursor-pointer"
+																	class="inline-flex cursor-pointer items-center"
 																>
 																	<input
 																		type="checkbox"
-																		class="sr-only peer"
+																		class="peer sr-only"
 																		id={`misma-direccion-manager-card-`}
 																		name={`misma-direccion-manager-card-`}
 																	/>
 																	<div
-																		class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"
+																		class="peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800"
 																	>
 																	</div>
 																	<span
@@ -1287,7 +1359,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												>
 													<li>
 														<div
-															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
 														>
 															<button
 																data-tooltip-target={`tooltip-default-manager-`}
@@ -1307,7 +1379,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 															<div
 																id={`tooltip-default-manager-`}
 																role="tooltip"
-																class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+																class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
 															>
 																Numero de Pasaporte
 																<div class="tooltip-arrow" data-popper-arrow>
@@ -1318,13 +1390,13 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 																type="text"
 																id={`pasaporte-manager-card-`}
 																name={`pasaporte-manager-card-`}
-																class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+																class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 															/>
 														</div>
 													</li>
 													<li>
 														<div
-															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
 														>
 															<button
 																data-tooltip-target={`tooltip-seguro-manager-`}
@@ -1344,7 +1416,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 															<div
 																id={`tooltip-seguro-manager-`}
 																role="tooltip"
-																class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+																class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
 															>
 																Numero de Seguro Social
 																<div class="tooltip-arrow" data-popper-arrow>
@@ -1354,14 +1426,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 																type="text"
 																id={`numero-seguro-manager-card-`}
 																name={`numero-seguro-manager-card-`}
-																class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+																class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 															/>
 														</div>
 													</li>
 
 													<li>
 														<div
-															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
 														>
 															<button
 																data-tooltip-target={`tooltip-itin-manager-`}
@@ -1381,7 +1453,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 															<div
 																id={`tooltip-itin-manager-`}
 																role="tooltip"
-																class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+																class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
 															>
 																Numero de ITIN
 																<div class="tooltip-arrow" data-popper-arrow>
@@ -1391,13 +1463,13 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 																type="text"
 																id={`numero-itin-manager-card-`}
 																name={`numero-itin-manager-card-`}
-																class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+																class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 															/>
 														</div>
 													</li>
 													<li>
 														<div
-															class="group p-1 flex items-center rounded-lg text-base font-medium text-gray-900 dark:text-white gap-2"
+															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
 														>
 															<button
 																data-tooltip-target={`tooltip-direccion-manager-`}
@@ -1417,7 +1489,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 															<div
 																id={`tooltip-direccion-manager-`}
 																role="tooltip"
-																class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700"
+																class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
 															>
 																Direccion del manager
 																<div class="tooltip-arrow" data-popper-arrow>
@@ -1427,7 +1499,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 																type="text"
 																id={`direccion-manager-card-`}
 																name={`direccion-manager-card-`}
-																class="block w-full p-1 text-gray-900 bg-gray-50 text-base focus:ring-blue-500 focus:border-blue-500 dark:bg-transparent dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 border-0 mb-0.5 font-semibold leading-none rounded-lg"
+																class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 															/>
 														</div>
 													</li>
@@ -1446,7 +1518,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 									type="button"
 									data-modal-target="crud-modal-2"
 									data-modal-toggle="crud-modal-2"
-									class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 flex items-center gap-2"
+									class="flex items-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 								>
 									<Icon name="ri:add-line" /> Añadir manager</button
 								>
@@ -1459,3 +1531,40 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 	</div>
 </div>
 
+<script>
+	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
+
+	function initDT() {
+		const el = document.querySelector('#myTable') as HTMLElement | null;
+		if (!el) return;
+		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
+			return;
+
+		new DataTable(el, {
+			searchable: true,
+			perPage: 25,
+			perPageSelect: [5, 10, 25, 50],
+
+			// Textos en español
+			labels: {
+				placeholder: 'Buscar...',
+				perPage: 'Filas',
+				noRows: 'No hay empresas',
+				noResults: 'No se encontraron resultados',
+				info: 'Mostrando {start} a {end} de {rows} registros',
+			},
+
+			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
+			layout: {
+				top: '{select}{search}',
+				bottom: '{info}{pager}',
+			},
+		});
+
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
+		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
+	}
+
+	initDT();
+	document.addEventListener('astro:page-load', initDT);
+</script>
