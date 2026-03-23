@@ -6,8 +6,7 @@ import icon from 'astro-icon';
 
 export default defineConfig({
 	prefetch: {
-		defaultStrategy: 'viewport',
-		prefetchAll: true,
+		defaultStrategy: 'hover',
 	},
 	output: 'server',
 	adapter: node({
@@ -15,6 +14,11 @@ export default defineConfig({
 	}),
 	vite: {
 		plugins: [tailwindcss()],
+		build: {
+			rollupOptions: {
+				external: ['puppeteer', 'carbone'],
+			},
+		},
 	},
 	base: '/',
 	integrations: [sitemap(), icon()],

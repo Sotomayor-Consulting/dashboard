@@ -5,12 +5,13 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { AuthService, redirectWithMessage } from '@lib/auth';
+import { safeBack } from '@lib/security/headers';
 
 const BACK_PATH = '/start/';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	try {
-		const back = url.searchParams.get('back') ?? BACK_PATH;
+		const back = safeBack(url.searchParams.get('back'), BACK_PATH);
 
 		// Verificar si ya tiene sesión activa
 		const supabase = createSupabaseServerClient({

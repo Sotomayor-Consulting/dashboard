@@ -7,10 +7,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 	try {
 		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
-		const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
+		const { data: { user }, error: userErr } = await supabase.auth.getUser();
 
-		if (sessionErr || !session) {
-			console.error('[SIGNED-URL] Sin sesión:', sessionErr?.message);
+		if (userErr || !user) {
+			console.error('[SIGNED-URL] Sin sesión:', userErr?.message);
 			return new Response(JSON.stringify({ error: 'No autenticado' }), {
 				status: 401,
 			});

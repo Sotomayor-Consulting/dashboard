@@ -2,6 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
+import { SECURITY_HEADERS } from '@lib/security/headers';
 
 export const GET: APIRoute = async ({ request, cookies }) => {
 	// 1) Cliente Supabase SSR
@@ -15,6 +16,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 	if (userErr || !user) {
 		return new Response(JSON.stringify({ error: 'No autenticado' }), {
 			status: 401,
+			headers: SECURITY_HEADERS,
 		});
 	}
 
@@ -33,6 +35,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 	if (error) {
 		return new Response(JSON.stringify({ error: error.message }), {
 			status: 400,
+			headers: SECURITY_HEADERS,
 		});
 	}
 
@@ -44,6 +47,9 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 
 	return new Response(JSON.stringify({ categories, series }), {
 		status: 200,
-		headers: { 'Content-Type': 'application/json' },
+		headers: {
+			...SECURITY_HEADERS,
+			'Cache-Control': 'private, max-age=300',
+		},
 	});
 };

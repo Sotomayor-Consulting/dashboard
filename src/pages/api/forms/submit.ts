@@ -3,6 +3,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
+import { SECURITY_HEADERS } from '@lib/security/headers';
 import { createHash } from 'node:crypto';
 
 type SaveBody = {
@@ -21,7 +22,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 	const j = (code: number, payload: any) =>
 		new Response(JSON.stringify(payload), {
 			status: code,
-			headers: { 'Content-Type': 'application/json' },
+			headers: { ...SECURITY_HEADERS },
 		});
 
 	try {

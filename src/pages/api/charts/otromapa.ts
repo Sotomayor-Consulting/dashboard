@@ -190,7 +190,11 @@ export async function renderizarMapaEstados(
 		}, 800);
 	} catch (error: any) {
 		console.error('Error al crear chart:', error);
-		container.innerHTML = `<p style="color:red">Error: ${error.message}</p>`;
+		container.innerHTML = '';
+		const errP = document.createElement('p');
+		errP.style.color = 'red';
+		errP.textContent = `Error: ${error.message}`;
+		container.appendChild(errP);
 	}
 }
 
