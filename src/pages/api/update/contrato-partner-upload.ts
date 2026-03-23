@@ -3,6 +3,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
+import { safeBack } from '@lib/security/headers';
 
 const DEFAULT_BACK_PATH = '/partners/configuracion-partners/';
 const BUCKET_NAME = 'documentos_usuarios';
@@ -11,7 +12,7 @@ const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME = 'application/pdf';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
-	const back = url.searchParams.get('back') || DEFAULT_BACK_PATH;
+	const back = safeBack(url.searchParams.get('back'), DEFAULT_BACK_PATH);
 
 	const redirectWithStatus = (status: 'success' | 'error', msg: string) =>
 		redirect(`${back}?status=${status}&msg=${encodeURIComponent(msg)}`);

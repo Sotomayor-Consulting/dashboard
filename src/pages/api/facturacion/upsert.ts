@@ -4,6 +4,7 @@
 // coincida con el usuario autenticado (previene suplantación).
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient, supabaseAdmin } from '@lib/supabase';
+import { SECURITY_HEADERS } from '@lib/security/headers';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	// ─── 1) Autenticación (server-verified via getUser) ──
@@ -21,7 +22,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			JSON.stringify({ error: 'No autenticado' }),
 			{
 				status: 401,
-				headers: { 'Content-Type': 'application/json' },
+				headers: SECURITY_HEADERS,
 			},
 		);
 	}
@@ -48,7 +49,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				JSON.stringify({ error: 'userId is required' }),
 				{
 					status: 400,
-					headers: { 'Content-Type': 'application/json' },
+					headers: SECURITY_HEADERS,
 				},
 			);
 		}
@@ -59,7 +60,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				JSON.stringify({ error: 'No autorizado para este usuario' }),
 				{
 					status: 403,
-					headers: { 'Content-Type': 'application/json' },
+					headers: SECURITY_HEADERS,
 				},
 			);
 		}
@@ -91,14 +92,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				JSON.stringify({ error: 'Insert failed' }),
 				{
 					status: 400,
-					headers: { 'Content-Type': 'application/json' },
+					headers: SECURITY_HEADERS,
 				},
 			);
 		}
 
 		return new Response(JSON.stringify({ id: data?.id || null }), {
 			status: 200,
-			headers: { 'Content-Type': 'application/json' },
+			headers: SECURITY_HEADERS,
 		});
 	} catch (e: any) {
 		console.error('[billing/upsert] exception:', e);
@@ -106,7 +107,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			JSON.stringify({ error: 'Internal server error' }),
 			{
 				status: 500,
-				headers: { 'Content-Type': 'application/json' },
+				headers: SECURITY_HEADERS,
 			},
 		);
 	}

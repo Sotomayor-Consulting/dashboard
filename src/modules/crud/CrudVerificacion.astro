@@ -1,5 +1,8 @@
 ---
-import '@styles/datatables.css';
+import DataTable from '@components/ui/DataTable.astro';
+import StatusBadge from '@components/ui/StatusBadge.astro';
+import DateCell from '@components/ui/DateCell.astro';
+import StackedText from '@components/ui/StackedText.astro';
 import { FormsEnviosVericacion } from '@lib/tablas/formulariosEnviados'
 
 const supabase = Astro.locals.supabase;
@@ -8,159 +11,60 @@ const formularios = await FormsEnviosVericacion(supabase);
 
 ---
 
-<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-	<table
-		class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
-		id="myTable"
-	>
-		<thead
-			class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-neutral-500 dark:text-gray-400"
-			id="test"
-		>
-			<tr>
-				{
-					[
-						'NOMBRE DEL FORMULARIO',
-						'SUBIDO POR',
-						'PORCENTAJE DE PROGRESO',
-						'FECHA DE INICIO DEL FORMULARIO',
-						'FECHA DE ULTIMA ACTUALIZACION',
-						'FECHA DE ULTIMA SUBIDA',
-						'ESTADO'
-					].map((th) => (
-						<th
-							scope="col"
-							class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400"
-						>
-							<span class="flex items-center">
-								{th}
-								<svg class="w-4 h-4 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-									<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4"/>
-								</svg>
-							</span>
-						</th>
-					))
-				}
+<DataTable
+	headers={[
+		'NOMBRE DEL FORMULARIO',
+		'SUBIDO POR',
+		'PORCENTAJE DE PROGRESO',
+		'FECHA DE INICIO DEL FORMULARIO',
+		'FECHA DE ULTIMA ACTUALIZACION',
+		'FECHA DE ULTIMA SUBIDA',
+		'ESTADO',
+	]}
+	noRowsMessage="No hay formularios a verificar"
+	noResultsMessage="No se encontraron formularios aun"
+>
+	{
+		formularios?.map((formularios) => (
+			<tr class="bg-white border-b dark:bg-black-900 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] cursor-pointer"
+				onclick={`window.open('/forms/validaciones/${formularios.submission_id}', '_blank')`}
+			>
+				<th
+					scope="row"
+					class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+				>
+					<StackedText
+						title={formularios.formularios?.titulo ?? '— sin título —'}
+						subtitle={formularios.formularios?.slug ?? '— sin ctaegoria —'}
+					/>
+				</th>
+				<td class="px-6 py-4">
+					<data value="">
+						{formularios.usuarios.nombre} {formularios.usuarios.apellido}
+					</data>
+				</td>
+				<td class="px-6 py-4">
+					<data value="">% {formularios.progress_percent ?? '0'}</data>
+				</td>
+				<td class="px-6 py-4">
+					<DateCell date={formularios.created_at} />
+				</td>
+				<td class="px-6 py-4">
+					<DateCell date={formularios.updated_at} />
+				</td>
+				<td class="px-6 py-4">
+					<DateCell date={formularios.submitted_at} />
+				</td>
+				<td class="px-6 py-4">
+					<StatusBadge
+						active={formularios.status === 'submitted'}
+						activeLabel="Terminado"
+						inactiveLabel="En progreso"
+						activeColor="bg-green-400"
+						inactiveColor="bg-orange-400"
+					/>
+				</td>
 			</tr>
-		</thead>
-		<tbody>
-			{
-				formularios?.map((formularios) => (
-					<tr class="bg-white border-b dark:bg-black-900 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-[#101522] odd:dark:bg-[#28314c] even:dark:bg-[#384467] cursor-pointer"
-						onclick={`window.open('/forms/validaciones/${formularios.submission_id}', '_blank')`}
-					> 
-						<th
-							scope="row"
-							class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-						>
-							<div class="text-base font-semibold text-gray-900 dark:text-white">
-								<data value="name">
-									{formularios.formularios?.titulo ?? '— sin título —'}
-								</data>
-							</div>
-							<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-								<data value="category">
-									{formularios.formularios?.slug ?? '— sin ctaegoria —'}
-								</data>
-							</div>
-						</th>
-						<td class="px-6 py-4">
-							<data value="">
-								{formularios.usuarios.nombre} {formularios.usuarios.apellido}
-							</data>
-						</td>
-						<td class="px-6 py-4">
-							<data value="">% {formularios.progress_percent ?? '0'}</data>
-						</td>
-						<td class="px-6 py-4">
-							<data value="">
-								{formularios.created_at &&
-									new Date(formularios.created_at)
-										.toLocaleDateString('es-ES', {
-											day: '2-digit',
-											month: '2-digit',
-											year: 'numeric',
-										})
-										.replace(/\//g, '-')}
-							</data>
-						</td>
-						<td class="px-6 py-4">
-							<data value="">
-								{formularios.updated_at &&
-									new Date(formularios.updated_at)
-										.toLocaleDateString('es-ES', {
-											day: '2-digit',
-											month: '2-digit',
-											year: 'numeric',
-										})
-										.replace(/\//g, '-')}
-							</data>
-						</td>
-						<td class="px-6 py-4">
-							<data value="">
-								{(formularios.submitted_at &&
-									new Date(formularios.submitted_at)
-										.toLocaleDateString('es-ES', {
-											day: '2-digit',
-											month: '2-digit',
-											year: 'numeric',
-										})
-										.replace(/\//g, '-')) ??
-									'— sin fecha —'}
-							</data>
-						</td>
-						<td class="px-6 py-4">
-							<div class="flex items-center">
-								{formularios.status === 'submitted' ? (
-									<div class="h-2.5 w-2.5 rounded-full bg-green-400 mr-2"></div>
-									<span>Terminado</span>
-								) : (
-									<div class="h-2.5 w-2.5 rounded-full bg-orange-400 mr-2"></div>
-									<span>En progreso</span>
-								)}
-							</div>
-						</td>
-					</tr>
-				))
-			}
-		</tbody>
-	</table>
-</div>
-
-<script>
-	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
-
-	function initDT() {
-		const el = document.querySelector('#myTable') as HTMLElement | null;
-		if (!el) return;
-		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
-			return;
-
-		new DataTable(el, {
-			searchable: true,
-			perPage: 25,
-			perPageSelect: [5, 10, 25, 50],
-
-			// Textos en español
-			labels: {
-				placeholder: 'Buscar...',
-				perPage: 'Filas',
-				noRows: 'No hay formularios a verificar',
-				noResults: 'No se encontraron formularios aun',
-				info: 'Mostrando {start} a {end} de {rows} registros',
-			},
-
-			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
-			layout: {
-				top: '{select}{search}',
-				bottom: '{info}{pager}',
-			},
-		});
-
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
+		))
 	}
-
-	initDT();
-	document.addEventListener('astro:page-load', initDT);
-</script>
+</DataTable>

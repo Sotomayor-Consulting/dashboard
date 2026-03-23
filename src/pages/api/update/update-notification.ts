@@ -2,12 +2,13 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
+import { safeBack } from '@lib/security/headers';
 
 // Define la ruta a la que se redirige después de la operación (ajusta si es necesario)
-const BACK_PATH = '/notificaciones'; // <-- AJUSTA ESTA RUTA
+const BACK_PATH = '/notificaciones';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-	const back = new URL(request.url).searchParams.get('back') || BACK_PATH;
+	const back = safeBack(new URL(request.url).searchParams.get('back'), BACK_PATH);
 
 	// 1) Sesión y Usuario
 	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
@@ -62,7 +63,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const { error } = await supabase
 		.from('notifications')
 		.update(payload)
-		.eq('id', notificationIdRaw); // ¡Usamos el ID de la fila para el WHERE!
+		.eq('id', notificationIdRaw)
+		.eq('user_id', user.id); // Prevenir IDOR: solo actualizar notificaciones del usuario autenticado
 
 	// 5) Redirección
 	if (error) {

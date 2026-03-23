@@ -15,7 +15,6 @@
 			"@modules/*": ["./src/modules/*"],
 			"@types/*": ["./src/types/*"],
 			"@services/*": ["./src/services/*"],
-			"@datatables/*": ["./src/lib/datatables/*"],
 			"@middleware/*": ["./src/middleware/*"]
 		}
 	}

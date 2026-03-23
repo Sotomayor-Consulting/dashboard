@@ -2,6 +2,7 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { getReferralsByEmail } from '@services/partnerService';
+import { SECURITY_HEADERS } from '@lib/security/headers';
 
 type Referral = {
 	name: string;
@@ -25,7 +26,7 @@ export const GET: APIRoute = async ({ cookies, request }) => {
 			JSON.stringify({ error: 'Sesión inválida o sin email' }),
 			{
 				status: 401,
-				headers: { 'Content-Type': 'application/json' },
+				headers: SECURITY_HEADERS,
 			},
 		);
 	}
@@ -39,7 +40,7 @@ export const GET: APIRoute = async ({ cookies, request }) => {
 			JSON.stringify({ error: 'No se pudieron obtener los referidos' }),
 			{
 				status: 500,
-				headers: { 'Content-Type': 'application/json' },
+				headers: SECURITY_HEADERS,
 			},
 		);
 	}
@@ -69,7 +70,10 @@ export const GET: APIRoute = async ({ cookies, request }) => {
 		}),
 		{
 			status: 200,
-			headers: { 'Content-Type': 'application/json' },
+			headers: {
+				...SECURITY_HEADERS,
+				'Cache-Control': 'private, max-age=300',
+			},
 		},
 	);
 };

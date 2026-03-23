@@ -5,6 +5,7 @@
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
 import { createSupabaseServerClient, supabaseAdmin } from '@lib/supabase';
+import { SECURITY_HEADERS } from '@lib/security/headers';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY as string);
 
@@ -24,7 +25,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			JSON.stringify({ error: 'No autenticado' }),
 			{
 				status: 401,
-				headers: { 'Content-Type': 'application/json' },
+				headers: SECURITY_HEADERS,
 			},
 		);
 	}
@@ -43,7 +44,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				JSON.stringify({ error: 'Missing planId, userId or empresaId' }),
 				{
 					status: 400,
-					headers: { 'Content-Type': 'application/json' },
+					headers: SECURITY_HEADERS,
 				},
 			);
 		}
@@ -54,7 +55,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				JSON.stringify({ error: 'No autorizado para este usuario' }),
 				{
 					status: 403,
-					headers: { 'Content-Type': 'application/json' },
+					headers: SECURITY_HEADERS,
 				},
 			);
 		}
@@ -75,7 +76,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				JSON.stringify({ error: 'Servicio no encontrado o inactivo' }),
 				{
 					status: 404,
-					headers: { 'Content-Type': 'application/json' },
+					headers: SECURITY_HEADERS,
 				},
 			);
 		}
@@ -106,7 +107,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 					JSON.stringify({ error: 'Error validando microservicios' }),
 					{
 						status: 400,
-						headers: { 'Content-Type': 'application/json' },
+						headers: SECURITY_HEADERS,
 					},
 				);
 			}
@@ -122,7 +123,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 						}),
 						{
 							status: 400,
-							headers: { 'Content-Type': 'application/json' },
+							headers: SECURITY_HEADERS,
 						},
 					);
 				}
@@ -149,7 +150,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				JSON.stringify({ error: 'Monto inválido para el servicio' }),
 				{
 					status: 400,
-					headers: { 'Content-Type': 'application/json' },
+					headers: SECURITY_HEADERS,
 				},
 			);
 		}
@@ -214,7 +215,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			JSON.stringify({ clientSecret: paymentIntent.client_secret }),
 			{
 				status: 200,
-				headers: { 'Content-Type': 'application/json' },
+				headers: SECURITY_HEADERS,
 			},
 		);
 	} catch (err: any) {
@@ -223,7 +224,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			JSON.stringify({ error: 'Internal server error' }),
 			{
 				status: 500,
-				headers: { 'Content-Type': 'application/json' },
+				headers: SECURITY_HEADERS,
 			},
 		);
 	}

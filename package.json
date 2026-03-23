@@ -43,7 +43,6 @@
 		"@faker-js/faker": "^7.6.0",
 		"@libpdf/core": "^0.2.12",
 		"@sparticuz/chromium": "^141.0.0",
-		"@stitches/core": "^1.2.8",
 		"@supabase/ssr": "^0.9.0",
 		"@supabase/supabase-js": "^2.99.2",
 		"@tailwindcss/vite": "^4.2.1",

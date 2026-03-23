@@ -21,6 +21,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	});
 
 	try {
+		const { data: userData } = await supabase.auth.getUser();
+		const user = userData?.user;
+
+		if (!user) {
+			return redirectWithStatus('error', 'No autenticado');
+		}
+
 		if (!empresaId || !userId) {
 			return redirectWithStatus(
 				'error',

@@ -1,6 +1,8 @@
 // src/pages/api/generar.ts
 import type { APIRoute } from 'astro';
 import { generatePdf } from '@lib/carbone';
+import { createSupabaseServerClient } from '@lib/supabase';
+import { SECURITY_HEADERS } from '@lib/security/headers';
 
 type GenerateBody = {
 	data?: unknown;
@@ -8,7 +10,15 @@ type GenerateBody = {
 	reportName?: string;
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
+	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+	const { data: { user }, error: authError } = await supabase.auth.getUser();
+	if (authError || !user) {
+		return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+			status: 401,
+			headers: SECURITY_HEADERS,
+		});
+	}
 	try {
 		// 1. Leer JSON del body
 		const rawBody = await request.json().catch(() => ({}));
@@ -22,7 +32,7 @@ export const POST: APIRoute = async ({ request }) => {
 				JSON.stringify({ error: 'templateName es obligatorio' }),
 				{
 					status: 400,
-					headers: { 'Content-Type': 'application/json' },
+					headers: SECURITY_HEADERS,
 				},
 			);
 		}
@@ -55,7 +65,7 @@ export const POST: APIRoute = async ({ request }) => {
 			}),
 			{
 				status: 500,
-				headers: { 'Content-Type': 'application/json' },
+				headers: SECURITY_HEADERS,
 			},
 		);
 	}

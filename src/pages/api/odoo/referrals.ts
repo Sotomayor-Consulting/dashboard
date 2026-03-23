@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { getReferralsByEmail } from '@services/partnerService';
+import { SECURITY_HEADERS } from '@lib/security/headers';
 
 export const GET: APIRoute = async ({ cookies, request }) => {
 	// 1) Cliente Supabase SSR
@@ -17,7 +18,7 @@ export const GET: APIRoute = async ({ cookies, request }) => {
 			JSON.stringify({ error: 'Sesión inválida o sin email' }),
 			{
 				status: 401,
-				headers: { 'Content-Type': 'application/json' },
+				headers: SECURITY_HEADERS,
 			},
 		);
 	}
@@ -28,6 +29,6 @@ export const GET: APIRoute = async ({ cookies, request }) => {
 	// 5) Responder
 	return new Response(JSON.stringify(result), {
 		status: 200,
-		headers: { 'Content-Type': 'application/json' },
+		headers: SECURITY_HEADERS,
 	});
 };

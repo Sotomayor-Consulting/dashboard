@@ -3,6 +3,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
+import { safeBack, SECURITY_HEADERS } from '@lib/security/headers';
 import crypto from 'node:crypto';
 
 const BACK_PATH = '/crud/verficacion-incorporacion';
@@ -72,7 +73,7 @@ const jerr = (debug_id: string, step: string, err: any, extra?: any) => {
 const jsonOk = (body: any, status = 200) =>
 	new Response(JSON.stringify(body), {
 		status,
-		headers: { 'Content-Type': 'application/json' },
+		headers: { ...SECURITY_HEADERS },
 	});
 
 const normSbErr = (e: any) => {
@@ -89,7 +90,7 @@ const normSbErr = (e: any) => {
 
 export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 	const debug_id = crypto.randomUUID().slice(0, 8);
-	const back = url.searchParams.get('back') || BACK_PATH; // (lo dejamos por si lo usas en front)
+	const back = safeBack(url.searchParams.get('back'), BACK_PATH); // (lo dejamos por si lo usas en front)
 
 	try {
 		jlog(debug_id, 'START', { back });
@@ -619,13 +620,13 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 			},
 		});
 	} catch (e: any) {
-		// console.error(`[validacion:${debug_id}] FATAL`, { message: e?.message ?? String(e), stack: e?.stack ?? null });
+		console.error(`[validacion:${debug_id}] FATAL`, { message: e?.message ?? String(e), stack: e?.stack ?? null });
 		return jsonOk(
 			{
 				ok: false,
 				debug_id,
 				step: 'catch',
-				error: { message: e?.message ?? String(e), stack: e?.stack ?? null },
+				error: { message: 'Error interno del servidor. Contacta al administrador.' },
 			},
 			500,
 		);

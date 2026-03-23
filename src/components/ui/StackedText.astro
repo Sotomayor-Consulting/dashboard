@@ -1,0 +1,30 @@
+---
+/**
+ * Celda con texto apilado: titulo bold + subtitulo gris.
+ * Patron comun para nombre+email, titulo+slug, empresa+id, etc.
+ *
+ * Uso:
+ * <StackedText title={user.nombre} subtitle={user.correo} />
+ */
+interface Props {
+	/** Texto principal (bold, blanco en dark) */
+	title: string;
+	/** Texto secundario (gris, mas pequeno) */
+	subtitle?: string;
+}
+
+const { title, subtitle } = Astro.props;
+---
+
+<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+	<div class="text-base font-semibold text-gray-900 dark:text-white">
+		{title}
+	</div>
+	{
+		subtitle && (
+			<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+				{subtitle}
+			</div>
+		)
+	}
+</div>
