@@ -1,8 +1,10 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
+import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
+import DataTable from '@components/ui/DataTable.astro';
+import StackedText from '@components/ui/StackedText.astro';
+import StatusBadge from '@components/ui/StatusBadge.astro';
 import { pagosRealizadosPorSubir } from '@lib/tablas/PagosPorLeer';
-
-import '@styles/datatables.css';
 
 const supabase = Astro.locals.supabase;
 const empresas = await pagosRealizadosPorSubir(supabase);
@@ -13,141 +15,50 @@ const empresas = await pagosRealizadosPorSubir(supabase);
 	class="dark:bg-black-900 block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<Alerta />
-	<div class="mb-1 w-full">
-		<div class="mb-4">
-			<nav class="mb-5 flex" aria-label="Breadcrumb">
-				<ol
-					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
-				>
-					<li class="inline-flex items-center">
-						<a
-							href="/"
-							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
-						>
-							<svg
-								class="mr-2.5 h-5 w-5"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-								xmlns="http://www.w3.org/2000/svg"
-								><path
-									d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
-								></path></svg
-							>
-							Inicio
-						</a>
-					</li>
-
-					<li>
-						<div class="flex items-center">
-							<svg
-								class="h-6 w-6 text-gray-400"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-								xmlns="http://www.w3.org/2000/svg"
-								><path
-									fill-rule="evenodd"
-									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-									clip-rule="evenodd"></path></svg
-							>
-							<p class="dark:text-white-50 ml-1 text-gray-700 md:ml-2">
-								Subir documentos
-							</p>
-						</div>
-					</li>
-				</ol>
-			</nav>
-			<h1
-				class="text-white-900 text-xl font-semibold sm:text-2xl dark:text-white"
-			>
-				Lista de empresas
-			</h1>
-		</div>
-	</div>
+	<CrudPageHeader
+		title="Lista de empresas"
+		breadcrumbItems={[{ label: 'Subir documentos' }]}
+	/>
 </div>
 <div class="flex flex-col">
 	<div class="overflow-x-auto">
 		<div class="inline-block min-w-full align-middle">
 			<div class="overflow-hidden shadow">
-				<table
-					class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600"
-					id="myTable"
+				<DataTable
+					headers={['Cliente', 'Empresa', 'Plan', 'Estado']}
+					noRowsMessage="No hay Empresas"
 				>
-					<thead class="bg-gray-100 dark:bg-[#374151]">
-						<tr>
-							{
-								['Cliente', 'Empresa', 'Plan', 'Estado'].map((th) => (
-									<th
-										scope="col"
-										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
-									>
-										<span class="flex items-center uppercase">
-											{th}
-											<svg
-												class="ms-1 h-4 w-4"
-												aria-hidden="true"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												fill="none"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke="currentColor"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="m8 15 4 4 4-4m0-6-4-4-4 4"
-												/>
-											</svg>
-										</span>
-									</th>
-								))
-							}
-						</tr>
-					</thead>
-					<tbody
-						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
-					>
-						{
-							empresas?.map((e) => (
-								<div>
-									<tr
-										class="odd:bg-white cursor-pointer even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
-										onclick={`window.open('/forms/upload_documents/${e.empresas_incorporaciones.empresa_incorporacion_id}', '_blank')`}
-									>
-										<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">
-											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-												<div class="text-base font-semibold text-gray-900 dark:text-white">
-													{e.usuarios.nombre} {e.usuarios.apellido}
-												</div>
-												<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-													{e.usuarios.correo}
-												</div>
-											</div>
-										</td>
-										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-											{e.empresas_incorporaciones.nombre_1}
-										</td>
-										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-											{e.servicios.nombre}
-										</td>
+					{
+						empresas?.map((e) => (
+							<div>
+								<tr
+									class="cursor-pointer odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
+									onclick={`window.open('/forms/upload_documents/${e.empresas_incorporaciones.empresa_incorporacion_id}', '_blank')`}
+								>
+									<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">
+										<StackedText
+											title={`${e.usuarios.nombre} ${e.usuarios.apellido}`}
+											subtitle={e.usuarios.correo}
+										/>
+									</td>
+									<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+										{e.empresas_incorporaciones.nombre_1}
+									</td>
+									<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+										{e.servicios.nombre}
+									</td>
 
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											<div class="flex items-center">
-												{e.empresas_incorporaciones.estado === 'Activo' ? (
-													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
-												) : (
-													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
-												)}
-												{e.empresas_incorporaciones.estado}
-											</div>
-										</td>
-									</tr>
-								</div>
-							))
-						}
-					</tbody>
-				</table>
+									<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+										<StatusBadge
+											active={e.empresas_incorporaciones.estado === 'Activo'}
+											label={e.empresas_incorporaciones.estado}
+										/>
+									</td>
+								</tr>
+							</div>
+						))
+					}
+				</DataTable>
 			</div>
 		</div>
 	</div>
@@ -300,41 +211,4 @@ const empresas = await pagosRealizadosPorSubir(supabase);
 			});
 		});
 	});
-</script>
-<script>
-	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
-
-	function initDT() {
-		const el = document.querySelector('#myTable') as HTMLElement | null;
-		if (!el) return;
-		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
-			return;
-
-		new DataTable(el, {
-			searchable: true,
-			perPage: 25,
-			perPageSelect: [5, 10, 25, 50],
-
-			// Textos en español
-			labels: {
-				placeholder: 'Buscar...',
-				perPage: 'Filas',
-				noRows: 'No hay Empresas',
-				noResults: 'No se encontraron resultados',
-				info: 'Mostrando {start} de {rows} registros',
-			},
-
-			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
-			layout: {
-				top: '{select}{search}',
-				bottom: '{info}{pager}',
-			},
-		});
-
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
-	}
-
-	initDT();
-	document.addEventListener('astro:page-load', initDT);
 </script>

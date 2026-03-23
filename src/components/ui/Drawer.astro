@@ -1,0 +1,60 @@
+---
+/**
+ * Drawer lateral reutilizable (Flowbite pattern).
+ * Wrapper para formularios y contenido que se muestra desde la derecha.
+ *
+ * Uso:
+ * <Drawer id="drawer-create" title="Nuevo servicio">
+ *   <form>...</form>
+ * </Drawer>
+ */
+interface Props {
+	/** ID unico del drawer (usado por data-drawer-target) */
+	id: string;
+	/** Titulo del drawer */
+	title: string;
+	/** Ancho maximo. Default: 'max-w-sm' */
+	maxWidth?: string;
+}
+
+const { id, title, maxWidth = 'max-w-sm' } = Astro.props;
+---
+
+<div
+	id={id}
+	class:list={[
+		'dark:bg-black-800 fixed top-0 right-0 z-40 h-screen w-full translate-x-full overflow-y-auto bg-white p-4 transition-transform',
+		maxWidth,
+	]}
+	tabindex="-1"
+	aria-labelledby={`${id}-label`}
+	aria-hidden="true"
+>
+	<h5
+		id={`${id}-label`}
+		class="mb-6 inline-flex items-center text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+	>
+		{title}
+	</h5>
+	<button
+		type="button"
+		data-drawer-dismiss={id}
+		aria-controls={id}
+		class="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+	>
+		<svg
+			aria-hidden="true"
+			class="h-5 w-5"
+			fill="currentColor"
+			viewBox="0 0 20 20"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				fill-rule="evenodd"
+				d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+				clip-rule="evenodd"></path>
+		</svg>
+		<span class="sr-only">Cerrar menu</span>
+	</button>
+	<slot />
+</div>

@@ -1,6 +1,10 @@
 ---
-import '@styles/datatables.css';
 import Alerta from '@components/feedback/alertageneral.astro';
+import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
+import DataTable from '@components/ui/DataTable.astro';
+import DateCell from '@components/ui/DateCell.astro';
+import StackedText from '@components/ui/StackedText.astro';
+import StatusBadge from '@components/ui/StatusBadge.astro';
 import { Icon } from 'astro-icon/components';
 import { pagosRealizadosData } from '@lib/tablas/PagosPorLeer';
 
@@ -12,330 +16,162 @@ const pagosRealizados = await pagosRealizadosData(supabase);
 <Alerta />
 <div>
 	<div
-		class="bg-white dark:bg-black-900 block w-full items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5"
+		class="dark:bg-black-900 block w-full items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5"
 	>
-		<div class="mb-1 w-full">
-			<div class="mb-4">
-				<nav class="mb-5 flex" aria-label="Breadcrumb">
-					<ol
-						class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
-					>
-						<li class="inline-flex items-center">
-							<a
-								href="/"
-								class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
-							>
-								<svg
-									class="mr-2.5 h-5 w-5"
-									fill="currentColor"
-									viewBox="0 0 20 20"
-									xmlns="http://www.w3.org/2000/svg"
-									><path
-										d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
-									></path></svg
-								>
-								Inicio
-							</a>
-						</li>
-						<li>
-							<div class="flex items-center">
-								<svg
-									class="h-6 w-6 text-gray-400"
-									fill="currentColor"
-									viewBox="0 0 20 20"
-									xmlns="http://www.w3.org/2000/svg"
-									><path
-										fill-rule="evenodd"
-										d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-										clip-rule="evenodd"></path></svg
-								>
-								<a
-									href="/crud/formularios-enviados"
-									class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
-									>Formularios</a
-								>
-							</div>
-						</li>
-					</ol>
-				</nav>
-				<h1
-					class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
-				>
-					Todos los pagos realizados
-				</h1>
-			</div>
-			<div class="block items-center justify-between sm:flex">
-				<div class="ml-auto flex items-center space-x-2 sm:space-x-3">
-					<a
-						href="/crud/pagos"
-						type="button"
-						class="focus:ring-primary-300 inline-flex h-full w-1/2 items-center justify-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-					>
-						<svg
-							class="mr-2 -ml-1 h-5 w-5"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="1.5"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-							aria-hidden="true"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-							></path>
-						</svg>
-						Actualizar
-					</a>
-				</div>
-			</div>
-		</div>
+		<CrudPageHeader
+			title="Todos los pagos realizados"
+			breadcrumbItems={[
+				{ label: 'Formularios', href: '/crud/formularios-enviados' },
+			]}
+			refreshHref="/crud/pagos"
+		/>
 	</div>
 
 	<div class="flex flex-col">
 		<div class="overflow-x-auto">
 			<div class="inline-block min-w-full align-middle">
 				<div class="overflow-hidden shadow">
-					<table
-						class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
-						id="myTable"
+					<DataTable
+						headers={[
+							'id de Stripe',
+							'Pago hecho por',
+							'Empresa asociada al pago',
+							'Servicio pagado',
+							'cantidad',
+							'Estado del pago',
+							'Leido',
+							'Fecha de pago',
+							'Acciones',
+						]}
+						noRowsMessage="No hay pagos realizados"
+						noResultsMessage="No se encontraron pagos recientes"
 					>
-						<thead class="dark:bg-black-800 bg-gray-100">
-							<tr>
-								{
-									[
-										'id de Stripe',
-										'Pago hecho por',
-										'Empresa asociada al pago',
-										'Servicio pagado',
-										'cantidad',
-										'Estado del pago',
-										'Leído',
-										'Fecha de pago',
-										'Acciones',
-									].map((th) => (
-										<th
-											scope="col"
-											class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
-										>
-											<span class="flex items-center uppercase">
-												{th}
-												<svg
-													class="ms-1 h-4 w-4"
-													aria-hidden="true"
-													xmlns="http://www.w3.org/2000/svg"
-													width="24"
-													height="24"
-													fill="none"
-													viewBox="0 0 24 24"
+						{
+							pagosRealizados?.map((sr) => (
+								<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+									<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
+										<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
+											<data value="name">
+												{sr.stripe_payment_intent_id ?? '— sin id —'}
+											</data>
+										</div>
+									</td>
+									<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+										<data>
+											{sr.usuarios.nombre} {sr.usuarios.apellido}
+										</data>
+									</td>
+									<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+										<StackedText
+											title={sr.empresas_incorporaciones.nombre_1}
+											subtitle={
+												sr.empresas_incorporaciones.empresa_incorporacion_id
+											}
+										/>
+									</td>
+									<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+										<data />
+										<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
+											<data>{sr.servicios.nombre}</data>
+										</div>
+									</td>
+									<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+										<data>
+											{sr.amount &&
+												(sr.amount / 100).toLocaleString('en-US', {
+													style: 'currency',
+													currency: 'USD',
+													minimumFractionDigits: 2,
+												})}
+										</data>
+									</td>
+									<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+										<StatusBadge
+											active={sr.status === 'succeeded'}
+											activeLabel="Pago exitoso"
+											inactiveLabel="Error de pago"
+											inactiveColor="bg-orange-400"
+										/>
+									</td>
+									<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+										<StatusBadge
+											active={sr.visto_por_operaciones === true}
+											activeLabel="Leido"
+											inactiveLabel="Sin leer"
+											inactiveColor="bg-orange-400"
+										/>
+									</td>
+									<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+										<div class="flex items-center">
+											<DateCell date={sr.created_at} />
+										</div>
+									</td>
+									<td class="space-x-2 p-4 text-center whitespace-nowrap">
+										<div class="flex h-full items-center justify-center gap-2">
+											{sr.visto_por_operaciones === false ? (
+												<form
+													action="/api/update/operaciones-update-lectura-de-pagos"
+													method="post"
 												>
-													<path
-														stroke="currentColor"
-														stroke-linecap="round"
-														stroke-linejoin="round"
-														stroke-width="2"
-														d="m8 15 4 4 4-4m0-6-4-4-4 4"
+													<input
+														type="text"
+														value={sr.id_pagos}
+														hidden
+														name="pago_id"
 													/>
-												</svg>
-											</span>
-										</th>
-									))
-								}
-							</tr>
-						</thead>
-
-						<tbody
-							class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
-						>
-							{
-								pagosRealizados?.map((sr) => (
-									<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
-										<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
-											<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
-												<data value="name">
-													{sr.stripe_payment_intent_id ?? '— sin id —'}
-												</data>
-											</div>
-										</td>
-										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-											<data>
-												{sr.usuarios.nombre} {sr.usuarios.apellido}
-											</data>
-										</td>
-										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-											<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
-												<data>{sr.empresas_incorporaciones.nombre_1}</data>
-											</div>
-
-											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-												<data>
-													{sr.empresas_incorporaciones.empresa_incorporacion_id}
-												</data>
-											</div>
-										</td>
-										<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											<data />
-											<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
-												<data>{sr.servicios.nombre}</data>
-											</div>
-										</td>
-										<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											<data>
-												{sr.amount &&
-													(sr.amount / 100).toLocaleString('en-US', {
-														style: 'currency',
-														currency: 'USD',
-														minimumFractionDigits: 2,
-													})}
-											</data>
-										</td>
-										<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											<div class="flex items-center">
-												{sr.status === 'succeeded' ? (
-													<>
-														<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
-														<span>Pago exitoso</span>
-													</>
-												) : (
-													<>
-														<div class="mr-2 h-2.5 w-2.5 rounded-full bg-orange-400" />
-														<span>Error de pago</span>
-													</>
-												)}
-											</div>
-										</td>
-										<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											<div class="flex items-center">
-												{sr.visto_por_operaciones === true ? (
-													<>
-														<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
-														<span>Leído</span>
-													</>
-												) : (
-													<>
-														<div class="mr-2 h-2.5 w-2.5 rounded-full bg-orange-400" />
-														<span>Sin leer</span>
-													</>
-												)}
-											</div>
-										</td>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											<div class="flex items-center">
-												{sr.created_at &&
-													new Date(sr.created_at)
-														.toLocaleDateString('es-ES', {
-															day: '2-digit',
-															month: '2-digit',
-															year: 'numeric',
-														})
-														.replace(/\//g, '-')}
-											</div>
-										</td>
-										<td class="space-x-2 p-4 text-center whitespace-nowrap">
-											<div class="flex h-full items-center justify-center gap-2">
-												{sr.visto_por_operaciones === false ? (
-													<form
-														action="/api/update/operaciones-update-lectura-de-pagos"
-														method="post"
-													>
-														<input
-															type="text"
-															value={sr.id_pagos}
-															hidden
-															name="pago_id"
-														/>
-														<input
-															type="text"
-															value="true"
-															hidden
-															name="marcar_como_visto"
-														/>
-														<button
-															type="submit"
-															title="marcar como leído"
-															data-tooltip-target={`tool-tip-${sr.id_pagos}`}
-														>
-															<Icon
-																name="ri:check-double-fill"
-																class="text-2xl text-neutral-600 hover:scale-105 dark:text-neutral-400 dark:hover:text-neutral-300"
-															/>
-														</button>
-													</form>
-												) : (
-													<div
-														data-tooltip-target={`tool-tip-${sr.id_pagos}-read`}
+													<input
+														type="text"
+														value="true"
+														hidden
+														name="marcar_como_visto"
+													/>
+													<button
+														type="submit"
+														title="marcar como leído"
+														data-tooltip-target={`tool-tip-${sr.id_pagos}`}
 													>
 														<Icon
-															name="ri:checkbox-circle-fill"
+															name="ri:check-double-fill"
 															class="text-2xl text-neutral-600 hover:scale-105 dark:text-neutral-400 dark:hover:text-neutral-300"
 														/>
-													</div>
-												)}
-
+													</button>
+												</form>
+											) : (
 												<div
-													id={`tool-tip-${sr.id_pagos}`}
-													role="tooltip"
-													class="tooltip dark:bg-black-800 invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300"
+													data-tooltip-target={`tool-tip-${sr.id_pagos}-read`}
 												>
-													Marcar como leído
-													<div class="tooltip-arrow" data-popper-arrow />
+													<Icon
+														name="ri:checkbox-circle-fill"
+														class="text-2xl text-neutral-600 hover:scale-105 dark:text-neutral-400 dark:hover:text-neutral-300"
+													/>
 												</div>
+											)}
 
-												<div
-													id={`tool-tip-${sr.id_pagos}-read`}
-													role="tooltip"
-													class="tooltip dark:bg-black-800 invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300"
-												>
-													Leído
-													<div class="tooltip-arrow" data-popper-arrow />
-												</div>
+											<div
+												id={`tool-tip-${sr.id_pagos}`}
+												role="tooltip"
+												class="tooltip dark:bg-black-800 invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300"
+											>
+												Marcar como leído
+												<div class="tooltip-arrow" data-popper-arrow />
 											</div>
-										</td>
-									</tr>
-								))
-							}
-						</tbody>
-					</table>
+
+											<div
+												id={`tool-tip-${sr.id_pagos}-read`}
+												role="tooltip"
+												class="tooltip dark:bg-black-800 invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300"
+											>
+												Leído
+												<div class="tooltip-arrow" data-popper-arrow />
+											</div>
+										</div>
+									</td>
+								</tr>
+							))
+						}
+					</DataTable>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
-<script>
-	import { DataTable } from '../../lib/simple-data-tables/simple-data-table.js';
-
-	function initDT() {
-		const el = document.querySelector('#myTable') as HTMLElement | null;
-		if (!el) return;
-		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
-			return;
-
-		new DataTable(el, {
-			searchable: true,
-			perPage: 25,
-			perPageSelect: [5, 10, 25, 50],
-
-			// Textos en español
-			labels: {
-				placeholder: 'Buscar...',
-				perPage: 'Filas',
-				noRows: 'No hay pagos realizados',
-				noResults: 'No se encontraron pagos recientes',
-				info: 'Mostrando {start} de {rows} registros',
-			},
-
-			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
-			layout: {
-				top: '{select}{search}',
-				bottom: '{info}{pager}',
-			},
-		});
-
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
-	}
-
-	initDT();
-	document.addEventListener('astro:page-load', initDT);
-</script>
