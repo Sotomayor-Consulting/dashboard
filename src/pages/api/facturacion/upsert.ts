@@ -3,7 +3,8 @@
 // Requiere autenticación. Valida que el userId del body
 // coincida con el usuario autenticado (previene suplantación).
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient, supabaseAdmin } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
+import { supabaseAdmin } from '@lib/supabase/admin';
 import { SECURITY_HEADERS } from '@lib/security/headers';
 
 export const POST: APIRoute = async ({ request, cookies }) => {

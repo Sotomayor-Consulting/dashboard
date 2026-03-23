@@ -123,6 +123,10 @@ const { class: clazz } = Astro.props;
 	import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
 
 	// ── Progress bar: feedback visual instantáneo durante navegación ──
+	const MIN_PROGRESS_VISIBLE_MS = 220;
+	let progressShownAt = 0;
+	let progressCompleteTimer: ReturnType<typeof setTimeout> | null = null;
+
 	function getProgressBar() {
 		return document.getElementById('nav-progress');
 	}
@@ -131,11 +135,16 @@ const { class: clazz } = Astro.props;
 	document.addEventListener('astro:before-preparation', () => {
 		const bar = getProgressBar();
 		if (bar) {
+			if (progressCompleteTimer) {
+				clearTimeout(progressCompleteTimer);
+				progressCompleteTimer = null;
+			}
 			bar.classList.remove('done');
 			bar.style.width = '';
 			// Forzar reflow para reiniciar la animación
 			void bar.offsetWidth;
 			bar.classList.add('loading');
+			progressShownAt = performance.now();
 		}
 	});
 
@@ -143,13 +152,20 @@ const { class: clazz } = Astro.props;
 	document.addEventListener('astro:after-swap', () => {
 		const bar = document.getElementById('nav-progress');
 		if (bar) {
-			bar.classList.remove('loading');
-			bar.classList.add('done');
-			// Limpiar después de la transición de opacidad
-			setTimeout(() => {
-				bar.classList.remove('done');
-				bar.style.width = '0%';
-			}, 350);
+			const elapsed = performance.now() - progressShownAt;
+			const waitMs = Math.max(0, MIN_PROGRESS_VISIBLE_MS - elapsed);
+
+			progressCompleteTimer = setTimeout(() => {
+				bar.classList.remove('loading');
+				bar.classList.add('done');
+				progressCompleteTimer = null;
+
+				// Limpiar después de la transición de opacidad
+				setTimeout(() => {
+					bar.classList.remove('done');
+					bar.style.width = '0%';
+				}, 350);
+			}, waitMs);
 		}
 	});
 

@@ -6,6 +6,11 @@
       "sourceType": "github",
       "computedHash": "ab44e2f297b232ff433e219664ee7df199bd8dd1dff4b8ee42408b880e8d7359"
     },
+    "docker-expert": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "e5556c606d3a64877877728f7b945bc189b694ead92ee4b76b475d4633f14d37"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
