@@ -1,10 +1,11 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
+
 import '@styles/datatables.css';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
 import { RolesGeneralUsers } from '@lib/tablas/roles';
 
-const supabase = Astro.locals.supabase
+const supabase = Astro.locals.supabase;
 const [usuarios, roles] = await Promise.all([
 	getAllUsuarios(supabase),
 	RolesGeneralUsers(supabase),
@@ -63,7 +64,7 @@ const [usuarios, roles] = await Promise.all([
 			<h1
 				class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
 			>
-				Lista de usuarios
+				Envio de notificaciones
 			</h1>
 		</div>
 	</div>
@@ -72,29 +73,27 @@ const [usuarios, roles] = await Promise.all([
 	<div class="overflow-x-auto">
 		<div class="inline-block min-w-full align-middle">
 			<div class="overflow-hidden shadow">
-				<table
-					class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600"
-					id="myTable"
-				>
+				<table class="divide-gray-200 dark:divide-gray-600" id="myTable">
 					<thead class="bg-gray-100 dark:bg-[#374151]">
 						<tr>
 							{
 								[
-									'Foto',
-									'Nombre',
-									'Compañía',
-									'Cargo',
-									'País',
-									'Estado',
-									'Rol',
-									'Acciones',
+									{ col: 'avatar', label: 'Avatar', width: '10%' },
+									{ col: 'Nombre', label: 'Nombre', width: '20%' },
+									{ col: 'Compañía', label: 'Compañía', width: '10%' },
+									{ col: 'Cargo', label: 'Cargo', width: '10%' },
+									{ col: 'País', label: 'País', width: '10%' },
+									{ col: 'Estado', label: 'Estado', width: '10%' },
+									{ col: 'Rol', label: 'Rol', width: '10%' },
+									{ col: 'Acciones', label: 'Acciones', width: '10%' },
 								].map((th) => (
 									<th
 										scope="col"
-										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
+										class="w-2 p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
+										width={th.width}
 									>
 										<span class="flex items-center uppercase">
-											{th}
+											{th.col}
 											<svg
 												class="ms-1 h-4 w-4"
 												aria-hidden="true"
@@ -119,13 +118,13 @@ const [usuarios, roles] = await Promise.all([
 						</tr>
 					</thead>
 					<tbody
-						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
+						class="dark:bg-black-800 divide-gray-200 bg-white dark:divide-gray-700"
 					>
 						{
 							usuarios?.map((user) => (
 								<div>
 									<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
-										<td class="w-4 pl-4">
+										<td style="width: 5px;">
 											{user.avatar_url === 'NULL' || !user.avatar_url ? (
 												<img
 													class="h-10 w-10 rounded-full"
@@ -210,11 +209,12 @@ const [usuarios, roles] = await Promise.all([
 										</td>
 										<td class="flex space-x-2 p-4">
 											<button
-												data-modal-target="top-right-modal"
-												data-modal-toggle="top-right-modal"
+												data-modal-target="send-email-modal"
+												data-modal-toggle="send-email-modal"
 												data-user-notification
+												data-email={user.correo}
 												data-user-id={user.user_id}
-												class="block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+												class="notify-btn block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 												type="button"
 											>
 												Enviar notificación
@@ -227,125 +227,6 @@ const [usuarios, roles] = await Promise.all([
 					</tbody>
 				</table>
 			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Top Right Modal -->
-<div
-	id="top-right-modal"
-	data-modal-placement="top-right"
-	tabindex="-1"
-	class="fixed top-0 right-0 left-0 z-50 hidden h-full w-full overflow-x-hidden overflow-y-auto p-4 md:inset-0"
->
-	<div class="relative h-full w-full max-w-2xl">
-		<!-- Modal content -->
-		<div
-			class="dark:bg-black-800 relative h-full rounded-lg bg-white shadow-sm"
-		>
-			<!-- Modal header -->
-			<div
-				class="flex items-center justify-between rounded-t border-b border-gray-200 p-4 md:p-5 dark:border-gray-600"
-			>
-				<h3 class="text-xl font-medium text-gray-900 dark:text-white">
-					Mensaje para el usuario
-				</h3>
-				<button
-					type="button"
-					class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-					data-modal-hide="top-right-modal"
-				>
-					<svg
-						class="h-3 w-3"
-						aria-hidden="true"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 14 14"
-					>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
-					</svg>
-					<span class="sr-only">Cerrar modal</span>
-				</button>
-			</div>
-			<!-- Modal body -->
-			<div class="space-y-4 p-4 md:p-5">
-				<form action="/api/update/admin-notifications-update" method="post">
-					<input
-						type="text"
-						name="user_id_modal_name"
-						id="user_id_modal"
-						hidden
-					/>
-					<div class="mb-4 grid gap-4 sm:grid-cols-2">
-						<div>
-							<label
-								for="descripcion-link-notificacion"
-								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Descripción del link</label
-							>
-							<input
-								type="text"
-								name="descripcion-link-notificacion"
-								id="descripcion-link-notificacion"
-								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
-								placeholder="Inserta el link"
-								required=""
-							/>
-						</div>
-						<div>
-							<label
-								for="link-notificacion"
-								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Link</label
-							>
-							<input
-								type="text"
-								name="link-notificacion"
-								id="link-notificacion"
-								class="dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
-								placeholder="Inserta el asunto del correo"
-								required=""
-							/>
-						</div>
-						<div class="h-full sm:col-span-2">
-							<label
-								for="mensaje-notificacion"
-								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Mensaje</label
-							>
-							<textarea
-								id="mensaje-notificacion"
-								name="mensaje-notificacion"
-								rows="28"
-								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 mb-2 block h-full w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]"
-								placeholder="Escribe un mensaje corto para el usuario"
-								required></textarea>
-						</div>
-					</div>
-					<div
-						class="flex items-center space-x-3 rounded-b border-t border-gray-200 p-4 md:p-5 rtl:space-x-reverse dark:border-gray-600"
-					>
-						<button
-							data-modal-hide="top-right-modal"
-							type="submit"
-							class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-							>Enviar notificación</button
-						>
-						<button
-							data-modal-hide="top-right-modal"
-							type="button"
-							class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
-							>Cancelar</button
-						>
-					</div>
-				</form>
-			</div>
-			<!-- Modal footer -->
 		</div>
 	</div>
 </div>
@@ -415,4 +296,21 @@ const [usuarios, roles] = await Promise.all([
 
 	initDT();
 	document.addEventListener('astro:page-load', initDT);
+</script>
+
+<script>
+	import { initModals } from 'flowbite';
+
+	initModals();
+
+	const email = document.getElementById('email') as HTMLInputElement;
+
+	document.addEventListener('click', (e) => {
+		const target = e.target as HTMLElement;
+		const btn = target.closest('.notify-btn') as HTMLButtonElement;
+
+		if (btn && email) {
+			email.value = btn.dataset.email || '';
+		}
+	});
 </script>
