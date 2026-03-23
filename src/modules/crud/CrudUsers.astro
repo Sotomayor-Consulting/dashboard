@@ -16,7 +16,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="bg-white-300 dark:bg-black-900 block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
+	class="bg-gray-50 dark:bg-black-900 block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<div class="mb-1 w-full">
 		<div class="">
@@ -187,7 +187,7 @@ const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 						{
 							usuarios?.map((user) => (
 								<div>
-									<tr class="dark:hover:bg-black-700 odd:bg-white-300 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467]">
+									<tr class="dark:hover:bg-black-700 odd:bg-gray-50 even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467]">
 										<td class="w-4 pl-4">
 											{user.avatar_url === 'NULL' || !user.avatar_url ? (
 												<Picture

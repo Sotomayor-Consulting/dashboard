@@ -157,7 +157,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							empresas?.map((empresa) => (
 								<div>
 									<tr
-										class="odd:bg-white cursor-pointer even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
+										class="odd:bg-white cursor-pointer even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
 										onclick={`window.open('/crud/empresa/${empresa.empresa_incorporacion_id}', '_blank')`}
 									>
 										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
