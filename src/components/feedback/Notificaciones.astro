@@ -1,8 +1,6 @@
 ---
-import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import '@styles/datatables.css';
-import logonotificaciones from '/src/assets/avatarSCI.png';
 import Alerta from '@components/feedback/alertageneral.astro';
 import { getNotificacionesGeneralPorId } from '@lib/tablas/notificaciones';
 
@@ -442,7 +440,7 @@ const notificaciones = userId
 				perPage: 'Filas',
 				noRows: 'No hay notificaciones aún.',
 				noResults: 'No se encontraron resultados',
-				info: 'Mostrando {start} a {end} de {rows} registros',
+				info: 'Mostrando {start} de {rows} registros',
 			},
 
 			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)

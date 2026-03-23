@@ -2,7 +2,7 @@
 import PictureUploader from '@components/forms/PictureUploader.astro';
 
 interface Props {
-	email?: string;
+	email?: string | undefined;
 	promoteHref?: string;
 	referralAction?: string;
 }
@@ -31,7 +31,7 @@ const {
 		<h3 class="mb-4 text-xl font-semibold dark:text-white">Rol de cuenta</h3>
 		<div class="mb-4">
 			<p
-				class="bg-white block w-full cursor-not-allowed rounded-lg border border-gray-300 p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-[#101521] dark:text-white"
+				class="block w-full cursor-not-allowed rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-[#101521] dark:text-white"
 			>
 				{email}
 			</p>
@@ -59,7 +59,7 @@ const {
 				<input
 					type="text"
 					name="code"
-					class="bg-white block w-full rounded-lg border border-gray-300 p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:bg-[#101521] dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
+					class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:bg-[#101521] dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 					placeholder="Ejemplo: 9F2A7C4B"
 				/>
 			</div>

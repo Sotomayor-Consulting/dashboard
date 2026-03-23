@@ -41,7 +41,7 @@ export class AuthService {
 	constructor(
 		private readonly supabase: SupabaseClient,
 		_cookies?: AstroCookies,
-	) {}
+	) { }
 
 	// ─── Email/Password Auth ────────────────────────────────
 
@@ -102,6 +102,12 @@ export class AuthService {
 		});
 
 		if (error) {
+			console.error('[AuthService.register] Supabase error original:', {
+				message: error.message,
+				code: error.code,
+				status: error.status,
+				name: error.name,
+			});
 			throw new AuthError(friendlyAuthError(error.message, error.code));
 		}
 
@@ -215,7 +221,6 @@ export class AuthService {
 	/**
 	 * Obtiene el usuario autenticado actual desde la sesión.
 	 * Retorna null si no hay sesión válida.
-	 * Usa getUser() - hace verificación HTTP al servidor de auth.
 	 */
 	async getCurrentUser(): Promise<AuthUser | null> {
 		const { data, error } = await this.supabase.auth.getUser();
@@ -225,21 +230,6 @@ export class AuthService {
 		}
 
 		return mapSupabaseUser(data.user);
-	}
-
-	/**
-	 * Obtiene el usuario desde la sesión local (cookies).
-	 * Más rápido que getUser() - verifica el JWT localmente sin llamada HTTP.
-	 * Similar a getClaims() del middleware.
-	 */
-	async getCurrentUserFromCookie(): Promise<AuthUser | null> {
-		const { data, error } = await this.supabase.auth.getSession();
-
-		if (error || !data.session) {
-			return null;
-		}
-
-		return mapSupabaseUser(data.session.user);
 	}
 
 	/**
@@ -258,52 +248,18 @@ export class AuthService {
 	}
 
 	/**
-	 * Verifica la sesión desde cookies (local).
-	 * Usa getClaims() - mismo método que el middleware.
-	 */
-	async checkSessionFromCookie(): Promise<{
-		isAuthenticated: boolean;
-		user: AuthUser | null;
-	}> {
-		const { data, error } = await this.supabase.auth.getClaims();
-
-		if (error || !data?.claims) {
-			return { isAuthenticated: false, user: null };
-		}
-
-		const claims = data.claims;
-		const user: AuthUser = {
-			id: claims.sub,
-			email: claims.email ?? '',
-			name: claims.user_metadata?.nombre ?? claims.user_metadata?.name ?? '',
-			lastName:
-				claims.user_metadata?.apellido ?? claims.user_metadata?.lastName ?? '',
-			createdAt: claims.iat
-				? new Date(claims.iat * 1000).toISOString()
-				: new Date().toISOString(),
-		};
-
-		return { isAuthenticated: true, user };
-	}
-
-	/**
 	 * Obtiene el access token actual (para uso con APIs externas como SurveyJS).
 	 * Primero valida el usuario server-side con getUser(), luego obtiene el token.
 	 */
 	async getAccessToken(): Promise<string | undefined> {
 		// 1. SIEMPRE validar primero con getUser() (server-verified)
-		const {
-			data: { user },
-			error,
-		} = await this.supabase.auth.getUser();
+		const { data: { user }, error } = await this.supabase.auth.getUser();
 		if (error || !user) return undefined;
 		// 2. getSession() aquí es seguro porque:
 		//    - getUser() ya verificó la autenticidad del usuario
 		//    - Solo necesitamos el access_token para APIs externas (SurveyJS)
 		//    - El token fue refrescado por getUser() si estaba expirado
-		const {
-			data: { session },
-		} = await this.supabase.auth.getSession();
+		const { data: { session } } = await this.supabase.auth.getSession();
 		return session?.access_token;
 	}
 
@@ -352,8 +308,13 @@ export class AuthService {
 		});
 
 		if (error) {
-			console.error('[AuthService.resetPassword] Error:', error.message);
-			throw new AuthError(friendlyAuthError(error.message, error.code));
+			console.error(
+				'[AuthService.resetPassword] Error:',
+				error.message,
+			);
+			throw new AuthError(
+				friendlyAuthError(error.message, error.code),
+			);
 		}
 	}
 
