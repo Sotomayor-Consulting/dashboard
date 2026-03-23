@@ -191,5 +191,18 @@ const { class: clazz } = Astro.props;
 </script>
 <script>
 	import { initFlowbite } from 'flowbite';
-	initFlowbite();
+
+	function bootFlowbite() {
+		initFlowbite();
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', bootFlowbite, {
+			once: true,
+		});
+	} else {
+		bootFlowbite();
+	}
+
+	document.addEventListener('astro:page-load', bootFlowbite);
 </script>

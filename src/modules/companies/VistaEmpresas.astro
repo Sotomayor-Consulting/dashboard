@@ -579,16 +579,17 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 									</li>
 								) : (
 									<li role="presentation">
-										<button
-											id={i.id}
-											data-tabs-target={`#${i.tabs}`}
-											type="button"
-											role="tab"
-											x-model="tabManager"
-											x-show="formadeAdministracion === 'Member-Managed'"
-											aria-controls={i.tabs}
-											aria-selected="false"
-											class="flex w-full items-center gap-2 rounded-lg p-4"
+									<button
+										id={i.id}
+										data-tabs-target={`#${i.tabs}`}
+										type="button"
+										role="tab"
+										x-model="tabManager"
+										x-cloak
+										x-show="formadeAdministracion === 'Member-Managed'"
+										aria-controls={i.tabs}
+										aria-selected="false"
+										class="flex w-full items-center gap-2 rounded-lg p-4"
 										>
 											<Icon name={i.icono} class="text-lg" />
 											{i.label}
@@ -1946,6 +1947,7 @@ const esMember_Managed = empresa?.forma_administracion === 'Member-Managed';
 						</template>
 						<div
 							class="col-span-6 sm:col-span-3"
+							x-cloak
 							x-show="managerMiembro === 'Si' || managerMiembro === 'No'"
 							x-transition
 						>

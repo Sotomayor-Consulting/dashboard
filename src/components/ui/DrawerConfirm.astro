@@ -1,0 +1,115 @@
+---
+/**
+ * Drawer de confirmacion (archivar/desarchivar/eliminar).
+ * Muestra un icono, mensaje y botones Si/No.
+ *
+ * Uso:
+ * <DrawerConfirm
+ *   id="drawer-delete"
+ *   title="Archivar servicio"
+ *   message="¿Estas seguro de querer archivar este servicio?"
+ *   action="/api/update/admin-services-delete"
+ *   formId="archivar_form"
+ *   variant="danger"
+ * >
+ *   <input type="hidden" name="servicio_id" id="servicio_id" />
+ * </DrawerConfirm>
+ */
+import Drawer from './Drawer.astro';
+
+interface Props {
+	/** ID unico del drawer */
+	id: string;
+	/** Titulo del drawer */
+	title: string;
+	/** Mensaje de confirmacion */
+	message: string;
+	/** URL del action del form */
+	action: string;
+	/** ID del form */
+	formId: string;
+	/** HTTP method. Default: 'post' */
+	method?: string;
+	/** Variante visual: 'danger' (rojo) o 'success' (verde). Default: 'danger' */
+	variant?: 'danger' | 'success';
+	/** Texto del boton confirmar. Default: 'Si, estoy seguro' */
+	confirmLabel?: string;
+	/** Texto del boton cancelar. Default: 'No, cancelar' */
+	cancelLabel?: string;
+}
+
+const {
+	id,
+	title,
+	message,
+	action,
+	formId,
+	method = 'post',
+	variant = 'danger',
+	confirmLabel = 'Si, estoy seguro',
+	cancelLabel = 'No, cancelar',
+} = Astro.props;
+
+const isDanger = variant === 'danger';
+const iconClass = isDanger ? 'text-red-600' : 'text-emerald-500';
+const btnClass = isDanger
+	? 'bg-red-600 hover:bg-red-800 focus:ring-red-300 dark:focus:ring-red-900'
+	: 'bg-emerald-500 hover:bg-emerald-700 focus:ring-emerald-300 dark:focus:ring-emerald-500';
+---
+
+<Drawer id={id} title={title} maxWidth="max-w-xs">
+	{
+		isDanger ? (
+			<svg
+				class:list={['mt-8 mb-4 h-10 w-10', iconClass]}
+				fill="none"
+				stroke="currentColor"
+				viewBox="0 0 24 24"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+				/>
+			</svg>
+		) : (
+			<svg
+				class:list={['mt-8 mb-4 h-10 w-10', iconClass]}
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 24 24"
+			>
+				<path
+					fill="currentColor"
+					fill-rule="evenodd"
+					d="M12 21a9 9 0 0 0 7.51-13.961l-7.155 7.95a2 2 0 0 1-2.687.262L6.4 12.8a1 1 0 0 1 1.2-1.6l3.268 2.451l7.346-8.161A9 9 0 1 0 12 21"
+					clip-rule="evenodd"
+				/>
+			</svg>
+		)
+	}
+	<h3 class="mb-6 text-lg text-gray-500 dark:text-gray-400">
+		{message}
+	</h3>
+	<form action={action} id={formId} method={method} class="flex">
+		<slot />
+		<button
+			type="submit"
+			class:list={[
+				'mr-2 inline-flex items-center rounded-lg px-3 py-2.5 text-center text-sm font-medium text-white',
+				btnClass,
+			]}
+		>
+			{confirmLabel}
+		</button>
+		<button
+			class="focus:ring-primary-300 dark:bg-black-800 inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
+			type="button"
+			data-drawer-dismiss={id}
+			aria-controls={id}
+		>
+			{cancelLabel}
+		</button>
+	</form>
+</Drawer>
