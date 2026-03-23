@@ -14,3 +14,16 @@ export const ListaDeMicroServiciosActivos = async (
 
 	return data;
 };
+
+export const serviciosExtras = async (
+	supabase: SupabaseClient,
+) => {
+	const { data, error } = await supabase.from('servicio_extra').select('*').eq('estado', 'Activo')
+		.order('created_at', { ascending: false });
+	if (error) {
+		console.error('Error fechicg servicios Extras', error);
+		throw error;
+
+	}
+	return data;
+}

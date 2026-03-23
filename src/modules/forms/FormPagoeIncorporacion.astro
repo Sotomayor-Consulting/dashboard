@@ -50,7 +50,7 @@ const opcionesllc =
 				<select
 					name="empresa"
 					id="empresa-select"
-					class="bg-gray-50 dark:bg-black-800 mb-5 block w-full rounded-lg border-neutral-600 px-4 py-3 pe-9 text-sm focus:border-[#8c681d] focus:ring-[#8c681d] disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+					class="dark:bg-black-800 mb-5 block w-full rounded-lg border-neutral-600 bg-gray-50 px-4 py-3 pe-9 text-sm focus:border-[#8c681d] focus:ring-[#8c681d] disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
 				>
 					{
 						empresas?.map((empresa) => (
@@ -98,6 +98,7 @@ const opcionesllc =
 									class="peer hidden"
 									required
 									data-price={planBasico.precio}
+									data-servicio={planBasico.etiqueta}
 								/>
 								<label
 									for={planBasico.id_servicios}
@@ -146,6 +147,7 @@ const opcionesllc =
 									required
 									checked
 									data-price={planBusiness.precio}
+									data-servicio={planBusiness.etiqueta}
 								/>
 								<label
 									for={planBusiness.id_servicios}
@@ -173,48 +175,31 @@ const opcionesllc =
 												estándar, más:
 											</span>
 										</li>
-										<li class="flex gap-x-2">
-											<svg
-												class="mt-0.5 size-4 shrink-0 text-[#8c681d]"
-												viewBox="0 0 24 24"
-												fill="currentColor"
-												clip-rule="evenodd"
-												fill-rule="evenodd"
-											>
-												<>
-													<title />
-													<path
-														d="m12 17.275l-4.15 2.5q-.275.175-.575.15t-.525-.2t-.35-.437t-.05-.588l1.1-4.725L3.775 10.8q-.25-.225-.312-.513t.037-.562t.3-.45t.55-.225l4.85-.425l1.875-4.45q.125-.3.388-.45t.537-.15t.537.15t.388.45l1.875 4.45l4.85.425q.35.05.55.225t.3.45t.038.563t-.313.512l-3.675 3.175l1.1 4.725q.075.325-.05.588t-.35.437t-.525.2t-.575-.15z"
-														class=""
-													/>
-												</>
-											</svg>
-											<span class="text-left text-gray-800 dark:text-neutral-400">
-												Planificación y diseño de LLC
-											</span>
-										</li>
-
-										<li class="flex gap-x-2">
-											<svg
-												class="mt-0.5 size-4 shrink-0 text-[#8c681d]"
-												viewBox="0 0 16 16"
-												fill="currentColor"
-												clip-rule="evenodd"
-												fill-rule="evenodd"
-											>
-												<>
-													<title />
-													<path
-														d="M7.194 2.101a.9.9 0 0 1 1.614 0l1.521 3.082l3.401.495a.9.9 0 0 1 .5 1.535l-2.462 2.399l.581 3.387a.9.9 0 0 1-1.306.949l-3.042-1.6l-3.042 1.6a.9.9 0 0 1-1.306-.949l.58-3.387l-2.46-2.4a.9.9 0 0 1 .499-1.534l3.4-.495zM8 2.726L6.546 5.673a.9.9 0 0 1-.677.492l-3.253.473L4.97 8.932a.9.9 0 0 1 .258.797l-.555 3.24l2.91-1.53a.9.9 0 0 1 .837 0l2.91 1.53l-.556-3.24a.9.9 0 0 1 .258-.797l2.354-2.294l-3.253-.473a.9.9 0 0 1-.677-.492z"
-														class=""
-													/>
-												</>
-											</svg>
-											<span class="text-left text-gray-800 dark:text-neutral-400">
-												Servicio de acompañamiento para abrir tu cuenta bancaria
-												Online.
-											</span>
-										</li>
+										{[
+											{
+												label: 'Planificación y diseño legal - tributario.',
+												icono: 'ri:star-s-fill',
+											},
+											{
+												label:
+													'Acompañamiento bancario (Mercury o Relay + Stripe).',
+												icono: 'ri:star-line',
+											},
+											{
+												label: 'EIN acelerado.',
+												icono: 'ri:star-line',
+											},
+										].map((li) => (
+											<li class="flex gap-x-2">
+												<Icon
+													name={li.icono}
+													class="mt-0.5 size-4 shrink-0 text-[#8c681d]"
+												/>
+												<span class="text-left text-gray-800 dark:text-neutral-400">
+													{li.label}
+												</span>
+											</li>
+										))}
 									</ul>
 								</label>
 							</div>
@@ -232,6 +217,7 @@ const opcionesllc =
 									class="peer hidden"
 									required
 									data-price={planEstandar.precio}
+									data-servicio={planEstandar.etiqueta}
 								/>
 								<label
 									for={planEstandar.id_servicios}
@@ -290,6 +276,7 @@ const opcionesllc =
 									class="peer hidden"
 									required
 									data-price={planDiseno.precio}
+									data-servicio={planDiseno.etiqueta}
 								/>
 								<label
 									for={planDiseno.id_servicios}
@@ -448,234 +435,247 @@ const opcionesllc =
 						data-active-classes="bg-white dark:bg-black-900 text-gray-900 dark:text-white"
 						data-inactive-classes="text-neutral-500 dark:text-gray-400"
 					>
-						<h2 id="accordion-collapse-heading-1">
-							<button
-								type="button"
-								class="dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400"
-								data-accordion-target="#accordion-collapse-body-1"
-								aria-expanded="true"
-								aria-controls="accordion-collapse-body-1"
-							>
-								<span>Servicios populares</span>
-								<svg
-									data-accordion-icon
-									class="h-3 w-3 shrink-0 rotate-180"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 10 6"
-								>
-									<path
-										stroke="currentColor"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M9 5 5 1 1 5"></path>
-								</svg>
-							</button>
-						</h2>
-						<div
-							id="accordion-collapse-body-1"
-							class="hidden"
-							aria-labelledby="accordion-collapse-heading-1"
-						>
-							<div
-								class="dark:bg-black-900 bg-gray-50 rounded-xl border border-gray-200 p-5 dark:border-gray-700"
-							>
-								<ul class="grid w-full gap-6 md:grid-cols-3">
-									{
-										opcionesPopulares.map((opciones) => (
-											<li>
-												<input
-													type="checkbox"
-													id={`opcion-popular-${opciones.id_micro_servicios}`}
-													value={opciones.precio}
-													data-price={opciones.precio}
-													data-id={opciones.id_micro_servicios}
-													data-name={opciones.nombre}
-													class="peer microservicio-checkbox hidden"
+						{
+							opcionesPopulares && opcionesPopulares.length > 0 && (
+								<>
+									<h2 id="accordion-collapse-heading-1">
+										<button
+											type="button"
+											class="dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400"
+											data-accordion-target="#accordion-collapse-body-1"
+											aria-expanded="true"
+											aria-controls="accordion-collapse-body-1"
+										>
+											<span>Servicios populares</span>
+											<svg
+												data-accordion-icon
+												class="h-3 w-3 shrink-0 rotate-180"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												fill="none"
+												viewBox="0 0 10 6"
+											>
+												<path
+													stroke="currentColor"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M9 5 5 1 1 5"
 												/>
-												<label
-													for={`opcion-popular-${opciones.id_micro_servicios}`}
-													class="dark:bg-black-800 peer-checked:bg-gray-50 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-												>
-													<div class="block w-full">
-														<div class="flex w-full items-center justify-between">
-															<Icon
-																name={opciones.icono}
-																class="mb-2 h-7 w-7 text-neutral-700 dark:text-white"
-															/>
-															<div class="text-lg font-semibold">
-																{opciones.precio}$
-															</div>
-														</div>
+											</svg>
+										</button>
+									</h2>
+									<div
+										id="accordion-collapse-body-1"
+										class="hidden"
+										aria-labelledby="accordion-collapse-heading-1"
+									>
+										<div class="dark:bg-black-900 rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700">
+											<ul class="grid w-full gap-6 md:grid-cols-3">
+												{opcionesPopulares.map((opciones) => (
+													<li>
+														<input
+															type="checkbox"
+															id={`opcion-popular-${opciones.id_micro_servicios}`}
+															value={opciones.precio}
+															data-price={opciones.precio}
+															data-id={opciones.id_micro_servicios}
+															data-name={opciones.nombre}
+															data-servicio={opciones.etiqueta}
+															class="peer microservicio-checkbox hidden"
+														/>
+														<label
+															for={`opcion-popular-${opciones.id_micro_servicios}`}
+															class="dark:bg-black-800 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:bg-gray-50 peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+														>
+															<div class="block w-full">
+																<div class="flex w-full items-center justify-between">
+																	<Icon
+																		name={opciones.icono}
+																		class="mb-2 h-7 w-7 text-neutral-700 dark:text-white"
+																	/>
+																	<div class="text-lg font-semibold">
+																		{opciones.precio}$
+																	</div>
+																</div>
 
-														<div class="w-full text-lg font-semibold">
-															{opciones.nombre}
-														</div>
-														<div class="w-full text-sm">
-															{opciones.descripcion}
-														</div>
-													</div>
-												</label>
-											</li>
-										))
-									}
-								</ul>
-							</div>
-						</div>
-						<h2 id="accordion-collapse-heading-2">
-							<button
-								type="button"
-								class="dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400"
-								data-accordion-target="#accordion-collapse-body-2"
-								aria-expanded="false"
-								aria-controls="accordion-collapse-body-2"
-							>
-								<span>Microservicios LLC</span>
-								<svg
-									data-accordion-icon
-									class="h-3 w-3 shrink-0 rotate-180"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 10 6"
-								>
-									<path
-										stroke="currentColor"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M9 5 5 1 1 5"></path>
-								</svg>
-							</button>
-						</h2>
-						<div
-							id="accordion-collapse-body-2"
-							class="hidden"
-							aria-labelledby="accordion-collapse-heading-2"
-						>
-							<div
-								class="dark:bg-black-900 bg-gray-50 rounded-xl border border-gray-200 p-5 dark:border-gray-700"
-							>
-								<ul class="grid w-full gap-6 md:grid-cols-3">
-									{
-										opcionesllc.map((opciones) => (
-											<li>
-												<input
-													type="checkbox"
-													id={`opcion-llc-${opciones.id_micro_servicios}`}
-													value={opciones.precio}
-													data-price={opciones.precio}
-													data-id={opciones.id_micro_servicios}
-													data-name={opciones.nombre}
-													class="peer microservicio-checkbox hidden"
+																<div class="w-full text-lg font-semibold">
+																	{opciones.nombre}
+																</div>
+																<div class="w-full text-sm">
+																	{opciones.descripcion}
+																</div>
+															</div>
+														</label>
+													</li>
+												))}
+											</ul>
+										</div>
+									</div>
+								</>
+							)
+						}
+
+						{
+							opcionesllc && opcionesllc.length > 0 && (
+								<>
+									<h2 id="accordion-collapse-heading-2">
+										<button
+											type="button"
+											class="dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400"
+											data-accordion-target="#accordion-collapse-body-2"
+											aria-expanded="false"
+											aria-controls="accordion-collapse-body-2"
+										>
+											<span>Microservicios LLC</span>
+											<svg
+												data-accordion-icon
+												class="h-3 w-3 shrink-0 rotate-180"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												fill="none"
+												viewBox="0 0 10 6"
+											>
+												<path
+													stroke="currentColor"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M9 5 5 1 1 5"
 												/>
-												<label
-													for={`opcion-llc-${opciones.id_micro_servicios}`}
-													class="dark:bg-black-800 peer-checked:bg-gray-50 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-												>
-													<div class="block w-full">
-														<div class="flex w-full items-center justify-between">
-															<Icon
-																name={opciones.icono}
-																class="mb-2 h-7 w-7 text-neutral-700 dark:text-white"
-															/>
-															<div class="text-lg font-semibold">
-																{opciones.precio}$
-															</div>
-														</div>
+											</svg>
+										</button>
+									</h2>
+									<div
+										id="accordion-collapse-body-2"
+										class="hidden"
+										aria-labelledby="accordion-collapse-heading-2"
+									>
+										<div class="dark:bg-black-900 rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700">
+											<ul class="grid w-full gap-6 md:grid-cols-3">
+												{opcionesllc.map((opciones) => (
+													<li>
+														<input
+															type="checkbox"
+															id={`opcion-llc-${opciones.id_micro_servicios}`}
+															value={opciones.precio}
+															data-price={opciones.precio}
+															data-id={opciones.id_micro_servicios}
+															data-name={opciones.nombre}
+															data-servicio={opciones.etiqueta}
+															class="peer microservicio-checkbox hidden"
+														/>
+														<label
+															for={`opcion-llc-${opciones.id_micro_servicios}`}
+															class="dark:bg-black-800 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:bg-gray-50 peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+														>
+															<div class="block w-full">
+																<div class="flex w-full items-center justify-between">
+																	<Icon
+																		name={opciones.icono}
+																		class="mb-2 h-7 w-7 text-neutral-700 dark:text-white"
+																	/>
+																	<div class="text-lg font-semibold">
+																		{opciones.precio}$
+																	</div>
+																</div>
 
-														<div class="w-full text-lg font-semibold">
-															{opciones.nombre}
-														</div>
-														<div class="w-full text-sm">
-															{opciones.descripcion}
-														</div>
-													</div>
-												</label>
-											</li>
-										))
-									}
-								</ul>
-							</div>
-						</div>
-						<h2 id="accordion-collapse-heading-3">
-							<button
-								type="button"
-								class="dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400"
-								data-accordion-target="#accordion-collapse-body-3"
-								aria-expanded="false"
-								aria-controls="accordion-collapse-body-3"
-							>
-								<span>Tecnologia</span>
-								<svg
-									data-accordion-icon
-									class="h-3 w-3 shrink-0 rotate-180"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 10 6"
-								>
-									<path
-										stroke="currentColor"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M9 5 5 1 1 5"></path>
-								</svg>
-							</button>
-						</h2>
-						<div
-							id="accordion-collapse-body-3"
-							class="hidden"
-							aria-labelledby="accordion-collapse-heading-3"
-						>
-							<div
-								class="dark:bg-black-900 bg-gray-50 rounded-xl border border-gray-200 p-5 dark:border-gray-700"
-							>
-								<ul class="grid w-full gap-6 md:grid-cols-3">
-									{
-										opcionestec.map((opciones) => (
-											<li>
-												<input
-													type="checkbox"
-													id={`opcion-tec-${opciones.id_micro_servicios}`}
-													value={opciones.precio}
-													data-price={opciones.precio}
-													data-id={opciones.id_micro_servicios}
-													data-name={opciones.nombre}
-													class="peer microservicio-checkbox hidden"
+																<div class="w-full text-lg font-semibold">
+																	{opciones.nombre}
+																</div>
+																<div class="w-full text-sm">
+																	{opciones.descripcion}
+																</div>
+															</div>
+														</label>
+													</li>
+												))}
+											</ul>
+										</div>
+									</div>
+								</>
+							)
+						}
+						{
+							opcionestec && opcionestec.length > 0 && (
+								<>
+									<h2 id="accordion-collapse-heading-3">
+										<button
+											type="button"
+											class="dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-5 font-medium text-neutral-700 hover:bg-neutral-100 rtl:text-right dark:border-gray-700 dark:text-neutral-400"
+											data-accordion-target="#accordion-collapse-body-3"
+											aria-expanded="false"
+											aria-controls="accordion-collapse-body-3"
+										>
+											<span>Tecnologia</span>
+											<svg
+												data-accordion-icon
+												class="h-3 w-3 shrink-0 rotate-180"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												fill="none"
+												viewBox="0 0 10 6"
+											>
+												<path
+													stroke="currentColor"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M9 5 5 1 1 5"
 												/>
-												<label
-													for={`opcion-tec-${opciones.id_micro_servicios}`}
-													class="dark:bg-black-800 peer-checked:bg-gray-50 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-												>
-													<div class="block w-full">
-														<div class="flex w-full items-center justify-between">
-															<Icon
-																name={opciones.icono}
-																class="mb-2 h-7 w-7 text-neutral-700 dark:text-white"
-															/>
-															<div class="text-lg font-semibold">
-																{opciones.precio}$
-															</div>
-														</div>
+											</svg>
+										</button>
+									</h2>
+									<div
+										id="accordion-collapse-body-3"
+										class="hidden"
+										aria-labelledby="accordion-collapse-heading-3"
+									>
+										<div class="dark:bg-black-900 rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700">
+											<ul class="grid w-full gap-6 md:grid-cols-3">
+												{opcionestec.map((opciones) => (
+													<li>
+														<input
+															type="checkbox"
+															id={`opcion-tec-${opciones.id_micro_servicios}`}
+															value={opciones.precio}
+															data-price={opciones.precio}
+															data-id={opciones.id_micro_servicios}
+															data-name={opciones.nombre}
+															data-servicio={opciones.etiqueta}
+															class="peer microservicio-checkbox hidden"
+														/>
+														<label
+															for={`opcion-tec-${opciones.id_micro_servicios}`}
+															class="dark:bg-black-800 inline-flex h-full w-full cursor-pointer items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-5 text-gray-500 peer-checked:border-[#8c681d] peer-checked:bg-gray-50 peer-checked:text-gray-600 hover:bg-gray-50 hover:text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:peer-checked:border-[#8c681d] peer-checked:dark:bg-[#224c69] dark:peer-checked:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+														>
+															<div class="block w-full">
+																<div class="flex w-full items-center justify-between">
+																	<Icon
+																		name={opciones.icono}
+																		class="mb-2 h-7 w-7 text-neutral-700 dark:text-white"
+																	/>
+																	<div class="text-lg font-semibold">
+																		{opciones.precio}$
+																	</div>
+																</div>
 
-														<div class="w-full text-lg font-semibold">
-															{opciones.nombre}
-														</div>
-														<div class="w-full text-sm">
-															{opciones.descripcion}
-														</div>
-													</div>
-												</label>
-											</li>
-										))
-									}
-								</ul>
-							</div>
-						</div>
+																<div class="w-full text-lg font-semibold">
+																	{opciones.nombre}
+																</div>
+																<div class="w-full text-sm">
+																	{opciones.descripcion}
+																</div>
+															</div>
+														</label>
+													</li>
+												))}
+											</ul>
+										</div>
+									</div>
+								</>
+							)
+						}
 					</div>
 				</div>
 				<div
@@ -756,7 +756,7 @@ const opcionesllc =
 						<button
 							type="button"
 							id="btn-back"
-							class="dark:bg-black-900 mt-2 inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-neutral-200"
+							class="dark:bg-black-900 mt-2 inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-700"
 						>
 							Volver a elegir plan
 						</button>
@@ -937,6 +937,50 @@ const opcionesllc =
 				}
 			});
 		});
+
+		// Filtrar opciones LLC según el plan seleccionado
+		function filterOpcionesLLC() {
+			const selectedPlan = document.querySelector('input[name="plan"]:checked');
+			const planEtiqueta = (selectedPlan?.dataset.servicio || '').trim();
+			const planLower = planEtiqueta.toLowerCase();
+
+			microservicioCheckboxes.forEach((checkbox) => {
+				const checkboxEtiqueta = (checkbox.dataset.servicio || '')
+					.trim()
+					.toLowerCase();
+				const wrapper = checkbox.closest('li');
+				let ocultar = false;
+
+				if (planLower === 'business') {
+					ocultar = ['basico', 'estandar', 'upgrade', 'business'].includes(
+						checkboxEtiqueta,
+					);
+				} else if (planLower === 'estandar') {
+					ocultar = ['basico', 'estandar'].includes(checkboxEtiqueta);
+				} else if (planLower === 'basico') {
+					ocultar = checkboxEtiqueta === 'basico';
+				}
+
+				if (ocultar) {
+					if (!wrapper.classList.contains('hidden')) {
+						checkbox.checked = false;
+					}
+					wrapper.classList.add('hidden');
+				} else {
+					wrapper.classList.remove('hidden');
+				}
+			});
+		}
+
+		// Event listener para cambios de plan
+		document.querySelectorAll('input[name="plan"]').forEach((radio) => {
+			radio.addEventListener('change', filterOpcionesLLC);
+		});
+
+		// Aplicar filtro inicial si hay un plan seleccionado por defecto
+		if (document.querySelector('input[name="plan"]:checked')) {
+			filterOpcionesLLC();
+		}
 
 		// Helpers selección plan/empresa
 		function getSelectedPlan() {

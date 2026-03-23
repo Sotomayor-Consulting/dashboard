@@ -15,7 +15,7 @@ const { empresaId } = Astro.props;
 const { id } = Astro.params;
 const user = Astro.locals.user;
 const userId = user?.id;
-const supabase = Astro.locals.supabase
+const supabase = Astro.locals.supabase;
 
 if (!id || !userId) {
 	return Astro.redirect('/');
@@ -30,7 +30,10 @@ const [empresa, folderPath, porfirmar] = await Promise.all([
 // Obtener estado de incorporación para el mapa
 let estadoMapa = null;
 if (empresa.estado_de_incorporacion) {
-	const estadoData = await getEstadoPorEmpresa(supabase, empresa.estado_de_incorporacion);
+	const estadoData = await getEstadoPorEmpresa(
+		supabase,
+		empresa.estado_de_incorporacion,
+	);
 
 	if (estadoData) {
 		estadoMapa = estadoData.Estado;
@@ -388,7 +391,7 @@ if (empresa.estado_de_incorporacion) {
 										<a href={a.link}>
 											<label
 												for="job-1"
-												class="text-body dark:bg-black-700 bg-white border-default rounded-base peer-checked:hover:bg-brand-softer peer-checked:border-brand-subtle peer-checked:bg-brand-softer hover:bg-neutral-secondary-medium peer-checked:text-fg-brand-strong inline-flex w-full cursor-pointer items-center border p-5"
+												class="text-body dark:bg-black-700 border-default rounded-base peer-checked:hover:bg-brand-softer peer-checked:border-brand-subtle peer-checked:bg-brand-softer hover:bg-neutral-secondary-medium peer-checked:text-fg-brand-strong inline-flex w-full cursor-pointer items-center border bg-white p-5"
 											>
 												<div class="bg-brand-soft dark:text-fg-brand-strong flex h-9 w-9 items-center justify-center rounded text-[#8c681d]">
 													<Icon name={a.icono} class="text-lg" />
@@ -478,7 +481,7 @@ if (empresa.estado_de_incorporacion) {
 							<tbody class="dark:bg-black-800 bg-white-50">
 								{
 									folderPath.map((archivos) => (
-										<tr class="odd:bg-white cursor-pointer even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+										<tr class="cursor-pointer odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
 											<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-900 dark:text-white">
 												<span class="font-semibold">{archivos.name}</span>
 											</td>
@@ -650,7 +653,7 @@ if (empresa.estado_de_incorporacion) {
 				perPage: 'Filas',
 				noRows: 'No hay documentos de tu empresa',
 				noResults: 'No se encontraron resultados',
-				info: 'Mostrando {start} a {end} de {rows} registros',
+				info: 'Mostrando {start} de {rows} registros',
 			},
 
 			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
