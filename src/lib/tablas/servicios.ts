@@ -18,12 +18,7 @@ export const ListaServiciosStripe = async (supabase: SupabaseClient) => {
 		.from('servicios')
 		.select(
 			`
-		id_servicios,
-		nombre,
-		precio,
-		descripcion,
-		categoria,
-		servicio_activo
+		*
 	`,
 		)
 		.eq('servicio_activo', true)

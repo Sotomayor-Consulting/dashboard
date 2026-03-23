@@ -1,27 +1,9 @@
 ---
+import { serviciosExtras } from '@lib/tablas/microservicios';
+import { Image } from 'astro:assets';
+
 const supabase = Astro.locals.supabase;
-
-const { data: servicios, error: serviciosErr } = await supabase
-	.from('servicio_extra')
-	.select(
-		`
-		id,
-		servicio_ex_id,
-		nombre,
-		link,
-		link_imagen,
-		descripcion,
-		estado,
-		categoria,
-		created_at
-	`,
-	)
-	.eq('estado', 'Activo')
-	.order('created_at', { ascending: false });
-
-if (serviciosErr) {
-	console.error('Error cargando servicios:', serviciosErr);
-}
+const servicios = await serviciosExtras(supabase);
 ---
 
 <div class="mx-4 my-6">
@@ -38,8 +20,9 @@ if (serviciosErr) {
 			<a class="h-full" id={sr.servicio_ex_id} href={sr.link} target="_blank">
 				<div class="bg-surface-100 h-full overflow-hidden rounded-lg border border-neutral-600 shadow-sm dark:text-white">
 					<div class="bg-surface-400 relative flex h-24 w-full items-center justify-center overflow-hidden rounded-t-md">
-						<img
+						<Image
 							alt="Cron integration"
+							inferSize={true}
 							loading="lazy"
 							decoding="async"
 							data-nimg="fill"

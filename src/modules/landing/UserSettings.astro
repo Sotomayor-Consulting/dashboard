@@ -2,33 +2,20 @@
 import PersonalInfoForm from './components/PersonalInfoForm.astro';
 import UserAccountPanel from './components/UserAccountPanel.astro';
 import BillingForm from './components/BillingForm.astro';
+import { getUsuarioById } from '@lib/tablas/usuarios';
+import { PaisesGeneral } from '@lib/tablas/paises';
+import { FacturacionbyId } from '@lib/tablas/facturacion';
 
 // Auth handled by middleware
 const user = Astro.locals.user;
+const userId = user?.id ?? '';
 const supabase = Astro.locals.supabase;
 
-let testRow = null;
-if (user) {
-	const { data } = await supabase
-		.from('usuarios')
-		.select(
-			'nombre, apellido, pais_id, ciudad, direccion_linea1, direccion_linea2, telf, fecha_nacimiento, organizacion, cargo, departamento, codigo_postal, tipo_identificacion, numero_de_identificacion, tipo_persona, user_id',
-		)
-		.eq('user_id', user.id)
-		.single();
-	testRow = data;
-}
-
-const { data: paises } = await supabase
-	.from('paises')
-	.select('id, iso, nombre_paises, codigo_telf')
-	.order('nombre_paises');
-
-const { data: facturacion } = await supabase
-	.from('datos_facturacion')
-	.select('*')
-	.eq('user_id', user?.id)
-	.single();
+const [testRow, paises, facturacion] = await Promise.all([
+	getUsuarioById(supabase, userId),
+	PaisesGeneral(supabase),
+	FacturacionbyId(supabase, userId),
+]);
 
 const email = user?.email ?? undefined;
 ---
