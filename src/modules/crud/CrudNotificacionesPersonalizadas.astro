@@ -1,5 +1,6 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
+import { Icon } from 'astro-icon/components';
 
 import '@styles/datatables.css';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
@@ -73,15 +74,17 @@ const [usuarios, roles] = await Promise.all([
 	<div class="overflow-x-auto">
 		<div class="inline-block min-w-full align-middle">
 			<div class="overflow-hidden shadow">
-				<table class="divide-gray-200 dark:divide-gray-600" id="myTable">
+				<table
+					class="w-full table-fixed divide-gray-200 dark:divide-gray-600"
+					id="myTable"
+				>
 					<thead class="bg-gray-100 dark:bg-[#374151]">
 						<tr>
 							{
 								[
-									{ col: 'avatar', label: 'Avatar', width: '10%' },
 									{ col: 'Nombre', label: 'Nombre', width: '20%' },
-									{ col: 'Compañía', label: 'Compañía', width: '10%' },
-									{ col: 'Cargo', label: 'Cargo', width: '10%' },
+									{ col: 'Compañía', label: 'Compañía', width: '15%' },
+									{ col: 'Cargo', label: 'Cargo', width: '15%' },
 									{ col: 'País', label: 'País', width: '10%' },
 									{ col: 'Estado', label: 'Estado', width: '10%' },
 									{ col: 'Rol', label: 'Rol', width: '10%' },
@@ -89,8 +92,7 @@ const [usuarios, roles] = await Promise.all([
 								].map((th) => (
 									<th
 										scope="col"
-										class="w-2 p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
-										width={th.width}
+										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
 									>
 										<span class="flex items-center uppercase">
 											{th.col}
@@ -122,25 +124,26 @@ const [usuarios, roles] = await Promise.all([
 					>
 						{
 							usuarios?.map((user) => (
-								<div>
-									<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
-										<td style="width: 5px;">
-											{user.avatar_url === 'NULL' || !user.avatar_url ? (
-												<img
-													class="h-10 w-10 rounded-full"
-													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
-													alt={`Avatar de ${user.nombre}`}
-												/>
-											) : (
-												<img
-													class="h-10 w-10 rounded-full"
-													src={user.avatar_url}
-													alt={`Avatar de ${user.nombre}`}
-												/>
-											)}
-										</td>
-										<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">
-											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+								<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+									<td>
+										<div class="text-heading flex items-center whitespace-nowrap">
+											<div class="h-10 w-10 shrink-0 overflow-hidden rounded-full">
+												{user.avatar_url === 'NULL' || !user.avatar_url ? (
+													<img
+														class="h-full w-full object-cover"
+														src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${user.nombre}`}
+														alt={`Avatar de ${user.nombre}`}
+													/>
+												) : (
+													<img
+														class="h-full w-full object-cover"
+														src={user.avatar_url}
+														alt={`Avatar de ${user.nombre}`}
+													/>
+												)}
+											</div>
+
+											<div class="flex flex-col ps-3">
 												<div class="text-base font-semibold text-gray-900 dark:text-white">
 													{user.nombre} {user.apellido}
 												</div>
@@ -148,80 +151,73 @@ const [usuarios, roles] = await Promise.all([
 													{user.correo}
 												</div>
 											</div>
-										</td>
-										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-											{user.organizacion}
-										</td>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											{user.cargo}
-										</td>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											{user.paises?.nombre_paises ?? '—'}
-										</td>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											<div class="flex items-center">
-												{user.estado === 'activo' ? (
-													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
-												) : (
-													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
-												)}
-												{user.estado}
-											</div>
-										</td>
-										<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											<div class="flex items-center gap-1">
-												{roles?.map(
-													(rol) =>
-														user.user_id === rol.user_id &&
-														(() => {
-															// Definir clases según el nombre del rol
-															let badgeClass =
-																'text-xs font-medium px-1.5 py-0.5 rounded ';
-
-															switch (rol.roles.name) {
-																case 'admin':
-																	badgeClass +=
-																		'bg-danger-soft text-fg-danger-strong';
-																	break;
-																case 'cliente':
-																	badgeClass +=
-																		'bg-success-soft text-fg-success-strong';
-																	break;
-																case 'partner':
-																	badgeClass +=
-																		'bg-warning-soft text-fg-warning';
-																	break;
-																case 'operaciones':
-																	badgeClass +=
-																		'bg-warning-soft text-fg-warning';
-																	break;
-																default:
-																	badgeClass +=
-																		'bg-success-soft text-fg-success-strong';
-															}
-
-															return (
-																<span class={badgeClass}>{rol.roles.name}</span>
-															);
-														})(),
-												)}
-											</div>
-										</td>
-										<td class="flex space-x-2 p-4">
-											<button
-												data-modal-target="send-email-modal"
-												data-modal-toggle="send-email-modal"
-												data-user-notification
-												data-email={user.correo}
-												data-user-id={user.user_id}
-												class="notify-btn block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-												type="button"
-											>
-												Enviar notificación
-											</button>
-										</td>
-									</tr>
-								</div>
+										</div>
+									</td>
+									<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+										{user.organizacion}
+									</td>
+									<td class="p-4 text-base font-medium text-gray-900 dark:text-white">
+										{user.cargo}
+									</td>
+									<td class="p-4 text-base font-medium text-gray-900 dark:text-white">
+										{user.paises?.nombre_paises ?? '—'}
+									</td>
+									<td class="p-4 text-base font-medium text-gray-900 dark:text-white">
+										<div class="flex items-center">
+											{user.estado === 'activo' ? (
+												<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
+											) : (
+												<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
+											)}
+											{user.estado}
+										</div>
+									</td>
+									<td class="p-4 text-base font-normal text-gray-900 dark:text-white">
+										<div class="flex items-center gap-1">
+											{roles?.map(
+												(rol) =>
+													user.user_id === rol.user_id &&
+													(() => {
+														let badgeClass =
+															'text-xs font-medium px-1.5 py-0.5 rounded ';
+														switch (rol.roles.name) {
+															case 'admin':
+																badgeClass +=
+																	'bg-danger-soft text-fg-danger-strong';
+																break;
+															case 'cliente':
+																badgeClass +=
+																	'bg-success-soft text-fg-success-strong';
+																break;
+															case 'partner':
+															case 'operaciones':
+																badgeClass += 'bg-warning-soft text-fg-warning';
+																break;
+															default:
+																badgeClass +=
+																	'bg-success-soft text-fg-success-strong';
+														}
+														return (
+															<span class={badgeClass}>{rol.roles.name}</span>
+														);
+													})(),
+											)}
+										</div>
+									</td>
+									<td class="p-4">
+										<button
+											data-modal-target="send-email-modal"
+											data-modal-toggle="send-email-modal"
+											data-user-notification
+											data-email={user.correo}
+											data-user-id={user.user_id}
+											class="notify-btn block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+											type="button"
+										>
+											Enviar notificación
+										</button>
+									</td>
+								</tr>
 							))
 						}
 					</tbody>

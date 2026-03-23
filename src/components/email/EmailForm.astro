@@ -1,42 +1,53 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { Modal } from 'flowbite';
+import { actions } from 'astro:actions';
+
+const result = Astro.getActionResult(actions.sendEmail);
 ---
 
-<!-- Alertas -->
-<div
-	id="email-alert-sucess"
-	class="text-fg-success-strong rounded-base bg-success-soft fixed end-5 top-25 flex hidden w-full max-w-sm items-center p-4 shadow-xs"
-	role="alert"
->
-	<Icon name="ri:checkbox-circle-line" />
-	<div class="ms-3 text-sm font-normal">Correo enviado exitodamente</div>
-	<button
-		type="button"
-		class="text-body hover:text-heading hover:bg-neutral-secondary-medium focus:ring-neutral-tertiary ms-auto box-border flex h-8 w-8 items-center justify-center rounded border border-transparent bg-transparent text-sm leading-5 font-medium focus:ring-4 focus:outline-none"
-		data-dismiss-target="#email-alert-success"
-		aria-label="Close"
-	>
-		<Icon name="ri:close-large-line" />
-	</button>
-</div>
+<!-- Alertas -->{
+	result?.data && (
+		<div
+			id="email-alert-sucess"
+			class="text-fg-success-strong rounded-base bg-success-soft fixed end-5 top-25 flex w-full max-w-sm items-center p-4 shadow-xs"
+			role="alert"
+		>
+			<Icon name="ri:checkbox-circle-line" />
+			<div class="ms-3 text-sm font-normal">Correo enviado exitodamente</div>
+			<button
+				type="button"
+				class="text-body hover:text-heading hover:bg-neutral-secondary-medium focus:ring-neutral-tertiary ms-auto box-border flex h-8 w-8 items-center justify-center rounded border border-transparent bg-transparent text-sm leading-5 font-medium focus:ring-4 focus:outline-none"
+				data-dismiss-target="#email-alert-success"
+				aria-label="Close"
+			>
+				<Icon name="ri:close-large-line" />
+			</button>
+		</div>
+	)
+}
 
-<div
-	id="email-alert-error"
-	class="text-fg-danger-strong rounded-base bg-danger-soft fixed end-5 top-25 flex hidden w-full max-w-sm items-center p-4 shadow-xs"
-	role="alert"
->
-	<Icon name="ri:error-warning-line" />
-	<div class="ms-3 text-sm font-normal">Error al enviar correo electrónico</div>
-	<button
-		type="button"
-		class="text-body hover:text-heading hover:bg-neutral-secondary-medium focus:ring-neutral-tertiary ms-auto box-border flex h-8 w-8 items-center justify-center rounded border border-transparent bg-transparent text-sm leading-5 font-medium focus:ring-4 focus:outline-none"
-		data-dismiss-target="#email-alert-error"
-		aria-label="Close"
-	>
-		<Icon name="ri:close-large-line" />
-	</button>
-</div>
+{
+	result?.error && (
+		<div
+			id="email-alert-error"
+			class="text-fg-danger-strong rounded-base bg-danger-soft fixed end-5 top-25 flex w-full max-w-sm items-center p-4 shadow-xs"
+			role="alert"
+		>
+			<Icon name="ri:error-warning-line" />
+			<div class="ms-3 text-sm font-normal">
+				Error al enviar correo electrónico
+			</div>
+			<button
+				type="button"
+				class="text-body hover:text-heading hover:bg-neutral-secondary-medium focus:ring-neutral-tertiary ms-auto box-border flex h-8 w-8 items-center justify-center rounded border border-transparent bg-transparent text-sm leading-5 font-medium focus:ring-4 focus:outline-none"
+				data-dismiss-target="#email-alert-error"
+				aria-label="Close"
+			>
+				<Icon name="ri:close-large-line" />
+			</button>
+		</div>
+	)
+}
 
 <!-- Main modal -->
 <div
@@ -87,7 +98,7 @@ import { Modal } from 'flowbite';
 			</div>
 
 			<form
-				action="/api/email/sendEmail"
+				action={actions.sendEmail}
 				method="POST"
 				class="-hiddenoverflow flex flex-1 flex-col"
 				id="emailForm"
@@ -164,67 +175,3 @@ import { Modal } from 'flowbite';
 		</div>
 	</div>
 </div>
-
-<script>
-	function closeModal() {
-		const hideButton = document.querySelector(
-			'[data-modal-hide="send-email-modal"]',
-		);
-		if (hideButton) hideButton.click();
-	}
-
-	function mostrarAlerta(status) {
-		const errorAlert = document.getElementById('email-alert-error');
-		const successAlert = document.getElementById('email-alert-success');
-
-		if (status === 200) {
-			if (successAlert) {
-				successAlert.classList.remove('hidden');
-				setTimeout(() => successAlert.classList.add('hidden'), 3000);
-			}
-		} else {
-			if (errorAlert) {
-				errorAlert.classList.remove('hidden');
-				setTimeout(() => errorAlert.classList.add('hidden'), 3000);
-			}
-		}
-	}
-
-	const form = document.getElementById('emailForm') as HTMLFormElement;
-	const loadingModal = document.getElementById('loading-modal') as HTMLElement;
-	const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
-
-	if (form) {
-		form.addEventListener('submit', async (e) => {
-			e.preventDefault();
-
-			submitBtn.disabled = true;
-			submitBtn.textContent = 'Enviando...';
-			if (loadingModal) loadingModal.classList.remove('hidden');
-
-			try {
-				const response = await fetch('/api/email/sendEmail', {
-					method: 'POST',
-					body: new FormData(form),
-				});
-
-				const result = await response.json();
-
-				if (response.status !== 200 || !result.body?.success) {
-					throw new Error(result.error || 'Error al enviar el correo');
-				}
-
-				form.reset();
-				mostrarAlerta(200);
-				closeModal();
-			} catch (error) {
-				console.error(error);
-				mostrarAlerta(500);
-			} finally {
-				submitBtn.disabled = false;
-				submitBtn.textContent = 'Enviar';
-				if (loadingModal) loadingModal.classList.add('hidden');
-			}
-		});
-	}
-</script>
