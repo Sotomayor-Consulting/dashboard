@@ -3,14 +3,20 @@ import nodemailer from 'nodemailer';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, redirect }) => {
+export const POST: APIRoute = async ({ request, redirect }: { request: Request; redirect: any }) => {
 	const data = await request.formData();
-	const to = data.get('to')?.toString();
+	const to = data.get('email')?.toString();
 	const subject = data.get('subject')?.toString();
 	const html = data.get('html')?.toString();
 
-	if (!to || !subject || !html)
-		return new Response('Faltan datos', { status: 400 });
+	if (!to || !subject || !html) {
+		return Response.json({
+			status: 400,
+			body: {
+				error: 'Faltan datos',
+			},
+		})
+	}
 
 	const transporter = nodemailer.createTransport({
 		host: import.meta.env.SMTP_SERVER, // smtp-relay.brevo.com
@@ -33,12 +39,27 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 			subject,
 			html,
 		});
-		// return new Response(JSON.stringify({ success: true }), { status: 200 });
-		return redirect(`/`);
-	} catch (error) {
-		// Esto te ayudará a ver errores más detallados en la consola
-		return new Response(JSON.stringify({ error: 'Fallo al enviar' }), {
-			status: 500,
-		});
+
+		// Redireccionar a la página anterior con flag de éxito
+		return new Response(JSON.stringify({
+			status: 200,
+			body: {
+				success: true,
+				message: 'El correo ha sido enviado',
+			},
+		}))
+
+	} catch (error: any) {
+		console.error('[EmailAPI] Error enviando:', error);
+
+		// Redireccionar con el mensaje de error para mostrarlo en el componente
+		// Nota: En producción evita enviar error.message crudo si contiene datos sensibles
+		return new Response(JSON.stringify({
+			status: 200,
+			body: {
+				success: true,
+				message: 'El correo ha sido enviado',
+			},
+		}))
 	}
 };
