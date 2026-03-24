@@ -1,12 +1,14 @@
 ---
-import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
+import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
+import DataTable from '@components/ui/DataTable.astro';
+import DateCell from '@components/ui/DateCell.astro';
+import StatusBadge from '@components/ui/StatusBadge.astro';
 import { IncorporacionesEmpresasBase } from '@lib/tablas/empresa_incorporaciones';
 import { actividadesGeneral } from '@lib/tablas/actividades';
 import { EstadosGeneral } from '@lib/tablas/estados';
 import { PaisesGeneral } from '@lib/tablas/paises';
-
 
 const supabase = Astro.locals.supabase;
 
@@ -15,11 +17,26 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 	actividadesGeneral(supabase),
 	EstadosGeneral(supabase),
 	PaisesGeneral(supabase),
-	IncorporacionesEmpresasBase(supabase),
-	actividadesGeneral(supabase),
-	EstadosGeneral(supabase),
-	PaisesGeneral(supabase),
 ]);
+
+const inputClassEmpresa =
+	'block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]';
+const inputTextClass =
+	'block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]';
+const labelClass =
+	'mb-2 block text-sm font-medium text-neutral-900 dark:text-white';
+const cardInputClass =
+	'mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500';
+const cardInputSmClass =
+	'mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-sm leading-none font-semibold text-gray-500 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-gray-400 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500';
+const selectInlineClass =
+	'peer dark:bg-black-900 block w-full appearance-none border-0 bg-transparent px-3 py-0 text-base font-medium text-gray-500 focus:border-gray-200 focus:ring-0 focus:outline-none dark:text-white dark:group-hover:bg-gray-700';
+const tooltipClass =
+	'tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700';
+const iconGroupClass =
+	'group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white';
+const toggleDivClass =
+	"peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:inset-s-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800";
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>
@@ -28,55 +45,10 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 	class="block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<div class="mb-1 w-full">
-		<div class="mb-4">
-			<nav class="mb-5 flex" aria-label="Breadcrumb">
-				<ol
-					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
-				>
-					<li class="inline-flex items-center">
-						<a
-							href="/"
-							class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
-						>
-							<svg
-								class="mr-2.5 h-5 w-5"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-								xmlns="http://www.w3.org/2000/svg"
-								><path
-									d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
-								></path></svg
-							>
-							Inicio
-						</a>
-					</li>
-					<li>
-						<div class="flex items-center">
-							<svg
-								class="h-6 w-6 text-gray-400"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-								xmlns="http://www.w3.org/2000/svg"
-								><path
-									fill-rule="evenodd"
-									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-									clip-rule="evenodd"></path></svg
-							>
-							<a
-								href="/crud/empresas"
-								class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
-								>Empresas</a
-							>
-						</div>
-					</li>
-				</ol>
-			</nav>
-			<h1
-				class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
-			>
-				Lista de empresas
-			</h1>
-		</div>
+		<CrudPageHeader
+			title="Lista de empresas"
+			breadcrumbItems={[{ label: 'Empresas', href: '/crud/empresas' }]}
+		/>
 	</div>
 </div>
 <div class="border-b border-gray-200 p-5 sm:flex dark:border-gray-700">
@@ -85,127 +57,70 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 			type="button"
 			data-modal-target="add-user-modal"
 			data-modal-toggle="add-user-modal"
-			class="focus:ring-primary-300 inline-flex w-1/2 items-center justify-center rounded-lg bg-[#1349ec] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#1349ec] focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+			class="focus:ring-primary-300 inline-flex w-1/2 items-center justify-center rounded-lg bg-[#1349ec] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#1349ec]/90 focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 		>
 			<svg
 				class="mr-2 -ml-1 h-5 w-5"
 				fill="currentColor"
 				viewBox="0 0 20 20"
 				xmlns="http://www.w3.org/2000/svg"
-				><path
+			>
+				<path
 					fill-rule="evenodd"
 					d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-					clip-rule="evenodd"></path></svg
-			>
+					clip-rule="evenodd"></path>
+			</svg>
 			Añadir nueva empresa
 		</button>
 	</div>
 </div>
-<div class="flex flex-col">
-	<div class="overflow-x-auto">
-		<div class="inline-block min-w-full align-middle">
-			<div class="overflow-hidden shadow">
-				<table
-					class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
-					id="myTable"
-				>
-					<thead class="dark:bg-black-800 bg-gray-100" id="test">
-						<tr>
-							{
-								[
-									'id',
-									'Usuario que la creo',
-									'Tipo de Negocio',
-									'Estado de incorporación',
-									'Estado',
-									'Proceso',
-									'Creado en',
-								].map((th) => (
-									<th
-										scope="col"
-										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
-									>
-										<span class="flex items-center uppercase">
-											{th}
-											<svg
-												class="ms-1 h-4 w-4"
-												aria-hidden="true"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												fill="none"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke="currentColor"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="m8 15 4 4 4-4m0-6-4-4-4 4"
-												/>
-											</svg>
-										</span>
-									</th>
-								))
-							}
-						</tr>
-					</thead>
-					<tbody
-						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
-					>
-						{
-							empresas?.map((empresa) => (
-								<div>
-									<tr
-										class="odd:bg-white cursor-pointer even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
-										onclick={`window.open('/crud/empresa/${empresa.empresa_incorporacion_id}', '_blank')`}
-									>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											{empresa.nombre_1}
-										</td>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											{empresa.usuarios[0]?.nombre}
-											{empresa.usuarios[0]?.apellido}
-										</td>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											{empresa.tipo_de_negocio}
-										</td>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											{empresa.porcentaje_de_incorporacion}%
-										</td>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											{empresa.estado_de_incorporacion}
-										</td>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											<div class="flex items-center">
-												{empresa.estado === 'Activo' ? (
-													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
-												) : (
-													<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
-												)}
-												{empresa.estado}
-											</div>
-										</td>
-										<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											{empresa.updated_at &&
-												new Date(empresa.updated_at)
-													.toLocaleDateString('es-ES', {
-														day: '2-digit',
-														month: '2-digit',
-														year: 'numeric',
-													})
-													.replace(/\//g, '-')}
-										</td>
-									</tr>
-								</div>
-							))
-						}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-</div>
+
+<DataTable
+	headers={[
+		'ID',
+		'Usuario que la creo',
+		'Tipo de Negocio',
+		'Estado de incorporación',
+		'Estado',
+		'Proceso',
+		'Creado en',
+	]}
+	noRowsMessage="No hay empresas"
+>
+	{
+		empresas?.map((empresa) => (
+			<tr
+				class="cursor-pointer odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
+				onclick={`window.open('/crud/empresa/${empresa.empresa_incorporacion_id}', '_blank')`}
+			>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					{empresa.nombre_1}
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					{empresa.usuarios[0]?.nombre} {empresa.usuarios[0]?.apellido}
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					{empresa.tipo_de_negocio}
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					{empresa.porcentaje_de_incorporacion}%
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					{empresa.estado_de_incorporacion}
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					<StatusBadge
+						active={empresa.estado === 'Activo'}
+						label={empresa.estado}
+					/>
+				</td>
+				<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+					<DateCell date={empresa.updated_at} />
+				</td>
+			</tr>
+		))
+	}
+</DataTable>
 
 <!-- Añadir empresa -->
 <div
@@ -213,9 +128,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 	id="add-user-modal"
 >
 	<div class="relative h-5/6 w-full px-4">
-		<!-- Modal content -->
 		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
-			<!-- Modal header -->
 			<div
 				class="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-700"
 			>
@@ -230,30 +143,29 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 						fill="currentColor"
 						viewBox="0 0 20 20"
 						xmlns="http://www.w3.org/2000/svg"
-						><path
+					>
+						<path
 							fill-rule="evenodd"
 							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							clip-rule="evenodd"></path></svg
-					>
+							clip-rule="evenodd"></path>
+					</svg>
 				</button>
 			</div>
-			<!-- Modal body -->
 			<form action="" method="post">
 				<div
 					class="grid w-full space-x-0 rounded-lg p-0 md:grid-cols-[auto_1fr] md:space-x-4 md:p-4"
 					id="contacts"
 					role="tabpanel"
 					aria-labelledby="contacts-tab"
-					x-data="{ 
-				formadeAdministracion: '',  
-				actvidadManual: null, 
+					x-data="{
+				formadeAdministracion: '',
+				actvidadManual: null,
 				RegistroManual: '',
 				direccionOperativa: '',
 				otrosMiembrosfuera: null,
 				managerMiembro: '',
 				asignarManager: '',
 				tabManager: '',
-				
 			}"
 					x-effect="if (!actvidadManual) {
 				RegistroManual = '';
@@ -329,6 +241,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												type="button"
 												role="tab"
 												x-model="tabManager"
+												x-cloak
 												x-show="formadeAdministracion === 'Member-Managed'"
 												aria-controls={i.tabs}
 												aria-selected="false"
@@ -344,6 +257,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 						</ul>
 					</div>
 					<div id="default-tab-content-2" class="ml-0 min-w-full">
+						<!-- Tab: Generales -->
 						<div
 							class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
 							id="generales"
@@ -357,33 +271,24 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 									<h3 class="mb-4 text-xl font-semibold dark:text-white">
 										Datos Generales
 									</h3>
-
 									<div class="grid grid-cols-6 gap-6">
 										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="Ingresos_de_EEUU"
-												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+											<label for="Ingresos_de_EEUU" class={labelClass}
 												>¿La LLC obtendrá ingresos provenientes de Estados
 												Unidos?</label
 											>
 											<select
 												name="Ingresos_de_EEUU"
 												id="Ingresos_de_EEUU"
-												class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+												class={inputClassEmpresa}
 											>
-												<!-- Opción por defecto (placeholder) -->
 												<option value="" disabled hidden selected>
 													Seleccione una opción
 												</option>
-
-												<!-- Opción "Sí" -->
 												<option value="true"> Sí </option>
-
-												<!-- Opción "No" -->
 												<option value="false"> No </option>
 											</select>
 										</div>
-
 										<div class="col-span-6 flex items-end sm:col-span-3">
 											<button
 												type="button"
@@ -391,25 +296,21 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												data-modal-toggle="crud-modal"
 												class="flex items-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 											>
-												<Icon name="ri:add-line" /> Añadir actividad</button
-											>
+												<Icon name="ri:add-line" />
+												Añadir actividad
+											</button>
 										</div>
 										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="actividad-input"
-												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
-											>
+											<label for="actividad-input" class={labelClass}>
 												Actividad
 											</label>
-
 											<input
 												list="actividades-list"
 												id="actividad-input"
 												name="actividad"
 												placeholder="Escribe para buscar actividad..."
-												class="block w-full truncate rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+												class={inputClassEmpresa}
 											/>
-
 											<datalist id="actividades-list">
 												{
 													actividades?.map((ac) => (
@@ -418,75 +319,56 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												}
 											</datalist>
 										</div>
-
 										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="forma_de_administrar"
-												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+											<label for="forma_de_administrar" class={labelClass}
 												>Forma de administrar</label
 											>
 											<select
 												name="forma_de_administrar"
 												id="forma_de_administrar"
 												x-model="formadeAdministracion"
-												class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+												class={inputClassEmpresa}
 											>
 												<option value="" selected hidden disabled
 													>Seleccione una forma de tibutar</option
 												>
-
-												<!-- Opción "Sí" -->
 												<option value="Member-Managed"> Member-Managed </option>
-
-												<!-- Opción "No" -->
 												<option value="Manager-Managed">
 													Manager-Managed
 												</option>
 											</select>
 										</div>
 										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="forma_de_tributar"
-												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+											<label for="forma_de_tributar" class={labelClass}
 												>Forma de tributar</label
 											>
 											<select
 												name="forma_de_tributar"
 												id="forma_de_tributar"
-												class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+												class={inputClassEmpresa}
 											>
 												<option value="" hidden disabled selected
 													>Seleccione una forma de tributar</option
 												>
-
-												<!-- Opción "Sí" -->
 												<option value="Entidad de paso">
 													Entidad de paso
 												</option>
-
-												<!-- Opción "No" -->
 												<option value="Corporación"> Corporación </option>
 											</select>
 										</div>
-
 										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="informacion_miembros"
-												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
-											>
+											<label for="informacion_miembros" class={labelClass}>
 												Información de los miembros
 											</label>
 											<select
 												name="informacion_miembros"
 												id="informacion_miembros"
-												class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+												class={inputClassEmpresa}
 											>
 												<option value="" disabled hidden selected>
 													Seleccione una opcion
 												</option>
-
 												<option value="Pública"> Pública </option>
-
 												<option value="Privada"> Privada </option>
 											</select>
 										</div>
@@ -494,6 +376,8 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 								</div>
 							</div>
 						</div>
+
+						<!-- Tab: Ubicacion -->
 						<div
 							class="dark:bg-black-800 hidden min-w-full rounded-lg bg-gray-50 p-4"
 							id="ubicacion"
@@ -509,29 +393,22 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 									<h3 class="mb-4 text-xl font-semibold dark:text-white">
 										Ubicación
 									</h3>
-
 									<div class="grid grid-cols-6 gap-6">
 										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="direccionOperativa"
-												class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+											<label for="direccionOperativa" class={labelClass}
 												>¿Tiene dirección operativa en EE.UU.?</label
 											>
 											<select
 												name="direccionOperativa"
 												id="direccionOperativa"
 												x-model="direccionOperativa"
-												class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+												class={inputClassEmpresa}
 											>
 												<option value="" selected hidden disabled
 													>Selecciona una opción</option
 												>
-												<!-- Opción "Sí" -->
 												<option value="Si"> Sí </option>
-
-												<!-- Opción "No" -->
 												<option value="No"> No </option>
-
 												<option
 													value="Quiero que Sotomayor Consulting International provea una dirección"
 												>
@@ -541,78 +418,58 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											</select>
 										</div>
 
-										<!-- condicionales de Tiene dirección operativa en EE.UU. -->
-										<!-- inicio direccionOperativa === 'Si' -->
-
 										<template x-if="direccionOperativa === 'Si'">
 											<div class="col-span-6 sm:col-span-3">
-												<label
-													for="direccion"
-													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+												<label for="direccion" class={labelClass}
 													>Dirección</label
 												>
 												<input
 													type="text"
 													name="direccion"
 													id="direccion"
-													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+													class={inputTextClass}
 													placeholder="ejem. Av. Juan Molineros"
 												/>
 											</div>
 										</template>
 										<template x-if="direccionOperativa === 'Si'">
 											<div class="col-span-6 sm:col-span-3">
-												<label
-													for="condado"
-													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
-													>Condado</label
-												>
+												<label for="condado" class={labelClass}>Condado</label>
 												<input
 													type="text"
 													name="condado"
 													id="condado"
-													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+													class={inputTextClass}
 													placeholder="ejem. Miami-Dade"
 												/>
 											</div>
 										</template>
 										<template x-if="direccionOperativa === 'Si'">
 											<div class="col-span-6 sm:col-span-3">
-												<label
-													for="ciudad"
-													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
-													>Ciudad</label
-												>
+												<label for="ciudad" class={labelClass}>Ciudad</label>
 												<input
 													type="text"
 													name="ciudad"
 													id="ciudad"
-													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+													class={inputTextClass}
 													placeholder="ejem. Miami"
 												/>
 											</div>
 										</template>
 										<template x-if="direccionOperativa === 'Si'">
 											<div class="col-span-6 sm:col-span-3">
-												<label
-													for="estado"
-													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
-													>Estado</label
-												>
+												<label for="estado" class={labelClass}>Estado</label>
 												<select
 													name="estado"
 													id="estado"
-													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+													class={inputClassEmpresa}
 												>
 													<option value="" disabled hidden selected>
 														Seleccione un estado
 													</option>
-
 													{
-														estados?.map((estados) => (
-															<option value={estados.Estado}>
-																{estados.Estado}
-															</option>
+														estados?.map((e) => (
+															<option value={e.Estado}>{e.Estado}</option>
 														))
 													}
 												</select>
@@ -620,74 +477,62 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 										</template>
 										<template x-if="direccionOperativa === 'Si'">
 											<div class="col-span-6 sm:col-span-3">
-												<label
-													for="Codigo_postal"
-													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+												<label for="Codigo_postal" class={labelClass}
 													>Codigo Postal</label
 												>
 												<input
 													type="text"
 													name="Codigo_postal"
 													id="Codigo_postal"
-													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+													class={inputTextClass}
 													placeholder="ejem. Miami-Dade"
 												/>
 											</div>
 										</template>
 
-										<!-- fin direccionOperativa === 'Si' -->
-
-										<!-- direccionOperativa === 'No' -->
-										<template x-if="direccionOperativa === 'No'"
-											><div class="col-span-6 sm:col-span-3">
-												<label
-													for="Pais_operativo"
-													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+										<template x-if="direccionOperativa === 'No'">
+											<div class="col-span-6 sm:col-span-3">
+												<label for="Pais_operativo" class={labelClass}
 													>Pais</label
 												>
 												<select
 													name="Pais_operativo"
 													id="Pais_operativo"
-													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+													class={inputClassEmpresa}
 												>
 													<option value="" disabled hidden selected>
 														Seleccione un pais
 													</option>
-
 													{
-														paises?.map((paises) => (
-															<option value={paises.nombre_paises}>
-																{paises.nombre_paises}
+														paises?.map((p) => (
+															<option value={p.nombre_paises}>
+																{p.nombre_paises}
 															</option>
 														))
 													}
 												</select>
 											</div>
 										</template>
-
 										<template x-if="direccionOperativa === 'No'">
 											<div class="col-span-6 sm:col-span-3">
-												<label
-													for="direccion_empresa"
-													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+												<label for="direccion_empresa" class={labelClass}
 													>Dirección Empresa</label
 												>
 												<input
 													type="text"
 													name="direccion_empresa"
 													id="direccion_empresa"
-													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+													class={inputTextClass}
 													placeholder="Av. Juan Molineros"
 												/>
 											</div>
 										</template>
-
-										<!-- direccionOperativa === 'No' -->
-										<!-- Final de condicionales en dirección operativa en EE.UU. -->
 									</div>
 								</div>
 							</div>
 						</div>
+
+						<!-- Tab: Socios -->
 						<div
 							class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
 							id="socios-edit"
@@ -703,7 +548,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 								</h3>
 								<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
 									<div
-										class="bg-white dark:bg-black-900 h-full w-full shrink-0 justify-self-center overflow-y-auto border border-gray-200 p-3 shadow-sm lg:rounded-lg dark:border-gray-700"
+										class="dark:bg-black-900 h-full w-full shrink-0 justify-self-center overflow-y-auto border border-gray-200 bg-white p-3 shadow-sm lg:rounded-lg dark:border-gray-700"
 									>
 										<span class="sr-only">Open user menu</span>
 										<div class="flex w-full items-center justify-between">
@@ -721,17 +566,17 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 													>
 														<input
 															type="text"
-															id={`nombre_de_socio_card_`}
-															name={`nombre_de_socio_card_`}
-															class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+															id="nombre_de_socio_card_"
+															name="nombre_de_socio_card_"
+															class={cardInputClass}
 														/>
 													</div>
-													<div class="">
+													<div>
 														<input
 															type="text"
-															id={`correo-socio-`}
-															name={`correo-socio-`}
-															class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-sm leading-none font-semibold text-gray-500 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-gray-400 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+															id="correo-socio-"
+															name="correo-socio-"
+															class={cardInputSmClass}
 														/>
 													</div>
 												</div>
@@ -744,14 +589,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												<li>
 													<input
 														type="radio"
-														id={`input-socios-natural-`}
-														name={`tipo-persona-`}
+														id="input-socios-natural-"
+														name="tipo-persona-"
 														value="Persona Natural"
 														class="peer hidden"
 														required
 													/>
 													<label
-														for={`input-socios-natural-`}
+														for="input-socios-natural-"
 														class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg border-2 border-gray-400 bg-purple-900 p-2 text-gray-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:bg-purple-800 hover:text-gray-600 dark:border-gray-700 dark:bg-purple-900 dark:text-gray-400 dark:peer-checked:border-blue-600 dark:hover:bg-purple-800 dark:hover:text-gray-300"
 													>
 														<div
@@ -776,14 +621,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												<li>
 													<input
 														type="radio"
-														id={`input-socios-empresa-`}
-														name={`tipo-persona-`}
+														id="input-socios-empresa-"
+														name="tipo-persona-"
 														value="Empresa"
 														class="peer hidden"
 														required
 													/>
 													<label
-														for={`input-socios-empresa-`}
+														for="input-socios-empresa-"
 														class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg border-2 border-gray-400 bg-teal-700 p-2 text-gray-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:bg-teal-800 hover:text-gray-600 dark:border-gray-700 dark:bg-teal-700 dark:text-gray-400 dark:peer-checked:border-blue-600 dark:hover:bg-teal-800 dark:hover:text-gray-300"
 													>
 														<div
@@ -813,7 +658,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 													<button
 														type="button"
 														id="decrement-button"
-														data-input-counter-decrement={`bedrooms-input-`}
+														data-input-counter-decrement="bedrooms-input-"
 														class="h-11 rounded-s-lg border border-gray-300 p-3 hover:bg-gray-200 focus:ring-2 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
 													>
 														<svg
@@ -833,7 +678,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 													</button>
 													<input
 														type="text"
-														id={`bedrooms-input-`}
+														id="bedrooms-input-"
 														data-input-counter
 														data-input-counter-min="1"
 														data-input-counter-max="100"
@@ -843,14 +688,14 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														required
 													/>
 													<div
-														class="absolute start-1/2 bottom-1 flex -translate-x-1/2 items-center space-x-1 text-xs text-gray-400 rtl:translate-x-1/2 rtl:space-x-reverse"
+														class="absolute inset-s-1/2 bottom-1 flex -translate-x-1/2 items-center space-x-1 text-xs text-gray-400 rtl:translate-x-1/2 rtl:space-x-reverse"
 													>
 														<span>Porcentaje</span>
 													</div>
 													<button
 														type="button"
 														id="increment-button"
-														data-input-counter-increment={`bedrooms-input-`}
+														data-input-counter-increment="bedrooms-input-"
 														class="h-11 rounded-e-lg border border-gray-300 p-3 hover:bg-gray-200 focus:ring-2 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
 													>
 														<svg
@@ -881,22 +726,21 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
 													/>
 													<div class="w-full">
-														<label for={`pais-socio-card-`} class="sr-only">
+														<label for="pais-socio-card-" class="sr-only">
 															Selecciona una opcion
 														</label>
 														<select
-															id={`pais-socio-card-`}
-															name={`pais-socio-card-`}
-															class="peer dark:bg-black-900 block w-full appearance-none border-0 bg-transparent px-3 py-0 text-base font-medium text-gray-500 focus:border-gray-200 focus:ring-0 focus:outline-none dark:text-white dark:group-hover:bg-gray-700"
+															id="pais-socio-card-"
+															name="pais-socio-card-"
+															class={selectInlineClass}
 														>
 															<option value="" disabled hidden selected>
 																Seleccione un pais
 															</option>
-
 															{
-																paises?.map((paises) => (
-																	<option value={paises.nombre_paises}>
-																		{paises.nombre_paises}
+																paises?.map((p) => (
+																	<option value={p.nombre_paises}>
+																		{p.nombre_paises}
 																	</option>
 																))
 															}
@@ -916,25 +760,22 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 													/>
 													<div class="w-full">
 														<label
-															for={`estado-civil-socio-card-`}
+															for="estado-civil-socio-card-"
 															class="sr-only"
 														>
 															Selecciona una opcion
 														</label>
 														<select
-															id={`estado-civil-socio-card-`}
-															name={`estado-civil-socio-card-`}
-															class="peer dark:bg-black-900 block w-full appearance-none border-0 bg-transparent px-3 py-0 text-base font-medium text-gray-500 focus:border-gray-200 focus:ring-0 focus:outline-none dark:text-white dark:group-hover:bg-gray-700"
+															id="estado-civil-socio-card-"
+															name="estado-civil-socio-card-"
+															class={selectInlineClass}
 														>
 															<option selected hidden disabled>
 																Selecciona una opcion
 															</option>
 															<option value="Casado"> Casado </option>
-
 															<option value="Soltero"> Soltero </option>
-
 															<option value="Divorciado"> Divorciado </option>
-
 															<option value="Viudo"> Viudo </option>
 														</select>
 													</div>
@@ -955,13 +796,10 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 															<input
 																type="checkbox"
 																class="peer sr-only"
-																id={`residente-fiscal-socio-`}
-																name={`residente-fiscal-socio-`}
+																id="residente-fiscal-socio-"
+																name="residente-fiscal-socio-"
 															/>
-															<div
-																class="peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800"
-															>
-															</div>
+															<div class={toggleDivClass}></div>
 															<span
 																class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
 															>
@@ -975,148 +813,73 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 										<ul
 											class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
 										>
-											<li>
-												<div
-													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
-												>
-													<button
-														data-tooltip-target={`tooltip-default-`}
-														data-tooltip-placement="left"
-														type="button"
-														class="text-center"
-													>
-														<Icon
-															name="ri:passport-line"
-															width="24"
-															height="24"
-															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-														/>
-													</button>
-
-													<div
-														id={`tooltip-default-`}
-														role="tooltip"
-														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
-													>
-														Numero de Pasaporte
-														<div class="tooltip-arrow" data-popper-arrow></div>
-													</div>
-
-													<input
-														type="text"
-														id={`´pasaporte-socios-card-`}
-														name={`´pasaporte-socios-card-`}
-														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-													/>
-												</div>
-											</li>
-											<li>
-												<div
-													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
-												>
-													<button
-														data-tooltip-target={`tooltip-seguro-`}
-														data-tooltip-placement="left"
-														type="button"
-														class="text-center"
-													>
-														<Icon
-															name="ri:secure-payment-line"
-															width="24"
-															height="24"
-															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-														/>
-													</button>
-
-													<div
-														id={`tooltip-seguro-`}
-														role="tooltip"
-														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
-													>
-														Numero de Seguro Social
-														<div class="tooltip-arrow" data-popper-arrow></div>
-													</div>
-													<input
-														type="text"
-														id={`numero-seguro-socio-`}
-														name={`numero-seguro-socio-`}
-														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-													/>
-												</div>
-											</li>
-											<li>
-												<div
-													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
-												>
-													<button
-														data-tooltip-target={`tooltip-itin-`}
-														data-tooltip-placement="left"
-														type="button"
-														class="text-center"
-													>
-														<Icon
-															name="ri:hashtag"
-															width="24"
-															height="24"
-															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-														/>
-													</button>
-
-													<div
-														id={`tooltip-itin-`}
-														role="tooltip"
-														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
-													>
-														Numero de ITIN
-														<div class="tooltip-arrow" data-popper-arrow></div>
-													</div>
-													<input
-														type="text"
-														id={`numero-itin-socio-card-`}
-														name={`numero-itin-socio-card-`}
-														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-													/>
-												</div>
-											</li>
-											<li>
-												<div
-													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
-												>
-													<button
-														data-tooltip-target={`tooltip-direccion-`}
-														data-tooltip-placement="left"
-														type="button"
-														class="text-center"
-													>
-														<Icon
-															name="ri:direction-line"
-															width="24"
-															height="24"
-															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-														/>
-													</button>
-
-													<div
-														id={`tooltip-direccion-`}
-														role="tooltip"
-														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
-													>
-														Direccion de planilla
-														<div class="tooltip-arrow" data-popper-arrow></div>
-													</div>
-													<input
-														type="text"
-														id={`direccion-planilla-socio-card-`}
-														name={`direccion-planilla-socio-card-`}
-														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-													/>
-												</div>
-											</li>
+											{
+												[
+													{
+														tooltipId: 'tooltip-default-',
+														icon: 'ri:passport-line',
+														label: 'Numero de Pasaporte',
+														inputId: '´pasaporte-socios-card-',
+													},
+													{
+														tooltipId: 'tooltip-seguro-',
+														icon: 'ri:secure-payment-line',
+														label: 'Numero de Seguro Social',
+														inputId: 'numero-seguro-socio-',
+													},
+													{
+														tooltipId: 'tooltip-itin-',
+														icon: 'ri:hashtag',
+														label: 'Numero de ITIN',
+														inputId: 'numero-itin-socio-card-',
+													},
+													{
+														tooltipId: 'tooltip-direccion-',
+														icon: 'ri:direction-line',
+														label: 'Direccion de planilla',
+														inputId: 'direccion-planilla-socio-card-',
+													},
+												].map((field) => (
+													<li>
+														<div class={iconGroupClass}>
+															<button
+																data-tooltip-target={field.tooltipId}
+																data-tooltip-placement="left"
+																type="button"
+																class="text-center"
+															>
+																<Icon
+																	name={field.icon}
+																	width="24"
+																	height="24"
+																	class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+																/>
+															</button>
+															<div
+																id={field.tooltipId}
+																role="tooltip"
+																class={tooltipClass}
+															>
+																{field.label}
+																<div class="tooltip-arrow" data-popper-arrow />
+															</div>
+															<input
+																type="text"
+																id={field.inputId}
+																name={field.inputId}
+																class={cardInputClass}
+															/>
+														</div>
+													</li>
+												))
+											}
 										</ul>
 									</div>
 								</div>
 							</div>
 						</div>
+
+						<!-- Tab: Manager -->
 						<div
 							class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
 							id="manager"
@@ -1136,10 +899,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 									<div>
 										<div class="grid grid-cols-6 gap-6">
 											<div class="col-span-6 sm:col-span-3">
-												<label
-													for="informacion_miembros"
-													class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
-												>
+												<label for="informacion_miembros" class={labelClass}>
 													Sotomayor Consulting International asigna al Manager
 												</label>
 												<select
@@ -1147,23 +907,18 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 													id="informacion_miembros"
 													x-model="asignarManager"
 													x-init="$el.value ? asignarManager = $el.value : null"
-													class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+													class={inputClassEmpresa}
 												>
 													<option value="" disabled hidden selected>
 														Seleccione una opcion
 													</option>
-
 													<option value="Si"> Si </option>
-
 													<option value="No"> No </option>
 												</select>
 											</div>
 											<template x-if="asignarManager === 'No'">
 												<div class="col-span-6 sm:col-span-3">
-													<label
-														for="informacionmanager"
-														class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
-													>
+													<label for="informacionmanager" class={labelClass}>
 														El manager es parte de los miembros
 													</label>
 													<select
@@ -1171,36 +926,30 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 														id="informacionmanager"
 														x-model="managerMiembro"
 														x-init="$el.value ? managerMiembro = $el.value : null"
-														class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+														class={inputClassEmpresa}
 													>
 														<option disabled hidden selected>
 															Seleccione una opcion
 														</option>
-
 														<option value="Si"> Si </option>
-
 														<option value="No"> No </option>
 													</select>
 												</div>
 											</template>
 											<template x-if="managerMiembro === 'Si'">
 												<div class="col-span-6 sm:col-span-3">
-													<label
-														for="managers"
-														class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
-													>
+													<label for="managers" class={labelClass}>
 														Socios que son managers
 													</label>
-
 													<div class="mb-4 flex items-center">
 														<input
-															id={`miembros-managers-`}
-															name={`miembros-managers-`}
+															id="miembros-managers-"
+															name="miembros-managers-"
 															type="checkbox"
 															class="h-4 w-4 rounded-sm border-gray-300 bg-gray-100 text-[#1349ec] focus:ring-2 focus:ring-[#1349ec] dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-[#323f67]"
 														/>
 														<label
-															for={`miembros-managers-`}
+															for="miembros-managers-"
 															class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
 														>
 															x
@@ -1219,9 +968,8 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 											>
 												Managers
 											</h3>
-
 											<div
-												class="bg-white dark:bg-black-900 h-full w-full shrink-0 justify-self-center overflow-y-auto border border-gray-200 p-3 shadow-sm lg:rounded-lg dark:border-gray-700"
+												class="dark:bg-black-900 h-full w-full shrink-0 justify-self-center overflow-y-auto border border-gray-200 bg-white p-3 shadow-sm lg:rounded-lg dark:border-gray-700"
 											>
 												<span class="sr-only">Open user menu</span>
 												<div class="flex w-full items-center justify-between">
@@ -1239,17 +987,17 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 															>
 																<input
 																	type="text"
-																	id={`nombre-manager-card-`}
-																	name={`nombre-manager-card-`}
-																	class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+																	id="nombre-manager-card-"
+																	name="nombre-manager-card-"
+																	class={cardInputClass}
 																/>
 															</div>
-															<div class="">
+															<div>
 																<input
 																	type="text"
-																	id={`nombre-manager-card-`}
-																	name={`nombre-manager-card-`}
-																	class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-sm leading-none font-semibold text-gray-500 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-gray-400 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+																	id="correo-manager-card-"
+																	name="correo-manager-card-"
+																	class={cardInputSmClass}
 																/>
 															</div>
 														</div>
@@ -1269,25 +1017,21 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 																class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
 															/>
 															<div class="w-full">
-																<label
-																	for={`pais-manager-card-`}
-																	class="sr-only"
-																>
+																<label for="pais-manager-card-" class="sr-only">
 																	Selecciona una opcion
 																</label>
 																<select
-																	id={`pais-manager-card-`}
-																	name={`pais-manager-card-`}
-																	class="peer dark:bg-black-900 block w-full appearance-none border-0 bg-transparent px-3 py-0 text-base font-medium text-gray-500 focus:border-gray-200 focus:ring-0 focus:outline-none dark:text-white dark:group-hover:bg-gray-700"
+																	id="pais-manager-card-"
+																	name="pais-manager-card-"
+																	class={selectInlineClass}
 																>
 																	<option value="" disabled hidden selected>
 																		Seleccione un pais
 																	</option>
-
 																	{
-																		paises?.map((paises) => (
-																			<option value={paises.nombre_paises}>
-																				{paises.nombre_paises}
+																		paises?.map((p) => (
+																			<option value={p.nombre_paises}>
+																				{p.nombre_paises}
 																			</option>
 																		))
 																	}
@@ -1309,14 +1053,11 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 																>
 																	<input
 																		type="checkbox"
-																		id={`residente-fiscal-manager-card-`}
-																		name={`residente-fiscal-manager-card-`}
+																		id="residente-fiscal-manager-card-"
+																		name="residente-fiscal-manager-card-"
 																		class="peer sr-only"
 																	/>
-																	<div
-																		class="peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800"
-																	>
-																	</div>
+																	<div class={toggleDivClass}></div>
 																	<span
 																		class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
 																	>
@@ -1337,13 +1078,10 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 																	<input
 																		type="checkbox"
 																		class="peer sr-only"
-																		id={`misma-direccion-manager-card-`}
-																		name={`misma-direccion-manager-card-`}
+																		id="misma-direccion-manager-card-"
+																		name="misma-direccion-manager-card-"
 																	/>
-																	<div
-																		class="peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800"
-																	>
-																	</div>
+																	<div class={toggleDivClass}></div>
 																	<span
 																		class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
 																	>
@@ -1357,152 +1095,70 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 												<ul
 													class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
 												>
-													<li>
-														<div
-															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
-														>
-															<button
-																data-tooltip-target={`tooltip-default-manager-`}
-																data-tooltip-placement="left"
-																type="button"
-																class="text-center"
-															>
-																<Icon
-																	name="ri:passport-line"
-																	width="24"
-																	height="24"
-																	class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-																	title="Numero de Pasaporte"
-																/>
-															</button>
-
-															<div
-																id={`tooltip-default-manager-`}
-																role="tooltip"
-																class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
-															>
-																Numero de Pasaporte
-																<div class="tooltip-arrow" data-popper-arrow>
+													{
+														[
+															{
+																tooltipId: 'tooltip-default-manager-',
+																icon: 'ri:passport-line',
+																label: 'Numero de Pasaporte',
+																inputId: 'pasaporte-manager-card-',
+															},
+															{
+																tooltipId: 'tooltip-seguro-manager-',
+																icon: 'ri:secure-payment-line',
+																label: 'Numero de Seguro Social',
+																inputId: 'numero-seguro-manager-card-',
+															},
+															{
+																tooltipId: 'tooltip-itin-manager-',
+																icon: 'ri:hashtag',
+																label: 'Numero de ITIN',
+																inputId: 'numero-itin-manager-card-',
+															},
+															{
+																tooltipId: 'tooltip-direccion-manager-',
+																icon: 'ri:direction-line',
+																label: 'Direccion del manager',
+																inputId: 'direccion-manager-card-',
+															},
+														].map((field) => (
+															<li>
+																<div class={iconGroupClass}>
+																	<button
+																		data-tooltip-target={field.tooltipId}
+																		data-tooltip-placement="left"
+																		type="button"
+																		class="text-center"
+																	>
+																		<Icon
+																			name={field.icon}
+																			width="24"
+																			height="24"
+																			class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+																			title={field.label}
+																		/>
+																	</button>
+																	<div
+																		id={field.tooltipId}
+																		role="tooltip"
+																		class={tooltipClass}
+																	>
+																		{field.label}
+																		<div
+																			class="tooltip-arrow"
+																			data-popper-arrow
+																		/>
+																	</div>
+																	<input
+																		type="text"
+																		id={field.inputId}
+																		name={field.inputId}
+																		class={cardInputClass}
+																	/>
 																</div>
-															</div>
-
-															<input
-																type="text"
-																id={`pasaporte-manager-card-`}
-																name={`pasaporte-manager-card-`}
-																class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-															/>
-														</div>
-													</li>
-													<li>
-														<div
-															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
-														>
-															<button
-																data-tooltip-target={`tooltip-seguro-manager-`}
-																data-tooltip-placement="left"
-																type="button"
-																class="text-center"
-															>
-																<Icon
-																	name="ri:secure-payment-line"
-																	width="24"
-																	height="24"
-																	class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-																	title="Numero de Seguro Social"
-																/>
-															</button>
-
-															<div
-																id={`tooltip-seguro-manager-`}
-																role="tooltip"
-																class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
-															>
-																Numero de Seguro Social
-																<div class="tooltip-arrow" data-popper-arrow>
-																</div>
-															</div>
-															<input
-																type="text"
-																id={`numero-seguro-manager-card-`}
-																name={`numero-seguro-manager-card-`}
-																class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-															/>
-														</div>
-													</li>
-
-													<li>
-														<div
-															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
-														>
-															<button
-																data-tooltip-target={`tooltip-itin-manager-`}
-																data-tooltip-placement="left"
-																type="button"
-																class="text-center"
-															>
-																<Icon
-																	name="ri:hashtag"
-																	width="24"
-																	height="24"
-																	class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-																	title="Numero de ITIN"
-																/>
-															</button>
-
-															<div
-																id={`tooltip-itin-manager-`}
-																role="tooltip"
-																class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
-															>
-																Numero de ITIN
-																<div class="tooltip-arrow" data-popper-arrow>
-																</div>
-															</div>
-															<input
-																type="text"
-																id={`numero-itin-manager-card-`}
-																name={`numero-itin-manager-card-`}
-																class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-															/>
-														</div>
-													</li>
-													<li>
-														<div
-															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white"
-														>
-															<button
-																data-tooltip-target={`tooltip-direccion-manager-`}
-																data-tooltip-placement="left"
-																type="button"
-																class="text-center"
-															>
-																<Icon
-																	name="ri:direction-line"
-																	width="24"
-																	height="24"
-																	class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-																	title="Direccion del manager"
-																/>
-															</button>
-
-															<div
-																id={`tooltip-direccion-manager-`}
-																role="tooltip"
-																class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
-															>
-																Direccion del manager
-																<div class="tooltip-arrow" data-popper-arrow>
-																</div>
-															</div>
-															<input
-																type="text"
-																id={`direccion-manager-card-`}
-																name={`direccion-manager-card-`}
-																class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-															/>
-														</div>
-													</li>
+															</li>
+														))
+													}
 												</ul>
 											</div>
 										</div>
@@ -1511,6 +1167,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 							</template>
 							<div
 								class="col-span-6 sm:col-span-3"
+								x-cloak
 								x-show="managerMiembro === 'Si' || managerMiembro === 'No'"
 								x-transition
 							>
@@ -1520,8 +1177,8 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 									data-modal-toggle="crud-modal-2"
 									class="flex items-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 								>
-									<Icon name="ri:add-line" /> Añadir manager</button
-								>
+									<Icon name="ri:add-line" /> Añadir manager
+								</button>
 							</div>
 						</div>
 					</div>
@@ -1530,41 +1187,3 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 		</div>
 	</div>
 </div>
-
-<script>
-	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
-
-	function initDT() {
-		const el = document.querySelector('#myTable') as HTMLElement | null;
-		if (!el) return;
-		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
-			return;
-
-		new DataTable(el, {
-			searchable: true,
-			perPage: 25,
-			perPageSelect: [5, 10, 25, 50],
-
-			// Textos en español
-			labels: {
-				placeholder: 'Buscar...',
-				perPage: 'Filas',
-				noRows: 'No hay empresas',
-				noResults: 'No se encontraron resultados',
-				info: 'Mostrando {start} de {rows} registros',
-			},
-
-			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
-			layout: {
-				top: '{select}{search}',
-				bottom: '{info}{pager}',
-			},
-		});
-
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
-	}
-
-	initDT();
-	document.addEventListener('astro:page-load', initDT);
-</script>

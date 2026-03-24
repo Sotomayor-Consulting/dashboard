@@ -104,6 +104,47 @@ const {
 
 <script>
 	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
+	import { initFlowbite } from 'flowbite';
+
+	function reinitFlowbite() {
+		requestAnimationFrame(() => {
+			initFlowbite();
+		});
+	}
+
+	function decorateTableActions(table: HTMLTableElement) {
+		const rows = table.querySelectorAll<HTMLTableRowElement>('tbody tr');
+
+		rows.forEach((row) => {
+			const actionCell = row.lastElementChild;
+			if (!(actionCell instanceof HTMLTableCellElement)) return;
+
+			actionCell
+				.querySelectorAll<
+					HTMLButtonElement | HTMLAnchorElement
+				>(':scope > button, :scope > a')
+				.forEach((control) => {
+					if (
+						control instanceof HTMLButtonElement &&
+						control.id.startsWith('dd-btn-')
+					) {
+						control.classList.add('dt-action-menu-trigger');
+						return;
+					}
+
+					control.classList.add('dt-action-primary');
+				});
+
+			actionCell
+				.querySelectorAll<HTMLElement>(":scope [role='menu']")
+				.forEach((menu) => {
+					menu.classList.add('dt-action-menu-panel');
+					menu
+						.querySelectorAll<HTMLElement>("[role='menuitem'], a, button")
+						.forEach((item) => item.classList.add('dt-action-menu-item'));
+				});
+		});
+	}
 
 	function initAllDataTables() {
 		const tables = document.querySelectorAll<HTMLTableElement>(
@@ -121,7 +162,7 @@ const {
 			);
 			const searchable = el.dataset.searchable !== 'false';
 
-			new DataTable(el, {
+			const dataTable = new DataTable(el, {
 				searchable,
 				perPage,
 				perPageSelect,
@@ -138,7 +179,26 @@ const {
 				},
 			});
 
+			const syncUiEnhancements = () => {
+				decorateTableActions(el);
+				reinitFlowbite();
+			};
+
+			if (typeof dataTable.on === 'function') {
+				[
+					'datatable.init',
+					'datatable.update',
+					'datatable.page',
+					'datatable.perpage',
+					'datatable.sort',
+					'datatable.search',
+				].forEach((eventName) => {
+					dataTable.on(eventName, syncUiEnhancements);
+				});
+			}
+
 			el.dataset.dtInit = '1';
+			syncUiEnhancements();
 		});
 	}
 

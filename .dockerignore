@@ -1,8 +1,40 @@
+# Dependencias (se instalan dentro del contenedor)
 node_modules
+
+# Artefactos de build
 dist
+
+# Git
 .git
 .gitignore
+
+# IDE / Editor
 .vscode
-npm-debug.log
+.idea
+*.swp
+*.swo
+
+# Docker (evitar recursión)
 Dockerfile
-docker-compose.yml
+docker-compose*.yml
+.dockerignore
+
+# Logs
+npm-debug.log
+*.log
+
+# Entorno local
+.env
+.env.*
+!.env.example
+
+# Claude / AI
+.claude
+.agents
+CLAUDE.md
+
+# Misc
+.DS_Store
+Thumbs.db
+*.md
+!src/**/*.md
