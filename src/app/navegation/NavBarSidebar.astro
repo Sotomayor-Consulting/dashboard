@@ -20,7 +20,7 @@ const { notifications, totalUnread } = notifProp ?? {
 ---
 
 <nav
-	class="fixed z-30 w-full bg-white/80 backdrop-blur-md border-b border-gray-200/60 dark:bg-black-900/90 dark:backdrop-blur-md dark:border-gray-700/50"
+	class="dark:bg-black-900/60 bg-white-50/80 fixed z-30 w-full border-b border-gray-200/60 backdrop-blur-md dark:border-gray-700/50 dark:backdrop-blur-md"
 	transition:persist="navbar"
 >
 	<div class="px-3 py-3 lg:px-5 lg:pl-3">
@@ -59,12 +59,12 @@ const { notifications, totalUnread } = notifProp ?? {
 				</button>
 				<a href="/" class="ml-2 hidden md:mr-24 md:flex">
 					<Icon
-						name="isotipo_negro"
+						name="isotipo_azul"
 						class="block text-3xl dark:hidden"
 						title="Logo Sotomayor Consulting"
 					/>
 					<Icon
-						name="isotipo_blanco"
+						name="isotipo_blanco_alt"
 						class="mr-3 hidden text-3xl dark:block"
 						title="Logo Sotomayor Consulting"
 					/>
@@ -117,7 +117,7 @@ const { notifications, totalUnread } = notifProp ?? {
 						type="button"
 						id="notifications-toggle"
 						data-dropdown-toggle="notification-dropdown"
-						class="relative rounded-lg p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:text-white dark:hover:text-white dark:hover:bg-[#101522]"
+						class="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-white dark:hover:bg-[#101522] dark:hover:text-white"
 					>
 						<span class="sr-only">Ver Notificaciones</span>
 						<!-- Bell icon -->
@@ -198,7 +198,7 @@ const { notifications, totalUnread } = notifProp ?? {
 													</span>
 													{!notification.is_read && (
 														<button
-															class="mark-as-read inline-flex cursor-pointer rounded-lg px-2 py-1 text-xs font-medium text-primary-600 hover:bg-primary-50 hover:text-primary-700 dark:text-neutral-400 dark:hover:text-primary-400"
+															class="mark-as-read text-primary-600 hover:bg-primary-50 hover:text-primary-700 dark:hover:text-primary-400 inline-flex cursor-pointer rounded-lg px-2 py-1 text-xs font-medium dark:text-neutral-400"
 															data-id={notification.id}
 														>
 															Marcar como leída
@@ -280,9 +280,9 @@ const { notifications, totalUnread } = notifProp ?? {
 						<ul class="py-1" role="none">
 							<li>
 								<a
-									href="/dashboard/"
+									href="/pages/companias"
 									class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-									role="menuitem">Dashboard</a
+									role="menuitem">Mis empresas</a
 								>
 							</li>
 							<li>

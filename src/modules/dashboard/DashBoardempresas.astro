@@ -46,102 +46,40 @@ if (empresa.estado_de_incorporacion) {
 		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
 	>
 		<div
-			class="dark:bg-black-800 bg-white-50 items-center justify-between rounded-lg border border-gray-200 p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
+			class="dark:bg-black-800 bg-white-50 flex-col items-start gap-5 rounded-lg border border-gray-200 p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
 		>
+			<div
+				class="dark:bg-black-700 bg-white-100 flex items-start justify-start rounded-full p-3"
+			>
+				<Icon name="ri:building-2-fill" class="text-2xl text-[#8c681d]" />
+			</div>
 			<div class="w-full">
-				<h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">
-					Nombre de tu empresa
+				<h3 class="mb-3 text-base font-normal text-gray-500 dark:text-gray-400">
+					Nombre de la empresa
 				</h3>
 				<span
-					class="text-2xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
+					class="text-4xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
 					>{empresa.nombre_1}</span
 				>
-				<p
-					class="flex items-center text-base font-normal text-gray-500 dark:text-gray-400"
-				>
-					{empresa.estado_de_incorporacion}
-				</p>
-			</div>
-			<div class="flex h-full w-full items-center justify-center">
-				<Icon name="barras" class="text-9xl" />
 			</div>
 		</div>
 
 		<div
-			class="dark:bg-black-800 bg-white-50 rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700"
+			class="dark:bg-black-800 bg-white-50 flex-col items-start gap-5 rounded-lg border border-gray-200 p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
 		>
 			<div
-				class="flex items-center justify-between rounded-lg p-4 sm:flex sm:p-6"
+				class="dark:bg-black-700 bg-white-100 flex items-start justify-start rounded-full p-3"
 			>
-				<div class="w-full">
-					<h3
-						class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400"
-					>
-						Tipo de negocio
-					</h3>
-					<span
-						class="text-2xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
-						>{empresa.tipo_de_negocio}</span
-					>
-				</div>
-				<div class="w-full">
-					<div class="flex h-full w-full items-center justify-center">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							xmlns:xlink="http://www.w3.org/1999/xlink"
-							id="svg1"
-							viewBox="0 0 212.325 80.718"
-							><defs id="defs1"
-								><linearGradient id="linearGradient7"
-									><stop
-										id="stop7"
-										offset="0"
-										style="stop-color:#967532;stop-opacity:1"></stop><stop
-										id="stop8"
-										offset="1"
-										style="stop-color:#967532;stop-opacity:0"
-									></stop></linearGradient
-								><linearGradient id="linearGradient2"
-									><stop
-										id="stop2"
-										offset="0"
-										style="stop-color:#967532;stop-opacity:1"></stop><stop
-										id="stop3"
-										offset="1"
-										style="stop-color:#967532;stop-opacity:0"
-									></stop></linearGradient
-								><linearGradient
-									xlink:href="#linearGradient2"
-									id="linearGradient3"
-									x1="120.511"
-									x2="120.511"
-									y1="66.882"
-									y2="155.955"
-									gradientTransform="matrix(1.011 0 0 1 .016 0)"
-									gradientUnits="userSpaceOnUse"
-								></linearGradient><linearGradient
-									xlink:href="#linearGradient7"
-									id="linearGradient8"
-									x1="126.783"
-									x2="126.783"
-									y1="78.109"
-									y2="173.031"
-									gradientTransform="matrix(.95248 0 0 1 1.095 -2.779)"
-									gradientUnits="userSpaceOnUse"></linearGradient></defs
-							><g id="layer1" transform="translate(0 -55.232)"
-								><path
-									id="path2"
-									d="M180.358 67.022a9.56 9.56 0 0 0-4.19.773c-10.977 4.69-20.341 31.32-31.93 33.462-11.59 2.143-25.403-20.204-36.173-15.92s-18.496 35.199-28.564 31.32c-10.067-3.88-22.475-42.551-36.113-45.156-13.638-2.606-28.505 30.857-37.402 49.325-3.2 6.643-5.628 11.347-7.423 14.995h213.761l.001-.984V97.61c-11.016-15.096-22.031-30.192-31.967-30.589"
-									style="display:inline;opacity:.5;fill:url(#linearGradient3);stroke:none;stroke-width:.266034"
-								></path><path
-									id="path1"
-									d="M212.325 135.821V88.572c-2.776-8.19-7.114-10.708-11.821-10.124-6.066.752-12.743 6.657-22.699 5.152-8.711-1.317-19.933-8.308-28.402-8.135-1.21.025-2.363.196-3.445.55-8.658 2.838-12.739 17.427-20.944 22.693s-20.535 1.208-30.02-3.366S78.87 85.68 69.65 89.561s-21.02 16.734-29.513 21.597c-8.492 4.863-13.676 1.737-19.86 4.053s-13.366 10.073-18.88 17.6c-.74 1.009-1.45 2.014-2.062 3.01z"
-									style="display:inline;opacity:.333;fill:url(#linearGradient8);stroke-width:.25822"
-								></path></g
-							></svg
-						>
-					</div>
-				</div>
+				<Icon name="ri:building-2-fill" class="text-2xl text-[#8c681d]" />
+			</div>
+			<div class="w-full">
+				<h3 class="mb-3 text-base font-normal text-gray-500 dark:text-gray-400">
+					Tipo de negocio
+				</h3>
+				<span
+					class="text-4xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
+					>{empresa.tipo_de_negocio}</span
+				>
 			</div>
 		</div>
 
@@ -158,7 +96,7 @@ if (empresa.estado_de_incorporacion) {
 				>
 			</div>
 			<div
-				class="w-full"
+				class="h-full w-full"
 				id="porcentaje-radio"
 				data-empresa-id={Astro.params.id}
 				data-porcentaje={empresa.porcentaje_de_incorporacion}
@@ -374,7 +312,7 @@ if (empresa.estado_de_incorporacion) {
 									{
 										icono: 'ri:account-circle-fill',
 										nombre: 'Configura tu perfil',
-										link: '/partners/configuracion-partners/',
+										link: '/settings/',
 									},
 									{
 										icono: 'ri:bar-chart-2-fill',

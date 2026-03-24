@@ -4,7 +4,7 @@ import '@styles/datatables.css';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
 import { RolesGeneralUsers } from '@lib/tablas/roles';
 
-const supabase = Astro.locals.supabase
+const supabase = Astro.locals.supabase;
 const [usuarios, roles] = await Promise.all([
 	getAllUsuarios(supabase),
 	RolesGeneralUsers(supabase),
@@ -13,7 +13,7 @@ const [usuarios, roles] = await Promise.all([
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="dark:bg-black-900 block items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
+	class="block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<Alerta />
 	<div class="mb-1 w-full">

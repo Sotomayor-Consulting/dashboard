@@ -123,6 +123,8 @@ const PUBLIC_ROUTES: readonly string[] = [
 	'/incorporacion-y-pago',
 	'/test',
 	'/playground',
+	'/assets',
+	'/_image',
 ];
 
 /** Rutas de autenticación (redirigir al dash si ya está logueado) */

@@ -10,7 +10,7 @@ const empresas = await pagosRealizadosPorSubir(supabase);
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <div
-	class="dark:bg-black-900 block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
+	class="block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<Alerta />
 	<div class="mb-1 w-full">
@@ -112,7 +112,7 @@ const empresas = await pagosRealizadosPorSubir(supabase);
 							empresas?.map((e) => (
 								<div>
 									<tr
-										class="odd:bg-white cursor-pointer even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
+										class="cursor-pointer odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
 										onclick={`window.open('/forms/upload_documents/${e.empresas_incorporaciones.empresa_incorporacion_id}', '_blank')`}
 									>
 										<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">

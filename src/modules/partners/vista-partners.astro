@@ -27,7 +27,9 @@ if (usuario) {
 	};
 }
 
-const documentos = UserId ? await getDocumentosGenerales(supabase, UserId) : null;
+const documentos = UserId
+	? await getDocumentosGenerales(supabase, UserId)
+	: null;
 
 interface Props {
 	data: object;
@@ -71,7 +73,7 @@ if (isPartner && user) {
 							id="npm-install-copy-button"
 							data-copy-to-clipboard-target="npm-install-input"
 							data-tooltip-target="tooltip-copy-npm-install-copy-button"
-							class="absolute end-2 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-lg bg-[#967432] p-2 text-white hover:bg-[#967432]/80 dark:hover:bg-[#967432]"
+							class="bg-black-400 hover:bg-black-600/80 dark:hover:bg-black-600 absolute end-2 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-lg p-2 text-white"
 						>
 							<span id="default-icon">
 								<svg
@@ -266,7 +268,7 @@ if (isPartner && user) {
 								<button
 									type="button"
 									id="btn-confirm-upload"
-									class="rounded-lg bg-[#967432] px-4 py-2 text-white hover:bg-[#967432] disabled:cursor-not-allowed disabled:opacity-50"
+									class="bg-black-600 hover:bg-black-600 rounded-lg px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
 									disabled
 								>
 									Subir contrato
@@ -388,7 +390,7 @@ if (isPartner && user) {
 										<a
 											target="_blank"
 											href={ac.link}
-											class="me-2 inline-flex items-center rounded-lg bg-[#967432] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#967432] focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+											class="bg-black-600 hover:bg-black-600 dark:bg-black-400 dark:hover:bg-black-400/80 me-2 inline-flex items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-[#323f67]"
 										>
 											<svg
 												xmlns="http://www.w3.org/2000/svg"

@@ -10,7 +10,10 @@ const userRoles = Astro.locals.userRoles || [];
 
 const isAdmin = userRoles.includes('admin');
 
-const { data: envio, error: envioErr } = await getFormularioEnviadoDetalle(supabase, id!);
+const { data: envio, error: envioErr } = await getFormularioEnviadoDetalle(
+	supabase,
+	id!,
+);
 
 if (envioErr || !envio) return Astro.redirect('/');
 
@@ -40,7 +43,7 @@ import '@styles/surveyjs.css';
 		</h1>
 	</section>
 
-	<div id="surveyContainer" class="mx-auto h-full"></div>
+	<div id="surveyContainer" class="h-screen"></div>
 
 	<script type="text/javascript" src="/surveyjs/survey_core_min.js"></script>
 	<script type="text/javascript" src="/surveyjs/survey_js_ui_min.js"></script>

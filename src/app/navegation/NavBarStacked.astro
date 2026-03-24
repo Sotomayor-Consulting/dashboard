@@ -8,46 +8,51 @@ const user = await UsersGeneral(supabase);
 ---
 
 <nav
-	class="fixed z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-200/60 sm:py-2 dark:bg-black-900/90 dark:backdrop-blur-md dark:border-gray-700/50"
+	class="dark:bg-black-900/60 fixed z-50 w-full border-b border-gray-200/60 bg-white/80 backdrop-blur-md sm:py-2 dark:border-gray-700/50 dark:backdrop-blur-md"
 >
 	<div class="container mx-auto py-3">
 		<div class="flex items-center justify-between">
 			<div class="flex items-center justify-start">
 				<a href="/" class="mr-4 flex">
 					<Icon
-						name="logo-en-blanco"
+						name="logo-en-blanco-alt"
 						class="mx-3 hidden text-3xl dark:block"
 						title="Logo Sotomayor Consulting"
 					/>
 					<Icon
-						name="logo-en-negro"
+						name="logo-en-azul"
 						class="mx-3 block text-3xl dark:hidden"
 						title="Logo Sotomayor Consulting"
 					/>
 				</a>
 				<div class="hidden sm:ml-6 sm:flex">
 					<ul class="flex space-x-8">
-						<li>
-							<a
-								href="/"
-								class="text-sm font-medium text-gray-700 hover:text-[#8c681d] dark:text-gray-400 dark:hover:text-[#8c681d]"
-								aria-current="page">Inicio</a
-							>
-						</li>
-						<li>
-							<a
-								href="https://sotomayorconsulting.com/inicio/about/"
-								class="text-sm font-medium text-gray-700 hover:text-[#8c681d] dark:text-gray-400 dark:hover:text-[#8c681d]"
-								aria-current="page">Nosotros</a
-							>
-						</li>
-						<li>
-							<a
-								href="https://sotomayorconsulting.com/inicio/contact/"
-								class="text-sm font-medium text-gray-700 hover:text-[#8c681d] dark:text-gray-400 dark:hover:text-[#8c681d]"
-								aria-current="page">Contactos</a
-							>
-						</li>
+						{
+							[
+								{
+									link: '/',
+									label: 'Inicio',
+								},
+								{
+									link: 'https://sotomayorconsulting.com/inicio/about/',
+									label: 'Nosotros',
+								},
+								{
+									link: 'https://sotomayorconsulting.com/inicio/contact/',
+									label: 'Contactos',
+								},
+							].map((li) => (
+								<li>
+									<a
+										href={li.link}
+										class="dark:hover:text-black-300 hover:text-black-700 text-sm font-medium text-gray-700 dark:text-gray-400"
+										aria-current="page"
+									>
+										{li.label}
+									</a>
+								</li>
+							))
+						}
 					</ul>
 				</div>
 			</div>
@@ -58,7 +63,7 @@ const user = await UsersGeneral(supabase);
 						<a
 							href="/sign-in"
 							target="_blank"
-							class="hidden items-center rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-700 focus:ring-4 focus:ring-primary-300 md:inline-flex dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+							class="bg-primary-600 hover:bg-primary-700 focus:ring-primary-300 hidden items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 md:inline-flex dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 						>
 							<svg
 								class="mr-2 -ml-1 h-5 w-5"
