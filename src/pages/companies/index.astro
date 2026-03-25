@@ -1,8 +1,11 @@
 ---
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import Notificaciones from '@components/feedback/Notificaciones.astro';
+import CompanyList from '@modules/companies/Companies.astro';
 
 // Auth handled by middleware
 ---
 
-<LayoutSidebar />
+<LayoutSidebar>
+	<CompanyList />
+</LayoutSidebar>
