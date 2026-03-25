@@ -1,12 +1,12 @@
 ---
 import LayoutStacked from '@app/layouts/LayoutStackedDos.astro';
-import FormSignUp from '@modules/auth/FormSignUp.astro';
+import FormSignUp from '@modules/auth/FormSignUp.tsx';
 import Alerta from '@components/feedback/alertageneral.astro';
 ---
 
 <LayoutStacked>
-	<div class="min-h-screen align-middle flex pb-[12vh]">
+	<div class="flex items-center">
 		<Alerta />
-		<FormSignUp />
+		<FormSignUp client:load />
 	</div>
 </LayoutStacked>

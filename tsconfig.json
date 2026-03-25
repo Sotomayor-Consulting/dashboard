@@ -4,6 +4,8 @@
 		"module": "ESNext",
 		"moduleResolution": "bundler",
 		"esModuleInterop": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "react",
 		"paths": {
 			"@components/*": ["./src/components/*"],
 			"@assets/*": ["./src/assets/*"],
