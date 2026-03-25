@@ -17,21 +17,35 @@ const { slug } = Astro.params;
 
 {
 	imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
-		<Image
-			src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId || ''}`}
-			class="mb-4 h-28 w-28 rounded-lg sm:mb-0 xl:mb-4 2xl:mb-0"
-			alt="avatar"
-			loading="eager"
-			inferSize={true}
-		/>
+		<div class="relative inline-block">
+			<Image
+				src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId || ''}`}
+				class="h-28 w-28 rounded-lg"
+				alt="avatar"
+				loading="eager"
+				inferSize={true}
+			/>
+			<img
+				id="preview-avatar"
+				class="absolute inset-0 hidden h-28 w-28 rounded-lg object-cover"
+				alt="Preview"
+			/>
+		</div>
 	) : (
-		<Image
-			class="mb-4 h-28 w-28 rounded-lg sm:mb-0 xl:mb-4 2xl:mb-0"
-			src={imagen?.avatar_url}
-			alt="Foto de perfil"
-			inferSize={true}
-			loading="eager"
-		/>
+		<div class="relative inline-block">
+			<Image
+				class="h-28 w-28 rounded-lg"
+				src={imagen?.avatar_url}
+				alt="Foto de perfil"
+				inferSize={true}
+				loading="eager"
+			/>
+			<img
+				id="preview-avatar"
+				class="absolute inset-0 hidden h-28 w-28 rounded-lg object-cover"
+				alt="Preview"
+			/>
+		</div>
 	)
 }
 
@@ -59,6 +73,7 @@ const { slug } = Astro.params;
 					name="avatar"
 					accept="image/*"
 					required
+					id="avatar-input"
 				/>
 			</label>
 
@@ -81,3 +96,17 @@ const { slug } = Astro.params;
 		</form>
 	</div>
 </div>
+
+<script>
+	const input = document.getElementById('avatar-input') as HTMLInputElement;
+	const preview = document.getElementById('preview-avatar') as HTMLImageElement;
+
+	input?.addEventListener('change', (e) => {
+		const file = (e.target as HTMLInputElement).files?.[0];
+		if (file) {
+			const url = URL.createObjectURL(file);
+			preview.src = url;
+			preview.classList.remove('hidden');
+		}
+	});
+</script>
