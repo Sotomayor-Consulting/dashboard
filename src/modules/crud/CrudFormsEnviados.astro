@@ -1,398 +1,248 @@
 ---
-import '@styles/datatables.css';
 import Alerta from '@components/feedback/alertageneral.astro';
+import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
+import DataTable from '@components/ui/DataTable.astro';
+import DateCell from '@components/ui/DateCell.astro';
+import Drawer from '@components/ui/Drawer.astro';
+import DrawerConfirm from '@components/ui/DrawerConfirm.astro';
+import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
+import StackedText from '@components/ui/StackedText.astro';
+import StatusBadge from '@components/ui/StatusBadge.astro';
 import { Icon } from 'astro-icon/components';
 import { FormsEnviadosDataGeneral } from '@lib/tablas/formulariosEnviados';
 
 const supabase = Astro.locals.supabase;
-
 const formularios_envios = await FormsEnviadosDataGeneral(supabase);
+
+const inputClass =
+	'dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400';
+const textareaClass =
+	'focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400';
+const labelClass =
+	'mb-2 block text-sm font-medium text-gray-900 dark:text-white';
+const selectClass =
+	'focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400';
+const tdClass =
+	'max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white';
+const actionBtnClass =
+	'focus:ring-primary-300 inline-flex w-1/2 items-center justify-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]';
+
+const tableHeaders = [
+	'id de formulario',
+	'Subido por',
+	'Porcentaje de progreso',
+	'Fecha de inicio del formulario',
+	'Fecha de ultima actualizacion',
+	'Fecha de ultima subida',
+	'estado',
+	'Acciones',
+];
 ---
 
 <Alerta />
 <div>
 	<div
-		class="bg-white dark:bg-black-900 block w-full items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5"
+		class="dark:bg-black-900 block w-full items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5"
 	>
-		<div class="mb-1 w-full">
-			<div class="mb-4">
-				<nav class="mb-5 flex" aria-label="Breadcrumb">
-					<ol
-						class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
-					>
-						<li class="inline-flex items-center">
-							<a
-								href="/"
-								class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
-							>
-								<svg
-									class="mr-2.5 h-5 w-5"
-									fill="currentColor"
-									viewBox="0 0 20 20"
-									xmlns="http://www.w3.org/2000/svg"
-									><path
-										d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
-									></path></svg
-								>
-								Inicio
-							</a>
-						</li>
-						<li>
-							<div class="flex items-center">
-								<svg
-									class="h-6 w-6 text-gray-400"
-									fill="currentColor"
-									viewBox="0 0 20 20"
-									xmlns="http://www.w3.org/2000/svg"
-									><path
-										fill-rule="evenodd"
-										d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-										clip-rule="evenodd"></path></svg
-								>
-								<a
-									href="/crud/formularios-enviados"
-									class="ml-1 text-gray-700 hover:text-[#967432] md:ml-2 dark:text-gray-300 dark:hover:text-white"
-									>Formularios</a
-								>
-							</div>
-						</li>
-					</ol>
-				</nav>
-				<h1
-					class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
+		<CrudPageHeader
+			title="Todos los formularios de incorporacion enviados"
+			breadcrumbItems={[
+				{
+					label: 'Formularios',
+					href: '/crud/formularios-enviados',
+				},
+			]}
+			refreshHref="/crud/formularios-enviados"
+		>
+			<a
+				slot="actions"
+				href="/crud/formularios"
+				target="_blank"
+				class={actionBtnClass}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="mr-2 -ml-1 h-5 w-5"
+					viewBox="0 0 24 24"
+					><path
+						fill="currentColor"
+						d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6v2H5v12h12v-6zM13 3v2h4.586l-7.793 7.793l1.414 1.414L19 6.414V11h2V3z"
+					></path></svg
 				>
-					Todos los formularios de incorporación enviados
-				</h1>
-			</div>
-			<div class="block items-center justify-between sm:flex">
-				<div class="ml-auto flex items-center space-x-2 sm:space-x-3">
-					<a
-						href="/crud/formularios-enviados"
-						type="button"
-						class="focus:ring-primary-300 inline-flex h-full w-1/2 items-center justify-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-					>
-						<svg
-							class="mr-2 -ml-1 h-5 w-5"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="1.5"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-							aria-hidden="true"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-							></path>
-						</svg>
-						Actualizar
-					</a>
-					<a
-						href="/crud/formularios"
-						target="_blank"
-						type="button"
-						class="focus:ring-primary-300 inline-flex w-1/2 items-center justify-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="mr-2 -ml-1 h-5 w-5"
-							viewBox="0 0 24 24"
-							><path
-								fill="currentColor"
-								d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6v2H5v12h12v-6zM13 3v2h4.586l-7.793 7.793l1.414 1.414L19 6.414V11h2V3z"
-							></path></svg
-						>
-						Gestionar formularios
-					</a>
-				</div>
-			</div>
-		</div>
+				Gestionar formularios
+			</a>
+		</CrudPageHeader>
 	</div>
 
 	<div class="flex flex-col">
 		<div class="overflow-x-auto">
 			<div class="inline-block min-w-full align-middle">
 				<div class="overflow-hidden shadow">
-					<table
-						class="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-600"
-						id="myTable"
+					<DataTable
+						headers={tableHeaders}
+						noRowsMessage="No hay formularios para mostrar"
 					>
-						<thead class="dark:bg-black-800 bg-gray-100">
-							<tr>
-								{
-									[
-										'id de formulario',
-										'Subido por',
-										'Porcentaje de progreso',
-										'Fecha de inicio del formulario',
-										'Fecha de ultima actualización',
-										'Fecha de ultima subida',
-										'estado',
-										'Acciones',
-									].map((th) => (
-										<th
-											scope="col"
-											class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
-										>
-											<span class="flex items-center uppercase">
-												{th}
-												<svg
-													class="ms-1 h-4 w-4"
-													aria-hidden="true"
-													xmlns="http://www.w3.org/2000/svg"
-													width="24"
-													height="24"
-													fill="none"
-													viewBox="0 0 24 24"
-												>
-													<path
-														stroke="currentColor"
-														stroke-linecap="round"
-														stroke-linejoin="round"
-														stroke-width="2"
-														d="m8 15 4 4 4-4m0-6-4-4-4 4"
-													/>
-												</svg>
-											</span>
-										</th>
-									))
-								}
-							</tr>
-						</thead>
-
-						<tbody
-							class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
-						>
-							{
-								formularios_envios?.map((sr) => (
-									<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
-										<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
-											<div class="text-base font-semibold text-gray-900 dark:text-white">
-												<data value="name">
-													{sr.formularios?.titulo ?? '— sin título —'}
-												</data>
-											</div>
-											<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-												<data value="category">
-													{sr.formularios?.slug ?? '— sin categoría —'}
-												</data>
-											</div>
-										</td>
-
-										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-											<data>
-												{sr.usuarios.nombre} {sr.usuarios.apellido}
-											</data>
-										</td>
-										<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-											<data value="">{sr.progress_percent ?? '0'}% </data>
-										</td>
-										<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											<data value="">
-												{sr.created_at &&
-													new Date(sr.created_at)
-														.toLocaleDateString('es-ES', {
-															day: '2-digit',
-															month: '2-digit',
-															year: 'numeric',
-														})
-														.replace(/\//g, '-')}
-											</data>
-										</td>
-										<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											<data value="">
-												{sr.updated_at &&
-													new Date(sr.updated_at)
-														.toLocaleDateString('es-ES', {
-															day: '2-digit',
-															month: '2-digit',
-															year: 'numeric',
-														})
-														.replace(/\//g, '-')}
-											</data>
-										</td>
-										<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-											<data value="">
-												{(sr.submitted_at &&
-													new Date(sr.submitted_at)
-														.toLocaleDateString('es-ES', {
-															day: '2-digit',
-															month: '2-digit',
-															year: 'numeric',
-														})
-														.replace(/\//g, '-')) ??
-													'— sin fecha —'}
-											</data>
-										</td>
-										<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-											<div class="flex items-center">
-												{sr.status === 'submitted' ? (
-													<>
-														<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
-														<span>Terminado</span>
-													</>
-												) : (
-													<>
-														<div class="mr-2 h-2.5 w-2.5 rounded-full bg-orange-400" />
-														<span>En progreso</span>
-													</>
-												)}
-											</div>
-										</td>
-
-										<td class="space-x-2 p-4 text-center whitespace-nowrap">
-											<div class="flex h-full items-center justify-center gap-2">
-												<a
-													href={`/forms/enviados/${sr.submission_id}`}
-													target="_blank"
-													title="ver formulario"
-													data-tooltip-target={`tool-tip-${sr.submission_id}`}
-												>
-													<Icon
-														name="ri:eye-fill"
-														class="text-2xl text-neutral-600 hover:scale-105 dark:text-neutral-400 dark:hover:text-neutral-300"
-													/>
-												</a>
+						{
+							formularios_envios?.map((sr) => (
+								<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+									<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
+										<StackedText
+											title={
+												sr.formularios?.titulo ??
+												'— sin titulo —'
+											}
+											subtitle={
+												sr.formularios?.slug ??
+												'— sin categoria —'
+											}
+										/>
+									</td>
+									<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+										<data>
+											{sr.usuarios.nombre}{' '}
+											{sr.usuarios.apellido}
+										</data>
+									</td>
+									<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+										<data value="">
+											{sr.progress_percent ?? '0'}%{' '}
+										</data>
+									</td>
+									<td class={tdClass}>
+										<DateCell date={sr.created_at} />
+									</td>
+									<td class={tdClass}>
+										<DateCell date={sr.updated_at} />
+									</td>
+									<td class={tdClass}>
+										<DateCell date={sr.submitted_at} />
+									</td>
+									<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+										<StatusBadge
+											active={
+												sr.status === 'submitted'
+											}
+											activeLabel="Terminado"
+											inactiveLabel="En progreso"
+											inactiveColor="bg-orange-400"
+										/>
+									</td>
+									<td class="space-x-2 p-4 text-center whitespace-nowrap">
+										<div class="flex h-full items-center justify-center gap-2">
+											<a
+												href={`/forms/enviados/${sr.submission_id}`}
+												target="_blank"
+												title="ver formulario"
+												data-tooltip-target={`tool-tip-${sr.submission_id}`}
+											>
+												<Icon
+													name="ri:eye-fill"
+													class="text-2xl text-neutral-600 hover:scale-105 dark:text-neutral-400 dark:hover:text-neutral-300"
+												/>
+											</a>
+											<div
+												id={`tool-tip-${sr.submission_id}`}
+												role="tooltip"
+												class="tooltip dark:bg-black-800 invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300"
+											>
+												Ver respuestas del formulario
 												<div
-													id={`tool-tip-${sr.submission_id}`}
-													role="tooltip"
-													class="tooltip dark:bg-black-800 invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300"
-												>
-													Ver respuestas del formulario
-													<div class="tooltip-arrow" data-popper-arrow />
-												</div>
+													class="tooltip-arrow"
+													data-popper-arrow
+												/>
 											</div>
-										</td>
-									</tr>
-								))
-							}
-						</tbody>
-					</table>
+										</div>
+									</td>
+								</tr>
+							))
+						}
+					</DataTable>
 				</div>
 			</div>
 		</div>
 	</div>
 
 	<!-- Edit Product Drawer -->
-	<div
-		id="drawer-update-product-default"
-		class="dark:bg-black-800 fixed top-0 right-0 z-40 h-screen w-full max-w-xs translate-x-full overflow-y-auto bg-white p-4 transition-transform"
-		tabindex="-1"
-		aria-labelledby="drawer-label"
-		aria-hidden="true"
-	>
-		<h5
-			id="drawer-label"
-			class="mb-6 inline-flex items-center text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
-		>
-			Actualizar Formulario
-		</h5>
-		<button
-			type="button"
-			data-drawer-dismiss="drawer-update-product-default"
-			aria-controls="drawer-update-product-default"
-			class="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-		>
-			<svg
-				aria-hidden="true"
-				class="h-5 w-5"
-				fill="currentColor"
-				viewBox="0 0 20 20"
-				xmlns="http://www.w3.org/2000/svg"
-				><path
-					fill-rule="evenodd"
-					d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-					clip-rule="evenodd"></path></svg
-			>
-			<span class="sr-only">Cerrar menu</span>
-		</button>
-
+	<Drawer id="drawer-update-product-default" title="Actualizar Formulario">
 		<form action="/api/update/admin-update-forms" method="post">
 			<div class="space-y-4">
-				<input type="hidden" name="service_id" id="modal_form_id" value="" />
+				<input
+					type="hidden"
+					name="service_id"
+					id="modal_form_id"
+					value=""
+				/>
 				<div>
-					<label
-						for="nombre_update-service"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+					<label for="nombre_update-service" class={labelClass}
 						>Titulo del formulario</label
 					>
 					<input
 						type="text"
 						name="titulo-form"
 						id="titulo-update-form"
-						class="dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+						class={inputClass}
 						value=""
 						placeholder="inserta el titulo del formulario"
 						required=""
 					/>
 				</div>
 				<div>
-					<label
-						for="categoria_service"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-						>Categoría</label
+					<label for="categoria_service" class={labelClass}
+						>Categoria</label
 					>
 					<input
 						type="text"
 						name="categoria-form"
 						id="categoria-form-update"
-						class="dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+						class={inputClass}
 						value=""
-						placeholder="Añade la categoria del formulario"
+						placeholder="Anade la categoria del formulario"
 						required=""
 					/>
 				</div>
 				<div>
-					<label
-						for="precio-servicio"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+					<label for="precio-servicio" class={labelClass}
 						>Pega el JSON del formulario</label
 					>
 					<textarea
 						name="json-update"
 						id="json-form"
-						class="dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-						placeholder="Añade el Json del formulario"
+						class={inputClass}
+						placeholder="Anade el Json del formulario"
 						required=""></textarea>
 				</div>
 				<div>
-					<label
-						for="descripcion-servicio"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+					<label for="descripcion-servicio" class={labelClass}
 						>Tema del form (opcional)</label
 					>
 					<textarea
 						id="tema-form"
 						name="tema-form-update"
 						rows="4"
-						class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-						placeholder="Añade el código json del tema de tu formulario"
+						class={textareaClass}
+						placeholder="Anade el codigo json del tema de tu formulario"
 					></textarea>
 				</div>
 				<div>
-					<label
-						for="descripcion-servicio"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-						>Descripción</label
+					<label for="descripcion-servicio" class={labelClass}
+						>Descripcion</label
 					>
 					<textarea
 						id="descripcion-form"
 						name="descripcion-form-update"
 						rows="4"
-						class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-						placeholder="Añade una descripcion para el form"></textarea>
+						class={textareaClass}
+						placeholder="Anade una descripcion para el form"
+					></textarea>
 				</div>
 				<div>
-					<label
-						for="updaterol_estado"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+					<label for="updaterol_estado" class={labelClass}
 						>Estado</label
 					>
 					<select
 						id="update-form-estado"
 						name="estado"
-						class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+						class={selectClass}
 					>
 						<option value="" disabled="" selected="">--</option>
 						<option value="true">Activo</option>
@@ -400,412 +250,190 @@ const formularios_envios = await FormsEnviadosDataGeneral(supabase);
 					</select>
 				</div>
 			</div>
-			<div
-				class="bottom-0 left-0 mt-4 flex w-full justify-center space-x-4 pb-4 sm:absolute sm:mt-0 sm:px-4"
-			>
-				<button
-					type="submit"
-					class="focus:ring-primary-300 w-full justify-center rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-				>
-					Actualizar
-				</button>
-				<button
-					data-drawer-hide="drawer-update-product-default"
-					type="button"
-					class="dark:bg-black-800 inline-flex w-full items-center justify-center rounded-lg border border-red-600 px-5 py-2.5 text-center text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white focus:ring-4 focus:ring-red-300 focus:outline-none dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
-				>
-					Cancelar
-				</button>
-			</div>
+			<DrawerFormActions
+				drawerId="drawer-update-product-default"
+				submitLabel="Actualizar"
+			/>
 		</form>
-	</div>
+	</Drawer>
 
-	<!-- Delete Product Drawer -->
-	<div
+	<!-- Archive Drawer -->
+	<DrawerConfirm
 		id="drawer-delete-product-default"
-		class="dark:bg-black-800 fixed top-0 right-0 z-40 h-screen w-full max-w-xs translate-x-full overflow-y-auto bg-white p-4 transition-transform"
-		tabindex="-1"
-		aria-labelledby="drawer-label"
-		aria-hidden="true"
+		title="Archivar Formulario"
+		message="¿Estas seguro de querer archivar este servicio?"
+		action="/api/update/admin-services-delete"
+		formId="archivar_form"
+		variant="danger"
 	>
-		<h5
-			id="drawer-label"
-			class="inline-flex items-center text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
-		>
-			Archivar Formulario
-		</h5>
-		<button
-			type="button"
-			data-drawer-dismiss="drawer-delete-product-default"
-			aria-controls="drawer-delete-product-default"
-			class="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-		>
-			<svg
-				aria-hidden="true"
-				class="h-5 w-5"
-				fill="currentColor"
-				viewBox="0 0 20 20"
-				xmlns="http://www.w3.org/2000/svg"
-				><path
-					fill-rule="evenodd"
-					d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-					clip-rule="evenodd"></path></svg
-			>
-			<span class="sr-only">Cerrar menu</span>
-		</button>
-		<svg
-			class="mt-8 mb-4 h-10 w-10 text-red-600"
-			fill="none"
-			stroke="currentColor"
-			viewBox="0 0 24 24"
-			xmlns="http://www.w3.org/2000/svg"
-			><path
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="2"
-				d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg
-		>
-		<h3 class="mb-6 text-lg text-gray-500 dark:text-gray-400">
-			¿Estas seguro de querer archivar este servicio?
-		</h3>
-		<form
-			action="/api/update/admin-services-delete"
-			id="archivar_form"
-			method="post"
-			class="flex"
-		>
-			<input type="hidden" name="servicio_id" id="servicio_id" />
-			<input type="hidden" name="servicio_activo" value="false" />
-			<button
-				type="submit"
-				class="mr-2 inline-flex items-center rounded-lg bg-red-600 px-3 py-2.5 text-center text-sm font-medium text-white hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900"
-			>
-				Si, estoy seguro
-			</button>
-			<button
-				class="focus:ring-primary-300 dark:bg-black-800 inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
-				type="button"
-				data-drawer-dismiss="drawer-delete-product-default"
-				aria-controls="drawer-delete-product-default"
-			>
-				No, cancelar
-			</button>
-		</form>
-	</div>
+		<input type="hidden" name="servicio_id" id="servicio_id" />
+		<input type="hidden" name="servicio_activo" value="false" />
+	</DrawerConfirm>
 
-	<!-- desarchivar Product Drawer -->
-	<div
+	<!-- Unarchive Drawer -->
+	<DrawerConfirm
 		id="desarchivar-menu"
-		class="dark:bg-black-800 fixed top-0 right-0 z-40 h-screen w-full max-w-xs translate-x-full overflow-y-auto bg-white p-4 transition-transform"
-		tabindex="-1"
-		aria-labelledby="drawer-label"
-		aria-hidden="true"
+		title="Desarchivar servicio"
+		message="¿Estas seguro de querer archivar este servicio?"
+		action="/api/update/admin-services-add"
+		formId="desarchivar_form"
+		variant="success"
 	>
-		<h5
-			id="drawer-label"
-			class="inline-flex items-center text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
-		>
-			Desarchivar servicio
-		</h5>
-		<button
-			type="button"
-			data-drawer-dismiss="desarchivar-menu"
-			aria-controls="desarchivar-menu"
-			class="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-		>
-			<svg
-				aria-hidden="true"
-				class="h-5 w-5"
-				fill="currentColor"
-				viewBox="0 0 20 20"
-				xmlns="http://www.w3.org/2000/svg"
-				><path
-					fill-rule="evenodd"
-					d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-					clip-rule="evenodd"></path></svg
-			>
-			<span class="sr-only">Cerrar menu</span>
-		</button>
-
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			class="mt-8 mb-4 h-10 w-10 text-emerald-500"
-			viewBox="0 0 24 24"
-			><path
-				fill="currentColor"
-				fill-rule="evenodd"
-				d="M12 21a9 9 0 0 0 7.51-13.961l-7.155 7.95a2 2 0 0 1-2.687.262L6.4 12.8a1 1 0 0 1 1.2-1.6l3.268 2.451l7.346-8.161A9 9 0 1 0 12 21"
-				clip-rule="evenodd"></path></svg
-		>
-		<h3 class="mb-6 text-lg text-gray-500 dark:text-gray-400">
-			¿Estas seguro de querer archivar este servicio?
-		</h3>
-		<form
-			action="/api/update/admin-services-add"
-			id="desarchivar_form"
-			method="post"
-			class="flex"
-		>
-			<input type="hidden" name="des_servicio_id" id="des_servicio_id" />
-			<input type="hidden" name="des_servicio_activo" value="true" />
-			<button
-				type="submit"
-				class="mr-2 inline-flex items-center rounded-lg bg-emerald-500 px-3 py-2.5 text-center text-sm font-medium text-white hover:bg-emerald-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-emerald-500"
-			>
-				Si, estoy seguro
-			</button>
-			<button
-				class="focus:ring-primary-300 dark:bg-black-800 inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
-				type="button"
-				data-drawer-dismiss="desarchivar-menu"
-				aria-controls="desarchivar-menu"
-			>
-				No, cancelar
-			</button>
-		</form>
-	</div>
+		<input type="hidden" name="des_servicio_id" id="des_servicio_id" />
+		<input type="hidden" name="des_servicio_activo" value="true" />
+	</DrawerConfirm>
 
 	<!-- Add Product Drawer -->
-	<div
+	<Drawer
 		id="drawer-create-product-default"
-		class="dark:bg-black-800 fixed top-0 right-0 z-40 h-screen w-full max-w-xs translate-x-full overflow-y-auto bg-white p-4 transition-transform"
-		tabindex="-1"
-		aria-labelledby="drawer-label"
-		aria-hidden="true"
+		title="Nuevo Formulario"
+		maxWidth="max-w-xs"
 	>
-		<h5
-			id="drawer-label"
-			class="mb-6 inline-flex items-center text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
-		>
-			Nuevo Formulario
-		</h5>
-		<button
-			type="button"
-			data-drawer-dismiss="drawer-create-product-default"
-			aria-controls="drawer-create-product-default"
-			class="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-		>
-			<svg
-				aria-hidden="true"
-				class="h-5 w-5"
-				fill="currentColor"
-				viewBox="0 0 20 20"
-				xmlns="http://www.w3.org/2000/svg"
-				><path
-					fill-rule="evenodd"
-					d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-					clip-rule="evenodd"></path></svg
-			>
-			<span class="sr-only">Cerrar menu</span>
-		</button>
 		<form action="/api/create/admin-new-form" method="POST">
 			<div class="space-y-4">
 				<div>
-					<label
-						for="titulo-form"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+					<label for="titulo-form" class={labelClass}
 						>Titulo del formulario</label
 					>
 					<input
 						type="text"
 						name="titulo-form"
 						id="nombre-service"
-						class="dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+						class={inputClass}
 						placeholder="Nombre del formulario"
 						required=""
 					/>
 				</div>
 				<div>
-					<label
-						for="categoria-form"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+					<label for="categoria-form" class={labelClass}
 						>Categoria</label
 					>
 					<input
 						type="text"
 						name="categoria-form"
 						id="categoria-form"
-						class="dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-						placeholder="Añade la categoria del form"
+						class={inputClass}
+						placeholder="Anade la categoria del form"
 						required=""
 					/>
 				</div>
 				<div>
-					<label
-						for="json-update"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+					<label for="json-update" class={labelClass}
 						>Json del formulario</label
 					>
 					<textarea
 						id="json-update"
 						name="json-update"
 						rows="4"
-						class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-						placeholder="Pega aqui el Json del formulario"></textarea>
+						class={textareaClass}
+						placeholder="Pega aqui el Json del formulario"
+					></textarea>
 				</div>
 				<div>
-					<label
-						for="tema-form-update"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+					<label for="tema-form-update" class={labelClass}
 						>Tema del formulario (opcional)</label
 					>
 					<textarea
 						id="tema-form-update"
 						name="tema-form-update"
 						rows="4"
-						class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+						class={textareaClass}
 						placeholder="Pega el Json del tema"></textarea>
 				</div>
 				<div>
-					<label
-						for="descripcion-form-update"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+					<label for="descripcion-form-update" class={labelClass}
 						>descripcion</label
 					>
 					<textarea
 						id="descripcion-form-update"
 						name="descripcion-form-update"
 						rows="4"
-						class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-						placeholder="Añade una descripcion del formulario"></textarea>
+						class={textareaClass}
+						placeholder="Anade una descripcion del formulario"
+					></textarea>
 				</div>
 				<div>
-					<label
-						for="estado"
-						class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-						>Estado</label
-					>
-					<select
-						id="estado"
-						name="estado"
-						class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-800 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-					>
+					<label for="estado" class={labelClass}>Estado</label>
+					<select id="estado" name="estado" class={selectClass}>
 						<option value="" disabled="" selected="">--</option>
 						<option value="true">Activo</option>
 						<option value="false">Inactivo</option>
 					</select>
 				</div>
-
-				<div
-					class="bottom-0 left-0 flex w-full justify-center space-x-4 pb-4 md:absolute md:px-4"
-				>
-					<button
-						type="submit"
-						class="focus:ring-primary-300 w-full justify-center rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-					>
-						Añadir formulario
-					</button>
-					<button
-						type="button"
-						data-drawer-dismiss="drawer-create-product-default"
-						aria-controls="drawer-create-product-default"
-						class="focus:ring-primary-300 dark:bg-black-800 inline-flex w-full items-center justify-center rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:ring-4 focus:outline-none dark:border-gray-500 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-600"
-					>
-						<svg
-							aria-hidden="true"
-							class="-ml-1 h-5 w-5 sm:mr-1"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-							><path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M6 18L18 6M6 6l12 12"></path></svg
-						>
-						Cancelar
-					</button>
-				</div>
+				<DrawerFormActions
+					drawerId="drawer-create-product-default"
+					submitLabel="Anadir formulario"
+				/>
 			</div>
 		</form>
-	</div>
+	</Drawer>
 
 	<script is:inline>
-		document.addEventListener('DOMContentLoaded', () => {
+		const bindArchivarFormButtons = () => {
 			const form = document.getElementById('archivar_form');
 			const uidInput = document.getElementById('servicio_id');
 
-			// Botones que abren el modal (uno por fila/usuario)
+			if (!form || !uidInput) return;
+
 			const btns = document.querySelectorAll('[data-open-estado]');
 
 			btns.forEach((btn) => {
+				if (btn.dataset.archivarBind === '1') return;
+				btn.dataset.archivarBind = '1';
+
 				btn.addEventListener('click', () => {
 					const uid = btn.dataset.formId || '';
-
-					// Inyecta user_id y muestra nombre
 					uidInput.value = uid;
-					nameSpan.textContent = uname ? ` · ${uname}` : '';
 				});
 			});
 
-			// Anti doble-submit (opcional)
+			if (form.dataset.submitBind === '1') return;
+			form.dataset.submitBind = '1';
+
 			form.addEventListener('submit', () => {
 				const submitBtn = form.querySelector('button[type="submit"]');
 				if (submitBtn) submitBtn.disabled = true;
 			});
-		});
+		};
+
+		document.addEventListener('DOMContentLoaded', bindArchivarFormButtons);
+		document.addEventListener('astro:page-load', bindArchivarFormButtons);
 	</script>
 	<script is:inline>
-		document.addEventListener('DOMContentLoaded', () => {
+		const bindDesarchivarFormButtons = () => {
 			const form = document.getElementById('desarchivar_form');
 			const uidInput = document.getElementById('des_servicio_id');
 
-			// Botones que abren el modal (uno por fila/usuario)
+			if (!form || !uidInput) return;
+
 			const btns = document.querySelectorAll('[data-open-desarchivado]');
 
 			btns.forEach((btn) => {
+				if (btn.dataset.desarchivarBind === '1') return;
+				btn.dataset.desarchivarBind = '1';
+
 				btn.addEventListener('click', () => {
 					const uid = btn.dataset.formId || '';
-
-					// Inyecta user_id y muestra nombre
 					uidInput.value = uid;
-					nameSpan.textContent = uname ? ` · ${uname}` : '';
 				});
 			});
 
-			// Anti doble-submit (opcional)
+			if (form.dataset.submitBind === '1') return;
+			form.dataset.submitBind = '1';
+
 			form.addEventListener('submit', () => {
 				const submitBtn = form.querySelector('button[type="submit"]');
 				if (submitBtn) submitBtn.disabled = true;
 			});
-		});
+		};
+
+		document.addEventListener(
+			'DOMContentLoaded',
+			bindDesarchivarFormButtons,
+		);
+		document.addEventListener(
+			'astro:page-load',
+			bindDesarchivarFormButtons,
+		);
 	</script>
 </div>
-<script>
-	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
-
-	function initDT() {
-		const el = document.querySelector('#myTable') as HTMLElement | null;
-		if (!el) return;
-		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
-			return;
-
-		new DataTable(el, {
-			searchable: true,
-			perPage: 25,
-			perPageSelect: [5, 10, 25, 50],
-
-			// Textos en español
-			labels: {
-				placeholder: 'Buscar...',
-				perPage: 'Filas',
-				noRows: 'No hay formularios para mostrar',
-				noResults: 'No se encontraron resultados',
-				info: 'Mostrando {start} a {end} de {rows} registros',
-			},
-
-			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
-			layout: {
-				top: '{select}{search}',
-				bottom: '{info}{pager}',
-			},
-		});
-
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
-	}
-
-	initDT();
-	document.addEventListener('astro:page-load', initDT);
-</script>

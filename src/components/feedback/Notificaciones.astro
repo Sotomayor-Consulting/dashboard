@@ -120,7 +120,7 @@ const notificaciones = userId
 										</td>
 
 										<td
-											class="space-x-2 p-4 whitespace-nowrap"
+											class="relative space-x-2 p-4 whitespace-nowrap"
 											x-data="{ showTooltip: false }"
 										>
 											<button
@@ -172,6 +172,7 @@ const notificaciones = userId
 											</button>
 											<div
 												id={`dd-${user.id}`}
+												x-cloak
 												class="dark:bg-black-800 absolute z-10 mt-1 w-44 divide-y divide-gray-100 rounded-lg bg-white shadow-sm dark:divide-gray-600"
 												role="menu"
 												x-show="showTooltip"
@@ -458,7 +459,7 @@ const notificaciones = userId
 				perPage: 'Filas',
 				noRows: 'No hay usuarios',
 				noResults: 'No se encontraron resultados',
-				info: 'Mostrando {start} a {end} de {rows} registros',
+				info: 'Mostrando {start} de {rows} registros',
 			},
 
 			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)

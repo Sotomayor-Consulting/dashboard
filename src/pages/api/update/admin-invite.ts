@@ -2,7 +2,8 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient, supabaseAdmin } from '@lib/supabase';
+import { createSupabaseServerClient } from '@lib/supabase';
+import { supabaseAdmin } from '@lib/supabase/admin';
 import { safeBack } from '@lib/security/headers';
 
 const BACK_PATH = '/crud/users';

@@ -3,9 +3,10 @@
 // Tres clientes con propósitos diferentes:
 //
 // 1. createSupabaseServerClient → SSR (per-request, con cookies) — PREFERIDO
-// 2. supabaseAdmin              → Service role (singleton, solo server)
-// 3. supabaseBrowser            → Client-side (singleton, para <script> tags)
+// 2. supabaseBrowser            → Client-side (singleton, para <script> tags)
+//
+// Nota: supabaseAdmin se importa directo desde "@lib/supabase/admin"
+// para evitar side effects al importar este barrel en rutas SSR.
 
 export { createSupabaseServerClient } from './server';
-export { supabaseAdmin } from './admin';
 export { supabaseBrowser } from './browser';

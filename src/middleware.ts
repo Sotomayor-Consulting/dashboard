@@ -119,6 +119,7 @@ function addSecurityHeaders(response: Response, pathname: string): Response {
 /** Rutas siempre públicas (nunca bloquear) */
 const PUBLIC_ROUTES: readonly string[] = [
 	'/api',
+	'/_image',
 	'/start',
 	'/incorporacion-y-pago',
 	'/test',

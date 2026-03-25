@@ -3,8 +3,8 @@
 
 import LayoutSidebar from '../../app/layouts/LayoutSidebar.astro';
 import CrudProducts from '../../modules/crud/CrudProducts.astro';
-import FormSignIn from '../../modules/auth/FormSignIn.astro';
-import FormSignUp from '../../modules/auth/FormSignUp.astro';
+import FormSignIn from '../../modules/auth/FormSignIn.tsx';
+import FormSignUp from '../../modules/auth/FormSignUp.tsx';
 import FormForgotPassword from '../../modules/auth/FormForgotPassword.astro';
 import FormResetPassword from '../../modules/auth/FormResetPassword.astro';
 import FormProfileLock from '../../modules/auth/FormProfileLock.astro';
@@ -73,12 +73,12 @@ import { actions } from './_actions.js';
 		<h2 class="m-8 mt-24 text-5xl font-bold">Forms — User</h2>
 
 		<div class="flex flex-wrap justify-between">
-			<FormSignIn class="p-4 lg:p-16" />
+			<FormSignIn client:load />
 			<FormResetPassword class="p-4 lg:p-16" />
 			<FormProfileLock class="p-4 lg:p-16" />
 		</div>
 		<div class="mt-12 flex flex-wrap justify-between">
-			<FormSignUp class="p-4 lg:p-16" />
+			<FormSignUp client:load />
 			<FormForgotPassword class="p-4 lg:p-16" />
 		</div>
 	</section>

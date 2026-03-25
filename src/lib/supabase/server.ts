@@ -20,7 +20,13 @@ interface AstroGlobalContext {
 	cookies: AstroCookies;
 }
 
-type SupabaseContext = ServerClientContext | AstroGlobalContext;
+interface SupabaseClientOptions {
+	/** Si es true, las cookies se setean sin maxAge (expiran al cerrar el browser) */
+	sessionOnly?: boolean;
+}
+
+type SupabaseContext = (ServerClientContext | AstroGlobalContext) &
+	SupabaseClientOptions;
 
 /** Type guard: does the context have a `request` property (Astro global)? */
 function isAstroGlobal(ctx: SupabaseContext): ctx is AstroGlobalContext {
@@ -65,6 +71,7 @@ export function createSupabaseServerClient(context: SupabaseContext) {
 		? context.request.headers
 		: context.headers;
 	const { cookies } = context;
+	const sessionOnly = 'sessionOnly' in context && context.sessionOnly === true;
 
 	return createServerClient(supabaseUrl, supabaseAnonKey, {
 		cookies: {
@@ -77,10 +84,16 @@ export function createSupabaseServerClient(context: SupabaseContext) {
 						typeof c.value === 'string',
 				);
 			},
-		setAll(cookiesToSet) {
+			setAll(cookiesToSet) {
 				try {
 					cookiesToSet.forEach(({ name, value, options }) => {
-						cookies.set(name, value, options);
+						if (sessionOnly) {
+							// Sin maxAge/expires → session cookie, expira al cerrar el browser
+							const { maxAge: _, expires: __, ...sessionOptions } = options ?? {};
+							cookies.set(name, value, sessionOptions);
+						} else {
+							cookies.set(name, value, options);
+						}
 					});
 				} catch {
 					// En Astro SSR, si la respuesta ya se envió al browser

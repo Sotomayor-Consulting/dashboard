@@ -12,16 +12,20 @@ import {
 import type { OAuthProvider } from '@lib/auth';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-	const supabase = createSupabaseServerClient({
-		headers: request.headers,
-		cookies,
-	});
-	const auth = new AuthService(supabase, cookies);
-
 	const formData = await request.formData();
 	const email = formData.get('email')?.toString();
 	const password = formData.get('password')?.toString();
 	const provider = formData.get('provider')?.toString();
+	const remember = formData.has('remember');
+
+	// Si "Recuérdame" NO está marcado, sessionOnly=true hace que las cookies
+	// se setean sin maxAge → expiran al cerrar el browser.
+	const supabase = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
+		sessionOnly: !remember,
+	});
+	const auth = new AuthService(supabase, cookies);
 
 	try {
 		// ─── OAuth (Google) ───────────────────────────────
