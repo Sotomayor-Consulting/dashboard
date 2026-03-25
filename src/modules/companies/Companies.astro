@@ -1,0 +1,55 @@
+---
+import { CompaniesTableClient as CompanyTable } from '@modules/companies/components/company-table-client.tsx';
+import { SharedBreadcrumb } from '@components/ui/bread-crumb.tsx';
+import { getCompanies } from '@modules/companies/services/companyService.ts';
+import { PaisesGeneral } from '@lib/tablas/paises';
+import type { CompanyTableRow } from './types';
+
+const supabase = Astro.locals.supabase;
+
+const [companies, countries] = await Promise.all([
+	getCompanies(supabase),
+	PaisesGeneral(supabase),
+]);
+
+const countriesMap = countries.reduce(
+	(acc, country) => {
+		acc[country.id] = country.nombre_paises;
+		return acc;
+	},
+	{} as Record<number, string>,
+);
+
+const tableData: CompanyTableRow[] = companies.map((company) => ({
+	id: company.id,
+	legal_name: company.legal_name,
+	entity_type: company.entity_type,
+	formation_state_id: company.formation_state_id,
+	formation_country_id: company.formation_country_id,
+	formation_country:
+		countriesMap[company.formation_country_id] || 'Desconocido',
+	tax_clasification: String(company.tax_clasification),
+	management_type: String(company.management_type),
+	activity_code_id: company.activity_code_id,
+	activity_description: company.activity_description,
+	activity_service: company.activity_service,
+	us_source_income: company.us_source_income,
+	joint_ownership: company.joint_ownership,
+	incorporation_date: company.incorporation_date,
+	irs_email: company.irs_email,
+	legal_status: company.legal_status,
+	created_at: company.created_at,
+	created_by: company.created_by,
+	updated_at: company.updated_at,
+	updated_by: company.updated_by,
+})) as CompanyTableRow[];
+
+const paths = [{ label: 'Inicio', href: '/' }, { label: 'Empresas' }];
+---
+
+<SharedBreadcrumb paths={paths} />
+<div
+	class="dark:bg-black-800 flex flex-col border-gray-200/80 bg-white dark:border-gray-700/60"
+>
+	<CompanyTable data={tableData} client:load />
+</div>
