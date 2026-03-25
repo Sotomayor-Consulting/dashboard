@@ -45,7 +45,7 @@ export async function getFormularioEnviadoDetalle(
 	submissionId: string,
 ): Promise<{ data: FormularioEnviadoDetalle | null; error: Error | null }> {
 	const { data, error } = await supabase
-		.from('formularios_envios')
+		.from('submitted_forms')
 		.select(
 			`
       submission_id,
@@ -76,7 +76,7 @@ export async function getFormularioEnviadoDetalleItem(
 	submissionId: string,
 ): Promise<{ data: FormularioEnviadoDetalleItem | null; error: Error | null }> {
 	const { data, error } = await supabase
-		.from('formularios_envios')
+		.from('submitted_forms')
 		.select(
 			`
       submission_id,
@@ -141,7 +141,7 @@ export async function getFormulariosPendientes(
 	data: FormularioPendiente[];
 }> {
 	const { data: formularios } = await supabase
-		.from('formularios_envios')
+		.from('submitted_forms')
 		.select(
 			`
       *,
@@ -161,7 +161,7 @@ export async function getFormulariosPendientes(
 
 export const FormsEnviosVericacion = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
-		.from('formularios_envios')
+		.from('submitted_forms')
 		.select(
 			'*, formularios (form_id, titulo, slug, descripcion), usuarios (user_id, nombre, apellido)',
 		)
@@ -183,7 +183,7 @@ export const FormsEnviosVericacion = async (supabase: SupabaseClient) => {
 
 export const FormsEnviadosDataGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
-		.from('formularios_envios')
+		.from('submitted_forms')
 		.select(
 			`*,
     formularios ( form_id, titulo, slug, descripcion ),
@@ -208,7 +208,7 @@ export const FormsEnviadosForId = async (
 	userId: string,
 ) => {
 	const { data, error } = await supabase
-		.from('formularios_envios')
+		.from('submitted_forms')
 		.select(
 			'*, formularios ( form_id, titulo, slug, descripcion ),usuarios ( user_id, nombre, apellido )',
 		)
