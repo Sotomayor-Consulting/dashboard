@@ -1,0 +1,72 @@
+---
+import { IncorporationTableClient as IncorporationTable } from '@modules/incorporations/components/incorporation-table-client.tsx';
+import type { CompanyTableRow } from  '@modules/companies/types'
+import { SharedBreadcrumb } from '@components/ui/bread-crumb.tsx';
+import { getIncorporationsWithCompanies } from '@modules/incorporations/services/incorporationService.ts';
+import { getAllUsuarios } from '@lib/tablas/usuarios';
+import { getCountries } from '@lib/tablas/countries';
+import type {
+	IncorporationRelations,
+	IncorporationWithRawCompany,
+} from './types';
+import type { Country } from '@modules/companies/types';
+import type { UsuarioItem as User } from '@modules/users/types';
+
+const supabase = Astro.locals.supabase;
+
+const [data, countries, users] = await Promise.all([
+	getIncorporationsWithCompanies(supabase),
+	getCountries(supabase),
+	getAllUsuarios(supabase),
+]);
+
+const incorporations = (data ?? []) as IncorporationWithRawCompany[];
+
+const usersMap = users.reduce(
+	(acc, user) => {
+		acc[user.user_id] = user;
+		return acc;
+	},
+	{} as Record<string, User>,
+);
+
+const countriesMap = countries.reduce(
+	(acc, country) => {
+		acc[country.id] = country;
+		return acc;
+	},
+	{} as Record<number, Country>,
+);
+
+const incorporationsRelations: IncorporationRelations[] = incorporations.map((item) => {
+  const { user_id, company_id, company, ...incorporationData } = item;
+  const user = usersMap[user_id] ?? null;
+
+  let companyProcessed: CompanyTableRow | null = null;
+
+  if (company) {
+    const { formation_country_id, ...companyData } = company;
+    
+    companyProcessed = {
+      ...companyData,
+      formation_country: countriesMap[formation_country_id] as Country,
+      user: user as User,
+    };
+  }
+
+  return {
+    ...incorporationData,
+    user,
+    company: companyProcessed,
+  };
+});
+
+console.log('incorporationsRelations :>> ', incorporationsRelations);
+
+const paths = [{ label: 'Inicio', href: '/' }, { label: 'Incorporación' }];
+---
+
+<SharedBreadcrumb paths={paths} />
+<div class="flex flex-col border-gray-200/80 bg-transparent">
+	<IncorporationTable data={incorporationsRelations} client:load />
+</div>
