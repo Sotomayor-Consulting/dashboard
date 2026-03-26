@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import type { Company } from '../types';
+import type { CompanyTableRow } from '../types';
 
 
 export const getCompanies = async (supabase: SupabaseClient): Promise<Company[]> => {
@@ -9,5 +9,5 @@ export const getCompanies = async (supabase: SupabaseClient): Promise<Company[]>
 		.order('created_at', { ascending: false });
 
 	if (error) throw error;
-	return data as Company[];
+	return data as CompanyTableRow[];
 }

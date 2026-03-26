@@ -16,6 +16,11 @@ import { Building, LogOutIcon, SettingsIcon, UserIcon } from 'lucide-react';
 export const columns: ColumnDef<CompanyTableRow>[] = [
 	{ accessorKey: 'legal_name', header: 'Nombre' },
 	{
+		accessorFn: (row) => `${row.user.nombre} ${row.user.apellido}`,
+		id: 'user_nombre',
+		header: 'Usuario'
+	},
+	{
 		accessorKey: 'entity_type',
 		header: 'Tipo de entidad',
 		cell: ({ row }) => {
@@ -45,7 +50,11 @@ export const columns: ColumnDef<CompanyTableRow>[] = [
 			return Dictionaries.legalStatusMap[value] || value;
 		},
 	},
-	{ accessorKey: 'formation_country', header: 'País' },
+	{
+		accessorFn: (row) => row.formation_country.name,
+		id: 'formation_country',
+		header: 'País'
+	},
 	{ accessorKey: 'formation_state', header: 'Jurisdicción' },
 	{
 		id: 'actions',

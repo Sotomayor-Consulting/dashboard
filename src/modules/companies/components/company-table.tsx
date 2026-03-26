@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Input } from '@components/components/ui/input';
 
 import {
 	type ColumnDef,
@@ -20,8 +21,6 @@ import {
 	TableHeader,
 	TableRow,
 } from '@components/components/ui/table';
-
-import { Input } from '@components/components/ui/input';
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
