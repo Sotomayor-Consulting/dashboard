@@ -139,7 +139,7 @@ const documentos = userId
 				id="default-tab"
 				data-tabs-toggle="#default-tab-content"
 				role="tablist"
-				data-tabs-active-classes="text-white dark:bg-brand bg-[#967432] rounded-base active w-full"
+				data-tabs-active-classes="text-white dark:bg-black-400 bg-black-600 rounded-base active w-full"
 				data-tabs-inactive-classes="hover:text-heading hover:bg-neutral-secondary-soft w-full"
 			>
 				<li class="me-2" role="presentation">
@@ -179,8 +179,8 @@ const documentos = userId
 			>
 				<Dropzone
 					mensaje="Arrastra el documento aquí o haz clic para subir."
-					icon="ri:upload-cloud-2-line"
 					id="SinFirma"
+					maxFilesize={5}
 					endpoint={`/api/documentos/upload_documents?empresaId=${empresaId}&userId=${empresa.usuarios.user_id}`}
 				/>
 			</div>
@@ -192,8 +192,8 @@ const documentos = userId
 			>
 				<Dropzone
 					mensaje="Arrastra el documento pendiente a firmar aquí o haz clic para subir."
-					icon="ri:draft-line"
 					id="ConFirma"
+					maxFilesize={5}
 					endpoint={`/api/documentos/upload_documents_signed?empresaId=${empresaId}&userId=${empresa.usuarios.user_id}`}
 				/>
 			</div>
@@ -223,7 +223,12 @@ const documentos = userId
 											/>
 										</div>
 										<div class="ms-2 min-w-0 flex-1">
-											<p class="text-heading font-medium">{d.name}</p>
+											<p
+												class="text-heading truncate font-medium"
+												title={d.name}
+											>
+												{d.name}
+											</p>
 										</div>
 										<div class="text-heading inline-flex items-center font-medium">
 											<button

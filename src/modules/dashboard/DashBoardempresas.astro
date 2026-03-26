@@ -49,9 +49,9 @@ if (empresa.estado_de_incorporacion) {
 			class="dark:bg-black-800 bg-white-50 flex-col items-start gap-5 rounded-lg border border-gray-200 p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
 		>
 			<div
-				class="dark:bg-black-700 bg-white-100 flex items-start justify-start rounded-full p-3"
+				class="dark:bg-black-700 bg-white-100 flex w-fit items-start justify-start rounded-full p-3"
 			>
-				<Icon name="ri:building-2-fill" class="text-2xl text-[#8c681d]" />
+				<Icon name="ri:building-2-fill" class="text-black-400 text-2xl" />
 			</div>
 			<div class="w-full">
 				<h3 class="mb-3 text-base font-normal text-gray-500 dark:text-gray-400">
@@ -68,9 +68,9 @@ if (empresa.estado_de_incorporacion) {
 			class="dark:bg-black-800 bg-white-50 flex-col items-start gap-5 rounded-lg border border-gray-200 p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
 		>
 			<div
-				class="dark:bg-black-700 bg-white-100 flex items-start justify-start rounded-full p-3"
+				class="dark:bg-black-700 bg-white-100 flex w-fit items-start justify-start rounded-full p-3"
 			>
-				<Icon name="ri:building-2-fill" class="text-2xl text-[#8c681d]" />
+				<Icon name="ri:building-2-fill" class="text-black-400 text-2xl" />
 			</div>
 			<div class="w-full">
 				<h3 class="mb-3 text-base font-normal text-gray-500 dark:text-gray-400">
@@ -122,13 +122,13 @@ if (empresa.estado_de_incorporacion) {
 					</h3>
 				</div>
 			</div>
-			<div id="datamap-container" class="relative h-full w-full">
+			<div id="datamap-container" class="relative h-full min-h-100 w-full">
 				<div
 					class="map-loader absolute inset-0 flex items-center justify-center rounded-lg"
 				>
 					<div class="text-center">
 						<div
-							class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-[#967432]"
+							class="border-black-400 mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2"
 						>
 						</div>
 						<div class="text-sm font-medium text-gray-600 dark:text-gray-300">
@@ -197,16 +197,16 @@ if (empresa.estado_de_incorporacion) {
 									role="list"
 									class="divide-y divide-gray-200 dark:divide-gray-700"
 								>
-									<ol class="border-default relative ms-3.5 mb-4 border-s md:mb-5">
+									<ol class="dark:border-black-400 border-white-200 relative ms-3.5 mb-4 border-s md:mb-5">
 										<li class="ms-6 mb-11">
-											<span class="bg-brand-softer text-fg-brand ring-buffer-medium absolute -inset-s-3 flex h-6 w-6 animate-pulse items-center justify-center rounded-full ring-8">
+											<span class="dark:bg-black-400 bg-white-100 text-black-400 ring-white-200 dark:ring-black-500 absolute -inset-s-3 flex h-6 w-6 animate-pulse items-center justify-center rounded-full ring-4 dark:text-white">
 												<Icon name="ri:quill-pen-ai-line" class="text-sm" />
 											</span>
 											<div class="mb-2">
 												<h3 class="text-heading my-2 flex items-start text-lg font-semibold">
 													{f.nombre}
 												</h3>
-												<span class="bg-warning-soft border-warning-subtle text-fg-warning flex w-fit rounded border px-1.5 py-0.5 text-xs font-medium">
+												<span class="dark:bg-warning-soft bg-warning-strong border-warning-subtle dark:text-fg-warning flex w-fit rounded border px-1.5 py-0.5 text-xs font-medium text-white">
 													<Icon
 														name="ri:alert-line"
 														class="mr-1 animate-pulse"
@@ -217,7 +217,7 @@ if (empresa.estado_de_incorporacion) {
 
 											<button
 												type="button"
-												class="bg-brand hover:bg-brand-strong focus:ring-brand-medium rounded-base btn-ver-documento box-border inline-flex cursor-pointer border border-transparent px-4 py-2.5 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
+												class="dark:bg-black-400 bg-black-400 dark:hover:bg-black-500 hover:bg-black-500 focus:ring-brand-medium rounded-base btn-ver-documento-table box-border inline-flex cursor-pointer border border-transparent px-4 py-2.5 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
 												data-path={f.storage_path}
 											>
 												<Icon
@@ -331,7 +331,7 @@ if (empresa.estado_de_incorporacion) {
 												for="job-1"
 												class="text-body dark:bg-black-700 border-default rounded-base peer-checked:hover:bg-brand-softer peer-checked:border-brand-subtle peer-checked:bg-brand-softer hover:bg-neutral-secondary-medium peer-checked:text-fg-brand-strong inline-flex w-full cursor-pointer items-center border bg-white p-5"
 											>
-												<div class="bg-brand-soft dark:text-fg-brand-strong flex h-9 w-9 items-center justify-center rounded text-[#8c681d]">
+												<div class="bg-brand-soft dark:text-fg-brand-strong text-black-400 flex h-9 w-9 items-center justify-center rounded">
 													<Icon name={a.icono} class="text-lg" />
 												</div>
 												<div class="ms-2.5 block">
@@ -440,7 +440,7 @@ if (empresa.estado_de_incorporacion) {
 											</td>
 											<td class="p-4 text-sm font-semibold whitespace-nowrap text-gray-900 dark:text-neutral-500">
 												<button
-													class="btn-ver-documento cursor-pointer"
+													class="btn-ver-documento-table cursor-pointer"
 													data-path={`${userId}/companies/${id}/documents/${archivos.name}`}
 													title="Ver o descargar documento"
 												>
@@ -495,7 +495,6 @@ if (empresa.estado_de_incorporacion) {
 			<div class="p-4 text-center md:p-5">
 				<Dropzone
 					mensaje="Arrastra el documento pendiente a firmar aquí o haz clic para subir."
-					icon="ri:draft-line"
 					id="ConFirma"
 					endpoint={`/api/documentos/upload_file_signed?empresaId=${empresaId}&userId=${userId}`}
 				/>
@@ -511,7 +510,7 @@ if (empresa.estado_de_incorporacion) {
 <script>
 	document.addEventListener('click', async (e) => {
 		const target = e.target as HTMLElement;
-		const btn = target.closest('.btn-ver-documento');
+		const btn = target.closest('.btn-ver-documento-table');
 		if (!btn) return;
 
 		const path = (btn as HTMLElement).dataset.path;
@@ -677,14 +676,14 @@ if (empresa.estado_de_incorporacion) {
 										backgroundColor: (context) => {
 											// Si el estado tiene valor 1, es el estado de la empresa
 											if (context.raw && context.raw.value === 1) {
-												return '#b8860b'; // activeFill
+												return '#0078b7'; // activeFill
 											}
 											return 'transparent'; // defaultFill
 										},
-										borderColor: '#b8860b',
+										borderColor: '#0078b7',
 										borderWidth: 1,
-										hoverBackgroundColor: '#967432', // highlightFill
-										hoverBorderColor: '#967432',
+										hoverBackgroundColor: '#003e6c', // highlightFill
+										hoverBorderColor: '#003e6c',
 										hoverBorderWidth: 2,
 										skip: false,
 									},
@@ -712,7 +711,7 @@ if (empresa.estado_de_incorporacion) {
 										backgroundColor: 'rgba(0, 0, 0, 0.8)',
 										titleColor: '#fff',
 										bodyColor: '#fff',
-										borderColor: '#b8860b',
+										borderColor: '#0078b7',
 										borderWidth: 1,
 										padding: 10,
 										displayColors: false,

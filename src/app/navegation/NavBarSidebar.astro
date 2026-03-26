@@ -181,7 +181,7 @@ const { notifications, totalUnread } = notifProp ?? {
 													<a
 														href={notification.link}
 														target="_blank"
-														class="bg-brand hover:bg-brand-strong focus:ring-brand-medium rounded-base group box-border flex w-fit items-center gap-1 border border-transparent px-2 py-1 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
+														class="dark:bg-black-400 dark:hover:bg-black-500 bg-black-600 hover:bg-black-700 focus:ring-brand-medium rounded-base group box-border flex w-fit items-center gap-1 border border-transparent px-2 py-1 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
 													>
 														{notification.mensaje_link}
 														<Icon
@@ -213,12 +213,12 @@ const { notifications, totalUnread } = notifProp ?? {
 						</div>
 						<a
 							href="/notificaciones"
-							class="dark:bg-black-800 group block bg-gray-50 py-2 text-center text-base font-normal text-gray-900 hover:bg-gray-100 hover:text-neutral-400 dark:text-white dark:hover:bg-[#192033]/50 dark:hover:underline"
+							class="dark:bg-black-800 group text-black-600 hover:text-black-700 block bg-gray-50 py-2 text-center text-base font-normal hover:bg-gray-100 dark:text-white dark:hover:bg-[#192033]/50 dark:hover:underline"
 						>
 							<div class="inline-flex items-center gap-2">
 								<Icon
 									name="ri:eye-fill"
-									class="text-xl group-hover:text-neutral-400"
+									class="group-hover:text-black-700 text-black-600 text-xl"
 								/>
 								Ver todo
 							</div>

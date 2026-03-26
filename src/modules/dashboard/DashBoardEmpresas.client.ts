@@ -65,7 +65,7 @@ async function initPorcentajeRadioChart() {
 
 	const options = {
 		series: [0],
-		colors: ['#8c681d'],
+		colors: ['#0078b7'],
 		chart: {
 			type: 'radialBar',
 			height: 200,
@@ -87,7 +87,7 @@ async function initPorcentajeRadioChart() {
 						fontSize: '22px',
 						fontWeight: 'bold',
 						offsetY: 5,
-						color: '#8c681d',
+						color: '#0078b7',
 						formatter: function (val: number) {
 							return val + '%';
 						},
