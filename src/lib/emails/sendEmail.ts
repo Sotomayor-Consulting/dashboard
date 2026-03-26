@@ -1,22 +1,25 @@
 import type { APIRoute } from 'astro';
 import nodemailer from 'nodemailer';
 
-export const prerender = false;
+export type SendEmailInput = {
+	to: string;
+	subject: string;
+	html: string;
+};
 
-export const POST: APIRoute = async ({ request, redirect }: { request: Request; redirect: any }) => {
-	const data = await request.formData();
-	const to = data.get('email')?.toString();
-	const subject = data.get('subject')?.toString();
-	const html = data.get('html')?.toString();
+export type SendEmailResult = {
+	status: number;
+	success: boolean;
+	body: object;
+};
 
-	if (!to || !subject || !html) {
-		return Response.json({
-			status: 400,
-			body: {
-				error: 'Faltan datos',
-			},
-		})
-	}
+
+export async function sendEmail({
+	to,
+	subject,
+	html,
+}: SendEmailInput): Promise<SendEmailResult> {
+
 
 	const transporter = nodemailer.createTransport({
 		host: import.meta.env.SMTP_SERVER, // smtp-relay.brevo.com
@@ -41,25 +44,25 @@ export const POST: APIRoute = async ({ request, redirect }: { request: Request; 
 		});
 
 		// Redireccionar a la página anterior con flag de éxito
-		return new Response(JSON.stringify({
+		return {
 			status: 200,
+			success: true,
 			body: {
-				success: true,
 				message: 'El correo ha sido enviado',
 			},
-		}))
+		}
 
 	} catch (error: any) {
 		console.error('[EmailAPI] Error enviando:', error);
 
 		// Redireccionar con el mensaje de error para mostrarlo en el componente
 		// Nota: En producción evita enviar error.message crudo si contiene datos sensibles
-		return new Response(JSON.stringify({
-			status: 200,
+		return {
+			status: 500,
+			success: true,
 			body: {
-				success: true,
-				message: 'El correo ha sido enviado',
+				message: 'Error al enviar el mensaje',
 			},
-		}))
+		}
 	}
 };

@@ -3,8 +3,8 @@
 
 import LayoutSidebar from '../../app/layouts/LayoutSidebar.astro';
 import CrudProducts from '../../modules/crud/CrudProducts.astro';
-import FormSignIn from '../../modules/auth/FormSignIn.astro';
-import FormSignUp from '../../modules/auth/FormSignUp.astro';
+import FormSignIn from '../../modules/auth/FormSignIn.tsx';
+import FormSignUp from '../../modules/auth/FormSignUp.tsx';
 import FormForgotPassword from '../../modules/auth/FormForgotPassword.astro';
 import FormResetPassword from '../../modules/auth/FormResetPassword.astro';
 import FormProfileLock from '../../modules/auth/FormProfileLock.astro';
@@ -17,24 +17,24 @@ import PricingPlan from '../../modules/billing/PricingPlan.astro';
 import { actions } from './_actions.js';
 ---
 
-<LayoutSidebar class="bg-slate-800 text-slate-100 mb-20 py-16 px-8">
-	<h1 class="text-3xl ml-8 lg:text-4xl xl:text-7xl font-bold">
+<LayoutSidebar class="mb-20 bg-slate-800 px-8 py-16 text-slate-100">
+	<h1 class="ml-8 text-3xl font-bold lg:text-4xl xl:text-7xl">
 		🕹&nbsp;Playground
 	</h1>
 
-	<dummy-spacer class="block mb-36"></dummy-spacer>
+	<dummy-spacer class="mb-36 block"></dummy-spacer>
 
 	<nav
 		class:list={[
-			'flex align-middle justify-center z-50',
-			'top-2 p-4 bg-gray-800/30 w-full sticky border-slate-800',
-			'border-x-red-200 backdrop-blur-md text-white bg-gradient-to-r',
+			'z-50 flex justify-center align-middle',
+			'sticky top-2 w-full border-slate-800 bg-gray-800/30 p-4',
+			'border-x-red-200 bg-gradient-to-r text-white backdrop-blur-md',
 			'from-slate-700/30 via-slate-700 to-slate-700/30',
 			'hover:from-slate-500/30 hover:to-slate-500/30',
-			'focus:ring-4 focus:outline-none focus:ring-blue-300',
-			'dark:focus:ring-blue-800 shadow-lg shadow-slate-800/50',
-			'dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg',
-			'text-sm px-5 py-2.5 text-center mr-2 mb-2',
+			'focus:ring-4 focus:ring-blue-300 focus:outline-none',
+			'shadow-lg shadow-slate-800/50 dark:focus:ring-blue-800',
+			'rounded-lg font-medium dark:shadow-lg dark:shadow-blue-800/80',
+			'mr-2 mb-2 px-5 py-2.5 text-center text-sm',
 		]}
 	>
 		{
@@ -46,10 +46,10 @@ import { actions } from './_actions.js';
 						'mx-8',
 						button.action === 'hardReloadPage' && 'bg-gray-800',
 
-						'text-white bg-blue-700 hover:bg-blue-800',
-						'focus:outline-none focus:ring-4 focus:ring-blue-300',
-						'font-medium rounded-full text-sm px-5 py-2.5',
-						'text-center mr-2 my-2 dark:bg-blue-600',
+						'bg-blue-700 text-white hover:bg-blue-800',
+						'focus:ring-4 focus:ring-blue-300 focus:outline-none',
+						'rounded-full px-5 py-2.5 text-sm font-medium',
+						'my-2 mr-2 text-center dark:bg-blue-600',
 						'dark:hover:bg-blue-700 dark:focus:ring-blue-800',
 					]}
 				>
@@ -60,7 +60,7 @@ import { actions } from './_actions.js';
 	</nav>
 
 	<section>
-		<h2 class="text-5xl font-bold m-8 mt-24">CRUD — Products</h2>
+		<h2 class="m-8 mt-24 text-5xl font-bold">CRUD — Products</h2>
 		<CrudProducts class="p-4 lg:p-16" />
 	</section>
 
@@ -70,37 +70,37 @@ import { actions } from './_actions.js';
 	</section> -->
 
 	<section>
-		<h2 class="text-5xl font-bold m-8 mt-24">Forms — User</h2>
+		<h2 class="m-8 mt-24 text-5xl font-bold">Forms — User</h2>
 
-		<div class="flex justify-between flex-wrap">
-			<FormSignIn class="p-4 lg:p-16" />
+		<div class="flex flex-wrap justify-between">
+			<FormSignIn client:load />
 			<FormResetPassword class="p-4 lg:p-16" />
 			<FormProfileLock class="p-4 lg:p-16" />
 		</div>
-		<div class="mt-12 flex justify-between flex-wrap">
-			<FormSignUp class="p-4 lg:p-16" />
+		<div class="mt-12 flex flex-wrap justify-between">
+			<FormSignUp client:load />
 			<FormForgotPassword class="p-4 lg:p-16" />
 		</div>
 	</section>
 
 	<section>
-		<h2 class="text-5xl font-bold m-8 mt-24">Pricing plan</h2>
+		<h2 class="m-8 mt-24 text-5xl font-bold">Pricing plan</h2>
 
-		<div class="bg-slate-50 mb-8 lg:p-16">
+		<div class="mb-8 bg-slate-50 lg:p-16">
 			<PricingPlan class="p-4 lg:p-16" />
 		</div>
 	</section>
 
 	<section>
-		<h2 class="text-5xl font-bold m-8 mt-24">Pages — Errors</h2>
+		<h2 class="m-8 mt-24 text-5xl font-bold">Pages — Errors</h2>
 		<div class="flex flex-wrap justify-around gap-8">
-			<div class="bg-slate-50 mb-8 lg:p-16">
+			<div class="mb-8 bg-slate-50 lg:p-16">
 				<ErrorMaintenance class="p-4" />
 			</div>
-			<div class="bg-slate-50 mb-8 lg:p-16">
+			<div class="mb-8 bg-slate-50 lg:p-16">
 				<ErrorNotFound class="p-4" />
 			</div>
-			<div class="bg-slate-50 mb-8 lg:p-16">
+			<div class="mb-8 bg-slate-50 lg:p-16">
 				<ErrorServer class="p-4" />
 			</div>
 		</div>

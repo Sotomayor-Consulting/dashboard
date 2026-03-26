@@ -20,12 +20,14 @@ const { count: formularioPendientesCount } = formularioData;
 
 const { count: pagosCount } = await getPagosPorLeer(supabase, userRole);
 
-const visibleMenu = menuItems.filter(
-	(item) =>
-		(item.roles.includes('all') && userRoles.length > 0) ||
-		item.roles.includes('todos') ||
-		item.roles.some((r) => userRoles.includes(r)),
-);
+const visibleMenu = menuItems
+	.filter(
+		(item) =>
+			(item.roles.includes('all') && userRoles.length > 0) ||
+			item.roles.includes('todos') ||
+			item.roles.some((r) => userRoles.includes(r)),
+	)
+	.sort((a, b) => a.sequence - b.sequence);
 ---
 
 <div
