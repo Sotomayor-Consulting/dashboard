@@ -47,6 +47,17 @@ import type {
 	UsuarioItem,
 } from '@modules/users/types';
 import { createUsersColumns, type UserTableRow } from './users-columns';
+import { Checkbox } from '@components/components/ui/checkbox';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@components/components/ui/select';
+import PhoneInputField from './PhoneInputField';
+import { BirthDatePicker } from '@components/forms/BirthDatePicker';
 
 interface UsersCrudTableProps {
 	usuarios: UsuarioItem[];
@@ -109,6 +120,15 @@ export default function UsersCrudTable({
 	const data = React.useMemo(
 		() => mapUsersToRows(usuarios, rolesGeneral),
 		[usuarios, rolesGeneral],
+	);
+
+	const paisOptions = React.useMemo(
+		() =>
+			paises.map((pais) => ({
+				value: String(pais.id),
+				label: pais.nombre_paises,
+			})),
+		[paises],
 	);
 
 	const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -459,19 +479,24 @@ export default function UsersCrudTable({
 							</Field>
 							<Field>
 								<FieldLabel htmlFor="pais_modal">Pais</FieldLabel>
-								<select
-									id="pais_modal"
+								<Select
 									name="pais_modal"
 									defaultValue={activeUser?.paisId ?? ''}
-									className="border-input h-8 w-full rounded-lg border bg-transparent px-2.5 text-sm"
+									items={paisOptions}
 								>
-									<option value="">Selecciona un pais</option>
-									{paises.map((pais) => (
-										<option key={String(pais.id)} value={String(pais.id)}>
-											{pais.nombre_paises}
-										</option>
-									))}
-								</select>
+									<SelectTrigger id="pais_modal" className="w-full">
+										<SelectValue placeholder="Selecciona un pais" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectGroup>
+											{paisOptions.map((pais) => (
+												<SelectItem key={pais.value} value={pais.value}>
+													{pais.label}
+												</SelectItem>
+											))}
+										</SelectGroup>
+									</SelectContent>
+								</Select>
 							</Field>
 							<Field>
 								<FieldLabel htmlFor="ciudad_modal">Ciudad</FieldLabel>
@@ -503,7 +528,7 @@ export default function UsersCrudTable({
 							</Field>
 							<Field>
 								<FieldLabel htmlFor="modal_telefono">Telefono</FieldLabel>
-								<Input
+								<PhoneInputField
 									id="modal_telefono"
 									name="modal_telefono"
 									defaultValue={activeUser?.telefono ?? ''}
@@ -513,10 +538,9 @@ export default function UsersCrudTable({
 								<FieldLabel htmlFor="fecha_nacimiento">
 									Fecha nacimiento
 								</FieldLabel>
-								<Input
+								<BirthDatePicker
 									id="fecha_nacimiento"
 									name="fecha_nacimiento"
-									type="date"
 									defaultValue={activeUser?.fechaNacimiento ?? ''}
 								/>
 							</Field>
@@ -524,19 +548,20 @@ export default function UsersCrudTable({
 								<FieldLabel htmlFor="tipo_identificacion">
 									Tipo identificacion
 								</FieldLabel>
-								<select
-									id="tipo_identificacion"
-									name="tipo_identificacion"
-									defaultValue={activeUser?.tipoIdentificacion ?? ''}
-									className="border-input h-8 w-full rounded-lg border bg-transparent px-2.5 text-sm"
-								>
-									<option value="">Tipo de documento</option>
-									<option value="Cédula">Cedula</option>
-									<option value="RUC">RUC</option>
-									<option value="ID">ID</option>
-									<option value="Pasaporte">Pasaporte</option>
-									<option value="EIN">EIN</option>
-								</select>
+								<Select>
+									<SelectTrigger id="tipo_identificacion" className="w-full">
+										<SelectValue placeholder="Selecciona un tipo de documento" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectGroup>
+											<SelectItem value="Cédula">Cedula</SelectItem>
+											<SelectItem value="RUC">RUC</SelectItem>
+											<SelectItem value="ID">ID</SelectItem>
+											<SelectItem value="Pasaporte">Pasaporte</SelectItem>
+											<SelectItem value="EIN">EIN</SelectItem>
+										</SelectGroup>
+									</SelectContent>
+								</Select>
 							</Field>
 							<Field>
 								<FieldLabel htmlFor="numero_de_identificacion">
@@ -550,16 +575,17 @@ export default function UsersCrudTable({
 							</Field>
 							<Field>
 								<FieldLabel htmlFor="tipo_persona">Tipo persona</FieldLabel>
-								<select
-									id="tipo_persona"
-									name="tipo_persona"
-									defaultValue={activeUser?.tipoPersona ?? ''}
-									className="border-input h-8 w-full rounded-lg border bg-transparent px-2.5 text-sm"
-								>
-									<option value="">Tipo de persona</option>
-									<option value="Natural">Natural</option>
-									<option value="Jurídica">Juridica</option>
-								</select>
+								<Select>
+									<SelectTrigger id="tipo_persona" className="w-full">
+										<SelectValue placeholder="Selecciona un tipo de persona" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectGroup>
+											<SelectItem value="Natural">Natural</SelectItem>
+											<SelectItem value="Jurídica">Jurídica</SelectItem>
+										</SelectGroup>
+									</SelectContent>
+								</Select>
 							</Field>
 						</FieldGroup>
 
@@ -571,8 +597,7 @@ export default function UsersCrudTable({
 										key={String(rol.id)}
 										className="border-border flex items-center gap-2 rounded-lg border p-2 text-sm"
 									>
-										<input
-											type="checkbox"
+										<Checkbox
 											name="roles[]"
 											value={String(rol.id)}
 											defaultChecked={
