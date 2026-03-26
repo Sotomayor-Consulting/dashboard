@@ -72,10 +72,7 @@ const labelClasses =
 					{user.paises?.nombre_paises ?? '—'}
 				</td>
 				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					<StatusBadge
-						active={user.estado === 'activo'}
-						label={user.estado}
-					/>
+					<StatusBadge active={user.estado === 'activo'} label={user.estado} />
 				</td>
 				<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
 					<div class="flex items-center gap-1">
@@ -83,36 +80,26 @@ const labelClasses =
 							(rol) =>
 								user.user_id === rol.user_id &&
 								(() => {
-									let badgeClass =
-										'text-xs font-medium px-1.5 py-0.5 rounded ';
+									let badgeClass = 'text-xs font-medium px-1.5 py-0.5 rounded ';
 
 									switch (rol.roles.name) {
 										case 'admin':
-											badgeClass +=
-												'bg-danger-soft text-fg-danger-strong';
+											badgeClass += 'bg-danger-soft text-fg-danger-strong';
 											break;
 										case 'cliente':
-											badgeClass +=
-												'bg-success-soft text-fg-success-strong';
+											badgeClass += 'bg-success-soft text-fg-success-strong';
 											break;
 										case 'partner':
-											badgeClass +=
-												'bg-warning-soft text-fg-warning';
+											badgeClass += 'bg-warning-soft text-fg-warning';
 											break;
 										case 'operaciones':
-											badgeClass +=
-												'bg-warning-soft text-fg-warning';
+											badgeClass += 'bg-warning-soft text-fg-warning';
 											break;
 										default:
-											badgeClass +=
-												'bg-success-soft text-fg-success-strong';
+											badgeClass += 'bg-success-soft text-fg-success-strong';
 									}
 
-									return (
-										<span class={badgeClass}>
-											{rol.roles.name}
-										</span>
-									);
+									return <span class={badgeClass}>{rol.roles.name}</span>;
 								})(),
 						)}
 					</div>
@@ -186,9 +173,7 @@ const labelClasses =
 					/>
 					<div class="mb-4 grid gap-4 sm:grid-cols-2">
 						<div>
-							<label
-								for="descripcion-link-notificacion"
-								class={labelClasses}
+							<label for="descripcion-link-notificacion" class={labelClasses}
 								>Descripción del link</label
 							>
 							<input
@@ -201,11 +186,7 @@ const labelClasses =
 							/>
 						</div>
 						<div>
-							<label
-								for="link-notificacion"
-								class={labelClasses}
-								>Link</label
-							>
+							<label for="link-notificacion" class={labelClasses}>Link</label>
 							<input
 								type="text"
 								name="link-notificacion"
@@ -216,9 +197,7 @@ const labelClasses =
 							/>
 						</div>
 						<div class="h-full sm:col-span-2">
-							<label
-								for="mensaje-notificacion"
-								class={labelClasses}
+							<label for="mensaje-notificacion" class={labelClasses}
 								>Mensaje</label
 							>
 							<textarea
