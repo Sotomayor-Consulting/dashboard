@@ -94,29 +94,3 @@ const {
 	document.addEventListener('astro:page-load', initPhoneInputs);
 </script>
 
-<style is:global>
-	/* Adaptar intl-tel-input al design system del dashboard */
-	.iti {
-		--iti-border-color: #d1d5db; /* gray-300 */
-		--iti-dropdown-bg: #e5e5e5; /* neutral-200 */
-		--iti-hover-color: rgba(0, 0, 0, 0.05);
-		width: 100%;
-	}
-	:where(.dark) .iti {
-		--iti-border-color: #4b5563; /* gray-600 */
-		--iti-dropdown-bg: #101521;
-		--iti-hover-color: rgba(255, 255, 255, 0.05);
-		--iti-icon-color: #9ca3af;
-	}
-	:where(.dark) .iti__search-input {
-		background-color: #192033;
-		color: #fff;
-	}
-	:where(.dark) .iti__country-name,
-	:where(.dark) .iti__dial-code {
-		color: #e5e7eb;
-	}
-	:where(.dark) .iti__selected-dial-code {
-		color: #fff;
-	}
-</style>
