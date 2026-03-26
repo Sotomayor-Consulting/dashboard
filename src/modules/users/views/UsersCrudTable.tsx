@@ -645,15 +645,21 @@ export default function UsersCrudTable({
 						/>
 						<Field>
 							<FieldLabel htmlFor="estado">Estado</FieldLabel>
-							<select
+							<Select
 								id="estado"
 								name="estado"
 								defaultValue={activeUser?.estado ?? 'activo'}
-								className="border-input h-8 w-full rounded-lg border bg-transparent px-2.5 text-sm"
 							>
-								<option value="activo">activo</option>
-								<option value="inactivo">inactivo</option>
-							</select>
+								<SelectTrigger>
+									<SelectValue placeholder="Selecciona un estado" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectGroup>
+										<SelectItem value="activo">activo</SelectItem>
+										<SelectItem value="inactivo">inactivo</SelectItem>
+									</SelectGroup>
+								</SelectContent>
+							</Select>
 						</Field>
 						<DialogFooter>
 							<Button

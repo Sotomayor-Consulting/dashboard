@@ -1,6 +1,10 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@components/components/ui/avatar';
+import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+} from '@components/components/ui/avatar';
 import { Badge } from '@components/components/ui/badge';
 import { Button } from '@components/components/ui/button';
 import { Checkbox } from '@components/components/ui/checkbox';
@@ -58,7 +62,9 @@ export const createUsersColumns = ({
 		header: ({ table }) => (
 			<Checkbox
 				checked={table.getIsAllPageRowsSelected()}
-				onCheckedChange={(value) => table.toggleAllPageRowsSelected(Boolean(value))}
+				onCheckedChange={(value) =>
+					table.toggleAllPageRowsSelected(Boolean(value))
+				}
 				aria-label="Seleccionar pagina"
 			/>
 		),
@@ -83,7 +89,8 @@ export const createUsersColumns = ({
 		),
 		cell: ({ row }) => {
 			const user = row.original;
-			const initials = `${user.nombre?.[0] ?? ''}${user.apellido?.[0] ?? ''}`.toUpperCase();
+			const initials =
+				`${user.nombre?.[0] ?? ''}${user.apellido?.[0] ?? ''}`.toUpperCase();
 			const avatarSrc =
 				user.avatarUrl && user.avatarUrl !== 'NULL'
 					? user.avatarUrl
@@ -96,8 +103,10 @@ export const createUsersColumns = ({
 						<AvatarFallback>{initials || 'U'}</AvatarFallback>
 					</Avatar>
 					<div className="flex flex-col gap-0.5">
-						<p className="text-sm font-medium">{`${user.nombre} ${user.apellido}`.trim()}</p>
-						<p className="text-xs text-muted-foreground">{user.correo}</p>
+						<p className="text-sm font-medium">
+							{`${user.nombre} ${user.apellido}`.trim()}
+						</p>
+						<p className="text-muted-foreground text-xs">{user.correo}</p>
 					</div>
 				</div>
 			);
@@ -107,7 +116,7 @@ export const createUsersColumns = ({
 		accessorKey: 'organizacion',
 		header: 'Compañia',
 		cell: ({ row }) => (
-			<span className="max-w-52 truncate text-sm text-muted-foreground">
+			<span className="text-muted-foreground max-w-52 truncate text-sm">
 				{row.original.organizacion || 'Sin compañía'}
 			</span>
 		),
@@ -143,7 +152,10 @@ export const createUsersColumns = ({
 					<Badge variant="outline">Sin rol</Badge>
 				) : (
 					row.original.rolesNombres.map((role) => (
-						<Badge key={`${row.original.user_id}-${role}`} variant={roleVariant(role)}>
+						<Badge
+							key={`${row.original.user_id}-${role}`}
+							variant={roleVariant(role)}
+						>
 							{role}
 						</Badge>
 					))
@@ -160,7 +172,13 @@ export const createUsersColumns = ({
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger
-						render={<Button variant="ghost" size="icon-sm" aria-label="Abrir acciones" />}
+						render={
+							<Button
+								variant="ghost"
+								size="icon-sm"
+								aria-label="Abrir acciones"
+							/>
+						}
 					>
 						<MoreHorizontal />
 					</DropdownMenuTrigger>
