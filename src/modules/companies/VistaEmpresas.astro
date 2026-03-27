@@ -3,12 +3,12 @@ import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
 import imagenempresa from '@assets/edificios-vista.avif';
-import { getSociosByEmpresa } from '@lib/tablas/socios';
-import { actividadesGeneral } from '@lib/tablas/actividades';
-import { getManagerByEmpresa } from '@lib/tablas/managers';
-import { PaisesGeneral } from '@lib/tablas/paises';
-import { EstadosGeneral } from '@lib/tablas/estados';
-import { getEmpresaById } from '@lib/tablas/empresas';
+import { getSociosByEmpresa } from '@lib/tablas/companies/socios';
+import { actividadesGeneral } from '@lib/tablas/utils/generals/actividades';
+import { getManagerByEmpresa } from '@lib/tablas/companies/managers';
+import { PaisesGeneral } from '@lib/tablas/utils/generals/paises';
+import { EstadosGeneral } from '@lib/tablas/utils/generals/estados';
+import { getEmpresaById } from '@lib/tablas/companies/empresas';
 
 interface Props {
 	empresaId: string;

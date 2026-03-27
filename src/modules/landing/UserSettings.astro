@@ -2,9 +2,9 @@
 import PersonalInfoForm from './components/PersonalInfoForm.astro';
 import UserAccountPanel from './components/UserAccountPanel.astro';
 import BillingForm from './components/BillingForm.astro';
-import { getUsuarioById } from '@lib/tablas/usuarios';
-import { PaisesGeneral } from '@lib/tablas/paises';
-import { FacturacionbyId } from '@lib/tablas/facturacion';
+import { getUsuarioById } from '@lib/tablas/users/usuarios';
+import { PaisesGeneral } from '@lib/tablas/utils/generals/paises';
+import { FacturacionbyId } from '@lib/tablas/users/facturacion';
 
 // Auth handled by middleware
 const user = Astro.locals.user;

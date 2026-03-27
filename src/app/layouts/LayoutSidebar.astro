@@ -10,12 +10,12 @@ import {
 	getUsuarioById,
 	getMissingFieldsFromProfile,
 	type PartnerRequiredField,
-} from '@lib/tablas/usuarios';
-import { getNotifications } from '@lib/tablas/notificaciones';
+} from '@lib/tablas/users/usuarios';
+import { getNotifications } from '@lib/tablas/users/notificaciones';
 import {
 	getEstadoIncorporacionByUserId,
 	getBannerIncorporacionData,
-} from '@lib/tablas/empresa_incorporaciones';
+} from '@lib/tablas/companies/empresa_incorporaciones';
 
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;

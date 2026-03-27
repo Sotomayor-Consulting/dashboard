@@ -5,8 +5,8 @@ import DataTable from '@components/ui/DataTable.astro';
 import AvatarCell from '@components/ui/AvatarCell.astro';
 import StackedText from '@components/ui/StackedText.astro';
 import StatusBadge from '@components/ui/StatusBadge.astro';
-import { getAllUsuarios } from '@lib/tablas/usuarios';
-import { RolesGeneralUsers } from '@lib/tablas/roles';
+import { getAllUsuarios } from '@lib/tablas/users/usuarios';
+import { RolesGeneralUsers } from '@lib/tablas/utils/roles/roles';
 
 const supabase = Astro.locals.supabase;
 const [usuarios, roles] = await Promise.all([

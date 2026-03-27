@@ -1,9 +1,9 @@
 ---
 import { Icon } from 'astro-icon/components';
 import MenuCard from '@components/display/MenuCard.astro';
-import { getUserWithRole } from '@lib/tablas/menu';
-import { getFormulariosPendientes } from '@lib/tablas/formulariosEnviados';
-import { getPagosPorLeer } from '@lib/tablas/PagosPorLeer';
+import { getUserWithRole } from '@lib/tablas/users/menu';
+import { getFormulariosPendientes } from '@lib/tablas/forms/formulariosEnviados';
+import { getPagosPorLeer } from '@lib/tablas/payments/PagosPorLeer';
 import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
 const supabase = Astro.locals.supabase;

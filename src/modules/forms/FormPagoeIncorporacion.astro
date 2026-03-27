@@ -1,9 +1,9 @@
 ---
 import Stripelogo from '@assets/stripe.svg';
 import { Icon } from 'astro-icon/components';
-import { getIncorporacionesEnProceso } from '@lib/tablas/empresa_incorporaciones';
-import { ListaServiciosStripe } from '@lib/tablas/servicios';
-import { ListaDeMicroServiciosActivos } from '@lib/tablas/microservicios';
+import { getIncorporacionesEnProceso } from '@lib/tablas/companies/empresa_incorporaciones';
+import { ListaServiciosStripe } from '@lib/tablas/services/servicios';
+import { ListaDeMicroServiciosActivos } from '@lib/tablas/utils/generals/microservicios';
 
 const User = Astro.locals.user;
 const userId = User?.id || '';

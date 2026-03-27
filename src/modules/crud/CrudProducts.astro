@@ -8,7 +8,7 @@ import DrawerConfirm from '@components/ui/DrawerConfirm.astro';
 import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
 import StackedText from '@components/ui/StackedText.astro';
 import StatusBadge from '@components/ui/StatusBadge.astro';
-import { ListaServiciosGeneral } from '@lib/tablas/servicios';
+import { ListaServiciosGeneral } from '@lib/tablas/services/servicios';
 
 const supabase = Astro.locals.supabase;
 const servicio = await ListaServiciosGeneral(supabase);

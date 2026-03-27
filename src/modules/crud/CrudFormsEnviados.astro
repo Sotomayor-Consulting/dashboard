@@ -9,7 +9,7 @@ import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
 import StackedText from '@components/ui/StackedText.astro';
 import StatusBadge from '@components/ui/StatusBadge.astro';
 import { Icon } from 'astro-icon/components';
-import { FormsEnviadosDataGeneral } from '@lib/tablas/formulariosEnviados';
+import { FormsEnviadosDataGeneral } from '@lib/tablas/forms/formulariosEnviados';
 
 const supabase = Astro.locals.supabase;
 const formularios_envios = await FormsEnviadosDataGeneral(supabase);

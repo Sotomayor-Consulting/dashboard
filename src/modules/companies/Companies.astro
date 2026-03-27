@@ -2,7 +2,7 @@
 import { CompaniesTableClient as CompanyTable } from '@modules/companies/components/company-table-client.tsx';
 import { SharedBreadcrumb } from '@components/ui/bread-crumb.tsx';
 import { getCompanies } from '@modules/companies/services/companyService.ts';
-import { PaisesGeneral } from '@lib/tablas/paises';
+import { PaisesGeneral } from '@lib/tablas/utils/generals/paises';
 import type { CompanyTableRow } from './types';
 
 const supabase = Astro.locals.supabase;

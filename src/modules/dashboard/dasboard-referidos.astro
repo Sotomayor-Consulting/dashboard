@@ -1,11 +1,11 @@
 ---
-import { getReferidos } from '@lib/tablas/referidos';
-import { getCodigoDePartner } from '@lib/tablas/referidos';
+import { getReferidos } from '@lib/tablas/partners/referidos';
+import { getCodigoDePartner } from '@lib/tablas/partners/referidos';
 import { Icon } from 'astro-icon/components';
 
 const user = Astro.locals.user;
 const UserId = user?.id;
-const supabase = Astro.locals.supabase
+const supabase = Astro.locals.supabase;
 
 const rows = UserId ? await getReferidos(supabase, UserId) : null;
 const codigo = UserId ? await getCodigoDePartner(supabase, UserId) : null;
@@ -138,7 +138,9 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 									Acciones rápidas
 								</h3>
 								<p>
-									Accede rápidamente a funciones o herramientas útiles, que te ayudaran a saber tu código de partner, agendar una reunión, o acceder a otros funciones de la plataforma. 
+									Accede rápidamente a funciones o herramientas útiles, que te
+									ayudaran a saber tu código de partner, agendar una reunión, o
+									acceder a otros funciones de la plataforma.
 								</p>
 							</div>
 							<div data-popper-arrow />
@@ -255,7 +257,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 													<h2 id={`recomendacion-${index}`}>
 														<button
 															type="button"
-															class="text-body rounded-base border-default hover:text-heading hover:bg-gray-100 bg-white dark:bg-black-900 dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 border p-5 font-medium shadow-xs aria-expanded:rounded-b-none aria-expanded:shadow-none rtl:text-right"
+															class="text-body rounded-base border-default hover:text-heading dark:bg-black-900 dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 border bg-white p-5 font-medium shadow-xs hover:bg-gray-100 aria-expanded:rounded-b-none aria-expanded:shadow-none rtl:text-right"
 															data-accordion-target={`#recomendacion-body-${index}`}
 															aria-expanded="true"
 															aria-controls={`recomendacion-body-${index}`}
@@ -330,14 +332,12 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 								<h3 class="font-semibold text-gray-900 dark:text-white">
 									Acciones rápidas
 								</h3>
-								<p>
-									Accede de forma fácil a herramientas o links.
-								</p>
+								<p>Accede de forma fácil a herramientas o links.</p>
 							</div>
 							<div data-popper-arrow />
 						</div>
 
-						<div class="dark:bg-black-700 bg-white-50 rounded-xl gap-2 flex flex-col p-5 mb-5 drop-shadow-2xl">
+						<div class="dark:bg-black-700 bg-white-50 mb-5 flex flex-col gap-2 rounded-xl p-5 drop-shadow-2xl">
 							<div>
 								<h5 class="dark:text-white">Copia tu código de partner:</h5>
 							</div>
@@ -410,15 +410,15 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 						</div>
 
 						<div
-								class="pt-4 flex justify-center"
-								id="about"
-								role="tabpanel"
-								aria-labelledby="about-tab"
-							>
-								<div class="mt-8">
-									<Icon name="persona-esperando" width={300} height={300} />
-								</div>
+							class="flex justify-center pt-4"
+							id="about"
+							role="tabpanel"
+							aria-labelledby="about-tab"
+						>
+							<div class="mt-8">
+								<Icon name="persona-esperando" width={300} height={300} />
 							</div>
+						</div>
 					</div>
 				</>
 			)

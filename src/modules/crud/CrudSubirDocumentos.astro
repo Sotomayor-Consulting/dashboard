@@ -4,7 +4,7 @@ import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
 import DataTable from '@components/ui/DataTable.astro';
 import StackedText from '@components/ui/StackedText.astro';
 import StatusBadge from '@components/ui/StatusBadge.astro';
-import { pagosRealizadosPorSubir } from '@lib/tablas/PagosPorLeer';
+import { pagosRealizadosPorSubir } from '@lib/tablas/payments/PagosPorLeer';
 
 const supabase = Astro.locals.supabase;
 const empresas = await pagosRealizadosPorSubir(supabase);

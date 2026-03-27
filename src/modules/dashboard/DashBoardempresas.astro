@@ -2,10 +2,10 @@
 import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
 import Dropzone from '@components/display/Dropzone.astro';
-import { getIncorporacionById } from '@lib/tablas/empresa_incorporaciones';
-import { getEstadoPorEmpresa } from '@lib/tablas/estados';
+import { getIncorporacionById } from '@lib/tablas/companies/empresa_incorporaciones';
+import { getEstadoPorEmpresa } from '@lib/tablas/utils/generals/estados';
 import { getUserFolders } from '@lib/storage/test.ts';
-import { getDocumentosPorFirmar } from '@lib/tablas/documentos_por_firmar';
+import { getDocumentosPorFirmar } from '@lib/tablas/documents/documentos_por_firmar';
 
 interface Props {
 	empresaId: string;

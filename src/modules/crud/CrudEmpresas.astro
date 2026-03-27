@@ -5,10 +5,10 @@ import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
 import DataTable from '@components/ui/DataTable.astro';
 import DateCell from '@components/ui/DateCell.astro';
 import StatusBadge from '@components/ui/StatusBadge.astro';
-import { IncorporacionesEmpresasBase } from '@lib/tablas/empresa_incorporaciones';
-import { actividadesGeneral } from '@lib/tablas/actividades';
-import { EstadosGeneral } from '@lib/tablas/estados';
-import { PaisesGeneral } from '@lib/tablas/paises';
+import { IncorporacionesEmpresasBase } from '@lib/tablas/companies/empresa_incorporaciones';
+import { actividadesGeneral } from '@lib/tablas/utils/generals/actividades';
+import { EstadosGeneral } from '@lib/tablas/utils/generals/estados';
+import { PaisesGeneral } from '@lib/tablas/utils/generals/paises';
 
 const supabase = Astro.locals.supabase;
 

@@ -9,7 +9,7 @@ import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
 import Modal from '@components/ui/Modal.astro';
 import StackedText from '@components/ui/StackedText.astro';
 import StatusBadge from '@components/ui/StatusBadge.astro';
-import { ListaFormulariosGeneral } from '@lib/tablas/formularios';
+import { ListaFormulariosGeneral } from '@lib/tablas/forms/formularios';
 
 const supabase = Astro.locals.supabase;
 const servicio = await ListaFormulariosGeneral(supabase);
