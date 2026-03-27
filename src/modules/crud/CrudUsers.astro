@@ -635,7 +635,7 @@ const roleBadgeClasses: Record<string, string> = {
 				document
 					.querySelectorAll('input[name="roles[]"]')
 					.forEach((checkbox) => {
-						checkbox.checked = userRoles.includes(checkbox.value);
+						checkbox.checked = userRoles.map(String).includes(String(checkbox.value));
 					});
 			});
 		});

@@ -1,0 +1,184 @@
+---
+import { Image } from 'astro:assets';
+import imagen from '@assets/g31.avif';
+import { getEmpresasGenenralById } from '@lib/tablas/empresas.ts';
+import edificioimg from '@assets/edificio-vidrio.avif';
+const user = Astro.locals.user;
+const supabase = Astro.locals.supabase;
+
+const userId = user?.id;
+
+const empresas = userId
+	? await getEmpresasGenenralById(supabase, userId)
+	: null;
+---
+
+<div class="mb-10">
+	<div class="grid grid-cols-1 px-4 pt-6 xl:gap-4">
+		<div class="col-span-full mb-4 xl:mb-2">
+			<nav class="mb-5 flex" aria-label="Breadcrumb">
+				<ol
+					class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
+				>
+					<li class="inline-flex items-center">
+						<a
+							href="/"
+							class="dark:hover:text-primary-500 inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300"
+						>
+							<svg
+								class="mr-2.5 h-5 w-5"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+								></path></svg
+							>
+							Inicio
+						</a>
+					</li>
+					<li>
+						<div class="flex items-center">
+							<svg
+								class="h-6 w-6 text-gray-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+									clip-rule="evenodd"></path></svg
+							>
+							<span
+								class="ml-1 text-gray-400 md:ml-2 dark:text-gray-500"
+								aria-current="page">empresas</span
+							>
+						</div>
+					</li>
+				</ol>
+			</nav>
+			<h1
+				class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
+			>
+				Tus empresas
+			</h1>
+		</div>
+		<!-- Right Content -->
+		<div class="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+			{
+				(empresas?.length ?? 0) === 0 ? (
+					<div class="col-span-3 flex flex-col items-center rounded-lg border p-6 text-center text-gray-600 dark:text-gray-300">
+						<h3 class="mb-5 text-lg font-semibold">No tienes empresas aún</h3>
+						<Image
+							src={imagen}
+							alt="Imagen tecnología"
+							width={400}
+							height={300}
+						/>
+					</div>
+				) : (
+					empresas?.map((fr) => (
+						<>
+							<div class="rounded-base dark:bg-black-800 bg-white-50 relative mb-4 flex flex-col items-end border border-gray-200 shadow-sm hover:bg-gray-100 md:max-w-xl md:flex-row dark:border-gray-700 dark:hover:bg-[#101522]">
+								<a
+									href={`/dashboard/${fr.empresa_incorporacion_id}`}
+									target="_blank"
+									title={`ver datos de tu empresa ${fr.nombre_1}`}
+									class="border-default rounded-base flex h-full w-full flex-col items-center border p-6 shadow-xs md:flex-row"
+								>
+									<Image
+										class="rounded-base mb-4 h-64 w-full object-cover md:mb-0 md:h-auto md:w-48"
+										src={edificioimg}
+										alt={`imagen empresa ${fr.nombre_1}`}
+										loading="eager"
+									/>
+									<div class="flex h-full w-full items-center md:p-4">
+										<div class="w-full">
+											<h5 class="text-heading mb-2 text-2xl font-bold tracking-tight">
+												{fr.nombre_1} - {fr.tipo_de_negocio}
+											</h5>
+											<p class="text-body mb-6">{fr.estado_de_incorporacion}</p>
+										</div>
+
+										<div class="absolute top-3/4 right-6 md:top-6">
+											{fr.estado === 'En proceso' ? (
+												<button
+													type="button"
+													data-popover-target={`tooltip-${fr.empresa_incorporacion_id}`}
+													data-popover-placement="bottom-end"
+													class="flex h-fit w-fit items-center justify-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-400/20 dark:text-gray-300"
+												>
+													<div class="mr-1 h-2 w-2 animate-pulse rounded-full bg-orange-500" />
+													{fr.estado}
+												</button>
+											) : (
+												<div class="flex w-fit items-center justify-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-400/20 dark:text-gray-300">
+													<div class="mr-1 h-2 w-2 animate-pulse rounded-full bg-green-500" />
+													{fr.estado}
+												</div>
+											)}
+										</div>
+									</div>
+								</a>
+							</div>
+							<div
+								data-popover
+								id={`tooltip-${fr.empresa_incorporacion_id}`}
+								role="tooltip"
+								class="dark:bg-black-900 bg-white-50 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 text-sm text-gray-500 opacity-0 shadow-xs transition-opacity duration-300 dark:border-gray-600 dark:text-gray-400"
+							>
+								<div class="space-y-2 p-3">
+									<h3
+										class="font-semibold text-gray-900 dark:text-white"
+										aria-label="¿Por qué mi empresa está en proceso?"
+									>
+										¿Por qué mi empresa está en proceso?
+									</h3>
+									<p>Tu empresa está en proceso por estas razones:</p>
+									<ul class="list-inside list-disc space-y-1">
+										<li>
+											Tu empresa aún no está configurada al 100% y está
+											pendiente el pago para iniciar el proceso de constitución.
+										</li>
+										<li>
+											Tu empresa está en proceso de incorporación legal (si ya
+											iniciaste el proceso de pago). Te informaremos por
+											notificaciones y correo el proceso y etapa de
+											incorporación legal.
+										</li>
+									</ul>
+									<a
+										href="/"
+										class="flex items-center font-medium text-blue-600 hover:text-blue-700 hover:underline dark:text-blue-500 dark:hover:text-blue-600"
+										aria-label="Más información"
+									>
+										Más información
+										<svg
+											class="ms-1.5 h-2 w-2 rtl:rotate-180"
+											aria-hidden="true"
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 6 10"
+										>
+											<path
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="m1 9 4-4-4-4"
+											/>
+										</svg>
+									</a>
+								</div>
+								<div data-popper-arrow />
+							</div>
+						</>
+					))
+				)
+			}
+		</div>
+	</div>
+	<hr
+		class="mx-auto my-4 h-1 w-48 rounded-sm border-0 bg-gray-100 md:my-10 dark:bg-gray-700"
+	/>
+</div>

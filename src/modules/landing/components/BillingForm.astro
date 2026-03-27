@@ -6,7 +6,7 @@ import FormSelect from '@components/forms/FormSelect.astro';
 interface PaisRow {
 	id: number;
 	iso: string;
-	nombre_paises: string;
+	name: string;
 	codigo_telf: string;
 }
 
@@ -49,8 +49,8 @@ const documentTypeOptions: Option[] = [
 const { facturacion, paises, userId } = Astro.props;
 
 const countryOptions: Option[] = (paises ?? []).map((p) => ({
-	value: p.nombre_paises,
-	label: p.nombre_paises,
+	value: p.name,
+	label: p.name,
 }));
 ---
 

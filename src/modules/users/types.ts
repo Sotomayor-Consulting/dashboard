@@ -2,7 +2,7 @@ export type EntityId = string | number;
 
 export interface PaisItem {
 	id: EntityId;
-	nombre_paises: string;
+	name: string;
 }
 
 export interface RolItem {
@@ -30,7 +30,7 @@ export interface UsuarioItem {
 	pais_id?: EntityId | null;
 	paises?: {
 		id: EntityId;
-		nombre_paises: string;
+		name: string;
 	} | null;
 	ciudad?: string | null;
 	direccion_linea1?: string | null;

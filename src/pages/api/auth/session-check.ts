@@ -12,7 +12,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 		});
 		const auth = new AuthService(supabase, cookies);
 
-		const { isAuthenticated, user } = await auth.checkSessionFromCookie();
+		const { isAuthenticated, user } = await auth.checkSession();
 
 		return jsonSuccess({ isAuthenticated, user: user ?? null });
 	} catch (error) {

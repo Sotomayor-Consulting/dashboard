@@ -73,7 +73,7 @@ export default function PhoneInputField({
 				id={id}
 				defaultValue={defaultValue}
 				autoComplete="off"
-				className="iti-input h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
+				className="iti-input dark:border-black-600 border-white-200 placeholder:text-muted-foreground focus-visible:ring-white-200/50 dark:focus-visible:ring-black-400/50 dark:bg-input/30 h-8 w-full min-w-0 rounded-lg border bg-transparent px-2.5 py-1 text-base transition-colors outline-none focus-visible:ring-3 md:text-sm"
 			/>
 			<input type="hidden" name={name} value={submitValue} />
 		</>

@@ -1,5 +1,5 @@
 ---
-import '@styles/dropzone.css';
+import Dropzone from '@components/display/Dropzone.astro';
 import { Icon } from 'astro-icon/components';
 import ImprimirContrato from '@components/display/ImprimirContrato.astro';
 import { getUsuarioById, getMissingPartnerFields } from '@lib/tablas/usuarios';
@@ -249,31 +249,12 @@ if (isPartner && user) {
 				{
 					perfilCompleto ? (
 						<>
-							<form
-								id="my-dropzone"
-								class="dropzone dark:bg-black-900 h-96 w-full rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 dark:border-gray-600 dark:hover:bg-neutral-800/80"
-								action="/api/update/contrato-partner-upload"
-								method="post"
-								enctype="multipart/form-data"
-							>
-								<div class="dz-message flex w-full flex-col dark:text-white">
-									<Icon
-										name="ri:upload-cloud-2-line"
-										class="mb-4 text-5xl text-gray-500 dark:text-gray-400"
-									/>
-									Arrastra tu contrato aquí o haz clic para subir.
-								</div>
-							</form>
-							<div class="mt-4 flex gap-3">
-								<button
-									type="button"
-									id="btn-confirm-upload"
-									class="bg-black-600 hover:bg-black-600 rounded-lg px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
-									disabled
-								>
-									Subir contrato
-								</button>
-							</div>
+							<Dropzone
+								mensaje="Arrastra tu contrato aquí o haz clic para subir."
+								id="ContratoPartner"
+								maxFilesize={5}
+								endpoint="/api/update/contrato-partner-upload"
+							/>
 						</>
 					) : (
 						<div class="dropzone dark:bg-black-900 h-96 w-full cursor-not-allowed rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 dark:border-orange-500 dark:hover:bg-neutral-800/80">
@@ -330,7 +311,7 @@ if (isPartner && user) {
 			>
 				<div class="space-y-2 p-3">
 					<h3 class="font-semibold text-gray-900 dark:text-white">
-						Acciones rapidas
+						Acciones rápidas
 					</h3>
 					<p>
 						Encuentra links a tus documentos completados, bandeja de

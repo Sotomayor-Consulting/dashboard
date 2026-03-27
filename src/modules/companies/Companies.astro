@@ -14,7 +14,7 @@ const [companies, countries] = await Promise.all([
 
 const countriesMap = countries.reduce(
 	(acc, country) => {
-		acc[country.id] = country.nombre_paises;
+		acc[country.id] = country.name;
 		return acc;
 	},
 	{} as Record<number, string>,

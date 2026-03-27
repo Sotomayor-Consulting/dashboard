@@ -92,7 +92,7 @@ const mapUsersToRows = (
 			avatarUrl: user.avatar_url ?? null,
 			organizacion: user.organizacion ?? '',
 			cargo: user.cargo ?? '',
-			paisNombre: user.paises?.nombre_paises ?? '—',
+			paisNombre: user.paises?.name ?? '—',
 			estado: user.estado ?? 'inactivo',
 			rolesNombres: userRoles
 				.map((role) => role.roles?.name?.trim())
@@ -126,7 +126,7 @@ export default function UsersCrudTable({
 		() =>
 			paises.map((pais) => ({
 				value: String(pais.id),
-				label: pais.nombre_paises,
+				label: pais.name,
 			})),
 		[paises],
 	);
@@ -181,7 +181,7 @@ export default function UsersCrudTable({
 
 	return (
 		<section className="space-y-4 p-4 lg:p-6">
-			<div className="border-border bg-card rounded-xl border p-4 shadow-xs">
+			<div className="rounded-xl p-4">
 				<div className="flex flex-col gap-4">
 					<div className="flex flex-wrap items-center justify-between gap-3">
 						<div className="space-y-1">
@@ -189,7 +189,7 @@ export default function UsersCrudTable({
 							<h1 className="text-xl font-semibold">Todos los usuarios</h1>
 						</div>
 						<div className="flex flex-wrap items-center gap-2">
-							<Button onClick={() => setInviteOpen(true)}>
+							<Button onClick={() => setInviteOpen(true)} variant="primary">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -204,7 +204,7 @@ export default function UsersCrudTable({
 								Invitar usuario
 							</Button>
 							<Button variant="outline" onClick={() => setCreateRoleOpen(true)}>
-								Anadir rol
+								Añadir rol
 							</Button>
 						</div>
 					</div>
@@ -231,7 +231,7 @@ export default function UsersCrudTable({
 								onChange={(event) =>
 									table.getColumn('nombre')?.setFilterValue(event.target.value)
 								}
-								className="w-full pl-9"
+								className="dark:bg-black-700 w-full bg-white pl-9"
 							/>
 						</div>
 						<DropdownMenu>
@@ -273,7 +273,7 @@ export default function UsersCrudTable({
 						</DropdownMenu>
 					</div>
 
-					<div className="overflow-hidden rounded-md border">
+					<div className="dark:bg-black-800 overflow-hidden rounded-md border bg-white">
 						<Table>
 							<TableHeader>
 								{table.getHeaderGroups().map((headerGroup) => (
@@ -351,7 +351,7 @@ export default function UsersCrudTable({
 					<DialogHeader>
 						<DialogTitle>Invitar usuario</DialogTitle>
 						<DialogDescription>
-							Ingresa el correo para enviar una invitacion.
+							Ingresa el correo para enviar una invitación.
 						</DialogDescription>
 					</DialogHeader>
 					<form
@@ -374,12 +374,14 @@ export default function UsersCrudTable({
 						<DialogFooter>
 							<Button
 								type="button"
-								variant="outline"
+								variant="second"
 								onClick={() => setInviteOpen(false)}
 							>
 								Cancelar
 							</Button>
-							<Button type="submit">Enviar invitacion</Button>
+							<Button type="submit" variant="primary">
+								Enviar invitación
+							</Button>
 						</DialogFooter>
 					</form>
 				</DialogContent>
@@ -388,7 +390,7 @@ export default function UsersCrudTable({
 			<Dialog open={createRoleOpen} onOpenChange={setCreateRoleOpen}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Anadir rol</DialogTitle>
+						<DialogTitle>Añadir rol</DialogTitle>
 						<DialogDescription>
 							Crea un rol disponible para asignar a usuarios.
 						</DialogDescription>
@@ -413,12 +415,14 @@ export default function UsersCrudTable({
 						<DialogFooter>
 							<Button
 								type="button"
-								variant="outline"
+								variant="second"
 								onClick={() => setCreateRoleOpen(false)}
 							>
 								Cancelar
 							</Button>
-							<Button type="submit">Guardar rol</Button>
+							<Button type="submit" variant="primary">
+								Guardar rol
+							</Button>
 						</DialogFooter>
 					</form>
 				</DialogContent>
@@ -429,7 +433,7 @@ export default function UsersCrudTable({
 					<DialogHeader>
 						<DialogTitle>Editar usuario</DialogTitle>
 						<DialogDescription>
-							Actualiza informacion general, direccion y roles.
+							Actualiza información general, dirección y roles.
 						</DialogDescription>
 					</DialogHeader>
 					<form
@@ -470,7 +474,7 @@ export default function UsersCrudTable({
 								/>
 							</Field>
 							<Field>
-								<FieldLabel htmlFor="compania">Compania</FieldLabel>
+								<FieldLabel htmlFor="compania">Compañía</FieldLabel>
 								<Input
 									id="compania"
 									name="compania"
@@ -508,7 +512,7 @@ export default function UsersCrudTable({
 							</Field>
 							<Field>
 								<FieldLabel htmlFor="direccion_linea1">
-									Direccion linea 1
+									Dirección linea 1
 								</FieldLabel>
 								<Input
 									id="direccion_linea1"
@@ -518,7 +522,7 @@ export default function UsersCrudTable({
 							</Field>
 							<Field>
 								<FieldLabel htmlFor="direccion_linea2">
-									Direccion linea 2
+									Dirección linea 2
 								</FieldLabel>
 								<Input
 									id="direccion_linea2"
@@ -527,7 +531,7 @@ export default function UsersCrudTable({
 								/>
 							</Field>
 							<Field>
-								<FieldLabel htmlFor="modal_telefono">Telefono</FieldLabel>
+								<FieldLabel htmlFor="modal_telefono">Teléfono</FieldLabel>
 								<PhoneInputField
 									id="modal_telefono"
 									name="modal_telefono"
@@ -546,7 +550,7 @@ export default function UsersCrudTable({
 							</Field>
 							<Field>
 								<FieldLabel htmlFor="tipo_identificacion">
-									Tipo identificacion
+									Tipo identificación
 								</FieldLabel>
 								<Select>
 									<SelectTrigger id="tipo_identificacion" className="w-full">
@@ -565,7 +569,7 @@ export default function UsersCrudTable({
 							</Field>
 							<Field>
 								<FieldLabel htmlFor="numero_de_identificacion">
-									Numero identificacion
+									Numero identificación
 								</FieldLabel>
 								<Input
 									id="numero_de_identificacion"
@@ -595,7 +599,7 @@ export default function UsersCrudTable({
 								{roles.map((rol) => (
 									<label
 										key={String(rol.id)}
-										className="border-border flex items-center gap-2 rounded-lg border p-2 text-sm"
+										className="border-white-300 dark:border-black-600 flex items-center gap-2 rounded-lg border p-2 text-sm"
 									>
 										<Checkbox
 											name="roles[]"
@@ -615,11 +619,17 @@ export default function UsersCrudTable({
 							<Button
 								type="button"
 								variant="outline"
+								className="border-white-300 hover:border-white-200 dark:border-black-600 dark:hover:border-black-500 cursor-pointer border"
 								onClick={() => setEditOpen(false)}
 							>
 								Cancelar
 							</Button>
-							<Button type="submit">Guardar cambios</Button>
+							<Button
+								type="submit"
+								className="bg-black-600 hover:bg-black-700 dark:bg-black-400 dark:hover:bg-black-500 cursor-pointer dark:text-white"
+							>
+								Guardar cambios
+							</Button>
 						</DialogFooter>
 					</form>
 				</DialogContent>
@@ -658,12 +668,14 @@ export default function UsersCrudTable({
 						<DialogFooter>
 							<Button
 								type="button"
-								variant="outline"
+								variant="second"
 								onClick={() => setEstadoOpen(false)}
 							>
 								Cancelar
 							</Button>
-							<Button type="submit">Actualizar</Button>
+							<Button type="submit" variant="primary">
+								Actualizar
+							</Button>
 						</DialogFooter>
 					</form>
 				</DialogContent>

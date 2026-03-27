@@ -123,24 +123,61 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			}
 		}
 
-		// Insertar roles en user_roles
+		// Sincronizar roles: añadir nuevos y mantener existentes
 		if (roles.length > 0) {
-			// Eliminar roles existentes del usuario
-			await supabase.from('user_roles').delete().eq('user_id', targetUserId);
-
-			// Insertar los nuevos roles
-			const rolesToInsert = roles.map((rolId) => ({
-				user_id: targetUserId,
-				rol_id: rolId, // UUID o número según la tabla roles
-			}));
-
-			const { error: rolesError } = await supabase
+			// Obtener roles actuales del usuario
+			const { data: currentRoles, error: fetchError } = await supabase
 				.from('user_roles')
-				.insert(rolesToInsert);
+				.select('rol_id')
+				.eq('user_id', targetUserId);
 
-			if (rolesError) {
-				const msg = encodeURIComponent(`DB roles: ${rolesError.message}`);
+			if (fetchError) {
+				const msg = encodeURIComponent(`DB fetch roles: ${fetchError.message}`);
 				return redirect(`${back}?status=error&msg=${msg}`);
+			}
+
+			const currentRoleIds = (currentRoles || []).map((r) => r.rol_id);
+			const newRoleIds = roles;
+
+			// Roles a añadir (en new pero no en current)
+			const rolesToAdd = newRoleIds.filter(
+				(rid) => !currentRoleIds.includes(rid)
+			);
+
+			// Roles a eliminar (en current pero no en new)
+			const rolesToRemove = currentRoleIds.filter(
+				(rid) => !newRoleIds.includes(rid)
+			);
+
+			// Eliminar roles desmarcados
+			if (rolesToRemove.length > 0) {
+				const { error: deleteError } = await supabase
+					.from('user_roles')
+					.delete()
+					.eq('user_id', targetUserId)
+					.in('rol_id', rolesToRemove);
+
+				if (deleteError) {
+					const msg = encodeURIComponent(`DB delete roles: ${deleteError.message}`);
+					return redirect(`${back}?status=error&msg=${msg}`);
+				}
+			}
+
+			// Añadir roles nuevos
+			if (rolesToAdd.length > 0) {
+				const rolesToInsert = rolesToAdd.map((rolId) => ({
+					user_id: targetUserId,
+					rol_id: rolId,
+				}));
+
+				const { error: insertError } = await supabase
+					.from('user_roles')
+					.insert(rolesToInsert);
+
+				if (insertError) {
+					const msg = encodeURIComponent(`DB insert roles: ${insertError.message}`);
+					return redirect(`${back}?status=error&msg=${msg}`);
+				}
 			}
 		}
 
