@@ -1,4 +1,4 @@
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useEffect, useCallback } from 'react';
 import {
 	FieldLabel,
 	FieldLegend,
@@ -13,9 +13,54 @@ import PasswordMeter from '@components/forms/PasswordMeter';
 
 type FormState = { error: string | null };
 
+function openOAuthPopup(url: string) {
+	const width = 500;
+	const height = 600;
+	const left = window.screenX + (window.outerWidth - width) / 2;
+	const top = window.screenY + (window.outerHeight - height) / 2;
+	return window.open(
+		url,
+		'oauth-popup',
+		`width=${width},height=${height},left=${left},top=${top},popup=yes`,
+	);
+}
+
 export default function FormSignUp() {
 	const [googlePending, setGooglePending] = useState<boolean>(false);
 	const [isConfirmVisible, setIsConfirmVisible] = useState<boolean>(false);
+
+	const handleOAuthMessage = useCallback((event: MessageEvent) => {
+		if (event.origin !== window.location.origin) return;
+		if (event.data?.type !== 'oauth-callback') return;
+		setGooglePending(false);
+		if (event.data.status === 'success') {
+			window.location.href = '/';
+		}
+	}, []);
+
+	useEffect(() => {
+		window.addEventListener('message', handleOAuthMessage);
+		return () => window.removeEventListener('message', handleOAuthMessage);
+	}, [handleOAuthMessage]);
+
+	const handleGoogleLogin = async () => {
+		setGooglePending(true);
+		try {
+			const res = await fetch('/api/auth/oauth-popup-url', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ provider: 'google' }),
+			});
+			const json = await res.json();
+			if (json.data?.url) {
+				openOAuthPopup(json.data.url);
+			} else {
+				setGooglePending(false);
+			}
+		} catch {
+			setGooglePending(false);
+		}
+	};
 
 	const [registerState, registerAction, registerPending] = useActionState(
 		async (_prev: FormState, formData: FormData): Promise<FormState> => {
@@ -216,35 +261,29 @@ export default function FormSignUp() {
 						</div>
 					</div>
 					<div>
-						<form
-							action="/api/auth/signin"
-							method="post"
-							onSubmit={() => setGooglePending(true)}
+						<button
+							type="button"
+							onClick={handleGoogleLogin}
+							className={cn(
+								buttonVariants({ variant: 'outline' }),
+								'h-11 w-full cursor-pointer',
+							)}
+							disabled={anyPending}
 						>
-							<Input type="hidden" name="provider" value="google" />
-							<button
-								type="submit"
-								className={cn(
-									buttonVariants({ variant: 'outline' }),
-									'h-11 w-full cursor-pointer',
-								)}
-								disabled={anyPending}
-							>
-								{googlePending ? (
-									<Spinner data-icon="inline-start" />
-								) : (
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										viewBox="0 0 24 24"
-										fill="currentColor"
-										className="size-5"
-									>
-										<path d="M3.064 7.51A10 10 0 0 1 12 2c2.695 0 4.959.991 6.69 2.605l-2.867 2.868C14.786 6.482 13.468 5.977 12 5.977c-2.605 0-4.81 1.76-5.595 4.123c-.2.6-.314 1.24-.314 1.9s.114 1.3.314 1.9c.786 2.364 2.99 4.123 5.595 4.123c1.345 0 2.49-.355 3.386-.955a4.6 4.6 0 0 0 1.996-3.018H12v-3.868h9.418c.118.654.182 1.336.182 2.045c0 3.046-1.09 5.61-2.982 7.35C16.964 21.105 14.7 22 12 22A9.996 9.996 0 0 1 2 12c0-1.614.386-3.14 1.064-4.49" />
-									</svg>
-								)}
-								{googlePending ? 'Redirigiendo...' : 'Registrate con Google'}
-							</button>
-						</form>
+							{googlePending ? (
+								<Spinner data-icon="inline-start" />
+							) : (
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 24 24"
+									fill="currentColor"
+									className="size-5"
+								>
+									<path d="M3.064 7.51A10 10 0 0 1 12 2c2.695 0 4.959.991 6.69 2.605l-2.867 2.868C14.786 6.482 13.468 5.977 12 5.977c-2.605 0-4.81 1.76-5.595 4.123c-.2.6-.314 1.24-.314 1.9s.114 1.3.314 1.9c.786 2.364 2.99 4.123 5.595 4.123c1.345 0 2.49-.355 3.386-.955a4.6 4.6 0 0 0 1.996-3.018H12v-3.868h9.418c.118.654.182 1.336.182 2.045c0 3.046-1.09 5.61-2.982 7.35C16.964 21.105 14.7 22 12 22A9.996 9.996 0 0 1 2 12c0-1.614.386-3.14 1.064-4.49" />
+								</svg>
+							)}
+							{googlePending ? 'Conectando...' : 'Registrate con Google'}
+						</button>
 					</div>
 
 					<div className="text-sm font-medium text-slate-600 dark:text-slate-400">
