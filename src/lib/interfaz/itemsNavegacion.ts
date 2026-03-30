@@ -9,18 +9,18 @@ export const menuItems = [
 		sequence: 10
 	},
 	{
-		id: 'companias',
-		label: 'Tus compañias',
-		href: '/pages/companias',
-		tooltip: 'Mira tus compañias y su estado',
+		id: 'my-companies',
+		label: 'Tus empresas',
+		href: '/my-companies/',
+		tooltip: 'Mira tus empresas',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:hand-coin-fill',
-		sequence: 30
+		sequence: 20
 	},
 	{
 		id: 'documentos',
 		label: 'Documentos',
-		href: '/pages/tus-formularios',
+		href: '/documentos/',
 		tooltip: 'Mira tus documentos y formularios',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:file-copy-2-line',
@@ -44,7 +44,6 @@ export const menuItems = [
 		svgname: 'ri:settings-3-fill',
 		sequence: 60
 	},
-
 	{
 		id: 'partners-soporte',
 		label: 'Agendar',
@@ -66,7 +65,7 @@ export const menuItems = [
 	{
 		id: 'crud-users',
 		label: 'Clientes',
-		href: '/crud/users',
+		href: '/usuarios/',
 		tooltip: 'Gestionar clientes',
 		roles: ['admin'],
 		svgname: 'ri:user-add-fill',
@@ -75,8 +74,8 @@ export const menuItems = [
 	{
 		id: 'crud-empresas',
 		label: 'Empresas',
-		href: '/crud/empresas',
-		tooltip: 'Gestionar clientes',
+		href: '/companies/',
+		tooltip: 'Gestionar empresas',
 		roles: ['admin'],
 		svgname: 'ri:building-2-fill',
 		sequence: 100
@@ -84,7 +83,7 @@ export const menuItems = [
 	{
 		id: 'verificacion-formulario-incorp',
 		label: 'Incorporación',
-		href: '/crud/verficacion-incorporacion',
+		href: '/admin/verificacion/',
 		tooltip: 'Gestiona y verifica los datos del formulario de incorporación',
 		roles: ['admin'],
 		svgname: 'ri:archive-stack-fill',
@@ -93,7 +92,7 @@ export const menuItems = [
 	{
 		id: 'menu-vista-de-pagos',
 		label: 'Pagos',
-		href: '/crud/pagos',
+		href: '/admin/pagos/',
 		tooltip: 'verifica y gestiona los pagos realizados por los clientes',
 		roles: ['admin'],
 		svgname: 'ri:coins-fill',
@@ -102,7 +101,7 @@ export const menuItems = [
 	{
 		id: 'menu-subir-documentos-de-usuario',
 		label: 'subir docs',
-		href: '/crud/subir-documentos',
+		href: '/admin/subir-documentos/',
 		tooltip: 'Sube documentos específicos para los clientes',
 		roles: ['admin'],
 		svgname: 'ri:upload-cloud-2-fill',
@@ -111,7 +110,7 @@ export const menuItems = [
 	{
 		id: 'menu-notificaciones-a-usuarios',
 		label: 'Notificaciones',
-		href: '/crud/notificaciones-personalizadas',
+		href: '/admin/notificaciones/',
 		tooltip: 'Notifica a los usuarios con mensajes personalizados',
 		roles: ['admin'],
 		svgname: 'ri:chat-ai-4-fill',
@@ -120,7 +119,7 @@ export const menuItems = [
 	{
 		id: 'crud-servicios',
 		label: 'Servicios',
-		href: '/crud/services',
+		href: '/admin/servicios/',
 		tooltip: 'Gestionar servicios',
 		roles: ['admin'],
 		svgname: 'ri:function-add-fill',
@@ -129,7 +128,7 @@ export const menuItems = [
 	{
 		id: 'crud-formularios',
 		label: 'Formularios',
-		href: '/crud/formularios',
+		href: '/formularios/',
 		tooltip: 'Crea y gestiona formularios',
 		roles: ['admin'],
 		svgname: 'ri:file-edit-fill',
@@ -138,7 +137,7 @@ export const menuItems = [
 	{
 		id: 'crud-formularios-enviados',
 		label: 'Docs Enviados',
-		href: '/crud/formularios-enviados',
+		href: '/formularios/enviados/',
 		tooltip: 'Gestiona las respuestas y estados de documentos',
 		roles: ['admin'],
 		svgname: 'ri:file-check-fill',
@@ -147,19 +146,10 @@ export const menuItems = [
 	{
 		id: 'otros-servicios',
 		label: 'Otros servicios',
-		href: '/pages/otros-servicios',
+		href: '/servicios/',
 		tooltip: 'Explora otros servicios disponibles',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:dashboard-horizontal-fill',
 		sequence: 180
-	},
-	{
-		id: 'companies',
-		label: 'Empresas',
-		href: '/companies',
-		tooltip: 'Mira tus compañias y su estado',
-		roles: ['cliente', 'partner', 'admin'],
-		svgname: 'ri:building-4-fill',
-		sequence: 300
 	},
 ];

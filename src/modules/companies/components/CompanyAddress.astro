@@ -1,0 +1,104 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { EmpresaDetail } from '../types';
+
+interface Props {
+	empresa: EmpresaDetail;
+	esMemberManaged: boolean;
+}
+
+const { empresa, esMemberManaged } = Astro.props;
+---
+
+{
+	empresa.direccion_operativa_eeuu === 'Si' && (
+		<div
+			class={`dark:bg-black-800 relative col-span-1 flex h-full w-full flex-col gap-5 rounded-md bg-neutral-50 dark:text-neutral-300 ${esMemberManaged ? 'col-span-2' : 'col-span-3'}`}
+		>
+			<div class="flex h-fit w-full items-center gap-2 rounded-t-md bg-[#d4d4d4] p-4 text-xl font-bold dark:bg-[#134aed]">
+				<Icon name="ri:map-pin-fill" />
+				<p>Dirección operativa EE.UU.</p>
+			</div>
+			<div class="grid grid-cols-1 p-4 lg:grid-cols-2">
+				<div>
+					<div>
+						<h5 class="mb-2 text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-300">
+							Dirección operativa en EE.UU.
+						</h5>
+						<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400">
+							{empresa.direccion_eeuu}
+						</p>
+					</div>
+					<div>
+						<h5 class="mb-2 text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-300">
+							Condado de EE.UU.
+						</h5>
+						<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400">
+							{empresa.condado_eeuu}
+						</p>
+					</div>
+					<div>
+						<h5 class="mb-2 text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-300">
+							Ciudad de EE.UU.
+						</h5>
+						<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400">
+							{empresa.ciudad_eeuu}
+						</p>
+					</div>
+				</div>
+				<div>
+					<div>
+						<h5 class="mb-2 text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-300">
+							Estado de EE.UU.
+						</h5>
+						<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400">
+							{empresa.estado_eeuu}
+						</p>
+					</div>
+					<div>
+						<h5 class="mb-2 text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-300">
+							Codigo postal de EE.UU.
+						</h5>
+						<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400">
+							{empresa.codigo_postal_eeuu}
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	)
+}
+{
+	empresa.direccion_operativa_eeuu === 'No' && (
+		<div
+			class={`dark:bg-black-800 relative col-span-1 flex h-full w-full flex-col gap-5 rounded-md bg-neutral-50 dark:text-neutral-300 ${esMemberManaged ? 'col-span-2' : 'col-span-3'}`}
+		>
+			<div class="flex h-fit w-full items-center gap-2 rounded-t-md bg-[#d4d4d4] p-4 text-xl font-bold dark:bg-[#134aed]">
+				<Icon name="ri:map-pin-fill" />
+				<p>Dirección operativa</p>
+			</div>
+			<div class="grid grid-cols-1 p-4 lg:grid-cols-2">
+				<div>
+					<div>
+						<h5 class="mb-2 text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-300">
+							País operativo
+						</h5>
+						<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400">
+							{empresa.Pais_operativo}
+						</p>
+					</div>
+				</div>
+				<div>
+					<div>
+						<h5 class="mb-2 text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-300">
+							Dirección de la empresa
+						</h5>
+						<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400">
+							{empresa.direccion_empresa}
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	)
+}

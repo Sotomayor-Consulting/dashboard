@@ -1,0 +1,1489 @@
+---
+import { Icon } from 'astro-icon/components';
+import { Image } from 'astro:assets';
+import type {
+	EmpresaDetail,
+	SocioItem,
+	ManagerItem,
+	ActividadItem,
+	PaisItem,
+	EstadoItem,
+} from '../types';
+
+interface Props {
+	empresa: EmpresaDetail;
+	socios: SocioItem[];
+	managers: ManagerItem[];
+	actividades: ActividadItem[];
+	paises: PaisItem[];
+	estados: EstadoItem[];
+}
+
+const { empresa, socios, managers, actividades, paises, estados } =
+	Astro.props;
+---
+
+<form action="" method="post">
+	<div
+		class="grid w-full space-x-0 rounded-lg p-0 md:grid-cols-[auto_1fr] md:space-x-4 md:p-4"
+		id="contacts"
+		role="tabpanel"
+		aria-labelledby="contacts-tab"
+		x-data="{
+				formadeAdministracion: '',
+				actvidadManual: null,
+				RegistroManual: '',
+				direccionOperativa: '',
+				otrosMiembrosfuera: null,
+				managerMiembro: '',
+				asignarManager: '',
+				tabManager: '',
+				init() {
+					const checkbox = document.querySelector('#otros-miembros-fuera-de-lista');
+					if (checkbox) {
+						this.actvidadManual = checkbox.checked;
+					};
+					const direccionop = document.querySelector('#direccionOperativa');
+					if (direccionop) {
+						this.direccionOperativa = direccionop.value
+					};
+					const administracion = document.querySelector('#forma_de_administrar');
+					if (administracion) {
+						this.formadeAdministracion = administracion.value
+					};
+					const manager = document.querySelector('#informacionmanager');
+					if (manager) {
+						this.managerMiembro = manager.value
+					};
+				}
+			}"
+		x-effect="if (!actvidadManual) {
+				RegistroManual = '';
+			}; if (asignarManager === 'Si') {
+				 managerMiembro = '';
+			}"
+	>
+		<!-- ── Edit sub-tab sidebar ──────────────────────────── -->
+		<div class="mb-4 md:max-w-72 md:min-w-72 dark:border-gray-700">
+			<ul
+				class="flex-column dark:bg-black-800 space-y-5 rounded-lg p-5 text-sm font-medium text-gray-500 dark:text-gray-400"
+				id="default-tab-2"
+				data-tabs-toggle="#default-tab-content-2"
+				role="tablist"
+				data-tabs-active-classes="text-white bg-blue-700 dark:bg-blue-600"
+				data-tabs-inactive-classes="hover:text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-black-900 dark:hover:bg-[#101521]/80 dark:hover:text-white"
+			>
+				<li>
+					<div>
+						<h5 class="text-lg">{empresa.nombre_1}</h5>
+						<p class="font-light">navegacion de edicion</p>
+					</div>
+				</li>
+				{
+					[
+						{
+							id: 'generales-tab',
+							tabs: 'generales',
+							label: 'Generales',
+							icono: 'ri:building-2-fill',
+							condicion: 'activo',
+						},
+						{
+							id: 'ubicacion-tab',
+							tabs: 'ubicacion',
+							label: 'Ubicacion',
+							icono: 'ri:folder-user-fill',
+							condicion: 'activo',
+						},
+						{
+							id: 'socios-edit-tab',
+							tabs: 'socios-edit',
+							label: 'Socios',
+							icono: 'ri:file-copy-2-fill',
+							condicion: 'activo',
+						},
+						{
+							id: 'manager-tab',
+							tabs: 'manager',
+							label: 'Manager',
+							icono: 'ri:edit-fill',
+							condicion: 'condicional',
+						},
+					].map((i) =>
+						i.condicion === 'activo' ? (
+							<li role="presentation">
+								<button
+									id={i.id}
+									data-tabs-target={`#${i.tabs}`}
+									type="button"
+									role="tab"
+									aria-controls={i.tabs}
+									aria-selected="false"
+									class="flex w-full items-center gap-2 rounded-lg p-4"
+								>
+									<Icon name={i.icono} class="text-lg" />
+									{i.label}
+								</button>
+							</li>
+						) : (
+							<li role="presentation">
+								<button
+									id={i.id}
+									data-tabs-target={`#${i.tabs}`}
+									type="button"
+									role="tab"
+									x-model="tabManager"
+									x-cloak
+									x-show="formadeAdministracion === 'Member-Managed'"
+									aria-controls={i.tabs}
+									aria-selected="false"
+									class="flex w-full items-center gap-2 rounded-lg p-4"
+								>
+									<Icon name={i.icono} class="text-lg" />
+									{i.label}
+								</button>
+							</li>
+						),
+					)
+				}
+			</ul>
+		</div>
+
+		<!-- ── Edit sub-tab content ──────────────────────────── -->
+		<div id="default-tab-content-2" class="ml-0 min-w-full">
+			<!-- Sub-tab: Generales -->
+			<div
+				class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
+				id="generales"
+				role="tabpanel"
+				aria-labelledby="generales-tab"
+			>
+				<div class="dark:bg-black-900 w-full rounded-lg bg-white shadow">
+					<div
+						class="dark:bg-black-800 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
+					>
+						<h3 class="mb-4 text-xl font-semibold dark:text-white">
+							Datos Generales
+						</h3>
+
+						<div class="grid grid-cols-6 gap-6">
+							<div class="col-span-6 sm:col-span-3">
+								<label
+									for="Ingresos_de_EEUU"
+									class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+									>¿La LLC obtendrá ingresos provenientes de Estados Unidos?</label
+								>
+								<select
+									name="Ingresos_de_EEUU"
+									id="Ingresos_de_EEUU"
+									class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+								>
+									<option
+										value=""
+										disabled
+										hidden
+										selected={empresa.Obtendra_ingresos_desde_eeuu === null}
+									>
+										Seleccione una opción
+									</option>
+									<option
+										value="true"
+										selected={empresa.Obtendra_ingresos_desde_eeuu === true}
+									>
+										Sí
+									</option>
+									<option
+										value="false"
+										selected={empresa.Obtendra_ingresos_desde_eeuu ===
+											false}
+									>
+										No
+									</option>
+								</select>
+							</div>
+
+							<div class="col-span-6 flex items-end sm:col-span-3">
+								<button
+									type="button"
+									data-modal-target="crud-modal"
+									data-modal-toggle="crud-modal"
+									class="flex items-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+								>
+									<Icon name="ri:add-line" /> Añadir actividad</button
+								>
+							</div>
+							<div class="col-span-6 sm:col-span-3">
+								<label
+									for="actividad-input"
+									class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+								>
+									Actividad
+								</label>
+								<input
+									list="actividades-list"
+									id="actividad-input"
+									name="actividad"
+									value={empresa.actividad}
+									placeholder="Escribe para buscar actividad..."
+									class="block w-full truncate rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+								/>
+
+								<datalist id="actividades-list">
+									{
+										actividades?.map((ac) => (
+											<option value={ac.Actividad}>{ac.Actividad}</option>
+										))
+									}
+								</datalist>
+							</div>
+
+							<div class="col-span-6 sm:col-span-3">
+								<label
+									for="forma_de_administrar"
+									class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+									>Forma de administrar</label
+								>
+								<select
+									name="forma_de_administrar"
+									id="forma_de_administrar"
+									x-model="formadeAdministracion"
+									class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+								>
+									<option
+										value=""
+										selected={!empresa.forma_administracion}
+										hidden
+										disabled>Seleccione una forma de tibutar</option
+									>
+									<option
+										value="Member-Managed"
+										selected={empresa.forma_administracion ===
+											'Member-Managed'}
+									>
+										Member-Managed
+									</option>
+									<option
+										value="Manager-Managed"
+										selected={empresa.forma_administracion ===
+											'Manager-Managed'}
+									>
+										Manager-Managed
+									</option>
+								</select>
+							</div>
+							<div class="col-span-6 sm:col-span-3">
+								<label
+									for="forma_de_tributar"
+									class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+									>Forma de tributar</label
+								>
+								<select
+									name="forma_de_tributar"
+									id="forma_de_tributar"
+									class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+								>
+									<option
+										value=""
+										hidden
+										disabled
+										selected={!empresa.forma_tributacion}
+										>Seleccione una forma de tibutar</option
+									>
+									<option
+										value="Entidad de paso"
+										selected={empresa.forma_tributacion ===
+											'Entidad de paso'}
+									>
+										Entidad de paso
+									</option>
+									<option
+										value="Corporación"
+										selected={empresa.forma_tributacion === 'Corporación'}
+									>
+										Corporación
+									</option>
+								</select>
+							</div>
+							<div class="col-span-6 sm:col-span-3">
+								<label
+									for="responsable_irs"
+									class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+								>
+									Responsable frente al IRS
+								</label>
+								<select
+									name="responsable_irs"
+									id="responsable_irs"
+									class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+								>
+									<option
+										value=""
+										disabled
+										hidden
+										selected={!empresa.responsable_irs}
+									>
+										Seleccione una responsable
+									</option>
+
+									{
+										socios?.map((s) => (
+											<option
+												value={s.nombre_de_socio}
+												selected={
+													s.nombre_de_socio === empresa.responsable_irs
+												}
+											>
+												{s.nombre_de_socio}
+											</option>
+										))
+									}
+								</select>
+							</div>
+
+							<div class="col-span-12 sm:col-span-6">
+								<label
+									for="informacion_miembros"
+									class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+								>
+									Informacion de los miembros
+								</label>
+								<select
+									name="informacion_miembros"
+									id="informacion_miembros"
+									class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+								>
+									<option
+										value=""
+										disabled
+										hidden
+										selected={!empresa.informacion_miembros}
+									>
+										Seleccione una opcion
+									</option>
+
+									<option
+										value="Pública"
+										selected={empresa.informacion_miembros === 'Pública'}
+									>
+										Pública
+									</option>
+
+									<option
+										value="Privada"
+										selected={empresa.informacion_miembros === 'Privada'}
+									>
+										Privada
+									</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Sub-tab: Ubicacion -->
+			<div
+				class="dark:bg-black-800 hidden min-w-full rounded-lg bg-gray-50 p-4"
+				id="ubicacion"
+				role="tabpanel"
+				aria-labelledby="ubicacion-tab"
+			>
+				<div
+					class="dark:bg-black-900 relative min-w-full rounded-lg bg-white shadow"
+				>
+					<div
+						class="dark:bg-black-800 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
+					>
+						<h3 class="mb-4 text-xl font-semibold dark:text-white">
+							Ubicacion
+						</h3>
+
+						<div class="grid grid-cols-6 gap-6">
+							<div class="col-span-6 sm:col-span-3">
+								<label
+									for="direccionOperativa"
+									class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+									>¿Tiene dirección operativa en EE.UU.?</label
+								>
+								<select
+									name="direccionOperativa"
+									id="direccionOperativa"
+									x-model="direccionOperativa"
+									class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+								>
+									<option
+										value="Si"
+										selected={empresa.direccion_operativa_eeuu === 'Si'}
+									>
+										Sí
+									</option>
+									<option
+										value="No"
+										selected={empresa.direccion_operativa_eeuu === 'No'}
+									>
+										No
+									</option>
+									<option
+										value="Quiero que Sotomayor Consulting International provea una dirección"
+										selected={empresa.direccion_operativa_eeuu ===
+											'Quiero que Sotomayor Consulting International provea una dirección'}
+									>
+										Quiero que Sotomayor Consulting International provea una
+										dirección
+									</option>
+								</select>
+							</div>
+
+							<template x-if="direccionOperativa === 'Si'">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="direccion"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+										>Dirección</label
+									>
+									<input
+										type="text"
+										name="direccion"
+										id="direccion"
+										class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+										value={empresa.direccion_eeuu}
+										placeholder="ejem. Av. Juan Molineros"
+									/>
+								</div>
+							</template>
+							<template x-if="direccionOperativa === 'Si'">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="condado"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+										>Condado</label
+									>
+									<input
+										type="text"
+										name="condado"
+										id="condado"
+										value={empresa.condado_eeuu}
+										class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+										placeholder="ejem. Miami-Dade"
+									/>
+								</div>
+							</template>
+							<template x-if="direccionOperativa === 'Si'">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="ciudad"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+										>Ciudad</label
+									>
+									<input
+										type="text"
+										name="ciudad"
+										id="ciudad"
+										value={empresa.ciudad_eeuu}
+										class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+										placeholder="ejem. Miami"
+									/>
+								</div>
+							</template>
+							<template x-if="direccionOperativa === 'Si'">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="estado"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+										>Estado</label
+									>
+									<select
+										name="estado"
+										id="estado"
+										class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+									>
+										<option
+											value=""
+											disabled
+											hidden
+											selected={!empresa.estado_eeuu}
+										>
+											Seleccione un estado
+										</option>
+
+										{
+											estados?.map((e) => (
+												<option
+													value={e.Estado}
+													selected={e.Estado === empresa.estado_eeuu}
+												>
+													{e.Estado}
+												</option>
+											))
+										}
+									</select>
+								</div>
+							</template>
+							<template x-if="direccionOperativa === 'Si'">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="Codigo_postal"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+										>Codigo Postal</label
+									>
+									<input
+										type="text"
+										name="Codigo_postal"
+										id="Codigo_postal"
+										value={empresa.codigo_postal_eeuu}
+										class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+										placeholder="ejem. Miami-Dade"
+									/>
+								</div>
+							</template>
+
+							<template x-if="direccionOperativa === 'No'"
+								><div class="col-span-6 sm:col-span-3">
+									<label
+										for="Pais_operativo"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+										>Pais</label
+									>
+									<select
+										name="Pais_operativo"
+										id="Pais_operativo"
+										class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+									>
+										<option
+											value=""
+											disabled
+											hidden
+											selected={!empresa.Pais_operativo}
+										>
+											Seleccione un pais
+										</option>
+
+										{
+											paises?.map((p) => (
+												<option
+													value={p.nombre_paises}
+													selected={
+														p.nombre_paises === empresa.Pais_operativo
+													}
+												>
+													{p.nombre_paises}
+												</option>
+											))
+										}
+									</select>
+								</div>
+							</template>
+
+							<template x-if="direccionOperativa === 'No'">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="direccion_empresa"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+										>Dirección Empresa</label
+									>
+									<input
+										type="text"
+										name="direccion_empresa"
+										id="direccion_empresa"
+										value={empresa.direccion_empresa}
+										class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+										placeholder="Av. Juan Molineros"
+									/>
+								</div>
+							</template>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Sub-tab: Socios -->
+			<div
+				class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
+				id="socios-edit"
+				role="tabpanel"
+				aria-labelledby="socios-edit-tab"
+			>
+				<div
+					id="datos-socios"
+					class="dark:bg-black-800 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
+				>
+					<h3 class="mb-4 text-xl font-semibold dark:text-white">
+						Datos de los socios
+					</h3>
+					<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+						{
+							socios?.map((s, index) => (
+								<div class="dark:bg-black-900 h-full w-full shrink-0 justify-self-center overflow-y-auto border border-gray-200 bg-white p-3 shadow-sm lg:rounded-lg dark:border-gray-700">
+									<span class="sr-only">Open user menu</span>
+									<div class="flex w-full items-center justify-between">
+										<div class="flex items-center">
+											<Image
+												src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${s.nombre_de_socio}`}
+												class="mr-3 h-8 w-8 rounded-md"
+												alt="Bonnie avatar"
+												inferSize={true}
+												loading="eager"
+											/>
+											<div class="text-left">
+												<div class="mb-0.5 leading-none font-semibold text-gray-900 dark:text-white">
+													<input
+														type="text"
+														id={`nombre_de_socio_card_${index}`}
+														name={`nombre_de_socio_card_${index}`}
+														value={s.nombre_de_socio}
+														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+													/>
+												</div>
+												<div>
+													<input
+														type="text"
+														id={`correo-socio-${index}`}
+														name={`correo-socio-${index}`}
+														value={s.correo}
+														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-sm leading-none font-semibold text-gray-500 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-gray-400 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+													/>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="mb-4 w-full border-y border-gray-100 py-4 dark:border-gray-700">
+										<ul class="grid grid-cols-2 gap-2">
+											<li>
+												<input
+													type="radio"
+													id={`input-socios-natural-${index}`}
+													name={`tipo-persona-${index}`}
+													value="Persona Natural"
+													class="peer hidden"
+													checked={s.tipo_de_socio === 'Persona Natural'}
+													required
+												/>
+												<label
+													for={`input-socios-natural-${index}`}
+													class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg border-2 border-gray-400 bg-purple-900 p-2 text-gray-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:bg-purple-800 hover:text-gray-600 dark:border-gray-700 dark:bg-purple-900 dark:text-gray-400 dark:peer-checked:border-blue-600 dark:hover:bg-purple-800 dark:hover:text-gray-300"
+												>
+													<div class="flex flex-col items-center justify-center">
+														<span class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-purple-800 group-hover:bg-purple-700 dark:bg-purple-800 dark:group-hover:bg-purple-700">
+															<Icon
+																name="ri:user-star-line"
+																class="h-5 w-5 text-purple-300 dark:text-purple-300"
+															/>
+														</span>
+														<span class="text-sm font-medium text-purple-300 dark:text-purple-300">
+															Persona Natural
+														</span>
+													</div>
+												</label>
+											</li>
+											<li>
+												<input
+													type="radio"
+													id={`input-socios-empresa-${index}`}
+													name={`tipo-persona-${index}`}
+													value="Empresa"
+													class="peer hidden"
+													checked={s.tipo_de_socio === 'Empresa'}
+													required
+												/>
+												<label
+													for={`input-socios-empresa-${index}`}
+													class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg border-2 border-gray-400 bg-teal-700 p-2 text-gray-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:bg-teal-800 hover:text-gray-600 dark:border-gray-700 dark:bg-teal-700 dark:text-gray-400 dark:peer-checked:border-blue-600 dark:hover:bg-teal-800 dark:hover:text-gray-300"
+												>
+													<div class="flex flex-col items-center justify-center">
+														<span class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-teal-800 group-hover:bg-teal-700 dark:bg-teal-800 dark:group-hover:bg-teal-700">
+															<Icon
+																name="ri:building-2-line"
+																class="h-5 w-5 text-purple-300 dark:text-purple-300"
+															/>
+														</span>
+														<span class="text-sm font-medium text-purple-300 dark:text-purple-300">
+															Empresa
+														</span>
+													</div>
+												</label>
+											</li>
+										</ul>
+									</div>
+									<ul class="space-y-2">
+										<li>
+											<div class="relative flex w-full items-center">
+												<button
+													type="button"
+													id="decrement-button"
+													data-input-counter-decrement={`bedrooms-input-${index}`}
+													class="h-11 rounded-s-lg border border-gray-300 p-3 hover:bg-gray-200 focus:ring-2 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+												>
+													<svg
+														class="h-3 w-3 text-gray-900 dark:text-white"
+														aria-hidden="true"
+														xmlns="http://www.w3.org/2000/svg"
+														fill="none"
+														viewBox="0 0 18 2"
+													>
+														<path
+															stroke="currentColor"
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															stroke-width="2"
+															d="M1 1h16"
+														/>
+													</svg>
+												</button>
+												<input
+													type="text"
+													id={`bedrooms-input-${index}`}
+													data-input-counter
+													data-input-counter-min="1"
+													data-input-counter-max="100"
+													aria-describedby="helper-text-explanation"
+													class="dark:bg-black-900 block h-11 w-full border-x-0 border-gray-300 bg-gray-50 pb-6 text-center text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+													placeholder=""
+													value={s.porcentaje}
+													required
+												/>
+												<div class="absolute inset-s-1/2 bottom-1 flex -translate-x-1/2 items-center space-x-1 text-xs text-gray-400 rtl:translate-x-1/2 rtl:space-x-reverse">
+													<span>Porcentaje</span>
+												</div>
+												<button
+													type="button"
+													id="increment-button"
+													data-input-counter-increment={`bedrooms-input-${index}`}
+													class="h-11 rounded-e-lg border border-gray-300 p-3 hover:bg-gray-200 focus:ring-2 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+												>
+													<svg
+														class="h-3 w-3 text-gray-900 dark:text-white"
+														aria-hidden="true"
+														xmlns="http://www.w3.org/2000/svg"
+														fill="none"
+														viewBox="0 0 18 18"
+													>
+														<path
+															stroke="currentColor"
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															stroke-width="2"
+															d="M9 1v16M1 9h16"
+														/>
+													</svg>
+												</button>
+											</div>
+										</li>
+										<li>
+											<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+												<Icon
+													name="ri:earth-line"
+													width="24"
+													height="24"
+													class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+												/>
+												<div class="w-full">
+													<label
+														for={`pais-socio-card-${index}`}
+														class="sr-only"
+													>
+														Selecciona una opcion
+													</label>
+													<select
+														id={`pais-socio-card-${index}`}
+														name={`pais-socio-card-${index}`}
+														class="peer dark:bg-black-900 block w-full appearance-none border-0 bg-transparent px-3 py-0 text-base font-medium text-gray-500 focus:border-gray-200 focus:ring-0 focus:outline-none dark:text-white dark:group-hover:bg-gray-700"
+													>
+														<option
+															value=""
+															disabled
+															hidden
+															selected={!s.pais_de_nacionalidad}
+														>
+															Seleccione un pais
+														</option>
+
+														{paises?.map((p) => (
+															<option
+																value={p.nombre_paises}
+																selected={
+																	p.nombre_paises === s.pais_de_nacionalidad
+																}
+															>
+																{p.nombre_paises}
+															</option>
+														))}
+													</select>
+												</div>
+											</div>
+										</li>
+										<li>
+											<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+												<Icon
+													name="ri:diamond-ring-fill"
+													width="24"
+													height="24"
+													class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+												/>
+												<div class="w-full">
+													<label
+														for={`estado-civil-socio-card-${index}`}
+														class="sr-only"
+													>
+														Selecciona una opcion
+													</label>
+													<select
+														id={`estado-civil-socio-card-${index}`}
+														name={`estado-civil-socio-card-${index}`}
+														class="peer dark:bg-black-900 block w-full appearance-none border-0 bg-transparent px-3 py-0 text-base font-medium text-gray-500 focus:border-gray-200 focus:ring-0 focus:outline-none dark:text-white dark:group-hover:bg-gray-700"
+													>
+														<option selected hidden disabled>
+															Selecciona una opcion
+														</option>
+														<option
+															value="Casado"
+															selected={s.estado_civil === 'Casado'}
+														>
+															Casado
+														</option>
+														<option
+															value="Soltero"
+															selected={s.estado_civil === 'Soltero'}
+														>
+															Soltero
+														</option>
+														<option
+															value="Divorciado"
+															selected={s.estado_civil === 'Divorciado'}
+														>
+															Divorciado
+														</option>
+														<option
+															value="Viudo"
+															selected={s.estado_civil === 'Viudo'}
+														>
+															Viudo
+														</option>
+													</select>
+												</div>
+											</div>
+										</li>
+									</ul>
+									<ul class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700">
+										<li>
+											<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+												<div class="flex w-full">
+													<label class="inline-flex cursor-pointer items-center">
+														<input
+															type="checkbox"
+															class="peer sr-only"
+															id={`residente-fiscal-socio-${index}`}
+															name={`residente-fiscal-socio-${index}`}
+															checked={s.residente_fiscal === 'Si'}
+														/>
+														<div class="peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:inset-s-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800" />
+														<span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+															Residente fiscal en EE.UU.
+														</span>
+													</label>
+												</div>
+											</div>
+										</li>
+									</ul>
+									<ul class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700">
+										<li>
+											<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white">
+												<button
+													data-tooltip-target={`tooltip-default-${index}`}
+													data-tooltip-placement="left"
+													type="button"
+													class="text-center"
+												>
+													<Icon
+														name="ri:passport-line"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+												</button>
+
+												<div
+													id={`tooltip-default-${index}`}
+													role="tooltip"
+													class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
+												>
+													Numero de Pasaporte
+													<div class="tooltip-arrow" data-popper-arrow />
+												</div>
+
+												<div class="relative z-0">
+													<input
+														type="text"
+														id={`pasaporte-socios-card-${index}`}
+														name={`pasaporte-socios-card-${index}`}
+														value={s.numero_de_pasaporte}
+														class="peer block w-full appearance-none border-0 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
+														placeholder=" "
+													/>
+													<label
+														for="floating_standard"
+														class="absolute top-3 -z-10 origin-left -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:inset-s-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500"
+													>
+														Numero de pasaporte
+													</label>
+												</div>
+											</div>
+										</li>
+										<li>
+											<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white">
+												<button
+													data-tooltip-target={`tooltip-seguro-${index}`}
+													data-tooltip-placement="left"
+													type="button"
+													class="text-center"
+												>
+													<Icon
+														name="ri:secure-payment-line"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+												</button>
+
+												<div
+													id={`tooltip-seguro-${index}`}
+													role="tooltip"
+													class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
+												>
+													Numero de Seguro Social
+													<div class="tooltip-arrow" data-popper-arrow />
+												</div>
+
+												<div class="relative z-0">
+													<input
+														type="text"
+														id={`numero-seguro-socio-${index}`}
+														name={`numero-seguro-socio-${index}`}
+														value={s.numero_de_seguro_social}
+														class="peer block w-full appearance-none border-0 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
+														placeholder=" "
+													/>
+													<label
+														for="floating_standard"
+														class="absolute top-3 -z-10 origin-left -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:inset-s-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500"
+													>
+														Numero de seguro social
+													</label>
+												</div>
+											</div>
+										</li>
+										<li>
+											<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white">
+												<button
+													data-tooltip-target={`tooltip-itin-${index}`}
+													data-tooltip-placement="left"
+													type="button"
+													class="text-center"
+												>
+													<Icon
+														name="ri:hashtag"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+												</button>
+
+												<div
+													id={`tooltip-itin-${index}`}
+													role="tooltip"
+													class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
+												>
+													Numero de ITIN
+													<div class="tooltip-arrow" data-popper-arrow />
+												</div>
+												<div class="relative z-0">
+													<input
+														type="text"
+														id={`numero-itin-socio-card-${index}`}
+														name={`numero-itin-socio-card-${index}`}
+														value={s.numero_itin}
+														class="peer block w-full appearance-none border-0 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
+														placeholder=" "
+													/>
+													<label
+														for="floating_standard"
+														class="absolute top-3 -z-10 origin-left -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:inset-s-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500"
+													>
+														Numero de ITIN
+													</label>
+												</div>
+											</div>
+										</li>
+										<li>
+											<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white">
+												<button
+													data-tooltip-target={`tooltip-direccion-${index}`}
+													data-tooltip-placement="left"
+													type="button"
+													class="text-center"
+												>
+													<Icon
+														name="ri:direction-line"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+												</button>
+
+												<div
+													id={`tooltip-direccion-${index}`}
+													role="tooltip"
+													class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
+												>
+													Direccion de planilla
+													<div class="tooltip-arrow" data-popper-arrow />
+												</div>
+
+												<div class="relative z-0">
+													<input
+														type="text"
+														id={`direccion-planilla-socio-card-${index}`}
+														name={`direccion-planilla-socio-card-${index}`}
+														value={s.direccion_planilla}
+														class="peer block w-full appearance-none border-0 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:ring-0 focus:outline-none dark:border-gray-600 dark:text-white dark:focus:border-blue-500"
+														placeholder=" "
+													/>
+													<label
+														for="floating_standard"
+														class="absolute top-3 -z-10 origin-left -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:inset-s-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500"
+													>
+														Direccion de planilla
+													</label>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</div>
+							))
+						}
+					</div>
+				</div>
+			</div>
+
+			<!-- Sub-tab: Manager -->
+			<div
+				class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
+				id="manager"
+				role="tabpanel"
+				aria-labelledby="manager-tab"
+			>
+				<template x-if="formadeAdministracion === 'Member-Managed'">
+					<div
+						id="datos-managers"
+						class="dark:bg-black-800 mb-4 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
+						x-data="{ espartedelosMiembros: '' }"
+						x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
+					>
+						<h3 class="mb-4 text-xl font-semibold dark:text-white">
+							Informacion de managers
+						</h3>
+						<div>
+							<div class="grid grid-cols-6 gap-6">
+								<div class="col-span-6 sm:col-span-3">
+									<label
+										for="informacion_miembros"
+										class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+									>
+										Sotomayor Consulting International asigna al Manager
+									</label>
+									<select
+										name="informacion_miembros"
+										id="informacion_miembros"
+										x-model="asignarManager"
+										x-init="$el.value ? asignarManager = $el.value : null"
+										class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+									>
+										<option
+											value=""
+											disabled
+											hidden
+											selected={!empresa.manager_sci}
+										>
+											Seleccione una opcion
+										</option>
+										<option
+											value="Si"
+											selected={empresa.manager_sci === true}
+										>
+											Si
+										</option>
+										<option
+											value="No"
+											selected={empresa.manager_sci === false}
+										>
+											No
+										</option>
+									</select>
+								</div>
+								<template x-if="asignarManager === 'No'">
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="informacionmanager"
+											class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+										>
+											El manager es parte de los miembros
+										</label>
+										<select
+											name="informacionmanager"
+											id="informacionmanager"
+											x-model="managerMiembro"
+											x-init="$el.value ? managerMiembro = $el.value : null"
+											class="block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]"
+										>
+											<option
+												disabled
+												hidden
+												selected={!empresa.manager_es_miembro}
+											>
+												Seleccione una opcion
+											</option>
+											<option
+												value="Si"
+												selected={empresa.manager_es_miembro === true}
+											>
+												Si
+											</option>
+											<option
+												value="No"
+												selected={empresa.manager_es_miembro === false}
+											>
+												No
+											</option>
+										</select>
+									</div>
+								</template>
+								<template x-if="managerMiembro === 'Si'">
+									<div class="col-span-6 sm:col-span-3">
+										<label
+											for="managers"
+											class="mb-2 block text-sm font-medium text-neutral-900 dark:text-white"
+										>
+											Socios que son managers
+										</label>
+
+										{
+											socios?.map((s, index) => (
+												<div class="mb-4 flex items-center">
+													<input
+														id={`miembros-managers-${index}`}
+														name={`miembros-managers-${index}`}
+														type="checkbox"
+														class="h-4 w-4 rounded-sm border-gray-300 bg-gray-100 text-[#1349ec] focus:ring-2 focus:ring-[#1349ec] dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-[#323f67]"
+														checked={s.roles?.includes('manager') || false}
+													/>
+													<label
+														for={`miembros-managers-${index}`}
+														class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+													>
+														{s.nombre_de_socio}
+													</label>
+												</div>
+											))
+										}
+									</div>
+								</template>
+							</div>
+						</div>
+						<div
+							class="mt-5 grid gap-4 rounded-lg border border-neutral-600 p-5 xl:grid-cols-2 2xl:grid-cols-3"
+						>
+							<h3
+								class="mb-4 text-xl font-semibold 2xl:col-span-3 dark:text-white"
+							>
+								Managers
+							</h3>
+							{
+								managers?.map((m, index) => (
+									<div class="dark:bg-black-900 h-full w-full shrink-0 justify-self-center overflow-y-auto border border-gray-200 bg-white p-3 shadow-sm lg:rounded-lg dark:border-gray-700">
+										<span class="sr-only">Open user menu</span>
+										<div class="flex w-full items-center justify-between">
+											<div class="flex items-center">
+												<Image
+													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${m.Nombres_manager}`}
+													class="mr-3 h-8 w-8 rounded-md"
+													alt="Bonnie avatar"
+													inferSize={true}
+													loading="eager"
+												/>
+												<div class="text-left">
+													<div class="mb-0.5 leading-none font-semibold text-gray-900 dark:text-white">
+														<input
+															type="text"
+															id={`nombre-manager-card-${index}`}
+															name={`nombre-manager-card-${index}`}
+															value={m.Nombres_manager}
+															class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+														/>
+													</div>
+													<div>
+														<input
+															type="text"
+															id={`correo-manager-card-${index}`}
+															name={`correo-manager-card-${index}`}
+															value={m.Correo_electronico_manager}
+															class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-sm leading-none font-semibold text-gray-500 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-gray-400 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+														/>
+													</div>
+												</div>
+											</div>
+										</div>
+										<ul class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700">
+											<li>
+												<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+													<Icon
+														name="ri:earth-line"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+													<div class="w-full">
+														<label
+															for={`pais-manager-card-${index}`}
+															class="sr-only"
+														>
+															Selecciona una opcion
+														</label>
+														<select
+															id={`pais-manager-card-${index}`}
+															name={`pais-manager-card-${index}`}
+															class="peer dark:bg-black-900 block w-full appearance-none border-0 bg-transparent px-3 py-0 text-base font-medium text-gray-500 focus:border-gray-200 focus:ring-0 focus:outline-none dark:text-white dark:group-hover:bg-gray-700"
+														>
+															<option
+																value=""
+																disabled
+																hidden
+																selected={!m.Pais_de_nacionalidad_manager}
+															>
+																Seleccione un pais
+															</option>
+
+															{paises?.map((p) => (
+																<option
+																	value={p.nombre_paises}
+																	selected={
+																		p.nombre_paises ===
+																		m.Pais_de_nacionalidad_manager
+																	}
+																>
+																	{p.nombre_paises}
+																</option>
+															))}
+														</select>
+													</div>
+												</div>
+											</li>
+										</ul>
+										<ul class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700">
+											<li>
+												<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+													<div class="flex w-full">
+														<label class="inline-flex cursor-pointer items-center">
+															<input
+																type="checkbox"
+																id={`residente-fiscal-manager-card-${index}`}
+																name={`residente-fiscal-manager-card-${index}`}
+																class="peer sr-only"
+																checked={
+																	m.residente_fiscal_en_EE_UU_manager ===
+																	true
+																}
+															/>
+															<div class="peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:inset-s-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800" />
+															<span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+																Residente fiscal en EE.UU.
+															</span>
+														</label>
+													</div>
+												</div>
+											</li>
+											<li>
+												<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+													<div class="flex w-full">
+														<label class="inline-flex cursor-pointer items-center">
+															<input
+																type="checkbox"
+																class="peer sr-only"
+																id={`misma-direccion-manager-card-${index}`}
+																name={`misma-direccion-manager-card-${index}`}
+																checked={
+																	m.manager_misma_direccion_empresa === true
+																}
+															/>
+															<div class="peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:inset-s-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800" />
+															<span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+																Tiene la misma direccion que la empresa
+															</span>
+														</label>
+													</div>
+												</div>
+											</li>
+										</ul>
+										<ul class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700">
+											<li>
+												<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white">
+													<button
+														data-tooltip-target={`tooltip-default-manager-${index}`}
+														data-tooltip-placement="left"
+														type="button"
+														class="text-center"
+													>
+														<Icon
+															name="ri:passport-line"
+															width="24"
+															height="24"
+															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+															title="Numero de Pasaporte"
+														/>
+													</button>
+
+													<div
+														id={`tooltip-default-manager-${index}`}
+														role="tooltip"
+														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
+													>
+														Numero de Pasaporte
+														<div class="tooltip-arrow" data-popper-arrow />
+													</div>
+
+													<input
+														type="text"
+														id={`pasaporte-manager-card-${index}`}
+														name={`pasaporte-manager-card-${index}`}
+														value={m.Numero_de_pasaporte_manager}
+														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+													/>
+												</div>
+											</li>
+											<li>
+												<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white">
+													<button
+														data-tooltip-target={`tooltip-seguro-manager-${index}`}
+														data-tooltip-placement="left"
+														type="button"
+														class="text-center"
+													>
+														<Icon
+															name="ri:secure-payment-line"
+															width="24"
+															height="24"
+															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+															title="Numero de Seguro Social"
+														/>
+													</button>
+
+													<div
+														id={`tooltip-seguro-manager-${index}`}
+														role="tooltip"
+														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
+													>
+														Numero de Seguro Social
+														<div class="tooltip-arrow" data-popper-arrow />
+													</div>
+													<input
+														type="text"
+														id={`numero-seguro-manager-card-${index}`}
+														name={`numero-seguro-manager-card-${index}`}
+														value={m.Numero_de_seguro_social_manager}
+														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+													/>
+												</div>
+											</li>
+
+											<li>
+												<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white">
+													<button
+														data-tooltip-target={`tooltip-itin-manager-${index}`}
+														data-tooltip-placement="left"
+														type="button"
+														class="text-center"
+													>
+														<Icon
+															name="ri:hashtag"
+															width="24"
+															height="24"
+															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+															title="Numero de ITIN"
+														/>
+													</button>
+
+													<div
+														id={`tooltip-itin-manager-${index}`}
+														role="tooltip"
+														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
+													>
+														Numero de ITIN
+														<div class="tooltip-arrow" data-popper-arrow />
+													</div>
+													<input
+														type="text"
+														id={`numero-itin-manager-card-${index}`}
+														name={`numero-itin-manager-card-${index}`}
+														value={m.Numero_de_ITIN_manager}
+														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+													/>
+												</div>
+											</li>
+											<li>
+												<div class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white">
+													<button
+														data-tooltip-target={`tooltip-direccion-manager-${index}`}
+														data-tooltip-placement="left"
+														type="button"
+														class="text-center"
+													>
+														<Icon
+															name="ri:direction-line"
+															width="24"
+															height="24"
+															class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+															title="Direccion del manager"
+														/>
+													</button>
+
+													<div
+														id={`tooltip-direccion-manager-${index}`}
+														role="tooltip"
+														class="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700"
+													>
+														Direccion del manager
+														<div class="tooltip-arrow" data-popper-arrow />
+													</div>
+													<input
+														type="text"
+														id={`direccion-manager-card-${index}`}
+														name={`direccion-manager-card-${index}`}
+														value={m.Direccion_de_planilla_manager}
+														class="mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+													/>
+												</div>
+											</li>
+										</ul>
+									</div>
+								))
+							}
+						</div>
+					</div>
+				</template>
+				<div
+					class="col-span-6 sm:col-span-3"
+					x-cloak
+					x-show="managerMiembro === 'Si' || managerMiembro === 'No'"
+					x-transition
+				>
+					<button
+						type="button"
+						data-modal-target="crud-modal-2"
+						data-modal-toggle="crud-modal-2"
+						class="flex items-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+					>
+						<Icon name="ri:add-line" /> Añadir manager</button
+					>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>

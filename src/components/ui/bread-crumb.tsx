@@ -15,7 +15,7 @@ export interface BreadcrumbPath {
 
 export function SharedBreadcrumb({ paths }: { paths: BreadcrumbPath[] }) {
 	return (
-		<div className="dark:bg-black-900 block items-center justify-between border-gray-200 bg-white px-4 py-6 sm:flex lg:mt-1.5 dark:border-gray-700">
+		<div className="dark:bg-black-900 dark:bg-gray-250/50 block items-center justify-between border-gray-200 px-4 py-6 sm:flex lg:mt-1.5">
 			<div className="mb-1 w-full">
 				<Breadcrumb>
 					<BreadcrumbList>

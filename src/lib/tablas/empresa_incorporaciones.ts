@@ -37,6 +37,24 @@ export const getIncorporacionById = async (
 	return data;
 };
 
+/** Busca una empresa por ID sin filtrar por user_id — solo para vistas admin */
+export const getIncorporacionByIdAdmin = async (
+	supabase: SupabaseClient,
+	id: string,
+) => {
+	const { data, error } = await supabase
+		.from('empresas_incorporaciones')
+		.select('*')
+		.eq('empresa_incorporacion_id', id)
+		.single();
+	if (error) {
+		console.error('Error fetching incorporacion by ID (admin):', error);
+		return null;
+	}
+
+	return data;
+};
+
 export const getIncorporacionesEnProceso = async (
 	supabase: SupabaseClient,
 	userId: string,

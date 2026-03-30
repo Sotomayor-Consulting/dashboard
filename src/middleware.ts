@@ -145,13 +145,39 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		errorMsg: 'Acceso no autorizado',
 	},
 	{
+		path: '/documentos/',
+		roles: [ROLES.PARTNER, ROLES.CLIENT],
+		errorMsg: 'Acceso no autorizado',
+	},
+	{
+		path: '/servicios/',
+		roles: [ROLES.PARTNER, ROLES.CLIENT],
+		errorMsg: 'Acceso no autorizado',
+	},
+	{
+		path: '/my-companies/',
+		roles: [ROLES.PARTNER, ROLES.CLIENT],
+		errorMsg: 'Acceso no autorizado',
+	},
+	// Legacy (mantener hasta migrar todos los links)
+	{
 		path: '/pages/',
 		roles: [ROLES.PARTNER, ROLES.CLIENT],
 		errorMsg: 'Acceso no autorizado',
 	},
-	// Single-rol
+	// Single-rol — admin
 	{
-		path: '/crud/',
+		path: '/companies/',
+		roles: [ROLES.ADMIN],
+		errorMsg: 'Acceso solo para admins',
+	},
+	{
+		path: '/usuarios/',
+		roles: [ROLES.ADMIN],
+		errorMsg: 'Acceso solo para admins',
+	},
+	{
+		path: '/formularios/',
 		roles: [ROLES.ADMIN],
 		errorMsg: 'Acceso solo para admins',
 	},
@@ -160,6 +186,13 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		roles: [ROLES.ADMIN],
 		errorMsg: 'Acceso solo para admins',
 	},
+	// Legacy (mantener hasta eliminar old pages)
+	{
+		path: '/crud/',
+		roles: [ROLES.ADMIN],
+		errorMsg: 'Acceso solo para admins',
+	},
+	// Partners
 	{
 		path: '/partners/',
 		roles: [ROLES.PARTNER],

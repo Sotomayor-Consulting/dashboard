@@ -1,0 +1,760 @@
+---
+import Alerta from '@components/feedback/alertageneral.astro';
+import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
+import DataTable from '@components/ui/DataTable.astro';
+import DateCell from '@components/ui/DateCell.astro';
+import Drawer from '@components/ui/Drawer.astro';
+import DrawerConfirm from '@components/ui/DrawerConfirm.astro';
+import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
+import Modal from '@components/ui/Modal.astro';
+import StackedText from '@components/ui/StackedText.astro';
+import StatusBadge from '@components/ui/StatusBadge.astro';
+import { ListaFormulariosGeneral } from '@lib/tablas/formularios';
+
+const supabase = Astro.locals.supabase;
+const servicio = await ListaFormulariosGeneral(supabase);
+
+const inputClass =
+	'dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]';
+const textareaClass =
+	'dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]';
+const labelClass =
+	'mb-2 block text-sm font-medium text-gray-900 dark:text-white';
+const selectClass =
+	'dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]';
+const actionBtnClass =
+	'focus:ring-primary-300 inline-flex items-center justify-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]';
+const editBtnClass =
+	'focus:ring-primary-300 inline-flex items-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]';
+const secondaryBtnClass =
+	'dark:bg-black-900 inline-flex items-center rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-700 dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600';
+const tdClass =
+	'p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white';
+
+const tableHeaders = [
+	'Titulo',
+	'categoria',
+	'Descripcion',
+	'Revision',
+	'Fecha de actualizacion',
+	'Fecha de creacion',
+	'estado',
+	'Acciones',
+];
+---
+
+<script src="@lib/alpinejs/alpine.js"></script>
+<Alerta />
+<div>
+	<div
+		class="dark:bg-black-900 block w-full items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
+	>
+		<CrudPageHeader
+			title="Lista de Formularios creados"
+			breadcrumbItems={[{ label: 'servicios' }]}
+			refreshHref="/formularios/"
+		>
+			<button
+				slot="actions"
+				id="createProductButton"
+				class={actionBtnClass}
+				type="button"
+				data-drawer-target="drawer-create-product-default"
+				data-drawer-show="drawer-create-product-default"
+				aria-controls="drawer-create-product-default"
+				data-drawer-placement="right"
+			>
+				<svg
+					class="mr-2 -ml-1 h-5 w-5"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+					><path
+						fill-rule="evenodd"
+						d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+						clip-rule="evenodd"></path></svg
+				>
+				Anadir formulario
+			</button>
+			<a
+				slot="actions"
+				href="https://surveyjs.io/create-free-survey"
+				target="_blank"
+				class={actionBtnClass}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					class="mr-2 -ml-1 h-5 w-5"
+					viewBox="0 0 24 24"
+					><path
+						fill="currentColor"
+						d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6v2H5v12h12v-6zM13 3v2h4.586l-7.793 7.793l1.414 1.414L19 6.414V11h2V3z"
+					></path></svg
+				>
+				Construye un formulario
+			</a>
+		</CrudPageHeader>
+	</div>
+
+	<div class="flex flex-col">
+		<div class="overflow-x-auto">
+			<div class="inline-block min-w-full align-middle">
+				<div class="overflow-hidden shadow">
+					<DataTable
+						headers={tableHeaders}
+						noRowsMessage="No hay formularios"
+					>
+						{
+							servicio?.map((sr) => (
+								<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+									<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
+										<StackedText
+											title={sr.titulo}
+											subtitle={sr.slug}
+										/>
+									</td>
+									<td class="truncate overflow-hidden p-4 text-base font-normal text-gray-500 dark:text-gray-400">
+										<data value="description">
+											{sr.slug}
+										</data>
+									</td>
+									<td class="truncate overflow-hidden p-4 text-base font-normal text-gray-500 dark:text-gray-400">
+										<data value="description">
+											{sr.descripcion}
+										</data>
+									</td>
+									<td class={tdClass}>
+										<data value="price">{sr.revision}</data>
+									</td>
+									<td class={tdClass}>
+										<DateCell date={sr.updated_at} />
+									</td>
+									<td class={tdClass}>
+										<DateCell date={sr.created_at} />
+									</td>
+									<td class={tdClass}>
+										<StatusBadge active={sr.estado === true} />
+									</td>
+									<td
+										class="relative space-x-2 p-4 whitespace-nowrap"
+										x-data="{ showTooltip: false }"
+									>
+										<button
+											type="button"
+											id="updateProductButton"
+											data-service-update
+											data-id={sr.form_id}
+											data-titulo={sr.titulo}
+											data-json={
+												JSON.stringify(
+													sr.schema_json,
+												) || ''
+											}
+											data-tema={
+												JSON.stringify(sr.tema_json) ||
+												''
+											}
+											data-slug={sr.slug || ''}
+											data-descripcion={
+												sr.descripcion || ''
+											}
+											data-estado={
+												sr.estado ? 'true' : 'false'
+											}
+											data-drawer-target="drawer-update-product-default"
+											data-drawer-show="drawer-update-product-default"
+											aria-controls="drawer-update-product-default"
+											data-drawer-placement="right"
+											class={editBtnClass}
+										>
+											<svg
+												class="mr-2 h-4 w-4"
+												fill="currentColor"
+												viewBox="0 0 20 20"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<svg>
+													<path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+													<path
+														fill-rule="evenodd"
+														d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+														clip-rule="evenodd"
+													/>
+												</svg>
+											</svg>
+											Actualizar formulario
+										</button>
+										<button
+											type="button"
+											data-link-share
+											data-id={sr.form_id}
+											data-modal-target="course-modal"
+											data-modal-toggle="course-modal"
+											class={secondaryBtnClass}
+										>
+											<svg
+												class="h-4 w-4"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												fill="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path d="M17.5 3A3.5 3.5 0 0 0 14 7L8.1 9.8A3.5 3.5 0 0 0 2 12a3.5 3.5 0 0 0 6.1 2.3l6 2.7-.1.5a3.5 3.5 0 1 0 1-2.3l-6-2.7a3.5 3.5 0 0 0 0-1L15 9a3.5 3.5 0 0 0 6-2.4c0-2-1.6-3.5-3.5-3.5Z" />
+											</svg>
+										</button>
+										<button
+											id={`dd-btn-${sr.form_id}`}
+											@click="showTooltip = !showTooltip"
+											@click.outside="showTooltip = false"
+											class="dark:bg-black-900 inline-flex items-center rounded-lg bg-gray-100 p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+											type="button"
+											aria-haspopup="true"
+											aria-expanded="false"
+										>
+											<svg
+												class="h-5 w-5"
+												aria-hidden="true"
+												xmlns="http://www.w3.org/2000/svg"
+												fill="currentColor"
+												viewBox="0 0 4 15"
+											>
+												<path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+											</svg>
+										</button>
+										<div
+											id={`dd-${sr.form_id}`}
+											x-cloak
+											class="dark:bg-black-900 absolute right-2 z-20 mt-1 w-44 divide-y divide-gray-100 rounded-lg border border-neutral-300 bg-white shadow-sm dark:divide-gray-600 dark:border-neutral-500"
+											role="menu"
+											x-show="showTooltip"
+											x-transition
+											aria-labelledby={`dd-btn-${sr.form_id}`}
+										>
+											<ul
+												class="py-2 text-sm text-gray-700 dark:text-gray-200"
+												role="none"
+											>
+												<li>
+													<button
+														type="button"
+														data-open-estado
+														data-form-id={
+															sr.form_id
+														}
+														data-form-titulo={`${sr.titulo}`.trim()}
+														data-form-slug={`${sr.slug}`.trim()}
+														data-form-descripcion={`${sr.descripcion}`.trim()}
+														data-form-estado={`${sr.estado}`.trim()}
+														data-drawer-target="drawer-delete-product-default"
+														data-drawer-show="drawer-delete-product-default"
+														aria-controls="drawer-delete-product-default"
+														data-drawer-placement="right"
+														class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+														role="menuitem"
+													>
+														Archivar
+													</button>
+												</li>
+												<li>
+													<button
+														type="button"
+														data-open-desarchivado
+														data-form-id={
+															sr.form_id
+														}
+														data-form-titulo={`${sr.titulo}`.trim()}
+														data-form-slug={`${sr.slug}`.trim()}
+														data-form-descripcion={`${sr.descripcion}`.trim()}
+														data-form-estado={`${sr.estado}`.trim()}
+														data-drawer-target="desarchivar-menu"
+														data-drawer-show="desarchivar-menu"
+														aria-controls="desarchivar-menu"
+														data-drawer-placement="right"
+														class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+														role="menuitem"
+													>
+														Desarchivar
+													</button>
+												</li>
+												<li>
+													<a
+														href={`/forms/${sr.form_id}`}
+														target="_blank"
+														rel="noopener noreferrer"
+														class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+													>
+														Ver Formulario
+													</a>
+												</li>
+											</ul>
+										</div>
+									</td>
+								</tr>
+							))
+						}
+					</DataTable>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Edit Product Drawer -->
+	<Drawer
+		id="drawer-update-product-default"
+		title="Actualizar Formulario"
+		maxWidth="max-w-lg"
+	>
+		<form action="/api/update/admin-update-forms" method="post">
+			<div class="space-y-4">
+				<input
+					type="hidden"
+					name="service_id"
+					id="modal_form_id"
+					value=""
+				/>
+				<div>
+					<label for="nombre_update-service" class={labelClass}
+						>Titulo del formulario</label
+					>
+					<input
+						type="text"
+						name="titulo-form"
+						id="titulo-update-form"
+						class={inputClass}
+						value=""
+						placeholder="inserta el titulo del formulario"
+						required=""
+					/>
+				</div>
+				<div>
+					<label for="categoria_service" class={labelClass}
+						>Categoria</label
+					>
+					<input
+						type="text"
+						name="categoria-form"
+						id="categoria-form-update"
+						class={inputClass}
+						value=""
+						placeholder="Anade la categoria del formulario"
+						required=""
+					/>
+				</div>
+				<div>
+					<label for="precio-servicio" class={labelClass}
+						>Pega el JSON del formulario</label
+					>
+					<textarea
+						name="json-update"
+						id="json-form"
+						class={textareaClass}
+						placeholder="Anade el Json del formulario"
+						required=""
+						rows="10"></textarea>
+				</div>
+				<div>
+					<label for="descripcion-servicio" class={labelClass}
+						>Tema del form (opcional)</label
+					>
+					<textarea
+						id="tema-form"
+						name="tema-form-update"
+						rows="2"
+						class={textareaClass}
+						placeholder="Anade el codigo json del tema de tu formulario"
+					></textarea>
+				</div>
+				<div>
+					<label for="descripcion-servicio" class={labelClass}
+						>Descripcion</label
+					>
+					<textarea
+						id="descripcion-form"
+						name="descripcion-form-update"
+						rows="4"
+						class={textareaClass}
+						placeholder="Anade una descripcion para el form"
+					></textarea>
+				</div>
+				<div>
+					<label for="updaterol_estado" class={labelClass}
+						>Estado</label
+					>
+					<select
+						id="update-form-estado"
+						name="estado"
+						class={selectClass}
+					>
+						<option value="" disabled="" selected="">--</option>
+						<option value="true">Activo</option>
+						<option value="false">Inactivo</option>
+					</select>
+				</div>
+			</div>
+			<DrawerFormActions
+				drawerId="drawer-update-product-default"
+				submitLabel="Actualizar"
+			/>
+		</form>
+	</Drawer>
+
+	<!-- Archive Drawer -->
+	<DrawerConfirm
+		id="drawer-delete-product-default"
+		title="Archivar Formulario"
+		message="¿Estas seguro de querer archivar este servicio?"
+		action="/api/update/admin-services-delete"
+		formId="archivar_form"
+		variant="danger"
+	>
+		<input type="hidden" name="servicio_id" id="servicio_id" />
+		<input type="hidden" name="servicio_activo" value="false" />
+	</DrawerConfirm>
+
+	<!-- Unarchive Drawer -->
+	<DrawerConfirm
+		id="desarchivar-menu"
+		title="Desarchivar servicio"
+		message="¿Estas seguro de querer archivar este servicio?"
+		action="/api/update/admin-services-add"
+		formId="desarchivar_form"
+		variant="success"
+	>
+		<input type="hidden" name="des_servicio_id" id="des_servicio_id" />
+		<input type="hidden" name="des_servicio_activo" value="true" />
+	</DrawerConfirm>
+
+	<!-- Add Product Drawer -->
+	<Drawer
+		id="drawer-create-product-default"
+		title="Nuevo Formulario"
+		maxWidth="max-w-xs"
+	>
+		<form action="/api/create/admin-new-form" method="POST">
+			<div class="space-y-4">
+				<div>
+					<label for="titulo-form" class={labelClass}
+						>Titulo del formulario</label
+					>
+					<input
+						type="text"
+						name="titulo-form"
+						id="nombre-service"
+						class={inputClass}
+						placeholder="Nombre del formulario"
+						required=""
+					/>
+				</div>
+				<div>
+					<label for="categoria-form" class={labelClass}
+						>Categoria</label
+					>
+					<input
+						type="text"
+						name="categoria-form"
+						id="categoria-form"
+						class={inputClass}
+						placeholder="Anade la categoria del form"
+						required=""
+					/>
+				</div>
+				<div>
+					<label for="json-update" class={labelClass}
+						>Json del formulario</label
+					>
+					<textarea
+						id="json-update"
+						name="json-update"
+						rows="4"
+						class={textareaClass}
+						placeholder="Pega aqui el Json del formulario"
+					></textarea>
+				</div>
+				<div>
+					<label for="tema-form-update" class={labelClass}
+						>Tema del formulario (opcional)</label
+					>
+					<textarea
+						id="tema-form-update"
+						name="tema-form-update"
+						rows="4"
+						class={textareaClass}
+						placeholder="Pega el Json del tema"></textarea>
+				</div>
+				<div>
+					<label for="descripcion-form-update" class={labelClass}
+						>descripcion</label
+					>
+					<textarea
+						id="descripcion-form-update"
+						name="descripcion-form-update"
+						rows="4"
+						class={textareaClass}
+						placeholder="Anade una descripcion del formulario"
+					></textarea>
+				</div>
+				<div>
+					<label for="estado" class={labelClass}>Estado</label>
+					<select id="estado" name="estado" class={selectClass}>
+						<option value="" disabled="" selected="">--</option>
+						<option value="true">Activo</option>
+						<option value="false">Inactivo</option>
+					</select>
+				</div>
+				<DrawerFormActions
+					drawerId="drawer-create-product-default"
+					submitLabel="Anadir formulario"
+				/>
+			</div>
+		</form>
+	</Drawer>
+
+	<!-- Share Link Modal -->
+	<Modal id="course-modal" title="Link del formulario" maxWidth="max-w-lg">
+		<div class="px-4 pb-4 md:px-5 md:pb-5">
+			<label for="share-id" class={labelClass}
+				>Comparte este formulario para un cliente:</label
+			>
+			<div class="relative mb-4">
+				<input
+					id="share-id"
+					type="text"
+					class="col-span-6 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-500 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-gray-600 dark:bg-[#1e3342] dark:text-gray-400 dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
+					value=""
+					disabled
+					readonly
+				/>
+				<button
+					id="copias"
+					data-copy-to-clipboard-target="share-id"
+					data-tooltip-target="tooltip-share-id"
+					class="dark:bg-black-900 absolute inset-s-0.5 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-[#05121d]"
+				>
+					<span id="default-icon-share-id">
+						<svg
+							class="h-3.5 w-3.5"
+							aria-hidden="true"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="currentColor"
+							viewBox="0 0 18 20"
+						>
+							<path
+								d="M16 1h-3.278A1.992 1.992 0 0 0 11 0H7a1.993 1.993 0 0 0-1.722 1H2a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2Zm-3 14H5a1 1 0 0 1 0-2h8a1 1 0 0 1 0 2Zm0-4H5a1 1 0 0 1 0-2h8a1 1 0 1 1 0 2Zm0-5H5a1 1 0 0 1 0-2h2V2h4v2h2a1 1 0 1 1 0 2Z"
+							></path>
+						</svg>
+					</span>
+					<span id="success-icon-share-id" class="hidden">
+						<svg
+							class="h-3.5 w-3.5 text-[#8c681d] dark:text-[#8c681d]"
+							aria-hidden="true"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 16 12"
+						>
+							<path
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M1 5.917 5.724 10.5 15 1.5"></path>
+						</svg>
+					</span>
+				</button>
+				<div
+					id="tooltip-share-id"
+					role="tooltip"
+					class="tooltip invisible absolute z-10 inline-block rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-[#05121d]"
+				>
+					<span id="default-tooltip-message-share-id">Copiar</span>
+					<span
+						id="success-tooltip-message-share-id"
+						class="hidden">Copiado!</span
+					>
+					<div class="tooltip-arrow" data-popper-arrow></div>
+				</div>
+			</div>
+			<button
+				type="button"
+				data-modal-hide="course-modal"
+				class="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-[#8c681d] focus:z-10 focus:ring-4 focus:ring-gray-200 focus:outline-none dark:border-gray-600 dark:bg-[#134aed] dark:text-white dark:hover:bg-[#134aed]/80 dark:hover:text-white dark:focus:ring-gray-700"
+				>Cerrar</button
+			>
+		</div>
+	</Modal>
+
+	<script>
+		const bindFormUpdateButtons = () => {
+			const btns = document.querySelectorAll<HTMLElement>(
+				'[data-service-update]',
+			);
+
+			function setValue(id: string, val: string) {
+				const el = document.getElementById(id) as
+					| HTMLInputElement
+					| HTMLTextAreaElement
+					| null;
+				if (el) el.value = val ?? '';
+			}
+
+			btns.forEach((btn) => {
+				if (btn.dataset.formUpdateBind === '1') return;
+				btn.dataset.formUpdateBind = '1';
+
+				btn.addEventListener('click', () => {
+					const id = btn.dataset.id ?? '';
+					const titulo = btn.dataset.titulo ?? '';
+					const json = btn.dataset.json ?? '';
+					const tema = btn.dataset.tema ?? '';
+					const categoria = btn.dataset.slug ?? '';
+					const descripcion = btn.dataset.descripcion ?? '';
+					const estado = btn.dataset.estado ?? '';
+
+					setValue('modal_form_id', id);
+					setValue('titulo-update-form', titulo);
+					setValue('json-form', json);
+					setValue('tema-form', tema);
+					setValue('categoria-form-update', categoria);
+					setValue('descripcion-form', descripcion);
+					setValue('update-form-estado', estado);
+				});
+			});
+		};
+
+		document.addEventListener('DOMContentLoaded', bindFormUpdateButtons);
+		document.addEventListener('astro:page-load', bindFormUpdateButtons);
+	</script>
+	<script is:inline>
+		const bindShareLinkButtons = () => {
+			const btns = document.querySelectorAll('[data-link-share]');
+
+			function setValue(id, val) {
+				const el = document.getElementById(id);
+				if (el && 'value' in el) el.value = val ?? '';
+			}
+
+			btns.forEach((btn) => {
+				if (btn.dataset.linkShareBind === '1') return;
+				btn.dataset.linkShareBind = '1';
+
+				btn.addEventListener('click', () => {
+					const id = btn.dataset.id ?? '';
+					const base =
+						btn.dataset.base ??
+						'https://dashboard.sotomayorconsulting.com/forms';
+
+					if (!id) return;
+
+					const relativeHref = `${base}/${encodeURIComponent(id)}`;
+					setValue('share-id', relativeHref);
+
+					const a = document.getElementById('share-link-a');
+					if (a) {
+						a.setAttribute('href', relativeHref);
+						a.textContent = relativeHref;
+					}
+				});
+			});
+		};
+
+		document.addEventListener('DOMContentLoaded', bindShareLinkButtons);
+		document.addEventListener('astro:page-load', bindShareLinkButtons);
+	</script>
+	<script is:inline>
+		const bindArchivarFormButtons = () => {
+			const form = document.getElementById('archivar_form');
+			const uidInput = document.getElementById('servicio_id');
+
+			if (!form || !uidInput) return;
+
+			const btns = document.querySelectorAll('[data-open-estado]');
+
+			btns.forEach((btn) => {
+				if (btn.dataset.archivarBind === '1') return;
+				btn.dataset.archivarBind = '1';
+
+				btn.addEventListener('click', () => {
+					const uid = btn.dataset.formId || '';
+					uidInput.value = uid;
+				});
+			});
+
+			if (form.dataset.submitBind === '1') return;
+			form.dataset.submitBind = '1';
+
+			form.addEventListener('submit', () => {
+				const submitBtn = form.querySelector('button[type="submit"]');
+				if (submitBtn) submitBtn.disabled = true;
+			});
+		};
+
+		document.addEventListener('DOMContentLoaded', bindArchivarFormButtons);
+		document.addEventListener('astro:page-load', bindArchivarFormButtons);
+	</script>
+	<script is:inline>
+		const bindDesarchivarFormButtons = () => {
+			const form = document.getElementById('desarchivar_form');
+			const uidInput = document.getElementById('des_servicio_id');
+
+			if (!form || !uidInput) return;
+
+			const btns = document.querySelectorAll('[data-open-desarchivado]');
+
+			btns.forEach((btn) => {
+				if (btn.dataset.desarchivarBind === '1') return;
+				btn.dataset.desarchivarBind = '1';
+
+				btn.addEventListener('click', () => {
+					const uid = btn.dataset.formId || '';
+					uidInput.value = uid;
+				});
+			});
+
+			if (form.dataset.submitBind === '1') return;
+			form.dataset.submitBind = '1';
+
+			form.addEventListener('submit', () => {
+				const submitBtn = form.querySelector('button[type="submit"]');
+				if (submitBtn) submitBtn.disabled = true;
+			});
+		};
+
+		document.addEventListener(
+			'DOMContentLoaded',
+			bindDesarchivarFormButtons,
+		);
+		document.addEventListener(
+			'astro:page-load',
+			bindDesarchivarFormButtons,
+		);
+	</script>
+	<script is:inline>
+		const bindCopyIconButton = () => {
+			const btn = document.getElementById('copias');
+			const visto = document.getElementById('success-icon-share-id');
+			const papel = document.getElementById('default-icon-share-id');
+
+			let t = null;
+
+			if (!btn || btn.dataset.copyBind === '1') return;
+			btn.dataset.copyBind = '1';
+
+			btn.addEventListener('click', () => {
+				if (!visto || !papel) return;
+
+				visto.classList.remove('hidden');
+				papel.classList.add('hidden');
+
+				if (t) clearTimeout(t);
+
+				t = setTimeout(() => {
+					visto.classList.add('hidden');
+					papel.classList.remove('hidden');
+					t = null;
+				}, 1000);
+			});
+		};
+
+		document.addEventListener('DOMContentLoaded', bindCopyIconButton);
+		document.addEventListener('astro:page-load', bindCopyIconButton);
+	</script>
+</div>

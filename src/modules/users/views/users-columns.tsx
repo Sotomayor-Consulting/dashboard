@@ -1,5 +1,4 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 import {
 	Avatar,
 	AvatarFallback,
@@ -84,7 +83,17 @@ export const createUsersColumns = ({
 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 			>
 				Nombre
-				<ArrowUpDown data-icon="inline-end" />
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+				>
+					<path
+						fill="currentColor"
+						d="m11.95 7.95l-1.414 1.414L8 6.828V20H6V6.828L3.466 9.364L2.05 7.95L7 3zm10 8.1L17 21l-4.95-4.95l1.414-1.414l2.537 2.536L16 4h2v13.172l2.536-2.536z"
+					/>
+				</svg>
 			</Button>
 		),
 		cell: ({ row }) => {
@@ -180,7 +189,17 @@ export const createUsersColumns = ({
 							/>
 						}
 					>
-						<MoreHorizontal />
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+						>
+							<path
+								fill="currentColor"
+								d="M5 10c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2m14 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2m-7 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2"
+							/>
+						</svg>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-44">
 						<DropdownMenuGroup>

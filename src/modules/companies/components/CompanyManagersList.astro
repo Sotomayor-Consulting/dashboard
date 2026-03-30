@@ -1,0 +1,56 @@
+---
+import { Icon } from 'astro-icon/components';
+import { Image } from 'astro:assets';
+import type { ManagerItem } from '../types';
+
+interface Props {
+	managers: ManagerItem[];
+}
+
+const { managers } = Astro.props;
+---
+
+{
+	managers.length > 0 && (
+		<div class="dark:bg-black-800 relative col-span-2 flex h-full w-full flex-col gap-5 rounded-md bg-neutral-50 lg:col-span-1 dark:text-neutral-300">
+			<div class="flex h-fit w-full items-center gap-2 rounded-t-md bg-[#d4d4d4] p-4 text-xl font-bold dark:bg-[#134aed]">
+				<Icon name="ri:user-settings-fill" />
+				<p>Managers</p>
+			</div>
+			<div class="flow-root p-4">
+				{managers.length === 0 ? (
+					<p>No hay ningún manager aun</p>
+				) : (
+					<ul
+						role="list"
+						class="divide-y divide-neutral-200 dark:divide-neutral-700"
+					>
+						{managers.map((s) => (
+							<li class="py-3 sm:py-4">
+								<div class="flex items-center">
+									<div class="shrink-0">
+										<Image
+											class="h-8 w-8 rounded-full"
+											src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${s.Nombres_manager}`}
+											alt={`avatar de ${s.Nombres_manager}`}
+											inferSize={true}
+											loading="eager"
+										/>
+									</div>
+									<div class="ms-4 min-w-0 flex-1">
+										<p class="truncate text-sm font-medium text-neutral-900 dark:text-white">
+											{s.Nombres_manager}
+										</p>
+										<p class="truncate text-sm text-neutral-500 dark:text-neutral-400">
+											{s.Correo_electronico_manager}
+										</p>
+									</div>
+								</div>
+							</li>
+						))}
+					</ul>
+				)}
+			</div>
+		</div>
+	)
+}
