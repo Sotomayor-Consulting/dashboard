@@ -7,24 +7,22 @@ import { safeBack } from '@lib/security/headers';
 
 const BACK_PATH = '/formularios/';
 
-export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
+export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }) => {
 	const back = safeBack(url.searchParams.get('back'), BACK_PATH);
 
 	try {
 		// 1) Sesión
 		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
-		// 2) Usuario y autorización admin
+		// 2) Usuario y autorización admin desde locals
 		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
 		if (userErr || !actor) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
 			);
 		}
-		const { data: isAdminRes, error: rpcErr } = await supabase.rpc('is_admin', {
-			uid: actor.id,
-		});
-		const isAdmin = !rpcErr && Boolean(isAdminRes);
+		const userRoles = locals.userRoles || [];
+		const isAdmin = userRoles.includes('admin');
 		if (!isAdmin) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autorizado')}`,
