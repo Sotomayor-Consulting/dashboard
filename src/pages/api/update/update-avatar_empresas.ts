@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			'';
 
 		// Helper de redirección
-		const back = () => (slug ? `/empresas/${slug}/settings` : FALLBACK_BACK);
+		const back = () => (slug ? `/companies/${slug}/settings` : FALLBACK_BACK);
 
 		// 1) Sesión
 		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });

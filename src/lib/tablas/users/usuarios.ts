@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export const getAllUsuarios = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('usuarios')
-		.select('*, countries ( id, name )')
+		.select('*, countries(id, name)')
 		.order('created_at', { ascending: false });
 
 	if (error) {

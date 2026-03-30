@@ -1,0 +1,61 @@
+---
+import { Icon } from 'astro-icon/components';
+import { Image } from 'astro:assets';
+import type { SocioItem } from '../types';
+
+interface Props {
+	socios: SocioItem[];
+}
+
+const { socios } = Astro.props;
+---
+
+<div
+	class="dark:bg-black-800 relative col-span-2 flex h-full w-full flex-col gap-5 rounded-md bg-neutral-50 lg:col-span-1 dark:text-neutral-300"
+>
+	<div
+		class="flex h-fit w-full items-center gap-2 rounded-t-md bg-[#d4d4d4] p-4 text-xl font-bold dark:bg-[#134aed]"
+	>
+		<Icon name="ri:shake-hands-fill" />
+		<p>Socios</p>
+	</div>
+	<div class="flow-root p-4">
+		{
+			socios.length === 0 ? (
+				<p>No hay ningún socio aun</p>
+			) : (
+				<ul
+					role="list"
+					class="divide-y divide-neutral-200 dark:divide-neutral-700"
+				>
+					{socios.map((s) => (
+						<li class="py-3 sm:py-4">
+							<div class="flex items-center">
+								<div class="shrink-0">
+									<Image
+										class="h-8 w-8 rounded-full"
+										src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${s.nombre_de_socio}`}
+										alt={`avatar de ${s.nombre_de_socio}`}
+										inferSize={true}
+										loading="eager"
+									/>
+								</div>
+								<div class="ms-4 min-w-0 flex-1">
+									<p class="truncate text-sm font-medium text-neutral-900 dark:text-white">
+										{s.nombre_de_socio}
+									</p>
+									<p class="truncate text-sm text-neutral-500 dark:text-neutral-400">
+										{s.correo}
+									</p>
+								</div>
+								<div class="inline-flex items-center text-sm font-semibold text-neutral-900 dark:text-neutral-500">
+									Con el {s.porcentaje}%
+								</div>
+							</div>
+						</li>
+					))}
+				</ul>
+			)
+		}
+	</div>
+</div>

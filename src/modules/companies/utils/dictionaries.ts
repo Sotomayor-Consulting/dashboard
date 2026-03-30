@@ -11,7 +11,7 @@ export const managementTypeMap: Record<Managmentype, string> = {
 };
 
 export const entityTypeMap: Record<EntityLLC, string> = {
-	llc: 'LLC'
+	llc: 'LLC',
 };
 
 export const legalStatusMap: Record<LegalStatus, string> = {
@@ -20,4 +20,4 @@ export const legalStatusMap: Record<LegalStatus, string> = {
 	suspended: 'Suspendida',
 	pending: 'Pendiente',
 	dissolved: 'Disuelta',
-}
+};

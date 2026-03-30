@@ -58,6 +58,7 @@ import {
 } from '@components/components/ui/select';
 import PhoneInputField from './PhoneInputField';
 import { BirthDatePicker } from '@components/forms/BirthDatePicker';
+import { Spinner } from '@components/components/ui/spinner';
 
 interface UsersCrudTableProps {
 	usuarios: UsuarioItem[];
@@ -66,7 +67,7 @@ interface UsersCrudTableProps {
 	rolesGeneral: UserRoleItem[];
 }
 
-const BACK_PATH = '/crud/users';
+const BACK_PATH = '/usuarios/';
 
 const mapUsersToRows = (
 	usuarios: UsuarioItem[],
@@ -144,6 +145,7 @@ export default function UsersCrudTable({
 	const [editOpen, setEditOpen] = React.useState(false);
 	const [estadoOpen, setEstadoOpen] = React.useState(false);
 	const [activeUser, setActiveUser] = React.useState<UserTableRow | null>(null);
+	const [isSavingUpdate, setIsSavingUpdate] = React.useState(false);
 
 	const columns = React.useMemo(
 		() =>
@@ -181,7 +183,7 @@ export default function UsersCrudTable({
 
 	return (
 		<section className="space-y-4 p-4 lg:p-6">
-			<div className="rounded-xl p-4">
+			<div className="p-4 shadow-xs">
 				<div className="flex flex-col gap-4">
 					<div className="flex flex-wrap items-center justify-between gap-3">
 						<div className="space-y-1">
@@ -441,6 +443,7 @@ export default function UsersCrudTable({
 						action={`/api/update/admin-update?back=${encodeURIComponent(BACK_PATH)}`}
 						method="post"
 						className="space-y-5"
+						onSubmit={() => setIsSavingUpdate(true)}
 					>
 						<input
 							type="hidden"
@@ -624,11 +627,9 @@ export default function UsersCrudTable({
 							>
 								Cancelar
 							</Button>
-							<Button
-								type="submit"
-								className="bg-black-600 hover:bg-black-700 dark:bg-black-400 dark:hover:bg-black-500 cursor-pointer dark:text-white"
-							>
-								Guardar cambios
+							<Button type="submit" disabled={isSavingUpdate}>
+								{isSavingUpdate && <Spinner data-icon="inline-start" />}
+								{isSavingUpdate ? 'Guardando cambios...' : 'Guardar cambios'}
 							</Button>
 						</DialogFooter>
 					</form>
@@ -647,6 +648,7 @@ export default function UsersCrudTable({
 						action={`/api/update/admin-update?back=${encodeURIComponent(BACK_PATH)}`}
 						method="post"
 						className="space-y-4"
+						onSubmit={() => setIsSavingUpdate(true)}
 					>
 						<input
 							type="hidden"
@@ -655,15 +657,21 @@ export default function UsersCrudTable({
 						/>
 						<Field>
 							<FieldLabel htmlFor="estado">Estado</FieldLabel>
-							<select
+							<Select
 								id="estado"
 								name="estado"
 								defaultValue={activeUser?.estado ?? 'activo'}
-								className="border-input h-8 w-full rounded-lg border bg-transparent px-2.5 text-sm"
 							>
-								<option value="activo">activo</option>
-								<option value="inactivo">inactivo</option>
-							</select>
+								<SelectTrigger>
+									<SelectValue placeholder="Selecciona un estado" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectGroup>
+										<SelectItem value="activo">activo</SelectItem>
+										<SelectItem value="inactivo">inactivo</SelectItem>
+									</SelectGroup>
+								</SelectContent>
+							</Select>
 						</Field>
 						<DialogFooter>
 							<Button
@@ -673,8 +681,9 @@ export default function UsersCrudTable({
 							>
 								Cancelar
 							</Button>
-							<Button type="submit" variant="primary">
-								Actualizar
+							<Button type="submit" disabled={isSavingUpdate}>
+								{isSavingUpdate && <Spinner data-icon="inline-start" />}
+								{isSavingUpdate ? 'Guardando cambios...' : 'Guardar cambios'}
 							</Button>
 						</DialogFooter>
 					</form>

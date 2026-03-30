@@ -11,7 +11,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	let slug = url.searchParams.get('slug')?.toString().trim() || '';
 
 	// Helper para construir el back según tengamos slug o no
-	const backPath = () => (slug ? `/empresas/${slug}/settings` : FALLBACK_BACK);
+	const backPath = () => (slug ? `/companies/${slug}/settings` : FALLBACK_BACK);
 
 	// 1) Sesión
 	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });

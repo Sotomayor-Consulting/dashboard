@@ -1,0 +1,1189 @@
+---
+import { Icon } from 'astro-icon/components';
+import { Image } from 'astro:assets';
+import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
+import DataTable from '@components/ui/DataTable.astro';
+import DateCell from '@components/ui/DateCell.astro';
+import StatusBadge from '@components/ui/StatusBadge.astro';
+import { IncorporacionesEmpresasBase } from '@lib/tablas/companies/empresa_incorporaciones';
+import { actividadesGeneral } from '@lib/tablas/utils/generals/actividades';
+import { EstadosGeneral } from '@lib/tablas/utils/generals/estados';
+import { PaisesGeneral } from '@lib/tablas/utils/generals/paises';
+
+const supabase = Astro.locals.supabase;
+
+const [empresas, actividades, estados, paises] = await Promise.all([
+	IncorporacionesEmpresasBase(supabase),
+	actividadesGeneral(supabase),
+	EstadosGeneral(supabase),
+	PaisesGeneral(supabase),
+]);
+
+const inputClassEmpresa =
+	'block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#1349ec] focus:ring-[#1349ec] dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]';
+const inputTextClass =
+	'block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-neutral-900 shadow-sm focus:border-[#1349ec] focus:ring-[#1349ec] sm:text-sm dark:border-neutral-600 dark:bg-[#101522] dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#1349ec] dark:focus:ring-[#323f67]';
+const labelClass =
+	'mb-2 block text-sm font-medium text-neutral-900 dark:text-white';
+const cardInputClass =
+	'mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-base leading-none font-semibold text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500';
+const cardInputSmClass =
+	'mb-0.5 block w-full rounded-lg border-0 bg-gray-50 p-1 text-sm leading-none font-semibold text-gray-500 focus:border-blue-500 focus:ring-blue-500 dark:bg-transparent dark:text-gray-400 dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500';
+const selectInlineClass =
+	'peer dark:bg-black-900 block w-full appearance-none border-0 bg-transparent px-3 py-0 text-base font-medium text-gray-500 focus:border-gray-200 focus:ring-0 focus:outline-none dark:text-white dark:group-hover:bg-gray-700';
+const tooltipClass =
+	'tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300 dark:bg-gray-700';
+const iconGroupClass =
+	'group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 dark:text-white';
+const toggleDivClass =
+	"peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:inset-s-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800";
+---
+
+<script src="@lib/alpinejs/alpine.js"></script>
+
+<div
+	class="block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
+>
+	<div class="mb-1 w-full">
+		<CrudPageHeader
+			title="Lista de empresas"
+			breadcrumbItems={[{ label: 'Empresas', href: '/companies/' }]}
+		/>
+	</div>
+</div>
+<div class="border-b border-gray-200 p-5 sm:flex dark:border-gray-700">
+	<div class="mr-4 ml-auto flex items-center space-x-2 sm:space-x-3">
+		<button
+			type="button"
+			data-modal-target="add-user-modal"
+			data-modal-toggle="add-user-modal"
+			class="focus:ring-primary-300 inline-flex w-1/2 items-center justify-center rounded-lg bg-[#1349ec] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#1349ec]/90 focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+		>
+			<svg
+				class="mr-2 -ml-1 h-5 w-5"
+				fill="currentColor"
+				viewBox="0 0 20 20"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<path
+					fill-rule="evenodd"
+					d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+					clip-rule="evenodd"></path>
+			</svg>
+			Añadir nueva empresa
+		</button>
+	</div>
+</div>
+
+<DataTable
+	headers={[
+		'ID',
+		'Usuario que la creo',
+		'Tipo de Negocio',
+		'Estado de incorporación',
+		'Estado',
+		'Proceso',
+		'Creado en',
+	]}
+	noRowsMessage="No hay empresas"
+>
+	{
+		empresas?.map((empresa) => (
+			<tr
+				class="cursor-pointer odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
+				onclick={`window.open('/companies/${empresa.empresa_incorporacion_id}', '_blank')`}
+			>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					{empresa.nombre_1}
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					{empresa.usuarios[0]?.nombre} {empresa.usuarios[0]?.apellido}
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					{empresa.tipo_de_negocio}
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					{empresa.porcentaje_de_incorporacion}%
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					{empresa.estado_de_incorporacion}
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					<StatusBadge
+						active={empresa.estado === 'Activo'}
+						label={empresa.estado}
+					/>
+				</td>
+				<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+					<DateCell date={empresa.updated_at} />
+				</td>
+			</tr>
+		))
+	}
+</DataTable>
+
+<!-- Añadir empresa -->
+<div
+	class="fixed right-0 left-0 z-50 hidden h-screen items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0"
+	id="add-user-modal"
+>
+	<div class="relative h-5/6 w-full px-4">
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow">
+			<div
+				class="flex items-start justify-between rounded-t-lg border-b p-5 dark:border-gray-700"
+			>
+				<h3 class="text-xl font-semibold dark:text-white">Añadir empresa</h3>
+				<button
+					type="button"
+					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-[#101522] dark:hover:text-white"
+					data-modal-toggle="add-user-modal"
+				>
+					<svg
+						class="h-5 w-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path>
+					</svg>
+				</button>
+			</div>
+			<form action="" method="post">
+				<div
+					class="grid w-full space-x-0 rounded-lg p-0 md:grid-cols-[auto_1fr] md:space-x-4 md:p-4"
+					id="contacts"
+					role="tabpanel"
+					aria-labelledby="contacts-tab"
+					x-data="{
+				formadeAdministracion: '',
+				actvidadManual: null,
+				RegistroManual: '',
+				direccionOperativa: '',
+				otrosMiembrosfuera: null,
+				managerMiembro: '',
+				asignarManager: '',
+				tabManager: '',
+			}"
+					x-effect="if (!actvidadManual) {
+				RegistroManual = '';
+			}; if (asignarManager === 'Si') {
+				 managerMiembro = '';
+			}"
+				>
+					<div class="mb-4 md:max-w-72 md:min-w-72 dark:border-gray-700">
+						<ul
+							class="flex-column dark:bg-black-800 space-y-5 rounded-lg p-5 text-sm font-medium text-gray-500 dark:text-gray-400"
+							id="default-tab-2"
+							data-tabs-toggle="#default-tab-content-2"
+							role="tablist"
+							data-tabs-active-classes="text-white bg-blue-700 dark:bg-blue-600"
+							data-tabs-inactive-classes="hover:text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-black-900 dark:hover:bg-[#101521]/80 dark:hover:text-white"
+						>
+							<li>
+								<div>
+									<h5 class="text-lg">navegación de edición</h5>
+								</div>
+							</li>
+							{
+								[
+									{
+										id: 'generales-tab',
+										tabs: 'generales',
+										label: 'Generales',
+										icono: 'ri:building-2-fill',
+										condicion: 'activo',
+									},
+									{
+										id: 'ubicacion-tab',
+										tabs: 'ubicacion',
+										label: 'Ubicacion',
+										icono: 'ri:folder-user-fill',
+										condicion: 'activo',
+									},
+									{
+										id: 'socios-edit-tab',
+										tabs: 'socios-edit',
+										label: 'Socios',
+										icono: 'ri:file-copy-2-fill',
+										condicion: 'activo',
+									},
+									{
+										id: 'manager-tab',
+										tabs: 'manager',
+										label: 'Manager',
+										icono: 'ri:edit-fill',
+										condicion: 'condicional',
+									},
+								].map((i) =>
+									i.condicion === 'activo' ? (
+										<li role="presentation">
+											<button
+												id={i.id}
+												data-tabs-target={`#${i.tabs}`}
+												type="button"
+												role="tab"
+												aria-controls={i.tabs}
+												aria-selected="false"
+												class="flex w-full items-center gap-2 rounded-lg p-4"
+											>
+												<Icon name={i.icono} class="text-lg" />
+												{i.label}
+											</button>
+										</li>
+									) : (
+										<li role="presentation">
+											<button
+												id={i.id}
+												data-tabs-target={`#${i.tabs}`}
+												type="button"
+												role="tab"
+												x-model="tabManager"
+												x-cloak
+												x-show="formadeAdministracion === 'Member-Managed'"
+												aria-controls={i.tabs}
+												aria-selected="false"
+												class="flex w-full items-center gap-2 rounded-lg p-4"
+											>
+												<Icon name={i.icono} class="text-lg" />
+												{i.label}
+											</button>
+										</li>
+									),
+								)
+							}
+						</ul>
+					</div>
+					<div id="default-tab-content-2" class="ml-0 min-w-full">
+						<!-- Tab: Generales -->
+						<div
+							class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
+							id="generales"
+							role="tabpanel"
+							aria-labelledby="generales-tab"
+						>
+							<div class="dark:bg-black-900 w-full rounded-lg bg-white shadow">
+								<div
+									class="dark:bg-black-800 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
+								>
+									<h3 class="mb-4 text-xl font-semibold dark:text-white">
+										Datos Generales
+									</h3>
+									<div class="grid grid-cols-6 gap-6">
+										<div class="col-span-6 sm:col-span-3">
+											<label for="Ingresos_de_EEUU" class={labelClass}
+												>¿La LLC obtendrá ingresos provenientes de Estados
+												Unidos?</label
+											>
+											<select
+												name="Ingresos_de_EEUU"
+												id="Ingresos_de_EEUU"
+												class={inputClassEmpresa}
+											>
+												<option value="" disabled hidden selected>
+													Seleccione una opción
+												</option>
+												<option value="true"> Sí </option>
+												<option value="false"> No </option>
+											</select>
+										</div>
+										<div class="col-span-6 flex items-end sm:col-span-3">
+											<button
+												type="button"
+												data-modal-target="crud-modal"
+												data-modal-toggle="crud-modal"
+												class="flex items-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+											>
+												<Icon name="ri:add-line" />
+												Añadir actividad
+											</button>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label for="actividad-input" class={labelClass}>
+												Actividad
+											</label>
+											<input
+												list="actividades-list"
+												id="actividad-input"
+												name="actividad"
+												placeholder="Escribe para buscar actividad..."
+												class={inputClassEmpresa}
+											/>
+											<datalist id="actividades-list">
+												{
+													actividades?.map((ac) => (
+														<option value={ac.actividad}>{ac.Actividad}</option>
+													))
+												}
+											</datalist>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label for="forma_de_administrar" class={labelClass}
+												>Forma de administrar</label
+											>
+											<select
+												name="forma_de_administrar"
+												id="forma_de_administrar"
+												x-model="formadeAdministracion"
+												class={inputClassEmpresa}
+											>
+												<option value="" selected hidden disabled
+													>Seleccione una forma de tibutar</option
+												>
+												<option value="Member-Managed"> Member-Managed </option>
+												<option value="Manager-Managed">
+													Manager-Managed
+												</option>
+											</select>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label for="forma_de_tributar" class={labelClass}
+												>Forma de tributar</label
+											>
+											<select
+												name="forma_de_tributar"
+												id="forma_de_tributar"
+												class={inputClassEmpresa}
+											>
+												<option value="" hidden disabled selected
+													>Seleccione una forma de tributar</option
+												>
+												<option value="Entidad de paso">
+													Entidad de paso
+												</option>
+												<option value="Corporación"> Corporación </option>
+											</select>
+										</div>
+										<div class="col-span-6 sm:col-span-3">
+											<label for="informacion_miembros" class={labelClass}>
+												Información de los miembros
+											</label>
+											<select
+												name="informacion_miembros"
+												id="informacion_miembros"
+												class={inputClassEmpresa}
+											>
+												<option value="" disabled hidden selected>
+													Seleccione una opcion
+												</option>
+												<option value="Pública"> Pública </option>
+												<option value="Privada"> Privada </option>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Tab: Ubicacion -->
+						<div
+							class="dark:bg-black-800 hidden min-w-full rounded-lg bg-gray-50 p-4"
+							id="ubicacion"
+							role="tabpanel"
+							aria-labelledby="ubicacion-tab"
+						>
+							<div
+								class="dark:bg-black-900 relative min-w-full rounded-lg bg-white shadow"
+							>
+								<div
+									class="dark:bg-black-800 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
+								>
+									<h3 class="mb-4 text-xl font-semibold dark:text-white">
+										Ubicación
+									</h3>
+									<div class="grid grid-cols-6 gap-6">
+										<div class="col-span-6 sm:col-span-3">
+											<label for="direccionOperativa" class={labelClass}
+												>¿Tiene dirección operativa en EE.UU.?</label
+											>
+											<select
+												name="direccionOperativa"
+												id="direccionOperativa"
+												x-model="direccionOperativa"
+												class={inputClassEmpresa}
+											>
+												<option value="" selected hidden disabled
+													>Selecciona una opción</option
+												>
+												<option value="Si"> Sí </option>
+												<option value="No"> No </option>
+												<option
+													value="Quiero que Sotomayor Consulting International provea una dirección"
+												>
+													Quiero que Sotomayor Consulting International provea
+													una dirección
+												</option>
+											</select>
+										</div>
+
+										<template x-if="direccionOperativa === 'Si'">
+											<div class="col-span-6 sm:col-span-3">
+												<label for="direccion" class={labelClass}
+													>Dirección</label
+												>
+												<input
+													type="text"
+													name="direccion"
+													id="direccion"
+													class={inputTextClass}
+													placeholder="ejem. Av. Juan Molineros"
+												/>
+											</div>
+										</template>
+										<template x-if="direccionOperativa === 'Si'">
+											<div class="col-span-6 sm:col-span-3">
+												<label for="condado" class={labelClass}>Condado</label>
+												<input
+													type="text"
+													name="condado"
+													id="condado"
+													class={inputTextClass}
+													placeholder="ejem. Miami-Dade"
+												/>
+											</div>
+										</template>
+										<template x-if="direccionOperativa === 'Si'">
+											<div class="col-span-6 sm:col-span-3">
+												<label for="ciudad" class={labelClass}>Ciudad</label>
+												<input
+													type="text"
+													name="ciudad"
+													id="ciudad"
+													class={inputTextClass}
+													placeholder="ejem. Miami"
+												/>
+											</div>
+										</template>
+										<template x-if="direccionOperativa === 'Si'">
+											<div class="col-span-6 sm:col-span-3">
+												<label for="estado" class={labelClass}>Estado</label>
+												<select
+													name="estado"
+													id="estado"
+													class={inputClassEmpresa}
+												>
+													<option value="" disabled hidden selected>
+														Seleccione un estado
+													</option>
+													{
+														estados?.map((e) => (
+															<option value={e.Estado}>{e.Estado}</option>
+														))
+													}
+												</select>
+											</div>
+										</template>
+										<template x-if="direccionOperativa === 'Si'">
+											<div class="col-span-6 sm:col-span-3">
+												<label for="Codigo_postal" class={labelClass}
+													>Codigo Postal</label
+												>
+												<input
+													type="text"
+													name="Codigo_postal"
+													id="Codigo_postal"
+													class={inputTextClass}
+													placeholder="ejem. Miami-Dade"
+												/>
+											</div>
+										</template>
+
+										<template x-if="direccionOperativa === 'No'">
+											<div class="col-span-6 sm:col-span-3">
+												<label for="Pais_operativo" class={labelClass}
+													>Pais</label
+												>
+												<select
+													name="Pais_operativo"
+													id="Pais_operativo"
+													class={inputClassEmpresa}
+												>
+													<option value="" disabled hidden selected>
+														Seleccione un pais
+													</option>
+													{
+														paises?.map((p) => (
+															<option value={p.nombre_paises}>
+																{p.nombre_paises}
+															</option>
+														))
+													}
+												</select>
+											</div>
+										</template>
+										<template x-if="direccionOperativa === 'No'">
+											<div class="col-span-6 sm:col-span-3">
+												<label for="direccion_empresa" class={labelClass}
+													>Dirección Empresa</label
+												>
+												<input
+													type="text"
+													name="direccion_empresa"
+													id="direccion_empresa"
+													class={inputTextClass}
+													placeholder="Av. Juan Molineros"
+												/>
+											</div>
+										</template>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Tab: Socios -->
+						<div
+							class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
+							id="socios-edit"
+							role="tabpanel"
+							aria-labelledby="socios-edit-tab"
+						>
+							<div
+								id="datos-socios"
+								class="dark:bg-black-800 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
+							>
+								<h3 class="mb-4 text-xl font-semibold dark:text-white">
+									Datos de los socios
+								</h3>
+								<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+									<div
+										class="dark:bg-black-900 h-full w-full shrink-0 justify-self-center overflow-y-auto border border-gray-200 bg-white p-3 shadow-sm lg:rounded-lg dark:border-gray-700"
+									>
+										<span class="sr-only">Open user menu</span>
+										<div class="flex w-full items-center justify-between">
+											<div class="flex items-center">
+												<Image
+													src={`https://api.dicebear.com/9.x/thumbs/svg?seed=`}
+													class="mr-3 h-8 w-8 rounded-md"
+													alt="Bonnie avatar"
+													inferSize={true}
+													loading="eager"
+												/>
+												<div class="text-left">
+													<div
+														class="mb-0.5 leading-none font-semibold text-gray-900 dark:text-white"
+													>
+														<input
+															type="text"
+															id="nombre_de_socio_card_"
+															name="nombre_de_socio_card_"
+															class={cardInputClass}
+														/>
+													</div>
+													<div>
+														<input
+															type="text"
+															id="correo-socio-"
+															name="correo-socio-"
+															class={cardInputSmClass}
+														/>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div
+											class="mb-4 w-full border-y border-gray-100 py-4 dark:border-gray-700"
+										>
+											<ul class="grid grid-cols-2 gap-2">
+												<li>
+													<input
+														type="radio"
+														id="input-socios-natural-"
+														name="tipo-persona-"
+														value="Persona Natural"
+														class="peer hidden"
+														required
+													/>
+													<label
+														for="input-socios-natural-"
+														class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg border-2 border-gray-400 bg-purple-900 p-2 text-gray-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:bg-purple-800 hover:text-gray-600 dark:border-gray-700 dark:bg-purple-900 dark:text-gray-400 dark:peer-checked:border-blue-600 dark:hover:bg-purple-800 dark:hover:text-gray-300"
+													>
+														<div
+															class="flex flex-col items-center justify-center"
+														>
+															<span
+																class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-purple-800 group-hover:bg-purple-700 dark:bg-purple-800 dark:group-hover:bg-purple-700"
+															>
+																<Icon
+																	name="ri:user-star-line"
+																	class="h-5 w-5 text-purple-300 dark:text-purple-300"
+																/>
+															</span>
+															<span
+																class="text-sm font-medium text-purple-300 dark:text-purple-300"
+															>
+																Persona Natural
+															</span>
+														</div>
+													</label>
+												</li>
+												<li>
+													<input
+														type="radio"
+														id="input-socios-empresa-"
+														name="tipo-persona-"
+														value="Empresa"
+														class="peer hidden"
+														required
+													/>
+													<label
+														for="input-socios-empresa-"
+														class="flex h-full w-full cursor-pointer items-center justify-center rounded-lg border-2 border-gray-400 bg-teal-700 p-2 text-gray-500 peer-checked:border-blue-600 peer-checked:text-blue-600 hover:bg-teal-800 hover:text-gray-600 dark:border-gray-700 dark:bg-teal-700 dark:text-gray-400 dark:peer-checked:border-blue-600 dark:hover:bg-teal-800 dark:hover:text-gray-300"
+													>
+														<div
+															class="flex flex-col items-center justify-center"
+														>
+															<span
+																class="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-teal-800 group-hover:bg-teal-700 dark:bg-teal-800 dark:group-hover:bg-teal-700"
+															>
+																<Icon
+																	name="ri:building-2-line"
+																	class="h-5 w-5 text-purple-300 dark:text-purple-300"
+																/>
+															</span>
+															<span
+																class="text-sm font-medium text-purple-300 dark:text-purple-300"
+															>
+																Empresa
+															</span>
+														</div>
+													</label>
+												</li>
+											</ul>
+										</div>
+										<ul class="space-y-2">
+											<li>
+												<div class="relative flex w-full items-center">
+													<button
+														type="button"
+														id="decrement-button"
+														data-input-counter-decrement="bedrooms-input-"
+														class="h-11 rounded-s-lg border border-gray-300 p-3 hover:bg-gray-200 focus:ring-2 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+													>
+														<svg
+															class="h-3 w-3 text-gray-900 dark:text-white"
+															aria-hidden="true"
+															xmlns="http://www.w3.org/2000/svg"
+															fill="none"
+															viewBox="0 0 18 2"
+														>
+															<path
+																stroke="currentColor"
+																stroke-linecap="round"
+																stroke-linejoin="round"
+																stroke-width="2"
+																d="M1 1h16"></path>
+														</svg>
+													</button>
+													<input
+														type="text"
+														id="bedrooms-input-"
+														data-input-counter
+														data-input-counter-min="1"
+														data-input-counter-max="100"
+														aria-describedby="helper-text-explanation"
+														class="dark:bg-black-900 block h-11 w-full border-x-0 border-gray-300 bg-gray-50 pb-6 text-center text-sm font-medium text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+														placeholder=""
+														required
+													/>
+													<div
+														class="absolute inset-s-1/2 bottom-1 flex -translate-x-1/2 items-center space-x-1 text-xs text-gray-400 rtl:translate-x-1/2 rtl:space-x-reverse"
+													>
+														<span>Porcentaje</span>
+													</div>
+													<button
+														type="button"
+														id="increment-button"
+														data-input-counter-increment="bedrooms-input-"
+														class="h-11 rounded-e-lg border border-gray-300 p-3 hover:bg-gray-200 focus:ring-2 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-700"
+													>
+														<svg
+															class="h-3 w-3 text-gray-900 dark:text-white"
+															aria-hidden="true"
+															xmlns="http://www.w3.org/2000/svg"
+															fill="none"
+															viewBox="0 0 18 18"
+														>
+															<path
+																stroke="currentColor"
+																stroke-linecap="round"
+																stroke-linejoin="round"
+																stroke-width="2"
+																d="M9 1v16M1 9h16"></path>
+														</svg>
+													</button>
+												</div>
+											</li>
+											<li>
+												<div
+													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+												>
+													<Icon
+														name="ri:earth-line"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+													<div class="w-full">
+														<label for="pais-socio-card-" class="sr-only">
+															Selecciona una opcion
+														</label>
+														<select
+															id="pais-socio-card-"
+															name="pais-socio-card-"
+															class={selectInlineClass}
+														>
+															<option value="" disabled hidden selected>
+																Seleccione un pais
+															</option>
+															{
+																paises?.map((p) => (
+																	<option value={p.nombre_paises}>
+																		{p.nombre_paises}
+																	</option>
+																))
+															}
+														</select>
+													</div>
+												</div>
+											</li>
+											<li>
+												<div
+													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+												>
+													<Icon
+														name="ri:diamond-ring-fill"
+														width="24"
+														height="24"
+														class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+													/>
+													<div class="w-full">
+														<label
+															for="estado-civil-socio-card-"
+															class="sr-only"
+														>
+															Selecciona una opcion
+														</label>
+														<select
+															id="estado-civil-socio-card-"
+															name="estado-civil-socio-card-"
+															class={selectInlineClass}
+														>
+															<option selected hidden disabled>
+																Selecciona una opcion
+															</option>
+															<option value="Casado"> Casado </option>
+															<option value="Soltero"> Soltero </option>
+															<option value="Divorciado"> Divorciado </option>
+															<option value="Viudo"> Viudo </option>
+														</select>
+													</div>
+												</div>
+											</li>
+										</ul>
+										<ul
+											class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
+										>
+											<li>
+												<div
+													class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+												>
+													<div class="flex w-full">
+														<label
+															class="inline-flex cursor-pointer items-center"
+														>
+															<input
+																type="checkbox"
+																class="peer sr-only"
+																id="residente-fiscal-socio-"
+																name="residente-fiscal-socio-"
+															/>
+															<div class={toggleDivClass}></div>
+															<span
+																class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+															>
+																Residente fiscal en EE.UU.
+															</span>
+														</label>
+													</div>
+												</div>
+											</li>
+										</ul>
+										<ul
+											class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
+										>
+											{
+												[
+													{
+														tooltipId: 'tooltip-default-',
+														icon: 'ri:passport-line',
+														label: 'Numero de Pasaporte',
+														inputId: 'pasaporte-socios-card-',
+													},
+													{
+														tooltipId: 'tooltip-seguro-',
+														icon: 'ri:secure-payment-line',
+														label: 'Numero de Seguro Social',
+														inputId: 'numero-seguro-socio-',
+													},
+													{
+														tooltipId: 'tooltip-itin-',
+														icon: 'ri:hashtag',
+														label: 'Numero de ITIN',
+														inputId: 'numero-itin-socio-card-',
+													},
+													{
+														tooltipId: 'tooltip-direccion-',
+														icon: 'ri:direction-line',
+														label: 'Direccion de planilla',
+														inputId: 'direccion-planilla-socio-card-',
+													},
+												].map((field) => (
+													<li>
+														<div class={iconGroupClass}>
+															<button
+																data-tooltip-target={field.tooltipId}
+																data-tooltip-placement="left"
+																type="button"
+																class="text-center"
+															>
+																<Icon
+																	name={field.icon}
+																	width="24"
+																	height="24"
+																	class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+																/>
+															</button>
+															<div
+																id={field.tooltipId}
+																role="tooltip"
+																class={tooltipClass}
+															>
+																{field.label}
+																<div class="tooltip-arrow" data-popper-arrow />
+															</div>
+															<input
+																type="text"
+																id={field.inputId}
+																name={field.inputId}
+																class={cardInputClass}
+															/>
+														</div>
+													</li>
+												))
+											}
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Tab: Manager -->
+						<div
+							class="dark:bg-black-800 hidden rounded-lg bg-gray-50 p-4"
+							id="manager"
+							role="tabpanel"
+							aria-labelledby="manager-tab"
+						>
+							<template x-if="formadeAdministracion === 'Member-Managed'">
+								<div
+									id="datos-managers"
+									class="dark:bg-black-800 mb-4 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700"
+									x-data="{ espartedelosMiembros: '' }"
+									x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
+								>
+									<h3 class="mb-4 text-xl font-semibold dark:text-white">
+										Informacion de managers
+									</h3>
+									<div>
+										<div class="grid grid-cols-6 gap-6">
+											<div class="col-span-6 sm:col-span-3">
+												<label for="informacion_miembros" class={labelClass}>
+													Sotomayor Consulting International asigna al Manager
+												</label>
+												<select
+													name="informacion_miembros"
+													id="informacion_miembros"
+													x-model="asignarManager"
+													x-init="$el.value ? asignarManager = $el.value : null"
+													class={inputClassEmpresa}
+												>
+													<option value="" disabled hidden selected>
+														Seleccione una opcion
+													</option>
+													<option value="Si"> Si </option>
+													<option value="No"> No </option>
+												</select>
+											</div>
+											<template x-if="asignarManager === 'No'">
+												<div class="col-span-6 sm:col-span-3">
+													<label for="informacionmanager" class={labelClass}>
+														El manager es parte de los miembros
+													</label>
+													<select
+														name="informacionmanager"
+														id="informacionmanager"
+														x-model="managerMiembro"
+														x-init="$el.value ? managerMiembro = $el.value : null"
+														class={inputClassEmpresa}
+													>
+														<option disabled hidden selected>
+															Seleccione una opcion
+														</option>
+														<option value="Si"> Si </option>
+														<option value="No"> No </option>
+													</select>
+												</div>
+											</template>
+											<template x-if="managerMiembro === 'Si'">
+												<div class="col-span-6 sm:col-span-3">
+													<label for="managers" class={labelClass}>
+														Socios que son managers
+													</label>
+													<div class="mb-4 flex items-center">
+														<input
+															id="miembros-managers-"
+															name="miembros-managers-"
+															type="checkbox"
+															class="h-4 w-4 rounded-sm border-gray-300 bg-gray-100 text-[#1349ec] focus:ring-2 focus:ring-[#1349ec] dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-[#323f67]"
+														/>
+														<label
+															for="miembros-managers-"
+															class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+														>
+															x
+														</label>
+													</div>
+												</div>
+											</template>
+										</div>
+									</div>
+									<template x-if="asignarManager === 'No'">
+										<div
+											class="mt-5 grid gap-4 rounded-lg border border-neutral-600 p-5 xl:grid-cols-2 2xl:grid-cols-3"
+										>
+											<h3
+												class="col-span-3 mb-4 text-xl font-semibold dark:text-white"
+											>
+												Managers
+											</h3>
+											<div
+												class="dark:bg-black-900 h-full w-full shrink-0 justify-self-center overflow-y-auto border border-gray-200 bg-white p-3 shadow-sm lg:rounded-lg dark:border-gray-700"
+											>
+												<span class="sr-only">Open user menu</span>
+												<div class="flex w-full items-center justify-between">
+													<div class="flex items-center">
+														<Image
+															src={`https://api.dicebear.com/9.x/thumbs/svg?seed=`}
+															class="mr-3 h-8 w-8 rounded-md"
+															alt="Bonnie avatar"
+															inferSize={true}
+															loading="eager"
+														/>
+														<div class="text-left">
+															<div
+																class="mb-0.5 leading-none font-semibold text-gray-900 dark:text-white"
+															>
+																<input
+																	type="text"
+																	id="nombre-manager-card-"
+																	name="nombre-manager-card-"
+																	class={cardInputClass}
+																/>
+															</div>
+															<div>
+																<input
+																	type="text"
+																	id="correo-manager-card-"
+																	name="correo-manager-card-"
+																	class={cardInputSmClass}
+																/>
+															</div>
+														</div>
+													</div>
+												</div>
+												<ul
+													class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
+												>
+													<li>
+														<div
+															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+														>
+															<Icon
+																name="ri:earth-line"
+																width="24"
+																height="24"
+																class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+															/>
+															<div class="w-full">
+																<label for="pais-manager-card-" class="sr-only">
+																	Selecciona una opcion
+																</label>
+																<select
+																	id="pais-manager-card-"
+																	name="pais-manager-card-"
+																	class={selectInlineClass}
+																>
+																	<option value="" disabled hidden selected>
+																		Seleccione un pais
+																	</option>
+																	{
+																		paises?.map((p) => (
+																			<option value={p.nombre_paises}>
+																				{p.nombre_paises}
+																			</option>
+																		))
+																	}
+																</select>
+															</div>
+														</div>
+													</li>
+												</ul>
+												<ul
+													class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
+												>
+													<li>
+														<div
+															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+														>
+															<div class="flex w-full">
+																<label
+																	class="inline-flex cursor-pointer items-center"
+																>
+																	<input
+																		type="checkbox"
+																		id="residente-fiscal-manager-card-"
+																		name="residente-fiscal-manager-card-"
+																		class="peer sr-only"
+																	/>
+																	<div class={toggleDivClass}></div>
+																	<span
+																		class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+																	>
+																		Residente fiscal en EE.UU.
+																	</span>
+																</label>
+															</div>
+														</div>
+													</li>
+													<li>
+														<div
+															class="group flex items-center gap-2 rounded-lg p-1 text-base font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+														>
+															<div class="flex w-full">
+																<label
+																	class="inline-flex cursor-pointer items-center"
+																>
+																	<input
+																		type="checkbox"
+																		class="peer sr-only"
+																		id="misma-direccion-manager-card-"
+																		name="misma-direccion-manager-card-"
+																	/>
+																	<div class={toggleDivClass}></div>
+																	<span
+																		class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+																	>
+																		Tiene la misma direccion que la empresa
+																	</span>
+																</label>
+															</div>
+														</div>
+													</li>
+												</ul>
+												<ul
+													class="mt-5 space-y-2 border-t border-gray-100 pt-5 dark:border-gray-700"
+												>
+													{
+														[
+															{
+																tooltipId: 'tooltip-default-manager-',
+																icon: 'ri:passport-line',
+																label: 'Numero de Pasaporte',
+																inputId: 'pasaporte-manager-card-',
+															},
+															{
+																tooltipId: 'tooltip-seguro-manager-',
+																icon: 'ri:secure-payment-line',
+																label: 'Numero de Seguro Social',
+																inputId: 'numero-seguro-manager-card-',
+															},
+															{
+																tooltipId: 'tooltip-itin-manager-',
+																icon: 'ri:hashtag',
+																label: 'Numero de ITIN',
+																inputId: 'numero-itin-manager-card-',
+															},
+															{
+																tooltipId: 'tooltip-direccion-manager-',
+																icon: 'ri:direction-line',
+																label: 'Direccion del manager',
+																inputId: 'direccion-manager-card-',
+															},
+														].map((field) => (
+															<li>
+																<div class={iconGroupClass}>
+																	<button
+																		data-tooltip-target={field.tooltipId}
+																		data-tooltip-placement="left"
+																		type="button"
+																		class="text-center"
+																	>
+																		<Icon
+																			name={field.icon}
+																			width="24"
+																			height="24"
+																			class="h-6 w-6 text-gray-400 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+																			title={field.label}
+																		/>
+																	</button>
+																	<div
+																		id={field.tooltipId}
+																		role="tooltip"
+																		class={tooltipClass}
+																	>
+																		{field.label}
+																		<div
+																			class="tooltip-arrow"
+																			data-popper-arrow
+																		/>
+																	</div>
+																	<input
+																		type="text"
+																		id={field.inputId}
+																		name={field.inputId}
+																		class={cardInputClass}
+																	/>
+																</div>
+															</li>
+														))
+													}
+												</ul>
+											</div>
+										</div>
+									</template>
+								</div>
+							</template>
+							<div
+								class="col-span-6 sm:col-span-3"
+								x-cloak
+								x-show="managerMiembro === 'Si' || managerMiembro === 'No'"
+								x-transition
+							>
+								<button
+									type="button"
+									data-modal-target="crud-modal-2"
+									data-modal-toggle="crud-modal-2"
+									class="flex items-center gap-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+								>
+									<Icon name="ri:add-line" /> Añadir manager
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
