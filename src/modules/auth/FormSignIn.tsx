@@ -48,7 +48,13 @@ export default function FormSignIn() {
 			});
 			const json = await res.json();
 			if (json.data?.url) {
-				openOAuthPopup(json.data.url);
+				const popup = openOAuthPopup(json.data.url);
+				const timer = setInterval(() => {
+					if (!popup || popup.closed) {
+						clearInterval(timer);
+						setGooglePending(false);
+					}
+				}, 500);
 			} else {
 				setGooglePending(false);
 			}
