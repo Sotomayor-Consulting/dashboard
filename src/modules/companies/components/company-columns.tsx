@@ -18,7 +18,7 @@ export const columns: ColumnDef<CompanyTableRow>[] = [
 	{
 		accessorFn: (row) => `${row.user.nombre} ${row.user.apellido}`,
 		id: 'user_nombre',
-		header: 'Usuario'
+		header: 'Usuario',
 	},
 	{
 		accessorKey: 'entity_type',
@@ -53,7 +53,7 @@ export const columns: ColumnDef<CompanyTableRow>[] = [
 	{
 		accessorFn: (row) => row.formation_country.name,
 		id: 'formation_country',
-		header: 'País'
+		header: 'País',
 	},
 	{ accessorKey: 'formation_state', header: 'Jurisdicción' },
 	{

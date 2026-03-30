@@ -1,6 +1,5 @@
 ---
 import { IncorporationTableClient as IncorporationTable } from '@modules/incorporations/components/incorporation-table-client.tsx';
-import type { CompanyTableRow } from  '@modules/companies/types'
 import { SharedBreadcrumb } from '@components/ui/bread-crumb.tsx';
 import { getIncorporationsWithCompanies } from '@modules/incorporations/services/incorporationService.ts';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
@@ -38,30 +37,23 @@ const countriesMap = countries.reduce(
 	{} as Record<number, Country>,
 );
 
-const incorporationsRelations: IncorporationRelations[] = incorporations.map((item) => {
-  const { user_id, company_id, company, ...incorporationData } = item;
-  const user = usersMap[user_id] ?? null;
+const incorporationsRelations = incorporations.map((item) => {
+	const user = usersMap[item.user_id] ?? null;
 
-  let companyProcessed: CompanyTableRow | null = null;
+	const companyProcessed = item.company
+		? {
+				...item.company,
+				formation_country: countriesMap[item.company.formation_country_id],
+				user,
+			}
+		: null;
 
-  if (company) {
-    const { formation_country_id, ...companyData } = company;
-    
-    companyProcessed = {
-      ...companyData,
-      formation_country: countriesMap[formation_country_id] as Country,
-      user: user as User,
-    };
-  }
-
-  return {
-    ...incorporationData,
-    user,
-    company: companyProcessed,
-  };
+	return {
+		...item,
+		user,
+		company: companyProcessed,
+	} as unknown as IncorporationRelations;
 });
-
-console.log('incorporationsRelations :>> ', incorporationsRelations);
 
 const paths = [{ label: 'Inicio', href: '/' }, { label: 'Incorporación' }];
 ---

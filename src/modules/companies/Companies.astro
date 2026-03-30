@@ -1,7 +1,10 @@
 ---
 import { CompaniesTableClient as CompanyTable } from '@modules/companies/components/company-table-client.tsx';
 import { SharedBreadcrumb } from '@components/ui/bread-crumb.tsx';
-import { getCompanies } from '@modules/companies/services/companyService.ts';
+import {
+	getCompanies,
+	getCompaniesWithUser,
+} from '@modules/companies/services/companyService.ts';
 import { getCountries } from '@lib/tablas/countries';
 import { getAllUsuarios } from '@lib/tablas/usuarios';
 import type { CompanyTableRow, Country } from './types';
@@ -39,7 +42,9 @@ const tableData: CompanyTableRow[] = companies.map((item) => ({
 	user: item.user_id ? (usersMap[item.user_id] ?? null) : null,
 }));
 
-console.log('tableData :>> ', tableData);
+const [testData] = await Promise.all([getCompaniesWithUser(supabase)]);
+
+console.log(testData);
 
 const paths = [{ label: 'Inicio', href: '/' }, { label: 'Empresas' }];
 ---
