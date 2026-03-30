@@ -16,7 +16,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 	IncorporacionesEmpresasBase(supabase),
 	actividadesGeneral(supabase),
 	EstadosGeneral(supabase),
-	PaisesGeneral(supabase),
+	getCountries(supabase),
 ]);
 
 const inputClassEmpresa =
