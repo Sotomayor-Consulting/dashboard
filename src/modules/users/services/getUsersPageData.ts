@@ -7,7 +7,7 @@ export const getUsersPageData = async (supabase: SupabaseClient) => {
 	const [usuarios, roles, paises, rolesGeneral] = await Promise.all([
 		getAllUsuarios(supabase),
 		RolesGeneral(supabase),
-		PaisesGeneral(supabase),
+		getCountries(supabase),
 		RolesGeneralUsers(supabase),
 	]);
 

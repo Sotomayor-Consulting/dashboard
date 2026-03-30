@@ -7,7 +7,8 @@ export type LegalStatus = 'active' | 'inactive' | 'suspended' | 'pending' | 'dis
 // ── companies table (legacy) ────────────────────────────────────
 export interface Company {
 	id: string;
-	legal_name: string | null | '';
+	legal_name: string | null;
+	identification_number: string | null;
 	entity_type: string;
 	formation_state_id: number;
 	formation_country_id: number;
