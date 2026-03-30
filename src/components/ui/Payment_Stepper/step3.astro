@@ -6,28 +6,9 @@ interface Props {
 const { title, description } = Astro.props;
 ---
 
-<div id="paso3" class="hidden">
-	<div class="relative">
-		<button
-			type="button"
-			id="atrasBtn4"
-			class="text-white-500 group absolute bottom-10 left-5 flex cursor-pointer items-center text-center font-medium"
-			><span class="transition delay-101 group-hover:-translate-x-0.5"
-				><svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					><path
-						fill="currentColor"
-						d="M17 11H9.41l3.3-3.29a1 1 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33a1 1 0 0 0 0 .76a1 1 0 0 0 .21.33l5 5a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42L9.41 13H17a1 1 0 0 0 0-2"
-					></path></svg
-				></span
-			> atrás</button
-		>
-	</div>
-	<div class="pb-10 text-center">
-		<h3 class="text-3xl text-neutral-800 dark:text-white">
+<div id="paso3" class="hidden w-full">
+	<div class="px-10 py-10 text-center">
+		<h3 class="text-2xl text-neutral-800 lg:text-3xl dark:text-white">
 			{title}
 		</h3>
 		<p class="text-neutral-700 dark:text-gray-400">
@@ -89,7 +70,7 @@ const { title, description } = Astro.props;
 							type="text"
 							id={name.id}
 							name={name.name}
-							class="dark:bg-black-900 focus:border-black-400 focus:ring-black-400 dark:border-black-400 w-full min-w-10 rounded-none rounded-e-lg border border-neutral-500/10 bg-gray-100 p-2.5 text-sm text-neutral-900 placeholder-gray-500 dark:text-white"
+							class="dark:bg-black-900 focus:border-black-400 focus:ring-black-400 dark:border-black-400 w-full rounded-none rounded-e-lg border border-neutral-500/10 bg-gray-100 p-2.5 text-sm text-neutral-900 placeholder-gray-500 lg:min-w-10 dark:text-white"
 							placeholder="Sotomayor Consulting"
 							required
 						/>
@@ -98,11 +79,17 @@ const { title, description } = Astro.props;
 			))
 		}
 	</ul>
-	<div class="mt-8 flex w-full justify-center">
+	<div class="my-8 grid w-full grid-cols-2 gap-2 px-10 lg:px-36">
+		<button
+			type="button"
+			id="atrasBtn4"
+			class="from-black-400 via-black-500 to-black-600 w-full justify-self-center rounded-lg bg-linear-to-r px-5 py-2.5 text-center text-xs font-medium text-white hover:bg-linear-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:focus:ring-neutral-500"
+			>Volver</button
+		>
 		<button
 			type="button"
 			id="continuarBtn3"
-			class="from-black-400 via-black-500 to-black-600 me-2 mb-2 w-4/5 rounded-lg bg-linear-to-r px-5 py-2.5 text-center font-medium text-white hover:bg-linear-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:w-3/5 md:text-lg dark:focus:ring-neutral-500"
+			class="from-black-400 via-black-500 to-black-600 w-full justify-self-center rounded-lg bg-linear-to-r px-5 py-2.5 text-center text-xs font-medium text-white hover:bg-linear-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:focus:ring-neutral-500"
 			>Continuar</button
 		>
 	</div>
