@@ -1,935 +1,102 @@
 ---
 import WhatsappBtn from '@components/display/WhatsappBtn.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
-import { Icon } from 'astro-icon/components';
+import Modal from '@components/ui/Payment_Stepper/ModalCardPayments.astro';
+import Stepper from '@components/ui/Payment_Stepper/ButtonsStepper.astro';
+import Step1 from '@components/ui/Payment_Stepper/step1.astro';
+import Step2 from '@components/ui/Payment_Stepper/step2.astro';
+import Step3 from '@components/ui/Payment_Stepper/step3.astro';
+import Step4 from '@components/ui/Payment_Stepper/step4.astro';
+import Register from '@components/ui/Payment_Stepper/registrerStep.astro';
 
 const supabase = Astro.locals.supabase;
 const { data: estados } = await supabase.from('estados').select('Estado');
-
-const datosName = [
-	{
-		nombre: 'Nombre de tu empresa - (opción #1)',
-		id: 'nombre-empresa-1',
-		name: 'nombre_1',
-	},
-	{
-		nombre: 'Nombre de tu empresa - (opción #2)',
-		id: 'nombre-empresa-2',
-		name: 'nombre_2',
-	},
-	{
-		nombre: 'Nombre de tu empresa - (opción #3)',
-		id: 'nombre-empresa-3',
-		name: 'nombre_3',
-	},
-];
+const estadosData = estados ?? [];
 ---
 
 <Alerta />
 
 <WhatsappBtn />
-<!--Modal --><!-- Main modal -->
-<div
-	id="modalCard"
-	aria-hidden="true"
-	class="bg-opacity-70 bg-white-100/80 dark:bg-black-700/80 fixed top-0 right-0 left-0 z-50 hidden h-full max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0"
->
-	<div class="relative w-full max-w-5xl p-4">
-		<!-- Modal content -->
-		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow-sm">
-			<!-- Modal header -->
-			<div
-				class="flex items-center justify-between rounded-t-lg p-4 md:p-5 dark:border-gray-600"
-			>
-				<button
-					type="button"
-					id="closeBtn"
-					class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-				>
-					<svg
-						class="h-3 w-3"
-						aria-hidden="true"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 14 14"
-					>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
-					</svg>
-					<span class="sr-only">Close modal</span>
-				</button>
-			</div>
-			<!-- Modal body -->
-			<div
-				class="flex-col items-center justify-center space-y-4 p-4 text-center md:p-5"
-			>
-				<h3
-					class="mx-auto mb-10 w-4/5 text-center text-3xl font-semibold text-neutral-900 md:w-3/5 dark:text-white"
-				>
-					Encuentre el tipo de entidad adecuado para su negocio
-				</h3>
-				<p
-					class="mx-auto my-10 w-4/5 text-justify text-lg leading-relaxed text-neutral-500 md:w-3/5 dark:text-gray-400"
-				>
-					La elección de tu entidad legal es el primer gran paso. Evita riesgos
-					fiscales y legales. Nuestros consultores te brindan una asesoría
-					gratuita para identificar la mejor opción para tu negocio, asegurando
-					un crecimiento sólido y protegido en EE. UU.
-				</p>
-				<div
-					class="mt-10 flex h-full w-full justify-center text-neutral-500 dark:text-white"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="100"
-						height="100"
-						viewBox="0 0 24 24"
-						><g fill="none"
-							><path
-								fill="currentColor"
-								d="M2 9c0-1.886 0-2.828.586-3.414S4.114 5 6 5h12c1.886 0 2.828 0 3.414.586S22 7.114 22 9c0 .471 0 .707-.146.854C21.707 10 21.47 10 21 10H3c-.471 0-.707 0-.854-.146C2 9.707 2 9.47 2 9m0 9c0 1.886 0 2.828.586 3.414S4.114 22 6 22h12c1.886 0 2.828 0 3.414-.586S22 19.886 22 18v-5c0-.471 0-.707-.146-.854C21.707 12 21.47 12 21 12H3c-.471 0-.707 0-.854.146C2 12.293 2 12.53 2 13z"
-							></path><path
-								stroke="currentColor"
-								stroke-linecap="round"
-								stroke-width="2"
-								d="M7 3v3m10-3v3"></path></g
-						></svg
-					>
-				</div>
-			</div>
-			<!-- Modal footer -->
-			<div
-				class="flex flex-col items-center justify-center gap-2 rounded-b p-4 md:p-5 lg:flex-row dark:border-gray-600"
-			>
-				<a
-					type="button"
-					target="_blank"
-					href="https://sotomayorconsulting.com/diagnostico-llc/"
-					class="bg-black-600 hover:bg-black-500 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:ring-neutral-500 focus:outline-none lg:w-2/5 lg:text-base"
-					>Realiza un Diagnostico breve</a
-				>
-				<a
-					type="button"
-					target="_blank"
-					href="https://zcal.co/t/agendar-asesoria-llc/60min"
-					class="bg-black-600 hover:bg-black-500 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:ring-neutral-500 focus:outline-none lg:w-2/5 lg:text-base"
-					>Agendar una cita</a
-				>
-			</div>
 
-			<div class="h-12.5"></div>
-		</div>
-	</div>
-</div>
+<Modal
+	id="modalCard"
+	IdClose="closeBtn"
+	title="Encuentre el tipo de entidad adecuado para su negocio"
+	description="La elección de tu entidad legal es el primer gran paso. Evita riesgos fiscales y legales. Nuestros consultores te brindan una asesoría gratuita para identificar la mejor opción para tu negocio, asegurando un crecimiento sólido y protegido en EE. UU."
+	button1="Realiza un Diagnostico breve"
+	button1link="https://sotomayorconsulting.com/diagnostico-llc/"
+	button2="Agendar una cita"
+	button2link="https://zcal.co/t/agendar-asesoria-llc/60min"
+/>
 
 <div class="my-8 flex w-full items-center justify-center">
-	<div class="ml-5 hidden w-full lg:flex lg:min-h-175 lg:flex-col">
-		<div class="mt-16">
-			<h3 class="text-black-900 text-2xl dark:text-white">
-				Inicie su empresa en EE. UU. en minutos.
-			</h3>
-			<p class="w-3/4 text-gray-500">
-				Responda algunas preguntas para ayudarnos a formar su nueva empresa.
-			</p>
-		</div>
-		<ol class="mt-8 w-full space-y-8 overflow-hidden">
-			<li
-				id="stepli-1"
-				class="relative flex-1 after:absolute after:-bottom-11 after:left-1/4 after:inline-block after:h-full after:w-0.5 after:content-['']"
-			>
-				<button
-					class="flex w-full max-w-sm items-center justify-center gap-8"
-					id="paso1btn"
-				>
-					<div
-						id="stepdiv1-1"
-						class="relative z-10 flex w-full items-center gap-3.5 rounded-xl p-3.5 text-left"
-					>
-						<div
-							id="stepdiv2-1"
-							class="flex items-center justify-center rounded-lg"
-						>
-							<span id="stepspan-1" class="p-3 text-white">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									viewBox="0 0 24 24"
-									><path
-										fill="none"
-										stroke="currentColor"
-										stroke-linecap="square"
-										stroke-width="2"
-										d="M12 19V4.5h-.5L9.5 6"></path>
-								</svg>
-							</span>
-						</div>
-						<div class="flex flex-col items-start justify-center rounded-md">
-							<h6 id="steph6-1" class="mb-0.5 text-base font-semibold">
-								Tipo de empresa
-							</h6>
-							<p id="stepp-1" class="text-xs font-normal">
-								Elige tu entidad comercial ¿No estás seguro? te ayudamos a
-								elegir.
-							</p>
-						</div>
-					</div>
-				</button>
-			</li>
-			<li
-				id="stepli-2"
-				class="relative flex-1 after:absolute after:-bottom-12 after:left-1/4 after:inline-block after:h-full after:w-0.5 after:content-['']"
-			>
-				<button
-					class="flex w-full max-w-sm items-center justify-center gap-8 text-left"
-					id="paso2btn"
-				>
-					<div
-						id="stepdiv1-2"
-						class="group relative z-10 flex w-full items-center gap-3.5 rounded-xl border border-transparent p-3.5 transition-all"
-					>
-						<div
-							id="stepdiv2-2"
-							class="flex items-center justify-center rounded-lg transition-all"
-						>
-							<span id="stepspan-2" class="p-3 transition-all">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									viewBox="0 0 24 24"
-									><path
-										fill="none"
-										stroke="currentColor"
-										stroke-linecap="square"
-										stroke-width="2"
-										d="M16 19H8v-2.024a1 1 0 0 1 .37-.776l6.128-4.98A4.07 4.07 0 0 0 16 8.065V8a4 4 0 0 0-8 0"
-									></path></svg
-								>
-							</span>
-						</div>
-						<div class="flex flex-col items-start justify-center rounded-md">
-							<h6
-								id="steph6-2"
-								class="mb-0.5 text-base font-semibold transition-all"
-							>
-								Estado de registro
-							</h6>
-							<p id="stepp-2" class="text-xs font-normal transition-all">
-								Elija su estado de registro
-							</p>
-						</div>
-					</div>
-				</button>
-			</li>
-			<li id="stepli-3" class="relative flex-1">
-				<button
-					class="flex w-full max-w-sm items-center justify-center gap-8 text-left"
-					id="paso3btn"
-				>
-					<div
-						id="stepdiv1-3"
-						class="group relative z-10 flex w-full items-center gap-3.5 rounded-xl border border-transparent p-3.5 transition-all"
-					>
-						<div
-							id="stepdiv2-3"
-							class="flex items-center justify-center rounded-lg transition-all"
-						>
-							<span id="stepspan-3" class="p-3 transition-all">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									viewBox="0 0 24 24"
-									><path
-										fill="none"
-										stroke="currentColor"
-										stroke-linecap="square"
-										stroke-width="2"
-										d="M8.5 5h7v1.5l-5 3.5v1H12a4 4 0 0 1 0 8h-.5a4 4 0 0 1-4-4"
-									></path></svg
-								>
-							</span>
-						</div>
-						<div class="flex flex-col items-start justify-center rounded-md">
-							<h6
-								id="steph6-3"
-								class="mb-0.5 text-base font-semibold transition-all"
-							>
-								Elije el nombre de tu empresa
-							</h6>
-							<p id="stepp-3" class="text-xs font-normal transition-all">
-								Elije tres opciones de nombre para tu empresa
-							</p>
-						</div>
-					</div>
-				</button>
-			</li>
-			<li id="stepli-4" class="relative flex-1">
-				<button
-					class="flex w-full max-w-sm items-center justify-center gap-8 text-left"
-					id="paso4btn"
-				>
-					<div
-						id="stepdiv1-4"
-						class="group relative z-10 flex w-full items-center gap-3.5 rounded-xl border border-transparent p-3.5 transition-all"
-					>
-						<div
-							id="stepdiv2-4"
-							class="flex items-center justify-center rounded-lg transition-all"
-						>
-							<span id="stepspan-4" class="p-3 transition-all">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									viewBox="0 0 24 24"
-									><path
-										fill="none"
-										stroke="currentColor"
-										stroke-linecap="square"
-										stroke-width="2"
-										d="M14.5 19v-4m0 0H7v-1l6.5-9h1zm0 0h2"></path></svg
-								>
-							</span>
-						</div>
-						<div class="flex flex-col items-start justify-center rounded-md">
-							<h6
-								id="steph6-4"
-								class="mb-0.5 text-base font-semibold transition-all"
-							>
-								Verifica tus datos y registraté
-							</h6>
-							<p id="stepp-4" class="text-xs font-normal transition-all">
-								Verifica los datos que seleccionaste y registrate para entrar a
-								nuestra plataforma.
-							</p>
-						</div>
-					</div>
-				</button>
-			</li>
-		</ol>
-	</div>
+	<Stepper
+		title="Inicie su empresa en EE. UU. en minutos."
+		description="Responda algunas preguntas para ayudarnos a formar su nueva empresa."
+		listButtons={[
+			{
+				id: 'stepli-1',
+				IdButton: 'paso1btn',
+				Div1Id: 'stepdiv1-1',
+				Div2Id: 'stepdiv2-1',
+				Span: 'stepspan-1',
+				icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" ><path fill="none" stroke="currentColor" stroke-linecap="square" stroke-width="2" d="M12 19V4.5h-.5L9.5 6"></path </svg>',
+				title: 'Tipo de empresa',
+				description:
+					'Elige tu entidad comercial ¿No estás seguro? te ayudamos a elegir.',
+			},
+			{
+				id: 'stepli-2',
+				IdButton: 'paso2btn',
+				Div1Id: 'stepdiv1-2',
+				Div2Id: 'stepdiv2-2',
+				Span: 'stepspan-2',
+				icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" ><path fill="none" stroke="currentColor" stroke-linecap="square" stroke-width="2" d="M16 19H8v-2.024a1 1 0 0 1 .37-.776l6.128-4.98A4.07 4.07 0 0 0 16 8.065V8a4 4 0 0 0-8 0" ></path></svg >',
+				title: 'Estado de registro',
+				description: 'Elija su estado de registro',
+			},
+			{
+				id: 'stepli-3',
+				IdButton: 'paso3btn',
+				Div1Id: 'stepdiv1-3',
+				Div2Id: 'stepdiv2-3',
+				Span: 'stepspan-3',
+				icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" ><path fill="none" stroke="currentColor" stroke-linecap="square" stroke-width="2" d="M8.5 5h7v1.5l-5 3.5v1H12a4 4 0 0 1 0 8h-.5a4 4 0 0 1-4-4" ></path></svg >',
+				title: 'Elije el nombre de tu empresa',
+				description: 'Elije tres opciones de nombre para tu empresa',
+			},
+			{
+				id: 'stepli-4',
+				IdButton: 'paso4btn',
+				Div1Id: 'stepdiv1-4',
+				Div2Id: 'stepdiv2-4',
+				Span: 'stepspan-4',
+				icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" ><path fill="none" stroke="currentColor" stroke-linecap="square" stroke-width="2" d="M14.5 19v-4m0 0H7v-1l6.5-9h1zm0 0h2"></path></svg >',
+				title: 'Verifica tus datos y registraté',
+				description:
+					'Verifica los datos que seleccionaste y regístrate para entrar a nuestra plataforma.',
+			},
+		]}
+	/>
+
 	<div
 		class="test dark:bg-black-700 bg-opacity-20 z-20 m-auto flex h-full w-full flex-col items-center justify-center place-self-center rounded-lg bg-white bg-cover bg-clip-padding bg-center py-20 drop-shadow-xl backdrop-blur-md backdrop-contrast-100 backdrop-saturate-100 backdrop-filter md:mr-5"
 	>
 		<form id="business-form" class="w-full">
 			<input type="hidden" name="estado_de" value="En proceso" />
-			<div id="paso1">
-				<div class="pb-10 text-center">
-					<h3 class="text-black-900 text-3xl dark:text-white">
-						Estructura de la empresa
-					</h3>
-					<p class="text-neutral-700 dark:text-gray-400">
-						Elija el tipo de entidad adecuada para su negocio.
-					</p>
-				</div>
-				<ul class="grid w-full place-items-center gap-6">
-					<li class="w-4/5 md:w-3/5">
-						<input
-							type="radio"
-							id="LLC_radio_btn"
-							name="tipo_de_empresa"
-							value="LLC"
-							class="peer hidden"
-							checked
-							required
-						/>
-						<label
-							for="LLC_radio_btn"
-							class="dark:bg-black-900 peer-checked:border-black-600 peer-checked:text-black-600 bg-white-100 dark:peer-checked:bg-black-600 dark:hover:bg-black-600 inline-flex w-full cursor-pointer items-center justify-between rounded-lg border border-neutral-700 p-5 text-neutral-500 peer-checked:bg-white hover:text-neutral-900 dark:text-gray-400 dark:peer-checked:text-white dark:hover:text-white"
-						>
-							<div class="block max-w-[90%]">
-								<div class="w-full text-lg font-semibold">LLC</div>
-								<div class="w-full text-sm">
-									Tarifas mínimas + privacidad y flexibilidad inigualables.
-								</div>
-							</div>
-							<svg
-								class="ms-3 h-5 w-5 rtl:rotate-180"
-								aria-hidden="true"
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 14 10"
-							>
-								<path
-									stroke="currentColor"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-							</svg>
-						</label>
-					</li>
-					<li class="w-4/5 md:w-3/5">
-						<input
-							type="radio"
-							id="C_coorp_btn_radio"
-							name="tipo_de_empresa"
-							value="C-corporation"
-							class="peer hidden"
-							required
-						/>
-						<label
-							for="C_coorp_btn_radio"
-							class="dark:bg-black-900 peer-checked:border-black-600 peer-checked:text-black-600 bg-white-100 dark:peer-checked:bg-black-600 dark:hover:bg-black-600 inline-flex w-full cursor-pointer items-center justify-between rounded-lg border border-neutral-700 p-5 text-neutral-500 peer-checked:bg-white hover:text-neutral-900 dark:text-gray-400 dark:peer-checked:text-white dark:hover:text-white"
-						>
-							<div class="block max-w-[90%]">
-								<div class="w-full text-lg font-semibold">C-corporation</div>
-								<div class="w-full text-sm">
-									Ideal para startups que planean buscar financiación externa.
-								</div>
-							</div>
-							<svg
-								class="ms-3 h-5 w-5 rtl:rotate-180"
-								aria-hidden="true"
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 14 10"
-							>
-								<path
-									stroke="currentColor"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-							</svg>
-						</label>
-					</li>
-					<li class="w-4/5 md:w-3/5">
-						<button
-							id="openBtnxd"
-							type="button"
-							class="dark:bg-black-900 peer-checked:border-black-600 peer-checked:text-black-600 bg-white-100 dark:peer-checked:bg-black-600 dark:hover:bg-black-600 inline-flex w-full cursor-pointer items-center justify-between rounded-lg border border-neutral-700 p-5 text-left text-neutral-500 peer-checked:bg-white hover:text-neutral-900 dark:text-gray-400 dark:peer-checked:text-white dark:hover:text-white"
-						>
-							<div class="block max-w-[90%]">
-								<div class="w-full text-lg font-semibold">Ayúdame a elegir</div>
-								<div class="w-full text-sm">
-									Una evaluación estratégica para entender tu etapa actual, tus
-									riesgos y el paso exacto que necesitas dar.
-								</div>
-							</div>
-							<svg
-								class="ms-3 h-5 w-5 rtl:rotate-180"
-								aria-hidden="true"
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 14 10"
-							>
-								<path
-									stroke="currentColor"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-							</svg>
-						</button>
-					</li>
-				</ul>
-				<div class="mt-8 flex w-full justify-center">
-					<button
-						type="button"
-						id="continuarBtn"
-						class="from-black-400 via-black-500 to-black-600 me-2 mb-2 w-4/5 rounded-lg bg-linear-to-r px-5 py-2.5 text-center font-medium text-white hover:bg-linear-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:w-3/5 md:text-lg dark:focus:ring-neutral-500"
-						>Continuar</button
-					>
-				</div>
-			</div>
-			<div id="paso2" class="hidden">
-				<div class="relative">
-					<button
-						type="button"
-						id="atrasBtn"
-						class="text-white-500 group absolute bottom-10 left-5 flex cursor-pointer items-center text-center font-medium"
-						><span class="transition delay-101 group-hover:-translate-x-0.5"
-							><svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="24"
-								height="24"
-								viewBox="0 0 24 24"
-								><path
-									fill="currentColor"
-									d="M17 11H9.41l3.3-3.29a1 1 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33a1 1 0 0 0 0 .76a1 1 0 0 0 .21.33l5 5a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42L9.41 13H17a1 1 0 0 0 0-2"
-								></path></svg
-							></span
-						> atrás</button
-					>
-				</div>
-				<div class="pb-5 text-center">
-					<h3 class="text-3xl text-neutral-800 dark:text-white">
-						Elija el estado de registro
-					</h3>
-					<p class="text-neutral-700 dark:text-gray-400">Estados populares</p>
-					<ol class="mt-3 flex justify-center">
-						<li>
-							<span
-								class="bg-black-500 me-2 rounded-full px-2.5 py-0.5 text-sm font-medium text-white dark:bg-[#134aed] dark:text-white"
-								>Florida</span
-							>
-						</li>
-						<li>
-							<span
-								class="bg-black-500 me-2 rounded-full px-2.5 py-0.5 text-sm font-medium text-white dark:bg-[#134aed] dark:text-white"
-								>Wyoming</span
-							>
-						</li>
-					</ol>
-				</div>
-				<ul class="grid w-full place-items-center gap-3">
-					<li class="w-4/5 md:w-3/5">
-						<div id="seleccionar" class="mt-5">
-							<select
-								id="estados"
-								name="estado_de_empresa"
-								class="dark:bg-black-900 border-black-500 bg-white-50 text-black-900 inline-flex w-full cursor-pointer items-center justify-between rounded-lg border p-5 hover:bg-white hover:text-neutral-800 dark:text-gray-400 dark:hover:bg-[#192033] dark:hover:text-white"
-								required
-							>
-								{
-									estados?.map((es) => (
-										<option
-											value={es.Estado}
-											selected={es.Estado === 'Florida'}
-										>
-											{es.Estado}
-										</option>
-									))
-								}
-							</select>
-						</div>
-					</li>
-				</ul>
-				<div class="mt-8 flex w-full justify-center">
-					<button
-						type="button"
-						id="continuarBtn2"
-						class="from-black-400 via-black-500 to-black-600 me-2 mb-2 w-4/5 rounded-lg bg-linear-to-r px-5 py-2.5 text-center font-medium text-white hover:bg-linear-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:w-3/5 md:text-lg dark:focus:ring-neutral-500"
-						>Continuar</button
-					>
-				</div>
-			</div>
-			<div id="paso3" class="hidden">
-				<div class="relative">
-					<button
-						type="button"
-						id="atrasBtn4"
-						class="text-white-500 group absolute bottom-10 left-5 flex cursor-pointer items-center text-center font-medium"
-						><span class="transition delay-101 group-hover:-translate-x-0.5"
-							><svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="24"
-								height="24"
-								viewBox="0 0 24 24"
-								><path
-									fill="currentColor"
-									d="M17 11H9.41l3.3-3.29a1 1 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33a1 1 0 0 0 0 .76a1 1 0 0 0 .21.33l5 5a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42L9.41 13H17a1 1 0 0 0 0-2"
-								></path></svg
-							></span
-						> atrás</button
-					>
-				</div>
-				<div class="pb-10 text-center">
-					<h3 class="text-3xl text-neutral-800 dark:text-white">
-						Escoge el nombre de tu empresa
-					</h3>
-					<p class="text-neutral-700 dark:text-gray-400">
-						Elije los nombres que mas se adapten a tu empresa
-					</p>
-				</div>
-				<ul class="flex w-full flex-col place-items-center gap-2 px-10">
-					{
-						datosName.map((name) => (
-							<li class="m-2 h-full w-full md:w-3/5">
-								<label
-									for={name.id}
-									class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-400"
-								>
-									{name.nombre}
-								</label>
-								<div class="flex">
-									<span class="rounded-e-0 dark:bg-black-600 inline-flex items-center rounded-s-md border border-e-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:text-gray-400">
-										<svg
-											class="h-4 w-4 text-neutral-700 dark:text-white"
-											viewBox="0 0 48 48"
-										>
-											<g
-												fill="none"
-												stroke="currentColor"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="4"
-											>
-												<>
-													<path
-														fill="currentColor"
-														fill-rule="evenodd"
-														d="M11 14L25 4v40H11z"
-														clip-rule="evenodd"
-													/>
-													<path d="m25 13l14 10v21M4 44h40" />
-												</>
-											</g>
-										</svg>
-									</span>
-									<input
-										type="text"
-										id={name.id}
-										name={name.name}
-										class="dark:bg-black-900 focus:border-black-400 focus:ring-black-400 dark:border-black-400 w-full min-w-10 rounded-none rounded-e-lg border border-neutral-500/10 bg-gray-100 p-2.5 text-sm text-neutral-900 placeholder-gray-500 dark:text-white"
-										placeholder="Sotomayor Consulting"
-										required
-									/>
-								</div>
-							</li>
-						))
-					}
-				</ul>
-				<div class="mt-8 flex w-full justify-center">
-					<button
-						type="button"
-						id="continuarBtn3"
-						class="from-black-400 via-black-500 to-black-600 me-2 mb-2 w-4/5 rounded-lg bg-linear-to-r px-5 py-2.5 text-center font-medium text-white hover:bg-linear-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:w-3/5 md:text-lg dark:focus:ring-neutral-500"
-						>Continuar</button
-					>
-				</div>
-			</div>
-			<div id="paso4" class="hidden">
-				<div class="relative">
-					<button
-						type="button"
-						id="atrasBtn2"
-						class="text-white-500 group absolute bottom-10 left-5 flex cursor-pointer items-center text-center font-medium"
-						><span class="transition delay-101 group-hover:-translate-x-0.5"
-							><svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="24"
-								height="24"
-								viewBox="0 0 24 24"
-								><path
-									fill="currentColor"
-									d="M17 11H9.41l3.3-3.29a1 1 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33a1 1 0 0 0 0 .76a1 1 0 0 0 .21.33l5 5a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42L9.41 13H17a1 1 0 0 0 0-2"
-								></path></svg
-							></span
-						> atrás</button
-					>
-				</div>
-				<div class="pb-5 text-center">
-					<h3 class="text-black-900 text-3xl dark:text-white">
-						Revisar e iniciar sesión
-					</h3>
-					<p class="text-black-800 dark:text-gray-400">Ya casi terminas. 🎉</p>
-					<p class="text-black-800 dark:text-gray-400">
-						Por favor revisa tu información y procede a registrarte.
-					</p>
-				</div>
-				<ul class="grid w-full place-items-center gap-3">
-					<li class="w-4/5 md:w-3/5">
-						<div id="respuestasradio" class="mt-5">
-							<div
-								class="dark:bg-black-900 flex w-full items-center justify-between rounded-lg border border-neutral-700 bg-white p-5 text-neutral-600 hover:text-neutral-200 focus:ring-neutral-600 dark:text-gray-400 dark:hover:text-white"
-							>
-								<div>
-									<p class="text-black-700 mt-1 text-sm dark:text-gray-400">
-										Tipo de empresa
-									</p>
-									<h3
-										id="radioResultado"
-										class="text-black-900 text-xl dark:text-white"
-									>
-										No has seleccionada nada
-									</h3>
-								</div>
-								<button
-									id="editar1"
-									type="button"
-									class="dark:bg-black-900 hover:bg-black-600 flex cursor-pointer items-center justify-center rounded-lg border bg-neutral-400 p-1 dark:hover:bg-[#134aed]/80"
-									title="editar"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										viewBox="0 0 24 24"
-										><path
-											fill="currentColor"
-											d="M3 21v-4.25L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.438.65T21 6.4q0 .4-.137.763t-.438.662L7.25 21zM17.6 7.8L19 6.4L17.6 5l-1.4 1.4z"
-										></path></svg
-									>
-								</button>
-							</div>
-						</div>
-						<div id="respuesta_estado" class="mt-5">
-							<div
-								class="dark:bg-black-900 flex w-full items-center justify-between rounded-lg border border-neutral-700 bg-white p-5 text-neutral-600 hover:text-neutral-200 focus:ring-neutral-600 dark:text-gray-400 dark:hover:text-white"
-							>
-								<div>
-									<p class="text-black-700 mt-1 text-sm dark:text-gray-400">
-										Estado en el cual se va a registrar
-									</p>
-									<h3
-										id="selectResultado"
-										class="text-black-900 text-xl dark:text-white"
-									>
-										No has seleccionada nada
-									</h3>
-								</div>
-								<button
-									id="editar2"
-									type="button"
-									class="dark:bg-black-900 hover:bg-black-600 flex cursor-pointer items-center justify-center rounded-lg border bg-neutral-400 p-1 dark:hover:bg-[#134aed]/80"
-									title="editar"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										viewBox="0 0 24 24"
-										><path
-											fill="currentColor"
-											d="M3 21v-4.25L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.438.65T21 6.4q0 .4-.137.763t-.438.662L7.25 21zM17.6 7.8L19 6.4L17.6 5l-1.4 1.4z"
-										></path></svg
-									>
-								</button>
-							</div>
-						</div>
-						<div id="respuesta_plan" class="mt-5">
-							<div
-								class="dark:bg-black-900 flex w-full items-center justify-between rounded-lg border border-neutral-700 bg-white p-5 text-neutral-600 hover:text-neutral-200 focus:ring-neutral-600 dark:text-gray-400 dark:hover:text-white"
-							>
-								<div>
-									<p class="text-black-700 mt-1 text-sm dark:text-gray-400">
-										El nombre que seleccionaste
-									</p>
-									<h3
-										id="ResultadoPlan"
-										class="text-black-900 text-xl dark:text-white"
-									>
-										No has seleccionada nada
-									</h3>
-								</div>
-								<button
-									id="editar3"
-									type="button"
-									class="dark:bg-black-900 hover:bg-black-600 flex cursor-pointer items-center justify-center rounded-lg border bg-neutral-400 p-1 dark:hover:bg-[#134aed]/80"
-									title="editar"
-								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										viewBox="0 0 24 24"
-										><path
-											fill="currentColor"
-											d="M3 21v-4.25L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.438.65T21 6.4q0 .4-.137.763t-.438.662L7.25 21zM17.6 7.8L19 6.4L17.6 5l-1.4 1.4z"
-										></path></svg
-									>
-								</button>
-							</div>
-						</div>
-					</li>
-				</ul>
-				<div class="mt-8 flex w-full justify-center">
-					<button
-						type="button"
-						id="boton-verificar"
-						class="from-black-400 via-black-500 to-black-600 me-2 mb-2 w-4/5 rounded-lg bg-linear-to-r px-5 py-2.5 text-center font-medium text-white hover:bg-linear-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:w-3/5 md:text-lg dark:focus:ring-neutral-500"
-						>Verificar información</button
-					>
-				</div>
-			</div>
+			<Step1 />
+			<Step2 estados={estadosData} />
+			<Step3
+				title="Escoge el nombre de tu empresa"
+				description="Elije los nombres que mas se adapten a tu empresa"
+			/>
+			<Step4
+				title="Revisar e iniciar sesión"
+				description="Ya casi terminas. 🎉"
+				description2="Por favor revisa tu información y procede a registrarte. "
+			/>
 		</form>
-		<div
-			id="contenedor-registro"
-			class="pt:mt-0 mx-auto hidden w-full flex-col items-center justify-center px-6 pt-8"
-		>
-			<!-- Card -->
-			<div
-				class="dark:bg-black-800 w-full max-w-xl space-y-8 rounded-lg bg-gray-200 p-6 shadow sm:p-8"
-			>
-				<a
-					href="#"
-					class="mb-8 flex items-center justify-center text-2xl font-semibold lg:mb-10 dark:text-white"
-				>
-					<Icon
-						name="logo-en-blanco-alt"
-						class="mx-3 hidden text-4xl dark:block"
-						title="Logo Sotomayor Consulting"
-					/>
-					<Icon
-						name="logo-en-azul"
-						class="mx-3 block text-4xl dark:hidden"
-						title="Logo Sotomayor Consulting"
-					/>
-				</a>
-				<h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-					Crea tu cuenta gratuita
-				</h2>
-				<form class="mt-8 space-y-6" id="form-registro">
-					<div class="grid grid-cols-2 gap-x-6 gap-y-8">
-						<div class="col">
-							<label
-								for="name"
-								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Nombre</label
-							>
-							<input
-								type="text"
-								name="name"
-								id="name"
-								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-								placeholder="Nombre"
-								required
-							/>
-						</div>
-						<div class="col">
-							<label
-								for="last-name"
-								class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-								>Apellido</label
-							>
-							<input
-								type="text"
-								name="last-name"
-								id="last-name"
-								class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-								placeholder="Apellido"
-								required
-							/>
-						</div>
-					</div>
-					<div>
-						<label
-							for="email"
-							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-							>Tu correo</label
-						>
-						<input
-							type="email"
-							name="email"
-							id="email"
-							class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-							placeholder="correo@ejemplo.com"
-							required
-						/>
-					</div>
-					<div>
-						<label
-							for="password"
-							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-							>Contraseña</label
-						>
-						<input
-							type="password"
-							name="password"
-							minlength="8"
-							pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-							title="Mínimo 8 caracteres, una mayúscula, una minúscula y un número"
-							id="password"
-							placeholder="••••••••"
-							class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-							required
-						/>
-					</div>
-					<div>
-						<label
-							for="confirm-password"
-							class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-							>Confirmar contraseña</label
-						>
-						<input
-							type="password"
-							name="confirm-password"
-							id="confirm-password"
-							placeholder="••••••••"
-							class="focus:ring-primary-500 focus:border-primary-500 dark:bg-black-900 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 sm:text-sm dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-							required
-						/>
-					</div>
-					<div class="flex items-start">
-						<div class="flex h-5 items-center">
-							<input
-								id="remember"
-								aria-describedby="remember"
-								name="remember"
-								type="checkbox"
-								class="focus:ring-primary-300 dark:bg-black-900 h-4 w-4 rounded border-gray-500 bg-gray-50 text-[#967432] focus:ring-3 dark:border-gray-600 dark:ring-offset-gray-800 dark:focus:ring-[#967432]"
-								required
-							/>
-						</div>
-						<div class="ml-3 text-sm">
-							<label
-								for="remember"
-								class="font-medium text-gray-900 dark:text-white"
-								>Al registrarte, estás creando una cuenta de SOTOMAYOR
-								CONSULTING INTERNATIONAL LLC y aceptas los <a
-									href="https://sotomayorconsulting.com/inicio/politicas/"
-									class="text-[#8c681d] hover:underline dark:text-[#8c681d]"
-									>Términos de uso y la Política de privacidad.</a
-								>
-							</label>
-						</div>
-					</div>
-					<button
-						type="submit"
-						class="w-full rounded-lg bg-[#967432] px-5 py-3 text-center text-base font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-						>Crear una cuenta</button
-					>
-				</form>
-				<div>
-					<div class="inline-flex w-full items-center justify-center">
-						<hr
-							class="dark:bg-black-900 my-2 h-px w-11/12 border-0 bg-gray-300"
-						/>
-						<span
-							class="absolute px-5 font-medium text-gray-900 dark:text-white"
-						>
-							o
-						</span>
-					</div>
-				</div>
-				<div>
-					<form action="/api/auth/google" method="post">
-						<button
-							class="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-500 p-2.5 hover:bg-slate-700/10 dark:border-white dark:text-white dark:hover:bg-slate-300/10"
-							name="provider"
-							id="googleBtn"
-							type="submit"
-						>
-							<svg
-								class="w-6"
-								viewBox="0 0 21 20"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<g clip-path="url(#clip0_13183_10121)"
-									><path
-										d="M20.3081 10.2303C20.3081 9.55056 20.253 8.86711 20.1354 8.19836H10.7031V12.0492H16.1046C15.8804 13.2911 15.1602 14.3898 14.1057 15.0879V17.5866H17.3282C19.2205 15.8449 20.3081 13.2728 20.3081 10.2303Z"
-										fill="#3F83F8"></path><path
-										d="M10.7019 20.0006C13.3989 20.0006 15.6734 19.1151 17.3306 17.5865L14.1081 15.0879C13.2115 15.6979 12.0541 16.0433 10.7056 16.0433C8.09669 16.0433 5.88468 14.2832 5.091 11.9169H1.76562V14.4927C3.46322 17.8695 6.92087 20.0006 10.7019 20.0006V20.0006Z"
-										fill="#34A853"></path><path
-										d="M5.08857 11.9169C4.66969 10.6749 4.66969 9.33008 5.08857 8.08811V5.51233H1.76688C0.348541 8.33798 0.348541 11.667 1.76688 14.4927L5.08857 11.9169V11.9169Z"
-										fill="#FBBC04"></path><path
-										d="M10.7019 3.95805C12.1276 3.936 13.5055 4.47247 14.538 5.45722L17.393 2.60218C15.5852 0.904587 13.1858 -0.0287217 10.7019 0.000673888C6.92087 0.000673888 3.46322 2.13185 1.76562 5.51234L5.08732 8.08813C5.87733 5.71811 8.09302 3.95805 10.7019 3.95805V3.95805Z"
-										fill="#EA4335"></path></g
-								><defs
-									><clipPath id="clip0_13183_10121"
-										><rect
-											width="20"
-											height="20"
-											fill="white"
-											transform="translate(0.5)"></rect></clipPath
-									></defs
-								>
-							</svg>
-							<label for="googleBtn">Regístrate con google</label>
-						</button>
-					</form>
-				</div>
-			</div>
-		</div>
+		<Register />
 	</div>
 </div>
 
@@ -1284,54 +451,11 @@ const datosName = [
 		contenedorRegistro?.classList.add('hidden');
 	});
 
-	const radios = document.querySelectorAll('input[name="tipo_de_empresa"]');
-	const inputNombre = document.querySelector('input[name="nombre_1"]'); // Cambiado a input único
-	const selectEstado = document.querySelector(
-		'select[name="estado_de_empresa"]',
-	);
-	const resultadoEs = document.getElementById('selectResultado');
-	const resultado = document.getElementById('radioResultado');
-	const resultadoplan = document.getElementById('ResultadoPlan');
-
-	function actualizarTitulo() {
-		// Actualizar radio buttons
-		const seleccionado = document.querySelector(
-			'input[name="tipo_de_empresa"]:checked',
-		);
-		resultado.textContent = seleccionado
-			? seleccionado.value
-			: 'No seleccionado';
-
-		// Actualizar select
-		resultadoEs.textContent = selectEstado.value || 'No seleccionado';
-
-		// Actualizar input de texto - CORREGIDO
-		resultadoplan.textContent = inputNombre
-			? inputNombre.value
-			: 'No ingresado';
-	}
-
-	// Inicializar al cargar
-	document.addEventListener('DOMContentLoaded', actualizarTitulo);
-
-	// Eventos para radios
-	radios.forEach((radio) => {
-		radio.addEventListener('change', actualizarTitulo);
-	});
-
-	// Evento para input de texto - CORREGIDO (usamos 'input' para capturar en tiempo real)
-	if (inputNombre) {
-		inputNombre.addEventListener('input', actualizarTitulo);
-	}
-
-	// Evento para select
-	selectEstado?.addEventListener('change', actualizarTitulo);
-
 	// Inicializar con el primer paso activo
 	activarPaso(0);
 </script>
 
-<script>
+<script is:inline>
 	document.addEventListener('DOMContentLoaded', () => {
 		const paymentPanel = document.getElementById('paso4');
 		const registerForm = document.getElementById('contenedor-registro');
@@ -1342,7 +466,24 @@ const datosName = [
 		const alertBox = document.getElementById('toast-feedback');
 		const alertMessage = alertBox?.querySelector('.ms-3');
 
-		function showFlowbiteAlert(message: string, isSuccess = false) {
+		function validateBusinessData(formData) {
+			const nombre_1 = formData.get('nombre_1');
+			const nombre_2 = formData.get('nombre_2');
+			const nombre_3 = formData.get('nombre_3');
+
+			if (!nombre_1 || nombre_1.trim() === '') {
+				return 'El primer nombre de empresa es obligatorio';
+			}
+			if (!nombre_2 || nombre_2.trim() === '') {
+				return 'El segundo nombre de empresa es obligatorio';
+			}
+			if (!nombre_3 || nombre_3.trim() === '') {
+				return 'El tercer nombre de empresa es obligatorio';
+			}
+			return null;
+		}
+
+		function showFlowbiteAlert(message, isSuccess = false) {
 			if (!alertBox || !alertMessage) return;
 
 			// Configurar el mensaje
@@ -1416,16 +557,68 @@ const datosName = [
 			}
 		}
 
-		function showError(
-			element: {
-				textContent: any;
-				classList: {
-					remove: (arg0: string) => void;
-					add: (arg0: string) => void;
-				};
-			},
-			message: any,
-		) {
+		// Elementos del formulario para actualizar títulos
+		const radios = document.querySelectorAll('input[name="tipo_de_empresa"]');
+		const inputNombre = document.querySelector('input[name="nombre_1"]');
+		const selectEstado = document.querySelector(
+			'select[name="estado_de_empresa"]',
+		);
+
+		function actualizarTitulo() {
+			const paso4Container = document.getElementById('paso4');
+			const resultado = paso4Container?.querySelector('#respuestasradio h3');
+			const seleccionado = document.querySelector(
+				'input[name="tipo_de_empresa"]:checked',
+			);
+			if (resultado) {
+				resultado.textContent = seleccionado?.value || 'No seleccionado';
+			}
+
+			const resultadoEs = paso4Container?.querySelector('#respuesta_estado h3');
+			if (resultadoEs && selectEstado) {
+				resultadoEs.textContent = selectEstado.value || 'No seleccionado';
+			}
+
+			const resultadoplan = paso4Container?.querySelector('#respuesta_plan h3');
+			if (resultadoplan && inputNombre) {
+				resultadoplan.textContent = inputNombre.value || 'No ingresado';
+			}
+		}
+
+		// Inicializar al cargar
+		document.addEventListener('DOMContentLoaded', actualizarTitulo);
+
+		// Eventos para radios
+		radios.forEach((radio) => {
+			radio.addEventListener('change', actualizarTitulo);
+		});
+
+		// Evento para input de texto
+		if (inputNombre) {
+			inputNombre.addEventListener('input', actualizarTitulo);
+		}
+
+		// Evento para select
+		if (selectEstado) {
+			selectEstado.addEventListener('change', actualizarTitulo);
+		}
+
+		// Validar nombres al hacer clic en continuar del paso 3
+		const botonContinuar3 = document.getElementById('continuarBtn3');
+		botonContinuar3?.addEventListener('click', function (e) {
+			const businessForm = document.getElementById('business-form');
+			if (businessForm) {
+				const businessFormData = new FormData(businessForm);
+				const validationError = validateBusinessData(businessFormData);
+				if (validationError) {
+					e.preventDefault();
+					showFlowbiteAlert(validationError);
+					return;
+				}
+			}
+		});
+
+		function showError(element, message) {
 			if (element) {
 				element.textContent = message;
 				element.classList.remove('hidden');
@@ -1433,27 +626,7 @@ const datosName = [
 			}
 		}
 
-		// FUNCIÓN DE VALIDACIÓN AGREGADA
-		function validateBusinessData(formData: FormData) {
-			const nombre_1 = formData.get('nombre_1');
-			const nombre_2 = formData.get('nombre_2');
-			const nombre_3 = formData.get('nombre_3');
-
-			// Validar que los tres nombres tengan valor
-			if (!nombre_1 || nombre_1.trim() === '') {
-				return 'El primer nombre de empresa es obligatorio';
-			}
-			if (!nombre_2 || nombre_2.trim() === '') {
-				return 'El segundo nombre de empresa es obligatorio';
-			}
-			if (!nombre_3 || nombre_3.trim() === '') {
-				return 'El tercer nombre de empresa es obligatorio';
-			}
-
-			return null;
-		}
-
-		function saveBusinessData(formData: FormData) {
+		function saveBusinessData(formData) {
 			try {
 				const data = {
 					tipo_de_empresa: formData.get('tipo_de_empresa'),
@@ -1508,6 +681,7 @@ const datosName = [
 		// Evento del botón de verificación - MODIFICADO CON VALIDACIÓN Y ALERTA FLOWBITE
 		goToPaymentBtn?.addEventListener('click', async (e) => {
 			e.preventDefault();
+			actualizarTitulo();
 			goToPaymentBtn.disabled = true;
 			goToPaymentBtn.textContent = 'Verificando...';
 

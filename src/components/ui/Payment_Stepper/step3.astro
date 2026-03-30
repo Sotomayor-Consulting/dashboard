@@ -1,0 +1,109 @@
+---
+interface Props {
+	title: string;
+	description: string;
+}
+const { title, description } = Astro.props;
+---
+
+<div id="paso3" class="hidden">
+	<div class="relative">
+		<button
+			type="button"
+			id="atrasBtn4"
+			class="text-white-500 group absolute bottom-10 left-5 flex cursor-pointer items-center text-center font-medium"
+			><span class="transition delay-101 group-hover:-translate-x-0.5"
+				><svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					><path
+						fill="currentColor"
+						d="M17 11H9.41l3.3-3.29a1 1 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33a1 1 0 0 0 0 .76a1 1 0 0 0 .21.33l5 5a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42L9.41 13H17a1 1 0 0 0 0-2"
+					></path></svg
+				></span
+			> atrás</button
+		>
+	</div>
+	<div class="pb-10 text-center">
+		<h3 class="text-3xl text-neutral-800 dark:text-white">
+			{title}
+		</h3>
+		<p class="text-neutral-700 dark:text-gray-400">
+			{description}
+		</p>
+	</div>
+	<ul class="flex w-full flex-col place-items-center gap-2 px-10">
+		{
+			[
+				{
+					nombre: 'Nombre de tu empresa - (opción #1)',
+					id: 'nombre-empresa-1',
+					name: 'nombre_1',
+				},
+				{
+					nombre: 'Nombre de tu empresa - (opción #2)',
+					id: 'nombre-empresa-2',
+					name: 'nombre_2',
+				},
+				{
+					nombre: 'Nombre de tu empresa - (opción #3)',
+					id: 'nombre-empresa-3',
+					name: 'nombre_3',
+				},
+			].map((name) => (
+				<li class="m-2 h-full w-full md:w-3/5">
+					<label
+						for={name.id}
+						class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-400"
+					>
+						{name.nombre}
+					</label>
+					<div class="flex">
+						<span class="rounded-e-0 dark:bg-black-600 inline-flex items-center rounded-s-md border border-e-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:text-gray-400">
+							<svg
+								class="h-4 w-4 text-neutral-700 dark:text-white"
+								viewBox="0 0 48 48"
+							>
+								<g
+									fill="none"
+									stroke="currentColor"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="4"
+								>
+									<>
+										<path
+											fill="currentColor"
+											fill-rule="evenodd"
+											d="M11 14L25 4v40H11z"
+											clip-rule="evenodd"
+										/>
+										<path d="m25 13l14 10v21M4 44h40" />
+									</>
+								</g>
+							</svg>
+						</span>
+						<input
+							type="text"
+							id={name.id}
+							name={name.name}
+							class="dark:bg-black-900 focus:border-black-400 focus:ring-black-400 dark:border-black-400 w-full min-w-10 rounded-none rounded-e-lg border border-neutral-500/10 bg-gray-100 p-2.5 text-sm text-neutral-900 placeholder-gray-500 dark:text-white"
+							placeholder="Sotomayor Consulting"
+							required
+						/>
+					</div>
+				</li>
+			))
+		}
+	</ul>
+	<div class="mt-8 flex w-full justify-center">
+		<button
+			type="button"
+			id="continuarBtn3"
+			class="from-black-400 via-black-500 to-black-600 me-2 mb-2 w-4/5 rounded-lg bg-linear-to-r px-5 py-2.5 text-center font-medium text-white hover:bg-linear-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:w-3/5 md:text-lg dark:focus:ring-neutral-500"
+			>Continuar</button
+		>
+	</div>
+</div>

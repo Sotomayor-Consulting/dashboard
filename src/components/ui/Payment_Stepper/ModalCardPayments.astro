@@ -1,0 +1,117 @@
+---
+interface Props {
+	id: string;
+	IdClose: string;
+	title: string;
+	description: string;
+	button1: string;
+	button2: string;
+	button1link: string;
+	button2link: string;
+}
+
+const {
+	id,
+	IdClose,
+	title,
+	description,
+	button1,
+	button2,
+	button1link,
+	button2link,
+} = Astro.props;
+---
+
+<div
+	id={id}
+	aria-hidden="true"
+	class="bg-opacity-70 bg-white-100/80 dark:bg-black-700/80 fixed top-0 right-0 left-0 z-50 hidden h-full max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0"
+>
+	<div class="relative w-full max-w-5xl p-4">
+		<!-- Modal content -->
+		<div class="dark:bg-black-900 relative rounded-lg bg-white shadow-sm">
+			<!-- Modal header -->
+			<div
+				class="flex items-center justify-between rounded-t-lg p-4 md:p-5 dark:border-gray-600"
+			>
+				<button
+					type="button"
+					id={IdClose}
+					class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+				>
+					<svg
+						class="h-3 w-3"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 14 14"
+					>
+						<path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
+					</svg>
+					<span class="sr-only">Close modal</span>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<div
+				class="flex-col items-center justify-center space-y-4 p-4 text-center md:p-5"
+			>
+				<h3
+					class="mx-auto mb-10 w-4/5 text-center text-3xl font-semibold text-neutral-900 md:w-3/5 dark:text-white"
+				>
+					{title}
+				</h3>
+				<p
+					class="mx-auto my-10 w-4/5 text-justify text-lg leading-relaxed text-neutral-500 md:w-3/5 dark:text-gray-400"
+				>
+					{description}
+				</p>
+				<div
+					class="mt-10 flex h-full w-full justify-center text-neutral-500 dark:text-white"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="100"
+						height="100"
+						viewBox="0 0 24 24"
+						><g fill="none"
+							><path
+								fill="currentColor"
+								d="M2 9c0-1.886 0-2.828.586-3.414S4.114 5 6 5h12c1.886 0 2.828 0 3.414.586S22 7.114 22 9c0 .471 0 .707-.146.854C21.707 10 21.47 10 21 10H3c-.471 0-.707 0-.854-.146C2 9.707 2 9.47 2 9m0 9c0 1.886 0 2.828.586 3.414S4.114 22 6 22h12c1.886 0 2.828 0 3.414-.586S22 19.886 22 18v-5c0-.471 0-.707-.146-.854C21.707 12 21.47 12 21 12H3c-.471 0-.707 0-.854.146C2 12.293 2 12.53 2 13z"
+							></path><path
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-width="2"
+								d="M7 3v3m10-3v3"></path></g
+						></svg
+					>
+				</div>
+			</div>
+			<!-- Modal footer -->
+			<div
+				class="flex flex-col items-center justify-center gap-2 rounded-b-lg p-4 md:p-5 lg:flex-row dark:border-gray-600"
+			>
+				<a
+					type="button"
+					target="_blank"
+					href={button1link}
+					class="bg-black-600 hover:bg-black-500 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:ring-neutral-500 focus:outline-none lg:w-2/5 lg:text-base"
+					>{button1}</a
+				>
+				<a
+					type="button"
+					target="_blank"
+					href={button2link}
+					class="bg-black-600 hover:bg-black-500 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:ring-neutral-500 focus:outline-none lg:w-2/5 lg:text-base"
+					>{button2}</a
+				>
+			</div>
+
+			<div class="h-12.5"></div>
+		</div>
+	</div>
+</div>
