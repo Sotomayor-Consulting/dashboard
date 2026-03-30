@@ -75,7 +75,7 @@ const { notifications, totalUnread } = notifProp ?? {
 				<!-- Dropdown menu -->
 				<div
 					id="dropdownNavbar"
-					class="dark:bg-black-800 z-10 hidden w-44 divide-y divide-gray-100 rounded-lg bg-white shadow dark:divide-gray-600"
+					class="dark:bg-black-800 z-10 hidden w-44 divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white dark:divide-gray-600 dark:border-gray-700"
 				>
 					<ul
 						class="py-2 text-sm text-gray-700 dark:text-gray-400"
@@ -118,6 +118,7 @@ const { notifications, totalUnread } = notifProp ?? {
 						id="notifications-toggle"
 						data-dropdown-toggle="notification-dropdown"
 						class="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-white dark:hover:bg-[#101522] dark:hover:text-white"
+						class="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-white dark:hover:bg-[#101522] dark:hover:text-white"
 					>
 						<span class="sr-only">Ver Notificaciones</span>
 						<!-- Bell icon -->
@@ -140,7 +141,7 @@ const { notifications, totalUnread } = notifProp ?? {
 					</button>
 					<!-- Dropdown menu -->
 					<div
-						class="dark:bg-black-800 z-20 my-4 hidden max-w-sm min-w-[24rem] list-none divide-y divide-gray-100 overflow-hidden rounded-xl bg-white text-base shadow-lg dark:divide-gray-600"
+						class="dark:bg-black-800 z-20 my-4 hidden max-w-sm min-w-[24rem] list-none divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-200 bg-white text-base dark:divide-gray-600 dark:border-gray-700"
 						id="notification-dropdown"
 					>
 						<div
@@ -199,6 +200,7 @@ const { notifications, totalUnread } = notifProp ?? {
 													{!notification.is_read && (
 														<button
 															class="mark-as-read text-primary-600 hover:bg-primary-50 hover:text-primary-700 dark:hover:text-primary-400 inline-flex cursor-pointer rounded-lg px-2 py-1 text-xs font-medium dark:text-neutral-400"
+															class="mark-as-read text-primary-600 hover:bg-primary-50 hover:text-primary-700 dark:hover:text-primary-400 inline-flex cursor-pointer rounded-lg px-2 py-1 text-xs font-medium dark:text-neutral-400"
 															data-id={notification.id}
 														>
 															Marcar como leída
@@ -225,9 +227,7 @@ const { notifications, totalUnread } = notifProp ?? {
 						</a>
 					</div>
 				</div>
-
 				<ColorModeSwitcher />
-
 				<!-- Profile -->
 				<div class="ml-3 flex items-center">
 					<div>
@@ -262,7 +262,7 @@ const { notifications, totalUnread } = notifProp ?? {
 					</div>
 					<!-- Dropdown menu -->
 					<div
-						class="dark:bg-black-800 z-50 my-4 hidden list-none divide-y divide-gray-100 rounded bg-white text-base shadow dark:divide-gray-600"
+						class="dark:bg-black-800 z-50 my-4 hidden list-none divide-y divide-gray-100 rounded border border-gray-200 bg-white text-base dark:divide-gray-600 dark:border-gray-700"
 						id="dropdown-2"
 					>
 						<div class="px-4 py-3" role="none">

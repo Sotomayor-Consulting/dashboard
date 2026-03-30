@@ -5,7 +5,7 @@ import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { safeBack } from '@lib/security/headers';
 
-const BACK_PATH = '/crud/formularios';
+const BACK_PATH = '/formularios/';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }) => {
 	const back = safeBack(url.searchParams.get('back'), BACK_PATH);

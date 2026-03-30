@@ -1,0 +1,99 @@
+---
+import { Image } from 'astro:assets';
+import imagenempresa from '@assets/edificios-vista.avif';
+import type { EmpresaDetail } from '../types';
+
+interface Props {
+	empresa: EmpresaDetail;
+	empresaId: string;
+}
+
+const { empresa, empresaId } = Astro.props;
+---
+
+<div
+	class="dark:bg-black-800 relative col-span-2 flex h-full w-full gap-5 rounded-md bg-neutral-50 dark:text-neutral-300"
+>
+	<Image
+		src={imagenempresa}
+		alt="Edificios"
+		class="hidden h-96 w-full rounded-t-lg object-cover md:block md:h-auto md:w-2/5 md:rounded-none md:rounded-s-lg"
+		loading="eager"
+	/>
+	<div
+		class="bg-opacity-10 absolute bottom-4 left-4 hidden h-fit rounded-md border border-neutral-400 bg-[#1f3443] bg-clip-padding p-2 backdrop-blur-md backdrop-filter lg:block"
+	>
+		<p class="text-sm font-normal text-white">Empresa id:</p>
+		<p class="text-xs font-light text-white">
+			#{empresaId}
+		</p>
+	</div>
+	<div class="flex flex-col justify-center p-5 leading-normal">
+		<div>
+			<h5
+				class="mb-2 text-2xl font-bold tracking-tight text-neutral-800 dark:text-neutral-300"
+			>
+				Nombres de la compañía
+			</h5>
+			<p
+				class="mb-3 text-3xl font-normal text-neutral-700 dark:text-neutral-400"
+			>
+				{empresa.nombre_1}, {empresa.nombre_2}, {empresa.nombre_3}
+			</p>
+		</div>
+		<div class="mt-10 grid grid-cols-1 gap-2 lg:grid-cols-2">
+			<div>
+				<h5
+					class="mb-2 text-lg font-bold tracking-tight text-neutral-700 dark:text-neutral-400"
+				>
+					Actividad de la compañía
+				</h5>
+				<p
+					class="mb-3 text-base font-normal text-neutral-700 dark:text-neutral-400"
+				>
+					{empresa.actividad}
+				</p>
+			</div>
+			<div>
+				<h5
+					class="mb-2 text-lg font-bold tracking-tight text-neutral-700 dark:text-neutral-400"
+				>
+					Forma de tributar
+				</h5>
+				<p
+					class="mb-3 text-base font-normal text-neutral-700 dark:text-neutral-400"
+				>
+					{empresa.forma_tributacion}
+				</p>
+			</div>
+			<div>
+				<h5
+					class="mb-2 text-lg font-bold tracking-tight text-neutral-700 dark:text-neutral-400"
+				>
+					Obtendrá ingresos desde EE.UU.
+				</h5>
+				<p
+					class="mb-3 text-base font-normal text-neutral-700 dark:text-neutral-400"
+				>
+					{
+						empresa.Obtendra_ingresos_desde_eeuu === true
+							? 'Si obtendrá ingresos'
+							: 'No obtendrá ingresos'
+					}
+				</p>
+			</div>
+			<div>
+				<h5
+					class="mb-2 text-lg font-bold tracking-tight text-neutral-700 dark:text-neutral-400"
+				>
+					Forma de administración
+				</h5>
+				<p
+					class="mb-3 font-normal text-neutral-700 dark:text-neutral-400"
+				>
+					{empresa.forma_administracion}
+				</p>
+			</div>
+		</div>
+	</div>
+</div>

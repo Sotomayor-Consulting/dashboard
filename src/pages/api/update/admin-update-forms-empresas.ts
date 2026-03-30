@@ -4,7 +4,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 
-const FALLBACK_BACK = '/crud/formularios';
+const FALLBACK_BACK = '/formularios/';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	// 0) Leer el form UNA sola vez y sacar el slug temprano
@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 	// Util para construir la URL de retorno
 	const backPath = () =>
-		slug ? `/empresas/${slug}/crud/formularios` : FALLBACK_BACK;
+		slug ? `/companies/${slug}` : FALLBACK_BACK;
 
 	try {
 		// 1) Sesión

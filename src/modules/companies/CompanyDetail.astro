@@ -1,0 +1,106 @@
+---
+import '@styles/datatables.css';
+import { Icon } from 'astro-icon/components';
+import { getCompanyDetailData } from './services/getCompanyDetailData';
+
+import CompanyHeader from './components/CompanyHeader.astro';
+import CompanyLocation from './components/CompanyLocation.astro';
+import CompanyProgress from './components/CompanyProgress.astro';
+import CompanyInfoCard from './components/CompanyInfoCard.astro';
+import CompanySociosList from './components/CompanySociosList.astro';
+import CompanyAddress from './components/CompanyAddress.astro';
+import CompanyManagersList from './components/CompanyManagersList.astro';
+
+import CompanyEditForm from './components/CompanyEditForm.astro';
+import ActivityModal from './components/ActivityModal.astro';
+import ManagerModal from './components/ManagerModal.astro';
+
+interface Props {
+	empresaId: string;
+}
+
+const { empresaId } = Astro.props;
+const supabase = Astro.locals.supabase;
+
+const data = await getCompanyDetailData(supabase, empresaId);
+
+if (!data) {
+	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
+}
+
+const { empresa, socios, managers, actividades, paises, estados } = data;
+const esMemberManaged = empresa.forma_administracion === 'Member-Managed';
+---
+
+<div class="mx-5 mt-5">
+	<div class="mb-4 border-b border-neutral-200 dark:border-[#1f3443]">
+		<ul
+			class="-mb-px flex flex-wrap text-center text-sm font-medium"
+			id="default-tab"
+			data-tabs-toggle="#default-tab-content"
+			role="tablist"
+			data-tabs-active-classes="text-[#8c681d] hover:text-[#8c681d] dark:text-[#8c681d] dark:hover:text-[#8c681d] border-[#8c681d] dark:border-[#8c681d]"
+			data-tabs-inactive-classes="dark:border-transparent text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 border-neutral-100 hover:border-neutral-300 dark:border-neutral-700 dark:hover:text-neutral-300"
+		>
+			{
+				[
+					{
+						id: 'profile-tab',
+						tabs: 'profile',
+						label: 'Datos Generales',
+						icono: 'ri:building-2-fill',
+					},
+					{
+						id: 'contacts-tab',
+						tabs: 'contacts',
+						label: 'Editar datos',
+						icono: 'ri:edit-fill',
+					},
+				].map((i) => (
+					<li class="me-2" role="presentation">
+						<button
+							class="flex items-center gap-2 rounded-t-lg border-b-2 p-4"
+							id={i.id}
+							data-tabs-target={`#${i.tabs}`}
+							type="button"
+							role="tab"
+							aria-controls={i.tabs}
+							aria-selected="false"
+						>
+							<Icon name={i.icono} class="text-lg" />
+							{i.label}
+						</button>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+	<div id="default-tab-content">
+		<div
+			class="grid gap-4 rounded-lg p-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
+			id="profile"
+			role="tabpanel"
+			aria-labelledby="profile-tab"
+		>
+			<CompanyHeader empresa={empresa} />
+			<CompanyLocation empresa={empresa} />
+			<CompanyProgress empresa={empresa} />
+			<CompanyInfoCard empresa={empresa} empresaId={empresaId} />
+			<CompanySociosList socios={socios} />
+			<CompanyAddress empresa={empresa} esMemberManaged={esMemberManaged} />
+			<CompanyManagersList managers={managers} />
+		</div>
+		<CompanyEditForm
+			empresa={empresa}
+			socios={socios}
+			managers={managers}
+			actividades={actividades}
+			paises={paises}
+			estados={estados}
+		/>
+	</div>
+</div>
+<ActivityModal />
+<ManagerModal empresaId={empresaId} paises={paises} />
+
+<script src="@lib/alpinejs/alpine.js"></script>

@@ -6,7 +6,7 @@ import { createSupabaseServerClient } from '@lib/supabase';
 import { safeBack, SECURITY_HEADERS } from '@lib/security/headers';
 import crypto from 'node:crypto';
 
-const BACK_PATH = '/crud/verficacion-incorporacion';
+const BACK_PATH = '/admin/verificacion/';
 const BUCKET = 'documentos_empresas'; // <-- tu bucket
 
 const UUID_RE =

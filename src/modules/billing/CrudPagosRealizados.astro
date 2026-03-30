@@ -1,0 +1,177 @@
+---
+import Alerta from '@components/feedback/alertageneral.astro';
+import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
+import DataTable from '@components/ui/DataTable.astro';
+import DateCell from '@components/ui/DateCell.astro';
+import StackedText from '@components/ui/StackedText.astro';
+import StatusBadge from '@components/ui/StatusBadge.astro';
+import { Icon } from 'astro-icon/components';
+import { pagosRealizadosData } from '@lib/tablas/payments/PagosPorLeer';
+
+const supabase = Astro.locals.supabase;
+
+const pagosRealizados = await pagosRealizadosData(supabase);
+---
+
+<Alerta />
+<div>
+	<div
+		class="block w-full items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5"
+	>
+		<CrudPageHeader
+			title="Todos los pagos realizados"
+			breadcrumbItems={[
+				{ label: 'Formularios', href: '/formularios/enviados/' },
+			]}
+			refreshHref="/admin/pagos/"
+		/>
+	</div>
+
+	<div class="flex flex-col">
+		<div class="overflow-x-auto">
+			<div class="inline-block min-w-full align-middle">
+				<div class="overflow-hidden shadow">
+					<DataTable
+						headers={[
+							'id de Stripe',
+							'Pago hecho por',
+							'Empresa asociada al pago',
+							'Servicio pagado',
+							'cantidad',
+							'Estado del pago',
+							'Leido',
+							'Fecha de pago',
+							'Acciones',
+						]}
+						noRowsMessage="No hay pagos realizados"
+						noResultsMessage="No se encontraron pagos recientes"
+					>
+						{
+							pagosRealizados?.map((sr) => (
+								<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+									<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
+										<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
+											<data value="name">
+												{sr.stripe_payment_intent_id ?? '— sin id —'}
+											</data>
+										</div>
+									</td>
+									<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+										<data>
+											{sr.usuarios.nombre} {sr.usuarios.apellido}
+										</data>
+									</td>
+									<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+										<StackedText
+											title={sr.empresas_incorporaciones.nombre_1}
+											subtitle={
+												sr.empresas_incorporaciones.empresa_incorporacion_id
+											}
+										/>
+									</td>
+									<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+										<data />
+										<div class="text-base font-semibold text-gray-900 dark:text-neutral-400">
+											<data>{sr.servicios.nombre}</data>
+										</div>
+									</td>
+									<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+										<data>
+											{sr.amount &&
+												(sr.amount / 100).toLocaleString('en-US', {
+													style: 'currency',
+													currency: 'USD',
+													minimumFractionDigits: 2,
+												})}
+										</data>
+									</td>
+									<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+										<StatusBadge
+											active={sr.status === 'succeeded'}
+											activeLabel="Pago exitoso"
+											inactiveLabel="Error de pago"
+											inactiveColor="bg-orange-400"
+										/>
+									</td>
+									<td class="max-w-sm truncate p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
+										<StatusBadge
+											active={sr.visto_por_operaciones === true}
+											activeLabel="Leido"
+											inactiveLabel="Sin leer"
+											inactiveColor="bg-orange-400"
+										/>
+									</td>
+									<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+										<div class="flex items-center">
+											<DateCell date={sr.created_at} />
+										</div>
+									</td>
+									<td class="space-x-2 p-4 text-center whitespace-nowrap">
+										<div class="flex h-full items-center justify-center gap-2">
+											{sr.visto_por_operaciones === false ? (
+												<form
+													action="/api/update/operaciones-update-lectura-de-pagos"
+													method="post"
+												>
+													<input
+														type="text"
+														value={sr.id_pagos}
+														hidden
+														name="pago_id"
+													/>
+													<input
+														type="text"
+														value="true"
+														hidden
+														name="marcar_como_visto"
+													/>
+													<button
+														type="submit"
+														title="marcar como leído"
+														data-tooltip-target={`tool-tip-${sr.id_pagos}`}
+													>
+														<Icon
+															name="ri:check-double-fill"
+															class="text-2xl text-neutral-600 hover:scale-105 dark:text-neutral-400 dark:hover:text-neutral-300"
+														/>
+													</button>
+												</form>
+											) : (
+												<div
+													data-tooltip-target={`tool-tip-${sr.id_pagos}-read`}
+												>
+													<Icon
+														name="ri:checkbox-circle-fill"
+														class="text-2xl text-neutral-600 hover:scale-105 dark:text-neutral-400 dark:hover:text-neutral-300"
+													/>
+												</div>
+											)}
+
+											<div
+												id={`tool-tip-${sr.id_pagos}`}
+												role="tooltip"
+												class="tooltip dark:bg-black-800 invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300"
+											>
+												Marcar como leído
+												<div class="tooltip-arrow" data-popper-arrow />
+											</div>
+
+											<div
+												id={`tool-tip-${sr.id_pagos}-read`}
+												role="tooltip"
+												class="tooltip dark:bg-black-800 invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-xs transition-opacity duration-300"
+											>
+												Leído
+												<div class="tooltip-arrow" data-popper-arrow />
+											</div>
+										</div>
+									</td>
+								</tr>
+							))
+						}
+					</DataTable>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

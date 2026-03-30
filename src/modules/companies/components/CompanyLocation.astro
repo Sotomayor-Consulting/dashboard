@@ -1,0 +1,30 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { EmpresaDetail } from '../types';
+
+interface Props {
+	empresa: EmpresaDetail;
+}
+
+const { empresa } = Astro.props;
+---
+
+<div
+	class="dark:bg-black-800 col-span-2 mb-2 flex h-full w-full flex-col justify-center gap-5 rounded-md bg-neutral-50 p-14 text-neutral-800 md:col-span-1 md:mb-0 dark:text-neutral-300"
+>
+	<div class="flex">
+		<p class="text-base font-bold text-neutral-500">
+			Lugar de la empresa
+		</p>
+	</div>
+
+	<div class="flex items-center gap-5">
+		<div class="flex flex-col gap-5">
+			<div>
+				<p class="text-3xl font-bold lg:text-4xl">
+					{empresa.estado_de_incorporacion}
+				</p>
+			</div>
+		</div><Icon name="ri:road-map-fill" class="text-4xl" />
+	</div>
+</div>

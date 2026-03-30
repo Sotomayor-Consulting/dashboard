@@ -1,9 +1,8 @@
 ---
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
-import VistaEmpresa from '@modules/companies/VistaEmpresas.astro';
+import CompanyDetail from '@modules/companies/CompanyDetail.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
 
-// Auth + admin role handled by middleware (/crud/ routes require admin)
 const { id } = Astro.params;
 
 if (!id) {
@@ -11,4 +10,7 @@ if (!id) {
 }
 ---
 
-<LayoutSidebar />
+<LayoutSidebar>
+	<Alerta />
+	<CompanyDetail empresaId={id} />
+</LayoutSidebar>

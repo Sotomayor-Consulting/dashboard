@@ -5,7 +5,7 @@ import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { safeBack } from '@lib/security/headers';
 
-const BACK_PATH = '/crud/services';
+const BACK_PATH = '/admin/servicios/';
 
 // Helper: parsea a boolean desde strings comunes de formularios
 function parseBoolean(input: unknown): boolean | null {

@@ -1,10 +1,10 @@
 ---
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import CompanyList from '@modules/companies/Companies.astro';
-
-// Auth handled by middleware
+import Alerta from '@components/feedback/alertageneral.astro';
 ---
 
 <LayoutSidebar>
+	<Alerta />
 	<CompanyList />
 </LayoutSidebar>
