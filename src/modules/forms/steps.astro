@@ -29,7 +29,9 @@ const estadosData = estados ?? [];
 	button2link="https://zcal.co/t/agendar-asesoria-llc/60min"
 />
 
-<div class="my-8 flex w-full items-center justify-center">
+<div
+	class="md: my-8 grid h-full w-full items-center justify-center lg:grid-cols-2"
+>
 	<Stepper
 		title="Inicie su empresa en EE. UU. en minutos."
 		description="Responda algunas preguntas para ayudarnos a formar su nueva empresa."
@@ -80,9 +82,12 @@ const estadosData = estados ?? [];
 	/>
 
 	<div
-		class="test dark:bg-black-700 bg-opacity-20 z-20 m-auto flex h-full w-full flex-col items-center justify-center place-self-center rounded-lg bg-white bg-cover bg-clip-padding bg-center py-20 drop-shadow-xl backdrop-blur-md backdrop-contrast-100 backdrop-saturate-100 backdrop-filter md:mr-5"
+		class="dark:bg-black-700 bg-opacity-20 z-20 grid min-h-10/12 w-full place-self-center rounded-lg bg-white bg-cover bg-center drop-shadow-xl"
 	>
-		<form id="business-form" class="w-full">
+		<form
+			id="business-form"
+			class="flex h-full w-full items-center justify-center place-self-center-safe"
+		>
 			<input type="hidden" name="estado_de" value="En proceso" />
 			<Step1 />
 			<Step2 estados={estadosData} />
