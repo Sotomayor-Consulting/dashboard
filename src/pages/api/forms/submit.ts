@@ -51,7 +51,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 		// 4) Buscar envío existente del usuario para ese form (borrador o ya enviado)
 		const { data: existingRow, error: findErr } = await supabase
-			.from('formularios_envios')
+			.from('submitted_forms')
 			.select('*')
 			.eq('form_id', form_id)
 			.eq('user_id', actor.id)
@@ -109,7 +109,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				};
 
 				const { data: ins, error: insErr } = await supabase
-					.from('formularios_envios')
+					.from('submitted_forms')
 					.insert(insertPayload)
 					.select('submission_id')
 					.single();
@@ -150,7 +150,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			}
 
 			const { error: updErr } = await supabase
-				.from('formularios_envios')
+				.from('submitted_forms')
 				.update(updatePayload)
 				.eq('submission_id', existingRow.submission_id)
 				.eq('user_id', actor.id);
@@ -186,7 +186,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		};
 
 		const { data: inserted, error: insErr } = await supabase
-			.from('formularios_envios')
+			.from('submitted_forms')
 			.insert(insertPayload)
 			.select('submission_id')
 			.single();

@@ -167,7 +167,7 @@ export const getBannerIncorporacionData = async (
 				.eq('estado', 'Activo')
 				.maybeSingle(),
 			supabase
-				.from('formularios_envios')
+				.from('submitted_forms')
 				.select('status')
 				.eq('user_id', userId)
 				.eq('status', 'submitted')

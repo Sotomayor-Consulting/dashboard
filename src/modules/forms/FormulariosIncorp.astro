@@ -4,7 +4,7 @@ const supabase = Astro.locals.supabase;
 const { id } = Astro.params;
 
 const { data: formularios } = await supabase
-	.from('formularios_envios')
+	.from('submitted_forms')
 	.select(
 		`
 	empresa_incorporacion_id,

@@ -173,7 +173,7 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 		// 5) Anti-tampering: submission -> empresa_id
 		{
 			const { data: envio, error: envioErr } = await supabase
-				.from('formularios_envios')
+				.from('submitted_forms')
 				.select('submission_id, empresa_incorporacion_id, status, form_id')
 				.eq('submission_id', submission_id)
 				.single();
@@ -371,7 +371,7 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 		// =========================================================
 		{
 			const { error: updErr } = await supabase
-				.from('formularios_envios')
+				.from('submitted_forms')
 				.update({
 					respuestas_validadas: approved_data,
 					verificacion_operaciones: true,
@@ -380,12 +380,12 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 				.eq('submission_id', submission_id);
 
 			if (updErr) {
-				jerr(debug_id, 'db.formularios_envios.update', updErr);
+				jerr(debug_id, 'db.submitted_forms.update', updErr);
 				return jsonOk(
 					{
 						ok: false,
 						debug_id,
-						step: 'db.formularios_envios.update',
+						step: 'db.submitted_forms.update',
 						error: normSbErr(updErr),
 					},
 					500,

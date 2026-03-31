@@ -71,16 +71,16 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 		debugStep('1.2 Cliente Supabase SSR creado');
 
-		// 3) Traer data_json desde formularios_envios usando submission_id
+		// 3) Traer data_json desde submitted_forms usando submission_id
 		const { data: fila, error } = await supabase
-			.from('formularios_envios')
+			.from('submitted_forms')
 			.select('data_json')
 			.eq('submission_id', submissionId)
 			.single();
 
 		if (error) {
-			debugStep('2.E Error consultando formularios_envios', error);
-			return new Response('Error consultando formularios_envios', {
+			debugStep('2.E Error consultando submitted_forms', error);
+			return new Response('Error consultando submitted_forms', {
 				status: 500,
 				headers: { 'Content-Type': 'text/plain' },
 			});
