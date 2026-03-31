@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useActionState } from 'react';
+import { useState, useEffect, useCallback, useRef, useActionState } from 'react';
 import { buttonVariants } from '@components/components/ui/button';
 import { FieldLabel, FieldLegend } from '@components/components/ui/field';
 import { Input } from '@components/components/ui/input';
@@ -7,6 +7,21 @@ import { Checkbox } from '@components/components/ui/checkbox';
 import { cn } from '@components/lib/utils';
 
 type FormState = { error: string | null };
+
+declare const google: {
+	accounts: {
+		id: {
+			initialize: (config: {
+				client_id: string;
+				callback: (response: { credential: string }) => void;
+				nonce?: string;
+				use_fedcm_for_prompt?: boolean;
+				params?: { nonce?: string };
+			}) => void;
+			prompt: () => void;
+		};
+	};
+};
 
 function openOAuthPopup(url: string) {
 	const width = 500;
@@ -37,6 +52,75 @@ export default function FormSignIn() {
 		window.addEventListener('message', handleOAuthMessage);
 		return () => window.removeEventListener('message', handleOAuthMessage);
 	}, [handleOAuthMessage]);
+
+	// ─── Google One Tap ──────────────────────────────────
+	const oneTapInitialized = useRef(false);
+	const nonceRef = useRef<string>('');
+
+	useEffect(() => {
+		const clientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID;
+		if (!clientId || oneTapInitialized.current) return;
+
+		const handleOneTapResponse = async (response: {
+			credential: string;
+		}) => {
+			setGooglePending(true);
+			try {
+				const res = await fetch('/api/auth/google-one-tap', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						credential: response.credential,
+						nonce: nonceRef.current,
+					}),
+				});
+				const json = await res.json();
+				if (json.ok) {
+					window.location.href = '/';
+				} else {
+					setGooglePending(false);
+				}
+			} catch {
+				setGooglePending(false);
+			}
+		};
+
+		const initOneTap = async () => {
+			if (typeof google === 'undefined') return;
+			oneTapInitialized.current = true;
+
+			// Generar nonce y su hash SHA-256 para Google
+			const nonce = crypto.randomUUID();
+			nonceRef.current = nonce;
+			const encoder = new TextEncoder();
+			const hashBuffer = await crypto.subtle.digest(
+				'SHA-256',
+				encoder.encode(nonce),
+			);
+			const hashedNonce = Array.from(new Uint8Array(hashBuffer))
+				.map((b) => b.toString(16).padStart(2, '0'))
+				.join('');
+
+			google.accounts.id.initialize({
+				client_id: clientId,
+				callback: handleOneTapResponse,
+				nonce: hashedNonce,
+				use_fedcm_for_prompt: true,
+			});
+			google.accounts.id.prompt();
+		};
+
+		// El script puede ya estar cargado o cargar después
+		if (typeof google !== 'undefined') {
+			initOneTap();
+		} else {
+			window.addEventListener('google-one-tap-loaded', initOneTap, {
+				once: true,
+			});
+			return () =>
+				window.removeEventListener('google-one-tap-loaded', initOneTap);
+		}
+	}, []);
 
 	const handleGoogleLogin = async () => {
 		setGooglePending(true);

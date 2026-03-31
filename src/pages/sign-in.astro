@@ -10,3 +10,9 @@ import Alerta from '@components/feedback/alertageneral.astro';
 		<FormSignIn client:load />
 	</div>
 </LayoutStacked>
+
+<script
+	src="https://accounts.google.com/gsi/client"
+	is:inline
+	onload="window.dispatchEvent(new Event('google-one-tap-loaded'))"
+></script>
