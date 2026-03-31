@@ -28,6 +28,13 @@ export interface Company {
 	updated_by: string;
 }
 
+export interface Country {
+	id: number;
+	iso: string;
+	name: string;
+	phone_code: string;
+}
+
 export type CompanyTableRow = Omit<Company, 'formation_country_id' | 'tax_clasification'> & {
 	formation_country: string;
 	tax_clasification: string;
