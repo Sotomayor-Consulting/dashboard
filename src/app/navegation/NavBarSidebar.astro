@@ -314,6 +314,7 @@ const { notifications, totalUnread } = notifProp ?? {
 		SB_URL: import.meta.env.PUBLIC_SUPABASE_URL,
 		SB_ANON: import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
 		USER_ID: user?.id ?? '',
+		TOTAL_UNREAD: totalUnread ?? 0,
 	}}
 	is:inline
 >
@@ -336,28 +337,31 @@ const { notifications, totalUnread } = notifProp ?? {
 		});
 
 		const getBadgeEl = () => bellBtn?.querySelector('span.inline-flex.w-6.h-6');
-		const refreshBadgeFromDOM = () => {
-			const unread = listEl.querySelectorAll('.mark-as-read').length;
+		const updateBadge = (count) => {
 			const existing = getBadgeEl();
-			if (unread <= 0) return existing?.remove();
+			if (count <= 0) return existing?.remove();
 			if (!existing) {
 				const b = document.createElement('span');
 				b.className =
 					'absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900';
 				bellBtn.appendChild(b);
-				b.textContent = String(unread);
+				b.textContent = String(count);
 			} else {
-				existing.textContent = String(unread);
+				existing.textContent = String(count);
 			}
 		};
+
+		// Usar el valor del servidor directamente
+		updateBadge(TOTAL_UNREAD);
 
 		listEl.addEventListener('click', async (e) => {
 			const btn = e.target.closest('.mark-as-read');
 			if (!btn) return;
 			const id = btn.getAttribute('data-id');
 
-			btn.remove();
-			refreshBadgeFromDOM();
+			// Actualizar el badge restando 1
+			const currentCount = parseInt(getBadgeEl()?.textContent || '0');
+			updateBadge(Math.max(0, currentCount - 1));
 
 			try {
 				const formData = new FormData();
@@ -378,7 +382,6 @@ const { notifications, totalUnread } = notifProp ?? {
 				console.error('[notifications] marcar como leída error:', error);
 			}
 		});
-		refreshBadgeFromDOM();
 	};
 
 	if (document.readyState === 'loading') {

@@ -9,6 +9,16 @@ export const getNotifications = async (
 		return { notifications: [], totalUnread: 0 };
 	}
 
+	// Primero obtener el total de no leídas (sin límite)
+	const { count: totalNoLeidas } = await supabase
+		.from('notifications')
+		.select('*', { count: 'exact', head: true })
+		.eq('user_id', userId)
+		.eq('is_read', false);
+
+
+
+	// Luego obtener las notificaciones con límite
 	const { data, error } = await supabase
 		.from('notifications')
 		.select('*')
@@ -21,9 +31,8 @@ export const getNotifications = async (
 	}
 
 	const notifications = data || [];
-	const totalUnread = notifications.filter((n) => !n.is_read).length;
 
-	return { notifications, totalUnread };
+	return { notifications, totalUnread: totalNoLeidas ?? 0 };
 };
 
 export const markNotificationAsRead = async (
