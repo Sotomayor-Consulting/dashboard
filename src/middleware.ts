@@ -109,6 +109,8 @@ function addSecurityHeaders(response: Response, pathname: string): Response {
 	response.headers.set('X-Frame-Options', 'DENY');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+	// Permitir que la ventana principal pueda comunicarse con popups OAuth
+	response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
 	return response;
 }

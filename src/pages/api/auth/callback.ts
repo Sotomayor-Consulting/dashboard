@@ -1,5 +1,7 @@
 // src/pages/api/auth/callback.ts
 // ─── Thin handler: OAuth Callback ───────────────────────
+export const prerender = false;
+
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { AuthService, AuthError, PATHS, redirectWithMessage } from '@lib/auth';

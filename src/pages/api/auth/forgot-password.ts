@@ -1,5 +1,7 @@
 // src/pages/api/auth/forgot-password.ts
 // ─── Thin handler: Forgot Password ─────────────────────
+export const prerender = false;
+
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { AuthService, PATHS, redirectWithMessage } from '@lib/auth';

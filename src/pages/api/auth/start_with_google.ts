@@ -1,5 +1,7 @@
 // src/pages/api/auth/start_with_google.ts
 // ─── Thin handler: Start with Google (preserva business data) ─
+export const prerender = false;
+
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { AuthService, AuthError } from '@lib/auth';

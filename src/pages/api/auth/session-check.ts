@@ -1,5 +1,7 @@
 // src/pages/api/auth/session-check.ts
 // ─── Thin handler: Session Check ────────────────────────
+export const prerender = false;
+
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { AuthService, jsonSuccess, jsonError } from '@lib/auth';

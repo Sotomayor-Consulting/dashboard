@@ -1,6 +1,8 @@
 // src/pages/api/auth/token.ts
 // ─── Thin handler: Get Access Token ─────────────────────
 // Devuelve el access token para uso en APIs externas (SurveyJS, etc.)
+export const prerender = false;
+
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { AuthService, jsonSuccess, jsonError } from '@lib/auth';

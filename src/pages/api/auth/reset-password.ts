@@ -1,6 +1,8 @@
 // src/pages/api/auth/reset-password.ts
 // ─── Thin handler: Reset Password ───────────────────────
 // Establece una nueva contraseña tras recibir el link de recuperación.
+export const prerender = false;
+
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { AuthService, AuthError, PATHS, redirectWithMessage } from '@lib/auth';
