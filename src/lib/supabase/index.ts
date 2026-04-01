@@ -9,4 +9,3 @@
 // para evitar side effects al importar este barrel en rutas SSR.
 
 export { createSupabaseServerClient } from './server';
-export { supabaseBrowser } from './browser';

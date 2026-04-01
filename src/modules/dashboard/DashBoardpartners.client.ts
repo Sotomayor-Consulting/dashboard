@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 
 import ApexCharts from 'apexcharts';
-import { supabaseBrowser } from '@lib/supabase';
+import { supabaseBrowser } from '@lib/supabase/browser';
 
 async function fetchOdooData(params: Record<string, string> = {}) {
 	const url = new URL('/api/charts/odooParners', window.location.origin);
