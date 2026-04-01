@@ -5,7 +5,7 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # ============================================
 # 2) Etapa de build
@@ -51,7 +51,7 @@ RUN addgroup -g 1001 -S nodejs && \
 
 # Dependencias de producción
 COPY --from=deps /app/package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev && npm cache clean --force
 
 # Artefactos SSR
 COPY --from=builder --chown=astro:nodejs /app/dist ./dist
