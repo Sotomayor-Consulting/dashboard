@@ -59,7 +59,7 @@ export default function FormSignIn() {
 
 	useEffect(() => {
 		const clientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID;
-		if (!clientId || oneTapInitialized.current) return;
+		if (!clientId || oneTapInitialized.current) return undefined;
 
 		const handleOneTapResponse = async (response: {
 			credential: string;
@@ -120,6 +120,8 @@ export default function FormSignIn() {
 			return () =>
 				window.removeEventListener('google-one-tap-loaded', initOneTap);
 		}
+
+		return undefined;
 	}, []);
 
 	const handleGoogleLogin = async () => {
@@ -149,13 +151,27 @@ export default function FormSignIn() {
 
 	const [emailState, emailAction, emailPending] = useActionState(
 		async (_prev: FormState, formData: FormData): Promise<FormState> => {
-			const response = await fetch('/api/auth/signin', {
-				method: 'POST',
-				body: formData,
-				redirect: 'follow',
-			});
-			window.location.href = response.url;
-			return { error: null };
+			try {
+				const response = await fetch('/api/auth/signin', {
+					method: 'POST',
+					body: formData,
+					redirect: 'follow',
+				});
+
+				if (response.redirected && !response.url.endsWith('/api/auth/signin')) {
+					window.location.href = response.url;
+					return { error: null };
+				}
+
+				const contentType = response.headers.get('content-type') ?? '';
+				const message = contentType.includes('application/json')
+					? ((await response.json())?.error ?? 'No se pudo iniciar sesión.')
+					: (await response.text()) || 'No se pudo iniciar sesión.';
+
+				return { error: message };
+			} catch {
+				return { error: 'Error de conexión.' };
+			}
 		},
 		{ error: null },
 	);
