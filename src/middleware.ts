@@ -58,7 +58,14 @@ const CSP_DIRECTIVES = [
 function checkCsrf(request: Request): Response | null {
 	if (!STATE_CHANGING_METHODS.has(request.method)) return null;
 
-	const host = request.headers.get('host');
+	const normalizeHost = (value: string) =>
+		value.replace(/:443$|:80$/i, '').trim().toLowerCase();
+
+	const host = normalizeHost(
+		request.headers.get('x-forwarded-host') ||
+			request.headers.get('host') ||
+			'',
+	);
 	if (!host) return null; // Sin host no podemos validar — defensive, no bloquear
 
 	// Intentar Origin primero, luego Referer como fallback
@@ -72,7 +79,7 @@ function checkCsrf(request: Request): Response | null {
 	if (!sourceUrl) return null;
 
 	try {
-		const sourceHost = new URL(sourceUrl).host;
+		const sourceHost = normalizeHost(new URL(sourceUrl).host);
 		if (sourceHost !== host) {
 			return new Response(
 				JSON.stringify({ error: 'Origen no permitido' }),
