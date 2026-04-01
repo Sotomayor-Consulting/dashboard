@@ -1,12 +1,10 @@
-import { useState, useEffect, useCallback, useRef, useActionState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { buttonVariants } from '@components/components/ui/button';
 import { FieldLabel, FieldLegend } from '@components/components/ui/field';
 import { Input } from '@components/components/ui/input';
 import { Spinner } from '@components/components/ui/spinner';
 import { Checkbox } from '@components/components/ui/checkbox';
 import { cn } from '@components/lib/utils';
-
-type FormState = { error: string | null };
 
 declare const google: {
 	accounts: {
@@ -39,19 +37,31 @@ export default function FormSignIn() {
 	const [googlePending, setGooglePending] = useState<boolean>(false);
 	const [isVisible, setIsVisible] = useState<boolean>(false);
 
-	const handleOAuthMessage = useCallback((event: MessageEvent) => {
-		if (event.origin !== window.location.origin) return;
-		if (event.data?.type !== 'oauth-callback') return;
+	const handleOAuthResult = useCallback((data: any) => {
+		if (data?.type !== 'oauth-callback') return;
 		setGooglePending(false);
-		if (event.data.status === 'success') {
+		if (data.status === 'success') {
 			window.location.href = '/';
 		}
 	}, []);
 
 	useEffect(() => {
-		window.addEventListener('message', handleOAuthMessage);
-		return () => window.removeEventListener('message', handleOAuthMessage);
-	}, [handleOAuthMessage]);
+		// BroadcastChannel: funciona aunque COOP rompa window.opener
+		const bc = new BroadcastChannel('oauth-result');
+		bc.onmessage = (event: MessageEvent) => handleOAuthResult(event.data);
+
+		// Fallback: window.postMessage (si el popup aún tiene opener)
+		const onMessage = (event: MessageEvent) => {
+			if (event.origin !== window.location.origin) return;
+			handleOAuthResult(event.data);
+		};
+		window.addEventListener('message', onMessage);
+
+		return () => {
+			bc.close();
+			window.removeEventListener('message', onMessage);
+		};
+	}, [handleOAuthResult]);
 
 	// ─── Google One Tap ──────────────────────────────────
 	const oneTapInitialized = useRef(false);
@@ -134,13 +144,9 @@ export default function FormSignIn() {
 			});
 			const json = await res.json();
 			if (json.data?.url) {
-				const popup = openOAuthPopup(json.data.url);
-				const timer = setInterval(() => {
-					if (!popup || popup.closed) {
-						clearInterval(timer);
-						setGooglePending(false);
-					}
-				}, 500);
+				openOAuthPopup(json.data.url);
+				// No usar popup.closed (COOP lo bloquea).
+				// El resultado llega vía BroadcastChannel desde callback-popup.
 			} else {
 				setGooglePending(false);
 			}
@@ -149,32 +155,27 @@ export default function FormSignIn() {
 		}
 	};
 
-	const [emailState, emailAction, emailPending] = useActionState(
-		async (_prev: FormState, formData: FormData): Promise<FormState> => {
-			try {
-				const response = await fetch('/api/auth/signin', {
-					method: 'POST',
-					body: formData,
-					redirect: 'follow',
-				});
+	const [emailPending, setEmailPending] = useState(false);
+	const [emailError, setEmailError] = useState<string | null>(null);
 
-				if (response.redirected && !response.url.endsWith('/api/auth/signin')) {
-					window.location.href = response.url;
-					return { error: null };
-				}
-
-				const contentType = response.headers.get('content-type') ?? '';
-				const message = contentType.includes('application/json')
-					? ((await response.json())?.error ?? 'No se pudo iniciar sesión.')
-					: (await response.text()) || 'No se pudo iniciar sesión.';
-
-				return { error: message };
-			} catch {
-				return { error: 'Error de conexión.' };
-			}
-		},
-		{ error: null },
-	);
+	const handleEmailSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setEmailPending(true);
+		setEmailError(null);
+		try {
+			const formData = new FormData(e.currentTarget);
+			const response = await fetch('/api/auth/signin', {
+				method: 'POST',
+				body: formData,
+				redirect: 'follow',
+			});
+			// El servidor responde con redirect → fetch lo sigue → navegar al destino
+			window.location.href = response.url;
+		} catch {
+			setEmailPending(false);
+			setEmailError('Error de conexión.');
+		}
+	};
 
 	const togglePasswordVisibility = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
@@ -208,7 +209,7 @@ export default function FormSignIn() {
 					Inicia sesión
 				</FieldLegend>
 
-				<form className="mt-8 space-y-6" action={emailAction}>
+				<form className="mt-8 space-y-6" onSubmit={handleEmailSubmit}>
 					<div>
 						<FieldLabel
 							htmlFor="email"
@@ -298,8 +299,8 @@ export default function FormSignIn() {
 						</button>
 					</div>
 
-					{emailState.error && (
-						<p className="text-sm text-red-500">{emailState.error}</p>
+					{emailError && (
+						<p className="text-sm text-red-500">{emailError}</p>
 					)}
 
 					<div className="text-sm font-medium text-gray-500 dark:text-gray-400">

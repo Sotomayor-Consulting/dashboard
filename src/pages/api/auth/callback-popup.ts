@@ -41,17 +41,21 @@ export const GET: APIRoute = async ({ url, request, cookies }) => {
 		}
 	}
 
-	// Responder con HTML que cierra el popup y notifica a la ventana padre
+	// Responder con HTML que cierra el popup y notifica a la ventana padre.
+	// Usa BroadcastChannel (inmune a COOP) con fallback a window.opener.postMessage.
 	const html = `<!DOCTYPE html>
 <html>
 <head><title>Autenticación</title></head>
 <body>
 <script>
+  var msg = { type: 'oauth-callback', status: '${status}', message: ${JSON.stringify(message)} };
+  try {
+    var bc = new BroadcastChannel('oauth-result');
+    bc.postMessage(msg);
+    bc.close();
+  } catch(e) {}
   if (window.opener) {
-    window.opener.postMessage(
-      { type: 'oauth-callback', status: '${status}', message: ${JSON.stringify(message)} },
-      window.location.origin
-    );
+    window.opener.postMessage(msg, window.location.origin);
   }
   window.close();
 </script>
