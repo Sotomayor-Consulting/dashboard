@@ -57,8 +57,11 @@ function isAstroGlobal(ctx: SupabaseContext): ctx is AstroGlobalContext {
  * ```
  */
 export function createSupabaseServerClient(context: SupabaseContext) {
-	const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-	const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+	const supabaseUrl =
+		process.env.PUBLIC_SUPABASE_URL ?? import.meta.env.PUBLIC_SUPABASE_URL;
+	const supabaseAnonKey =
+		process.env.PUBLIC_SUPABASE_ANON_KEY ??
+		import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
 	if (!supabaseUrl || !supabaseAnonKey) {
 		throw new Error(
