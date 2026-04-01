@@ -1980,22 +1980,34 @@ import WhatsappBtn from '@components/display/WhatsappBtn.astro';
 				const formData = new FormData(registerFormElement);
 				const response = await fetch('/api/auth/register_start', {
 					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+					},
 					body: formData,
 				});
+				const result = await response.json();
 
 				if (response.ok) {
-					const sessionData = await checkSession();
-					if (sessionData.isAuthenticated) {
-						handleAuthenticatedUser();
+					if (result?.data?.requiresEmailConfirmation === false) {
+						const sessionData = await checkSession();
+						if (sessionData.isAuthenticated) {
+							handleAuthenticatedUser();
+							return;
+						}
+
+						showError(
+							registerError,
+							'La cuenta fue creada, pero no se pudo validar la sesión automáticamente.',
+						);
 					} else {
 						showError(
 							registerError,
-							'Registro exitoso. Revisa tu email para confirmar.',
+							result?.data?.message ||
+								'Registro exitoso. Revisa tu email para confirmar.',
 						);
 					}
 				} else {
-					const errorText = await response.text();
-					showError(registerError, errorText || 'Error en el registro.');
+					showError(registerError, result?.error || 'Error en el registro.');
 				}
 			} catch (error) {
 				showError(registerError, 'Error de conexión.');

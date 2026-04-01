@@ -225,6 +225,10 @@ export class AuthService {
 	async getCurrentUser(): Promise<AuthUser | null> {
 		const { data, error } = await this.supabase.auth.getUser();
 
+		if (error?.name === 'AuthSessionMissingError') {
+			return null;
+		}
+
 		if (error || !data.user) {
 			return null;
 		}
