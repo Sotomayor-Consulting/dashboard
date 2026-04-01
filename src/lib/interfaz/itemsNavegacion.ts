@@ -10,7 +10,7 @@ export const menuItems = [
 	},
 	{
 		id: 'my-companies',
-		label: 'Tus empresas',
+		label: 'Mis empresas',
 		href: '/my-companies/',
 		tooltip: 'Mira tus empresas',
 		roles: ['cliente', 'partner'],
