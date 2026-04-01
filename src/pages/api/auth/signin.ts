@@ -13,6 +13,11 @@ import {
 } from '@lib/auth';
 import type { OAuthProvider } from '@lib/auth';
 
+// Safety net: si algo hace GET a esta ruta, redirigir al formulario
+export const GET: APIRoute = async ({ redirect }) => {
+	return redirect(PATHS.signIn);
+};
+
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const formData = await request.formData();
 	const email = formData.get('email')?.toString();

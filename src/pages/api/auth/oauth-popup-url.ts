@@ -4,10 +4,18 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
-import { AuthService, AuthError, jsonSuccess, jsonError } from '@lib/auth';
+import {
+	AuthService,
+	AuthError,
+	jsonSuccess,
+	jsonError,
+	buildOAuthRedirectUrl,
+} from '@lib/auth';
 import type { OAuthProvider } from '@lib/auth';
 
-export const POST: APIRoute = async ({ request, cookies, url }) => {
+const POPUP_CALLBACK_PATH = '/api/auth/callback-popup';
+
+export const POST: APIRoute = async ({ request, cookies }) => {
 	try {
 		const { provider } = (await request.json()) as { provider?: string };
 
@@ -21,7 +29,8 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
 		});
 		const auth = new AuthService(supabase, cookies);
 
-		const redirectTo = `${url.origin}/api/auth/callback-popup`;
+		// Usar buildOAuthRedirectUrl para resolver el host correcto detrás del proxy
+		const redirectTo = buildOAuthRedirectUrl(request, POPUP_CALLBACK_PATH);
 		const result = await auth.signInWithOAuth(
 			provider as OAuthProvider,
 			redirectTo,
