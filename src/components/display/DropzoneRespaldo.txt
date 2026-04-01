@@ -11,7 +11,7 @@ const {
 	endpoint,
 	mensaje,
 	id = 'hs-file-upload',
-	maxFilesize = 2,
+	maxFilesize = 5,
 	acceptedFiles = '.pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp',
 } = Astro.props;
 ---

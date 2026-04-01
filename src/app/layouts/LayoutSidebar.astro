@@ -1,5 +1,6 @@
 ---
 import Banner from '@components/feedback/Banner.astro';
+import BannerUpgrade from '@components/feedback/BannerUpgrade.astro';
 import BannerPartner from '@components/feedback/Banner_partner_profile.astro';
 import BannerIncorporacion from '@components/feedback/Banner_formulario_de_incorporacion.astro';
 import LayoutCommon from './LayoutCommon.astro';
@@ -45,6 +46,10 @@ const showBannerEnProceso =
 	incorporaciones?.length > 0 &&
 	incorporaciones.some((c: any) => c.estado === 'En proceso');
 
+const showBannerUpgrade =
+	incorporaciones?.length > 0 &&
+	incorporaciones.some((c: any) => c.estado === 'Upgrade');
+
 // Reusar datos del usuario para verificar campos de partner (0 queries extra)
 const missingPartnerFields: PartnerRequiredField[] =
 	isPartner && usuario ? getMissingFieldsFromProfile(usuario) : [];
@@ -62,6 +67,7 @@ const showBannerPartner = missingPartnerFields.length > 0;
 			class="dark:bg-black-900 bg-white-100 relative h-full min-h-screen w-full px-6"
 		>
 			<Banner shouldShowBanner={showBannerEnProceso} />
+			<BannerUpgrade shouldShowBanner={showBannerUpgrade} />
 			<BannerPartner
 				shouldShowBanner={showBannerPartner}
 				missingFields={missingPartnerFields}

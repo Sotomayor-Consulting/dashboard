@@ -10,6 +10,7 @@ const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const empresaId = url.searchParams.get('empresaId');
 	const userId = url.searchParams.get('userId');
+	const fileIdFromUrl = url.searchParams.get('fileId');
 	const back = url.searchParams.get('back') || `/dashboard/${empresaId}`;
 
 	const redirectWithStatus = (status: 'success' | 'error', msg: string) =>
@@ -28,6 +29,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			return redirectWithStatus('error', 'No autenticado');
 		}
 
+		const currentUserId = user.id;
+
 		if (!empresaId || !userId) {
 			return redirectWithStatus(
 				'error',
@@ -37,7 +40,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 		const form = await request.formData();
 		const file = form.get('file') as File | null;
-		const fileId = form.get('fileId') as string | null;
+		const fileIdFromForm = form.get('fileId') as string | null;
+		const fileId = fileIdFromForm || fileIdFromUrl;
 
 		if (!file || file.size === 0) {
 			return redirectWithStatus('error', 'Archivo obligatorio');
@@ -51,13 +55,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			return redirectWithStatus('error', 'El archivo no puede superar 15MB');
 		}
 
-		const fileName = `${file.name}`;
-		const filePath = `${userId}/companies/${empresaId}/documents/${fileName}`;
+		const safeFileName = file.name.replace(/\s+/g, '_');
+		const filePath = `${currentUserId}/companies/${empresaId}/documents/signed-${fileId}-${safeFileName}`;
 
 		const { error: upErr } = await supabase.storage
 			.from(BUCKET_NAME)
 			.upload(filePath, file, {
-				upsert: false,
+				upsert: true,
 				contentType: file.type || 'application/octet-stream',
 			});
 
@@ -66,20 +70,33 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			return redirectWithStatus('error', 'Error al subir el archivo');
 		}
 
-		const { error: updateErr } = await supabase
+		const { data: updatedRows, error: updateErr } = await supabase
 			.from('documentos_por_firmar')
 			.update({
 				status: 'Firmado',
 				storage_path: filePath,
 				updated_at: new Date().toISOString(),
 			})
+			.select('id')
 			.eq('id', fileId)
-			.eq('user_id', userId)
+			.eq('user_id', currentUserId)
 			.eq('empresa_incorporacion_id', empresaId);
 
 		if (updateErr) {
 			console.error('[UPLOAD-FILE-SIGNED] Error al actualizar BD:', updateErr);
 			return redirectWithStatus('error', 'Error al actualizar documento');
+		}
+
+		if (!updatedRows || updatedRows.length === 0) {
+			console.error('[UPLOAD-FILE-SIGNED] No se encontro documento para actualizar', {
+				fileId,
+				empresaId,
+				currentUserId,
+			});
+			return redirectWithStatus(
+				'error',
+				'No se encontro el documento a actualizar',
+			);
 		}
 
 		return redirectWithStatus('success', 'Documento firmado correctamente');

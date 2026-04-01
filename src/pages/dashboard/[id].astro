@@ -2,7 +2,7 @@
 import Alerta from '@components/feedback/alertageneral.astro';
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import DashBoard from '@modules/companies/CompanyDashboard.astro';
-import { getIncorporacionById } from '@lib/tablas/empresa_incorporaciones';
+import { getIncorporacionById } from '@lib/tablas/companies/empresa_incorporaciones';
 const supabase = Astro.locals.supabase;
 
 const { redirect } = Astro;
@@ -11,13 +11,13 @@ const user = Astro.locals.user;
 const userId = user?.id;
 
 if (!id || !userId) {
-	return redirect('/companies');
+	return redirect('/');
 }
 
 const empresa = await getIncorporacionById(supabase, id, userId);
 
 if (!empresa) {
-	return redirect('/companies');
+	return redirect('/');
 }
 ---
 

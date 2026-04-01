@@ -1,6 +1,4 @@
 ---
-import 'flowbite';
-
 interface Props {
 	endpoint: string;
 	id?: string;
@@ -18,7 +16,7 @@ const {
 } = Astro.props;
 ---
 
-<div class="flex flex-col items-center justify-center">
+<div class="flex w-full flex-col items-center justify-center">
 	<div
 		id={id}
 		data-id={id}
@@ -213,7 +211,8 @@ const {
 		>
 			<button
 				type="button"
-				class="inline-flex items-center justify-center gap-x-2 rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 focus:bg-blue-700 focus:outline-none disabled:pointer-events-none disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:bg-blue-600"
+				id="upload-btn"
+				class="inline-flex cursor-pointer items-center justify-center gap-x-2 rounded-lg border border-transparent bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 focus:bg-blue-700 focus:outline-none disabled:pointer-events-none disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:bg-blue-600"
 				data-hs-file-upload-confirm=""
 			>
 				<svg
@@ -255,77 +254,171 @@ const {
 			}
 
 			containers.forEach((container) => {
-				const endpoint = container.dataset.endpoint;
-				const maxFilesize = parseFloat(container.dataset.maxfilesize) || 2;
-				const acceptedFiles =
-					container.dataset.acceptedfiles ||
-					'.pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp';
+				initDropzone(container);
+			});
+		});
 
-				const trigger = container.querySelector(
-					'[data-hs-file-upload-trigger]',
+		function initDropzone(container) {
+			const endpoint = container.dataset.endpoint;
+			const maxFilesize = parseFloat(container.dataset.maxfilesize) || 2;
+			const acceptedFiles =
+				container.dataset.acceptedfiles ||
+				'.pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp';
+
+			const trigger = container.querySelector('[data-hs-file-upload-trigger]');
+			const previewsContainer = container.querySelector(
+				'[data-hs-file-upload-previews]',
+			);
+			const template = container.querySelector(
+				'[data-hs-file-upload-preview]',
+			).innerHTML;
+			const actionsContainer = container.querySelector(
+				'[data-hs-file-upload-actions]',
+			);
+
+			if (container.dropzoneInstance) {
+				container.dropzoneInstance.destroy();
+			}
+
+			const dz = new Dropzone(trigger, {
+				url: endpoint,
+				method: 'post',
+				paramName: 'file',
+				autoProcessQueue: false,
+				maxFiles: 1,
+				uploadMultiple: false,
+				acceptedFiles: acceptedFiles,
+				maxFilesize: maxFilesize,
+				clickable: trigger,
+				previewsContainer: previewsContainer,
+				previewTemplate: template,
+				addRemoveLinks: false,
+			});
+
+			dz.on('sending', function (_file, _xhr, formData) {
+				const currentEndpoint = container.dataset.endpoint;
+				const currentFileId = container.dataset.fileId;
+
+				if (currentEndpoint) {
+					dz.options.url = currentEndpoint;
+				}
+
+				if (currentFileId) {
+					formData.set('fileId', currentFileId);
+				}
+			});
+
+			container.dropzoneInstance = dz;
+
+			let tempTimeoutId = null;
+
+			dz.on('addedfile', function (file) {
+				trigger.style.display = 'none';
+				if (actionsContainer) {
+					actionsContainer.classList.remove('hidden');
+				}
+
+				const nameEl = file.previewElement.querySelector(
+					'[data-hs-file-upload-file-name]',
 				);
-				const previewsContainer = container.querySelector(
-					'[data-hs-file-upload-previews]',
+				const extEl = file.previewElement.querySelector(
+					'[data-hs-file-upload-file-ext]',
 				);
-				const template = container.querySelector(
-					'[data-hs-file-upload-preview]',
-				).innerHTML;
-				const actionsContainer = container.querySelector(
-					'[data-hs-file-upload-actions]',
+				const sizeEl = file.previewElement.querySelector(
+					'[data-hs-file-upload-file-size]',
+				);
+				const iconContainer = file.previewElement.querySelector(
+					'[data-hs-file-upload-file-icon]',
+				);
+				const thumbnail = file.previewElement.querySelector(
+					'[data-dz-thumbnail]',
 				);
 
-				const dz = new Dropzone(trigger, {
-					url: endpoint,
-					method: 'post',
-					paramName: 'file',
-					autoProcessQueue: false,
-					maxFiles: 1,
-					uploadMultiple: false,
-					acceptedFiles: acceptedFiles,
-					maxFilesize: maxFilesize,
-					clickable: trigger,
-					previewsContainer: previewsContainer,
-					previewTemplate: template,
-					addRemoveLinks: false,
-				});
+				if (nameEl) {
+					const nameParts = file.name.split('.');
+					nameParts.pop();
+					nameEl.textContent = nameParts.join('.');
+				}
+				if (extEl) {
+					const parts = file.name.split('.');
+					extEl.textContent = parts.length > 1 ? parts.pop() : '';
+				}
+				if (sizeEl) {
+					sizeEl.textContent = (file.size / 1024).toFixed(1) + ' KB';
+				}
 
-				let tempTimeoutId = null;
+				const progressBar = file.previewElement.querySelector(
+					'[data-hs-file-upload-progress-bar-pane]',
+				);
+				const progressValue = file.previewElement.querySelector(
+					'[data-hs-file-upload-progress-bar-value]',
+				);
+				if (progressBar) {
+					progressBar.style.width = '100%';
+					progressBar.classList.add('hs-file-upload-complete:bg-green-600');
+				}
+				if (progressValue) {
+					progressValue.textContent = '100';
+				}
 
-				dz.on('addedfile', function (file) {
-					trigger.style.display = 'none';
-					if (actionsContainer) {
-						actionsContainer.classList.remove('hidden');
+				if (file.type.startsWith('image/')) {
+					if (thumbnail) {
+						thumbnail.classList.remove('hidden');
 					}
-
-					const nameEl = file.previewElement.querySelector(
-						'[data-hs-file-upload-file-name]',
-					);
-					const extEl = file.previewElement.querySelector(
-						'[data-hs-file-upload-file-ext]',
-					);
-					const sizeEl = file.previewElement.querySelector(
-						'[data-hs-file-upload-file-size]',
-					);
-					const iconContainer = file.previewElement.querySelector(
-						'[data-hs-file-upload-file-icon]',
-					);
-					const thumbnail = file.previewElement.querySelector(
-						'[data-dz-thumbnail]',
-					);
-
-					if (nameEl) {
-						const nameParts = file.name.split('.');
-						nameParts.pop();
-						nameEl.textContent = nameParts.join('.');
+					if (iconContainer) {
+						const svg = iconContainer.querySelector('svg');
+						if (svg) svg.classList.add('hidden');
 					}
-					if (extEl) {
-						const parts = file.name.split('.');
-						extEl.textContent = parts.length > 1 ? parts.pop() : '';
+				} else {
+					if (thumbnail) {
+						thumbnail.classList.add('hidden');
 					}
-					if (sizeEl) {
-						sizeEl.textContent = (file.size / 1024).toFixed(1) + ' KB';
+					if (iconContainer) {
+						const svg = iconContainer.querySelector('svg');
+						if (svg) svg.classList.remove('hidden');
 					}
+				}
 
+				if (tempTimeoutId) clearTimeout(tempTimeoutId);
+				tempTimeoutId = setTimeout(
+					function () {
+						dz.removeAllFiles(true);
+						trigger.style.display = '';
+						if (actionsContainer) {
+							actionsContainer.classList.add('hidden');
+						}
+						alert(
+							'El archivo temporal ha expirado. Vuelve a subir el archivo.',
+						);
+					},
+					2 * 60 * 1000,
+				);
+			});
+
+			dz.on('removedfile', function () {
+				trigger.style.display = '';
+				if (actionsContainer) {
+					actionsContainer.classList.add('hidden');
+				}
+				if (tempTimeoutId) clearTimeout(tempTimeoutId);
+			});
+
+			container.addEventListener('click', function (e) {
+				const clearBtn = e.target.closest('[data-hs-file-upload-clear]');
+				if (clearBtn) {
+					e.preventDefault();
+					dz.removeAllFiles(true);
+				}
+
+				const confirmBtnEl = e.target.closest('[data-hs-file-upload-confirm]');
+				if (confirmBtnEl) {
+					e.preventDefault();
+					dz.processQueue();
+				}
+			});
+
+			dz.on('uploadprogress', function (file, percent) {
+				if (file.previewElement) {
 					const progressBar = file.previewElement.querySelector(
 						'[data-hs-file-upload-progress-bar-pane]',
 					);
@@ -333,115 +426,53 @@ const {
 						'[data-hs-file-upload-progress-bar-value]',
 					);
 					if (progressBar) {
-						progressBar.style.width = '100%';
-						progressBar.classList.add('hs-file-upload-complete:bg-green-600');
+						progressBar.style.width = percent + '%';
 					}
 					if (progressValue) {
-						progressValue.textContent = '100';
+						progressValue.textContent = Math.round(percent);
 					}
-
-					if (file.type.startsWith('image/')) {
-						if (thumbnail) {
-							thumbnail.classList.remove('hidden');
-						}
-						if (iconContainer) {
-							const svg = iconContainer.querySelector('svg');
-							if (svg) svg.classList.add('hidden');
-						}
-					} else {
-						if (thumbnail) {
-							thumbnail.classList.add('hidden');
-						}
-						if (iconContainer) {
-							const svg = iconContainer.querySelector('svg');
-							if (svg) svg.classList.remove('hidden');
-						}
-					}
-
-					if (tempTimeoutId) clearTimeout(tempTimeoutId);
-					tempTimeoutId = setTimeout(
-						function () {
-							dz.removeAllFiles(true);
-							trigger.style.display = '';
-							if (actionsContainer) {
-								actionsContainer.classList.add('hidden');
-							}
-							alert(
-								'El archivo temporal ha expirado. Vuelve a subir el archivo.',
-							);
-						},
-						2 * 60 * 1000,
-					);
-				});
-
-				dz.on('removedfile', function () {
-					trigger.style.display = '';
-					if (actionsContainer) {
-						actionsContainer.classList.add('hidden');
-					}
-					if (tempTimeoutId) clearTimeout(tempTimeoutId);
-				});
-
-				container.addEventListener('click', function (e) {
-					const clearBtn = e.target.closest('[data-hs-file-upload-clear]');
-					if (clearBtn) {
-						e.preventDefault();
-						dz.removeAllFiles(true);
-					}
-
-					const confirmBtnEl = e.target.closest(
-						'[data-hs-file-upload-confirm]',
-					);
-					if (confirmBtnEl) {
-						e.preventDefault();
-						dz.processQueue();
-					}
-				});
-
-				dz.on('uploadprogress', function (file, percent) {
-					if (file.previewElement) {
-						const progressBar = file.previewElement.querySelector(
-							'[data-hs-file-upload-progress-bar-pane]',
-						);
-						const progressValue = file.previewElement.querySelector(
-							'[data-hs-file-upload-progress-bar-value]',
-						);
-						if (progressBar) {
-							progressBar.style.width = percent + '%';
-						}
-						if (progressValue) {
-							progressValue.textContent = Math.round(percent);
-						}
-					}
-				});
-
-				dz.on('success', function (file) {
-					if (tempTimeoutId) clearTimeout(tempTimeoutId);
-
-					if (file.previewElement) {
-						const progressBar = file.previewElement.querySelector(
-							'[data-hs-file-upload-progress-bar-pane]',
-						);
-						if (progressBar) {
-							progressBar.classList.add('hs-file-upload-complete:bg-green-600');
-						}
-					}
-					if (actionsContainer) {
-						actionsContainer.classList.add('hidden');
-					}
-
-					const xhr = file.xhr;
-					if (xhr && xhr.responseURL) {
-						window.location.href = xhr.responseURL;
-					}
-				});
-
-				dz.on('error', function (file, errorMessage) {
-					console.error('Upload error:', errorMessage);
-					if (tempTimeoutId) clearTimeout(tempTimeoutId);
-					alert('Hubo un error al subir el archivo. Intenta de nuevo.');
-				});
+				}
 			});
+
+			dz.on('success', function (file) {
+				if (tempTimeoutId) clearTimeout(tempTimeoutId);
+
+				if (file.previewElement) {
+					const progressBar = file.previewElement.querySelector(
+						'[data-hs-file-upload-progress-bar-pane]',
+					);
+					if (progressBar) {
+						progressBar.classList.add('hs-file-upload-complete:bg-green-600');
+					}
+				}
+				if (actionsContainer) {
+					actionsContainer.classList.add('hidden');
+				}
+
+				const xhr = file.xhr;
+				if (xhr && xhr.responseURL) {
+					window.location.href = xhr.responseURL;
+				}
+			});
+
+			dz.on('error', function (file, errorMessage) {
+				console.error('Upload error:', errorMessage);
+				if (tempTimeoutId) clearTimeout(tempTimeoutId);
+				alert('Hubo un error al subir el archivo. Intenta de nuevo.');
+			});
+		}
+
+		document.addEventListener('dropzone:update-endpoint', function (e) {
+			const container = document.querySelector(`#${e.detail.id}`);
+			if (!container) return;
+
+			if (e.detail.endpoint) {
+				container.dataset.endpoint = e.detail.endpoint;
+			}
+
+			if (e.detail.fileId) {
+				container.dataset.fileId = e.detail.fileId;
+			}
 		});
 	</script>
 </div>

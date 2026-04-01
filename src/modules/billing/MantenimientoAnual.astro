@@ -15,7 +15,7 @@ const { data: empresa, error: empresaError } = await supabase
 	.single();
 
 if (empresaError || !empresa) {
-	return Astro.redirect('/companies');
+	return Astro.redirect('/');
 }
 ---
 

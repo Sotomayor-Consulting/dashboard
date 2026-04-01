@@ -75,7 +75,7 @@ export const getIncorporacionesEnProceso = async (
 				`,
 		)
 		.eq('user_id', userId)
-		.eq('estado', 'En proceso')
+		.in('estado', ['En proceso', 'Upgrade'])
 		.order('updated_at', { ascending: true });
 	if (error) {
 		console.error(
