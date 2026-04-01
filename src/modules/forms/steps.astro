@@ -745,22 +745,33 @@ const estadosData = estados ?? [];
 				const formData = new FormData(registerFormElement);
 				const response = await fetch('/api/auth/register_start', {
 					method: 'POST',
+					headers: {
+						Accept: 'application/json',
+					},
 					body: formData,
 				});
+				const result = await response.json();
 
 				if (response.ok) {
-					const sessionData = await checkSession();
-					if (sessionData.isAuthenticated) {
-						handleAuthenticatedUser();
+					if (result?.data?.requiresEmailConfirmation === false) {
+						const sessionData = await checkSession();
+						if (sessionData.isAuthenticated) {
+							handleAuthenticatedUser();
+							return;
+						}
+
+						showFlowbiteAlert(
+							'La cuenta fue creada, pero no se pudo validar la sesión automáticamente.',
+						);
 					} else {
 						showFlowbiteAlert(
-							'Registro exitoso. Revisa tu email para confirmar.',
+							result?.data?.message ||
+								'Registro exitoso. Revisa tu email para confirmar.',
 							true,
 						);
 					}
 				} else {
-					const errorText = await response.text();
-					showFlowbiteAlert(errorText || 'Error en el registro.');
+					showFlowbiteAlert(result?.error || 'Error en el registro.');
 				}
 			} catch (error) {
 				console.error('Error en registro:', error);

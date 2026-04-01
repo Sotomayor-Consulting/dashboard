@@ -4,14 +4,9 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
-import { AuthService, AuthError, redirectWithMessage } from '@lib/auth';
-import { safeBack } from '@lib/security/headers';
+import { AuthService, AuthError, jsonError, jsonSuccess } from '@lib/auth';
 
-const BACK_PATH = '/start';
-
-export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
-	const back = safeBack(url.searchParams.get('back'), BACK_PATH);
-
+export const POST: APIRoute = async ({ request, cookies }) => {
 	try {
 		const form = await request.formData();
 		const name = form.get('name')?.toString().trim() ?? '';
@@ -22,11 +17,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			form.get('confirm-password')?.toString() ?? '';
 
 		if (password !== confirmPassword) {
-			return redirectWithMessage(
-				redirect,
-				'Las contraseñas no coinciden. Por favor, verifica e intena de nuevo. ',
-				'error',
-				back,
+			return jsonError(
+				'Las contraseñas no coinciden. Por favor, verifica e intenta de nuevo.',
+				400,
 			);
 		}
 
@@ -38,20 +31,20 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 		const result = await auth.register({ email, password, name, lastName });
 
-		// Si tiene sesión directa (sin confirmación email), redirigir al home
 		if (!result.requiresEmailConfirmation) {
-			return redirect('/');
+			return jsonSuccess({
+				requiresEmailConfirmation: false,
+				message: 'Cuenta creada correctamente.',
+			});
 		}
 
-		return redirectWithMessage(
-			redirect,
-			'Revisa tu email para confirmar.',
-			'success',
-			back,
-		);
+		return jsonSuccess({
+			requiresEmailConfirmation: true,
+			message: 'Revisa tu email para confirmar.',
+		});
 	} catch (error) {
 		const message =
 			error instanceof AuthError ? error.message : 'Error inesperado.';
-		return redirectWithMessage(redirect, message, 'error', back);
+		return jsonError(message, 400);
 	}
 };
