@@ -8,10 +8,6 @@ import type { RouteRoleConfig } from '@lib/roles';
 import { ROLES, extractRoleNames, hasAnyRole } from '@lib/roles';
 import type { UserRoleRow } from '@lib/roles';
 import type { User } from '@supabase/supabase-js';
-import { SECURITY_HEADERS } from '@lib/security/headers';
-
-// ─── CSRF: Métodos que modifican estado ─────────────────
-const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'DELETE', 'PATCH']);
 
 // ─── CSP: Content-Security-Policy ───────────────────────
 // Construido una sola vez al iniciar el server (las env vars no cambian en runtime).
@@ -21,45 +17,6 @@ const SUPABASE_HOST = SUPABASE_URL ? new URL(SUPABASE_URL).host : '';
 const SUPABASE_WSS = SUPABASE_HOST ? `wss://${SUPABASE_HOST}` : '';
 
 const IS_PRODUCTION = import.meta.env.PROD;
-// Temporal: CSRF desactivado por defecto para estabilizar producción.
-// Para reactivarlo, define ENABLE_CSRF=true.
-const CSRF_DISABLED = process.env.ENABLE_CSRF !== 'true';
-
-const normalizeHost = (value: string) =>
-	value.replace(/:443$|:80$/i, '').trim().toLowerCase();
-
-function hostFromValue(value: string): string {
-	const raw = value.trim();
-	if (!raw) return '';
-	try {
-		return normalizeHost(new URL(raw).host);
-	} catch {
-		return normalizeHost(raw);
-	}
-}
-
-function firstForwardedHost(value: string | null): string {
-	if (!value) return '';
-	return value
-		.split(',')[0]
-		?.trim() ?? '';
-}
-
-// Hosts confiables derivados de la config de Astro (site) para CSRF.
-// En producción detrás de un reverse proxy, el Host header interno puede
-// no coincidir con el Origin del browser, así que confiamos en el dominio configurado.
-const TRUSTED_HOSTS = new Set<string>(
-	[
-		import.meta.env.SITE,
-		process.env.SITE,
-		process.env.PUBLIC_SITE_URL,
-		'app.sotomayorconsulting.com',
-		'localhost:4321',
-		'localhost:3000',
-	]
-		.map((v) => hostFromValue(v ?? ''))
-		.filter(Boolean),
-);
 
 const CSP_DIRECTIVES = [
 	// Fallback: bloquear todo lo no listado
@@ -87,77 +44,6 @@ const CSP_DIRECTIVES = [
 	...(IS_PRODUCTION ? ['upgrade-insecure-requests'] : []),
 ].join('; ');
 
-
-/**
- * Validación de origen contra CSRF.
- * Compara el header Origin (o Referer como fallback) con el header Host.
- * Solo aplica a métodos que modifican estado (POST, PUT, DELETE, PATCH).
- * Retorna null si OK, o un Response 403 si el origen no coincide.
- */
-function checkCsrf(request: Request): Response | null {
-	// TEMPORAL: CSRF deshabilitado para diagnosticar bloqueos en producción.
-	// Habilitar solo en entornos controlados con DISABLE_CSRF=true.
-	if (CSRF_DISABLED) return null;
-
-	if (!STATE_CHANGING_METHODS.has(request.method)) return null;
-
-	const fetchSite = (request.headers.get('sec-fetch-site') ?? '').toLowerCase();
-	// Requests same-origin del navegador ya vienen protegidos por el modelo
-	// de origen del browser (Sec-Fetch-Site no lo puede setear JS arbitrario).
-	if (fetchSite === 'same-origin') return null;
-
-	const xForwardedHost = firstForwardedHost(
-		request.headers.get('x-forwarded-host'),
-	);
-	const hostHeader = firstForwardedHost(request.headers.get('host'));
-	const host = normalizeHost(xForwardedHost || hostHeader || '');
-	if (!host) return null; // Sin host no podemos validar — defensive, no bloquear
-
-	// Intentar Origin primero, luego Referer como fallback
-	const rawOrigin = request.headers.get('origin');
-	const origin = rawOrigin && rawOrigin !== 'null' ? rawOrigin : null;
-	const referer = request.headers.get('referer');
-
-	// Si no hay ni Origin ni Referer, el request podría ser legítimo
-	// (ej. server-to-server, herramientas de testing). Solo bloquear
-	// cuando hay un Origin/Referer que NO coincide.
-	const sourceUrl: string | null = origin || referer;
-	if (!sourceUrl) return null;
-
-	try {
-		const sourceHost = normalizeHost(new URL(sourceUrl).host);
-		// Comparar con el Host header O con los hosts confiables (para proxies
-		// que no reenvían X-Forwarded-Host correctamente).
-		if (
-			sourceHost !== host &&
-			!TRUSTED_HOSTS.has(sourceHost)
-		) {
-			console.warn('[CSRF] Request bloqueado por host no permitido', {
-				method: request.method,
-				sourceHost,
-				host,
-				xForwardedHost,
-				hostHeader,
-				origin,
-				referer,
-				fetchSite,
-				trustedHosts: Array.from(TRUSTED_HOSTS),
-			});
-			return new Response(
-				JSON.stringify({ error: 'Origen no permitido' }),
-				{ status: 403, headers: SECURITY_HEADERS },
-			);
-		}
-	} catch {
-		// URL inválida en Origin/Referer → bloquear
-		return new Response(
-			JSON.stringify({ error: 'Origen no permitido' }),
-			{ status: 403, headers: SECURITY_HEADERS },
-		);
-	}
-
-	return null;
-}
 
 /**
  * Añade CSP y otros headers de seguridad a respuestas HTML.
@@ -336,10 +222,6 @@ export function onRequest(context: any, next: any) {
 	);
 
 	return (async () => {
-		// 0) CSRF: Validar origen en métodos que modifican estado
-		const csrfResponse = checkCsrf(context.request);
-		if (csrfResponse) return csrfResponse;
-
 		if (AUTH_API_COOKIE_HANDLERS.has(pathname)) {
 			return next();
 		}
