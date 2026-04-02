@@ -4,7 +4,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
-import { AuthService, PATHS } from '@lib/auth';
+import { AuthService, PATHS, AuthError, redirectWithMessage } from '@lib/auth';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // GET: prefetch de Astro o navegación directa → redirigir al sign-in
@@ -13,15 +13,36 @@ export const GET: APIRoute = async ({ redirect }) => {
 };
 
 export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => {
-	const supabase =
-		(locals.supabase as SupabaseClient | undefined) ??
-		createSupabaseServerClient({
-			headers: request.headers,
-			cookies,
-		});
-	const auth = new AuthService(supabase, cookies);
+	try {
+		const allCookies = request.headers.get('cookie') ?? '';
+		const supabaseCookieNames = allCookies
+			.split(';')
+			.map((c) => c.trim().split('=')[0]?.trim() ?? '')
+			.filter((name) => name.startsWith('sb-') && name.length > 0);
 
-	await auth.signOut();
+		const supabase =
+			(locals.supabase as SupabaseClient | undefined) ??
+			createSupabaseServerClient({
+				headers: request.headers,
+				cookies,
+			});
+		const auth = new AuthService(supabase, cookies);
 
-	return redirect(PATHS.signIn);
+		await auth.signOut();
+
+		for (const name of supabaseCookieNames) {
+			cookies.set(name, '', {
+				path: '/',
+				maxAge: 0,
+			});
+		}
+
+		return redirect(PATHS.signIn);
+	} catch (error) {
+		const message =
+			error instanceof AuthError
+				? error.message
+				: 'No se pudo cerrar sesión. Inténtalo nuevamente.';
+		return redirectWithMessage(redirect, message, 'error', PATHS.home);
+	}
 };
