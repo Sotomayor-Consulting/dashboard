@@ -22,6 +22,15 @@ const SUPABASE_WSS = SUPABASE_HOST ? `wss://${SUPABASE_HOST}` : '';
 
 const IS_PRODUCTION = import.meta.env.PROD;
 
+// Hosts confiables derivados de la config de Astro (site) para CSRF.
+// En producción detrás de un reverse proxy, el Host header interno puede
+// no coincidir con el Origin del browser, así que confiamos en el dominio configurado.
+const TRUSTED_HOSTS = new Set<string>(
+	[
+		import.meta.env.SITE ? new URL(import.meta.env.SITE).host : '',
+	].filter(Boolean).map((h) => h.replace(/:443$|:80$/i, '').trim().toLowerCase()),
+);
+
 const CSP_DIRECTIVES = [
 	// Fallback: bloquear todo lo no listado
 	"default-src 'self'",
@@ -80,7 +89,9 @@ function checkCsrf(request: Request): Response | null {
 
 	try {
 		const sourceHost = normalizeHost(new URL(sourceUrl).host);
-		if (sourceHost !== host) {
+		// Comparar con el Host header O con los hosts confiables (para proxies
+		// que no reenvían X-Forwarded-Host correctamente).
+		if (sourceHost !== host && !TRUSTED_HOSTS.has(sourceHost)) {
 			return new Response(
 				JSON.stringify({ error: 'Origen no permitido' }),
 				{ status: 403, headers: SECURITY_HEADERS },

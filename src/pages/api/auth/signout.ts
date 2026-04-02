@@ -20,19 +20,18 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
 	await auth.signOut();
 
-	// Limpiar cookies de Supabase explícitamente para garantizar cierre de sesión
-	const cookieNames = ['sb-access-token', 'sb-refresh-token'];
-	for (const name of cookieNames) {
-		cookies.delete(name, { path: '/' });
-	}
-	// Supabase SSR usa cookies con prefijo del proyecto (sb-<ref>-auth-token)
+	// Limpiar cookies de Supabase explícitamente.
+	// Supabase SSR usa cookies chunked: sb-<ref>-auth-token.0, .1, etc.
+	// cookies.delete() puede fallar si los atributos no coinciden exactamente,
+	// así que usamos set() con maxAge=0 para forzar la expiración.
+	const expireOpts = { path: '/', maxAge: 0, httpOnly: true, secure: true, sameSite: 'lax' as const };
 	const allCookies = request.headers.get('Cookie') ?? '';
 	const sbCookieNames = allCookies
 		.split(';')
 		.map((c) => c.trim().split('=')[0])
 		.filter((name) => name.startsWith('sb-'));
 	for (const name of sbCookieNames) {
-		cookies.delete(name, { path: '/' });
+		cookies.set(name, '', expireOpts);
 	}
 
 	return redirect(PATHS.signIn);
