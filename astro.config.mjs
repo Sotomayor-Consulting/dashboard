@@ -7,24 +7,25 @@ import icon from 'astro-icon';
 import react from '@astrojs/react';
 
 export default defineConfig({
-    prefetch: {
-        defaultStrategy: 'hover',
-    },
-    output: 'server',
-    adapter: node({
-        mode: 'standalone',
-    }),
-    vite: {
-        plugins: [tailwindcss()],
-        build: {
-            rollupOptions: {
-                external: ['puppeteer', 'carbone'],
-            },
-        },
-    },
-    base: '/',
-    integrations: [sitemap(), icon(), react()],
-    image: {
-        remotePatterns: [{ protocol: 'https' }],
-    },
+	site: 'https://app.sotomayorconsulting.com',
+	prefetch: {
+		defaultStrategy: 'hover',
+	},
+	output: 'server',
+	adapter: node({
+		mode: 'standalone',
+	}),
+	vite: {
+		plugins: [tailwindcss()],
+		build: {
+			rollupOptions: {
+				external: ['puppeteer', 'carbone'],
+			},
+		},
+	},
+	base: '/',
+	integrations: [sitemap(), icon(), react()],
+	image: {
+		remotePatterns: [{ protocol: 'https' }],
+	},
 });

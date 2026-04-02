@@ -35,7 +35,7 @@ const CSP_DIRECTIVES = [
 	// Conexiones: fetch/XHR/WebSocket
 	`connect-src 'self' ${SUPABASE_URL} ${SUPABASE_WSS} https://unpkg.com https://esm.sh https://api.stripe.com https://accounts.google.com`,
 	// Imágenes
-	`img-src 'self' data: blob: ${SUPABASE_URL} https://dashboard.sotomayorconsulting.com https://sotomayorconsulting.com https://i.imgur.com https://api.dicebear.com`,
+	`img-src 'self' data: blob: ${SUPABASE_URL} https://app.sotomayorconsulting.com https://sotomayorconsulting.com https://i.imgur.com https://api.dicebear.com`,
 	// Iframes (Stripe Elements crea iframes)
 	`frame-src 'self' https://js.stripe.com`,
 	// Bloquear object/embed (Flash, plugins legacy)
@@ -63,8 +63,8 @@ function checkCsrf(request: Request): Response | null {
 
 	const host = normalizeHost(
 		request.headers.get('x-forwarded-host') ||
-			request.headers.get('host') ||
-			'',
+		request.headers.get('host') ||
+		'',
 	);
 	if (!host) return null; // Sin host no podemos validar — defensive, no bloquear
 

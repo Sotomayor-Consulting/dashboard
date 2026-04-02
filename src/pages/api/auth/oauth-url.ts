@@ -21,9 +21,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		});
 		const auth = new AuthService(supabase, cookies);
 
+		const origin = new URL(request.url).origin;
 		const result = await auth.signInWithOAuth(
 			provider as OAuthProvider,
-			'/api/auth/callback_start',
+			`${origin}/api/auth/callback_start`,
 		);
 
 		return jsonSuccess({ url: result.url });
