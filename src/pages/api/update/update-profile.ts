@@ -3,6 +3,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { personalInfoSchema } from '@lib/schemas/personalInfo.schema';
 import {
 	validateFormData,
@@ -11,6 +12,13 @@ import {
 import { safeBack } from '@lib/security/headers';
 
 const BACK_PATH = '/settings';
+
+export const GET: APIRoute = async ({ redirect, url }) => {
+	const back = safeBack(url.searchParams.get('back'), BACK_PATH);
+	return redirect(
+		`${back}?status=error&msg=${encodeURIComponent('Metodo no permitido. Usa POST.')}`,
+	);
+};
 
 /** Mapeo: nombre del campo en el form → nombre de columna en la BD */
 const FIELD_TO_DB: Record<string, string> = {
@@ -39,14 +47,17 @@ export const POST: APIRoute = async ({
 }) => {
 	const back = safeBack(new URL(request.url).searchParams.get('back'), BACK_PATH);
 	// Crear cliente Supabase para este request
-	const supabase = createSupabaseServerClient({
-		headers: request.headers,
-		cookies,
-	});
+	const supabase =
+		(locals.supabase as SupabaseClient | undefined) ??
+		createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
 	// Usuario ya verificado por el middleware
 	const user = locals?.user;
 	if (!user) {
+		console.warn('[update-profile] Usuario no autenticado en POST');
 		const msg = encodeURIComponent('No autenticado');
 		return redirect(`${back}?status=error&msg=${msg}`);
 	}
@@ -57,6 +68,7 @@ export const POST: APIRoute = async ({
 	const result = validateFormData(personalInfoSchema, raw);
 
 	if (!result.success) {
+		console.warn('[update-profile] Validacion fallida', result.fieldErrors);
 		// Tomar el primer error global para mostrarlo como mensaje
 		const firstError = Object.values(result.fieldErrors)[0]?.[0]
 			?? 'Datos inválidos';
@@ -79,6 +91,7 @@ export const POST: APIRoute = async ({
 		.upsert(payload, { onConflict: 'user_id' });
 
 	if (error) {
+		console.error('[update-profile] Error en upsert usuarios', error);
 		const msg = encodeURIComponent(`Error: ${error.message}`);
 		return redirect(`${back}?status=error&msg=${msg}`);
 	}

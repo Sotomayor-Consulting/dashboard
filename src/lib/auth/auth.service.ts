@@ -215,7 +215,12 @@ export class AuthService {
 	 * @supabase/ssr limpia las cookies automáticamente via setAll().
 	 */
 	async signOut(): Promise<void> {
-		await this.supabase.auth.signOut();
+		const { error } = await this.supabase.auth.signOut({ scope: 'local' });
+		if (error) {
+			throw new AuthError(
+				friendlyAuthError(error.message, (error as { code?: string }).code),
+			);
+		}
 	}
 
 	/**
