@@ -14,13 +14,14 @@ import {
 	jsonError,
 } from '@lib/auth';
 import type { OAuthProvider } from '@lib/auth';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 // Safety net: si algo hace GET a esta ruta, redirigir al formulario
 export const GET: APIRoute = async ({ redirect }) => {
 	return redirect(PATHS.signIn);
 };
 
-export const POST: APIRoute = async ({ request, cookies, redirect }) => {
+export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => {
 	const formData = await request.formData();
 	const email = formData.get('email')?.toString();
 	const password = formData.get('password')?.toString();
@@ -34,11 +35,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
 	// Si "Recuérdame" NO está marcado, sessionOnly=true hace que las cookies
 	// se setean sin maxAge → expiran al cerrar el browser.
-	const supabase = createSupabaseServerClient({
-		headers: request.headers,
-		cookies,
-		sessionOnly: !remember,
-	});
+	const supabase =
+		(locals.supabase as SupabaseClient | undefined) ??
+		createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+			sessionOnly: !remember,
+		});
 	const auth = new AuthService(supabase, cookies);
 
 	try {

@@ -22,13 +22,33 @@ const SUPABASE_WSS = SUPABASE_HOST ? `wss://${SUPABASE_HOST}` : '';
 
 const IS_PRODUCTION = import.meta.env.PROD;
 
+const normalizeHost = (value: string) =>
+	value.replace(/:443$|:80$/i, '').trim().toLowerCase();
+
+function hostFromValue(value: string): string {
+	const raw = value.trim();
+	if (!raw) return '';
+	try {
+		return normalizeHost(new URL(raw).host);
+	} catch {
+		return normalizeHost(raw);
+	}
+}
+
 // Hosts confiables derivados de la config de Astro (site) para CSRF.
 // En producción detrás de un reverse proxy, el Host header interno puede
 // no coincidir con el Origin del browser, así que confiamos en el dominio configurado.
 const TRUSTED_HOSTS = new Set<string>(
 	[
-		import.meta.env.SITE ? new URL(import.meta.env.SITE).host : '',
-	].filter(Boolean).map((h) => h.replace(/:443$|:80$/i, '').trim().toLowerCase()),
+		import.meta.env.SITE,
+		process.env.SITE,
+		process.env.PUBLIC_SITE_URL,
+		'app.sotomayorconsulting.com',
+		'localhost:4321',
+		'localhost:3000',
+	]
+		.map((v) => hostFromValue(v ?? ''))
+		.filter(Boolean),
 );
 
 const CSP_DIRECTIVES = [
@@ -66,9 +86,6 @@ const CSP_DIRECTIVES = [
  */
 function checkCsrf(request: Request): Response | null {
 	if (!STATE_CHANGING_METHODS.has(request.method)) return null;
-
-	const normalizeHost = (value: string) =>
-		value.replace(/:443$|:80$/i, '').trim().toLowerCase();
 
 	const host = normalizeHost(
 		request.headers.get('x-forwarded-host') ||
@@ -155,6 +172,13 @@ const AUTH_ROUTES: readonly string[] = [
 	'/sign-up',
 	'/forgot-password',
 ];
+
+// Evitar doble cliente Supabase en handlers de auth API que mutan cookies
+// (sign-in/sign-out). Esos handlers ya gestionan su propio ciclo de cookies.
+const AUTH_API_COOKIE_HANDLERS = new Set([
+	'/api/auth/signin',
+	'/api/auth/signout',
+]);
 
 // ─── Configuración de acceso por rol ────────────────────
 // Evaluadas en orden: la primera que coincida decide.
@@ -281,6 +305,10 @@ export function onRequest(context: any, next: any) {
 		// 0) CSRF: Validar origen en métodos que modifican estado
 		const csrfResponse = checkCsrf(context.request);
 		if (csrfResponse) return csrfResponse;
+
+		if (AUTH_API_COOKIE_HANDLERS.has(pathname)) {
+			return next();
+		}
 
 		// 1) Crear cliente Supabase SSR (per-request)
 		const supabase = createSupabaseServerClient({
