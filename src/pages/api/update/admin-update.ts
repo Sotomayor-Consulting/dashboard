@@ -8,6 +8,13 @@ import { safeBack } from '@lib/security/headers';
 
 const BACK_PATH = '/usuarios/';
 
+export const GET: APIRoute = async ({ redirect, url }) => {
+	const back = safeBack(url.searchParams.get('back'), BACK_PATH);
+	return redirect(
+		`${back}?status=error&msg=${encodeURIComponent('Metodo no permitido. Usa POST.')}`,
+	);
+};
+
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const back = safeBack(url.searchParams.get('back'), BACK_PATH);
 

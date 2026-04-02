@@ -35,6 +35,13 @@ function hostFromValue(value: string): string {
 	}
 }
 
+function firstForwardedHost(value: string | null): string {
+	if (!value) return '';
+	return value
+		.split(',')[0]
+		?.trim() ?? '';
+}
+
 // Hosts confiables derivados de la config de Astro (site) para CSRF.
 // En producción detrás de un reverse proxy, el Host header interno puede
 // no coincidir con el Origin del browser, así que confiamos en el dominio configurado.
@@ -87,11 +94,11 @@ const CSP_DIRECTIVES = [
 function checkCsrf(request: Request): Response | null {
 	if (!STATE_CHANGING_METHODS.has(request.method)) return null;
 
-	const host = normalizeHost(
-		request.headers.get('x-forwarded-host') ||
-		request.headers.get('host') ||
-		'',
+	const xForwardedHost = firstForwardedHost(
+		request.headers.get('x-forwarded-host'),
 	);
+	const hostHeader = firstForwardedHost(request.headers.get('host'));
+	const host = normalizeHost(xForwardedHost || hostHeader || '');
 	if (!host) return null; // Sin host no podemos validar — defensive, no bloquear
 
 	// Intentar Origin primero, luego Referer como fallback
@@ -106,9 +113,26 @@ function checkCsrf(request: Request): Response | null {
 
 	try {
 		const sourceHost = normalizeHost(new URL(sourceUrl).host);
+		const fetchSite = (request.headers.get('sec-fetch-site') ?? '').toLowerCase();
+		const isSameOriginBrowserRequest = fetchSite === 'same-origin';
 		// Comparar con el Host header O con los hosts confiables (para proxies
 		// que no reenvían X-Forwarded-Host correctamente).
-		if (sourceHost !== host && !TRUSTED_HOSTS.has(sourceHost)) {
+		if (
+			sourceHost !== host &&
+			!TRUSTED_HOSTS.has(sourceHost) &&
+			!isSameOriginBrowserRequest
+		) {
+			console.warn('[CSRF] Request bloqueado por host no permitido', {
+				method: request.method,
+				sourceHost,
+				host,
+				xForwardedHost,
+				hostHeader,
+				origin,
+				referer,
+				fetchSite,
+				trustedHosts: Array.from(TRUSTED_HOSTS),
+			});
 			return new Response(
 				JSON.stringify({ error: 'Origen no permitido' }),
 				{ status: 403, headers: SECURITY_HEADERS },

@@ -8,9 +8,30 @@ import { createSupabaseServerClient } from '@lib/supabase';
 import { supabaseAdmin } from '@lib/supabase/admin';
 import { SECURITY_HEADERS } from '@lib/security/headers';
 
-const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY as string);
+const STRIPE_SECRET_KEY =
+	process.env.STRIPE_SECRET_KEY ?? import.meta.env.STRIPE_SECRET_KEY;
+
+if (!STRIPE_SECRET_KEY) {
+	console.error(
+		'[payment-intent] Missing STRIPE_SECRET_KEY environment variable.',
+	);
+}
+
+const stripe = STRIPE_SECRET_KEY
+	? new Stripe(STRIPE_SECRET_KEY)
+	: null;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+	if (!stripe) {
+		return new Response(
+			JSON.stringify({ error: 'Configuracion incompleta de pagos (Stripe).' }),
+			{
+				status: 503,
+				headers: SECURITY_HEADERS,
+			},
+		);
+	}
+
 	// ─── 1) Autenticación (server-verified via getUser) ──
 	const supabase = createSupabaseServerClient({
 		headers: request.headers,
