@@ -21,7 +21,9 @@ const SUPABASE_HOST = SUPABASE_URL ? new URL(SUPABASE_URL).host : '';
 const SUPABASE_WSS = SUPABASE_HOST ? `wss://${SUPABASE_HOST}` : '';
 
 const IS_PRODUCTION = import.meta.env.PROD;
-const CSRF_DISABLED = process.env.DISABLE_CSRF === 'true';
+// Temporal: CSRF desactivado por defecto para estabilizar producción.
+// Para reactivarlo, define ENABLE_CSRF=true.
+const CSRF_DISABLED = process.env.ENABLE_CSRF !== 'true';
 
 const normalizeHost = (value: string) =>
 	value.replace(/:443$|:80$/i, '').trim().toLowerCase();
