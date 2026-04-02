@@ -21,6 +21,7 @@ const SUPABASE_HOST = SUPABASE_URL ? new URL(SUPABASE_URL).host : '';
 const SUPABASE_WSS = SUPABASE_HOST ? `wss://${SUPABASE_HOST}` : '';
 
 const IS_PRODUCTION = import.meta.env.PROD;
+const CSRF_DISABLED = process.env.DISABLE_CSRF === 'true';
 
 const normalizeHost = (value: string) =>
 	value.replace(/:443$|:80$/i, '').trim().toLowerCase();
@@ -92,7 +93,16 @@ const CSP_DIRECTIVES = [
  * Retorna null si OK, o un Response 403 si el origen no coincide.
  */
 function checkCsrf(request: Request): Response | null {
+	// TEMPORAL: CSRF deshabilitado para diagnosticar bloqueos en producción.
+	// Habilitar solo en entornos controlados con DISABLE_CSRF=true.
+	if (CSRF_DISABLED) return null;
+
 	if (!STATE_CHANGING_METHODS.has(request.method)) return null;
+
+	const fetchSite = (request.headers.get('sec-fetch-site') ?? '').toLowerCase();
+	// Requests same-origin del navegador ya vienen protegidos por el modelo
+	// de origen del browser (Sec-Fetch-Site no lo puede setear JS arbitrario).
+	if (fetchSite === 'same-origin') return null;
 
 	const xForwardedHost = firstForwardedHost(
 		request.headers.get('x-forwarded-host'),
@@ -102,25 +112,23 @@ function checkCsrf(request: Request): Response | null {
 	if (!host) return null; // Sin host no podemos validar — defensive, no bloquear
 
 	// Intentar Origin primero, luego Referer como fallback
-	const origin = request.headers.get('origin');
+	const rawOrigin = request.headers.get('origin');
+	const origin = rawOrigin && rawOrigin !== 'null' ? rawOrigin : null;
 	const referer = request.headers.get('referer');
 
 	// Si no hay ni Origin ni Referer, el request podría ser legítimo
 	// (ej. server-to-server, herramientas de testing). Solo bloquear
 	// cuando hay un Origin/Referer que NO coincide.
-	const sourceUrl = origin || referer;
+	const sourceUrl: string | null = origin || referer;
 	if (!sourceUrl) return null;
 
 	try {
 		const sourceHost = normalizeHost(new URL(sourceUrl).host);
-		const fetchSite = (request.headers.get('sec-fetch-site') ?? '').toLowerCase();
-		const isSameOriginBrowserRequest = fetchSite === 'same-origin';
 		// Comparar con el Host header O con los hosts confiables (para proxies
 		// que no reenvían X-Forwarded-Host correctamente).
 		if (
 			sourceHost !== host &&
-			!TRUSTED_HOSTS.has(sourceHost) &&
-			!isSameOriginBrowserRequest
+			!TRUSTED_HOSTS.has(sourceHost)
 		) {
 			console.warn('[CSRF] Request bloqueado por host no permitido', {
 				method: request.method,
