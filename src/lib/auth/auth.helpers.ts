@@ -49,7 +49,7 @@ export function buildOAuthRedirectUrl(
 	// 2. Construir desde Host header (validado contra hosts permitidos)
 	const host = request.headers.get('host');
 	const allowedHosts = [
-		'dashboard.sotomayorconsulting.com',
+		'app.sotomayorconsulting.com',
 		'localhost:4321',
 		'localhost:3000',
 	];

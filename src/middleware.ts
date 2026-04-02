@@ -22,6 +22,35 @@ const SUPABASE_WSS = SUPABASE_HOST ? `wss://${SUPABASE_HOST}` : '';
 
 const IS_PRODUCTION = import.meta.env.PROD;
 
+const normalizeHost = (value: string) =>
+	value.replace(/:443$|:80$/i, '').trim().toLowerCase();
+
+function hostFromValue(value: string): string {
+	const raw = value.trim();
+	if (!raw) return '';
+	try {
+		return normalizeHost(new URL(raw).host);
+	} catch {
+		return normalizeHost(raw);
+	}
+}
+
+// Hosts confiables derivados de la config de Astro (site) para CSRF.
+// En producción detrás de un reverse proxy, el Host header interno puede
+// no coincidir con el Origin del browser, así que confiamos en el dominio configurado.
+const TRUSTED_HOSTS = new Set<string>(
+	[
+		import.meta.env.SITE,
+		process.env.SITE,
+		process.env.PUBLIC_SITE_URL,
+		'app.sotomayorconsulting.com',
+		'localhost:4321',
+		'localhost:3000',
+	]
+		.map((v) => hostFromValue(v ?? ''))
+		.filter(Boolean),
+);
+
 const CSP_DIRECTIVES = [
 	// Fallback: bloquear todo lo no listado
 	"default-src 'self'",
@@ -35,9 +64,9 @@ const CSP_DIRECTIVES = [
 	// Conexiones: fetch/XHR/WebSocket
 	`connect-src 'self' ${SUPABASE_URL} ${SUPABASE_WSS} https://unpkg.com https://esm.sh https://api.stripe.com https://accounts.google.com`,
 	// Imágenes
-	`img-src 'self' data: blob: ${SUPABASE_URL} https://dashboard.sotomayorconsulting.com https://sotomayorconsulting.com https://i.imgur.com https://api.dicebear.com`,
+	`img-src 'self' data: blob: ${SUPABASE_URL} https://app.sotomayorconsulting.com https://sotomayorconsulting.com https://i.imgur.com https://api.dicebear.com`,
 	// Iframes (Stripe Elements crea iframes)
-	`frame-src 'self' https://js.stripe.com`,
+	`frame-src 'self' https://js.stripe.com https://accounts.google.com`,
 	// Bloquear object/embed (Flash, plugins legacy)
 	"object-src 'none'",
 	// Base URI: solo 'self' (previene <base> injection)
@@ -58,13 +87,10 @@ const CSP_DIRECTIVES = [
 function checkCsrf(request: Request): Response | null {
 	if (!STATE_CHANGING_METHODS.has(request.method)) return null;
 
-	const normalizeHost = (value: string) =>
-		value.replace(/:443$|:80$/i, '').trim().toLowerCase();
-
 	const host = normalizeHost(
 		request.headers.get('x-forwarded-host') ||
-			request.headers.get('host') ||
-			'',
+		request.headers.get('host') ||
+		'',
 	);
 	if (!host) return null; // Sin host no podemos validar — defensive, no bloquear
 
@@ -80,7 +106,9 @@ function checkCsrf(request: Request): Response | null {
 
 	try {
 		const sourceHost = normalizeHost(new URL(sourceUrl).host);
-		if (sourceHost !== host) {
+		// Comparar con el Host header O con los hosts confiables (para proxies
+		// que no reenvían X-Forwarded-Host correctamente).
+		if (sourceHost !== host && !TRUSTED_HOSTS.has(sourceHost)) {
 			return new Response(
 				JSON.stringify({ error: 'Origen no permitido' }),
 				{ status: 403, headers: SECURITY_HEADERS },
@@ -144,6 +172,13 @@ const AUTH_ROUTES: readonly string[] = [
 	'/sign-up',
 	'/forgot-password',
 ];
+
+// Evitar doble cliente Supabase en handlers de auth API que mutan cookies
+// (sign-in/sign-out). Esos handlers ya gestionan su propio ciclo de cookies.
+const AUTH_API_COOKIE_HANDLERS = new Set([
+	'/api/auth/signin',
+	'/api/auth/signout',
+]);
 
 // ─── Configuración de acceso por rol ────────────────────
 // Evaluadas en orden: la primera que coincida decide.
@@ -270,6 +305,10 @@ export function onRequest(context: any, next: any) {
 		// 0) CSRF: Validar origen en métodos que modifican estado
 		const csrfResponse = checkCsrf(context.request);
 		if (csrfResponse) return csrfResponse;
+
+		if (AUTH_API_COOKIE_HANDLERS.has(pathname)) {
+			return next();
+		}
 
 		// 1) Crear cliente Supabase SSR (per-request)
 		const supabase = createSupabaseServerClient({

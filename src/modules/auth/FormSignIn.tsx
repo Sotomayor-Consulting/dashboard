@@ -167,10 +167,17 @@ export default function FormSignIn() {
 			const response = await fetch('/api/auth/signin', {
 				method: 'POST',
 				body: formData,
-				redirect: 'follow',
+				headers: { Accept: 'application/json' },
 			});
-			// El servidor responde con redirect → fetch lo sigue → navegar al destino
-			window.location.href = response.url;
+			const data = await response.json();
+			if (data.ok) {
+				// Las cookies de sesión ya fueron seteadas por Set-Cookie headers.
+				// Navegar para que el browser haga un request fresco con las cookies.
+				window.location.href = data.data?.redirect ?? '/';
+			} else {
+				setEmailPending(false);
+				setEmailError(data.error ?? 'Error al iniciar sesión.');
+			}
 		} catch {
 			setEmailPending(false);
 			setEmailError('Error de conexión.');
