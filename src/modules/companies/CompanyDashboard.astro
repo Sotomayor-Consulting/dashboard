@@ -126,7 +126,11 @@ if (empresa.estado_de_incorporacion) {
 					</h3>
 				</div>
 			</div>
-			<div id="datamap-container" class="relative h-full min-h-100 w-full">
+			<div
+				id="datamap-container"
+				class="relative h-full min-h-100 w-full"
+				data-estado-mapa={estadoMapa ?? ''}
+			>
 				<div
 					class="map-loader absolute inset-0 flex items-center justify-center rounded-lg"
 				>
@@ -517,6 +521,10 @@ if (empresa.estado_de_incorporacion) {
 </script>
 
 <script>
+	import './CompanyDashboardGeo.client.ts';
+</script>
+
+<script>
 	document.addEventListener('click', async (e) => {
 		const target = e.target as HTMLElement;
 		const btn = target.closest('.btn-ver-documento-table');
@@ -613,184 +621,4 @@ if (empresa.estado_de_incorporacion) {
 
 	initDT();
 	document.addEventListener('astro:page-load', initDT);
-</script>
-
-<script type="module" define:vars={{ estadoMapa }} is:inline>
-	import { Chart, registerables } from 'https://esm.sh/chart.js';
-	import {
-		topojson,
-		ChoroplethController,
-		GeoFeature,
-		ProjectionScale,
-		ColorScale,
-	} from 'https://esm.sh/chartjs-chart-geo';
-
-	Chart.register(
-		ChoroplethController,
-		GeoFeature,
-		ProjectionScale,
-		ColorScale,
-		...registerables,
-	);
-
-	document.addEventListener('DOMContentLoaded', function () {
-		setTimeout(function () {
-			try {
-				// Obtener contenedor
-				const container = document.getElementById('datamap-container');
-				const loader = container.querySelector('.map-loader');
-
-				// Cargar datos geográficos de EE.UU.
-				fetch('https://unpkg.com/us-atlas/states-10m.json')
-					.then((r) => r.json())
-					.then((us) => {
-						const nation = topojson.feature(us, us.objects.nation).features[0];
-						const states = topojson.feature(us, us.objects.states).features;
-
-						// Crear canvas para el mapa
-						const canvas = document.createElement('canvas');
-						container.innerHTML = '';
-						container.appendChild(canvas);
-
-						// Establecer altura fija al contenedor para evitar crecimiento
-						container.style.height = '400px';
-						container.style.maxHeight = '400px';
-
-						// Preparar datos para el mapa - solo el estado de la empresa
-						const mapData = states.map((d) => {
-							// Usar el nombre completo del estado
-							const stateName = d.properties.name;
-							const isActive =
-								estadoMapa &&
-								stateName.toLowerCase() === estadoMapa.toLowerCase();
-
-							return {
-								feature: d,
-								value: isActive ? 1 : 0,
-							};
-						});
-
-						// Crear el mapa con Chart.js Geo
-						const chart = new Chart(canvas.getContext('2d'), {
-							type: 'choropleth',
-							data: {
-								labels: states.map((d) => d.properties.name),
-								datasets: [
-									{
-										label: 'Estados',
-										outline: nation,
-										data: mapData,
-										backgroundColor: (context) => {
-											// Si el estado tiene valor 1, es el estado de la empresa
-											if (context.raw && context.raw.value === 1) {
-												return '#0078b7'; // activeFill
-											}
-											return 'transparent'; // defaultFill
-										},
-										borderColor: '#0078b7',
-										borderWidth: 1,
-										hoverBackgroundColor: '#003e6c', // highlightFill
-										hoverBorderColor: '#003e6c',
-										hoverBorderWidth: 2,
-										skip: false,
-									},
-								],
-							},
-							options: {
-								responsive: true,
-								maintainAspectRatio: false,
-								scales: {
-									projection: {
-										axis: 'x',
-										projection: 'albersUsa',
-									},
-									color: {
-										axis: 'x',
-										display: false,
-									},
-								},
-								plugins: {
-									legend: {
-										display: false,
-									},
-									tooltip: {
-										enabled: true,
-										backgroundColor: 'rgba(0, 0, 0, 0.8)',
-										titleColor: '#fff',
-										bodyColor: '#fff',
-										borderColor: '#0078b7',
-										borderWidth: 1,
-										padding: 10,
-										displayColors: false,
-										callbacks: {
-											title: function (context) {
-												const item = context[0];
-												if (
-													item &&
-													item.raw &&
-													item.raw.feature &&
-													item.raw.feature.properties
-												) {
-													return item.raw.feature.properties.name;
-												}
-												return '';
-											},
-											label: function (context) {
-												if (context.raw && context.raw.value === 1) {
-													return 'El estado de tu empresa';
-												}
-												return '';
-											},
-										},
-									},
-								},
-							},
-						});
-
-						// Ocultar loader
-						if (loader) {
-							setTimeout(() => {
-								loader.style.transition = 'opacity 0.3s ease-out';
-								loader.style.opacity = '0';
-								setTimeout(() => {
-									loader.style.display = 'none';
-								}, 300);
-							}, 100);
-
-							// Animar el mapa
-							const canvasElement = container.querySelector('canvas');
-							if (canvasElement) {
-								canvasElement.style.opacity = '0';
-								canvasElement.style.transform = 'scale(0.95)';
-								canvasElement.style.transition = 'all 0.5s ease-out';
-
-								setTimeout(() => {
-									canvasElement.style.opacity = '1';
-									canvasElement.style.transform = 'scale(1)';
-								}, 150);
-							}
-						}
-
-						// Chart.js maneja el responsive automáticamente, no se necesita listener manual
-					})
-					.catch((error) => {
-						console.error('Error al cargar datos geográficos:', error);
-						const container = document.getElementById('datamap-container');
-						if (container) {
-							container.innerHTML =
-								'<div style="display:flex;align-items:center;justify-content:center;height:400px;color:#666;flex-direction:column;"><div style="margin-bottom:10px;">Error: No se pudieron cargar los datos del mapa</div><div style="font-size:12px;">Verifica tu conexión a internet</div></div>';
-						}
-					});
-			} catch (error) {
-				console.error('Error al inicializar El mapa:', error);
-				const container = document.getElementById('datamap-container');
-				if (container) {
-					container.innerHTML =
-						'<div style="display:flex;align-items:center;justify-content:center;height:400px;color:#666;flex-direction:column;"><div style="margin-bottom:10px;">Error: ' +
-						error.message +
-						'</div><div style="font-size:12px;">Verificá que las dependencias se cargaron correctamente</div></div>';
-				}
-			}
-		}, 1500);
-	});
 </script>
