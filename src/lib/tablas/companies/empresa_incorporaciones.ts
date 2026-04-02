@@ -28,10 +28,10 @@ export const getIncorporacionById = async (
 		.select('*')
 		.eq('empresa_incorporacion_id', id)
 		.eq('user_id', userId)
-		.single();
+		.maybeSingle();
 	if (error) {
 		console.error('Error fetching incorporaciones by ID:', error);
-		return [];
+		return null;
 	}
 
 	return data;

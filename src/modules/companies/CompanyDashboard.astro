@@ -27,6 +27,10 @@ const [empresa, folderPath, porfirmar] = await Promise.all([
 	getDocumentosPorFirmar(supabase, userId, empresaId),
 ]);
 
+if (!empresa) {
+	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
+}
+
 // Obtener estado de incorporación para el mapa
 let estadoMapa = null;
 if (empresa.estado_de_incorporacion) {

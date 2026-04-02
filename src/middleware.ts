@@ -37,7 +37,7 @@ const CSP_DIRECTIVES = [
 	// Imágenes
 	`img-src 'self' data: blob: ${SUPABASE_URL} https://app.sotomayorconsulting.com https://sotomayorconsulting.com https://i.imgur.com https://api.dicebear.com`,
 	// Iframes (Stripe Elements crea iframes)
-	`frame-src 'self' https://js.stripe.com`,
+	`frame-src 'self' https://js.stripe.com https://accounts.google.com`,
 	// Bloquear object/embed (Flash, plugins legacy)
 	"object-src 'none'",
 	// Base URI: solo 'self' (previene <base> injection)

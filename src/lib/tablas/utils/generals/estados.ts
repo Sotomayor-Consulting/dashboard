@@ -19,10 +19,10 @@ export const getEstadoPorEmpresa = async (
 		.from('estados')
 		.select('abreviatura, Estado')
 		.eq('Estado', estado)
-		.single();
+		.maybeSingle();
 	if (error) {
 		console.error('Error fetching estado por empresa:', error);
-		throw error;
+		return null;
 	}
 
 	return data;
