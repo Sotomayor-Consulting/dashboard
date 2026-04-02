@@ -533,7 +533,11 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 <script src="https://js.stripe.com/v3/"></script>
 
 <script is:inline>
-	document.addEventListener('DOMContentLoaded', () => {
+	function initIncorporacionPaymentConfig() {
+		const cfg = document.getElementById('stripe-config');
+		if (!cfg || cfg.dataset.paymentConfigInitialized === 'true') return;
+		cfg.dataset.paymentConfigInitialized = 'true';
+
 		// --- NUEVO: toggle de facturación (mostrar/ocultar y required) ---
 		const facturaCheckbox = document.getElementById('factura-checkbox');
 		const contFacturacion = document.getElementById('contenedor-facturacion');
@@ -560,11 +564,6 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 		// --- FIN NUEVO ---
 
 		// 1) Config Stripe
-		const cfg = document.getElementById('stripe-config');
-		if (!cfg) {
-			console.error('Stripe config div not found');
-			return;
-		}
 		const pk = cfg.dataset.pk;
 		const userId = cfg.dataset.id; // user_id del dataset
 		if (!pk || !userId) {
@@ -751,11 +750,29 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 			}
 		}
 		// --- FIN NUEVO ---
-	});
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener(
+			'DOMContentLoaded',
+			initIncorporacionPaymentConfig,
+			{
+				once: true,
+			},
+		);
+	} else {
+		initIncorporacionPaymentConfig();
+	}
+
+	document.addEventListener('astro:page-load', initIncorporacionPaymentConfig);
 </script>
 
 <script>
-	document.addEventListener('DOMContentLoaded', function () {
+	function initIncorporacionPaymentFlow() {
+		const root = document.getElementById('content');
+		if (!root || root.dataset.paymentFlowInitialized === 'true') return;
+		root.dataset.paymentFlowInitialized = 'true';
+
 		const boton = document.getElementById('btn-paso1');
 		const regresar = document.getElementById('btn-atras');
 		const boton2 = document.getElementById('btn-paso2');
@@ -962,5 +979,19 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				}
 			});
 		}
-	});
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener(
+			'DOMContentLoaded',
+			initIncorporacionPaymentFlow,
+			{
+				once: true,
+			},
+		);
+	} else {
+		initIncorporacionPaymentFlow();
+	}
+
+	document.addEventListener('astro:page-load', initIncorporacionPaymentFlow);
 </script>
