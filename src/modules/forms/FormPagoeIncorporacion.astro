@@ -7,6 +7,10 @@ import { ListaServiciosStripe } from '@lib/tablas/services/servicios';
 const User = Astro.locals.user;
 const userId = User?.id || '';
 const supabase = Astro.locals.supabase;
+const stripePublishableKey =
+	process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ??
+	import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ??
+	'';
 
 const [empresas, servicios] = await Promise.all([
 	getIncorporacionesEnProceso(supabase, userId),
@@ -409,7 +413,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				>
 					<div
 						id="stripe-config"
-						data-pk={import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY}
+						data-pk={stripePublishableKey}
 						data-id={userId}
 						class="hidden"
 					>
@@ -564,7 +568,10 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 		const pk = cfg.dataset.pk;
 		const userId = cfg.dataset.id; // user_id del dataset
 		if (!pk || !userId) {
-			console.error('Stripe publishable key or user ID missing');
+			console.error('Stripe publishable key or user ID missing', {
+				hasPublishableKey: Boolean(pk),
+				hasUserId: Boolean(userId),
+			});
 			return;
 		}
 
@@ -878,7 +885,6 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 
 		const stripe = (window as any).stripeInstance;
 		const cardElement = (window as any).cardElementInstance;
-		const userId = (window as any).userIdGlobal;
 
 		if (paymentForm) {
 			paymentForm.addEventListener('submit', async (event) => {

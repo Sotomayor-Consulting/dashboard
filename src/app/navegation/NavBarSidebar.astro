@@ -10,6 +10,12 @@ const { usuario: usuarioProp, notificationsData: notifProp } = Astro.props;
 const user = Astro.locals?.user;
 const userId = user?.id;
 const email = user?.email;
+const supabaseUrl =
+	process.env.PUBLIC_SUPABASE_URL ?? import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const supabaseAnonKey =
+	process.env.PUBLIC_SUPABASE_ANON_KEY ??
+	import.meta.env.PUBLIC_SUPABASE_ANON_KEY ??
+	'';
 
 const usuario = usuarioProp ?? null;
 const imagen = usuario; // avatar_url viene incluido en getUsuarioById (select *)
@@ -311,8 +317,8 @@ const { notifications, totalUnread } = notifProp ?? {
 <script
 	type="module"
 	define:vars={{
-		SB_URL: import.meta.env.PUBLIC_SUPABASE_URL,
-		SB_ANON: import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+		SB_URL: supabaseUrl,
+		SB_ANON: supabaseAnonKey,
 		USER_ID: user?.id ?? '',
 		TOTAL_UNREAD: totalUnread ?? 0,
 	}}
