@@ -8,6 +8,23 @@ import react from '@astrojs/react';
 
 export default defineConfig({
 	site: 'https://app.sotomayorconsulting.com',
+	security: {
+		checkOrigin: true,
+		allowedDomains: [
+			{
+				hostname: 'app.sotomayorconsulting.com',
+				protocol: 'https',
+			},
+			{
+				hostname: 'localhost',
+				protocol: 'http',
+			},
+			{
+				hostname: '127.0.0.1',
+				protocol: 'http',
+			},
+		],
+	},
 	prefetch: {
 		defaultStrategy: 'hover',
 	},
