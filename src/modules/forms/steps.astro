@@ -106,363 +106,391 @@ const estadosData = estados ?? [];
 </div>
 
 <script>
-	const boton = document.getElementById('openBtnxd');
-	const modal = document.getElementById('modalCard');
-	const cerrar = document.getElementById('closeBtn');
+	function initStepsStepper() {
+		const root = document.getElementById('business-form');
+		if (!root || root.dataset.stepsInitialized === 'true') return;
+		root.dataset.stepsInitialized = 'true';
 
-	boton?.addEventListener('click', function () {
-		modal?.classList.remove('hidden');
-		modal?.classList.add('flex');
-	});
+		const boton = document.getElementById('openBtnxd');
+		const modal = document.getElementById('modalCard');
+		const cerrar = document.getElementById('closeBtn');
 
-	cerrar?.addEventListener('click', function () {
-		modal?.classList.add('hidden');
-		modal?.classList.remove('flex');
-	});
-
-	//logica del stepper
-	let pasoActual = 0;
-
-	// variables activas
-	const activoli = [
-		'relative',
-		'flex-1',
-		"after:content-['']",
-		'after:w-0.5',
-		'after:h-full',
-		'after:bg-black-500',
-		'after:inline-block',
-		'after:absolute',
-		'after:-bottom-11',
-		'after:left-1/4',
-	];
-	const activodiv1 = [
-		'flex',
-		'items-center',
-		'gap-3.5',
-		'dark:bg-black-600',
-		'bg-white',
-		'p-3.5',
-		'rounded-xl',
-		'relative',
-		'z-10',
-		'border',
-		'border-black-500',
-		'w-full',
-	];
-	const activodiv2 = [
-		'rounded-lg',
-		'bg-black-400',
-		'flex',
-		'items-center',
-		'justify-center',
-	];
-	const activospan = ['text-white', 'p-3'];
-	const activoh6 = ['text-base', 'font-semibold', 'dark:text-white', 'mb-0.5'];
-	const activop = [
-		'text-xs',
-		'font-normal',
-		'dark:text-gray-400',
-		'text-neutral-600',
-	];
-
-	// variables inactivas
-	const inactivoli = [
-		'relative',
-		'flex-1',
-		"after:content-['']",
-		'after:w-0.5',
-		'after:h-full',
-		'after:bg-gray-200',
-		'after:inline-block',
-		'after:absolute',
-		'after:-bottom-12',
-		'after:left-1/4',
-	];
-	const inactivodiv1 = [
-		'flex',
-		'items-center',
-		'gap-3.5',
-		'dark:bg-black-900',
-		'bg-white-100',
-		'p-3.5',
-		'rounded-xl',
-		'relative',
-		'z-10',
-		'border',
-		'hover:border-black-400',
-		'w-full',
-		'border-transparent',
-		'transition-all',
-		'group',
-	];
-	const inactivodiv2 = [
-		'rounded-lg',
-		'dark:bg-black-800',
-		'bg-white',
-		'group-hover:bg-black-400',
-		'flex',
-		'items-center',
-		'justify-center',
-		'transition-all',
-	];
-	const inactivospan = [
-		'text-gray-600',
-		'p-3',
-		'group-hover:text-white',
-		'transition-all',
-	];
-	const inactivoh6 = [
-		'text-base',
-		'font-semibold',
-		'text-gray-500',
-		'mb-0.5',
-		'group-hover:text-white-600',
-		'transition-all',
-	];
-	const inactivop = [
-		'text-xs',
-		'font-normal',
-		'text-gray-500',
-		'group-hover:text-white-600',
-		'transition-all',
-	];
-
-	//botones y elementos
-	const botonstep1 = document.getElementById('paso1btn');
-	const botonstep2 = document.getElementById('paso2btn');
-	const botonstep3 = document.getElementById('paso3btn');
-	const botonstep4 = document.getElementById('paso4btn');
-
-	const formstep1 = document.getElementById('paso1');
-	const formstep2 = document.getElementById('paso2');
-	const formstep3 = document.getElementById('paso3');
-	const formstep4 = document.getElementById('paso4');
-
-	const contenedorRegistro = document.getElementById('contenedor-registro');
-
-	//elementos
-	const elementos = [
-		{
-			li: document.getElementById('stepli-1'),
-			div1: document.getElementById('stepdiv1-1'),
-			div2: document.getElementById('stepdiv2-1'),
-			span: document.getElementById('stepspan-1'),
-			h6: document.getElementById('steph6-1'),
-			p: document.getElementById('stepp-1'),
-		},
-		{
-			li: document.getElementById('stepli-2'),
-			div1: document.getElementById('stepdiv1-2'),
-			div2: document.getElementById('stepdiv2-2'),
-			span: document.getElementById('stepspan-2'),
-			h6: document.getElementById('steph6-2'),
-			p: document.getElementById('stepp-2'),
-		},
-		{
-			li: document.getElementById('stepli-3'),
-			div1: document.getElementById('stepdiv1-3'),
-			div2: document.getElementById('stepdiv2-3'),
-			span: document.getElementById('stepspan-3'),
-			h6: document.getElementById('steph6-3'),
-			p: document.getElementById('stepp-3'),
-		},
-		{
-			li: document.getElementById('stepli-4'),
-			div1: document.getElementById('stepdiv1-4'),
-			div2: document.getElementById('stepdiv2-4'),
-			span: document.getElementById('stepspan-4'),
-			h6: document.getElementById('steph6-4'),
-			p: document.getElementById('stepp-4'),
-		},
-	];
-
-	function aplicarClases(elemento: HTMLElement | null, clases: string[]) {
-		if (elemento) {
-			elemento.classList.add(...clases);
-		}
-	}
-
-	function removerClases(elemento: HTMLElement | null, clases: string[]) {
-		if (elemento) {
-			elemento.classList.remove(...clases);
-		}
-	}
-
-	function activarPaso(pasoActivo: number) {
-		pasoActual = pasoActivo;
-		elementos.forEach((paso, index) => {
-			const esActivo = index === pasoActivo;
-
-			if (esActivo) {
-				// Aplicar clases activas
-				removerClases(paso.li, inactivoli);
-				removerClases(paso.div1, inactivodiv1);
-				removerClases(paso.div2, inactivodiv2);
-				removerClases(paso.span, inactivospan);
-				removerClases(paso.h6, inactivoh6);
-				removerClases(paso.p, inactivop);
-
-				aplicarClases(paso.li, activoli);
-				aplicarClases(paso.div1, activodiv1);
-				aplicarClases(paso.div2, activodiv2);
-				aplicarClases(paso.span, activospan);
-				aplicarClases(paso.h6, activoh6);
-				aplicarClases(paso.p, activop);
-			} else {
-				// Aplicar clases inactivas
-				removerClases(paso.li, activoli);
-				removerClases(paso.div1, activodiv1);
-				removerClases(paso.div2, activodiv2);
-				removerClases(paso.span, activospan);
-				removerClases(paso.h6, activoh6);
-				removerClases(paso.p, activop);
-
-				aplicarClases(paso.li, inactivoli);
-				aplicarClases(paso.div1, inactivodiv1);
-				aplicarClases(paso.div2, inactivodiv2);
-				aplicarClases(paso.span, inactivospan);
-				aplicarClases(paso.h6, inactivoh6);
-				aplicarClases(paso.p, inactivop);
-			}
+		boton?.addEventListener('click', function () {
+			modal?.classList.remove('hidden');
+			modal?.classList.add('flex');
 		});
+
+		cerrar?.addEventListener('click', function () {
+			modal?.classList.add('hidden');
+			modal?.classList.remove('flex');
+		});
+
+		//logica del stepper
+		let pasoActual = 0;
+
+		// variables activas
+		const activoli = [
+			'relative',
+			'flex-1',
+			"after:content-['']",
+			'after:w-0.5',
+			'after:h-full',
+			'after:bg-black-500',
+			'after:inline-block',
+			'after:absolute',
+			'after:-bottom-11',
+			'after:left-1/4',
+		];
+		const activodiv1 = [
+			'flex',
+			'items-center',
+			'gap-3.5',
+			'dark:bg-black-600',
+			'bg-white',
+			'p-3.5',
+			'rounded-xl',
+			'relative',
+			'z-10',
+			'border',
+			'border-black-500',
+			'w-full',
+		];
+		const activodiv2 = [
+			'rounded-lg',
+			'bg-black-400',
+			'flex',
+			'items-center',
+			'justify-center',
+		];
+		const activospan = ['text-white', 'p-3'];
+		const activoh6 = [
+			'text-base',
+			'font-semibold',
+			'dark:text-white',
+			'mb-0.5',
+		];
+		const activop = [
+			'text-xs',
+			'font-normal',
+			'dark:text-gray-400',
+			'text-neutral-600',
+		];
+
+		// variables inactivas
+		const inactivoli = [
+			'relative',
+			'flex-1',
+			"after:content-['']",
+			'after:w-0.5',
+			'after:h-full',
+			'after:bg-gray-200',
+			'after:inline-block',
+			'after:absolute',
+			'after:-bottom-12',
+			'after:left-1/4',
+		];
+		const inactivodiv1 = [
+			'flex',
+			'items-center',
+			'gap-3.5',
+			'dark:bg-black-900',
+			'bg-white-100',
+			'p-3.5',
+			'rounded-xl',
+			'relative',
+			'z-10',
+			'border',
+			'hover:border-black-400',
+			'w-full',
+			'border-transparent',
+			'transition-all',
+			'group',
+		];
+		const inactivodiv2 = [
+			'rounded-lg',
+			'dark:bg-black-800',
+			'bg-white',
+			'group-hover:bg-black-400',
+			'flex',
+			'items-center',
+			'justify-center',
+			'transition-all',
+		];
+		const inactivospan = [
+			'text-gray-600',
+			'p-3',
+			'group-hover:text-white',
+			'transition-all',
+		];
+		const inactivoh6 = [
+			'text-base',
+			'font-semibold',
+			'text-gray-500',
+			'mb-0.5',
+			'group-hover:text-white-600',
+			'transition-all',
+		];
+		const inactivop = [
+			'text-xs',
+			'font-normal',
+			'text-gray-500',
+			'group-hover:text-white-600',
+			'transition-all',
+		];
+
+		//botones y elementos
+		const botonstep1 = document.getElementById('paso1btn');
+		const botonstep2 = document.getElementById('paso2btn');
+		const botonstep3 = document.getElementById('paso3btn');
+		const botonstep4 = document.getElementById('paso4btn');
+
+		const formstep1 = document.getElementById('paso1');
+		const formstep2 = document.getElementById('paso2');
+		const formstep3 = document.getElementById('paso3');
+		const formstep4 = document.getElementById('paso4');
+
+		const contenedorRegistro = document.getElementById('contenedor-registro');
+
+		//elementos
+		const elementos = [
+			{
+				li: document.getElementById('stepli-1'),
+				div1: document.getElementById('stepdiv1-1'),
+				div2: document.getElementById('stepdiv2-1'),
+				span: document.getElementById('stepspan-1'),
+				h6: document.getElementById('steph6-1'),
+				p: document.getElementById('stepp-1'),
+			},
+			{
+				li: document.getElementById('stepli-2'),
+				div1: document.getElementById('stepdiv1-2'),
+				div2: document.getElementById('stepdiv2-2'),
+				span: document.getElementById('stepspan-2'),
+				h6: document.getElementById('steph6-2'),
+				p: document.getElementById('stepp-2'),
+			},
+			{
+				li: document.getElementById('stepli-3'),
+				div1: document.getElementById('stepdiv1-3'),
+				div2: document.getElementById('stepdiv2-3'),
+				span: document.getElementById('stepspan-3'),
+				h6: document.getElementById('steph6-3'),
+				p: document.getElementById('stepp-3'),
+			},
+			{
+				li: document.getElementById('stepli-4'),
+				div1: document.getElementById('stepdiv1-4'),
+				div2: document.getElementById('stepdiv2-4'),
+				span: document.getElementById('stepspan-4'),
+				h6: document.getElementById('steph6-4'),
+				p: document.getElementById('stepp-4'),
+			},
+		];
+
+		function aplicarClases(elemento: HTMLElement | null, clases: string[]) {
+			if (elemento) {
+				elemento.classList.add(...clases);
+			}
+		}
+
+		function removerClases(elemento: HTMLElement | null, clases: string[]) {
+			if (elemento) {
+				elemento.classList.remove(...clases);
+			}
+		}
+
+		function activarPaso(pasoActivo: number) {
+			pasoActual = pasoActivo;
+			elementos.forEach((paso, index) => {
+				const esActivo = index === pasoActivo;
+
+				if (esActivo) {
+					// Aplicar clases activas
+					removerClases(paso.li, inactivoli);
+					removerClases(paso.div1, inactivodiv1);
+					removerClases(paso.div2, inactivodiv2);
+					removerClases(paso.span, inactivospan);
+					removerClases(paso.h6, inactivoh6);
+					removerClases(paso.p, inactivop);
+
+					aplicarClases(paso.li, activoli);
+					aplicarClases(paso.div1, activodiv1);
+					aplicarClases(paso.div2, activodiv2);
+					aplicarClases(paso.span, activospan);
+					aplicarClases(paso.h6, activoh6);
+					aplicarClases(paso.p, activop);
+				} else {
+					// Aplicar clases inactivas
+					removerClases(paso.li, activoli);
+					removerClases(paso.div1, activodiv1);
+					removerClases(paso.div2, activodiv2);
+					removerClases(paso.span, activospan);
+					removerClases(paso.h6, activoh6);
+					removerClases(paso.p, activop);
+
+					aplicarClases(paso.li, inactivoli);
+					aplicarClases(paso.div1, inactivodiv1);
+					aplicarClases(paso.div2, inactivodiv2);
+					aplicarClases(paso.span, inactivospan);
+					aplicarClases(paso.h6, inactivoh6);
+					aplicarClases(paso.p, inactivop);
+				}
+			});
+		}
+
+		// eventos
+		botonstep1?.addEventListener('click', () => activarPaso(0));
+		botonstep2?.addEventListener('click', () => activarPaso(1));
+		botonstep3?.addEventListener('click', () => activarPaso(2));
+		botonstep4?.addEventListener('click', () => activarPaso(3));
+
+		const botonContinuar = document.getElementById('continuarBtn');
+		botonContinuar?.addEventListener('click', function () {
+			const siguientePaso = (pasoActual + 1) % elementos.length;
+			activarPaso(siguientePaso);
+			formstep1?.classList.add('hidden');
+			formstep2?.classList.remove('hidden');
+		});
+
+		const botonContinuar2 = document.getElementById('continuarBtn2');
+		botonContinuar2?.addEventListener('click', function () {
+			const siguientePaso = (pasoActual + 1) % elementos.length;
+			activarPaso(siguientePaso);
+			formstep2?.classList.add('hidden');
+			formstep3?.classList.remove('hidden');
+		});
+
+		const botonContinuar3 = document.getElementById('continuarBtn3');
+		botonContinuar3?.addEventListener('click', function () {
+			const siguientePaso = (pasoActual + 1) % elementos.length;
+			activarPaso(siguientePaso);
+			formstep3?.classList.add('hidden');
+			formstep4?.classList.remove('hidden');
+		});
+
+		const botonatras = document.getElementById('atrasBtn');
+		botonatras?.addEventListener('click', function () {
+			const siguientePaso = (pasoActual - 1) % elementos.length;
+			activarPaso(siguientePaso);
+			formstep2?.classList.add('hidden');
+			formstep1?.classList.remove('hidden');
+		});
+
+		const botonatras2 = document.getElementById('atrasBtn2');
+		botonatras2?.addEventListener('click', function () {
+			const siguientePaso = (pasoActual - 1) % elementos.length;
+			activarPaso(siguientePaso);
+			formstep4?.classList.add('hidden');
+			formstep3?.classList.remove('hidden');
+		});
+
+		const botonatras3 = document.getElementById('atrasBtn3');
+		botonatras3?.addEventListener('click', function () {
+			const siguientePaso = (pasoActual - 1) % elementos.length;
+			activarPaso(siguientePaso);
+			formstep3?.classList.add('hidden');
+			formstep2?.classList.remove('hidden');
+		});
+
+		const botonatras4 = document.getElementById('atrasBtn4');
+		botonatras4?.addEventListener('click', function () {
+			const siguientePaso = (pasoActual - 1) % elementos.length;
+			activarPaso(siguientePaso);
+			formstep3?.classList.add('hidden');
+			formstep2?.classList.remove('hidden');
+		});
+
+		const botonatras5 = document.getElementById('atrasBtn5');
+		botonatras5?.addEventListener('click', function () {
+			const siguientePaso = (pasoActual - 1) % elementos.length;
+			activarPaso(siguientePaso);
+			formstep4?.classList.add('hidden');
+			formstep3?.classList.remove('hidden');
+		});
+
+		const edicion1 = document.getElementById('editar1');
+		edicion1?.addEventListener('click', function () {
+			const siguientePaso = (pasoActual - 3) % elementos.length;
+			activarPaso(siguientePaso);
+			formstep3?.classList.add('hidden');
+			formstep4?.classList.add('hidden');
+			formstep1?.classList.remove('hidden');
+		});
+
+		const edicion2 = document.getElementById('editar2');
+		edicion2?.addEventListener('click', function () {
+			const siguientePaso = (pasoActual - 2) % elementos.length;
+			activarPaso(siguientePaso);
+			formstep3?.classList.add('hidden');
+			formstep2?.classList.remove('hidden');
+			formstep4?.classList.add('hidden');
+		});
+
+		const edicion3 = document.getElementById('editar3');
+		edicion3?.addEventListener('click', function () {
+			const siguientePaso = (pasoActual - 1) % elementos.length;
+			activarPaso(siguientePaso);
+			formstep4?.classList.add('hidden');
+			formstep3?.classList.remove('hidden');
+		});
+
+		botonstep1?.addEventListener('click', function () {
+			formstep1?.classList.remove('hidden');
+			formstep2?.classList.add('hidden');
+			formstep3?.classList.add('hidden');
+			formstep4?.classList.add('hidden');
+			contenedorRegistro?.classList.add('hidden');
+		});
+
+		botonstep2?.addEventListener('click', function () {
+			formstep1?.classList.add('hidden');
+			formstep2?.classList.remove('hidden');
+			formstep3?.classList.add('hidden');
+			formstep4?.classList.add('hidden');
+			contenedorRegistro?.classList.add('hidden');
+		});
+
+		botonstep3?.addEventListener('click', function () {
+			formstep1?.classList.add('hidden');
+			formstep2?.classList.add('hidden');
+			formstep3?.classList.remove('hidden');
+			formstep4?.classList.add('hidden');
+			contenedorRegistro?.classList.add('hidden');
+		});
+
+		botonstep4?.addEventListener('click', function () {
+			formstep1?.classList.add('hidden');
+			formstep2?.classList.add('hidden');
+			formstep3?.classList.add('hidden');
+			formstep4?.classList.remove('hidden');
+			contenedorRegistro?.classList.add('hidden');
+		});
+
+		// Inicializar con el primer paso activo
+		activarPaso(0);
 	}
 
-	// eventos
-	botonstep1?.addEventListener('click', () => activarPaso(0));
-	botonstep2?.addEventListener('click', () => activarPaso(1));
-	botonstep3?.addEventListener('click', () => activarPaso(2));
-	botonstep4?.addEventListener('click', () => activarPaso(3));
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initStepsStepper, {
+			once: true,
+		});
+	} else {
+		initStepsStepper();
+	}
 
-	const botonContinuar = document.getElementById('continuarBtn');
-	botonContinuar?.addEventListener('click', function () {
-		const siguientePaso = (pasoActual + 1) % elementos.length;
-		activarPaso(siguientePaso);
-		formstep1?.classList.add('hidden');
-		formstep2?.classList.remove('hidden');
-	});
-
-	const botonContinuar2 = document.getElementById('continuarBtn2');
-	botonContinuar2?.addEventListener('click', function () {
-		const siguientePaso = (pasoActual + 1) % elementos.length;
-		activarPaso(siguientePaso);
-		formstep2?.classList.add('hidden');
-		formstep3?.classList.remove('hidden');
-	});
-
-	const botonContinuar3 = document.getElementById('continuarBtn3');
-	botonContinuar3?.addEventListener('click', function () {
-		const siguientePaso = (pasoActual + 1) % elementos.length;
-		activarPaso(siguientePaso);
-		formstep3?.classList.add('hidden');
-		formstep4?.classList.remove('hidden');
-	});
-
-	const botonatras = document.getElementById('atrasBtn');
-	botonatras?.addEventListener('click', function () {
-		const siguientePaso = (pasoActual - 1) % elementos.length;
-		activarPaso(siguientePaso);
-		formstep2?.classList.add('hidden');
-		formstep1?.classList.remove('hidden');
-	});
-
-	const botonatras2 = document.getElementById('atrasBtn2');
-	botonatras2?.addEventListener('click', function () {
-		const siguientePaso = (pasoActual - 1) % elementos.length;
-		activarPaso(siguientePaso);
-		formstep4?.classList.add('hidden');
-		formstep3?.classList.remove('hidden');
-	});
-
-	const botonatras3 = document.getElementById('atrasBtn3');
-	botonatras3?.addEventListener('click', function () {
-		const siguientePaso = (pasoActual - 1) % elementos.length;
-		activarPaso(siguientePaso);
-		formstep3?.classList.add('hidden');
-		formstep2?.classList.remove('hidden');
-	});
-
-	const botonatras4 = document.getElementById('atrasBtn4');
-	botonatras4?.addEventListener('click', function () {
-		const siguientePaso = (pasoActual - 1) % elementos.length;
-		activarPaso(siguientePaso);
-		formstep3?.classList.add('hidden');
-		formstep2?.classList.remove('hidden');
-	});
-
-	const botonatras5 = document.getElementById('atrasBtn5');
-	botonatras5?.addEventListener('click', function () {
-		const siguientePaso = (pasoActual - 1) % elementos.length;
-		activarPaso(siguientePaso);
-		formstep4?.classList.add('hidden');
-		formstep3?.classList.remove('hidden');
-	});
-
-	const edicion1 = document.getElementById('editar1');
-	edicion1?.addEventListener('click', function () {
-		const siguientePaso = (pasoActual - 3) % elementos.length;
-		activarPaso(siguientePaso);
-		formstep3?.classList.add('hidden');
-		formstep4?.classList.add('hidden');
-		formstep1?.classList.remove('hidden');
-	});
-
-	const edicion2 = document.getElementById('editar2');
-	edicion2?.addEventListener('click', function () {
-		const siguientePaso = (pasoActual - 2) % elementos.length;
-		activarPaso(siguientePaso);
-		formstep3?.classList.add('hidden');
-		formstep2?.classList.remove('hidden');
-		formstep4?.classList.add('hidden');
-	});
-
-	const edicion3 = document.getElementById('editar3');
-	edicion3?.addEventListener('click', function () {
-		const siguientePaso = (pasoActual - 1) % elementos.length;
-		activarPaso(siguientePaso);
-		formstep4?.classList.add('hidden');
-		formstep3?.classList.remove('hidden');
-	});
-
-	botonstep1?.addEventListener('click', function () {
-		formstep1?.classList.remove('hidden');
-		formstep2?.classList.add('hidden');
-		formstep3?.classList.add('hidden');
-		formstep4?.classList.add('hidden');
-		contenedorRegistro?.classList.add('hidden');
-	});
-
-	botonstep2?.addEventListener('click', function () {
-		formstep1?.classList.add('hidden');
-		formstep2?.classList.remove('hidden');
-		formstep3?.classList.add('hidden');
-		formstep4?.classList.add('hidden');
-		contenedorRegistro?.classList.add('hidden');
-	});
-
-	botonstep3?.addEventListener('click', function () {
-		formstep1?.classList.add('hidden');
-		formstep2?.classList.add('hidden');
-		formstep3?.classList.remove('hidden');
-		formstep4?.classList.add('hidden');
-		contenedorRegistro?.classList.add('hidden');
-	});
-
-	botonstep4?.addEventListener('click', function () {
-		formstep1?.classList.add('hidden');
-		formstep2?.classList.add('hidden');
-		formstep3?.classList.add('hidden');
-		formstep4?.classList.remove('hidden');
-		contenedorRegistro?.classList.add('hidden');
-	});
-
-	// Inicializar con el primer paso activo
-	activarPaso(0);
+	document.addEventListener('astro:page-load', initStepsStepper);
 </script>
 
 <script is:inline>
-	document.addEventListener('DOMContentLoaded', () => {
+	function initStepsRegisterFlow() {
 		const paymentPanel = document.getElementById('paso4');
+		if (
+			!paymentPanel ||
+			paymentPanel.dataset.registerFlowInitialized === 'true'
+		)
+			return;
+		paymentPanel.dataset.registerFlowInitialized = 'true';
+
 		const registerForm = document.getElementById('contenedor-registro');
 		const goToPaymentBtn = document.getElementById('boton-verificar');
 		const registerFormElement = document.getElementById('form-registro');
@@ -591,7 +619,7 @@ const estadosData = estados ?? [];
 		}
 
 		// Inicializar al cargar
-		document.addEventListener('DOMContentLoaded', actualizarTitulo);
+		actualizarTitulo();
 
 		// Eventos para radios
 		radios.forEach((radio) => {
@@ -805,5 +833,15 @@ const estadosData = estados ?? [];
 
 		// Verificar datos al cargar
 		checkStoredData();
-	});
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initStepsRegisterFlow, {
+			once: true,
+		});
+	} else {
+		initStepsRegisterFlow();
+	}
+
+	document.addEventListener('astro:page-load', initStepsRegisterFlow);
 </script>
