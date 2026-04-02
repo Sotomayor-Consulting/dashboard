@@ -530,12 +530,24 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 	</div>
 </main>
 
-<script src="https://js.stripe.com/v3/"></script>
+<script id="stripe-js" src="https://js.stripe.com/v3/"></script>
 
 <script is:inline>
 	function initIncorporacionPaymentConfig() {
 		const cfg = document.getElementById('stripe-config');
 		if (!cfg || cfg.dataset.paymentConfigInitialized === 'true') return;
+
+		if (typeof window.Stripe !== 'function') {
+			const stripeScript = document.getElementById('stripe-js');
+			if (stripeScript && cfg.dataset.paymentConfigWaiting !== 'true') {
+				cfg.dataset.paymentConfigWaiting = 'true';
+				stripeScript.addEventListener('load', initIncorporacionPaymentConfig, {
+					once: true,
+				});
+			}
+			return;
+		}
+
 		cfg.dataset.paymentConfigInitialized = 'true';
 
 		// --- NUEVO: toggle de facturación (mostrar/ocultar y required) ---
@@ -575,7 +587,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 		}
 
 		// 2) Inicializar Stripe y Elements
-		const stripe = Stripe(pk);
+		const stripe = window.Stripe(pk);
 		const elements = stripe.elements();
 		const cardElement = elements.create('card', {
 			hidePostalCode: true,
@@ -900,12 +912,23 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 			'pay-button',
 		) as HTMLButtonElement | null;
 
-		const stripe = (window as any).stripeInstance;
-		const cardElement = (window as any).cardElementInstance;
-
 		if (paymentForm) {
 			paymentForm.addEventListener('submit', async (event) => {
 				event.preventDefault();
+
+				const stripe = (window as any).stripeInstance;
+				const cardElement = (window as any).cardElementInstance;
+				if (!stripe || !cardElement) {
+					if (statusMessage) {
+						statusMessage.textContent =
+							'El formulario de pago aun no esta listo. Espera un momento e intenta nuevamente.';
+					}
+					if (cardErrors) {
+						cardErrors.textContent =
+							'No se pudo inicializar Stripe correctamente.';
+					}
+					return;
+				}
 
 				const currentClientSecret = (window as any).currentClientSecret;
 				if (!currentClientSecret) {
