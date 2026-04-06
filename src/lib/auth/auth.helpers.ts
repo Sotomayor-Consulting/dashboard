@@ -44,7 +44,19 @@ export function buildOAuthRedirectUrl(
 ): string {
 	// 1. Variable de entorno explícita (preferido para deploys)
 	const envRedirect = (process.env.SUPABASE_OAUTH_REDIRECT_TO ?? '').trim();
-	if (envRedirect) return envRedirect;
+	if (envRedirect) {
+		try {
+			const envUrl = new URL(envRedirect);
+			if (callbackPath !== PATHS.oauthCallback) {
+				envUrl.pathname = callbackPath;
+				envUrl.search = '';
+				envUrl.hash = '';
+			}
+			return envUrl.toString();
+		} catch {
+			return envRedirect;
+		}
+	}
 
 	// 2. Construir desde Host header (validado contra hosts permitidos)
 	const host = request.headers.get('host');

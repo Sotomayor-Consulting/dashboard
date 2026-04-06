@@ -25,7 +25,7 @@ const CSP_DIRECTIVES = [
 	// 'unsafe-eval' necesario por Alpine.js (usa new Function() para evaluar x-data, x-show, @click, etc.)
 	`script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://buttons.github.io https://esm.sh https://accounts.google.com`,
 	// Estilos: 'unsafe-inline' necesario por <style> scoped/global de Astro + Flowbite
-	`style-src 'self' 'unsafe-inline' https://fonts.cdnfonts.com https://fonts.googleapis.com`,
+	`style-src 'self' 'unsafe-inline' https://fonts.cdnfonts.com https://fonts.googleapis.com  https://accounts.google.com`,
 	// Fuentes
 	`font-src 'self' https://fonts.gstatic.com https://fonts.cdnfonts.com`,
 	// Conexiones: fetch/XHR/WebSocket

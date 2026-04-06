@@ -54,8 +54,15 @@ export const GET: APIRoute = async ({ url, request, cookies }) => {
     bc.postMessage(msg);
     bc.close();
   } catch(e) {}
+  try {
+    localStorage.setItem('oauth-result', JSON.stringify(msg));
+    localStorage.removeItem('oauth-result');
+  } catch(e) {}
   if (window.opener) {
     window.opener.postMessage(msg, window.location.origin);
+    if (msg.status === 'success') {
+      window.opener.location.href = '/';
+    }
   }
   window.close();
 </script>

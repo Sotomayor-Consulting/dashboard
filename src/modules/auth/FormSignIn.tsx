@@ -36,19 +36,49 @@ function openOAuthPopup(url: string) {
 export default function FormSignIn() {
 	const [googlePending, setGooglePending] = useState<boolean>(false);
 	const [isVisible, setIsVisible] = useState<boolean>(false);
+	const popupRef = useRef<Window | null>(null);
+	const popupCheckTimerRef = useRef<number | null>(null);
+	const popupTimeoutRef = useRef<number | null>(null);
+
+	const clearPopupWatchers = useCallback(() => {
+		if (popupCheckTimerRef.current) {
+			window.clearInterval(popupCheckTimerRef.current);
+			popupCheckTimerRef.current = null;
+		}
+		if (popupTimeoutRef.current) {
+			window.clearTimeout(popupTimeoutRef.current);
+			popupTimeoutRef.current = null;
+		}
+		popupRef.current = null;
+	}, []);
+
+	const stopGooglePending = useCallback(() => {
+		setGooglePending(false);
+		clearPopupWatchers();
+	}, [clearPopupWatchers]);
 
 	const handleOAuthResult = useCallback((data: any) => {
 		if (data?.type !== 'oauth-callback') return;
-		setGooglePending(false);
+		stopGooglePending();
 		if (data.status === 'success') {
 			window.location.href = '/';
 		}
-	}, []);
+	}, [stopGooglePending]);
 
 	useEffect(() => {
 		// BroadcastChannel: funciona aunque COOP rompa window.opener
 		const bc = new BroadcastChannel('oauth-result');
 		bc.onmessage = (event: MessageEvent) => handleOAuthResult(event.data);
+
+		const onStorage = (event: StorageEvent) => {
+			if (event.key !== 'oauth-result' || !event.newValue) return;
+			try {
+				handleOAuthResult(JSON.parse(event.newValue));
+			} catch {
+				stopGooglePending();
+			}
+		};
+		window.addEventListener('storage', onStorage);
 
 		// Fallback: window.postMessage (si el popup aún tiene opener)
 		const onMessage = (event: MessageEvent) => {
@@ -60,8 +90,10 @@ export default function FormSignIn() {
 		return () => {
 			bc.close();
 			window.removeEventListener('message', onMessage);
+			window.removeEventListener('storage', onStorage);
+			clearPopupWatchers();
 		};
-	}, [handleOAuthResult]);
+	}, [clearPopupWatchers, handleOAuthResult, stopGooglePending]);
 
 	// ─── Google One Tap ──────────────────────────────────
 	const oneTapInitialized = useRef(false);
@@ -135,7 +167,32 @@ export default function FormSignIn() {
 	}, []);
 
 	const handleGoogleLogin = async () => {
+		if (googlePending) return;
 		setGooglePending(true);
+
+		const popup = openOAuthPopup('about:blank');
+		if (!popup) {
+			stopGooglePending();
+			return;
+		}
+
+		popupRef.current = popup;
+		popupCheckTimerRef.current = window.setInterval(() => {
+			const currentPopup = popupRef.current;
+			if (!currentPopup) return;
+			try {
+				if (currentPopup.closed) {
+					stopGooglePending();
+				}
+			} catch {
+				// noop
+			}
+		}, 350);
+
+		popupTimeoutRef.current = window.setTimeout(() => {
+			stopGooglePending();
+		}, 2 * 60 * 1000);
+
 		try {
 			const res = await fetch('/api/auth/oauth-popup-url', {
 				method: 'POST',
@@ -144,14 +201,14 @@ export default function FormSignIn() {
 			});
 			const json = await res.json();
 			if (json.data?.url) {
-				openOAuthPopup(json.data.url);
-				// No usar popup.closed (COOP lo bloquea).
-				// El resultado llega vía BroadcastChannel desde callback-popup.
+				popup.location.href = json.data.url;
 			} else {
-				setGooglePending(false);
+				popup.close();
+				stopGooglePending();
 			}
 		} catch {
-			setGooglePending(false);
+			popup.close();
+			stopGooglePending();
 		}
 	};
 
