@@ -24,7 +24,7 @@ export interface UserTableRow {
 	avatarUrl: string | null;
 	organizacion: string;
 	cargo: string;
-	paisNombre: string;
+	name: string;
 	estado: string;
 	rolesNombres: string[];
 	rolesIds: string[];
@@ -36,7 +36,7 @@ export interface UserTableRow {
 	tipoIdentificacion: string;
 	numeroIdentificacion: string;
 	tipoPersona: string;
-	paisId: string;
+	pais_id: string;
 }
 
 interface CreateUsersColumnsProps {
@@ -138,7 +138,7 @@ export const createUsersColumns = ({
 	{
 		accessorKey: 'paisNombre',
 		header: 'País',
-		cell: ({ row }) => <span>{row.original.paisNombre || '—'}</span>,
+		cell: ({ row }) => <span>{row.original.name || '—'}</span>,
 	},
 	{
 		accessorKey: 'estado',

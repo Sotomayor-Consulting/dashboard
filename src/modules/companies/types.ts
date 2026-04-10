@@ -130,6 +130,48 @@ export interface PaisItem {
 	nombre_paises: string;
 }
 
+
+export interface Usuario {
+	user_id: string;
+	nombre: string;
+	apellido: string;
+	correo: string;
+}
+
+export interface PagoPorLeer {
+	user_id: string;
+	servicio_id: string;
+	amount: number;
+	status: string;
+	created_at: string;
+	stripe_payment_intent_id: string;
+	empresa_incorporacion_id: string;
+	visto_por_operaciones: boolean;
+	id_pagos: string;
+	servicios?: {
+		id_servicios: string;
+		nombre: string;
+		categoria: string;
+	}
+	usuarios?: {
+		user_id: string;
+		nombre: string;
+		apellido: string;
+		correo: string;
+	}
+	empresas_incorporaciones?: {
+		estado: string;
+		nombre_1: string;
+		tipo_de_negocio: string;
+		empresa_incorporacion_id: string;
+	}
+}
+
+export interface Documento {
+	name: string;
+
+}
+
 export interface CompanyDetailData {
 	empresa: EmpresaDetail;
 	socios: SocioItem[];
@@ -137,4 +179,7 @@ export interface CompanyDetailData {
 	actividades: ActividadItem[];
 	paises: PaisItem[];
 	estados: EstadoItem[];
+	pagos: PagoPorLeer;
+	documentos: Documento[];
 }
+

@@ -28,7 +28,7 @@ export interface UsuarioItem {
 	cargo?: string | null;
 	estado?: string | null;
 	pais_id?: EntityId | null;
-	paises?: {
+	countries?: {
 		id: EntityId;
 		name: string;
 	} | null;

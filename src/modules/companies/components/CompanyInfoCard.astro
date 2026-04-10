@@ -12,7 +12,7 @@ const { empresa, empresaId } = Astro.props;
 ---
 
 <div
-	class="dark:bg-black-800 relative col-span-2 flex h-full w-full gap-5 rounded-md bg-neutral-50 dark:text-neutral-300"
+	class="from-black-600 to-black-900 relative col-span-2 flex h-full w-full gap-5 rounded-md bg-white dark:bg-linear-to-tr dark:text-neutral-300"
 >
 	<Image
 		src={imagenempresa}
@@ -21,7 +21,7 @@ const { empresa, empresaId } = Astro.props;
 		loading="eager"
 	/>
 	<div
-		class="bg-opacity-10 absolute bottom-4 left-4 hidden h-fit rounded-md border border-neutral-400 bg-[#1f3443] bg-clip-padding p-2 backdrop-blur-md backdrop-filter lg:block"
+		class="bg-opacity-10 from-black-600 to-black-900 absolute bottom-4 left-4 hidden h-fit rounded-md border border-neutral-400 bg-[#1f3443] bg-clip-padding p-2 backdrop-blur-md backdrop-filter lg:block dark:bg-linear-to-tr"
 	>
 		<p class="text-sm font-normal text-white">Empresa id:</p>
 		<p class="text-xs font-light text-white">
@@ -88,9 +88,7 @@ const { empresa, empresaId } = Astro.props;
 				>
 					Forma de administración
 				</h5>
-				<p
-					class="mb-3 font-normal text-neutral-700 dark:text-neutral-400"
-				>
+				<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400">
 					{empresa.forma_administracion}
 				</p>
 			</div>

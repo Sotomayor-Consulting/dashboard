@@ -88,6 +88,39 @@ export const getIncorporacionesEnProceso = async (
 	return data;
 };
 
+export const getIncorporacionesUpgrade = async (
+	supabase: SupabaseClient,
+	userId: string,
+) => {
+	const { data, error } = await supabase
+		.from('empresas_incorporaciones')
+		.select(
+			`
+					user_id,
+					empresa_incorporacion_id,
+					tipo_de_negocio,
+					estado_de_incorporacion,
+					estado,
+					nombre_1,
+					nombre_2,
+					nombre_3,
+					updated_at
+				`,
+		)
+		.eq('user_id', userId)
+		.eq('estado', 'Upgrade')
+		.order('updated_at', { ascending: true });
+	if (error) {
+		console.error(
+			'Error fetching incorporaciones en proceso por user ID:',
+			error,
+		);
+		return [];
+	}
+
+	return data;
+};
+
 export const IncorporacionesEmpresasBase = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('empresas_incorporaciones')

@@ -17,9 +17,7 @@ if (!STRIPE_SECRET_KEY) {
 	);
 }
 
-const stripe = STRIPE_SECRET_KEY
-	? new Stripe(STRIPE_SECRET_KEY)
-	: null;
+const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	if (!stripe) {
@@ -43,13 +41,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 	} = await supabase.auth.getUser();
 
 	if (authError || !user) {
-		return new Response(
-			JSON.stringify({ error: 'No autenticado' }),
-			{
-				status: 401,
-				headers: SECURITY_HEADERS,
-			},
-		);
+		return new Response(JSON.stringify({ error: 'No autenticado' }), {
+			status: 401,
+			headers: SECURITY_HEADERS,
+		});
 	}
 
 	try {
@@ -121,10 +116,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 					.eq('estado', true);
 
 			if (microserviciosErr) {
-				console.error(
-					'Error obteniendo microservicios:',
-					microserviciosErr,
-				);
+				console.error('Error obteniendo microservicios:', microserviciosErr);
 				return new Response(
 					JSON.stringify({ error: 'Error validando microservicios' }),
 					{
@@ -242,12 +234,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		);
 	} catch (err: any) {
 		console.error('Error en create-payment-intent:', err);
-		return new Response(
-			JSON.stringify({ error: 'Internal server error' }),
-			{
-				status: 500,
-				headers: SECURITY_HEADERS,
-			},
-		);
+		return new Response(JSON.stringify({ error: 'Internal server error' }), {
+			status: 500,
+			headers: SECURITY_HEADERS,
+		});
 	}
 };

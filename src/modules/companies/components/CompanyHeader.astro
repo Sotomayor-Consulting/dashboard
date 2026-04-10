@@ -9,12 +9,10 @@ const { empresa } = Astro.props;
 ---
 
 <div
-	class="dark:bg-black-800 col-span-2 mb-2 flex h-full w-full flex-col gap-5 rounded-md bg-neutral-50 p-14 md:mb-0 lg:col-span-1 dark:text-neutral-300"
+	class="to-black-600 from-black-900 col-span-2 mb-2 flex h-full w-full flex-col gap-5 rounded-md bg-white p-14 md:mb-0 lg:col-span-1 dark:bg-linear-to-tl dark:text-neutral-300"
 >
 	<div class="flex">
-		<p class="text-base font-bold text-neutral-500">
-			Nombre de la empresa
-		</p>
+		<p class="text-base font-bold text-neutral-500">Nombre de la empresa</p>
 
 		<button
 			data-popover-target="popover-description"
@@ -47,20 +45,17 @@ const { empresa } = Astro.props;
 				</h3>
 				<p>
 					Este nombre corresponde al registro inicial realizado durante la
-					creación de la empresa mediante el dashboard de Sotomayor
-					Consulting. Existen dos denominaciones opcionales adicionales.
-					En caso de requerir una edición por motivos operativos, es
-					necesario verificar y contrastar la información con los
-					documentos oficiales disponibles.
+					creación de la empresa mediante el dashboard de Sotomayor Consulting.
+					Existen dos denominaciones opcionales adicionales. En caso de requerir
+					una edición por motivos operativos, es necesario verificar y
+					contrastar la información con los documentos oficiales disponibles.
 				</p>
 			</div>
 			<div data-popper-arrow></div>
 		</div>
 	</div>
 
-	<div
-		class="flex items-center gap-10 text-neutral-800 dark:text-neutral-300"
-	>
+	<div class="flex items-center gap-10 text-neutral-800 dark:text-neutral-300">
 		<div class="flex gap-5">
 			<div>
 				<p class="text-3xl font-bold lg:text-4xl">

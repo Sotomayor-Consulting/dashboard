@@ -98,15 +98,7 @@ export const menuItems = [
 		svgname: 'ri:coins-fill',
 		sequence: 120
 	},
-	{
-		id: 'menu-subir-documentos-de-usuario',
-		label: 'subir docs',
-		href: '/admin/subir-documentos/',
-		tooltip: 'Sube documentos específicos para los clientes',
-		roles: ['admin'],
-		svgname: 'ri:upload-cloud-2-fill',
-		sequence: 130
-	},
+
 	{
 		id: 'menu-notificaciones-a-usuarios',
 		label: 'Notificaciones',
@@ -114,7 +106,7 @@ export const menuItems = [
 		tooltip: 'Notifica a los usuarios con mensajes personalizados',
 		roles: ['admin'],
 		svgname: 'ri:chat-ai-4-fill',
-		sequence: 140
+		sequence: 130
 	},
 	{
 		id: 'crud-servicios',
@@ -123,7 +115,7 @@ export const menuItems = [
 		tooltip: 'Gestionar servicios',
 		roles: ['admin'],
 		svgname: 'ri:function-add-fill',
-		sequence: 150
+		sequence: 140
 	},
 	{
 		id: 'crud-formularios',
@@ -132,7 +124,7 @@ export const menuItems = [
 		tooltip: 'Crea y gestiona formularios',
 		roles: ['admin'],
 		svgname: 'ri:file-edit-fill',
-		sequence: 160
+		sequence: 150
 	},
 	{
 		id: 'crud-formularios-enviados',
@@ -141,7 +133,7 @@ export const menuItems = [
 		tooltip: 'Gestiona las respuestas y estados de documentos',
 		roles: ['admin'],
 		svgname: 'ri:file-check-fill',
-		sequence: 170
+		sequence: 160
 	},
 	{
 		id: 'otros-servicios',
@@ -150,6 +142,6 @@ export const menuItems = [
 		tooltip: 'Explora otros servicios disponibles',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:dashboard-horizontal-fill',
-		sequence: 180
+		sequence: 170
 	},
 ];

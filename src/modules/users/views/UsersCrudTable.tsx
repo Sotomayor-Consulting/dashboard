@@ -93,7 +93,7 @@ const mapUsersToRows = (
 			avatarUrl: user.avatar_url ?? null,
 			organizacion: user.organizacion ?? '',
 			cargo: user.cargo ?? '',
-			paisNombre: user.paises?.name ?? '—',
+
 			estado: user.estado ?? 'inactivo',
 			rolesNombres: userRoles
 				.map((role) => role.roles?.name?.trim())
@@ -107,7 +107,9 @@ const mapUsersToRows = (
 			tipoIdentificacion: user.tipo_identificacion ?? '',
 			numeroIdentificacion: user.numero_de_identificacion ?? '',
 			tipoPersona: user.tipo_persona ?? '',
-			paisId: user.pais_id ? String(user.pais_id) : '',
+
+			name: user.countries?.name ?? '—',
+			pais_id: user.pais_id ? String(user.pais_id) : '',
 		};
 	});
 };
@@ -488,7 +490,7 @@ export default function UsersCrudTable({
 								<FieldLabel htmlFor="pais_modal">Pais</FieldLabel>
 								<Select
 									name="pais_modal"
-									defaultValue={activeUser?.paisId ?? ''}
+									defaultValue={activeUser?.pais_id ?? ''}
 									items={paisOptions}
 								>
 									<SelectTrigger id="pais_modal" className="w-full">

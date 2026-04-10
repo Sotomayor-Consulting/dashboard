@@ -107,6 +107,34 @@ export const pagosRealizadosPorSubirById = async (
 		.eq('status', 'succeeded')
 		.eq('empresa_incorporacion_id', empresaId)
 		.order('created_at', { ascending: false })
+		.maybeSingle();
+
+	if (error) {
+		console.error('Error fetching all pagos data:', error);
+		throw error;
+	}
+
+	return data;
+};
+
+export const pagosPorSubirById = async (
+	supabase: SupabaseClient,
+	empresaId: string,
+) => {
+	const { data, error } = await supabase
+		.from('pagos')
+		.select(
+			`
+    *,
+    usuarios ( user_id, nombre, apellido, correo ),
+	servicios (id_servicios, nombre, categoria),
+	
+  `,
+			{ count: 'exact' },
+		)
+		.eq('status', 'succeeded')
+		.eq('empresa_incorporacion_id', empresaId)
+		.order('created_at', { ascending: false })
 		.single();
 
 	if (error) {

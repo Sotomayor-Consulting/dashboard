@@ -1,0 +1,83 @@
+---
+import Dropzone from '@components/display/Dropzone.astro';
+import { Icon } from 'astro-icon/components';
+
+import type { PagoPorLeer } from '../types';
+
+interface Props {
+	pagos: PagoPorLeer;
+	empresaId: string;
+}
+
+const { pagos, empresaId } = Astro.props;
+---
+
+<div
+	class="from-black-600 to-black-900 flex flex-col items-center justify-between rounded-lg bg-white p-4 shadow-sm sm:p-6 md:flex-row xl:col-span-2 dark:bg-linear-to-tr"
+>
+	<div class="flex h-full w-full md:w-fit">
+		<ul
+			class="space-y text-body mb-4 flex w-full flex-row space-y-4 text-sm font-medium md:me-4 md:mb-0 md:flex-col"
+			id="default-tab"
+			data-tabs-toggle="#default-tab-content"
+			role="tablist"
+			data-tabs-active-classes="text-white dark:bg-black-400 bg-black-600 rounded-base active w-full"
+			data-tabs-inactive-classes="hover:text-heading hover:bg-neutral-secondary-soft w-full"
+		>
+			<li class="me-2" role="presentation">
+				<button
+					class="rounded-base inline-flex cursor-pointer items-center px-4 py-3"
+					id="doc-tab"
+					data-tabs-target="#doc"
+					type="button"
+					role="tab"
+					aria-controls="doc"
+					aria-selected="false"
+				>
+					<Icon name="ri:upload-cloud-2-line" class="me-2 text-base" />
+					Documento</button
+				>
+			</li>
+			<li class="me-2" role="presentation">
+				<button
+					class="rounded-base inline-flex cursor-pointer items-center px-4 py-3"
+					id="dashboard-tab"
+					data-tabs-target="#dashboard"
+					type="button"
+					role="tab"
+					aria-controls="dashboard"
+					aria-selected="false"
+					><Icon name="ri:draft-line" class="me-2 text-base" />Por firmar</button
+				>
+			</li>
+		</ul>
+	</div>
+	<div id="default-tab-content" class="w-full">
+		<div
+			class="rounded-base hidden w-full p-4"
+			id="doc"
+			role="tabpanel"
+			aria-labelledby="doc-tab"
+		>
+			<Dropzone
+				mensaje="Arrastra el documento aquí o haz clic para subir."
+				id="SinFirma"
+				maxFilesize={5}
+				endpoint={`/api/documentos/upload_documents?empresaId=${empresaId}&userId=${pagos?.usuarios?.user_id}`}
+			/>
+		</div>
+		<div
+			class="rounded-base hidden w-full p-4"
+			id="dashboard"
+			role="tabpanel"
+			aria-labelledby="dashboard-tab"
+		>
+			<Dropzone
+				mensaje="Arrastra el documento pendiente a firmar aquí o haz clic para subir."
+				id="ConFirma"
+				maxFilesize={5}
+				endpoint={`/api/documentos/upload_documents_signed?empresaId=${empresaId}&userId=${pagos?.usuarios?.user_id}`}
+			/>
+		</div>
+	</div>
+</div>

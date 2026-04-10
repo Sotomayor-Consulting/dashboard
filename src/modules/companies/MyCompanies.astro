@@ -9,7 +9,9 @@ const user = Astro.locals.user;
 const supabase = Astro.locals.supabase;
 const userId = user?.id;
 
-const empresas = userId ? await getEmpresasGenenralById(supabase, userId) : null;
+const empresas = userId
+	? await getEmpresasGenenralById(supabase, userId)
+	: null;
 
 const paths = [{ label: 'Inicio', href: '/' }, { label: 'Mis empresas' }];
 ---
@@ -26,12 +28,7 @@ const paths = [{ label: 'Inicio', href: '/' }, { label: 'Mis empresas' }];
 			(empresas?.length ?? 0) === 0 ? (
 				<div class="col-span-3 flex flex-col items-center rounded-lg border p-6 text-center text-gray-600 dark:text-gray-300">
 					<h3 class="mb-5 text-lg font-semibold">No tienes empresas aún</h3>
-					<Image
-						src={imagen}
-						alt="Sin empresas"
-						width={400}
-						height={300}
-					/>
+					<Image src={imagen} alt="Sin empresas" width={400} height={300} />
 				</div>
 			) : (
 				empresas?.map((fr) => (
@@ -81,7 +78,10 @@ const paths = [{ label: 'Inicio', href: '/' }, { label: 'Mis empresas' }];
 							class="invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 bg-white text-sm text-gray-500 opacity-0 shadow-xs transition-opacity duration-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400"
 						>
 							<div class="space-y-2 p-3">
-								<h3 class="font-semibold text-gray-900 dark:text-white">
+								<h3
+									class="font-semibold text-gray-900 dark:text-white"
+									aria-label="¿Por qué mi empresa está en proceso?"
+								>
 									¿Por qué mi empresa está en proceso?
 								</h3>
 								<p>Tu empresa está en proceso por estas razones:</p>

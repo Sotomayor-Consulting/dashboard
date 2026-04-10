@@ -11,7 +11,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const empresaId = url.searchParams.get('empresaId');
 	const userId = url.searchParams.get('userId');
 	const back =
-		url.searchParams.get('back') || `/forms/upload_documents/${empresaId}`;
+		url.searchParams.get('back') || `/companies/${empresaId}`;
 
 	const redirectWithStatus = (status: 'success' | 'error', msg: string) =>
 		redirect(`${back}?status=${status}&msg=${encodeURIComponent(msg)}`);

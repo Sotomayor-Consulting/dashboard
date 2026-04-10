@@ -24,17 +24,27 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
 		// 2) Verificar admin
-		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
+		const {
+			data: { user: actor },
+			error: userErr,
+		} = await supabase.auth.getUser();
 		if (userErr || !actor) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
 			);
 		}
-		const { data: isAdminRes, error: rpcErr } = await supabase.rpc('is_admin', {
-			uid: actor.id,
-		});
-		const isAdmin = !rpcErr && Boolean(isAdminRes);
-		if (!isAdmin) {
+
+		const { data: actorRolesData } = await supabase
+			.from('user_roles')
+			.select('roles(name)')
+			.eq('user_id', actor.id);
+
+		const actorRoles: string[] =
+			(actorRolesData as any[])
+				?.map((ur: any) => ur.roles?.name)
+				.filter(Boolean) || [];
+
+		if (!actorRoles.includes('admin')) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autorizado')}`,
 			);

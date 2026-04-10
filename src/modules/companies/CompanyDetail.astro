@@ -14,6 +14,11 @@ import CompanyManagersList from './components/CompanyManagersList.astro';
 import CompanyEditForm from './components/CompanyEditForm.astro';
 import ActivityModal from './components/ActivityModal.astro';
 import ManagerModal from './components/ManagerModal.astro';
+import UploadHeader from './components/UploadHeader.astro';
+import UploadHeaderPlan from './components/UploadHeaderPlan.astro';
+import UploadHeaderName from './components/UploadHeaderName.astro';
+import UploadDropzone from './components/UploadDropzone.astro';
+import UploadDocuments from './components/UploadDocuments.astro';
 
 interface Props {
 	empresaId: string;
@@ -28,7 +33,16 @@ if (!data) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
 }
 
-const { empresa, socios, managers, actividades, paises, estados } = data;
+const {
+	empresa,
+	socios,
+	managers,
+	actividades,
+	paises,
+	estados,
+	pagos,
+	documentos,
+} = data;
 const esMemberManaged = empresa.forma_administracion === 'Member-Managed';
 ---
 
@@ -39,7 +53,7 @@ const esMemberManaged = empresa.forma_administracion === 'Member-Managed';
 			id="default-tab"
 			data-tabs-toggle="#default-tab-content"
 			role="tablist"
-			data-tabs-active-classes="text-[#8c681d] hover:text-[#8c681d] dark:text-[#8c681d] dark:hover:text-[#8c681d] border-[#8c681d] dark:border-[#8c681d]"
+			data-tabs-active-classes="text-black-400 hover:text-black-500 dark:text-dark-600 dark:hover:text-black-500 border-black-400 dark:border-black-500"
 			data-tabs-inactive-classes="dark:border-transparent text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 border-neutral-100 hover:border-neutral-300 dark:border-neutral-700 dark:hover:text-neutral-300"
 		>
 			{
@@ -49,6 +63,12 @@ const esMemberManaged = empresa.forma_administracion === 'Member-Managed';
 						tabs: 'profile',
 						label: 'Datos Generales',
 						icono: 'ri:building-2-fill',
+					},
+					{
+						id: 'upload-tab',
+						tabs: 'upload',
+						label: 'Subir documentos',
+						icono: 'ri:upload-cloud-2-fill',
 					},
 					{
 						id: 'contacts-tab',
@@ -90,6 +110,7 @@ const esMemberManaged = empresa.forma_administracion === 'Member-Managed';
 			<CompanyAddress empresa={empresa} esMemberManaged={esMemberManaged} />
 			<CompanyManagersList managers={managers} />
 		</div>
+
 		<CompanyEditForm
 			empresa={empresa}
 			socios={socios}
@@ -98,6 +119,23 @@ const esMemberManaged = empresa.forma_administracion === 'Member-Managed';
 			paises={paises}
 			estados={estados}
 		/>
+		<div
+			class="my-4 grid w-full gap-4 xl:grid-cols-2 2xl:grid-cols-3"
+			id="upload"
+			role="tabpanel"
+			aria-labelledby="upload-tab"
+		>
+			<UploadHeader empresa={empresa} />
+			<UploadHeaderPlan pagos={pagos} />
+			<UploadHeaderName pagos={pagos} />
+			<UploadDropzone pagos={pagos} empresaId={empresaId} />
+			<UploadDocuments
+				documentos={documentos}
+				pagos={pagos}
+				empresaId={empresaId}
+			/>
+		</div>
+		<!-- <CampaniUpload empresaId={empresaId} /> -->
 	</div>
 </div>
 <ActivityModal />

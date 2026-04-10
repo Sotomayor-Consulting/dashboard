@@ -69,7 +69,7 @@ const labelClasses =
 					{user.cargo}
 				</td>
 				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{user.paises?.nombre_paises ?? '—'}
+					{user.countries?.name ?? '—'}
 				</td>
 				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
 					<StatusBadge active={user.estado === 'activo'} label={user.estado} />

@@ -1,0 +1,77 @@
+---
+import { Icon } from 'astro-icon/components';
+
+import type { PagoPorLeer } from '../types';
+
+interface Props {
+	pagos: PagoPorLeer;
+}
+
+const { pagos } = Astro.props;
+---
+
+<div
+	class="to-black-600 from-black-900 rounded-lg bg-white p-4 shadow-sm sm:p-6 dark:bg-linear-to-tl"
+>
+	<div class="flex items-center justify-between rounded-lg p-4 sm:flex sm:p-6">
+		<div class="w-full">
+			<div class="flex items-center">
+				<h3
+					class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white"
+				>
+					Plan contratado:
+					{
+						pagos && pagos?.servicios?.nombre === 'Plan Diseño - upgrade' ? (
+							<button
+								data-popover-target="popover-description-2"
+								data-popover-placement="bottom-end"
+								type="button"
+							>
+								<>
+									<Icon name="ri:alarm-warning-fill" />
+									<span class="sr-only">Mostrar información</span>
+								</>
+							</button>
+						) : null
+					}
+				</h3>
+				<div
+					data-popover
+					id="popover-description-2"
+					role="tooltip"
+					class="dark:bg-black-800 bg-white-50 dark:text-white-50 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-100 text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600"
+				>
+					<div class="space-y-2 p-3">
+						<h3
+							class="font-semibold text-gray-900 dark:text-white"
+							aria-label="Plan upgrade"
+						>
+							Plan upgrade
+						</h3>
+						<p>
+							Recuerda cargar y verificar en el plan upgrade el informe de
+							planificación y diseño de la LLC, en caso de que sea el primer
+							documento a subir.
+						</p>
+					</div>
+					<div data-popper-arrow></div>
+				</div>
+			</div>
+			<div>
+				{
+					pagos?.servicios?.nombre ? (
+						<span class="dark:text-fg-success-strong bg-success-soft dark:bg-success-soft text-fg-success-strong me-5 flex w-fit items-center justify-center rounded-full px-5 py-2 text-lg font-medium">
+							<span class="bg-fg-success-strong dark:bg-fg-success-strong mr-2 inline-block size-3 rounded-full" />
+							{pagos?.servicios?.nombre}
+						</span>
+					) : (
+						<span class="bg-warning-soft text-fg-warning me-5 flex w-fit items-center justify-center rounded-full px-5 py-2 text-lg font-medium">
+							<span class="bg-fg-warning-subtle dark:bg-fg-error-strong mr-2 inline-block size-3 rounded-full" />
+							No se ha registrado un plan
+						</span>
+					)
+				}
+			</div>
+		</div>
+	</div>
+</div>

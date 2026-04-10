@@ -30,3 +30,13 @@ export const ListaServiciosStripe = async (supabase: SupabaseClient) => {
 
 	return data;
 };
+
+export const getServicioUpgrade = async (supabase: SupabaseClient) => {
+	const { data, error } = await supabase.from('servicios').select('id_servicios, nombre, precio').eq('nombre', 'Upgrade').eq('servicio_activo', true).maybeSingle();
+	if (error) {
+		console.error('Error fetching servicios upgrade para pago:', error);
+		throw error;
+	}
+
+	return data;
+}

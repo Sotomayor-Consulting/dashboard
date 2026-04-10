@@ -1,0 +1,61 @@
+---
+import SelectCompany from './upgrade/Select_company.astro';
+import StripeElement from './upgrade/Stripe_element.astro';
+import PriceInfo from './upgrade/PriceInfo.astro';
+
+import { getIncorporacionesUpgrade } from '@lib/tablas/companies/empresa_incorporaciones';
+import { getServicioUpgrade } from '@lib/tablas/services/servicios';
+
+const User = Astro.locals.user;
+const userId = User?.id || '';
+const supabase = Astro.locals.supabase;
+const stripePublishableKey =
+	process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ??
+	import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ??
+	'';
+
+const UPGRADE_BASE_PRICE = 600;
+const PROCESSING_FEE_PERCENT = 0.045;
+
+const [empresas, servicioUpgrade] = await Promise.all([
+	getIncorporacionesUpgrade(supabase, userId),
+	getServicioUpgrade(supabase),
+]);
+
+const processingFee = UPGRADE_BASE_PRICE * PROCESSING_FEE_PERCENT;
+const totalAmount = UPGRADE_BASE_PRICE + processingFee;
+const hasRequiredConfig = Boolean(stripePublishableKey && userId);
+const isPaymentEnabled =
+	hasRequiredConfig && (empresas?.length ?? 0) > 0 && Boolean(servicioUpgrade);
+---
+
+<main id="content" class={userId}>
+	<div class="overflow-hidden">
+		<SelectCompany empresas={empresas} />
+
+		<div class="relative hidden" id="panel2">
+			<div id="step-payment" class="grid gap-8 md:grid-cols-2">
+				<StripeElement
+					stripePublishableKey={stripePublishableKey}
+					userId={userId}
+					servicioUpgrade={servicioUpgrade}
+					isPaymentEnabled={isPaymentEnabled}
+					UPGRADE_BASE_PRICE={UPGRADE_BASE_PRICE}
+					PROCESSING_FEE_PERCENT={PROCESSING_FEE_PERCENT}
+				/>
+
+				<PriceInfo
+					UPGRADE_BASE_PRICE={UPGRADE_BASE_PRICE}
+					processingFee={processingFee}
+					totalAmount={totalAmount}
+				/>
+			</div>
+		</div>
+	</div>
+</main>
+
+<script id="stripe-js" src="https://js.stripe.com/v3/"></script>
+
+<script>
+	import './upgrade/FormUpgrade.client.ts';
+</script>
