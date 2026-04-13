@@ -85,6 +85,12 @@ export const POST: APIRoute = async ({
 		}
 	}
 
+	const telefono = raw.telefono;
+	const telefonoDbKey = FIELD_TO_DB.telefono;
+	if (typeof telefono === 'string' && telefonoDbKey) {
+		payload[telefonoDbKey] = telefono;
+	}
+
 	// Upsert
 	const { error } = await supabase
 		.from('usuarios')

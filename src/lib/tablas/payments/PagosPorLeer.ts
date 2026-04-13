@@ -107,6 +107,7 @@ export const pagosRealizadosPorSubirById = async (
 		.eq('status', 'succeeded')
 		.eq('empresa_incorporacion_id', empresaId)
 		.order('created_at', { ascending: false })
+		.limit(1)
 		.maybeSingle();
 
 	if (error) {

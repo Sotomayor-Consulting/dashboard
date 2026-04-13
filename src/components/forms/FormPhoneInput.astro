@@ -53,7 +53,7 @@ const {
 			document.querySelectorAll<HTMLInputElement>('[data-phone-input]');
 		inputs.forEach((input) => {
 			if (intlTelInput.getInstance(input)) return;
-			const name = input.dataset.phoneName || 'phone';
+			const name = input.dataset.phoneName || 'telefono';
 			const country = input.dataset.phoneCountry || 'us';
 			const isRequired = input.dataset.phoneRequired === 'true';
 			const iti = intlTelInput(input, {
@@ -93,4 +93,3 @@ const {
 	document.addEventListener('DOMContentLoaded', initPhoneInputs);
 	document.addEventListener('astro:page-load', initPhoneInputs);
 </script>
-
