@@ -18,15 +18,6 @@ export const menuItems = [
 		sequence: 20
 	},
 	{
-		id: 'documentos',
-		label: 'Documentos',
-		href: '/documentos/',
-		tooltip: 'Mira tus documentos y formularios',
-		roles: ['cliente', 'partner'],
-		svgname: 'ri:file-copy-2-line',
-		sequence: 40
-	},
-	{
 		id: 'partners',
 		label: 'Partners',
 		href: '/partners/datos-referidos/',

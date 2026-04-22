@@ -153,6 +153,11 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		roles: [ROLES.ADMIN],
 		errorMsg: 'Acceso solo para admins',
 	},
+	{
+		path: '/operaciones/',
+		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
+		errorMsg: 'Acceso solo para operaciones',
+	},
 	// Legacy (mantener hasta eliminar old pages)
 	{
 		path: '/crud/',

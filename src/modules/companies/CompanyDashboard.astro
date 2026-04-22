@@ -1,11 +1,18 @@
 ---
-import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
+import DataTable from '@components/ui/DataTable.astro';
 import Dropzone from '@components/display/DropzoneSigned.astro';
 import { getIncorporacionById } from '@lib/tablas/companies/empresa_incorporaciones';
 import { getEstadoPorEmpresa } from '@lib/tablas/utils/generals/estados';
 import { getUserFolders } from '@lib/storage/test.ts';
 import { getDocumentosPorFirmar } from '@lib/tablas/documents/documentos_por_firmar';
+import {
+	getDocumentRequestsForIncorporationCase,
+	getDocumentsForIncorporationCase,
+} from '@lib/tablas/documents/document_dashboard';
+import { Badge } from '@components/components/ui/badge';
+import { buttonVariants } from '@components/components/ui/button';
+import { cn } from '@components/lib/utils';
 
 interface Props {
 	empresaId: string;
@@ -15,17 +22,24 @@ const { empresaId } = Astro.props;
 const { id } = Astro.params;
 const user = Astro.locals.user;
 const userId = user?.id;
+const userRoles = Astro.locals.userRoles || [];
 const supabase = Astro.locals.supabase;
 
 if (!id || !userId) {
 	return Astro.redirect('/');
 }
 
-const [empresa, folderPath, porfirmar] = await Promise.all([
-	getIncorporacionById(supabase, id, userId),
-	getUserFolders(supabase, userId, id),
-	getDocumentosPorFirmar(supabase, userId, empresaId),
-]);
+const backUrl = Astro.url.pathname;
+const uploadEndpointBase = `/api/documents/upload?incorporationCaseId=${encodeURIComponent(id)}&back=${encodeURIComponent(backUrl)}`;
+
+const [empresa, folderPath, porfirmar, documentRequests, documentsNew] =
+	await Promise.all([
+		getIncorporacionById(supabase, id, userId),
+		getUserFolders(supabase, userId, id),
+		getDocumentosPorFirmar(supabase, userId, empresaId),
+		getDocumentRequestsForIncorporationCase(supabase, id),
+		getDocumentsForIncorporationCase(supabase, id, userId, userRoles),
+	]);
 
 if (!empresa) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
@@ -43,435 +57,817 @@ if (empresa.estado_de_incorporacion) {
 		estadoMapa = estadoData.Estado;
 	}
 }
+
+const REQUEST_NEEDS_UPLOAD = new Set(['pending', 'sent', 'rejected']);
+const pendingRequests = documentRequests.filter((r) =>
+	REQUEST_NEEDS_UPLOAD.has(r.status),
+);
+const pendingRequiredRequests = pendingRequests.filter((r) => r.is_required);
+
+const nextStepText =
+	pendingRequiredRequests.length > 0
+		? `Tienes ${pendingRequiredRequests.length} solicitud${pendingRequiredRequests.length === 1 ? '' : 'es'} requerida${pendingRequiredRequests.length === 1 ? '' : 's'} pendiente${pendingRequiredRequests.length === 1 ? '' : 's'} por subir.`
+		: (porfirmar?.length ?? 0) > 0
+			? `Tienes ${porfirmar?.length ?? 0} documento${(porfirmar?.length ?? 0) === 1 ? '' : 's'} pendiente${(porfirmar?.length ?? 0) === 1 ? '' : 's'} por firmar.`
+			: documentsNew.length === 0
+				? 'Aun no hay documentos asignados. Te avisaremos cuando operaciones envie solicitudes.'
+				: 'Vas al dia. Revisa tu lista de documentos y notificaciones.';
+
+function badgeForRequestStatus(status: string) {
+	if (status === 'approved') return 'susess';
+	if (status === 'under_review') return 'standar';
+	if (status === 'uploaded') return 'standar';
+	if (status === 'rejected') return 'danger';
+	if (status === 'cancelled') return 'danger';
+	return 'warning';
+}
+
+function badgeForDocumentStatus(status: string) {
+	if (status === 'approved') return 'susess';
+	if (status === 'under_review') return 'standar';
+	if (status === 'uploaded') return 'standar';
+	if (status === 'rejected') return 'danger';
+	if (status === 'expired') return 'danger';
+	if (status === 'archived') return 'standar';
+	return 'warning';
+}
 ---
 
 <div class="px-4 pt-6">
-	<div
-		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
-	>
-		<div
-			class="dark:bg-black-800 bg-white-50 flex-col items-start gap-5 rounded-lg border border-gray-200 p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
+	<div class="border-default mb-4 border-b">
+		<ul
+			class="-mb-px flex flex-wrap text-center text-sm font-medium"
+			id="company-dashboard-tab"
+			data-tabs-toggle="#company-dashboard-tab-content"
+			role="tablist"
 		>
-			<div
-				class="dark:bg-black-700 bg-white-100 flex w-fit items-start justify-start rounded-full p-3"
-			>
-				<Icon name="ri:building-2-fill" class="text-black-400 text-2xl" />
-			</div>
-			<div class="w-full">
-				<h3 class="mb-3 text-base font-normal text-gray-500 dark:text-gray-400">
-					Nombre de la empresa
-				</h3>
-				<span
-					class="text-4xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
-					>{empresa.nombre_1}</span
+			<li class="me-2" role="presentation">
+				<button
+					class="rounded-t-base inline-flex items-center gap-2 border-b-2 p-4"
+					id="company-resumen-tab"
+					data-tabs-target="#company-resumen-panel"
+					type="button"
+					role="tab"
+					aria-controls="company-resumen-panel"
+					aria-selected="true"
 				>
-			</div>
-		</div>
-
-		<div
-			class="dark:bg-black-800 bg-white-50 flex-col items-start gap-5 rounded-lg border border-gray-200 p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
-		>
-			<div
-				class="dark:bg-black-700 bg-white-100 flex w-fit items-start justify-start rounded-full p-3"
-			>
-				<Icon name="ri:building-2-fill" class="text-black-400 text-2xl" />
-			</div>
-			<div class="w-full">
-				<h3 class="mb-3 text-base font-normal text-gray-500 dark:text-gray-400">
-					Tipo de negocio
-				</h3>
-				<span
-					class="text-4xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
-					>{empresa.tipo_de_negocio}</span
+					<Icon name="ri:dashboard-fill" class="text-base" />
+					Resumen
+				</button>
+			</li>
+			<li class="me-2" role="presentation">
+				<button
+					class="rounded-t-base hover:text-fg-brand hover:border-brand inline-flex items-center gap-2 border-b-2 p-4"
+					id="company-documents-tab"
+					data-tabs-target="#company-documents-panel"
+					type="button"
+					role="tab"
+					aria-controls="company-documents-panel"
+					aria-selected="false"
 				>
-			</div>
-		</div>
-
-		<div
-			class="dark:bg-black-800 bg-white-50 items-center justify-between rounded-lg border border-gray-200 p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
-		>
-			<div class="w-full">
-				<h3 class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400">
-					Porcentaje de incorporación
-				</h3>
-				<span
-					class="text-xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
-					>{empresa.porcentaje_de_incorporacion}%</span
+					<Icon name="ri:file-list-3-fill" class="text-base" />
+					Documentos
+				</button>
+			</li>
+			<li role="presentation">
+				<button
+					class="rounded-t-base hover:text-fg-brand hover:border-brand inline-flex items-center gap-2 border-b-2 p-4"
+					id="company-storage-tab"
+					data-tabs-target="#company-storage-panel"
+					type="button"
+					role="tab"
+					aria-controls="company-storage-panel"
+					aria-selected="false"
 				>
-			</div>
-			<div
-				class="h-full w-full"
-				id="porcentaje-radio"
-				data-empresa-id={Astro.params.id}
-				data-porcentaje={empresa.porcentaje_de_incorporacion}
-			>
-			</div>
-		</div>
+					<Icon name="ri:folder-2-fill" class="text-base" />
+					Storage
+				</button>
+			</li>
+		</ul>
 	</div>
-	<div
-		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
-	>
-		<!-- Main widget -->
-		<div
-			class="dark:bg-black-800 bg-white-50 rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700"
+
+	<div id="company-dashboard-tab-content">
+		<section
+			id="company-resumen-panel"
+			role="tabpanel"
+			aria-labelledby="company-resumen-tab"
 		>
-			<div class="mb-4 flex items-center justify-between">
-				<div class="shrink-0">
-					<span
-						class="text-xl leading-none font-bold text-gray-900 sm:text-2xl dark:text-white"
-						>{empresa.estado_de_incorporacion}</span
-					>
-					<h3 class="text-base font-light text-gray-500 dark:text-gray-400">
-						Ubicación de tu empresa
-					</h3>
-				</div>
-			</div>
 			<div
-				id="datamap-container"
-				class="relative h-full min-h-100 w-full"
-				data-estado-mapa={estadoMapa ?? ''}
+				class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
 			>
 				<div
-					class="map-loader absolute inset-0 flex items-center justify-center rounded-lg"
+					class="dark:bg-black-800 bg-white-50 flex-col items-start gap-5 rounded-lg border border-gray-200 p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
 				>
-					<div class="text-center">
-						<div
-							class="border-black-400 mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2"
+					<div
+						class="dark:bg-black-700 bg-white-100 flex w-fit items-start justify-start rounded-full p-3"
+					>
+						<Icon name="ri:building-2-fill" class="text-black-400 text-2xl" />
+					</div>
+					<div class="w-full">
+						<h3
+							class="mb-3 text-base font-normal text-gray-500 dark:text-gray-400"
 						>
-						</div>
-						<div class="text-sm font-medium text-gray-600 dark:text-gray-300">
-							Cargando mapa...
-						</div>
+							Nombre de la empresa
+						</h3>
+						<span
+							class="text-4xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
+							>{empresa.nombre_1}</span
+						>
+					</div>
+				</div>
+
+				<div
+					class="dark:bg-black-800 bg-white-50 flex-col items-start gap-5 rounded-lg border border-gray-200 p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
+				>
+					<div
+						class="dark:bg-black-700 bg-white-100 flex w-fit items-start justify-start rounded-full p-3"
+					>
+						<Icon name="ri:building-2-fill" class="text-black-400 text-2xl" />
+					</div>
+					<div class="w-full">
+						<h3
+							class="mb-3 text-base font-normal text-gray-500 dark:text-gray-400"
+						>
+							Tipo de negocio
+						</h3>
+						<span
+							class="text-4xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
+							>{empresa.tipo_de_negocio}</span
+						>
+					</div>
+				</div>
+
+				<div
+					class="dark:bg-black-800 bg-white-50 items-center justify-between rounded-lg border border-gray-200 p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700"
+				>
+					<div class="w-full">
+						<h3
+							class="mb-2 text-base font-normal text-gray-500 dark:text-gray-400"
+						>
+							Porcentaje de incorporación
+						</h3>
+						<span
+							class="text-xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
+							>{empresa.porcentaje_de_incorporacion}%</span
+						>
+					</div>
+					<div
+						class="h-full w-full"
+						id="porcentaje-radio"
+						data-empresa-id={Astro.params.id}
+						data-porcentaje={empresa.porcentaje_de_incorporacion}
+					>
 					</div>
 				</div>
 			</div>
-		</div>
-		<!--Tabs widget -->
-		<div
-			class="dark:bg-black-800 bg-white-50 rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700"
-		>
-			{
-				porfirmar && porfirmar.length > 0 ? (
-					<>
-						<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-							Documentos pendientes a firmar
-							<button
-								data-popover-target="popover-description"
-								data-popover-placement="bottom-end"
-								type="button"
+
+			<div
+				class="my-4 grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
+			>
+				<div
+					class="dark:bg-black-800 bg-white-50 rounded-lg border border-gray-200 p-4 shadow-sm dark:border-gray-700"
+				>
+					<div class="flex items-start justify-between gap-3">
+						<div class="min-w-0">
+							<p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+								Estado
+							</p>
+							<p
+								class="mt-1 truncate text-lg font-semibold text-gray-900 dark:text-white"
 							>
-								<>
-									<svg
-										class="ml-2 h-4 w-4 text-gray-400 hover:text-gray-500"
-										aria-hidden="true"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										xmlns="http://www.w3.org/2000/svg"
-									>
-										<path
-											fill-rule="evenodd"
-											d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-											clip-rule="evenodd"
-										/>
-									</svg>
-									<span class="sr-only">Ayuda</span>
-								</>
-							</button>
-						</h3>
-						<div
-							data-popover
-							id="popover-description"
-							role="tooltip"
-							class="dark:bg-black-800 bg-white-50 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600 dark:text-gray-400"
-						>
-							<div class="space-y-2 p-3">
-								<h3
-									class="font-semibold text-gray-900 dark:text-white"
-									aria-label="Acciones rapidas"
-								>
-									Documentos por firmar
-								</h3>
-								<p>
-									Encuentra aquí la lista de documentos que tienes pendientes a
-									firmar para constituir tu empresa en Estados Unidos. Descarga
-									el documento, firmalo electrónicamente, y subelo de nuevo
-									dando click en el botón de subir documento firmado.
-								</p>
-							</div>
-							<div data-popper-arrow />
+								{empresa.estado}
+							</p>
+							<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+								{empresa.estado_de_incorporacion}
+							</p>
 						</div>
+						<Icon name="ri:flag-2-fill" class="text-black-400 text-xl" />
+					</div>
+				</div>
 
-						<div class="border-t border-gray-200 dark:border-gray-600">
-							<div class="pt-4">
-								{porfirmar.map((f) => (
-									<ul
-										role="list"
-										class="divide-y divide-gray-200 dark:divide-gray-700"
-									>
-										<ol class="relative ms-3.5 mb-4 md:mb-5">
-											<li class="ms-6 mb-11">
-												<span class="dark:bg-black-400 bg-white-100 text-black-400 ring-white-200 dark:ring-black-500 absolute -inset-s-3 flex h-6 w-6 animate-pulse items-center justify-center rounded-full ring-4 dark:text-white">
-													<Icon name="ri:quill-pen-ai-line" class="text-sm" />
-												</span>
-												<div class="mb-2">
-													<h3 class="text-heading my-2 flex items-start text-lg font-semibold">
-														{f.nombre}
-													</h3>
-													<span class="dark:bg-warning-soft bg-warning-strong border-warning-subtle dark:text-fg-warning flex w-fit rounded border px-1.5 py-0.5 text-xs font-medium text-white">
-														<Icon
-															name="ri:alert-line"
-															class="mr-1 animate-pulse"
-														/>
-														Pendiente a firmar
-													</span>
-												</div>
-
-												<button
-													type="button"
-													class="dark:bg-black-400 bg-black-400 dark:hover:bg-black-500 hover:bg-black-500 focus:ring-brand-medium rounded-base btn-ver-documento-table box-border inline-flex cursor-pointer border border-transparent px-4 py-2.5 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
-													data-path={f.storage_path}
-												>
-													<Icon
-														name="ri:download-2-fill"
-														class="-ms-0.5 me-1.5 text-base"
-													/>
-													Descargar documento
-												</button>
-
-												<button
-													type="button"
-													id={`btn-${f.id}`}
-													data-file-id={f.id}
-													data-modal-target="popup-modal"
-													data-modal-toggle="popup-modal"
-													class="btn-upload-firmado bg-success hover:bg-success-strong focus:ring-success-medium rounded-base box-border inline-flex cursor-pointer border border-transparent px-4 py-2.5 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
-												>
-													<Icon
-														name="ri:upload-2-fill"
-														class="-ms-0.5 me-1.5 text-base"
-													/>
-													Subir documento firmado
-												</button>
-											</li>
-										</ol>
-									</ul>
-								))}
-							</div>
-						</div>
-					</>
-				) : (
-					<>
-						<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-							Acciones rápidas
-							<button
-								data-popover-target="popover-description"
-								data-popover-placement="bottom-end"
-								type="button"
+				<div
+					class="dark:bg-black-800 bg-white-50 rounded-lg border border-gray-200 p-4 shadow-sm dark:border-gray-700"
+				>
+					<div class="flex items-start justify-between gap-3">
+						<div class="min-w-0">
+							<p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+								Solicitudes pendientes
+							</p>
+							<p
+								class="mt-1 text-lg font-semibold text-gray-900 dark:text-white"
 							>
-								<>
-									<svg
-										class="ml-2 h-4 w-4 text-gray-400 hover:text-gray-500"
-										aria-hidden="true"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										xmlns="http://www.w3.org/2000/svg"
-									>
-										<path
-											fill-rule="evenodd"
-											d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-											clip-rule="evenodd"
-										/>
-									</svg>
-									<span class="sr-only">Ayuda</span>
-								</>
-							</button>
-						</h3>
-						<div
-							data-popover
-							id="popover-description"
-							role="tooltip"
-							class="dark:bg-black-800 bg-white-50 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600 dark:text-gray-400"
-						>
-							<div class="space-y-2 p-3">
-								<h3
-									class="font-semibold text-gray-900 dark:text-white"
-									aria-label="Acciones rapidas"
-								>
-									Acciones rápidas
-								</h3>
-								<p>
-									Selecciona una opción para acceder a las múltiples funciones y
-									servicios que tenemos.
-								</p>
-							</div>
-							<div data-popper-arrow />
+								{pendingRequests.length}
+								{
+									pendingRequiredRequests.length > 0 ? (
+										<span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
+											({pendingRequiredRequests.length} requeridas)
+										</span>
+									) : null
+								}
+							</p>
+							<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+								Sube los documentos para avanzar tu proceso.
+							</p>
 						</div>
+						<Icon name="ri:inbox-archive-fill" class="text-black-400 text-xl" />
+					</div>
+					<div class="mt-3">
+						<a
+							href="#"
+							data-open-tab="company-documents-tab"
+							class={cn(
+								buttonVariants({ variant: 'primary' }),
+								'w-full justify-center',
+							)}
+						>
+							Ver solicitudes
+						</a>
+					</div>
+				</div>
 
-						<div class="border-t border-gray-200 dark:border-gray-600">
-							<div class="pt-4">
-								<ul class="mb-4 space-y-4">
-									{[
-										{
-											icono: 'ri:building-2-fill',
-											nombre: 'Crea un nueva LLC',
-											link: '/start/',
-										},
-										{
-											icono: 'ri:calendar-schedule-fill',
-											nombre: 'Agenda una reunión',
-											link: 'https://zcal.co/t/agendar-asesoria-llc/60min',
-										},
-										{
-											icono: 'ri:account-circle-fill',
-											nombre: 'Configura tu perfil',
-											link: '/settings/',
-										},
-										{
-											icono: 'ri:bar-chart-2-fill',
-											nombre: 'Mira tus empresas',
-											link: '/companies',
-										},
-										{
-											icono: 'ri:puzzle-fill',
-											nombre: 'Mira nuestros servicios complementarios',
-											link: '/servicios/',
-										},
-									].map((a) => (
-										<li>
-											<a href={a.link}>
-												<label
-													for="job-1"
-													class="text-body dark:bg-black-700 border-default rounded-base peer-checked:hover:bg-brand-softer peer-checked:border-brand-subtle peer-checked:bg-brand-softer hover:bg-neutral-secondary-medium peer-checked:text-fg-brand-strong inline-flex w-full cursor-pointer items-center border bg-white p-5"
-												>
-													<div class="bg-brand-soft dark:text-fg-brand-strong text-black-400 flex h-9 w-9 items-center justify-center rounded">
-														<Icon name={a.icono} class="text-lg" />
-													</div>
-													<div class="ms-2.5 block">
-														<div class="w-full text-base font-medium">
-															{a.nombre}
+				<div
+					class="dark:bg-black-800 bg-white-50 rounded-lg border border-gray-200 p-4 shadow-sm dark:border-gray-700"
+				>
+					<div class="flex items-start justify-between gap-3">
+						<div class="min-w-0">
+							<p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+								Documentos
+							</p>
+							<p
+								class="mt-1 text-lg font-semibold text-gray-900 dark:text-white"
+							>
+								{documentsNew.length}
+							</p>
+							<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+								Documentos enviados por operaciones y tus uploads.
+							</p>
+						</div>
+						<Icon name="ri:file-list-3-fill" class="text-black-400 text-xl" />
+					</div>
+					<div class="mt-3">
+						<a
+							href={`/documentos/${id}`}
+							class={cn(
+								buttonVariants({ variant: 'outline' }),
+								'w-full justify-center',
+							)}
+							title="Abrir el dashboard completo de documentos"
+						>
+							Abrir dashboard
+						</a>
+					</div>
+				</div>
+
+				<div
+					class="dark:bg-black-800 bg-white-50 rounded-lg border border-gray-200 p-4 shadow-sm dark:border-gray-700"
+				>
+					<div class="flex items-start justify-between gap-3">
+						<div class="min-w-0">
+							<p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+								Pendientes por firmar
+							</p>
+							<p
+								class="mt-1 text-lg font-semibold text-gray-900 dark:text-white"
+							>
+								{porfirmar?.length ?? 0}
+							</p>
+							<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+								Documentos que requieren firma y re-upload.
+							</p>
+						</div>
+						<Icon name="ri:quill-pen-ai-fill" class="text-black-400 text-xl" />
+					</div>
+				</div>
+			</div>
+
+			<div
+				class="dark:bg-black-800 bg-white-50 my-4 rounded-lg border border-gray-200 p-4 shadow-sm dark:border-gray-700"
+			>
+				<div
+					class="flex flex-col items-start justify-between gap-3 md:flex-row md:items-center"
+				>
+					<div class="min-w-0">
+						<p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+							Proximo paso
+						</p>
+						<p
+							class="mt-1 text-base font-semibold text-gray-900 dark:text-white"
+						>
+							{nextStepText}
+						</p>
+					</div>
+					<a
+						href="#"
+						data-open-tab="company-documents-tab"
+						class={cn(
+							buttonVariants({ variant: 'primary' }),
+							'shrink-0 justify-center',
+						)}
+					>
+						Ir a documentos
+					</a>
+				</div>
+			</div>
+
+			<div
+				class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
+			>
+				<!-- Main widget -->
+				<div
+					class="dark:bg-black-800 bg-white-50 rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700"
+				>
+					<div class="mb-4 flex items-center justify-between">
+						<div class="shrink-0">
+							<span
+								class="text-xl leading-none font-bold text-gray-900 sm:text-2xl dark:text-white"
+								>{empresa.estado_de_incorporacion}</span
+							>
+							<h3 class="text-base font-light text-gray-500 dark:text-gray-400">
+								Ubicación de tu empresa
+							</h3>
+						</div>
+					</div>
+					<div
+						id="datamap-container"
+						class="relative h-full min-h-100 w-full"
+						data-estado-mapa={estadoMapa ?? ''}
+					>
+						<div
+							class="map-loader absolute inset-0 flex items-center justify-center rounded-lg"
+						>
+							<div class="text-center">
+								<div
+									class="border-black-400 mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2"
+								>
+								</div>
+								<div
+									class="text-sm font-medium text-gray-600 dark:text-gray-300"
+								>
+									Cargando mapa...
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--Tabs widget -->
+				<div
+					class="dark:bg-black-800 bg-white-50 rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700"
+				>
+					{
+						porfirmar && porfirmar.length > 0 ? (
+							<>
+								<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+									Documentos pendientes a firmar
+									<button
+										data-popover-target="popover-description"
+										data-popover-placement="bottom-end"
+										type="button"
+									>
+										<>
+											<svg
+												class="ml-2 h-4 w-4 text-gray-400 hover:text-gray-500"
+												aria-hidden="true"
+												fill="currentColor"
+												viewBox="0 0 20 20"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													fill-rule="evenodd"
+													d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+													clip-rule="evenodd"
+												/>
+											</svg>
+											<span class="sr-only">Ayuda</span>
+										</>
+									</button>
+								</h3>
+								<div
+									data-popover
+									id="popover-description"
+									role="tooltip"
+									class="dark:bg-black-800 bg-white-50 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600 dark:text-gray-400"
+								>
+									<div class="space-y-2 p-3">
+										<h3
+											class="font-semibold text-gray-900 dark:text-white"
+											aria-label="Acciones rapidas"
+										>
+											Documentos por firmar
+										</h3>
+										<p>
+											Encuentra aquí la lista de documentos que tienes
+											pendientes a firmar para constituir tu empresa en Estados
+											Unidos. Descarga el documento, firmalo electrónicamente, y
+											subelo de nuevo dando click en el botón de subir documento
+											firmado.
+										</p>
+									</div>
+									<div data-popper-arrow />
+								</div>
+
+								<div class="border-t border-gray-200 dark:border-gray-600">
+									<div class="pt-4">
+										{porfirmar.map((f) => (
+											<ul
+												role="list"
+												class="divide-y divide-gray-200 dark:divide-gray-700"
+											>
+												<ol class="relative ms-3.5 mb-4 md:mb-5">
+													<li class="ms-6 mb-11">
+														<span class="dark:bg-black-400 bg-white-100 text-black-400 ring-white-200 dark:ring-black-500 absolute -inset-s-3 flex h-6 w-6 animate-pulse items-center justify-center rounded-full ring-4 dark:text-white">
+															<Icon
+																name="ri:quill-pen-ai-line"
+																class="text-sm"
+															/>
+														</span>
+														<div class="mb-2">
+															<h3 class="text-heading my-2 flex items-start text-lg font-semibold">
+																{f.nombre}
+															</h3>
+															<span class="dark:bg-warning-soft bg-warning-strong border-warning-subtle dark:text-fg-warning flex w-fit rounded border px-1.5 py-0.5 text-xs font-medium text-white">
+																<Icon
+																	name="ri:alert-line"
+																	class="mr-1 animate-pulse"
+																/>
+																Pendiente a firmar
+															</span>
 														</div>
-													</div>
 
-													<Icon
-														name="ri:arrow-right-long-line"
-														class="ms-auto text-lg"
-													/>
-												</label>
-											</a>
+														<button
+															type="button"
+															class="dark:bg-black-400 bg-black-400 dark:hover:bg-black-500 hover:bg-black-500 focus:ring-brand-medium rounded-base btn-ver-documento-table box-border inline-flex cursor-pointer border border-transparent px-4 py-2.5 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
+															data-path={f.storage_path}
+														>
+															<Icon
+																name="ri:download-2-fill"
+																class="-ms-0.5 me-1.5 text-base"
+															/>
+															Descargar documento
+														</button>
+
+														<button
+															type="button"
+															id={`btn-${f.id}`}
+															data-file-id={f.id}
+															data-modal-target="popup-modal"
+															data-modal-toggle="popup-modal"
+															class="btn-upload-firmado bg-success hover:bg-success-strong focus:ring-success-medium rounded-base box-border inline-flex cursor-pointer border border-transparent px-4 py-2.5 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
+														>
+															<Icon
+																name="ri:upload-2-fill"
+																class="-ms-0.5 me-1.5 text-base"
+															/>
+															Subir documento firmado
+														</button>
+													</li>
+												</ol>
+											</ul>
+										))}
+									</div>
+								</div>
+							</>
+						) : (
+							<>
+								<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+									Acciones rápidas
+									<button
+										data-popover-target="popover-description"
+										data-popover-placement="bottom-end"
+										type="button"
+									>
+										<>
+											<svg
+												class="ml-2 h-4 w-4 text-gray-400 hover:text-gray-500"
+												aria-hidden="true"
+												fill="currentColor"
+												viewBox="0 0 20 20"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													fill-rule="evenodd"
+													d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+													clip-rule="evenodd"
+												/>
+											</svg>
+											<span class="sr-only">Ayuda</span>
+										</>
+									</button>
+								</h3>
+								<div
+									data-popover
+									id="popover-description"
+									role="tooltip"
+									class="dark:bg-black-800 bg-white-50 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600 dark:text-gray-400"
+								>
+									<div class="space-y-2 p-3">
+										<h3
+											class="font-semibold text-gray-900 dark:text-white"
+											aria-label="Acciones rapidas"
+										>
+											Acciones rápidas
+										</h3>
+										<p>
+											Selecciona una opción para acceder a las múltiples
+											funciones y servicios que tenemos.
+										</p>
+									</div>
+									<div data-popper-arrow />
+								</div>
+
+								<div class="border-t border-gray-200 dark:border-gray-600">
+									<div class="pt-4">
+										<ul class="mb-4 space-y-4">
+											{[
+												{
+													icono: 'ri:building-2-fill',
+													nombre: 'Crea un nueva LLC',
+													link: '/start/',
+												},
+												{
+													icono: 'ri:calendar-schedule-fill',
+													nombre: 'Agenda una reunión',
+													link: 'https://zcal.co/t/agendar-asesoria-llc/60min',
+												},
+												{
+													icono: 'ri:account-circle-fill',
+													nombre: 'Configura tu perfil',
+													link: '/settings/',
+												},
+												{
+													icono: 'ri:bar-chart-2-fill',
+													nombre: 'Mira tus empresas',
+													link: '/companies',
+												},
+												{
+													icono: 'ri:puzzle-fill',
+													nombre: 'Mira nuestros servicios complementarios',
+													link: '/servicios/',
+												},
+											].map((a) => (
+												<li>
+													<a href={a.link}>
+														<label
+															for="job-1"
+															class="text-body dark:bg-black-700 border-default rounded-base peer-checked:hover:bg-brand-softer peer-checked:border-brand-subtle peer-checked:bg-brand-softer hover:bg-neutral-secondary-medium peer-checked:text-fg-brand-strong inline-flex w-full cursor-pointer items-center border bg-white p-5"
+														>
+															<div class="bg-brand-soft dark:text-fg-brand-strong text-black-400 flex h-9 w-9 items-center justify-center rounded">
+																<Icon name={a.icono} class="text-lg" />
+															</div>
+															<div class="ms-2.5 block">
+																<div class="w-full text-base font-medium">
+																	{a.nombre}
+																</div>
+															</div>
+
+															<Icon
+																name="ri:arrow-right-long-line"
+																class="ms-auto text-lg"
+															/>
+														</label>
+													</a>
+												</li>
+											))}
+										</ul>
+									</div>
+								</div>
+							</>
+						)
+					}
+				</div>
+			</div>
+		</section>
+
+		<section
+			id="company-documents-panel"
+			class="hidden"
+			role="tabpanel"
+			aria-labelledby="company-documents-tab"
+		>
+			<div
+				id="documentos-dashboard"
+				class="dark:bg-black-800 bg-white-50 my-4 scroll-mt-20 rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700"
+			>
+				<div
+					class="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+				>
+					<div>
+						<h3 class="mb-1 text-xl font-bold text-gray-900 dark:text-white">
+							Documentos
+						</h3>
+						<span
+							class="text-base font-normal text-gray-500 dark:text-gray-400"
+						>
+							Solicitudes y documentos enviados por operaciones
+						</span>
+					</div>
+					<a
+						href={`/my-companies/${id}/documents`}
+						class="inline-flex w-fit items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50 dark:border-gray-700 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10"
+						title="Abrir dashboard de documentos"
+					>
+						<Icon name="ri:external-link-line" class="text-base" />
+						Abrir
+					</a>
+				</div>
+
+				<div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+					<div
+						class="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+					>
+						<div class="mb-3 flex items-center justify-between">
+							<h4 class="text-base font-semibold text-gray-900 dark:text-white">
+								Solicitudes
+							</h4>
+							<span class="text-xs text-gray-500 dark:text-gray-400">
+								{documentRequests.length}
+							</span>
+						</div>
+
+						{
+							documentRequests.length === 0 ? (
+								<p class="text-sm text-gray-500 dark:text-gray-400">
+									No hay solicitudes por ahora.
+								</p>
+							) : (
+								<ul class="space-y-3">
+									{documentRequests.slice(0, 6).map((r) => (
+										<li class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+											<p class="text-sm font-semibold text-gray-900 dark:text-white">
+												{r.document_type?.name ?? 'Documento requerido'}
+											</p>
+											<div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+												<span>Status:</span>
+												<Badge variant={badgeForRequestStatus(r.status)}>
+													{r.status}
+												</Badge>
+												{r.due_date ? <span>Vence: {r.due_date}</span> : null}
+											</div>
+											<form
+												method="post"
+												enctype="multipart/form-data"
+												action={`${uploadEndpointBase}&documentRequestId=${encodeURIComponent(r.id)}`}
+												class="mt-3 flex flex-col gap-2 md:flex-row md:items-center"
+											>
+												<input
+													type="file"
+													name="file"
+													required
+													class="block w-full text-sm text-gray-900 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200 dark:text-gray-200 dark:file:bg-white/10 dark:file:text-gray-200 dark:hover:file:bg-white/15"
+													accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
+												/>
+												<button
+													type="submit"
+													class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-800"
+												>
+													<Icon name="ri:upload-2-line" class="text-base" />
+													Subir
+												</button>
+											</form>
 										</li>
 									))}
 								</ul>
-							</div>
+							)
+						}
+
+						{
+							documentRequests.length > 6 ? (
+								<p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+									Mostrando 6 de {documentRequests.length}. Usa “Abrir” para ver
+									todo.
+								</p>
+							) : null
+						}
+					</div>
+
+					<div
+						class="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+					>
+						<div class="mb-3 flex items-center justify-between">
+							<h4 class="text-base font-semibold text-gray-900 dark:text-white">
+								Documentos
+							</h4>
+							<span class="text-xs text-gray-500 dark:text-gray-400">
+								{documentsNew.length}
+							</span>
 						</div>
-					</>
-				)
-			}
-		</div>
-	</div>
-	<div
-		class="dark:bg-black-800 bg-white-50 my-4 rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700"
-	>
-		<!-- Card header -->
-		<div class="items-center justify-between lg:flex">
-			<div class="mb-4 lg:mb-0">
-				<h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">
-					Documentos
-				</h3>
-				<span class="text-base font-normal text-gray-500 dark:text-gray-400"
-					>Tu lista de documentos de la empresa</span
-				>
-			</div>
-		</div>
-		<!-- Table -->
-		<div class="mt-6 flex flex-col">
-			<div class="overflow-x-auto rounded-lg">
-				<div class="inline-block min-w-full align-middle">
-					<div class="overflow-hidden shadow sm:rounded-lg">
-						<table
-							class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
-							id="myTable"
-						>
-							<thead class="dark:bg-black-800 bg-gray-50">
-								<tr>
-									{
-										[
-											'Nombre del documento',
-											'Fecha',
-											'estado del documento',
-											'Descargar',
-										].map((th) => (
-											<th
-												scope="col"
-												class="p-4 text-left text-xs font-medium tracking-wider text-neutral-600 uppercase dark:text-white"
+
+						{
+							documentsNew.length === 0 ? (
+								<p class="text-sm text-gray-500 dark:text-gray-400">
+									Aun no hay documentos.
+								</p>
+							) : (
+								<ul class="divide-y divide-gray-200 dark:divide-gray-700">
+									{documentsNew.slice(0, 8).map((d) => (
+										<li class="flex items-start justify-between gap-3 py-3">
+											<div class="min-w-0">
+												<p class="truncate text-sm font-semibold text-gray-900 dark:text-white">
+													{d.file_title ?? d.file_name}
+												</p>
+												<div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+													<span>{d.document_type?.name ?? 'Documento'}</span>
+													<Badge variant={badgeForDocumentStatus(d.status)}>
+														{d.status}
+													</Badge>
+												</div>
+											</div>
+											<button
+												type="button"
+												class="btn-doc-download inline-flex shrink-0 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50 dark:border-gray-700 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10"
+												data-document-id={d.id}
 											>
-												<span class="flex items-center uppercase">
-													{th}
-													<svg
-														class="ms-1 h-4 w-4"
-														aria-hidden="true"
-														xmlns="http://www.w3.org/2000/svg"
-														width="24"
-														height="24"
-														fill="none"
-														viewBox="0 0 24 24"
-													>
-														<path
-															stroke="currentColor"
-															stroke-linecap="round"
-															stroke-linejoin="round"
-															stroke-width="2"
-															d="m8 15 4 4 4-4m0-6-4-4-4 4"
-														/>
-													</svg>
-												</span>
-											</th>
-										))
-									}
-								</tr>
-							</thead>
-							<tbody class="dark:bg-black-800 bg-white-50">
-								{
-									folderPath.map((archivos) => (
-										<tr class="cursor-pointer odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
-											<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-900 dark:text-white">
-												<span class="font-semibold">{archivos.name}</span>
-											</td>
-											<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
-												{archivos.updated_at &&
-													new Date(archivos.updated_at)
-														.toLocaleDateString('es-ES', {
-															day: '2-digit',
-															month: '2-digit',
-															year: 'numeric',
-														})
-														.replace(/\//g, '-')}
-											</td>
-											<td class="p-4 whitespace-nowrap">
-												<span class="mx-auto mr-2 rounded-md border border-green-500 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:border-green-500 dark:text-green-400">
-													Subido
-												</span>
-											</td>
-											<td class="p-4 text-sm font-semibold whitespace-nowrap text-gray-900 dark:text-neutral-500">
-												<button
-													class="btn-ver-documento-table cursor-pointer"
-													data-path={`${userId}/companies/${id}/documents/${archivos.name}`}
-													title="Ver o descargar documento"
-												>
-													<Icon
-														name="ri:download-2-line"
-														class="text-2xl text-neutral-900 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-white"
-													/>
-												</button>
-											</td>
-										</tr>
-									))
-								}
-							</tbody>
-						</table>
+												<Icon name="ri:download-2-line" class="text-base" />
+												Descargar
+											</button>
+										</li>
+									))}
+								</ul>
+							)
+						}
+
+						{
+							documentsNew.length > 8 ? (
+								<p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+									Mostrando 8 de {documentsNew.length}. Usa “Abrir” para ver
+									todo.
+								</p>
+							) : null
+						}
 					</div>
 				</div>
 			</div>
-		</div>
+		</section>
+
+		<section
+			id="company-storage-panel"
+			class="hidden"
+			role="tabpanel"
+			aria-labelledby="company-storage-tab"
+		>
+			<div
+				class="dark:bg-black-800 bg-white-50 my-4 rounded-lg border border-gray-200 p-4 shadow-sm sm:p-6 dark:border-gray-700"
+			>
+				<!-- Card header -->
+				<div class="items-center justify-between lg:flex">
+					<div class="mb-4 lg:mb-0">
+						<h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+							Documentos (Storage)
+						</h3>
+						<span class="text-base font-normal text-gray-500 dark:text-gray-400"
+							>Lista de archivos en Storage</span
+						>
+					</div>
+				</div>
+				<div class="mt-6">
+					<DataTable
+						headers={[
+							'Nombre del documento',
+							'Fecha',
+							'Estado del documento',
+							'Descargar',
+						]}
+						noRowsMessage="No hay documentos de tu empresa"
+					>
+						{
+							folderPath.map((archivos) => (
+								<tr class="cursor-pointer odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+									<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-900 dark:text-white">
+										<span class="font-semibold">{archivos.name}</span>
+									</td>
+									<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
+										{archivos.updated_at &&
+											new Date(archivos.updated_at)
+												.toLocaleDateString('es-ES', {
+													day: '2-digit',
+													month: '2-digit',
+													year: 'numeric',
+												})
+												.replace(/\//g, '-')}
+									</td>
+									<td class="p-4 whitespace-nowrap">
+										<span class="mx-auto mr-2 rounded-md border border-green-500 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:border-green-500 dark:text-green-400">
+											Subido
+										</span>
+									</td>
+									<td class="p-4 text-sm font-semibold whitespace-nowrap text-gray-900 dark:text-neutral-500">
+										<button
+											class="btn-ver-documento-table cursor-pointer"
+											data-path={`${userId}/companies/${id}/documents/${archivos.name}`}
+											title="Ver o descargar documento"
+										>
+											<Icon
+												name="ri:download-2-line"
+												class="text-2xl text-neutral-900 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-white"
+											/>
+										</button>
+									</td>
+								</tr>
+							))
+						}
+					</DataTable>
+				</div>
+			</div>
+		</section>
 	</div>
 </div>
 <div
@@ -524,6 +920,20 @@ if (empresa.estado_de_incorporacion) {
 	import './CompanyDashboardGeo.client.ts';
 </script>
 
+<script is:inline>
+	document.addEventListener('click', (event) => {
+		const target = event.target;
+		if (!(target instanceof HTMLElement)) return;
+		const quickLink = target.closest('[data-open-tab]');
+		if (!quickLink) return;
+		event.preventDefault();
+		const tabId = quickLink.getAttribute('data-open-tab');
+		if (!tabId) return;
+		const tabButton = document.getElementById(tabId);
+		tabButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+	});
+</script>
+
 <script>
 	document.addEventListener('click', async (e) => {
 		const target = e.target as HTMLElement;
@@ -545,6 +955,31 @@ if (empresa.estado_de_incorporacion) {
 		} catch (error) {
 			console.error('Error al obtener documento:', error);
 			alert('Error al cargar el documento');
+		}
+	});
+</script>
+
+<script>
+	document.addEventListener('click', async (e) => {
+		const target = e.target as HTMLElement;
+		const btn = target.closest('.btn-doc-download');
+		if (!btn) return;
+
+		const documentId = (btn as HTMLElement).dataset.documentId;
+		if (!documentId) return;
+
+		try {
+			const res = await fetch('/api/documents/signed-url', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ documentId }),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data?.error || 'Error');
+			window.open(data.signedUrl, '_blank');
+		} catch (error) {
+			console.error('Error al obtener documento:', error);
+			alert('Error al descargar el documento');
 		}
 	});
 </script>
@@ -584,41 +1019,3 @@ if (empresa.estado_de_incorporacion) {
 		}
 	}
 </style>
-
-<script>
-	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
-
-	function initDT() {
-		const el = document.querySelector('#myTable') as HTMLElement | null;
-		if (!el) return;
-		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
-			return;
-
-		new DataTable(el, {
-			searchable: true,
-			perPage: 25,
-			perPageSelect: [5, 10, 25, 50],
-
-			// Textos en español
-			labels: {
-				placeholder: 'Buscar...',
-				perPage: 'Filas',
-				noRows: 'No hay documentos de tu empresa',
-				noResults: 'No se encontraron resultados',
-				info: 'Mostrando {start} de {rows} registros',
-			},
-
-			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
-			layout: {
-				top: '{select}{search}',
-				bottom: '{info}{pager}',
-			},
-		});
-
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
-	}
-
-	initDT();
-	document.addEventListener('astro:page-load', initDT);
-</script>

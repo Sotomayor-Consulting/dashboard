@@ -1,6 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
-import '@styles/datatables.css';
+import DataTable from '@components/ui/DataTable.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
 import { getNotificacionesGeneralPorId } from '@lib/tablas/users/notificaciones';
 
@@ -15,203 +15,142 @@ const notificaciones = userId
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <Alerta />
-<div class="flex flex-col">
-	<div class="overflow-x-auto">
-		<div class="inline-block min-w-full align-middle">
-			<div class="overflow-hidden shadow">
-				<table
-					class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
-					id="myTable"
-				>
-					<thead class="bg-gray-100 dark:bg-[#374151]">
-						<tr>
-							{
-								[
-									'Número',
-									'Mensaje',
-									'Acción',
-									'Fecha',
-									'Marcado como leído',
-									'botones',
-								].map((th) => (
-									<th
-										scope="col"
-										class="p-4 text-left text-xs font-medium text-gray-500 uppercase dark:text-gray-400"
-									>
-										<span class="flex items-center">
-											{th}
-											<svg
-												class="ms-1 h-4 w-4"
-												aria-hidden="true"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												fill="none"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke="currentColor"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="m8 15 4 4 4-4m0-6-4-4-4 4"
-												/>
-											</svg>
-										</span>
-									</th>
-								))
-							}
-						</tr>
-					</thead>
-					<tbody
-						class="dark:bg-black-800 divide-y divide-gray-200 bg-white dark:divide-gray-700"
+<DataTable
+	headers={[
+		'Número',
+		'Mensaje',
+		'Acción',
+		'Fecha',
+		'Marcado como leído',
+		'Botones',
+	]}
+	noRowsMessage="No hay notificaciones aún."
+	noResultsMessage="No se encontraron resultados"
+>
+	{
+		notificaciones?.map((user, index) => (
+			<tr class="odd:bg-white-100 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
+				<td class="max-w-sm truncate overflow-hidden p-4 text-base font-medium whitespace-nowrap text-gray-900 xl:max-w-xs dark:text-gray-500">
+					#{index + 1}
+				</td>
+				<td class="max-w-sm truncate p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
+					{user.message}
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					<a
+						href={user.link}
+						target="_blank"
+						class="me-2 mb-2 inline-flex w-fit items-center gap-2 rounded-full bg-[#967432] px-4 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
 					>
-						{
-							notificaciones?.map((user, index) => (
-								<div>
-									<button>
-										<tr class="odd:bg-white-100 even:bg-[#d4d4d4] hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
-											<td class="max-w-sm truncate overflow-hidden p-4 text-base font-medium whitespace-nowrap text-gray-900 xl:max-w-xs dark:text-gray-500">
-												#{index + 1}
-											</td>
-											<td class="max-w-sm truncate p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-												{user.message}
-											</td>
-											<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-												<a
-													href={user.link}
-													target="_blank"
-													class="me-2 mb-2 flex w-fit items-center gap-4 rounded-full bg-[#967432] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-[#8c681d] focus:outline-none dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
-												>
-													{user.mensaje_link}
-													<Icon name="ri:external-link-line" />
-												</a>
-											</td>
-											<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-												{user.created_at &&
-													new Date(user.created_at)
-														.toLocaleDateString('es-ES', {
-															day: '2-digit',
-															month: '2-digit',
-															year: 'numeric',
-														})
-														.replace(/\//g, '-')}
-											</td>
-
-											<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-												<div class="flex items-center">
-													{user.is_read === true ? (
-														<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
-													) : (
-														<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
-													)}
-													{user.is_read ? 'Leído' : 'No leído'}
-												</div>
-											</td>
-
-											<td
-												class="space-x-2 p-4 whitespace-nowrap"
-												x-data="{ showTooltip: false }"
-											>
-												<button
-													id={`dd-btn-${user.id}`}
-													@click="showTooltip = !showTooltip"
-													@click.outside="showTooltip = false"
-													class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
-													type="button"
-													aria-haspopup="true"
-													aria-expanded="false"
-												>
-													<svg
-														class="h-5 w-5"
-														aria-hidden="true"
-														xmlns="http://www.w3.org/2000/svg"
-														fill="currentColor"
-														viewBox="0 0 4 15"
-													>
-														<path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-													</svg>
-												</button>
-												<div
-													id={`dd-${user.id}`}
-													class="dark:bg-black-800 absolute z-10 mt-1 w-44 divide-y divide-gray-100 rounded-lg bg-white shadow-sm dark:divide-gray-600"
-													role="menu"
-													x-show="showTooltip"
-													x-transition
-													aria-labelledby={`dd-btn-${user.id}`}
-													data-dropdown-placement="bottom-start"
-												>
-													<ul
-														class="py-2 text-sm text-gray-700 dark:text-gray-200"
-														role="none"
-													>
-														<li>
-															{user.is_read === true ? (
-																<a
-																	href="/notificaciones"
-																	class="hover:bg-neutral-tertiary-medium hover:text-heading mx-1 block w-full rounded-md p-2"
-																	role="menuitem"
-																>
-																	Marcar como leído
-																</a>
-															) : (
-																<form
-																	action="/api/update/update-notification"
-																	method="post"
-																>
-																	<input
-																		type="hidden"
-																		value="true"
-																		name="estado_lectura"
-																	/>
-																	<input
-																		type="hidden"
-																		value={user.id}
-																		name="id"
-																	/>
-																	<button
-																		type="submit"
-																		class="hover:bg-neutral-tertiary-medium hover:text-heading mx-1 block w-full cursor-pointer rounded-md p-2"
-																		role="menuitem"
-																	>
-																		Marcar como leído
-																	</button>
-																</form>
-															)}
-														</li>
-														<li>
-															<button
-																type="button"
-																data-modal-target="edit-user-modal"
-																data-modal-toggle="edit-user-modal"
-																data-edit-user
-																data-user-id={index + 1}
-																data-user-userid={user.user_id}
-																data-mensaje={user.message || ''}
-																data-isread={user.is_read || ''}
-																data-fecha-leido={user.leido_en || ''}
-																data-creado={user.created_at || ''}
-																data-link={user.link || ''}
-																data-mensajelink={user.mensaje_link ?? ''}
-																class="hover:bg-neutral-tertiary-medium hover:text-heading mx-1 block w-full cursor-pointer rounded-md p-2"
-															>
-																Ver notificación
-															</button>
-														</li>
-													</ul>
-												</div>
-											</td>
-										</tr>
-									</button>
-								</div>
-							))
-						}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-</div>
+						{user.mensaje_link}
+						<Icon name="ri:external-link-line" />
+					</a>
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					{user.created_at &&
+						new Date(user.created_at)
+							.toLocaleDateString('es-ES', {
+								day: '2-digit',
+								month: '2-digit',
+								year: 'numeric',
+							})
+							.replace(/\//g, '-')}
+				</td>
+				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
+					<div class="flex items-center">
+						{user.is_read === true ? (
+							<div class="mr-2 h-2.5 w-2.5 rounded-full bg-green-400" />
+						) : (
+							<div class="mr-2 h-2.5 w-2.5 rounded-full bg-red-500" />
+						)}
+						{user.is_read ? 'Leído' : 'No leído'}
+					</div>
+				</td>
+				<td
+					class="relative space-x-2 p-4 whitespace-nowrap"
+					x-data="{ showTooltip: false }"
+				>
+					<button
+						id={`dd-btn-${user.id}`}
+						@click="showTooltip = !showTooltip"
+						@click.outside="showTooltip = false"
+						class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
+						type="button"
+						aria-haspopup="true"
+						aria-expanded="false"
+					>
+						<svg
+							class="h-5 w-5"
+							aria-hidden="true"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="currentColor"
+							viewBox="0 0 4 15"
+						>
+							<path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+						</svg>
+					</button>
+					<div
+						id={`dd-${user.id}`}
+						class="dark:bg-black-800 absolute z-10 mt-1 w-44 divide-y divide-gray-100 rounded-lg bg-white shadow-sm dark:divide-gray-600"
+						role="menu"
+						x-show="showTooltip"
+						x-transition
+						aria-labelledby={`dd-btn-${user.id}`}
+						data-dropdown-placement="bottom-start"
+					>
+						<ul
+							class="py-2 text-sm text-gray-700 dark:text-gray-200"
+							role="none"
+						>
+							<li>
+								{user.is_read === true ? (
+									<a
+										href="/notificaciones"
+										class="hover:bg-neutral-tertiary-medium hover:text-heading mx-1 block w-full rounded-md p-2"
+										role="menuitem"
+									>
+										Marcar como leído
+									</a>
+								) : (
+									<form action="/api/update/update-notification" method="post">
+										<input type="hidden" value="true" name="estado_lectura" />
+										<input type="hidden" value={user.id} name="id" />
+										<button
+											type="submit"
+											class="hover:bg-neutral-tertiary-medium hover:text-heading mx-1 block w-full cursor-pointer rounded-md p-2"
+											role="menuitem"
+										>
+											Marcar como leído
+										</button>
+									</form>
+								)}
+							</li>
+							<li>
+								<button
+									type="button"
+									data-modal-target="edit-user-modal"
+									data-modal-toggle="edit-user-modal"
+									data-edit-user
+									data-user-id={index + 1}
+									data-user-userid={user.user_id}
+									data-mensaje={user.message || ''}
+									data-isread={user.is_read || ''}
+									data-fecha-leido={user.leido_en || ''}
+									data-creado={user.created_at || ''}
+									data-link={user.link || ''}
+									data-mensajelink={user.mensaje_link ?? ''}
+									class="hover:bg-neutral-tertiary-medium hover:text-heading mx-1 block w-full cursor-pointer rounded-md p-2"
+								>
+									Ver notificación
+								</button>
+							</li>
+						</ul>
+					</div>
+				</td>
+			</tr>
+		))
+	}
+</DataTable>
 
 <!-- Edit User Modal -->
 <div
@@ -419,41 +358,4 @@ const notificaciones = userId
 			if (submitBtn) submitBtn.disabled = true;
 		});
 	});
-</script>
-<script>
-	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
-
-	function initDT() {
-		const el = document.querySelector('#myTable') as HTMLElement | null;
-		if (!el) return;
-		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
-			return;
-
-		new DataTable(el, {
-			searchable: true,
-			perPage: 25,
-			perPageSelect: [5, 10, 25, 50],
-
-			// Textos en español
-			labels: {
-				placeholder: 'Buscar...',
-				perPage: 'Filas',
-				noRows: 'No hay notificaciones aún.',
-				noResults: 'No se encontraron resultados',
-				info: 'Mostrando {start} de {rows} registros',
-			},
-
-			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
-			layout: {
-				top: '{select}{search}',
-				bottom: '{info}{pager}',
-			},
-		});
-
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
-	}
-
-	initDT();
-	document.addEventListener('astro:page-load', initDT);
 </script>
