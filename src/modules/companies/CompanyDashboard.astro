@@ -1,6 +1,5 @@
 ---
 import { Icon } from 'astro-icon/components';
-import DataTable from '@components/ui/DataTable.astro';
 import Dropzone from '@components/display/DropzoneSigned.astro';
 import { getIncorporacionById } from '@lib/tablas/companies/empresa_incorporaciones';
 import { getEstadoPorEmpresa } from '@lib/tablas/utils/generals/estados';
@@ -13,6 +12,7 @@ import {
 import { Badge } from '@components/components/ui/badge';
 import { buttonVariants } from '@components/components/ui/button';
 import { cn } from '@components/lib/utils';
+import CompanyStorageTable from '@modules/companies/views/CompanyStorageTable';
 
 interface Props {
 	empresaId: string;
@@ -819,52 +819,12 @@ function badgeForDocumentStatus(status: string) {
 					</div>
 				</div>
 				<div class="mt-6">
-					<DataTable
-						headers={[
-							'Nombre del documento',
-							'Fecha',
-							'Estado del documento',
-							'Descargar',
-						]}
-						noRowsMessage="No hay documentos de tu empresa"
-					>
-						{
-							folderPath.map((archivos) => (
-								<tr class="cursor-pointer odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
-									<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-900 dark:text-white">
-										<span class="font-semibold">{archivos.name}</span>
-									</td>
-									<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
-										{archivos.updated_at &&
-											new Date(archivos.updated_at)
-												.toLocaleDateString('es-ES', {
-													day: '2-digit',
-													month: '2-digit',
-													year: 'numeric',
-												})
-												.replace(/\//g, '-')}
-									</td>
-									<td class="p-4 whitespace-nowrap">
-										<span class="mx-auto mr-2 rounded-md border border-green-500 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:border-green-500 dark:text-green-400">
-											Subido
-										</span>
-									</td>
-									<td class="p-4 text-sm font-semibold whitespace-nowrap text-gray-900 dark:text-neutral-500">
-										<button
-											class="btn-ver-documento-table cursor-pointer"
-											data-path={`${userId}/companies/${id}/documents/${archivos.name}`}
-											title="Ver o descargar documento"
-										>
-											<Icon
-												name="ri:download-2-line"
-												class="text-2xl text-neutral-900 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-white"
-											/>
-										</button>
-									</td>
-								</tr>
-							))
-						}
-					</DataTable>
+					<CompanyStorageTable
+						client:load
+						folderPath={folderPath}
+						userId={userId}
+						companyId={id}
+					/>
 				</div>
 			</div>
 		</section>

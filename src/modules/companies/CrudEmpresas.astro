@@ -2,13 +2,11 @@
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
 import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
-import DataTable from '@components/ui/DataTable.astro';
-import DateCell from '@components/ui/DateCell.astro';
-import StatusBadge from '@components/ui/StatusBadge.astro';
 import { IncorporacionesEmpresasBase } from '@lib/tablas/companies/empresa_incorporaciones';
 import { actividadesGeneral } from '@lib/tablas/utils/generals/actividades';
 import { EstadosGeneral } from '@lib/tablas/utils/generals/estados';
 import { PaisesGeneral } from '@lib/tablas/utils/generals/paises';
+import CrudEmpresasTable from '@modules/companies/views/CrudEmpresasTable';
 
 const supabase = Astro.locals.supabase;
 
@@ -16,7 +14,7 @@ const [empresas, actividades, estados, paises] = await Promise.all([
 	IncorporacionesEmpresasBase(supabase),
 	actividadesGeneral(supabase),
 	EstadosGeneral(supabase),
-	getCountries(supabase),
+	PaisesGeneral(supabase),
 ]);
 
 const inputClassEmpresa =
@@ -75,52 +73,7 @@ const toggleDivClass =
 	</div>
 </div>
 
-<DataTable
-	headers={[
-		'ID',
-		'Usuario que la creo',
-		'Tipo de Negocio',
-		'Estado de incorporación',
-		'Estado',
-		'Proceso',
-		'Creado en',
-	]}
-	noRowsMessage="No hay empresas"
->
-	{
-		empresas?.map((empresa) => (
-			<tr
-				class="cursor-pointer odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
-				onclick={`window.open('/companies/${empresa.empresa_incorporacion_id}', '_blank')`}
-			>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{empresa.nombre_1}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{empresa.usuarios[0]?.nombre} {empresa.usuarios[0]?.apellido}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{empresa.tipo_de_negocio}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{empresa.porcentaje_de_incorporacion}%
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{empresa.estado_de_incorporacion}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					<StatusBadge
-						active={empresa.estado === 'Activo'}
-						label={empresa.estado}
-					/>
-				</td>
-				<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-					<DateCell date={empresa.updated_at} />
-				</td>
-			</tr>
-		))
-	}
-</DataTable>
+<CrudEmpresasTable empresas={empresas ?? []} client:load />
 
 <!-- Añadir empresa -->
 <div

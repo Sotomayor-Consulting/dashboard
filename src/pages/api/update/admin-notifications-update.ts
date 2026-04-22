@@ -3,6 +3,8 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 // Ajusta esta ruta si tu estructura es distinta:
 import { createSupabaseServerClient } from '@lib/supabase';
+import { notifyByEvent } from '@lib/notifications';
+import type { NotificationChannel } from '@lib/notifications';
 import { safeBack } from '@lib/security/headers';
 
 const BACK_PATH = '/admin/notificaciones/';
@@ -39,6 +41,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
 			.get('descripcion-link-notificacion')
 			?.toString()
 			.trim();
+		const sendEmail =
+			form.get('send_email')?.toString().trim().toLowerCase() === 'true';
+		const emailSubject = form.get('email_subject')?.toString().trim();
+		const emailHtml = form.get('email_html')?.toString().trim();
 
 		// Validación de campos requeridos
 		if (!userId) {
@@ -53,21 +59,36 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
 			);
 		}
 
-		// 4) Build payload
-		const payload: Record<string, any> = {
-			user_id: userId,
-			message: message,
-			link: link,
-			mensaje_link: linkDescription,
-			created_at: new Date().toISOString(),
-		};
+		const channels: NotificationChannel[] = sendEmail
+			? ['in_app', 'email']
+			: ['in_app'];
 
-		// 5) Insert en tabla notifications
-		const { error } = await supabase.from('notifications').insert(payload);
+		const notificationResult = await notifyByEvent({
+			eventKey: 'admin.custom',
+			recipients: [{ userId }],
+			channels,
+			link: link ?? null,
+			linkLabel: linkDescription ?? 'Ver detalle',
+			context: {
+				message,
+				link_label: linkDescription ?? 'Ver detalle',
+				email_subject: emailSubject || 'Tienes una nueva notificacion',
+				email_html:
+					emailHtml ||
+					`<p>Hola,</p><p>${message}</p>${link ? `<p><a href="${link}">${linkDescription || 'Ver detalle'}</a></p>` : ''}`,
+				email_text: message,
+			},
+		});
 
-		if (error) {
-			const msg = encodeURIComponent(`DB: ${error.message}`);
-			return redirect(`${back}?status=error&msg=${msg}`);
+		if (notificationResult.totalSuccess === 0) {
+			const details = notificationResult.results
+				.flatMap((row) => row.channels)
+				.map((channel) => channel.error)
+				.filter(Boolean)
+				.join(' | ');
+			return redirect(
+				`${back}?status=error&msg=${encodeURIComponent(details || 'No se pudo enviar la notificacion')}`,
+			);
 		}
 
 		return redirect(

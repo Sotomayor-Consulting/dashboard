@@ -11,6 +11,7 @@ import {
 } from '@lib/tablas/documents/document_dashboard';
 import { supabaseAdmin } from '@lib/supabase/admin';
 import { DocumentTypeComboboxField } from '@modules/documents/views/documentTypeComboboxField';
+import { DocumentOptions } from '@modules/documents/views/documentOptionsUpload';
 
 interface Props {
 	incorporationCaseId: string;
@@ -40,7 +41,7 @@ if (!company) {
 const [requests, documents, documentTypes] = await Promise.all([
 	getDocumentRequestsForIncorporationCase(dataClient, incorporationCaseId),
 	getDocumentsForIncorporationCase(
-		dataClient,
+		supabaseAdmin,
 		incorporationCaseId,
 		userId,
 		userRoles,
@@ -51,6 +52,16 @@ const [requests, documents, documentTypes] = await Promise.all([
 const uploadEndpointBase = `/api/documents/upload?incorporationCaseId=${encodeURIComponent(
 	incorporationCaseId,
 )}&back=${encodeURIComponent(Astro.url.pathname)}`;
+
+const documentVisibilityOptions = [
+	{ code: 0, name: 'Interno' },
+	{ code: 1, name: 'Visible' },
+];
+
+const documentSharingOptions = [
+	{ code: 0, name: 'No compartir' },
+	{ code: 1, name: 'Compartir' },
+];
 ---
 
 <div class="px-4 pt-2">
@@ -108,20 +119,8 @@ const uploadEndpointBase = `/api/documents/upload?incorporationCaseId=${encodeUR
 								client:load
 								documentTypes={documentTypes}
 							/>
-							<select
-								name="visibility"
-								class="block w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-white/5 dark:text-gray-300"
-							>
-								<option value="internal_only">Interno</option>
-								<option value="client_visible">Visible cliente</option>
-							</select>
-							<select
-								name="shareWithClient"
-								class="block w-full rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-white/5 dark:text-gray-300"
-							>
-								<option value="true">Compartir automáticamente</option>
-								<option value="false">No compartir automáticamente</option>
-							</select>
+							<DocumentOptions client:load items={documentVisibilityOptions} />
+							<DocumentOptions client:load items={documentSharingOptions} />
 							<div class="md:col-span-2">
 								<button
 									type="submit"

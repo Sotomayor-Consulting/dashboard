@@ -18,7 +18,7 @@ import {
 } from '@components/components/ui/popover';
 
 export type DocumentTypeLite = {
-	id: string;
+	id: number;
 	code: number;
 	name: string;
 	legal_category: string;
@@ -41,58 +41,65 @@ export function DocumentTypeCombobox({
 }: Props) {
 	const [open, setOpen] = React.useState(false);
 
-	const selected = documentTypes.find((doc) => doc.id === value);
+	const selected = documentTypes.find((doc) => String(doc.id) === value);
 
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
-				<Button
-					type="button"
-					variant="outline"
-					role="combobox"
-					aria-expanded={open}
-					className="w-full justify-between"
-				>
-					{selected ? `${selected.code} - ${selected.name}` : placeholder}
-					<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-				</Button>
-			</PopoverTrigger>
+		<div className="w-full">
+			<Popover open={open} onOpenChange={setOpen}>
+				<PopoverTrigger asChild>
+					<Button
+						type="button"
+						variant="outline"
+						role="combobox"
+						aria-expanded={open}
+						className="w-full justify-between"
+					>
+						{selected ? `${selected.code} - ${selected.name}` : placeholder}
+						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0" />
+					</Button>
+				</PopoverTrigger>
 
-			<PopoverContent className="w-full p-0">
-				<Command>
-					<CommandInput placeholder="Buscar tipo de documento..." />
-					<CommandList>
-						<CommandEmpty>No se encontraron tipos de documento</CommandEmpty>
-						<CommandGroup>
-							{documentTypes.map((doc) => (
-								<CommandItem
-									key={doc.id}
-									value={`${doc.code} ${doc.name} ${doc.legal_category} ${doc.applies_to}`}
-									onSelect={() => {
-										onChange(doc.id);
-										setOpen(false);
-									}}
-								>
-									<Check
-										className={cn(
-											'mr-2 h-4 w-4',
-											value === doc.id ? 'opacity-100' : 'opacity-0',
-										)}
-									/>
-									<div className="flex flex-col">
-										<span>
-											{doc.code} - {doc.name}
-										</span>
-										<span className="text-muted-foreground text-xs">
-											{doc.legal_category} · {doc.applies_to}
-										</span>
-									</div>
-								</CommandItem>
-							))}
-						</CommandGroup>
-					</CommandList>
-				</Command>
-			</PopoverContent>
-		</Popover>
+				<PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+					<Command>
+						<CommandInput
+							className="bg-dark w-full focus:outline-hidden"
+							placeholder="Buscar tipo de documento..."
+						/>
+						<CommandList>
+							<CommandEmpty>No se encontraron tipos de documento</CommandEmpty>
+							<CommandGroup>
+								{documentTypes.map((doc) => (
+									<CommandItem
+										key={doc.id}
+										value={`${doc.code} ${doc.name} ${doc.legal_category} ${doc.applies_to}`}
+										onSelect={() => {
+											onChange(String(doc.id));
+											setOpen(false);
+										}}
+									>
+										<Check
+											className={cn(
+												'mr-2 h-4 w-4',
+												value === String(doc.id)
+													? 'opacity-100'
+													: 'opacity-0',
+											)}
+										/>
+										<div className="flex flex-col">
+											<span>
+												{doc.code} - {doc.name}
+											</span>
+											<span className="text-muted-foreground text-xs">
+												{doc.legal_category} · {doc.applies_to}
+											</span>
+										</div>
+									</CommandItem>
+								))}
+							</CommandGroup>
+						</CommandList>
+					</Command>
+				</PopoverContent>
+			</Popover>
+		</div>
 	);
 }

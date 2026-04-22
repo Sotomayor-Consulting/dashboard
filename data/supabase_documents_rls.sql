@@ -4,11 +4,11 @@
 -- ---------------------------------------------------------------------------
 -- Enable RLS
 -- ---------------------------------------------------------------------------
-alter table public.documents enable row level security;
-alter table public.document_links enable row level security;
-alter table public.document_requests enable row level security;
-alter table public.document_request_links enable row level security;
-alter table public.document_approvals enable row level security;
+alter table documents.documents enable row level security;
+alter table documents.document_links enable row level security;
+alter table documents.document_requests enable row level security;
+alter table documents.document_request_links enable row level security;
+alter table documents.document_approvals enable row level security;
 
 -- ---------------------------------------------------------------------------
 -- Helper: ownership via empresas_incorporaciones.user_id
@@ -20,12 +20,12 @@ alter table public.document_approvals enable row level security;
 
 -- documents: SELECT if the document is linked to an incorporation case owned by auth.uid()
 create policy documents_select_own_incorp_case
-on public.documents
+on documents.documents
 for select
 using (
 	exists (
 		select 1
-		from public.document_links dl
+		from documents.document_links dl
 		join public.empresas_incorporaciones ei
 			on ei.empresa_incorporacion_id = dl.related_to_id
 		where dl.document_id = documents.id
@@ -36,13 +36,13 @@ using (
 
 -- documents: INSERT only if uploaded_by is auth.uid() and request belongs to the same owned case
 create policy documents_insert_own_incorp_case
-on public.documents
+on documents.documents
 for insert
 with check (
 	uploaded_by = auth.uid()
 	and exists (
 		select 1
-		from public.document_request_links drl
+		from documents.document_request_links drl
 		join public.empresas_incorporaciones ei
 			on ei.empresa_incorporacion_id = drl.related_to_id
 		where drl.document_request_id = documents.document_request_id
@@ -53,7 +53,7 @@ with check (
 
 -- document_links: SELECT if the linked case is owned by auth.uid()
 create policy document_links_select_own_incorp_case
-on public.document_links
+on documents.document_links
 for select
 using (
 	related_to_type = 'incorporation_case'
@@ -67,7 +67,7 @@ using (
 
 -- document_links: INSERT allowed when the creator owns the case and the document is theirs.
 create policy document_links_insert_own_incorp_case
-on public.document_links
+on documents.document_links
 for insert
 with check (
 	created_by = auth.uid()
@@ -80,7 +80,7 @@ with check (
 	)
 	and exists (
 		select 1
-		from public.documents d
+		from documents.documents d
 		where d.id = document_links.document_id
 			and d.uploaded_by = auth.uid()
 	)
@@ -88,12 +88,12 @@ with check (
 
 -- document_requests: SELECT if linked to an owned incorporation case
 create policy document_requests_select_own_incorp_case
-on public.document_requests
+on documents.document_requests
 for select
 using (
 	exists (
 		select 1
-		from public.document_request_links drl
+		from documents.document_request_links drl
 		join public.empresas_incorporaciones ei
 			on ei.empresa_incorporacion_id = drl.related_to_id
 		where drl.document_request_id = document_requests.id
@@ -104,7 +104,7 @@ using (
 
 -- document_request_links: SELECT if linked case is owned by auth.uid()
 create policy document_request_links_select_own_incorp_case
-on public.document_request_links
+on documents.document_request_links
 for select
 using (
 	related_to_type = 'incorporation_case'
@@ -118,12 +118,12 @@ using (
 
 -- document_approvals: SELECT if approval's document is readable by the user
 create policy document_approvals_select_if_document_readable
-on public.document_approvals
+on documents.document_approvals
 for select
 using (
 	exists (
 		select 1
-		from public.document_links dl
+		from documents.document_links dl
 		join public.empresas_incorporaciones ei
 			on ei.empresa_incorporacion_id = dl.related_to_id
 		where dl.document_id = document_approvals.document_id

@@ -1,19 +1,66 @@
-// src/lib/mailer.ts
 import nodemailer from 'nodemailer';
 
-const MAIL_HOST = import.meta.env.MAIL_HOST!;
-const MAIL_PORT = Number(import.meta.env.MAIL_PORT || 587);
-const MAIL_USER = import.meta.env.MAIL_USER!;
-const MAIL_PASS = import.meta.env.MAIL_PASS!;
-const MAIL_FROM = import.meta.env.MAIL_FROM!;
+function pickEnv(...values: Array<string | undefined>): string {
+	for (const value of values) {
+		if (value && value.trim()) return value.trim();
+	}
+	return '';
+}
+
+const SMTP_HOST = pickEnv(
+	import.meta.env.BREVO_SMTP_HOST,
+	import.meta.env.SMTP_SERVER,
+	import.meta.env.MAIL_HOST,
+);
+
+const SMTP_PORT = Number(
+	pickEnv(
+		import.meta.env.BREVO_SMTP_PORT,
+		import.meta.env.SMTP_PORT,
+		import.meta.env.MAIL_PORT,
+	) ||
+		'587',
+);
+
+const SMTP_USER = pickEnv(
+	import.meta.env.BREVO_SMTP_USER,
+	import.meta.env.SMTP_USER,
+	import.meta.env.MAIL_USER,
+);
+
+const SMTP_PASS = pickEnv(
+	import.meta.env.BREVO_SMTP_PASSWORD,
+	import.meta.env.SMTP_PASSWORD,
+	import.meta.env.MAIL_PASS,
+);
+
+const SMTP_FROM_EMAIL = pickEnv(
+	import.meta.env.BREVO_SMTP_FROM_EMAIL,
+	import.meta.env.EMAIL_FROM,
+	import.meta.env.MAIL_FROM,
+);
+
+const SMTP_FROM_NAME = pickEnv(
+	import.meta.env.BREVO_SMTP_FROM_NAME,
+	import.meta.env.EMAIL_FROM_NAME,
+	'Sotomayor Consulting',
+);
+
+if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !SMTP_FROM_EMAIL) {
+	throw new Error(
+		'Missing SMTP env vars. Configure BREVO_SMTP_HOST, BREVO_SMTP_USER, BREVO_SMTP_PASSWORD, BREVO_SMTP_FROM_EMAIL.',
+	);
+}
+
+const MAIL_FROM = `"${SMTP_FROM_NAME}" <${SMTP_FROM_EMAIL}>`;
 
 export const transporter = nodemailer.createTransport({
-	host: MAIL_HOST,
-	port: MAIL_PORT,
-	secure: MAIL_PORT === 465,
+	host: SMTP_HOST,
+	port: SMTP_PORT,
+	secure: SMTP_PORT === 465,
 	auth: {
-		user: MAIL_USER,
-		pass: MAIL_PASS,
+		user: SMTP_USER,
+		pass: SMTP_PASS,
 	},
 });
 

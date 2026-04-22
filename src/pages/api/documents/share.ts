@@ -1,152 +1,41 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
+import {
+	DocumentsError,
+	resolveDocumentActor,
+	shareDocumentWithUser,
+	toJsonErrorResponse,
+} from '@lib/documents';
 import { createSupabaseServerClient } from '@lib/supabase';
-import { supabaseAdmin } from '@lib/supabase/admin';
-
-const STAFF_ROLES = new Set(['admin', 'operaciones']);
-
-function isStaffRole(userRoles: string[]) {
-	return userRoles.some((role) => STAFF_ROLES.has(role));
-}
 
 export const POST: APIRoute = async ({ request, cookies, locals }) => {
 	try {
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
-		const { data: userData, error: userErr } = await supabase.auth.getUser();
-		if (userErr || !userData?.user) {
-			return new Response(JSON.stringify({ error: 'No autenticado' }), {
-				status: 401,
-				headers: { 'Content-Type': 'application/json' },
-			});
-		}
-
-		const actor = userData.user;
-		const userRoles = locals.userRoles || [];
-		if (!isStaffRole(userRoles)) {
-			return new Response(JSON.stringify({ error: 'No autorizado' }), {
-				status: 403,
-				headers: { 'Content-Type': 'application/json' },
-			});
-		}
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
+		const actor = await resolveDocumentActor(supabase, locals.userRoles || []);
 
 		const body = await request.json().catch(() => null);
 		const documentId = body?.documentId as string | undefined;
 		const sharedWithUserId = body?.sharedWithUserId as string | undefined;
 
 		if (!documentId) {
-			return new Response(JSON.stringify({ error: 'Falta documentId' }), {
-				status: 400,
-				headers: { 'Content-Type': 'application/json' },
-			});
+			throw new DocumentsError(400, 'Falta documentId');
 		}
 
-		const { data: link, error: linkErr } = await supabaseAdmin
-			.from('document_links')
-			.select('related_to_id')
-			.eq('document_id', documentId)
-			.eq('related_to_type', 'incorporation_case')
-			.maybeSingle();
-
-		if (linkErr || !link?.related_to_id) {
-			return new Response(
-				JSON.stringify({ error: 'No se encontró el caso para el documento' }),
-				{
-					status: 404,
-					headers: { 'Content-Type': 'application/json' },
-				},
-			);
-		}
-
-		const caseId = link.related_to_id as string;
-		const { data: caseRow, error: caseErr } = await supabaseAdmin
-			.from('empresas_incorporaciones')
-			.select('empresa_incorporacion_id, user_id, nombre_1')
-			.eq('empresa_incorporacion_id', caseId)
-			.maybeSingle();
-
-		if (caseErr || !caseRow) {
-			return new Response(JSON.stringify({ error: 'Caso no encontrado' }), {
-				status: 404,
-				headers: { 'Content-Type': 'application/json' },
-			});
-		}
-
-		const targetUserId = sharedWithUserId || caseRow.user_id;
-		const now = new Date().toISOString();
-
-		const { error: updateDocErr } = await supabaseAdmin
-			.from('documents')
-			.update({
-				visibility: 'client_visible',
-				case_id: caseId,
-				updated_by: actor.id,
-				updated_at: now,
-			})
-			.eq('id', documentId);
-
-		if (updateDocErr) {
-			return new Response(
-				JSON.stringify({ error: 'No se pudo actualizar visibilidad' }),
-				{
-					status: 500,
-					headers: { 'Content-Type': 'application/json' },
-				},
-			);
-		}
-
-		const { error: shareErr } = await supabaseAdmin
-			.from('document_shares')
-			.upsert(
-				{
-					document_id: documentId,
-					shared_with_user_id: targetUserId,
-					shared_by_user_id: actor.id,
-					share_status: 'active',
-					shared_at: now,
-					updated_at: now,
-				},
-				{
-					onConflict: 'document_id,shared_with_user_id',
-				},
-			);
-
-		if (shareErr) {
-			return new Response(
-				JSON.stringify({ error: 'No se pudo compartir el documento' }),
-				{
-					status: 500,
-					headers: { 'Content-Type': 'application/json' },
-				},
-			);
-		}
-
-		await supabaseAdmin.from('document_events').insert({
-			document_id: documentId,
-			case_id: caseId,
-			event_type: 'shared',
-			actor_user_id: actor.id,
-			actor_role: userRoles.includes('admin') ? 'admin' : 'operaciones',
-			to_status: 'shared_active',
-			metadata: {
-				shared_with_user_id: targetUserId,
-			},
-		});
-
-		await supabaseAdmin.from('notifications').insert({
-			user_id: targetUserId,
-			message: `Operaciones compartió un documento de tu caso ${caseRow.nombre_1 ?? ''}.`,
-			link: `/documentos/${caseId}`,
-			mensaje_link: 'Ver documentos',
-			created_at: now,
-		});
-
+		const result = await shareDocumentWithUser(
+			actor,
+			documentId,
+			sharedWithUserId,
+		);
 		return new Response(
 			JSON.stringify({
 				ok: true,
 				documentId,
-				caseId,
-				sharedWithUserId: targetUserId,
+				caseId: result.caseId,
+				sharedWithUserId: result.sharedWithUserId,
 			}),
 			{
 				status: 200,
@@ -154,11 +43,6 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 			},
 		);
 	} catch (error) {
-		console.error('[documents/share] Unexpected error:', error);
-		return new Response(JSON.stringify({ error: 'Error inesperado' }), {
-			status: 500,
-			headers: { 'Content-Type': 'application/json' },
-		});
+		return toJsonErrorResponse(error);
 	}
 };
-

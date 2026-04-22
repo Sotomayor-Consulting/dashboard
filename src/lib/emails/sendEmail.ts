@@ -1,5 +1,4 @@
-import type { APIRoute } from 'astro';
-import nodemailer from 'nodemailer';
+import { sendMail } from '@lib/mailing/mailer';
 
 export type SendEmailInput = {
 	to: string;
@@ -19,25 +18,8 @@ export async function sendEmail({
 	subject,
 	html,
 }: SendEmailInput): Promise<SendEmailResult> {
-
-
-	const transporter = nodemailer.createTransport({
-		host: import.meta.env.SMTP_SERVER, // smtp-relay.brevo.com
-		port: Number(import.meta.env.SMTP_PORT), // 587
-		secure: false, // true para port 465, false para otros puertos
-		auth: {
-			user: import.meta.env.SMTP_USER,
-			pass: import.meta.env.SMTP_PASSWORD,
-		},
-		// Añade esta configuración para evitar el error de certificado
-		tls: {
-			rejectUnauthorized: false,
-		},
-	});
-
 	try {
-		await transporter.sendMail({
-			from: `"${import.meta.env.EMAIL_FROM_NAME}" <${import.meta.env.EMAIL_FROM}>`, // Asegúrate de usar tu usuario SMTP o un correo verificado en Brevo
+		await sendMail({
 			to,
 			subject,
 			html,
@@ -59,7 +41,7 @@ export async function sendEmail({
 		// Nota: En producción evita enviar error.message crudo si contiene datos sensibles
 		return {
 			status: 500,
-			success: true,
+			success: false,
 			body: {
 				message: 'Error al enviar el mensaje',
 			},

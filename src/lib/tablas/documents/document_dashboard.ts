@@ -1,12 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export interface DocumentTypeLite {
-	id: string;
+	id: number;
 	code: number;
 	name: string;
 	legal_category: string;
 	applies_to: string;
 	description: string | null;
+	is_active: boolean;
 	is_expirable: boolean;
 	requires_approval: boolean;
 }
@@ -44,28 +45,29 @@ export interface DocumentDashboardRow {
 
 const STAFF_ROLES = new Set(['admin', 'operaciones']);
 
-
 export async function getDocumentTypesList(
-	supabase: SupabaseClient
+	supabase: SupabaseClient,
 ): Promise<DocumentTypeLite[]> {
-	const { data, error } = await supabase
+	const documentsDb = supabase.schema('documents');
+	const { data, error } = await documentsDb
 		.from('document_types')
 		.select('*')
-		.order('code', { ascending: true })
+		.order('code', { ascending: true });
 
 	if (error) {
 		console.error('[document_types] Error fetching document_types:', error);
 		throw error;
 	}
 
-	return data
+	return (data ?? []) as DocumentTypeLite[];
 }
 
 export async function getDocumentRequestsForIncorporationCase(
 	supabase: SupabaseClient,
 	incorporationCaseId: string,
 ): Promise<DocumentRequestDashboardRow[]> {
-	const { data, error } = await supabase
+	const documentsDb = supabase.schema('documents');
+	const { data, error } = await documentsDb
 		.from('document_request_links')
 		.select(
 			`
@@ -85,6 +87,7 @@ export async function getDocumentRequestsForIncorporationCase(
 					legal_category,
 					applies_to,
 					description,
+					is_active,
 					is_expirable,
 					requires_approval
 				)
@@ -113,15 +116,16 @@ export async function getDocumentRequestsForIncorporationCase(
 			requested_at: dr.requested_at ?? null,
 			document_type: dr.document_types
 				? {
-					id: dr.document_types.id,
-					code: dr.document_types.code,
-					name: dr.document_types.name,
-					legal_category: dr.document_types.legal_category,
-					applies_to: dr.document_types.applies_to,
-					description: dr.document_types.description ?? null,
-					is_expirable: !!dr.document_types.is_expirable,
-					requires_approval: !!dr.document_types.requires_approval,
-				}
+						id: dr.document_types.id,
+						code: dr.document_types.code,
+						name: dr.document_types.name,
+						legal_category: dr.document_types.legal_category,
+						applies_to: dr.document_types.applies_to,
+						description: dr.document_types.description ?? null,
+						is_active: !!dr.document_types.is_active,
+						is_expirable: !!dr.document_types.is_expirable,
+						requires_approval: !!dr.document_types.requires_approval,
+					}
 				: null,
 		}));
 }
@@ -132,7 +136,8 @@ export async function getDocumentsForIncorporationCase(
 	currentUserId?: string | null,
 	userRoles: string[] = [],
 ): Promise<DocumentDashboardRow[]> {
-	const { data, error } = await supabase
+	const documentsDb = supabase.schema('documents');
+	const { data, error } = await documentsDb
 		.from('document_links')
 		.select(
 			`
@@ -141,7 +146,7 @@ export async function getDocumentsForIncorporationCase(
 				id,
 				status,
 				file_name,
-				storage_path,
+				bucket_path,
 				file_size_bytes,
 				file_title,
 				mime_type,
@@ -163,6 +168,7 @@ export async function getDocumentsForIncorporationCase(
 					legal_category,
 					applies_to,
 					description,
+					is_active,
 					is_expirable,
 					requires_approval
 				)
@@ -189,7 +195,7 @@ export async function getDocumentsForIncorporationCase(
 			file_title: d.file_title ?? null,
 			mime_type: d.mime_type ?? null,
 			file_size_bytes: d.file_size_bytes ?? null,
-			storage_path: d.bucket_path,
+			bucket_path: d.bucket_path,
 			created_at: d.created_at ?? null,
 			uploaded_at: d.uploaded_at ?? null,
 			document_request_id: d.document_request_id ?? null,
@@ -202,15 +208,16 @@ export async function getDocumentsForIncorporationCase(
 			})),
 			document_type: d.document_types
 				? {
-					id: d.document_types.id,
-					code: d.document_types.code,
-					name: d.document_types.name,
-					legal_category: d.document_types.legal_category,
-					applies_to: d.document_types.applies_to,
-					description: d.document_types.description ?? null,
-					is_expirable: !!d.document_types.is_expirable,
-					requires_approval: !!d.document_types.requires_approval,
-				}
+						id: d.document_types.id,
+						code: d.document_types.code,
+						name: d.document_types.name,
+						legal_category: d.document_types.legal_category,
+						applies_to: d.document_types.applies_to,
+						description: d.document_types.description ?? null,
+						is_active: !!d.document_types.is_active,
+						is_expirable: !!d.document_types.is_expirable,
+						requires_approval: !!d.document_types.requires_approval,
+					}
 				: null,
 		}))
 		.filter((doc) => {

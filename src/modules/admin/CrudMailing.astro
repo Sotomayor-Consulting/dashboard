@@ -1,12 +1,10 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
-import AvatarCell from '@components/ui/AvatarCell.astro';
 import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
-import DataTable from '@components/ui/DataTable.astro';
 import Drawer from '@components/ui/Drawer.astro';
 import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
 import Modal from '@components/ui/Modal.astro';
-import StatusBadge from '@components/ui/StatusBadge.astro';
+import CrudMailingTable from '@modules/admin/views/CrudMailingTable';
 
 const supabase = Astro.locals.supabase;
 const { data: usuarios } = await supabase
@@ -51,117 +49,7 @@ const submitBtnClass =
 	</div>
 </div>
 
-<DataTable
-	headers={[
-		'Foto',
-		'Nombre',
-		'Compañía',
-		'Cargo',
-		'País',
-		'Estado',
-		'Rol',
-		'Acciones',
-	]}
-	noRowsMessage="No hay empresas"
->
-	{
-		usuarios?.map((user) => (
-			<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
-				<td class="w-4 pl-4">
-					<AvatarCell src={user.avatar_url} name={user.nombre} />
-				</td>
-				<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">
-					<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-						<div class="text-base font-semibold text-gray-900 dark:text-white">
-							{user.nombre} {user.apellido}
-						</div>
-						<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-							{user.correo}
-						</div>
-					</div>
-				</td>
-				<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-					{user.organizacion}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{user.cargo}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{user.pais?.[0]?.nombre_paises ?? '—'}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					<StatusBadge active={user.estado === 'activo'} label={user.estado} />
-				</td>
-				<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-					<div class="flex items-center">
-						{user.usuarios_empresas?.[0]?.rol_en_empresa ?? '—'}
-					</div>
-				</td>
-				<td class="relative flex space-x-2 p-4" x-data="{ showTooltip: false }">
-					<button
-						data-modal-target="top-right-modal"
-						data-modal-toggle="top-right-modal"
-						data-user-mail={user.correo}
-						class="block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-						type="button"
-					>
-						Enviar correo
-					</button>
-					<button
-						id={`dd-btn-${user.user_id}`}
-						@click="showTooltip = !showTooltip"
-						@click.outside="showTooltip = false"
-						class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
-						type="button"
-						aria-haspopup="true"
-						aria-expanded="false"
-					>
-						<svg
-							class="h-5 w-5"
-							aria-hidden="true"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="currentColor"
-							viewBox="0 0 4 15"
-						>
-							<path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-						</svg>
-					</button>
-					<div
-						id={`dd-${user.user_id}`}
-						x-cloak
-						x-show="showTooltip"
-						x-transition
-						class="dark:bg-black-900 absolute right-2 z-20 mt-11 w-44 divide-y divide-gray-100 rounded-lg border border-neutral-300 bg-white shadow-sm dark:divide-gray-600 dark:border-neutral-500"
-						role="menu"
-						aria-labelledby={`dd-btn-${user.user_id}`}
-						data-dropdown-placement="bottom-start"
-					>
-						<ul
-							class="py-2 text-sm text-gray-700 dark:text-gray-200"
-							role="none"
-						>
-							<li>
-								<button
-									type="button"
-									data-open-estado
-									data-user-id={user.user_id}
-									data-user-estado={user.estado || ''}
-									data-user-name={`${user.nombre} ${user.apellido}`.trim()}
-									data-modal-target="updaterol"
-									data-modal-toggle="updaterol"
-									class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-									role="menuitem"
-								>
-									Archivar
-								</button>
-							</li>
-						</ul>
-					</div>
-				</td>
-			</tr>
-		))
-	}
-</DataTable>
+<CrudMailingTable usuarios={usuarios ?? []} client:load />
 
 <!-- Send Email Modal -->
 <div
