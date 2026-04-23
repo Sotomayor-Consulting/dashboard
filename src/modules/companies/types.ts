@@ -179,7 +179,5 @@ export interface CompanyDetailData {
 	actividades: ActividadItem[];
 	paises: PaisItem[];
 	estados: EstadoItem[];
-	pagos: PagoPorLeer;
-	documentos: Documento[];
 }
 

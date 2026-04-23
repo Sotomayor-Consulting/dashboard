@@ -3,14 +3,14 @@ import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import CompanyDetail from '@modules/companies/CompanyDetail.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
 
-const { id } = Astro.params;
+const { incorporationId } = Astro.params;
 
-if (!id) {
+if (!incorporationId) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
 }
 ---
 
 <LayoutSidebar>
 	<Alerta />
-	<CompanyDetail empresaId={id} />
+	<CompanyDetail empresaId={incorporationId} />
 </LayoutSidebar>

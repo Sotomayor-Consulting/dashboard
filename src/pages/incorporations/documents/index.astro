@@ -13,24 +13,39 @@ const empresas = await IncorporacionesEmpresasBase(supabase);
 		<h1 class="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">
 			Documentos de Operaciones
 		</h1>
-		<div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+		<div
+			class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700"
+		>
 			<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 				<thead class="bg-gray-50 dark:bg-[#28314c]">
 					<tr>
-						<th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-300">Empresa</th>
-						<th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-300">Estado</th>
-						<th class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-300">Acción</th>
+						<th
+							class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-300"
+							>Empresa</th
+						>
+						<th
+							class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-300"
+							>Estado</th
+						>
+						<th
+							class="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-300"
+							>Acción</th
+						>
 					</tr>
 				</thead>
 				<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
 					{
 						(empresas ?? []).map((empresa: any) => (
 							<tr class="bg-white hover:bg-gray-50 dark:bg-[#1f2937] dark:hover:bg-[#111827]">
-								<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">{empresa.nombre_1}</td>
-								<td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-300">{empresa.estado_de_incorporacion ?? 'Sin estado'}</td>
+								<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+									{empresa.nombre_1}
+								</td>
+								<td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-300">
+									{empresa.estado_de_incorporacion ?? 'Sin estado'}
+								</td>
 								<td class="px-4 py-3">
 									<a
-										href={`/operaciones/documentos/${empresa.empresa_incorporacion_id}`}
+										href={`/incorporations/${empresa.empresa_incorporacion_id}/documents`}
 										class="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700"
 									>
 										Abrir
@@ -44,4 +59,3 @@ const empresas = await IncorporacionesEmpresasBase(supabase);
 		</div>
 	</div>
 </LayoutSidebar>
-

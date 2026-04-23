@@ -91,7 +91,7 @@ export const companiesColumns: ColumnDef<CompanyCrudRow>[] = [
 					<DropdownMenuContent align="end" className="w-44">
 						<DropdownMenuGroup>
 							<DropdownMenuItem>
-								<a href={`/companies/${companyId}`} target="_blank" rel="noopener noreferrer">Ir a la empresa</a>
+								<a href={`/incorporations/${companyId}`} target="_blank" rel="noopener noreferrer">Ir a la empresa</a>
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 					</DropdownMenuContent>

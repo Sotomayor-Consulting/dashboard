@@ -44,6 +44,22 @@ export interface UploadDocumentResult {
 	caseName: string | null;
 }
 
+export interface CreateDocumentRequestInput {
+	documentTypeId: number;
+	relatedToType: DocumentRelatedType;
+	relatedToId: string;
+	caseId?: string | null;
+	dueDate?: string | null;
+	message?: string | null;
+	isRequired?: boolean;
+	status?: string;
+}
+
+export interface CreateDocumentRequestResult {
+	requestId: string;
+	caseId: string;
+}
+
 export class DocumentsError extends Error {
 	status: number;
 

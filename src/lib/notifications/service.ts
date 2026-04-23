@@ -115,6 +115,7 @@ async function sendChannelsForRecipient(
 	channels: NotificationChannel[],
 	rendered: RenderedPayload,
 	link: string | null,
+	eventKey: string,
 ): Promise<NotificationRecipientResult> {
 	const channelResults: NotificationChannelResult[] = [];
 
@@ -149,6 +150,11 @@ async function sendChannelsForRecipient(
 				});
 				channelResults.push({ channel, success: true });
 			} catch (error: any) {
+				console.error('[notifications][email] delivery failed', {
+					eventKey,
+					userId: recipient.userId,
+					error: error?.message ?? String(error),
+				});
 				channelResults.push({
 					channel,
 					success: false,
@@ -197,6 +203,7 @@ export async function notifyByEvent(
 			channels,
 			payload,
 			resolvedLink,
+			input.eventKey,
 		);
 		results.push(result);
 	}

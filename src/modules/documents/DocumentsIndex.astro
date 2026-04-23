@@ -5,11 +5,14 @@ const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
 
-if (!userId) {
-	return Astro.redirect('/sign-in?status=error&msg=No%20autenticado');
-}
+let authError = false;
+let companies: any[] | null = null;
 
-const companies = await getIncorporacionesByUserId(supabase, userId);
+if (!userId) {
+	authError = true;
+} else {
+	companies = await getIncorporacionesByUserId(supabase, userId);
+}
 ---
 
 <div class="px-4 pt-2">
@@ -18,7 +21,11 @@ const companies = await getIncorporacionesByUserId(supabase, userId);
 	</h1>
 
 	{
-		!companies || companies.length === 0 ? (
+		authError ? (
+			<div class="rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-300">
+				No autenticado.
+			</div>
+		) : !companies || companies.length === 0 ? (
 			<div class="rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-300">
 				No tienes empresas disponibles para gestionar documentos.
 			</div>

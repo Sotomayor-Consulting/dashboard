@@ -3,9 +3,9 @@ import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
 import CompanyDocumentsDashboard from '@modules/documents/CompanyDocumentsDashboard.astro';
 
-const { id } = Astro.params;
+const { incorporationId } = Astro.params;
 
-if (!id) {
+if (!incorporationId) {
 	return Astro.redirect('/my-companies/');
 }
 ---
@@ -18,13 +18,13 @@ if (!id) {
 			aria-label="Submenú de empresa"
 		>
 			<a
-				href={`/my-companies/${id}`}
+				href={`/my-companies/${incorporationId}/home`}
 				class="rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10"
 			>
-				Resumen
+				Inicio
 			</a>
 			<a
-				href={`/my-companies/${id}/documents`}
+				href={`/my-companies/${incorporationId}/documents`}
 				class="rounded-md bg-blue-600 px-3 py-2 font-semibold text-white"
 				aria-current="page"
 			>
@@ -33,6 +33,8 @@ if (!id) {
 		</nav>
 	</div>
 
-	<CompanyDocumentsDashboard incorporationCaseId={id} />
+	<CompanyDocumentsDashboard
+		incorporationCaseId={incorporationId}
+		showQuickUpload={false}
+	/>
 </LayoutSidebar>
-

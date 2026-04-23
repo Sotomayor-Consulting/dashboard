@@ -6,16 +6,16 @@ export const menuItems = [
 		tooltip: 'Crea una nueva LLC',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:building-2-fill',
-		sequence: 10
+		sequence: 10,
 	},
 	{
 		id: 'my-companies',
-		label: 'Mis empresas',
+		label: 'Mis incorporaciones',
 		href: '/my-companies/',
-		tooltip: 'Mira tus empresas',
+		tooltip: 'Consulta el estado de tus incorporaciones',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:hand-coin-fill',
-		sequence: 20
+		sequence: 20,
 	},
 	{
 		id: 'partners',
@@ -24,7 +24,7 @@ export const menuItems = [
 		tooltip: 'Mira tus referidos',
 		roles: ['partner'],
 		svgname: 'ri:shake-hands-fill',
-		sequence: 50
+		sequence: 50,
 	},
 	{
 		id: 'partners-configuracion',
@@ -33,7 +33,7 @@ export const menuItems = [
 		tooltip: 'Configuracion de partner',
 		roles: ['partner'],
 		svgname: 'ri:settings-3-fill',
-		sequence: 60
+		sequence: 60,
 	},
 	{
 		id: 'partners-soporte',
@@ -42,7 +42,7 @@ export const menuItems = [
 		tooltip: 'Agenda una reunion con Sotomayor Consulting',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:calendar-fill',
-		sequence: 70
+		sequence: 70,
 	},
 	{
 		id: 'partners-configuracion-perfil',
@@ -51,7 +51,7 @@ export const menuItems = [
 		tooltip: 'Configure su perfil y datos',
 		roles: ['all'],
 		svgname: 'ri:account-circle-fill',
-		sequence: 80
+		sequence: 80,
 	},
 	{
 		id: 'crud-users',
@@ -60,16 +60,16 @@ export const menuItems = [
 		tooltip: 'Gestionar clientes',
 		roles: ['admin'],
 		svgname: 'ri:user-add-fill',
-		sequence: 90
+		sequence: 90,
 	},
 	{
 		id: 'crud-empresas',
 		label: 'Empresas',
-		href: '/companies/',
+		href: '/incorporations/',
 		tooltip: 'Gestionar empresas',
 		roles: ['admin'],
 		svgname: 'ri:building-2-fill',
-		sequence: 100
+		sequence: 100,
 	},
 	{
 		id: 'verificacion-formulario-incorp',
@@ -78,7 +78,7 @@ export const menuItems = [
 		tooltip: 'Gestiona y verifica los datos del formulario de incorporación',
 		roles: ['admin'],
 		svgname: 'ri:archive-stack-fill',
-		sequence: 110
+		sequence: 110,
 	},
 	{
 		id: 'menu-vista-de-pagos',
@@ -87,18 +87,9 @@ export const menuItems = [
 		tooltip: 'verifica y gestiona los pagos realizados por los clientes',
 		roles: ['admin'],
 		svgname: 'ri:coins-fill',
-		sequence: 120
+		sequence: 120,
 	},
 
-	{
-		id: 'menu-notificaciones-a-usuarios',
-		label: 'Notificaciones',
-		href: '/admin/notificaciones/',
-		tooltip: 'Notifica a los usuarios con mensajes personalizados',
-		roles: ['admin'],
-		svgname: 'ri:chat-ai-4-fill',
-		sequence: 130
-	},
 	{
 		id: 'crud-servicios',
 		label: 'Servicios',
@@ -106,7 +97,7 @@ export const menuItems = [
 		tooltip: 'Gestionar servicios',
 		roles: ['admin'],
 		svgname: 'ri:function-add-fill',
-		sequence: 140
+		sequence: 140,
 	},
 	{
 		id: 'crud-formularios',
@@ -115,7 +106,7 @@ export const menuItems = [
 		tooltip: 'Crea y gestiona formularios',
 		roles: ['admin'],
 		svgname: 'ri:file-edit-fill',
-		sequence: 150
+		sequence: 150,
 	},
 	{
 		id: 'crud-formularios-enviados',
@@ -124,7 +115,7 @@ export const menuItems = [
 		tooltip: 'Gestiona las respuestas y estados de documentos',
 		roles: ['admin'],
 		svgname: 'ri:file-check-fill',
-		sequence: 160
+		sequence: 160,
 	},
 	{
 		id: 'otros-servicios',
@@ -133,6 +124,6 @@ export const menuItems = [
 		tooltip: 'Explora otros servicios disponibles',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:dashboard-horizontal-fill',
-		sequence: 170
+		sequence: 170,
 	},
 ];

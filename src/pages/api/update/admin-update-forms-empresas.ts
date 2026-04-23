@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 	// Util para construir la URL de retorno
 	const backPath = () =>
-		slug ? `/companies/${slug}` : FALLBACK_BACK;
+		slug ? `/incorporations/${slug}` : FALLBACK_BACK;
 
 	try {
 		// 1) Sesión

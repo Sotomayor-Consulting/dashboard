@@ -1,4 +1,4 @@
-export type NotificationChannel = 'in_app' | 'email';
+export type NotificationChannel = 'email' | 'in_app';
 
 export type NotificationEventKey =
 	| 'admin.custom'

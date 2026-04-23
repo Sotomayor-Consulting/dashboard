@@ -15,6 +15,8 @@ import {
 } from './helpers';
 import type {
 	CaseOwnerRow,
+	CreateDocumentRequestInput,
+	CreateDocumentRequestResult,
 	DocumentActor,
 	DocumentRelatedType,
 	UploadDocumentInput,
@@ -23,6 +25,12 @@ import type {
 import { DocumentsError } from './types';
 
 const documentsDb = supabaseAdmin.schema('documents');
+const BLOCKED_REQUEST_STATUSES = new Set([
+	'approved',
+	'closed',
+	'cancelled',
+	'rejected',
+]);
 
 function buildStoragePath(
 	ownerUserId: string,
@@ -80,6 +88,25 @@ async function resolveCaseOwnerFromInput(
 	}
 
 	return getCaseOwner(input.caseId);
+}
+
+async function resolveCaseOwnerFromContext(
+	relatedToType: DocumentRelatedType,
+	relatedToId: string,
+	caseId?: string | null,
+): Promise<CaseOwnerRow> {
+	if (relatedToType === 'incorporation_case' || relatedToType === 'company') {
+		return getCaseOwner(relatedToId);
+	}
+
+	if (!caseId) {
+		throw new DocumentsError(
+			400,
+			'Falta caseId para el contexto de solicitud seleccionado',
+		);
+	}
+
+	return getCaseOwner(caseId);
 }
 
 function assertCanManageContext(
@@ -162,6 +189,13 @@ export async function uploadDocument(
 			input.relatedToType,
 			input.relatedToId,
 		);
+
+		if (BLOCKED_REQUEST_STATUSES.has(requestRow.status)) {
+			throw new DocumentsError(
+				409,
+				`La solicitud ya no permite subir documentos (estado: ${requestRow.status})`,
+			);
+		}
 	}
 
 	const resolvedDocumentTypeId =
@@ -305,6 +339,66 @@ export async function uploadDocument(
 		caseId: context.caseId,
 		ownerUserId: context.ownerUserId,
 		caseName: context.caseName,
+	};
+}
+
+export async function createDocumentRequest(
+	actor: DocumentActor,
+	input: CreateDocumentRequestInput,
+): Promise<CreateDocumentRequestResult> {
+	if (!actor.isStaff) {
+		throw new DocumentsError(403, 'No autorizado');
+	}
+
+	const context = await resolveCaseOwnerFromContext(
+		input.relatedToType,
+		input.relatedToId,
+		input.caseId,
+	);
+
+	const now = new Date().toISOString();
+	const requestId = crypto.randomUUID();
+
+	const { error: requestErr } = await documentsDb
+		.from('document_requests')
+		.insert({
+			id: requestId,
+			case_id: context.caseId,
+			document_type_id: input.documentTypeId,
+			status: input.status ?? 'sent',
+			requested_by: actor.userId,
+			due_date: input.dueDate ?? null,
+			message: input.message ?? null,
+			is_required: input.isRequired ?? true,
+			requested_at: now,
+			created_at: now,
+			updated_at: now,
+		});
+
+	if (requestErr) {
+		throw new DocumentsError(500, 'No se pudo crear la solicitud');
+	}
+
+	const { error: linkErr } = await documentsDb
+		.from('document_request_links')
+		.insert({
+			id: crypto.randomUUID(),
+			document_request_id: requestId,
+			related_to_type: input.relatedToType,
+			related_to_id: input.relatedToId,
+			relation_purpose: 'owner',
+			is_primary: true,
+			created_by: actor.userId,
+			created_at: now,
+		});
+
+	if (linkErr) {
+		throw new DocumentsError(500, 'No se pudo enlazar la solicitud');
+	}
+
+	return {
+		requestId,
+		caseId: context.caseId,
 	};
 }
 
@@ -687,6 +781,94 @@ export async function listDocumentEvents(
 	}
 
 	return events ?? [];
+}
+
+export async function updateDocumentReviewStatus(
+	actor: DocumentActor,
+	documentId: string,
+	nextStatus: 'approved' | 'rejected',
+	comments?: string,
+): Promise<{ caseId: string; documentId: string; status: string }> {
+	if (!actor.isStaff) {
+		throw new DocumentsError(403, 'No autorizado');
+	}
+
+	const { data: doc, error: docErr } = await documentsDb
+		.from('documents')
+		.select('id, case_id, status, document_request_id, deleted_at')
+		.eq('id', documentId)
+		.maybeSingle();
+
+	if (docErr) {
+		throw new DocumentsError(500, 'Error consultando documento');
+	}
+
+	if (!doc || doc.deleted_at) {
+		throw new DocumentsError(404, 'Documento no encontrado');
+	}
+
+	const now = new Date().toISOString();
+
+	const { error: updateErr } = await documentsDb
+		.from('documents')
+		.update({
+			status: nextStatus,
+			updated_by: actor.userId,
+			updated_at: now,
+		})
+		.eq('id', documentId);
+
+	if (updateErr) {
+		throw new DocumentsError(
+			500,
+			'No se pudo actualizar el estado del documento',
+		);
+	}
+
+	if (doc.document_request_id) {
+		const { error: reqErr } = await documentsDb
+			.from('document_requests')
+			.update({
+				status: nextStatus,
+				updated_at: now,
+			})
+			.eq('id', doc.document_request_id);
+
+		if (reqErr) {
+			throw new DocumentsError(500, 'No se pudo actualizar la solicitud');
+		}
+	}
+
+	const approvalComments = comments?.trim() || null;
+	await documentsDb.from('document_approvals').insert({
+		document_id: documentId,
+		approval_role: 'operations',
+		approval_status: nextStatus,
+		comments: approvalComments,
+		approved_by: actor.userId,
+		approved_at: now,
+		created_at: now,
+	});
+
+	await documentsDb.from('document_events').insert({
+		document_id: documentId,
+		case_id: doc.case_id,
+		event_type: nextStatus,
+		actor_user_id: actor.userId,
+		actor_role: actor.actorRole,
+		from_status: doc.status,
+		to_status: nextStatus,
+		metadata: {
+			document_request_id: doc.document_request_id,
+			comments: approvalComments,
+		},
+	});
+
+	return {
+		caseId: doc.case_id,
+		documentId,
+		status: nextStatus,
+	};
 }
 
 export function toJsonErrorResponse(error: unknown): Response {

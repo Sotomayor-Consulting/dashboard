@@ -41,8 +41,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
 			.get('descripcion-link-notificacion')
 			?.toString()
 			.trim();
-		const sendEmail =
-			form.get('send_email')?.toString().trim().toLowerCase() === 'true';
+		const sendEmail = form.has('send_email');
 		const emailSubject = form.get('email_subject')?.toString().trim();
 		const emailHtml = form.get('email_html')?.toString().trim();
 
@@ -80,14 +79,33 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
 			},
 		});
 
+		// Recolectamos errores de todos los canales fallidos
+		const channelFailures = notificationResult.results
+			.flatMap((r) => r.channels)
+			.filter((c) => !c.success)
+			.map((c) => `${c.channel}: ${c.error}`);
+
 		if (notificationResult.totalSuccess === 0) {
-			const details = notificationResult.results
-				.flatMap((row) => row.channels)
-				.map((channel) => channel.error)
-				.filter(Boolean)
-				.join(' | ');
+			const details = channelFailures.join(' | ');
+			console.error('[admin-notifications-update] all channels failed', {
+				userId,
+				channels,
+				channelFailures,
+			});
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent(details || 'No se pudo enviar la notificacion')}`,
+			);
+		}
+
+		if (channelFailures.length > 0) {
+			console.error('[admin-notifications-update] partial channel failures', {
+				userId,
+				channels,
+				channelFailures,
+			});
+			const warning = `Notificación enviada con errores parciales: ${channelFailures.join(', ')}`;
+			return redirect(
+				`${back}?status=warning&msg=${encodeURIComponent(warning)}`,
 			);
 		}
 
@@ -95,6 +113,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
 			`${back}?status=success&msg=${encodeURIComponent('Notificación enviada correctamente')}`,
 		);
 	} catch (e: any) {
+		console.error('[admin-notifications-update] unexpected error', e);
 		const msg = encodeURIComponent(`Error inesperado: ${e?.message ?? e}`);
 		return redirect(`${back}?status=error&msg=${msg}`);
 	}

@@ -1,9 +1,0 @@
----
-const { id } = Astro.params;
-
-if (!id) {
-	return Astro.redirect('/documentos/?status=error&msg=Falta%20empresa%20id');
-}
----
-
-{Astro.redirect(`/my-companies/${id}/documents`)}

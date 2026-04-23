@@ -160,6 +160,17 @@ export default function UsersCrudTable({
 					setActiveUser(user);
 					setEstadoOpen(true);
 				},
+				onSendNotification: (user) => {
+					document.dispatchEvent(
+						new CustomEvent('open-notification-modal', {
+							detail: {
+								userId: user.user_id,
+								userName: `${user.nombre} ${user.apellido}`.trim() || user.nombre,
+								email: user.correo,
+							},
+						}),
+					);
+				},
 			}),
 		[],
 	);

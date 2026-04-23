@@ -15,6 +15,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@components/components/ui/dropdown-menu';
+import { Archive, BellRing, Pencil, RefreshCw } from 'lucide-react';
 
 export interface UserTableRow {
 	user_id: string;
@@ -42,6 +43,7 @@ export interface UserTableRow {
 interface CreateUsersColumnsProps {
 	onEditUser: (user: UserTableRow) => void;
 	onUpdateEstado: (user: UserTableRow) => void;
+	onSendNotification: (user: UserTableRow) => void;
 }
 
 const roleVariant = (role: string) => {
@@ -53,6 +55,7 @@ const roleVariant = (role: string) => {
 export const createUsersColumns = ({
 	onEditUser,
 	onUpdateEstado,
+	onSendNotification,
 }: CreateUsersColumnsProps): ColumnDef<UserTableRow>[] => [
 	{
 		id: 'select',
@@ -204,10 +207,16 @@ export const createUsersColumns = ({
 					<DropdownMenuContent align="end" className="w-44">
 						<DropdownMenuGroup>
 							<DropdownMenuItem onClick={() => onEditUser(user)}>
+								<Pencil className="mr-2 h-4 w-4" />
 								Editar usuario
 							</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => onUpdateEstado(user)}>
+								<RefreshCw className="mr-2 h-4 w-4" />
 								Actualizar estado
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => onSendNotification(user)}>
+								<BellRing className="mr-2 h-4 w-4" />
+								Enviar notificacion
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
@@ -216,6 +225,7 @@ export const createUsersColumns = ({
 								variant="destructive"
 								onClick={() => onUpdateEstado(user)}
 							>
+								<Archive className="mr-2 h-4 w-4" />
 								Archivar
 							</DropdownMenuItem>
 						</DropdownMenuGroup>

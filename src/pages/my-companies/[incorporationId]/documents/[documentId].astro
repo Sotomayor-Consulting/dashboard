@@ -1,0 +1,20 @@
+---
+import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
+import Alerta from '@components/feedback/alertageneral.astro';
+import DocumentDetail from '@modules/documents/DocumentDetail.astro';
+
+const { incorporationId, documentId } = Astro.params;
+
+if (!incorporationId || !documentId) {
+	return Astro.redirect('/my-companies/?status=error&msg=Ruta%20invalida');
+}
+---
+
+<LayoutSidebar>
+	<Alerta />
+	<DocumentDetail
+		incorporationCaseId={incorporationId}
+		documentId={documentId}
+		backPath={`/my-companies/${incorporationId}/documents`}
+	/>
+</LayoutSidebar>

@@ -3,22 +3,22 @@ import { supabaseAdmin } from '@lib/supabase/admin';
 
 type ResolveEmailInput = {
 	userId: string;
-	email?: string | null;
+	email?: string;
 };
 
 type SendEmailInput = {
-	userId: string;
-	email?: string | null;
+	userId: string
+	email: string;
 	subject: string;
 	html: string;
-	text?: string;
+	text?: string | undefined;
 };
 
 export async function resolveRecipientEmail({
 	userId,
 	email,
 }: ResolveEmailInput): Promise<string | null> {
-	if (email && email.trim()) return email.trim();
+	if (email?.trim()) return email.trim();
 
 	const { data: userRow, error: userErr } = await supabaseAdmin
 		.from('usuarios')
@@ -57,7 +57,7 @@ export async function sendEmailNotification({
 		to: recipient,
 		subject,
 		html,
-		text,
+		text
 	});
 
 	return { to: recipient };

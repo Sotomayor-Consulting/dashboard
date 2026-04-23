@@ -1,0 +1,9 @@
+---
+const { incorporationId } = Astro.params;
+
+if (!incorporationId) {
+	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
+}
+---
+
+{Astro.redirect(`/my-companies/${incorporationId}/home`)}

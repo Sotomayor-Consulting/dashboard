@@ -96,11 +96,11 @@ export default function CrudEmpresasTable({
 								<TableRow
 									key={empresa.empresa_incorporacion_id}
 									onClick={() => {
-										if (!empresa.empresa_incorporacion_id) return;
-										window.open(
-											`/companies/${empresa.empresa_incorporacion_id}`,
-											'_blank',
-										);
+									if (!empresa.empresa_incorporacion_id) return;
+									window.open(
+										`/incorporations/${empresa.empresa_incorporacion_id}`,
+										'_blank',
+									);
 									}}
 									className="cursor-pointer"
 								>

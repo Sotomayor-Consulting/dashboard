@@ -2,9 +2,11 @@
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import Users from '@modules/users/Users.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
+import EmailForm from '@components/email/EmailForm.astro';
 ---
 
 <LayoutSidebar>
 	<Alerta />
 	<Users />
+	<EmailForm backPath="/usuarios/" />
 </LayoutSidebar>

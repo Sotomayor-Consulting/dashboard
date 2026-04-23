@@ -1,14 +1,28 @@
+---
+interface Props {
+	backPath?: string;
+}
+
+const { backPath = '/admin/notificaciones/' } = Astro.props as Props;
+const formAction = `/api/update/admin-notifications-update?back=${encodeURIComponent(backPath)}`;
+---
+
 <div
 	id="send-email-modal"
 	class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4"
 >
-	<div class="w-full max-w-2xl rounded-lg border border-gray-200 bg-white p-5 shadow-xl dark:border-gray-700 dark:bg-[#0e2738]">
+	<div
+		class="w-full max-w-2xl rounded-lg border border-gray-200 bg-white p-5 shadow-xl dark:border-gray-700 dark:bg-[#0e2738]"
+	>
 		<div class="mb-4 flex items-center justify-between">
 			<div>
 				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
 					Enviar notificacion
 				</h3>
-				<p class="text-sm text-gray-500 dark:text-gray-400" id="notification-target">
+				<p
+					class="text-sm text-gray-500 dark:text-gray-400"
+					id="notification-target"
+				>
 					Selecciona un usuario para enviar
 				</p>
 			</div>
@@ -24,10 +38,14 @@
 		<form
 			id="notification-form"
 			method="post"
-			action="/api/update/admin-notifications-update?back=%2Fadmin%2Fnotificaciones%2F"
+			action={formAction}
 			class="space-y-4"
 		>
-			<input type="hidden" name="user_id_modal_name" id="notification-user-id" />
+			<input
+				type="hidden"
+				name="user_id_modal_name"
+				id="notification-user-id"
+			/>
 
 			<div>
 				<label
@@ -42,8 +60,7 @@
 					rows="4"
 					required
 					class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-gray-700 dark:bg-[#101522] dark:text-white"
-					placeholder="Escribe el mensaje de la notificacion..."
-				></textarea>
+					placeholder="Escribe el mensaje de la notificacion..."></textarea>
 			</div>
 
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -80,11 +97,12 @@
 			</div>
 
 			<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
-				<label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+				<label
+					class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200"
+				>
 					<input
 						type="checkbox"
 						name="send_email"
-						value="true"
 						id="send-email-checkbox"
 						class="h-4 w-4 rounded border-gray-300"
 					/>
@@ -139,7 +157,8 @@
 
 		const openModal = (detail) => {
 			userIdInput.value = detail?.userId ?? '';
-			const safeEmail = detail?.email && detail.email !== '—' ? ` (${detail.email})` : '';
+			const safeEmail =
+				detail?.email && detail.email !== '—' ? ` (${detail.email})` : '';
 			target.textContent = detail?.userName
 				? `Destino: ${detail.userName}${safeEmail}`
 				: 'Selecciona un usuario para enviar';
@@ -156,9 +175,11 @@
 			openModal(event.detail || {});
 		});
 
-		modal.querySelectorAll('[data-close-notification-modal]').forEach((button) => {
-			button.addEventListener('click', closeModal);
-		});
+		modal
+			.querySelectorAll('[data-close-notification-modal]')
+			.forEach((button) => {
+				button.addEventListener('click', closeModal);
+			});
 
 		modal.addEventListener('click', (event) => {
 			if (event.target === modal) closeModal();

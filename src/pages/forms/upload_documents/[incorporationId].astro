@@ -1,0 +1,9 @@
+---
+const { incorporationId } = Astro.params;
+
+if (!incorporationId) {
+	return Astro.redirect('/my-companies/');
+}
+
+return Astro.redirect(`/my-companies/${incorporationId}/documents`);
+---
