@@ -6,7 +6,8 @@ export const menuItems = [
 		tooltip: 'Crea una nueva LLC',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:building-2-fill',
-		sequence: 10
+		sequence: 10,
+		colors: 'text-cyan-700',
 	},
 	{
 		id: 'my-companies',
@@ -15,7 +16,8 @@ export const menuItems = [
 		tooltip: 'Mira tus empresas',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:hand-coin-fill',
-		sequence: 20
+		sequence: 20,
+		colors: 'text-cyan-700',
 	},
 	{
 		id: 'documentos',
@@ -24,7 +26,8 @@ export const menuItems = [
 		tooltip: 'Mira tus documentos y formularios',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:file-copy-2-line',
-		sequence: 40
+		sequence: 40,
+		colors: 'text-cyan-700',
 	},
 	{
 		id: 'partners',
@@ -33,16 +36,18 @@ export const menuItems = [
 		tooltip: 'Mira tus referidos',
 		roles: ['partner'],
 		svgname: 'ri:shake-hands-fill',
-		sequence: 50
+		sequence: 50,
+		colors: 'text-emerald-700',
 	},
 	{
 		id: 'partners-configuracion',
-		label: 'Configuracion',
+		label: 'Estado Partner',
 		href: '/partners/configuracion-partners/',
-		tooltip: 'Configuracion de partner',
+		tooltip: 'Configuración de partner',
 		roles: ['partner'],
-		svgname: 'ri:settings-3-fill',
-		sequence: 60
+		svgname: 'ri:award-fill',
+		sequence: 60,
+		colors: 'text-emerald-700',
 	},
 	{
 		id: 'partners-soporte',
@@ -51,17 +56,10 @@ export const menuItems = [
 		tooltip: 'Agenda una reunion con Sotomayor Consulting',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:calendar-fill',
-		sequence: 70
+		sequence: 70,
+		colors: 'text-cyan-700',
 	},
-	{
-		id: 'partners-configuracion-perfil',
-		label: 'Perfil',
-		href: '/settings/',
-		tooltip: 'Configure su perfil y datos',
-		roles: ['all'],
-		svgname: 'ri:account-circle-fill',
-		sequence: 80
-	},
+
 	{
 		id: 'crud-users',
 		label: 'Clientes',
@@ -69,7 +67,8 @@ export const menuItems = [
 		tooltip: 'Gestionar clientes',
 		roles: ['admin'],
 		svgname: 'ri:user-add-fill',
-		sequence: 90
+		sequence: 90,
+		colors: 'text-violet-500',
 	},
 	{
 		id: 'crud-empresas',
@@ -78,7 +77,8 @@ export const menuItems = [
 		tooltip: 'Gestionar empresas',
 		roles: ['admin'],
 		svgname: 'ri:building-2-fill',
-		sequence: 100
+		sequence: 100,
+		colors: 'text-violet-500'
 	},
 	{
 		id: 'verificacion-formulario-incorp',
@@ -87,7 +87,8 @@ export const menuItems = [
 		tooltip: 'Gestiona y verifica los datos del formulario de incorporación',
 		roles: ['admin'],
 		svgname: 'ri:archive-stack-fill',
-		sequence: 110
+		sequence: 110,
+		colors: 'text-violet-500'
 	},
 	{
 		id: 'menu-vista-de-pagos',
@@ -96,7 +97,8 @@ export const menuItems = [
 		tooltip: 'verifica y gestiona los pagos realizados por los clientes',
 		roles: ['admin'],
 		svgname: 'ri:coins-fill',
-		sequence: 120
+		sequence: 120,
+		colors: 'text-violet-500'
 	},
 
 	{
@@ -106,7 +108,8 @@ export const menuItems = [
 		tooltip: 'Notifica a los usuarios con mensajes personalizados',
 		roles: ['admin'],
 		svgname: 'ri:chat-ai-4-fill',
-		sequence: 130
+		sequence: 130,
+		colors: 'text-violet-500'
 	},
 	{
 		id: 'crud-servicios',
@@ -115,7 +118,8 @@ export const menuItems = [
 		tooltip: 'Gestionar servicios',
 		roles: ['admin'],
 		svgname: 'ri:function-add-fill',
-		sequence: 140
+		sequence: 140,
+		colors: 'text-violet-500'
 	},
 	{
 		id: 'crud-formularios',
@@ -124,7 +128,8 @@ export const menuItems = [
 		tooltip: 'Crea y gestiona formularios',
 		roles: ['admin'],
 		svgname: 'ri:file-edit-fill',
-		sequence: 150
+		sequence: 150,
+		colors: 'text-violet-500'
 	},
 	{
 		id: 'crud-formularios-enviados',
@@ -133,7 +138,8 @@ export const menuItems = [
 		tooltip: 'Gestiona las respuestas y estados de documentos',
 		roles: ['admin'],
 		svgname: 'ri:file-check-fill',
-		sequence: 160
+		sequence: 160,
+		colors: 'text-violet-500'
 	},
 	{
 		id: 'otros-servicios',
@@ -142,6 +148,15 @@ export const menuItems = [
 		tooltip: 'Explora otros servicios disponibles',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:dashboard-horizontal-fill',
-		sequence: 170
+		sequence: 170,
+	},
+	{
+		id: 'partners-configuracion-perfil',
+		label: 'Perfil',
+		href: '/settings/',
+		tooltip: 'Configure su perfil y datos',
+		roles: ['all'],
+		svgname: 'ri:account-circle-fill',
+		sequence: 80
 	},
 ];

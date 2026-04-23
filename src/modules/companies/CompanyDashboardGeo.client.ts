@@ -47,7 +47,7 @@ function initCompanyGeoChart() {
 		const canvas = document.createElement('canvas');
 		container.innerHTML = '';
 		container.appendChild(canvas);
-		container.style.height = '400px';
+		container.style.height = '200px';
 		container.style.maxHeight = '400px';
 
 		const mapData = states.map((state) => ({

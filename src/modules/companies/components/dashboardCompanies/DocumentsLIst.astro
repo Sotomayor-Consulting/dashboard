@@ -1,0 +1,95 @@
+---
+import { Icon } from 'astro-icon/components';
+interface Props {
+	documentos: {
+		name: string;
+	}[];
+	userId: string;
+	empresaId: string;
+}
+const { documentos, userId, empresaId } = Astro.props;
+---
+
+<div
+	class="to-black-600 from-black-900 rounded-lg bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:bg-linear-to-bl"
+>
+	<div class="h-full w-full">
+		<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+			Últimos documentos
+		</h3>
+		<div class="flow-root">
+			<ul
+				role="list"
+				class="divide-default scrollbar scrollbar-w-3 scrollbar-thumb-rounded-xs max-h-96 divide-y overflow-y-auto"
+			>
+				{
+					documentos && documentos.length > 0 ? (
+						documentos.map((d) => (
+							<li class="mr-5 py-4 sm:py-4">
+								<div class="flex items-center gap-2">
+									<div class="shrink-0">
+										<Icon
+											name="ri:file-check-line"
+											class="text-white-900 dark:text-white-50 text-3xl"
+										/>
+									</div>
+									<div class="ms-2 min-w-0 flex-1">
+										<p class="text-heading truncate font-medium" title={d.name}>
+											{d.name}
+										</p>
+									</div>
+									<div class="text-heading inline-flex items-center font-medium">
+										<button
+											class="btn-ver-documento cursor-pointer"
+											data-path={`${userId}/companies/${empresaId}/documents/${d.name}`}
+											title="Ver documento"
+										>
+											<Icon
+												name="ri:download-fill"
+												class="text-2xl text-neutral-900 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-white"
+											/>
+										</button>
+									</div>
+								</div>
+							</li>
+						))
+					) : (
+						<li class="py-4 sm:py-4">
+							<div class="flex h-full flex-col items-center justify-center gap-2">
+								<h2 class="dark:text-white-400 text-white-500 w-full">
+									No hay documentos subidos aun...
+								</h2>
+								<Icon name="folders" width={300} height={300} />
+							</div>
+						</li>
+					)
+				}
+			</ul>
+		</div>
+	</div>
+</div>
+<script>
+	document.addEventListener('click', async (e) => {
+		const target = e.target as HTMLElement;
+		const btn = target.closest('.btn-ver-documento');
+		if (!btn) return;
+
+		const path = (btn as HTMLElement).dataset.path;
+		if (!path) return;
+
+		try {
+			const res = await fetch('/api/storage/get-signed-url', {
+				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ path }),
+			});
+			const data = await res.json();
+			if (data.error) throw new Error(data.error);
+			window.open(data.signedUrl, '_blank');
+		} catch (error) {
+			console.error('Error al obtener documento:', error);
+			alert('Error al cargar el documento');
+		}
+	});
+</script>

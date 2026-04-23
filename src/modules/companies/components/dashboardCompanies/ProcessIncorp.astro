@@ -1,0 +1,78 @@
+---
+import { Icon } from 'astro-icon/components';
+interface Props {
+	tasks: {
+		title: string;
+		description: string;
+		date?: string;
+		completed: string;
+		icon: string;
+	}[];
+}
+const { tasks } = Astro.props;
+---
+
+<div
+	class="to-black-600 from-black-900 rounded-lg bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:bg-linear-to-br"
+>
+	<div class="mb-4 flex flex-col items-center justify-between">
+		<div class="flex w-full shrink-0 items-center justify-between">
+			<span
+				class="text-xl font-bold text-balance text-gray-900 sm:text-2xl dark:text-white"
+				>Proceso de incorporación</span
+			>
+			<h3 class="text-base font-light text-gray-500 dark:text-gray-400">
+				2 de 4 procesos completados
+			</h3>
+		</div>
+	</div>
+	<div class="p-4">
+		<ol class="text-body border-default relative border-s py-4">
+			{
+				tasks.map((li) => (
+					<li class="ms-7 mb-10 flex items-center justify-between">
+						<div>
+							<span
+								class:list={{
+									'ring-buffer absolute -start-4 flex h-8 w-8 items-center justify-center rounded-full ring-4': true,
+									'bg-success-soft text-fg-success-strong':
+										li.completed === 'Completado',
+									'bg-neutral-tertiary text-body':
+										li.completed === 'Por completar',
+									'bg-black-400 animate-pulse text-white':
+										li.completed === 'En proceso',
+								}}
+							>
+								<Icon
+									name={
+										li.completed === 'Por completar'
+											? li.icon
+											: li.completed === 'Completado'
+												? 'ri:check-line'
+												: 'ri:time-line'
+									}
+									class:list={{
+										'text-xl': true,
+										'animate-pulse': li.completed === 'En proceso',
+									}}
+								/>
+							</span>
+							<h3
+								class:list={{
+									'leading-tight font-bold': true,
+									'text-fg-success-strong': li.completed === 'Completado',
+									'text-body': li.completed === 'Por completar',
+									'text-black-400': li.completed === 'En proceso',
+								}}
+							>
+								{li.title}
+							</h3>
+							<p class="text-sm">{li.description}</p>
+						</div>
+						<div class="hidden lg:block">{li.date}</div>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</div>

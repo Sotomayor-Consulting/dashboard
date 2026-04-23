@@ -4,13 +4,13 @@ import { getMissingPartnerFields } from '@lib/tablas/users/usuarios';
 
 interface Props {
 	data: object | null | undefined;
-	templateName?: string;
+	templatePath?: string;
 	reportName?: string;
 }
 
 const supabase = Astro.locals.supabase;
 
-const { data, templateName, reportName } = Astro.props;
+const { data, templatePath, reportName } = Astro.props;
 const btnId = `btn-imprimir-${Math.random().toString(36).slice(2, 9)}`;
 
 const user = Astro.locals.user;
@@ -46,7 +46,7 @@ if (isPartner && user) {
 	)
 }
 
-<script define:vars={{ btnId, data, templateName, reportName }} is:inline>
+<script define:vars={{ btnId, data, templatePath, reportName }} is:inline>
 	const btn = document.getElementById(btnId);
 	btn.addEventListener('click', async () => {
 		const originalText = btn.innerText;
@@ -60,7 +60,7 @@ if (isPartner && user) {
 				},
 				body: JSON.stringify({
 					data,
-					templateName,
+					templatePath,
 					reportName,
 				}),
 			});
