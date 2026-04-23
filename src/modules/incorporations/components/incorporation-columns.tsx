@@ -3,10 +3,11 @@ import type { IncorporationRelations } from '../types';
 
 export const columns: ColumnDef<IncorporationRelations>[] = [
 	{
-		accessorKey: 'possible_names',
+		id: 'possible_names',
+		accessorFn: (row) => row.possible_names.filter(Boolean).join(' '),
 		header: 'Nombres potenciales',
-		cell: ({ getValue }) => {
-			const names = getValue<[string, string, string]>().filter(Boolean);
+		cell: ({ row }) => {
+			const names = row.original.possible_names.filter(Boolean);
 			if (!names.length) return '-';
 
 			const [primary, ...alternatives] = names;
@@ -26,9 +27,9 @@ export const columns: ColumnDef<IncorporationRelations>[] = [
 		},
 	},
 	{
-		accessorFn: (row) => row.company?.legal_name ?? '-',
-		id: 'legal_name',
-		header: 'Company',
+		accessorFn: (row) => row.business_type ?? '-',
+		id: 'business_type',
+		header: 'Tipo de negocio',
 	},
 	{
 		accessorFn: (row) =>
@@ -37,23 +38,23 @@ export const columns: ColumnDef<IncorporationRelations>[] = [
 		header: 'Usuario',
 	},
 	{
-		accessorFn: (row) => row.company?.formation_country?.name ?? '-',
-		id: 'formation_country',
-		header: 'Jurisdicción',
+		accessorFn: (row) => row.state_of_incorporation ?? '-',
+		id: 'state_of_incorporation',
+		header: 'Estado de incorporación',
 	},
 	{
-		accessorFn: (row) => row.company?.incorporation_date ?? '-',
-		id: 'incorporation_date',
-		header: 'Fecha de Incorporación',
+		accessorFn: (row) => row.current_stage_name ?? '-',
+		id: 'current_stage_name',
+		header: 'Etapa actual',
 	},
 	{
-		accessorFn: (row) => row.company?.entity_type ?? '-',
-		id: 'entity_type',
-		header: 'Tipo de entidad',
+		accessorFn: (row) => row.workflow_status ?? 'not_started',
+		id: 'workflow_status',
+		header: 'Estado workflow',
 	},
 	{
-		accessorFn: (row) => row.company?.tax_clasification ?? '-',
-		id: 'tax_clasification',
-		header: 'Tipo de tributación',
+		accessorFn: (row) => row.company_status ?? '-',
+		id: 'company_status',
+		header: 'Estado empresa',
 	},
 ];

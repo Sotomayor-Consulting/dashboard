@@ -35,6 +35,27 @@ if (!empresa) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
 }
 
+const [folderPath, porfirmar, clientWorkflowProgress] = await Promise.all([
+	getUserFolders(supabase, userId, id),
+	getDocumentosPorFirmar(supabase, userId, empresaId),
+	getClientWorkflowProgress(supabaseAdmin, id),
+]);
+
+const clientWorkflowData = clientWorkflowProgress ?? {
+	companyName: empresa.nombre_1 ?? 'Empresa sin nombre',
+	businessType: empresa.tipo_de_negocio,
+	workflowStatus: 'not_started',
+	progressPercent: 0,
+	completedStages: 0,
+	totalStages: 0,
+	currentStageName: null,
+	estimatedCompletion: null,
+	stages: [],
+	pendingClientTasks: [],
+	upcomingEvents: [],
+	notifications: [],
+};
+
 // Obtener estado de incorporación para el mapa
 let estadoMapa = null;
 if (empresa.estado_de_incorporacion) {
