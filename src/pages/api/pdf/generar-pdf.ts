@@ -6,7 +6,7 @@ import { SECURITY_HEADERS } from '@lib/security/headers';
 
 type GenerateBody = {
 	data?: unknown;
-	templateName?: string;
+	templatePath?: string;
 	reportName?: string;
 };
 
@@ -24,12 +24,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		const rawBody = await request.json().catch(() => ({}));
 		const body = (rawBody || {}) as GenerateBody;
 
-		const { data, templateName, reportName } = body;
+		const { data, templatePath, reportName } = body;
 
 		// Validación básica
-		if (!templateName) {
+		if (!templatePath) {
 			return new Response(
-				JSON.stringify({ error: 'templateName es obligatorio' }),
+				JSON.stringify({ error: 'templatePath es obligatorio' }),
 				{
 					status: 400,
 					headers: SECURITY_HEADERS,
@@ -40,8 +40,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		// 2. Llamar a tu servicio externo
 		const pdfBuffer = await generatePdf({
 			reportName: reportName ?? 'report',
-			templateName,
-			data: data ?? {},
+			templatePath,
+			data: (data ?? {}) as Record<string, unknown>,
 		});
 
 		// 3. Devolver el PDF

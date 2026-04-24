@@ -7,6 +7,7 @@ export const menuItems = [
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:building-2-fill',
 		sequence: 10,
+		colors: 'text-cyan-700',
 	},
 	{
 		id: 'my-companies',
@@ -16,6 +17,17 @@ export const menuItems = [
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:hand-coin-fill',
 		sequence: 20,
+		colors: 'text-cyan-700',
+	},
+	{
+		id: 'documentos',
+		label: 'Documentos',
+		href: '/documentos/',
+		tooltip: 'Mira tus documentos y formularios',
+		roles: ['cliente', 'partner'],
+		svgname: 'ri:file-copy-2-line',
+		sequence: 40,
+		colors: 'text-cyan-700',
 	},
 	{
 		id: 'partners',
@@ -25,15 +37,17 @@ export const menuItems = [
 		roles: ['partner'],
 		svgname: 'ri:shake-hands-fill',
 		sequence: 50,
+		colors: 'text-emerald-700',
 	},
 	{
 		id: 'partners-configuracion',
-		label: 'Configuracion',
+		label: 'Estado Partner',
 		href: '/partners/configuracion-partners/',
-		tooltip: 'Configuracion de partner',
+		tooltip: 'Configuración de partner',
 		roles: ['partner'],
-		svgname: 'ri:settings-3-fill',
+		svgname: 'ri:award-fill',
 		sequence: 60,
+		colors: 'text-emerald-700',
 	},
 	{
 		id: 'partners-soporte',
@@ -43,16 +57,9 @@ export const menuItems = [
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:calendar-fill',
 		sequence: 70,
+		colors: 'text-cyan-700',
 	},
-	{
-		id: 'partners-configuracion-perfil',
-		label: 'Perfil',
-		href: '/settings/',
-		tooltip: 'Configure su perfil y datos',
-		roles: ['all'],
-		svgname: 'ri:account-circle-fill',
-		sequence: 80,
-	},
+
 	{
 		id: 'crud-users',
 		label: 'Clientes',
@@ -61,6 +68,7 @@ export const menuItems = [
 		roles: ['admin'],
 		svgname: 'ri:user-add-fill',
 		sequence: 90,
+		colors: 'text-violet-500',
 	},
 	{
 		id: 'crud-empresas',
@@ -70,6 +78,7 @@ export const menuItems = [
 		roles: ['admin'],
 		svgname: 'ri:building-2-fill',
 		sequence: 100,
+		colors: 'text-violet-500'
 	},
 	{
 		id: 'verificacion-formulario-incorp',
@@ -79,6 +88,7 @@ export const menuItems = [
 		roles: ['admin'],
 		svgname: 'ri:archive-stack-fill',
 		sequence: 110,
+		colors: 'text-violet-500'
 	},
 	{
 		id: 'menu-vista-de-pagos',
@@ -88,8 +98,19 @@ export const menuItems = [
 		roles: ['admin'],
 		svgname: 'ri:coins-fill',
 		sequence: 120,
+		colors: 'text-violet-500'
 	},
 
+	{
+		id: 'menu-notificaciones-a-usuarios',
+		label: 'Notificaciones',
+		href: '/admin/notificaciones/',
+		tooltip: 'Notifica a los usuarios con mensajes personalizados',
+		roles: ['admin'],
+		svgname: 'ri:chat-ai-4-fill',
+		sequence: 130,
+		colors: 'text-violet-500'
+	},
 	{
 		id: 'crud-servicios',
 		label: 'Servicios',
@@ -98,6 +119,7 @@ export const menuItems = [
 		roles: ['admin'],
 		svgname: 'ri:function-add-fill',
 		sequence: 140,
+		colors: 'text-violet-500'
 	},
 	{
 		id: 'crud-formularios',
@@ -107,6 +129,7 @@ export const menuItems = [
 		roles: ['admin'],
 		svgname: 'ri:file-edit-fill',
 		sequence: 150,
+		colors: 'text-violet-500'
 	},
 	{
 		id: 'crud-formularios-enviados',
@@ -116,6 +139,7 @@ export const menuItems = [
 		roles: ['admin'],
 		svgname: 'ri:file-check-fill',
 		sequence: 160,
+		colors: 'text-violet-500'
 	},
 	{
 		id: 'otros-servicios',
@@ -125,5 +149,14 @@ export const menuItems = [
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:dashboard-horizontal-fill',
 		sequence: 170,
+	},
+	{
+		id: 'partners-configuracion-perfil',
+		label: 'Perfil',
+		href: '/settings/',
+		tooltip: 'Configure su perfil y datos',
+		roles: ['all'],
+		svgname: 'ri:account-circle-fill',
+		sequence: 80
 	},
 ];

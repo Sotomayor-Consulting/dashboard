@@ -9,7 +9,8 @@ export const getPagosSurvey = async (
 		.select('status')
 		.eq('empresa_incorporacion_id', empresaId)
 		.eq('status', 'succeeded')
-		.single();
+		.limit(1)
+		.maybeSingle();
 	if (error) {
 		console.log('Error fetching pagos para survey:', error);
 		throw error;

@@ -1,0 +1,90 @@
+---
+interface Props {
+	empresa: {
+		estado: string;
+		updated_at: string;
+	};
+	porfirmar: number;
+}
+const { empresa, porfirmar } = Astro.props;
+---
+
+<div class="my-4 grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+	<div
+		class="to-black-600 from-black-900 items-center justify-between rounded-lg bg-white p-4 shadow-sm sm:flex sm:p-6 dark:bg-linear-to-tr"
+	>
+		<div class="w-full">
+			<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+				Estado de la empresa
+			</h3>
+			<div class="w-full py-4">
+				{
+					empresa.estado === 'Activo' ? (
+						<span class="bg-success-soft border-success-subtle text-fg-success-strong flex w-fit items-center rounded border px-1.5 py-1 text-xs font-medium">
+							<span class="bg-fg-success-strong me-1 h-1.5 w-1.5 rounded-full" />
+							En proceso de incorporación
+						</span>
+					) : empresa.estado === 'En proceso' ? (
+						<span class="bg-danger-soft border-danger-subtle text-fg-danger-strong flex items-center rounded border px-1.5 py-1 text-xs font-medium">
+							<span class="bg-fg-danger-strong me-1 h-1.5 w-1.5 rounded-full" />
+							Pendiente de pago
+						</span>
+					) : (
+						<span class="bg-success-soft border-success-subtle text-fg-success-strong flex w-fit items-center rounded border px-1.5 py-1 text-xs font-medium">
+							<span class="bg-fg-success-strong me-1 h-1.5 w-1.5 rounded-full" />
+							Empresa Incorporada
+						</span>
+					)
+				}
+			</div>
+		</div>
+	</div>
+	<div
+		class="to-black-600 from-black-900 items-center justify-between rounded-lg bg-white p-4 shadow-sm sm:flex sm:p-6 dark:bg-linear-to-bl"
+	>
+		<div class="w-full">
+			<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+				Procesos pendientes
+			</h3>
+			<div class="w-full">
+				<h1 class="dark:text-white-50 text-white-900 text-2xl">2</h1>
+			</div>
+			<p
+				class="flex items-center text-xs font-normal text-gray-500 dark:text-gray-400"
+			>
+				Sube los documentos para avanzar tu proceso
+			</p>
+		</div>
+	</div>
+	<div
+		class="to-black-600 from-black-900 items-center justify-between rounded-lg bg-white p-4 shadow-sm sm:flex sm:p-6 dark:bg-linear-to-br"
+	>
+		<div class="w-full">
+			<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+				Documentos
+			</h3>
+			<div class="w-full">
+				<h1 class="dark:text-white-50 text-white-900 text-2xl">{porfirmar}</h1>
+			</div>
+			<p
+				class="flex items-center text-xs font-normal text-gray-500 dark:text-gray-400"
+			>
+				Documentos enviados por operaciones y tus uploads
+			</p>
+		</div>
+	</div>
+	<div
+		class="to-black-600 from-black-900 items-center justify-between rounded-lg bg-white p-4 shadow-sm sm:flex sm:p-6 dark:bg-linear-to-tl"
+	>
+		<div class="w-full">
+			<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+				Fecha de ultima actualización
+			</h3>
+			<div class="w-full">
+				<h1 class="dark:text-white-50 text-white-900 text-2xl">
+					{new Date(empresa.updated_at).toLocaleDateString()}
+				</h1>
+			</div>
+		</div>
+	</div>
+</div>

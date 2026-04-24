@@ -23,17 +23,17 @@ const CSP_DIRECTIVES = [
 	"default-src 'self'",
 	// Scripts: 'unsafe-inline' necesario por ~35 <script is:inline> + define:vars en Astro
 	// 'unsafe-eval' necesario por Alpine.js (usa new Function() para evaluar x-data, x-show, @click, etc.)
-	`script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://buttons.github.io https://esm.sh https://accounts.google.com`,
+	`script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://buttons.github.io https://esm.sh https://accounts.google.com https://static.zcal.co`,
 	// Estilos: 'unsafe-inline' necesario por <style> scoped/global de Astro + Flowbite
 	`style-src 'self' 'unsafe-inline' https://fonts.cdnfonts.com https://fonts.googleapis.com  https://accounts.google.com`,
 	// Fuentes
 	`font-src 'self' https://fonts.gstatic.com https://fonts.cdnfonts.com`,
 	// Conexiones: fetch/XHR/WebSocket
-	`connect-src 'self' ${SUPABASE_URL} ${SUPABASE_WSS} https://unpkg.com https://esm.sh https://api.stripe.com https://accounts.google.com`,
+	`connect-src 'self' ${SUPABASE_URL} ${SUPABASE_WSS} https://unpkg.com https://esm.sh https://api.stripe.com https://accounts.google.com https://zcal.co https://static.zcal.co`,
 	// Imágenes
 	`img-src 'self' data: blob: ${SUPABASE_URL} https://app.sotomayorconsulting.com https://sotomayorconsulting.com https://i.imgur.com https://api.dicebear.com`,
 	// Iframes (Stripe Elements crea iframes)
-	`frame-src 'self' https://js.stripe.com https://accounts.google.com`,
+	`frame-src 'self' https://js.stripe.com https://accounts.google.com https://zcal.co`,
 	// Bloquear object/embed (Flash, plugins legacy)
 	"object-src 'none'",
 	// Base URI: solo 'self' (previene <base> injection)

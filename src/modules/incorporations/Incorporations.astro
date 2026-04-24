@@ -3,23 +3,17 @@ import { IncorporationTableClient as IncorporationTable } from '@modules/incorpo
 import { SharedBreadcrumb } from '@components/ui/bread-crumb.tsx';
 import { getIncorporationsWithCompanies } from '@modules/incorporations/services/incorporationService.ts';
 import { getAllUsuarios } from '@lib/tablas/users/usuarios';
-import { getCountries } from '@lib/tablas/countries';
-import type {
-	IncorporationRelations,
-	IncorporationWithRawCompany,
-} from './types';
-import type { Country } from '@modules/companies/types';
+import type { IncorporationRelations } from './types';
 import type { UsuarioItem as User } from '@modules/users/types';
 
 const supabase = Astro.locals.supabase;
 
-const [data, countries, users] = await Promise.all([
+const [data, users] = await Promise.all([
 	getIncorporationsWithCompanies(supabase),
-	getCountries(supabase),
 	getAllUsuarios(supabase),
 ]);
 
-const incorporations = (data ?? []) as IncorporationWithRawCompany[];
+const incorporations = data ?? [];
 
 const usersMap = users.reduce(
 	(acc, user) => {
@@ -28,31 +22,13 @@ const usersMap = users.reduce(
 	},
 	{} as Record<string, User>,
 );
-
-const countriesMap = countries.reduce(
-	(acc, country) => {
-		acc[country.id] = country;
-		return acc;
-	},
-	{} as Record<number, Country>,
-);
-
 const incorporationsRelations = incorporations.map((item) => {
 	const user = usersMap[item.user_id] ?? null;
-
-	const companyProcessed = item.company
-		? {
-				...item.company,
-				formation_country: countriesMap[item.company.formation_country_id],
-				user,
-			}
-		: null;
 
 	return {
 		...item,
 		user,
-		company: companyProcessed,
-	} as unknown as IncorporationRelations;
+	} as IncorporationRelations;
 });
 
 const paths = [{ label: 'Inicio', href: '/' }, { label: 'Incorporación' }];

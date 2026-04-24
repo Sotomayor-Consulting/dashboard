@@ -19,8 +19,7 @@ interface Props {
 	estados: EstadoItem[];
 }
 
-const { empresa, socios, managers, actividades, paises, estados } =
-	Astro.props;
+const { empresa, socios, managers, actividades, paises, estados } = Astro.props;
 ---
 
 <form action="" method="post">
@@ -194,8 +193,7 @@ const { empresa, socios, managers, actividades, paises, estados } =
 									</option>
 									<option
 										value="false"
-										selected={empresa.Obtendra_ingresos_desde_eeuu ===
-											false}
+										selected={empresa.Obtendra_ingresos_desde_eeuu === false}
 									>
 										No
 									</option>
@@ -257,8 +255,7 @@ const { empresa, socios, managers, actividades, paises, estados } =
 									>
 									<option
 										value="Member-Managed"
-										selected={empresa.forma_administracion ===
-											'Member-Managed'}
+										selected={empresa.forma_administracion === 'Member-Managed'}
 									>
 										Member-Managed
 									</option>
@@ -291,8 +288,7 @@ const { empresa, socios, managers, actividades, paises, estados } =
 									>
 									<option
 										value="Entidad de paso"
-										selected={empresa.forma_tributacion ===
-											'Entidad de paso'}
+										selected={empresa.forma_tributacion === 'Entidad de paso'}
 									>
 										Entidad de paso
 									</option>
@@ -329,9 +325,7 @@ const { empresa, socios, managers, actividades, paises, estados } =
 										socios?.map((s) => (
 											<option
 												value={s.nombre_de_socio}
-												selected={
-													s.nombre_de_socio === empresa.responsable_irs
-												}
+												selected={s.nombre_de_socio === empresa.responsable_irs}
 											>
 												{s.nombre_de_socio}
 											</option>
@@ -561,12 +555,10 @@ const { empresa, socios, managers, actividades, paises, estados } =
 										{
 											paises?.map((p) => (
 												<option
-													value={p.nombre_paises}
-													selected={
-														p.nombre_paises === empresa.Pais_operativo
-													}
+													value={p.name}
+													selected={p.name === empresa.Pais_operativo}
 												>
-													{p.nombre_paises}
+													{p.name}
 												</option>
 											))
 										}
@@ -799,12 +791,10 @@ const { empresa, socios, managers, actividades, paises, estados } =
 
 														{paises?.map((p) => (
 															<option
-																value={p.nombre_paises}
-																selected={
-																	p.nombre_paises === s.pais_de_nacionalidad
-																}
+																value={p.name}
+																selected={p.name === s.pais_de_nacionalidad}
 															>
-																{p.nombre_paises}
+																{p.name}
 															</option>
 														))}
 													</select>
@@ -1105,16 +1095,10 @@ const { empresa, socios, managers, actividades, paises, estados } =
 										>
 											Seleccione una opcion
 										</option>
-										<option
-											value="Si"
-											selected={empresa.manager_sci === true}
-										>
+										<option value="Si" selected={empresa.manager_sci === true}>
 											Si
 										</option>
-										<option
-											value="No"
-											selected={empresa.manager_sci === false}
-										>
+										<option value="No" selected={empresa.manager_sci === false}>
 											No
 										</option>
 									</select>
@@ -1263,13 +1247,12 @@ const { empresa, socios, managers, actividades, paises, estados } =
 
 															{paises?.map((p) => (
 																<option
-																	value={p.nombre_paises}
+																	value={p.name}
 																	selected={
-																		p.nombre_paises ===
-																		m.Pais_de_nacionalidad_manager
+																		p.name === m.Pais_de_nacionalidad_manager
 																	}
 																>
-																	{p.nombre_paises}
+																	{p.name}
 																</option>
 															))}
 														</select>
@@ -1288,8 +1271,7 @@ const { empresa, socios, managers, actividades, paises, estados } =
 																name={`residente-fiscal-manager-card-${index}`}
 																class="peer sr-only"
 																checked={
-																	m.residente_fiscal_en_EE_UU_manager ===
-																	true
+																	m.residente_fiscal_en_EE_UU_manager === true
 																}
 															/>
 															<div class="peer relative h-5 w-9 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:inset-s-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800" />

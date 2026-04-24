@@ -1,0 +1,79 @@
+---
+interface Props {
+	empresa: {
+		nombre_1: string;
+		tipo_de_negocio: string;
+		porcentaje_de_incorporacion: number;
+		estado_de_incorporacion: string;
+	};
+	estadoMapa: string;
+}
+
+const { empresa, estadoMapa } = Astro.props;
+---
+
+<div class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2">
+	<div
+		class="to-black-600 from-black-900 flex items-center justify-center gap-5 rounded-lg bg-white p-4 shadow-sm dark:bg-linear-to-tl"
+	>
+		<div
+			class="h-fit w-full items-center justify-center gap-5 rounded-lg sm:flex dark:border-gray-700"
+		>
+			<div class="w-fit text-center">
+				<h3 class="mb-3 text-lg font-normal text-gray-500 dark:text-gray-400">
+					Nombre de la empresa
+				</h3>
+				<span
+					class="text-4xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
+					>{empresa.nombre_1}</span
+				>
+			</div>
+		</div>
+		<hr
+			class="bg-white-200 dark:bg-black-800 flex h-48 w-1 justify-center rounded-sm border-0"
+		/>
+		<div
+			class="h-fit w-full flex-col items-center justify-center gap-y-5 sm:flex dark:border-gray-700"
+		>
+			<div id="test">
+				<div
+					class="h-fit w-fit"
+					id="porcentaje-radio"
+					data-empresa-id={Astro.params.id}
+					data-porcentaje={empresa.porcentaje_de_incorporacion}
+				>
+				</div>
+				<div class="w-full">
+					<h3
+						class="mb-2 text-center text-base font-normal text-gray-500 dark:text-gray-400"
+					>
+						Porcentaje de incorporación
+					</h3>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div
+		class="to-black-600 from-black-900 relative items-center justify-center gap-5 rounded-lg bg-white p-4 shadow-sm sm:p-6 lg:flex dark:border-gray-700 dark:bg-linear-to-tr"
+	>
+		<div
+			class="top-5 left-5 mb-4 flex w-fit flex-col items-center justify-between lg:absolute lg:flex-row"
+		>
+			<div class="w-fit text-start">
+				<span
+					class="text-xl leading-none font-bold text-gray-900 sm:text-2xl dark:text-white"
+					>{empresa.estado_de_incorporacion}</span
+				>
+				<h3 class="w-fit text-base font-light text-gray-500 dark:text-gray-400">
+					Estado de incorporación
+				</h3>
+			</div>
+		</div>
+		<div
+			id="datamap-container"
+			class="flex h-fit w-full items-center justify-center"
+			data-estado-mapa={estadoMapa ?? ''}
+		>
+		</div>
+	</div>
+</div>

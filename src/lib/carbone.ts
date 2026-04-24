@@ -3,33 +3,45 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 // Obtenemos la URL del entorno
-const RENDER_SERVER_URL = import.meta.env.RENDER_SERVER_URL as string;
+const RENDER_SERVER_URL =
+	process.env.RENDER_SERVER_URL ?? import.meta.env.RENDER_SERVER_URL;
+const API_KEY_PDF_GENERATOR =
+	process.env.API_KEY_PDF_GENERATOR ??
+	import.meta.env.API_KEY_PDF_GENERATOR;
 
 interface PdfOptions {
 	reportName: string;
-	templateName: string;
+	templatePath: string;
 	data: Record<string, unknown>;
 }
 
 export const generatePdf = async ({
-	templateName,
+	templatePath,
 	data,
 	reportName,
 }: PdfOptions): Promise<Buffer> => {
+	if (!API_KEY_PDF_GENERATOR) {
+		throw new Error('Falta configurar API_KEY_PDF_GENERATOR');
+	}
+
+	if (!RENDER_SERVER_URL) {
+		throw new Error('Falta configurar RENDER_SERVER_URL');
+	}
+
 	// leer plantilla
-	const templatePath = path.resolve(
+	const resolvedTemplatePath = path.resolve(
 		process.cwd(),
 		'src/templates/documents',
-		templateName,
+		templatePath,
 	);
 
 	// verificar que la plantilla exista
-	if (!fs.existsSync(templatePath)) {
-		throw new Error(`La plantilla no existe en: ${templatePath}`);
+	if (!fs.existsSync(resolvedTemplatePath)) {
+		throw new Error(`La plantilla no existe en: ${resolvedTemplatePath}`);
 	}
 
 	// convertir la plantilla a Base64
-	const templateBuffer = fs.readFileSync(templatePath);
+	const templateBuffer = fs.readFileSync(resolvedTemplatePath);
 	const templateBase64 = templateBuffer.toString('base64');
 
 	// enviar al Microservicio
@@ -38,6 +50,7 @@ export const generatePdf = async ({
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				'x-api-key': API_KEY_PDF_GENERATOR,
 			},
 			body: JSON.stringify({
 				templateBase64,

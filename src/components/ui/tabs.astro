@@ -1,0 +1,38 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	buttons: {
+		label: string;
+		icon: string;
+		active: boolean;
+		link: string;
+	}[];
+}
+
+const { buttons } = Astro.props;
+---
+
+<ul
+	class="space-y text-body mt-8 flex gap-1 space-y-4 text-sm font-medium md:me-4"
+>
+	{
+		buttons.map((li) => (
+			<li class="m-0">
+				<a
+					href={li.link}
+					class:list={{
+						'rounded-base inline-flex w-full items-center px-4 py-2.5': true,
+						'bg-black-400 active text-white': li.active === true,
+						'hover:text-heading hover:bg-neutral-secondary-soft':
+							li.active === false,
+					}}
+					aria-current="page"
+				>
+					<Icon name={li.icon} class="me-2 text-base" />
+					{li.label}
+				</a>
+			</li>
+		))
+	}
+</ul>

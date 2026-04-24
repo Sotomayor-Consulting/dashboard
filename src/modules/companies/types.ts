@@ -127,7 +127,7 @@ export interface EstadoItem {
 
 export interface PaisItem {
 	id: number;
-	nombre_paises: string;
+	name: string;
 }
 
 

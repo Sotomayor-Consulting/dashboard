@@ -56,10 +56,13 @@ export function IncorporationTable<TData, TValue>({
 					<Input
 						placeholder="Filtrar por nombre..."
 						value={
-							(table.getColumn('legal_name')?.getFilterValue() as string) ?? ''
+							(table.getColumn('possible_names')?.getFilterValue() as string) ??
+							''
 						}
 						onChange={(event) =>
-							table.getColumn('legal_name')?.setFilterValue(event.target.value)
+							table
+								.getColumn('possible_names')
+								?.setFilterValue(event.target.value)
 						}
 						className="max-w-sm"
 					/>
