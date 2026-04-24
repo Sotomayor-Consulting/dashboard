@@ -85,7 +85,17 @@ const { empresa, porfirmar, pendingProcesses = 2 } = Astro.props;
 			</h3>
 			<div class="w-full">
 				<h1 class="dark:text-white-50 text-white-900 text-2xl">
-					{new Date(empresa?.updated_at || '').toLocaleDateString()}
+					{
+						(() => {
+							const date = new Date(empresa.updated_at);
+							const day = date.getDate();
+							const month = date.toLocaleDateString('en-US', {
+								month: 'short',
+							});
+							const year = date.getFullYear();
+							return `${day} ${month}, ${year}`;
+						})()
+					}
 				</h1>
 			</div>
 		</div>

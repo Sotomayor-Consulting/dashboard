@@ -17,3 +17,24 @@ export const getPagosSurvey = async (
 	}
 	return data;
 };
+
+export const getPlanContratadoPorEmpresa = async (
+	supabase: SupabaseClient,
+	empresaId: string,
+) => {
+	const { data, error } = await supabase
+		.from('pagos')
+		.select('created_at, servicios:servicio_id ( nombre )')
+		.eq('empresa_incorporacion_id', empresaId)
+		.eq('status', 'succeeded')
+		.order('created_at', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+
+	if (error) {
+		console.log('Error fetching plan contratado:', error);
+		return null;
+	}
+
+	return data as { created_at: string; servicios?: { nombre?: string | null } } | null;
+};
