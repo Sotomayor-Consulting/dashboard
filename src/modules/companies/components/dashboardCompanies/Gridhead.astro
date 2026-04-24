@@ -10,8 +10,11 @@ interface Props {
 	progressPercent?: number;
 }
 
-const { empresa, estadoMapa, progressPercent = empresa.porcentaje_de_incorporacion } =
-	Astro.props;
+const {
+	empresa,
+	estadoMapa,
+	progressPercent = empresa.porcentaje_de_incorporacion,
+} = Astro.props;
 ---
 
 <div class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2">
@@ -27,7 +30,7 @@ const { empresa, estadoMapa, progressPercent = empresa.porcentaje_de_incorporaci
 				</h3>
 				<span
 					class="text-4xl leading-none font-bold text-gray-900 sm:text-3xl dark:text-white"
-					>{empresa.nombre_1}</span
+					>{empresa?.nombre_1 || ''}</span
 				>
 			</div>
 		</div>
@@ -64,7 +67,7 @@ const { empresa, estadoMapa, progressPercent = empresa.porcentaje_de_incorporaci
 			<div class="w-fit text-start">
 				<span
 					class="text-xl leading-none font-bold text-gray-900 sm:text-2xl dark:text-white"
-					>{empresa.estado_de_incorporacion}</span
+					>{empresa?.estado_de_incorporacion || ''}</span
 				>
 				<h3 class="w-fit text-base font-light text-gray-500 dark:text-gray-400">
 					Estado de incorporación
