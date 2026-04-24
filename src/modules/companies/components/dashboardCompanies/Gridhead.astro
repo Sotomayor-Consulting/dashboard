@@ -7,14 +7,16 @@ interface Props {
 		estado_de_incorporacion: string;
 	};
 	estadoMapa: string;
+	progressPercent?: number;
 }
 
-const { empresa, estadoMapa } = Astro.props;
+const { empresa, estadoMapa, progressPercent = empresa.porcentaje_de_incorporacion } =
+	Astro.props;
 ---
 
 <div class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2">
 	<div
-		class="to-black-600 from-black-900 flex items-center justify-center gap-5 rounded-lg bg-white p-4 shadow-sm dark:bg-linear-to-tl"
+		class="to-black-600 from-black-900 flex items-center justify-center gap-5 rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-gray-200/70 dark:border-gray-700 dark:bg-linear-to-tl dark:shadow-none"
 	>
 		<div
 			class="h-fit w-full items-center justify-center gap-5 rounded-lg sm:flex dark:border-gray-700"
@@ -40,7 +42,7 @@ const { empresa, estadoMapa } = Astro.props;
 					class="h-fit w-fit"
 					id="porcentaje-radio"
 					data-empresa-id={Astro.params.id}
-					data-porcentaje={empresa.porcentaje_de_incorporacion}
+					data-porcentaje={progressPercent}
 				>
 				</div>
 				<div class="w-full">
@@ -54,7 +56,7 @@ const { empresa, estadoMapa } = Astro.props;
 		</div>
 	</div>
 	<div
-		class="to-black-600 from-black-900 relative items-center justify-center gap-5 rounded-lg bg-white p-4 shadow-sm sm:p-6 lg:flex dark:border-gray-700 dark:bg-linear-to-tr"
+		class="to-black-600 from-black-900 relative items-center justify-center gap-5 rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-gray-200/70 sm:p-6 lg:flex dark:border-gray-700 dark:bg-linear-to-tr dark:shadow-none"
 	>
 		<div
 			class="top-5 left-5 mb-4 flex w-fit flex-col items-center justify-between lg:absolute lg:flex-row"

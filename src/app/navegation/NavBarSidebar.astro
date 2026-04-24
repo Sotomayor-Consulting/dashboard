@@ -2,14 +2,12 @@
 import { Icon } from 'astro-icon/components';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
 import logonotificaciones from '@assets/avatarSCI.png';
-import { Picture } from 'astro:assets';
+import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
 // Datos recibidos desde LayoutSidebar (ya consultados en paralelo)
-const { usuario: usuarioProp, notificationsData: notifProp } = Astro.props;
+const { notificationsData: notifProp } = Astro.props;
 
 const user = Astro.locals?.user;
-const userId = user?.id;
-const email = user?.email;
 const supabaseUrl =
 	process.env.PUBLIC_SUPABASE_URL ?? import.meta.env.PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey =
@@ -17,21 +15,69 @@ const supabaseAnonKey =
 	import.meta.env.PUBLIC_SUPABASE_ANON_KEY ??
 	'';
 
-const usuario = usuarioProp ?? null;
-const imagen = usuario; // avatar_url viene incluido en getUsuarioById (select *)
 const { notifications, totalUnread } = notifProp ?? {
 	notifications: [],
 	totalUnread: 0,
 };
+
+const pathname = Astro.url.pathname;
+
+const humanize = (value: string) =>
+	value
+		.replaceAll('-', ' ')
+		.replaceAll('_', ' ')
+		.replace(/\b\w/g, (char: string) => char.toUpperCase());
+
+const isUuid = (value: string) =>
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+		value,
+	);
+
+const segments = pathname.split('/').filter(Boolean);
+
+const sectionLabel = (() => {
+	const exactMatch = menuItems.find((item) => item.href === pathname);
+	if (exactMatch) return exactMatch.label;
+
+	const prefixMatch = menuItems.find(
+		(item) => item.href !== '/' && pathname.startsWith(item.href),
+	);
+	if (prefixMatch) return prefixMatch.label;
+
+	if (segments.length === 0) return 'Inicio';
+	return humanize(segments[0] ?? 'Inicio');
+})();
+
+const breadcrumbItems = [
+	{ label: 'Inicio', href: '/' },
+	...segments.map((segment, index) => ({
+		label: isUuid(segment) ? 'Detalle' : humanize(segment),
+		href: `/${segments.slice(0, index + 1).join('/')}/`,
+	})),
+];
+
+const quickActions = [
+	{
+		label: 'Feedback',
+		href: 'mailto:info@sotomayorconsulting.com?subject=Feedback%20Dashboard',
+		icon: 'ri:message-3-line',
+	},
+	{
+		label: 'Soporte',
+		href: 'mailto:info@sotomayorconsulting.com',
+		icon: 'ri:lifebuoy-line',
+	},
+];
 ---
 
 <nav
-	class="dark:bg-black-900/60 bg-white-50/80 fixed z-30 w-full border-b border-gray-200/60 backdrop-blur-md dark:border-gray-700/50 dark:backdrop-blur-md"
+	id="navbar-sidebar"
+	class="dark:bg-black-900 fixed top-0 right-0 left-0 z-30 h-14 w-full border-b border-gray-300/90 bg-white dark:border-gray-600/80"
 	transition:persist="navbar"
 >
-	<div class="px-3 py-3 lg:px-5 lg:pl-3">
-		<div class="flex items-center justify-between">
-			<div class="flex items-center justify-start">
+	<div class="h-full pr-3 pl-0 lg:pr-5">
+		<div class="flex h-full items-center justify-between">
+			<div class="flex min-w-0 items-center justify-start">
 				<button
 					id="toggleSidebarMobile"
 					data-drawer-target="sidebar"
@@ -63,7 +109,8 @@ const { notifications, totalUnread } = notifProp ?? {
 							clip-rule="evenodd"></path></svg
 					>
 				</button>
-				<a href="/" class="ml-2 hidden md:mr-24 md:flex">
+
+				<a href="/" class="ml-1 hidden md:mr-4 md:flex lg:hidden">
 					<Icon
 						name="isotipo_azul"
 						class="block text-3xl dark:hidden"
@@ -75,47 +122,81 @@ const { notifications, totalUnread } = notifProp ?? {
 						title="Logo Sotomayor Consulting"
 					/>
 				</a>
+
+				<div
+					class="hidden h-full items-center justify-center border-r border-gray-300/90 px-2 lg:flex dark:border-gray-600/80"
+					style="width: var(--sb-divider-x, 3rem);"
+				>
+					<a href="/" class="flex items-center justify-center">
+						<Icon
+							name="isotipo_azul"
+							class="block text-2xl dark:hidden"
+							title="Logo Sotomayor Consulting"
+						/>
+						<Icon
+							name="isotipo_blanco_alt"
+							class="hidden text-2xl dark:block"
+							title="Logo Sotomayor Consulting"
+						/>
+					</a>
+				</div>
+
+				<div class="hidden min-w-0 flex-col justify-center pl-4 lg:flex">
+					<p
+						class="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400"
+					>
+						{sectionLabel}
+					</p>
+					<nav
+						aria-label="Breadcrumb"
+						class="mt-0.5 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"
+					>
+						{
+							breadcrumbItems.map((crumb, idx) => (
+								<>
+									{idx > 0 && (
+										<Icon name="ri:arrow-right-s-line" class="h-3 w-3" />
+									)}
+									<a
+										href={crumb.href}
+										class:list={{
+											'transition-colors hover:text-gray-700 dark:hover:text-gray-200': true,
+											'font-semibold text-gray-900 dark:text-white':
+												idx === breadcrumbItems.length - 1,
+										}}
+									>
+										{crumb.label}
+									</a>
+								</>
+							))
+						}
+					</nav>
+				</div>
 			</div>
 
-			<div class="flex items-center">
-				<!-- Dropdown menu -->
+			<div class="flex items-center gap-1.5">
+				<div class="hidden items-center gap-1 pr-1 lg:flex">
+					{
+						quickActions.map((action) => (
+							<a
+								href={action.href}
+								target={action.href.startsWith('http') ? '_blank' : undefined}
+								rel={
+									action.href.startsWith('http')
+										? 'noreferrer noopener'
+										: undefined
+								}
+								class="inline-flex h-9 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+							>
+								<Icon name={action.icon} class="h-5 w-5" />
+								<span>{action.label}</span>
+							</a>
+						))
+					}
+				</div>
 				<div
-					id="dropdownNavbar"
-					class="dark:bg-black-800 z-10 hidden w-44 divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white dark:divide-gray-600 dark:border-gray-700"
+					class="mx-1 hidden h-5 w-px bg-gray-300/90 lg:block dark:bg-gray-600/80"
 				>
-					<ul
-						class="py-2 text-sm text-gray-700 dark:text-gray-400"
-						aria-labelledby="dropdownNavbarButton"
-					>
-						<li>
-							<a
-								href="#"
-								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-								>Dashboard</a
-							>
-						</li>
-						<li>
-							<a
-								href="/settings/"
-								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-								>Settings</a
-							>
-						</li>
-						<li>
-							<a
-								href="#"
-								class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-								>Earnings</a
-							>
-						</li>
-					</ul>
-					<div class="py-2">
-						<a
-							href="#"
-							class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white"
-							>Sign out</a
-						>
-					</div>
 				</div>
 				<div>
 					<!-- Notifications -->
@@ -123,13 +204,12 @@ const { notifications, totalUnread } = notifProp ?? {
 						type="button"
 						id="notifications-toggle"
 						data-dropdown-toggle="notification-dropdown"
-						class="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-white dark:hover:bg-[#101522] dark:hover:text-white"
-						class="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-white dark:hover:bg-[#101522] dark:hover:text-white"
+						class="relative inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-[#101522] dark:hover:text-white"
 					>
 						<span class="sr-only">Ver Notificaciones</span>
 						<!-- Bell icon -->
 						<svg
-							class="h-6 w-6"
+							class="h-5 w-5"
 							fill="currentColor"
 							viewBox="0 0 20 20"
 							xmlns="http://www.w3.org/2000/svg"
@@ -139,7 +219,7 @@ const { notifications, totalUnread } = notifProp ?? {
 						>
 						{
 							totalUnread > 0 && (
-								<span class="absolute -inset-2 -top-2 inline-flex h-6 w-6 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 text-xs font-bold text-white dark:border-[#223848]">
+								<span class="absolute -top-1.5 -right-1.5 inline-flex h-5 w-5 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 text-[10px] font-bold text-white dark:border-[#223848]">
 									{totalUnread}
 								</span>
 							)
@@ -233,83 +313,11 @@ const { notifications, totalUnread } = notifProp ?? {
 						</a>
 					</div>
 				</div>
-				<ColorModeSwitcher />
-				<!-- Profile -->
-				<div class="ml-3 flex items-center">
-					<div>
-						<button
-							type="button"
-							class="flex rounded-full bg-gray-800 text-sm focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-							id="user-menu-button-2"
-							aria-expanded="false"
-							data-dropdown-toggle="dropdown-2"
-						>
-							<span class="sr-only">Open user menu</span>
-							{
-								imagen?.avatar_url === 'NULL' || !imagen?.avatar_url ? (
-									<Picture
-										src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId || ''}`}
-										class="h-8 w-8 rounded-full"
-										alt="avatar general aleatorio"
-										loading="eager"
-										inferSize={true}
-									/>
-								) : (
-									<Picture
-										class="h-8 w-8 rounded-full"
-										src={imagen?.avatar_url}
-										alt={`user avatar ${userId}`}
-										loading="eager"
-										inferSize={true}
-									/>
-								)
-							}
-						</button>
-					</div>
-					<!-- Dropdown menu -->
-					<div
-						class="dark:bg-black-800 z-50 my-4 hidden list-none divide-y divide-gray-100 rounded border border-gray-200 bg-white text-base dark:divide-gray-600 dark:border-gray-700"
-						id="dropdown-2"
-					>
-						<div class="px-4 py-3" role="none">
-							<p class="text-sm text-gray-900 dark:text-white" role="none">
-								{usuario?.nombre ?? ''}
-								{usuario?.apellido ?? ''}
-							</p>
-							<p
-								class="truncate text-sm font-medium text-gray-900 dark:text-gray-300"
-								role="none"
-							>
-								{email}
-							</p>
-						</div>
-						<ul class="py-1" role="none">
-							<li>
-								<a
-									href="/my-companies/"
-									class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-									role="menuitem">Mis incorporaciones</a
-								>
-							</li>
-							<li>
-								<a
-									href="/settings/"
-									class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-									role="menuitem">Configuraciones</a
-								>
-							</li>
-							<li>
-								<form action="/api/auth/signout" method="post" class="w-full">
-									<button
-										type="submit"
-										class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-										role="menuitem">Cerrar sesión</button
-									>
-								</form>
-							</li>
-						</ul>
-					</div>
+				<div
+					class="mx-0.5 hidden h-5 w-px bg-gray-300/90 lg:block dark:bg-gray-600/80"
+				>
 				</div>
+				<ColorModeSwitcher />
 			</div>
 		</div>
 	</div>
@@ -349,7 +357,7 @@ const { notifications, totalUnread } = notifProp ?? {
 			if (!existing) {
 				const b = document.createElement('span');
 				b.className =
-					'absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900';
+					'absolute inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1.5 -end-1.5 dark:border-gray-900';
 				bellBtn.appendChild(b);
 				b.textContent = String(count);
 			} else {

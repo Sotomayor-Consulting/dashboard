@@ -8,12 +8,15 @@ interface Props {
 		completed: string;
 		icon: string;
 	}[];
+	completedCount: number;
+	totalCount: number;
+	progressPercent: number;
 }
-const { tasks } = Astro.props;
+const { tasks, completedCount, totalCount, progressPercent } = Astro.props;
 ---
 
 <div
-	class="to-black-600 from-black-900 rounded-lg bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:bg-linear-to-br"
+	class="to-black-600 from-black-900 rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-gray-200/70 sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-linear-to-br dark:shadow-none"
 >
 	<div class="mb-4 flex flex-col items-center justify-between">
 		<div class="flex w-full shrink-0 items-center justify-between">
@@ -21,20 +24,25 @@ const { tasks } = Astro.props;
 				class="text-xl font-bold text-balance text-gray-900 sm:text-2xl dark:text-white"
 				>Proceso de incorporación</span
 			>
-			<h3 class="text-base font-light text-gray-500 dark:text-gray-400">
-				2 de 4 procesos completados
-			</h3>
+			<div class="text-right">
+				<h3 class="text-base font-light text-gray-500 dark:text-gray-400">
+					{completedCount} de {totalCount} procesos completados
+				</h3>
+				<p class="text-sm font-semibold text-gray-900 dark:text-white">
+					{progressPercent}% completado
+				</p>
+			</div>
 		</div>
 	</div>
 	<div class="p-4">
-		<ol class="text-body border-default relative border-s py-4">
+		<ol class="text-body relative border-s border-gray-200 py-4 dark:border-gray-700">
 			{
 				tasks.map((li) => (
 					<li class="ms-7 mb-10 flex items-center justify-between">
 						<div>
 							<span
 								class:list={{
-									'ring-buffer absolute -start-4 flex h-8 w-8 items-center justify-center rounded-full ring-4': true,
+									'ring-buffer absolute -inset-s-4 flex h-8 w-8 items-center justify-center rounded-full ring-4': true,
 									'bg-success-soft text-fg-success-strong':
 										li.completed === 'Completado',
 									'bg-neutral-tertiary text-body':
@@ -43,19 +51,13 @@ const { tasks } = Astro.props;
 										li.completed === 'En proceso',
 								}}
 							>
-								<Icon
-									name={
-										li.completed === 'Por completar'
-											? li.icon
-											: li.completed === 'Completado'
-												? 'ri:check-line'
-												: 'ri:time-line'
-									}
-									class:list={{
-										'text-xl': true,
-										'animate-pulse': li.completed === 'En proceso',
-									}}
-								/>
+							<Icon
+								name={li.icon}
+								class:list={{
+									'text-xl': true,
+									'animate-pulse': li.completed === 'En proceso',
+								}}
+							/>
 							</span>
 							<h3
 								class:list={{

@@ -2,7 +2,6 @@
 import '@styles/datatables.css';
 import { getIncorporacionById } from '@lib/tablas/companies/empresa_incorporaciones';
 import CrudPageHeader from '@modules/companies/components/dashboardCompanies/breadcrumbs.astro';
-import { getEstadoPorEmpresa } from '@lib/tablas/utils/generals/estados';
 import { getUserFolders } from '@lib/storage/test.ts';
 import { getDocumentosPorFirmar } from '@lib/tablas/documents/documentos_por_firmar';
 import DocumentsLIst from '@modules/companies/components/dashboardCompanies/DocumentsLIst.astro';
@@ -40,41 +39,23 @@ if (!empresa) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
 }
 
-// Obtener estado de incorporación para el mapa
-let estadoMapa = null;
-if (empresa.estado_de_incorporacion) {
-	const estadoData = await getEstadoPorEmpresa(
-		supabase,
-		empresa.estado_de_incorporacion,
-	);
-
-	if (estadoData) {
-		estadoMapa = estadoData.Estado;
-	}
-}
 ---
 
 <div class="px-4 pt-6">
 	<div class="col-span-full mb-4 xl:mb-2">
-		<CrudPageHeader
-			title=`Bienvenido ${nameUser}`
-			breadcrumbItems={[
-				{ label: 'Companias', href: '/my-companies/' },
-				{ label: `${empresa.nombre_1}`, href: `/my-companies/${id}` },
-			]}
-		/>
+		<CrudPageHeader title={`Bienvenido ${nameUser}`} />
 	</div>
 	<Tab
 		buttons={[
 			{
-				label: 'general',
-				icon: 'ri:ai-agent-fill',
+				label: 'General',
+				icon: 'ri:layout-grid-line',
 				active: false,
 				link: `/my-companies/${id}`,
 			},
 			{
 				label: 'Documentos',
-				icon: 'ri:file-copy-fill',
+				icon: 'ri:file-copy-line',
 				active: true,
 				link: `/my-companies/documents/${id}`,
 			},

@@ -3,6 +3,10 @@ import { Icon } from 'astro-icon/components';
 import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
 const userRoles = Astro.locals.userRoles;
+const user = Astro.locals.user;
+const userId = user?.id ?? '';
+const userName = user?.user_metadata?.name ?? user?.email ?? 'Usuario';
+const userEmail = user?.email ?? '';
 
 const visibleMenu = menuItems.filter(
 	(item) =>
@@ -11,19 +15,41 @@ const visibleMenu = menuItems.filter(
 		item.roles.some((r) => userRoles.includes(r)),
 );
 
+const sortedMenu = [...visibleMenu].sort((a, b) => a.sequence - b.sequence);
+
+const groupOrder = ['Get Started', 'Partner Hub', 'Admin', 'Servicios', 'Cuenta', 'General'];
+
+const groupedMenu = sortedMenu.reduce(
+	(acc, item) => {
+		const menuItem = item as typeof item & { group?: string };
+		const groupName = menuItem.group ?? 'General';
+		if (!acc[groupName]) acc[groupName] = [];
+		acc[groupName].push(item);
+		return acc;
+	},
+	{} as Record<string, typeof sortedMenu>,
+);
+
+const visibleGroups = groupOrder
+	.filter((groupName) => groupedMenu[groupName]?.length)
+	.map((groupName) => ({
+		title: groupName,
+		items: groupedMenu[groupName] ?? [],
+	}));
+
 const ruta = Astro.url.pathname;
 
 /* Clases reutilizables */
 const activeClass =
-	'bg-white text-black-500 font-semibold dark:bg-black-600 dark:text-white';
+	'bg-gray-100 text-gray-900 font-semibold dark:bg-black-600 dark:text-white';
 const inactiveClass =
-	'text-white-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-200';
+	'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-200';
 ---
 
 <!-- ===== Mobile drawer (< lg) ===== -->
 <aside
 	id="sidebar"
-	class="dark:bg-black-900 bg-white-100 fixed top-0 left-0 z-40 h-screen w-60 -translate-x-full overflow-hidden border-r border-gray-200/60 transition-transform lg:hidden dark:border-gray-700/50"
+	class="dark:bg-black-900 bg-white fixed top-0 left-0 z-40 h-screen w-60 -translate-x-full overflow-hidden border-r border-gray-200/60 transition-transform lg:hidden dark:border-gray-700/50"
 	tabindex="-1"
 	aria-label="Menú de navegación"
 	transition:persist="sidebar-mobile"
@@ -69,20 +95,29 @@ const inactiveClass =
 						href="/"
 						class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${ruta === '/' ? activeClass : inactiveClass}`}
 					>
-						<Icon name="ri:home-9-fill" class="h-5 w-5 shrink-0" />
+						<Icon name="ri:home-9-line" class="h-5 w-5 shrink-0" />
 						<span>Inicio</span>
 					</a>
 				</li>
 				{
-					visibleMenu.map((l) => (
-						<li>
-							<a
-								href={l.href}
-								class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
-							>
-								<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
-								<span>{l.label}</span>
-							</a>
+					visibleGroups.map((group) => (
+					<li class="mt-3 border-t border-gray-300/90 pt-2 dark:border-gray-600/80">
+							<p class="px-2.5 pt-1 text-[11px] font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500">
+								{group.title}
+							</p>
+							<ul class="mt-1 space-y-0.5">
+								{(group.items ?? []).map((l) => (
+									<li>
+										<a
+											href={l.href}
+											class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
+										>
+											<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
+											<span>{l.label}</span>
+										</a>
+									</li>
+								))}
+							</ul>
 						</li>
 					))
 				}
@@ -90,7 +125,7 @@ const inactiveClass =
 
 			<!-- Links externos -->
 			<div
-				class="mt-3 space-y-0.5 border-t border-gray-200 pt-3 dark:border-gray-700/50"
+				class="mt-3 space-y-0.5 border-t border-gray-300/90 pt-3 dark:border-gray-600/80"
 			>
 				{
 					[
@@ -101,13 +136,8 @@ const inactiveClass =
 						},
 						{
 							link: 'https://sotomayorconsulting.com/inicio/terminos/',
-							svgname: 'ri:file-list-3-fill',
+							svgname: 'ri:file-list-3-line',
 							span: 'Términos y condiciones',
-						},
-						{
-							link: 'mailto:info@sotomayorconsulting.com',
-							svgname: 'ri:lifebuoy-fill',
-							span: 'Soporte',
 						},
 					].map((l) => (
 						<a
@@ -122,6 +152,41 @@ const inactiveClass =
 				}
 			</div>
 		</nav>
+
+		<div class="border-t border-gray-300/90 p-3 dark:border-gray-600/80">
+			<details class="group">
+				<summary class="flex list-none cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-white/5">
+					<img
+						src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
+						alt="Avatar"
+						class="h-8 w-8 rounded-full border border-gray-200 dark:border-gray-700"
+					/>
+					<div class="min-w-0 flex-1">
+						<p class="truncate text-sm font-medium text-gray-800 dark:text-gray-100">{userName}</p>
+						<p class="truncate text-xs text-gray-500 dark:text-gray-400">{userEmail}</p>
+					</div>
+					<Icon name="ri:arrow-down-s-line" class="user-menu-chevron h-4 w-4 text-gray-400 transition-transform" />
+				</summary>
+				<div class="mt-2 space-y-1 rounded-md border border-gray-200 p-1.5 dark:border-gray-700">
+					<a
+						href="/settings/"
+						class="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+					>
+						<Icon name="ri:settings-3-line" class="h-4 w-4" />
+						<span>Configuración</span>
+					</a>
+					<form action="/api/auth/signout" method="post">
+						<button
+							type="submit"
+							class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+						>
+							<Icon name="ri:logout-box-r-line" class="h-4 w-4" />
+							<span>Cerrar sesión</span>
+						</button>
+					</form>
+				</div>
+			</details>
+		</div>
 	</div>
 </aside>
 
@@ -135,7 +200,7 @@ const inactiveClass =
 <!-- ===== Desktop collapsible sidebar (>= lg) ===== -->
 <aside
 	id="sidebar-desktop"
-	class="sb-desktop group/sb dark:bg-black-900 bg-white-50 fixed top-16 left-0 z-20 hidden h-[calc(100vh-4rem)] flex-col border-r border-gray-200/60 lg:flex dark:border-gray-700/50"
+	class="dark:bg-black-900 bg-white fixed top-14 left-0 z-20 hidden h-[calc(100vh-3.5rem)] w-60 flex-col border-r border-gray-300/90 box-border lg:flex dark:border-gray-600/90"
 	transition:persist="sidebar-desktop"
 >
 	<nav
@@ -153,21 +218,30 @@ const inactiveClass =
 					class={`sb-link flex items-center gap-3 rounded-md px-2 py-1.75 text-[13px] font-medium transition-colors ${ruta === '/' ? activeClass : inactiveClass}`}
 					title="Inicio"
 				>
-					<Icon name="ri:home-9-fill" class="h-5 w-5 shrink-0" />
+					<Icon name="ri:home-9-line" class="h-5 w-5 shrink-0" />
 					<span class="sb-label whitespace-nowrap">Inicio</span>
 				</a>
 			</li>
 			{
-				visibleMenu.map((l) => (
-					<li>
-						<a
-							href={l.href}
-							class={`sb-link flex items-center gap-3 rounded-md px-2 py-1.75 text-[13px] font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
-							title={l.label}
-						>
-							<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
-							<span class="sb-label whitespace-nowrap">{l.label}</span>
-						</a>
+				visibleGroups.map((group) => (
+					<li class="mt-3 border-t border-gray-300/90 pt-2 dark:border-gray-600/80">
+						<p class="sb-label px-2 pt-1 text-[11px] font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500">
+							{group.title}
+						</p>
+						<ul class="mt-1 space-y-0.5">
+							{(group.items ?? []).map((l) => (
+								<li>
+									<a
+										href={l.href}
+										class={`sb-link flex items-center gap-3 rounded-md px-2 py-1.75 text-[13px] font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
+										title={l.label}
+									>
+										<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
+										<span class="sb-label whitespace-nowrap">{l.label}</span>
+									</a>
+								</li>
+							))}
+						</ul>
 					</li>
 				))
 			}
@@ -175,7 +249,7 @@ const inactiveClass =
 
 		<!-- Links externos -->
 		<div
-			class="mt-3 space-y-0.5 border-t border-gray-200 pt-3 dark:border-gray-700/50"
+			class="mt-3 space-y-0.5 border-t border-gray-300/90 pt-3 dark:border-gray-600/80"
 		>
 			{
 				[
@@ -186,13 +260,8 @@ const inactiveClass =
 					},
 					{
 						link: 'https://sotomayorconsulting.com/inicio/terminos/',
-						svgname: 'ri:file-list-3-fill',
+						svgname: 'ri:file-list-3-line',
 						span: 'Términos y condiciones',
-					},
-					{
-						link: 'mailto:info@sotomayorconsulting.com',
-						svgname: 'ri:lifebuoy-fill',
-						span: 'Soporte',
 					},
 				].map((l) => (
 					<a
@@ -209,120 +278,58 @@ const inactiveClass =
 		</div>
 	</nav>
 
-	<!-- Sidebar control trigger -->
-	<div class="relative border-t border-gray-200 py-2 dark:border-gray-700/50">
-		<button
-			id="sb-control-btn"
-			type="button"
-			class="flex h-8 w-12 shrink-0 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-white/5 dark:hover:text-gray-200"
-			title="Sidebar control"
-		>
-			<svg
-				class="h-4.5 w-4.5 shrink-0"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			>
-				<rect x="3" y="3" width="18" height="18" rx="3"></rect>
-				<line x1="9" y1="3" x2="9" y2="21"></line>
-			</svg>
-		</button>
-
-		<!-- Popover -->
-		<div
-			id="sb-control-popover"
-			class="dark:bg-black-800 absolute bottom-full left-1 mb-2 hidden w-48 rounded-lg border border-gray-200 bg-white py-1.5 shadow-lg dark:border-gray-700"
-		>
-			<p
-				class="px-3 py-1.5 text-xs font-medium text-gray-400 dark:text-gray-500"
-			>
-				Sidebar control
-			</p>
-			<button
-				data-sb-mode="expanded"
-				type="button"
-				class="sb-option flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5"
-			>
-				<span
-					class="sb-dot hidden h-1.5 w-1.5 rounded-full bg-gray-900 dark:bg-white"
-				></span>
-				<span class="sb-dot-space h-1.5 w-1.5"></span>
-				Expanded
-			</button>
-			<button
-				data-sb-mode="collapsed"
-				type="button"
-				class="sb-option flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5"
-			>
-				<span
-					class="sb-dot hidden h-1.5 w-1.5 rounded-full bg-gray-900 dark:bg-white"
-				></span>
-				<span class="sb-dot-space h-1.5 w-1.5"></span>
-				Collapsed
-			</button>
-			<button
-				data-sb-mode="hover"
-				type="button"
-				class="sb-option flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5"
-			>
-				<span
-					class="sb-dot hidden h-1.5 w-1.5 rounded-full bg-gray-900 dark:bg-white"
-				></span>
-				<span class="sb-dot-space h-1.5 w-1.5"></span>
-				Expand on hover
-			</button>
-		</div>
+	<div class="border-t border-gray-300/90 p-3 dark:border-gray-600/80">
+		<details class="group">
+			<summary class="flex list-none cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-white/5">
+				<img
+					src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
+					alt="Avatar"
+					class="h-8 w-8 rounded-full border border-gray-200 dark:border-gray-700"
+				/>
+				<div class="min-w-0 flex-1">
+					<p class="truncate text-sm font-medium text-gray-800 dark:text-gray-100">{userName}</p>
+					<p class="truncate text-xs text-gray-500 dark:text-gray-400">{userEmail}</p>
+				</div>
+				<Icon name="ri:arrow-down-s-line" class="user-menu-chevron h-4 w-4 text-gray-400 transition-transform" />
+			</summary>
+			<div class="mt-2 space-y-1 rounded-md border border-gray-200 p-1.5 dark:border-gray-700">
+				<a
+					href="/settings/"
+					class="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+				>
+					<Icon name="ri:settings-3-line" class="h-4 w-4" />
+					<span>Configuración</span>
+				</a>
+				<form action="/api/auth/signout" method="post">
+					<button
+						type="submit"
+						class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+					>
+						<Icon name="ri:logout-box-r-line" class="h-4 w-4" />
+						<span>Cerrar sesión</span>
+					</button>
+				</form>
+			</div>
+		</details>
 	</div>
 </aside>
 
 <style is:global>
-	/* ── Sidebar transitions ── */
-	.sb-desktop {
-		transition: width 200ms ease-in-out;
-	}
-	.sb-label {
-		transition: opacity 200ms ease-in-out;
+	#sidebar details > summary::-webkit-details-marker,
+	#sidebar-desktop details > summary::-webkit-details-marker {
+		display: none;
 	}
 
-	/* ── Collapsed (default) ── */
-	[data-sidebar='collapsed'] .sb-desktop {
-		width: 3rem; /* 48px */
-	}
-	[data-sidebar='collapsed'] .sb-label {
-		opacity: 0;
-	}
-	[data-sidebar='collapsed'] #main-content {
-		margin-left: 3rem;
+	#sidebar details[open] .user-menu-chevron,
+	#sidebar-desktop details[open] .user-menu-chevron {
+		transform: rotate(180deg);
 	}
 
-	/* ── Expand on hover ── */
-	[data-sidebar='hover'] .sb-desktop {
-		width: 3rem;
+	/* Sidebar fixed expanded width */
+	:root {
+		--sb-divider-x: 15rem;
 	}
-	[data-sidebar='hover'] .sb-desktop:hover {
-		width: 15rem; /* 240px */
-	}
-	[data-sidebar='hover'] .sb-label {
-		opacity: 0;
-	}
-	[data-sidebar='hover'] .sb-desktop:hover .sb-label {
-		opacity: 1;
-	}
-	[data-sidebar='hover'] #main-content {
-		margin-left: 3rem;
-	}
-
-	/* ── Expanded ── */
-	[data-sidebar='expanded'] .sb-desktop {
-		width: 15rem;
-	}
-	[data-sidebar='expanded'] .sb-label {
-		opacity: 1;
-	}
-	[data-sidebar='expanded'] #main-content {
+	#main-content {
 		margin-left: 15rem;
 	}
 
@@ -335,19 +342,15 @@ const inactiveClass =
 </style>
 
 <script>
-	type SidebarMode = 'expanded' | 'collapsed' | 'hover';
-	const STORAGE_KEY = 'sidebar-mode';
-
-	// Clases de active/inactive (deben coincidir con las del template)
 	const ACTIVE_CLASSES = [
-		'bg-black-200',
-		'text-black-400',
+		'bg-gray-100',
+		'text-gray-900',
 		'font-semibold',
 		'dark:bg-black-600',
 		'dark:text-white',
 	];
 	const INACTIVE_CLASSES = [
-		'text-white-600',
+		'text-gray-600',
 		'hover:bg-gray-100',
 		'hover:text-gray-900',
 		'dark:text-gray-400',
@@ -355,15 +358,10 @@ const inactiveClass =
 		'dark:hover:text-gray-200',
 	];
 
-	/**
-	 * Actualiza el estado activo de los links en ambos sidebars.
-	 * Necesario porque con transition:persist el HTML no se reemplaza.
-	 */
 	function updateActiveLinks() {
 		const currentPath = window.location.pathname;
-		// Seleccionar links internos en ambos sidebars (no los externos con target=_blank)
 		const sidebarLinks = document.querySelectorAll<HTMLAnchorElement>(
-			'#sidebar a[href^="/"]:not([target]), #sidebar-desktop a.sb-link[href^="/"]:not([target])',
+			'#sidebar a[href^="/"]:not([target]), #sidebar-desktop a[href^="/"]:not([target])',
 		);
 
 		sidebarLinks.forEach((link) => {
@@ -380,117 +378,26 @@ const inactiveClass =
 		});
 	}
 
-	function getSavedMode(): SidebarMode {
-		const saved = localStorage.getItem(STORAGE_KEY);
-		if (saved === 'expanded' || saved === 'collapsed' || saved === 'hover') {
-			return saved;
-		}
-		return 'hover';
-	}
-
-	function applyMode(mode: SidebarMode) {
-		document.documentElement.setAttribute('data-sidebar', mode);
-		localStorage.setItem(STORAGE_KEY, mode);
-		updateDots(mode);
-	}
-
-	function updateDots(mode: SidebarMode) {
-		document.querySelectorAll<HTMLElement>('.sb-option').forEach((btn) => {
-			const btnMode = btn.getAttribute('data-sb-mode');
-			const dot = btn.querySelector('.sb-dot') as HTMLElement | null;
-			const space = btn.querySelector('.sb-dot-space') as HTMLElement | null;
-			if (dot && space) {
-				if (btnMode === mode) {
-					dot.classList.remove('hidden');
-					space.classList.add('hidden');
-				} else {
-					dot.classList.add('hidden');
-					space.classList.remove('hidden');
-				}
-			}
-		});
-	}
-
-	/**
-	 * Cierra el drawer mobile si quedó abierto tras una navegación con transition:persist.
-	 * Flowbite aplica transform + clases al abrir; aquí revertimos manualmente.
-	 */
 	function closeMobileDrawer() {
 		const sidebar = document.getElementById('sidebar');
 		const backdrop = document.getElementById('sidebarBackdrop');
 
 		if (sidebar) {
-			// Revertir la transformación que Flowbite aplica al abrir el drawer
 			sidebar.classList.add('-translate-x-full');
 			sidebar.classList.remove('transform-none');
 			sidebar.removeAttribute('aria-modal');
 			sidebar.removeAttribute('role');
-
-			// Quitar foco de cualquier link dentro del sidebar oculto
-			// para evitar "Blocked aria-hidden on an element because its descendant retained focus"
 			const focused = sidebar.querySelector(':focus') as HTMLElement | null;
 			if (focused) focused.blur();
 		}
-		if (backdrop) {
-			backdrop.classList.add('hidden');
-		}
-
-		// Remover el backdrop que Flowbite inyecta dinámicamente
+		if (backdrop) backdrop.classList.add('hidden');
 		document.querySelectorAll('[drawer-backdrop]').forEach((el) => el.remove());
 	}
 
-	// Cleanup references para evitar listeners duplicados
-	let cleanupFns: (() => void)[] = [];
-
-	function initSidebarControl() {
-		// Limpiar listeners anteriores (importante con View Transitions)
-		cleanupFns.forEach((fn) => fn());
-		cleanupFns = [];
-
-		// Cerrar drawer mobile si quedó abierto de la navegación anterior
+	function initSidebar() {
 		closeMobileDrawer();
-
-		applyMode(getSavedMode());
-
-		// Actualizar active state de links (necesario con transition:persist)
 		updateActiveLinks();
-
-		const triggerBtn = document.getElementById('sb-control-btn');
-		const popover = document.getElementById('sb-control-popover');
-		if (!triggerBtn || !popover) return;
-
-		const onTriggerClick = (e: Event) => {
-			e.stopPropagation();
-			popover.classList.toggle('hidden');
-		};
-		triggerBtn.addEventListener('click', onTriggerClick);
-		cleanupFns.push(() =>
-			triggerBtn.removeEventListener('click', onTriggerClick),
-		);
-
-		document.querySelectorAll<HTMLElement>('.sb-option').forEach((btn) => {
-			const onOptionClick = () => {
-				const mode = btn.getAttribute('data-sb-mode') as SidebarMode;
-				applyMode(mode);
-				popover.classList.add('hidden');
-			};
-			btn.addEventListener('click', onOptionClick);
-			cleanupFns.push(() => btn.removeEventListener('click', onOptionClick));
-		});
-
-		const onDocClick = (e: Event) => {
-			if (
-				!popover.classList.contains('hidden') &&
-				!popover.contains(e.target as Node) &&
-				!triggerBtn.contains(e.target as Node)
-			) {
-				popover.classList.add('hidden');
-			}
-		};
-		document.addEventListener('click', onDocClick);
-		cleanupFns.push(() => document.removeEventListener('click', onDocClick));
 	}
 
-	// Con View Transitions, astro:page-load se dispara en cada navegación
-	document.addEventListener('astro:page-load', initSidebarControl);
+	document.addEventListener('astro:page-load', initSidebar);
 </script>

@@ -40,16 +40,7 @@ const { class: clazz } = Astro.props;
 
 			// Aplicar modo de sidebar antes del primer pintado para evitar flash
 			(function () {
-				var saved = localStorage.getItem('sidebar-mode');
-				if (
-					saved === 'expanded' ||
-					saved === 'collapsed' ||
-					saved === 'hover'
-				) {
-					document.documentElement.setAttribute('data-sidebar', saved);
-				} else {
-					document.documentElement.setAttribute('data-sidebar', 'hover');
-				}
+				document.documentElement.setAttribute('data-sidebar', 'expanded');
 			})();
 		</script>
 
@@ -108,9 +99,6 @@ const { class: clazz } = Astro.props;
 			//
 			clazz,
 			'dark:bg-black-800 bg-gray-100',
-			'scrollbar scrollbar-w-3 scrollbar-thumb-rounded-xs',
-			'scrollbar-track-slate-200 scrollbar-thumb-gray-400',
-			'dark:scrollbar-track-gray-900 dark:scrollbar-thumb-gray-700',
 		]}
 	>
 		<!-- Progress bar de navegación -->
