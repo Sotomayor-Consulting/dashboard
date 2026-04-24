@@ -4,11 +4,13 @@ import { getIncorporacionById } from '@lib/tablas/companies/empresa_incorporacio
 import CrudPageHeader from '@modules/companies/components/dashboardCompanies/breadcrumbs.astro';
 import { getEstadoPorEmpresa } from '@lib/tablas/utils/generals/estados';
 import { getDocumentosPorFirmar } from '@lib/tablas/documents/documentos_por_firmar';
+import { supabaseAdmin } from '@lib/supabase/admin';
 import Head from '@modules/companies/components/dashboardCompanies/Gridhead.astro';
 import Gridline2 from '@modules/companies/components/dashboardCompanies/Gridlenetwo.astro';
 import ProcessIncorp from '@modules/companies/components/dashboardCompanies/ProcessIncorp.astro';
 import SignedPanel from '@modules/companies/components/dashboardCompanies/SignedPanel.astro';
 import ModalDropzone from '@modules/companies/components/dashboardCompanies/modal.astro';
+import { getClientWorkflowProgress } from '@modules/companies/services/getClientWorkflowProgress';
 import Tab from '@components/ui/tabs.astro';
 
 interface Props {
@@ -26,20 +28,15 @@ if (!id || !userId) {
 	return Astro.redirect('/');
 }
 
-const [empresa, porfirmar] = await Promise.all([
+const [empresa, porfirmar, clientWorkflowProgress] = await Promise.all([
 	getIncorporacionById(supabase, id, userId),
 	getDocumentosPorFirmar(supabase, userId, empresaId),
+	getClientWorkflowProgress(supabaseAdmin, id),
 ]);
 
 if (!empresa) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
 }
-
-const [folderPath, porfirmar, clientWorkflowProgress] = await Promise.all([
-	getUserFolders(supabase, userId, id),
-	getDocumentosPorFirmar(supabase, userId, empresaId),
-	getClientWorkflowProgress(supabaseAdmin, id),
-]);
 
 const clientWorkflowData = clientWorkflowProgress ?? {
 	companyName: empresa.nombre_1 ?? 'Empresa sin nombre',
@@ -76,42 +73,61 @@ const FormateadorFecha = new Intl.DateTimeFormat('es-ES', {
 });
 
 const porfirmarCount = porfirmar.length;
----
 
-<div class="px-4 pt-6">
-	<div class="col-span-full mb-4 xl:mb-2">
-		<CrudPageHeader
-			title=`Bienvenido ${nameUser}`
-			breadcrumbItems={[
-				{ label: 'Companias', href: '/my-companies/' },
-				{ label: `${empresa.nombre_1}`, href: `/my-companies/${id}` },
-			]}
-		/>
-	</div>
-	<Tab
-		buttons={[
-			{
-				label: 'general',
-				icon: 'ri:ai-agent-fill',
-				active: true,
-				link: `/my-companies/${id}`,
-			},
-			{
-				label: 'Documentos',
-				icon: 'ri:file-copy-fill',
-				active: false,
-				link: `/my-companies/documents/${id}`,
-			},
-		]}
-	/>
+const stageIconBySlug: Record<string, string> = {
+	planning_meeting: 'ri:calendar-schedule-line',
+	client_form: 'ri:file-list-3-line',
+	state_registration: 'ri:government-line',
+	fiscal_documents: 'ri:file-paper-2-line',
+	document_signing: 'ri:quill-pen-line',
+	ein_request: 'ri:profile-line',
+	boir_registration: 'ri:shield-check-line',
+	bank_account: 'ri:bank-line',
+	stripe_account: 'ri:bank-card-line',
+	tax_election_8832: 'ri:calculator-line',
+	be13: 'ri:building-4-line',
+};
 
-	<Head empresa={empresa} estadoMapa={estadoMapa ?? ''} />
-	<Gridline2 {empresa} porfirmar={porfirmarCount} />
-	<div
-		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
-	>
-		<ProcessIncorp
-			tasks={[
+const stageDescriptionBySlug: Record<string, string> = {
+	planning_meeting:
+		'Coordinamos y agendamos la reunión de planificación con tu asesor.',
+	client_form:
+		'Completa el formulario inicial con los datos de tu empresa y responsables.',
+	state_registration:
+		'Presentamos la incorporación ante la secretaría del estado correspondiente.',
+	fiscal_documents:
+		'Preparamos, revisamos y organizamos los documentos fiscales requeridos.',
+	document_signing: 'Te enviamos la documentación final para revisión y firma.',
+	ein_request: 'Gestionamos la solicitud del EIN de tu empresa ante el IRS.',
+	boir_registration:
+		'Realizamos el registro BOIR ante FinCEN con la información validada.',
+	bank_account: 'Te acompañamos en la apertura de cuenta bancaria empresarial.',
+	stripe_account:
+		'Configuramos y dejamos operativa tu cuenta Stripe empresarial.',
+	tax_election_8832:
+		'Procesamos la elección tributaria corporativa mediante el Form 8832.',
+	be13: 'Preparamos y enviamos el reporte BE-13 cuando aplica para tu caso.',
+};
+
+const processTasks =
+	clientWorkflowData.stages.length > 0
+		? clientWorkflowData.stages.map((stage) => ({
+				title: stage.name,
+				description:
+					stageDescriptionBySlug[stage.slug] ??
+					`Etapa ${stage.slug.replaceAll('_', ' ')}.`,
+				date: stage.dueAt
+					? FormateadorFecha.format(new Date(stage.dueAt))
+					: '-',
+				completed:
+					stage.status === 'completed'
+						? 'Completado'
+						: stage.status === 'in_progress'
+							? 'En proceso'
+							: 'Por completar',
+				icon: stageIconBySlug[stage.slug] ?? 'ri:file-list-3-line',
+			}))
+		: [
 				{
 					title: 'Registro de la empresa',
 					description: 'Hemos registrado tu empresa en el estado seleccionado.',
@@ -124,15 +140,8 @@ const porfirmarCount = porfirmar.length;
 					description:
 						'Estamos gestionando el número de identificación fiscal de tu empresa.',
 					date: FormateadorFecha.format(new Date(empresa.fecha_de_validacion)),
-					completed: 'Completado',
-					icon: 'ri:profile-line',
-				},
-				{
-					title: 'Cuenta bancaria',
-					description:
-						'Próximamente te ayudaremos a abrir una cuenta bancaria para tu empresa.',
 					completed: 'En proceso',
-					icon: 'ri:bank-line',
+					icon: 'ri:profile-line',
 				},
 				{
 					title: 'Cuenta bancaria',
@@ -141,7 +150,63 @@ const porfirmarCount = porfirmar.length;
 					completed: 'Por completar',
 					icon: 'ri:bank-line',
 				},
-			]}
+			];
+
+const completedStagesCount = clientWorkflowData.stages.filter(
+	(stage) => stage.status === 'completed',
+).length;
+const totalStagesCount =
+	clientWorkflowData.stages.length > 0
+		? clientWorkflowData.stages.length
+		: processTasks.length;
+const processProgressPercent =
+	totalStagesCount > 0
+		? Math.round((completedStagesCount / totalStagesCount) * 100)
+		: 0;
+const pendingProcessesCount = clientWorkflowData.stages.filter(
+	(stage) => stage.status !== 'completed',
+).length;
+---
+
+<div class="px-4 pt-6">
+	<div class="col-span-full mb-4 xl:mb-2">
+		<CrudPageHeader title={`Bienvenido ${nameUser}`} />
+	</div>
+	<Tab
+		buttons={[
+			{
+				label: 'General',
+				icon: 'ri:layout-grid-line',
+				active: true,
+				link: `/my-companies/${id}`,
+			},
+			{
+				label: 'Documentos',
+				icon: 'ri:file-copy-line',
+				active: false,
+				link: `/my-companies/documents/${id}`,
+			},
+		]}
+	/>
+
+	<Head
+		empresa={empresa}
+		estadoMapa={estadoMapa ?? ''}
+		progressPercent={clientWorkflowData.progressPercent}
+	/>
+	<Gridline2
+		empresa={empresa}
+		porfirmar={porfirmarCount}
+		pendingProcesses={pendingProcessesCount}
+	/>
+	<div
+		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
+	>
+		<ProcessIncorp
+			tasks={processTasks}
+			completedCount={completedStagesCount}
+			totalCount={totalStagesCount}
+			progressPercent={processProgressPercent}
 		/>
 		<SignedPanel porfirmar={porfirmar} />
 	</div>

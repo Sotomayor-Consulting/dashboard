@@ -5,13 +5,14 @@ interface Props {
 		updated_at: string;
 	};
 	porfirmar: number;
+	pendingProcesses?: number;
 }
-const { empresa, porfirmar } = Astro.props;
+const { empresa, porfirmar, pendingProcesses = 2 } = Astro.props;
 ---
 
 <div class="my-4 grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
 	<div
-		class="to-black-600 from-black-900 items-center justify-between rounded-lg bg-white p-4 shadow-sm sm:flex sm:p-6 dark:bg-linear-to-tr"
+		class="to-black-600 from-black-900 items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-gray-200/70 sm:flex sm:p-6 dark:border-gray-700 dark:bg-linear-to-tr dark:shadow-none"
 	>
 		<div class="w-full">
 			<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
@@ -40,14 +41,14 @@ const { empresa, porfirmar } = Astro.props;
 		</div>
 	</div>
 	<div
-		class="to-black-600 from-black-900 items-center justify-between rounded-lg bg-white p-4 shadow-sm sm:flex sm:p-6 dark:bg-linear-to-bl"
+		class="to-black-600 from-black-900 items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-gray-200/70 sm:flex sm:p-6 dark:border-gray-700 dark:bg-linear-to-bl dark:shadow-none"
 	>
 		<div class="w-full">
 			<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
 				Procesos pendientes
 			</h3>
 			<div class="w-full">
-				<h1 class="dark:text-white-50 text-white-900 text-2xl">2</h1>
+				<h1 class="dark:text-white-50 text-white-900 text-2xl">{pendingProcesses}</h1>
 			</div>
 			<p
 				class="flex items-center text-xs font-normal text-gray-500 dark:text-gray-400"
@@ -57,7 +58,7 @@ const { empresa, porfirmar } = Astro.props;
 		</div>
 	</div>
 	<div
-		class="to-black-600 from-black-900 items-center justify-between rounded-lg bg-white p-4 shadow-sm sm:flex sm:p-6 dark:bg-linear-to-br"
+		class="to-black-600 from-black-900 items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-gray-200/70 sm:flex sm:p-6 dark:border-gray-700 dark:bg-linear-to-br dark:shadow-none"
 	>
 		<div class="w-full">
 			<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
@@ -74,7 +75,7 @@ const { empresa, porfirmar } = Astro.props;
 		</div>
 	</div>
 	<div
-		class="to-black-600 from-black-900 items-center justify-between rounded-lg bg-white p-4 shadow-sm sm:flex sm:p-6 dark:bg-linear-to-tl"
+		class="to-black-600 from-black-900 items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-gray-200/70 sm:flex sm:p-6 dark:border-gray-700 dark:bg-linear-to-tl dark:shadow-none"
 	>
 		<div class="w-full">
 			<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">

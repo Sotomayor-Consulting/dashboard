@@ -1,0 +1,10 @@
+---
+import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
+import UserSettings from '@modules/landing/UserSettings.astro';
+import Alerta from '@components/feedback/alertageneral.astro';
+---
+
+<LayoutSidebar>
+	<Alerta />
+	<UserSettings section="billing" />
+</LayoutSidebar>

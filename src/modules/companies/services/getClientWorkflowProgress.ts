@@ -81,6 +81,7 @@ type StageRow = {
 	status: string;
 	display_order: number;
 	due_at: string | null;
+	catalog?: CatalogRow | null;
 };
 
 type CatalogRow = {
@@ -130,74 +131,32 @@ export const getClientWorkflowProgress = async (
 
 	if (empresaError || !empresa) return null;
 
-	const { data: workflow, error: workflowError } = await supabase
-		.schema('workflow' as never)
-		.from('incorporation_workflows')
-		.select('id, status, current_stage_id')
-		.eq('incorporation_id', incorporationId)
-		.maybeSingle();
+	const { data: workflow, error: workflowError } = await supabase.rpc(
+		'workflow_client_snapshot',
+		{ p_incorporation_id: incorporationId },
+	);
 
 	if (workflowError) {
 		return emptyState(empresa.nombre_1 ?? 'Empresa sin nombre', empresa.tipo_de_negocio);
 	}
 
-	if (!workflow) {
+	const snapshot = workflow as {
+		workflow?: WorkflowRow | null;
+		stages?: StageRow[];
+		tasks?: TaskRow[];
+	};
+
+	if (!snapshot?.workflow) {
 		return emptyState(empresa.nombre_1 ?? 'Empresa sin nombre', empresa.tipo_de_negocio);
 	}
 
-	const typedWorkflow = workflow as WorkflowRow;
+	const typedWorkflow = snapshot.workflow as WorkflowRow;
+	const stagesRaw = (snapshot.stages ?? []) as StageRow[];
+	const tasksRaw = (snapshot.tasks ?? []) as TaskRow[];
 
-	const [{ data: stagesRaw, error: stagesError }, { data: tasksRaw, error: tasksError }] =
-		await Promise.all([
-			supabase
-				.schema('workflow' as never)
-				.from('incorporation_workflow_stages')
-				.select('id, stage_id, status, display_order, due_at')
-				.eq('workflow_id', typedWorkflow.id)
-				.order('display_order', { ascending: true }),
-			supabase
-				.schema('workflow' as never)
-				.from('incorporation_tasks')
-				.select(
-					'id, title, status, due_at, assigned_role, workflow_stage_id, completed_at',
-				)
-				.eq('incorporation_id', incorporationId)
-				.order('display_order', { ascending: true }),
-		]);
-
-	if (stagesError || tasksError) {
-		return emptyState(
-			empresa.nombre_1 ?? 'Empresa sin nombre',
-			empresa.tipo_de_negocio,
-			typedWorkflow.status,
-		);
-	}
-
-	const stageIds = ((stagesRaw ?? []) as StageRow[]).map((s) => s.stage_id);
-	const uniqueStageIds = [...new Set(stageIds)];
-
-	const { data: catalogRows, error: catalogError } = await supabase
-		.schema('workflow' as never)
-		.from('workflow_stage_catalog')
-		.select('id, slug, name')
-		.in('id', uniqueStageIds.length ? uniqueStageIds : [-1]);
-
-	if (catalogError) {
-		return emptyState(
-			empresa.nombre_1 ?? 'Empresa sin nombre',
-			empresa.tipo_de_negocio,
-			typedWorkflow.status,
-		);
-	}
-
-	const catalogMap = new Map<number, CatalogRow>();
-	for (const row of (catalogRows ?? []) as CatalogRow[]) {
-		catalogMap.set(row.id, row);
-	}
-
-	const stages = ((stagesRaw ?? []) as StageRow[])
+	const stages = stagesRaw
 		.map((item) => {
-			const catalog = catalogMap.get(item.stage_id);
+			const catalog = item.catalog;
 			return {
 				id: item.id,
 				name: catalog?.name ?? 'Etapa',
@@ -212,11 +171,13 @@ export const getClientWorkflowProgress = async (
 	const completedStages = stages.filter((stage) => stage.status === 'completed').length;
 	const totalStages = stages.length;
 	const progressPercent =
-		totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0;
+		totalStages > 0
+			? Math.round((completedStages / totalStages) * 100)
+			: 0;
 
 	const stageMap = new Map(stages.map((stage) => [stage.id, stage]));
 
-	const pendingClientTasks = ((tasksRaw ?? []) as TaskRow[])
+	const pendingClientTasks = tasksRaw
 		.map((item) => {
 			const stage = stageMap.get(item.workflow_stage_id);
 
@@ -256,7 +217,7 @@ export const getClientWorkflowProgress = async (
 			type: 'deadline' as const,
 		}));
 
-	const notifications = ((tasksRaw ?? []) as TaskRow[])
+	const notifications = tasksRaw
 		.filter((task) => task.status === 'completed' && task.completed_at)
 		.sort((a, b) =>
 			new Date(b.completed_at as string).getTime() -
