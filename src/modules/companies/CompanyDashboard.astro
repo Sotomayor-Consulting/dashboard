@@ -1,9 +1,9 @@
 ---
 import '@styles/datatables.css';
 import { getIncorporacionById } from '@lib/tablas/companies/empresa_incorporaciones';
-import CrudPageHeader from '@modules/companies/components/dashboardCompanies/breadcrumbs.astro';
 import { getEstadoPorEmpresa } from '@lib/tablas/utils/generals/estados';
 import { getDocumentosPorFirmar } from '@lib/tablas/documents/documentos_por_firmar';
+import { getPlanContratadoPorEmpresa } from '@lib/tablas/payments/pagos';
 import { supabaseAdmin } from '@lib/supabase/admin';
 import Head from '@modules/companies/components/dashboardCompanies/Gridhead.astro';
 import Gridline2 from '@modules/companies/components/dashboardCompanies/Gridlenetwo.astro';
@@ -21,18 +21,21 @@ const { empresaId } = Astro.props;
 const { id } = Astro.params;
 const user = Astro.locals.user;
 const userId = user?.id;
-const nameUser = user?.user_metadata?.name || 'Usuario';
 const supabase = Astro.locals.supabase;
 
 if (!id || !userId) {
 	return Astro.redirect('/');
 }
 
-const [empresa, porfirmar, clientWorkflowProgress] = await Promise.all([
-	getIncorporacionById(supabase, id, userId),
-	getDocumentosPorFirmar(supabase, userId, empresaId),
-	getClientWorkflowProgress(supabaseAdmin, id),
-]);
+const [empresa, porfirmar, clientWorkflowProgress, planContratado] =
+	await Promise.all([
+		getIncorporacionById(supabase, id, userId),
+		getDocumentosPorFirmar(supabase, userId, empresaId),
+		getClientWorkflowProgress(supabaseAdmin, id),
+		getPlanContratadoPorEmpresa(supabase, id),
+	]);
+
+const planName = planContratado?.servicios?.nombre ?? 'Plan Business';
 
 if (!empresa) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
@@ -169,9 +172,6 @@ const pendingProcessesCount = clientWorkflowData.stages.filter(
 ---
 
 <div class="px-4 pt-6">
-	<div class="col-span-full mb-4 xl:mb-2">
-		<CrudPageHeader title={`Bienvenido ${nameUser}`} />
-	</div>
 	<Tab
 		buttons={[
 			{
@@ -192,7 +192,15 @@ const pendingProcessesCount = clientWorkflowData.stages.filter(
 	<Head
 		empresa={empresa}
 		estadoMapa={estadoMapa ?? ''}
+		planName={planName}
 		progressPercent={clientWorkflowData.progressPercent}
+		completedStages={completedStagesCount}
+		totalStages={totalStagesCount}
+		currentStageName={clientWorkflowData.currentStageName}
+		currentStageOrder={clientWorkflowData.stages.find(
+			(stage) => stage.status === 'in_progress',
+		)?.displayOrder ?? null}
+		estimatedCompletion={clientWorkflowData.estimatedCompletion}
 	/>
 	<Gridline2
 		empresa={empresa}
