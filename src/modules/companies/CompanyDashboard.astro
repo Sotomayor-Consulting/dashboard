@@ -45,8 +45,8 @@ if (!userId) {
 
 const backUrl = Astro.url.pathname;
 const homePath = isStaff
-	? `/incorporations/dashboard/${incorporationId}`
-	: `/my-companies/${incorporationId}/home`;
+	? `/incorporations/${incorporationId}`
+	: `/my-companies/${incorporationId}/dashboard`;
 const documentsDashboardPath = isStaff
 	? `/incorporations/${incorporationId}/documents`
 	: `/my-companies/${incorporationId}/documents`;

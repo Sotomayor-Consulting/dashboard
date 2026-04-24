@@ -4,10 +4,6 @@ import Alerta from '@components/feedback/alertageneral.astro';
 import CompanyDocumentsDashboard from '@modules/documents/CompanyDocumentsDashboard.astro';
 
 const { incorporationId } = Astro.params;
-
-if (!incorporationId) {
-	return Astro.redirect('/my-companies/');
-}
 ---
 
 <LayoutSidebar>
@@ -18,7 +14,7 @@ if (!incorporationId) {
 			aria-label="Submenú de empresa"
 		>
 			<a
-				href={`/my-companies/${incorporationId}/home`}
+				href={`/my-companies/${incorporationId}/dashboard`}
 				class="rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10"
 			>
 				Inicio
@@ -35,6 +31,7 @@ if (!incorporationId) {
 
 	<CompanyDocumentsDashboard
 		incorporationCaseId={incorporationId}
+		dashboardVariant="client"
 		showQuickUpload={false}
 	/>
 </LayoutSidebar>

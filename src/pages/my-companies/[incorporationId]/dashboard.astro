@@ -4,10 +4,6 @@ import CompanyDashboard from '@modules/companies/CompanyDashboard.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
 
 const { incorporationId } = Astro.params;
-
-if (!incorporationId) {
-	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
-}
 ---
 
 <LayoutSidebar>

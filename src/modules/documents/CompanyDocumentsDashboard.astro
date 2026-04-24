@@ -15,19 +15,26 @@ import { DocumentTypeComboboxField } from '@modules/documents/views/documentType
 interface Props {
 	incorporationCaseId: string;
 	showQuickUpload?: boolean;
+	dashboardVariant?: 'client' | 'staff';
 }
 
-const { incorporationCaseId, showQuickUpload = true } = Astro.props;
+const {
+	incorporationCaseId,
+	showQuickUpload = true,
+	dashboardVariant = 'client',
+} = Astro.props;
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
 const userRoles = Astro.locals.userRoles || [];
-const isStaff =
+const hasStaffRole =
 	userRoles.includes('admin') || userRoles.includes('operaciones');
-const documentDetailBasePath = isStaff
+const isStaffDashboard = dashboardVariant === 'staff';
+const canUseStaffActions = isStaffDashboard && hasStaffRole;
+const documentDetailBasePath = isStaffDashboard
 	? `/incorporations/${incorporationCaseId}/documents`
 	: `/my-companies/${incorporationCaseId}/documents`;
-const dataClient = isStaff ? supabaseAdmin : supabase;
+const dataClient = isStaffDashboard ? supabaseAdmin : supabase;
 
 let errorMessage = '';
 let company: any = null;
@@ -38,7 +45,7 @@ let documentTypes: any[] = [];
 if (!userId) {
 	errorMessage = 'No autenticado';
 } else {
-	company = isStaff
+	company = isStaffDashboard
 		? await getIncorporacionByIdAdmin(dataClient, incorporationCaseId)
 		: await getIncorporacionById(supabase, incorporationCaseId, userId);
 
@@ -103,7 +110,7 @@ const canUploadForRequest = (status: string) =>
 
 				<div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
 					<section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-[#28314c]">
-						{isStaff && showQuickUpload ? (
+					{canUseStaffActions && showQuickUpload ? (
 							<div class="mb-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-white/5">
 								<h3 class="text-sm font-semibold text-gray-900 dark:text-white">
 									Subida rápida (Operaciones/Admin)
@@ -188,7 +195,7 @@ const canUploadForRequest = (status: string) =>
 													class="block w-full text-sm text-gray-900 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200 dark:text-gray-200 dark:file:bg-white/10 dark:file:text-gray-200 dark:hover:file:bg-white/15"
 													accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
 												/>
-												{isStaff ? (
+										{canUseStaffActions ? (
 													<select
 														name="visibility"
 														class="block w-full rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 dark:border-gray-700 dark:bg-white/5 dark:text-gray-300"
@@ -262,7 +269,7 @@ const canUploadForRequest = (status: string) =>
 												<Icon name="ri:download-2-line" class="text-base" />
 												Descargar
 											</button>
-											{isStaff ? (
+									{canUseStaffActions ? (
 												<>
 													<button
 														type="button"
