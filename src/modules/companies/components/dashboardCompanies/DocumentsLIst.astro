@@ -3,60 +3,75 @@ import { Icon } from 'astro-icon/components';
 interface Props {
 	documentos: {
 		name: string;
+		updated_at?: string;
 	}[];
 	userId: string;
 	empresaId: string;
 }
 const { documentos, userId, empresaId } = Astro.props;
+
+const fechaFormatter = new Intl.DateTimeFormat('es-ES', {
+	day: '2-digit',
+	month: '2-digit',
+	year: 'numeric',
+});
+
+const formatFecha = (fecha?: string) => {
+	if (!fecha) return 'Sin fecha';
+	const parsed = new Date(fecha);
+	if (Number.isNaN(parsed.getTime())) return 'Sin fecha';
+	return fechaFormatter.format(parsed);
+};
 ---
 
 <div
-	class="to-black-600 from-black-900 rounded-lg bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:bg-linear-to-bl"
+	class="2xl:col-span-2 rounded-xl border border-gray-200 bg-white p-4 shadow-md shadow-gray-200/70 sm:p-6 dark:border-gray-700 dark:bg-black-900 dark:shadow-none"
 >
 	<div class="h-full w-full">
-		<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+		<h3 class="text-base font-semibold text-gray-900 dark:text-white">
 			Últimos documentos
 		</h3>
 		<div class="flow-root">
 			<ul
 				role="list"
-				class="divide-default scrollbar scrollbar-w-3 scrollbar-thumb-rounded-xs max-h-96 divide-y overflow-y-auto"
+				class="scrollbar scrollbar-w-2 mt-3 max-h-96 space-y-2 overflow-y-auto"
 			>
 				{
 					documentos && documentos.length > 0 ? (
 						documentos.map((d) => (
-							<li class="mr-5 py-4 sm:py-4">
-								<div class="flex items-center gap-2">
-									<div class="shrink-0">
-										<Icon
-											name="ri:file-check-line"
-											class="text-white-900 dark:text-white-50 text-3xl"
-										/>
+							<li class="rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-black-800">
+								<div class="flex items-center gap-3">
+									<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 dark:border-gray-700 dark:bg-black-700 dark:text-gray-300">
+										<Icon name="ri:file-list-3-line" class="h-4 w-4" />
 									</div>
-									<div class="ms-2 min-w-0 flex-1">
-										<p class="text-heading truncate font-medium" title={d.name}>
+									<div class="min-w-0 flex-1">
+										<p class="truncate text-base font-semibold text-gray-900 dark:text-white" title={d.name}>
 											{d.name}
 										</p>
+										<p class="text-sm text-gray-500 dark:text-gray-400">
+											Fecha: {formatFecha(d.updated_at)}
+										</p>
 									</div>
-									<div class="text-heading inline-flex items-center font-medium">
+									<span class="hidden rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 sm:inline-flex dark:bg-emerald-500/15 dark:text-emerald-300">
+										Subido
+									</span>
+									<div class="inline-flex items-center">
 										<button
-											class="btn-ver-documento cursor-pointer"
+											type="button"
+											class="btn-ver-documento inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-black-700 dark:text-gray-200 dark:hover:bg-black-600"
 											data-path={`${userId}/companies/${empresaId}/documents/${d.name}`}
 											title="Ver documento"
 										>
-											<Icon
-												name="ri:download-fill"
-												class="text-2xl text-neutral-900 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-white"
-											/>
+											<Icon name="ri:download-line" class="h-4 w-4" />
 										</button>
 									</div>
 								</div>
 							</li>
 						))
 					) : (
-						<li class="py-4 sm:py-4">
+						<li class="py-4">
 							<div class="flex h-full flex-col items-center justify-center gap-2">
-								<h2 class="dark:text-white-400 text-white-500 w-full">
+								<h2 class="w-full text-sm text-gray-500 dark:text-gray-400">
 									No hay documentos subidos aun...
 								</h2>
 								<Icon name="folders" width={300} height={300} />

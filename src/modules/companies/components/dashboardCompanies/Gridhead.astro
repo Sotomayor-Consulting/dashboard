@@ -7,6 +7,11 @@ interface Props {
 		tipo_de_negocio: string;
 		porcentaje_de_incorporacion: number;
 		estado_de_incorporacion: string;
+		ein?: string | null;
+		numero_ein?: string | null;
+		ein_number?: string | null;
+		tax_id?: string | null;
+		tin?: string | null;
 	};
 	estadoMapa: string;
 	progressPercent?: number;
@@ -55,6 +60,24 @@ const isBusinessWeekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(
 	miamiWeekday,
 );
 const isAdvisorOnline = isBusinessWeekday && miamiHour >= 8 && miamiHour < 17;
+
+const rawEin =
+	empresa.ein ??
+	empresa.numero_ein ??
+	empresa.ein_number ??
+	empresa.tax_id ??
+	empresa.tin ??
+	null;
+
+const maskedEin = (() => {
+	if (!rawEin) return null;
+	const digits = rawEin.replace(/\D/g, '');
+	if (digits.length >= 4) return `${digits.slice(0, 2)}-${digits.slice(2, 4)}*****`;
+	if (digits.length >= 2) return `${digits.slice(0, 2)}-*****`;
+	return `${rawEin.slice(0, 2)}***`;
+})();
+
+const einDisplayValue = maskedEin ?? (import.meta.env.DEV ? '12-34*****' : null);
 ---
 
 <div class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2">
@@ -68,6 +91,12 @@ const isAdvisorOnline = isBusinessWeekday && miamiHour >= 8 && miamiHour < 17;
 				<div class="flex-1">
 					<div class="flex items-start gap-4">
 						<div class="min-w-0">
+							<div class="mb-2 inline-flex items-center gap-2">
+								<Icon name="ri:star-fill" class="h-3.5 w-3.5 text-amber-500" />
+								<span class="text-sm font-semibold tracking-wide text-amber-600 uppercase dark:text-amber-300">
+									{planName}
+								</span>
+							</div>
 							<h2
 								class="truncate text-2xl leading-tight font-semibold tracking-tight text-gray-900 sm:text-3xl dark:text-white"
 							>
@@ -88,12 +117,24 @@ const isAdvisorOnline = isBusinessWeekday && miamiHour >= 8 && miamiHour < 17;
 									<Icon name="ri:map-pin-line" class="h-4 w-4" />
 									{empresa.estado_de_incorporacion}
 								</span>
-								<span
-									class="inline-flex items-center gap-1.5 rounded-md bg-[#fff7db] px-2 py-1 text-xs font-semibold text-[#8c681d] dark:bg-[#8c681d]/20 dark:text-[#f0d08a]"
-								>
-									<Icon name="ri:sparkling-2-line" class="h-3.5 w-3.5" />
-									{planName}
-								</span>
+								{einDisplayValue && (
+									<span class="inline-flex items-center gap-1.5 rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700 dark:bg-black-700 dark:text-gray-200">
+										<Icon name="ri:shield-keyhole-line" class="h-3.5 w-3.5" />
+										EIN: {einDisplayValue}
+										<button
+											type="button"
+											title="Copiar EIN"
+											class="inline-flex h-5 w-5 items-center justify-center rounded transition-colors hover:bg-gray-200 dark:hover:bg-black-600"
+										>
+											<Icon name="ri:file-copy-line" class="h-3.5 w-3.5" />
+										</button>
+										{!maskedEin && import.meta.env.DEV && (
+											<span class="rounded bg-amber-100 px-1 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
+												Demo
+											</span>
+										)}
+									</span>
+								)}
 							</div>
 						</div>
 					</div>
