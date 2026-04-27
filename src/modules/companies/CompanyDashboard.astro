@@ -18,7 +18,6 @@ interface Props {
 }
 
 const { empresaId } = Astro.props;
-const { id } = Astro.params;
 const user = Astro.locals.user;
 const userId = user?.id;
 const supabase = Astro.locals.supabase;
@@ -29,10 +28,10 @@ const supabase = Astro.locals.supabase;
 
 const [empresa, porfirmar, clientWorkflowProgress, planContratado] =
 	await Promise.all([
-		getIncorporacionById(supabase, id, userId),
+		getIncorporacionById(supabase, empresaId, userId),
 		getDocumentosPorFirmar(supabase, userId, empresaId),
-		getClientWorkflowProgress(supabaseAdmin, id),
-		getPlanContratadoPorEmpresa(supabase, id),
+		getClientWorkflowProgress(supabaseAdmin, empresaId),
+		getPlanContratadoPorEmpresa(supabase, empresaId),
 	]);
 
 const planName = planContratado?.servicios?.nombre ?? 'Plan Business';
@@ -172,13 +171,13 @@ const totalStagesCount = 0;
 				label: 'General',
 				icon: 'ri:layout-grid-line',
 				active: true,
-				link: `/my-companies/${id}`,
+				link: `/my-companies/${empresaId}/dashboard`,
 			},
 			{
 				label: 'Documentos',
 				icon: 'ri:file-copy-line',
 				active: false,
-				link: `/my-companies/documents/${id}`,
+				link: `/my-companies/${empresaId}/documents`,
 			},
 		]}
 	/>
