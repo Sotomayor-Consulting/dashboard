@@ -159,7 +159,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		// 7) Éxito (mensaje formal, sin mención al estado del logo)
 		const okMsg = `Su empresa "${nombre}" se creó con éxito.`;
 		return redirect(
-			`/companies/${slug}/?status=success&msg=${encodeURIComponent(okMsg)}`,
+			`/incorporations/${slug}/?status=success&msg=${encodeURIComponent(okMsg)}`,
 		);
 	} catch (e: any) {
 		const msg =

@@ -24,9 +24,9 @@ export const menuItems: MenuItem[] = [
 	},
 	{
 		id: 'my-companies',
-		label: 'Mis empresas',
+		label: 'Mis incorporaciones',
 		href: '/my-companies/',
-		tooltip: 'Mira tus empresas',
+		tooltip: 'Consulta el estado de tus incorporaciones',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:hand-coin-line',
 		sequence: 20,
@@ -92,7 +92,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'crud-empresas',
 		label: 'Empresas',
-		href: '/companies/',
+		href: '/incorporations/',
 		tooltip: 'Gestionar empresas',
 		roles: ['admin'],
 		svgname: 'ri:building-2-line',

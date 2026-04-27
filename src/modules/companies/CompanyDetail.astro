@@ -1,5 +1,4 @@
 ---
-import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
 import { getCompanyDetailData } from './services/getCompanyDetailData';
 
@@ -14,11 +13,14 @@ import CompanyManagersList from './components/CompanyManagersList.astro';
 import CompanyEditForm from './components/CompanyEditForm.astro';
 import ActivityModal from './components/ActivityModal.astro';
 import ManagerModal from './components/ManagerModal.astro';
-import UploadHeader from './components/UploadHeader.astro';
-import UploadHeaderPlan from './components/UploadHeaderPlan.astro';
-import UploadHeaderName from './components/UploadHeaderName.astro';
-import UploadDropzone from './components/UploadDropzone.astro';
-import UploadDocuments from './components/UploadDocuments.astro';
+import {
+	getDocumentRequestsForIncorporationCase,
+	getDocumentTypesList,
+	getDocumentsForIncorporationCase,
+} from '@lib/tablas/documents/document_dashboard';
+import { supabaseAdmin } from '@lib/supabase/admin';
+import DocumentRequestManager from '@modules/documents/views/DocumentRequestManager';
+import CompanyDocumentsUploadManager from '@modules/documents/views/CompanyDocumentsUploadManager';
 
 interface Props {
 	empresaId: string;
@@ -26,119 +28,156 @@ interface Props {
 
 const { empresaId } = Astro.props;
 const supabase = Astro.locals.supabase;
+const user = Astro.locals.user;
+const userId = user?.id;
+const userRoles = Astro.locals.userRoles || [];
+const isStaff =
+	userRoles.includes('admin') || userRoles.includes('operaciones');
+const backPath = Astro.url.pathname;
 
 const data = await getCompanyDetailData(supabase, empresaId);
+const [documentRequests, documentTypes, documentsNew] = await Promise.all([
+	getDocumentRequestsForIncorporationCase(supabaseAdmin, empresaId),
+	getDocumentTypesList(supabaseAdmin),
+	getDocumentsForIncorporationCase(supabaseAdmin, empresaId, userId, userRoles),
+]);
 
-if (!data) {
-	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
-}
-
-const {
-	empresa,
-	socios,
-	managers,
-	actividades,
-	paises,
-	estados,
-	pagos,
-	documentos,
-} = data;
-const esMemberManaged = empresa.forma_administracion === 'Member-Managed';
+const empresa = data?.empresa ?? null;
+const socios = data?.socios ?? [];
+const managers = data?.managers ?? [];
+const actividades = data?.actividades ?? [];
+const paises = data?.paises ?? [];
+const estados = data?.estados ?? [];
+const esMemberManaged = empresa?.forma_administracion === 'Member-Managed';
+const errorMessage = !data ? 'No se encontró esta empresa' : '';
 ---
 
-<div class="mx-5 mt-5">
-	<div class="mb-4 border-b border-neutral-200 dark:border-[#1f3443]">
-		<ul
-			class="-mb-px flex flex-wrap text-center text-sm font-medium"
-			id="default-tab"
-			data-tabs-toggle="#default-tab-content"
-			role="tablist"
-			data-tabs-active-classes="text-black-400 hover:text-black-500 dark:text-dark-600 dark:hover:text-black-500 border-black-400 dark:border-black-500"
-			data-tabs-inactive-classes="dark:border-transparent text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 border-neutral-100 hover:border-neutral-300 dark:border-neutral-700 dark:hover:text-neutral-300"
-		>
-			{
-				[
-					{
-						id: 'profile-tab',
-						tabs: 'profile',
-						label: 'Datos Generales',
-						icono: 'ri:building-2-fill',
-					},
-					{
-						id: 'upload-tab',
-						tabs: 'upload',
-						label: 'Subir documentos',
-						icono: 'ri:upload-cloud-2-fill',
-					},
-					{
-						id: 'contacts-tab',
-						tabs: 'contacts',
-						label: 'Editar datos',
-						icono: 'ri:edit-fill',
-					},
-				].map((i) => (
-					<li class="me-2" role="presentation">
-						<button
-							class="flex items-center gap-2 rounded-t-lg border-b-2 p-4"
-							id={i.id}
-							data-tabs-target={`#${i.tabs}`}
-							type="button"
-							role="tab"
-							aria-controls={i.tabs}
-							aria-selected="false"
-						>
-							<Icon name={i.icono} class="text-lg" />
-							{i.label}
-						</button>
-					</li>
-				))
-			}
-		</ul>
-	</div>
-	<div id="default-tab-content">
-		<div
-			class="grid gap-4 rounded-lg p-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
-			id="profile"
-			role="tabpanel"
-			aria-labelledby="profile-tab"
-		>
-			<CompanyHeader empresa={empresa} />
-			<CompanyLocation empresa={empresa} />
-			<CompanyProgress empresa={empresa} />
-			<CompanyInfoCard empresa={empresa} empresaId={empresaId} />
-			<CompanySociosList socios={socios} />
-			<CompanyAddress empresa={empresa} esMemberManaged={esMemberManaged} />
-			<CompanyManagersList managers={managers} />
+{
+	errorMessage ? (
+		<div class="mx-5 mt-5">
+			<div class="rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-600 dark:border-gray-700 dark:text-gray-300">
+				{errorMessage}
+			</div>
 		</div>
+	) : (
+		<>
+			<div class="mx-5 mt-5">
+				<div class="mb-4 border-b border-neutral-200 dark:border-[#1f3443]">
+					<ul
+						class="-mb-px flex flex-wrap text-center text-sm font-medium"
+						id="default-tab"
+						data-tabs-toggle="#default-tab-content"
+						role="tablist"
+						data-tabs-active-classes="text-black-400 hover:text-black-500 dark:text-dark-600 dark:hover:text-black-500 border-black-400 dark:border-black-500"
+						data-tabs-inactive-classes="dark:border-transparent text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 border-neutral-100 hover:border-neutral-300 dark:border-neutral-700 dark:hover:text-neutral-300"
+					>
+						{[
+							{
+								id: 'profile-tab',
+								tabs: 'profile',
+								label: 'Datos Generales',
+								icono: 'ri:building-2-fill',
+							},
+							{
+								id: 'requests-tab',
+								tabs: 'requests',
+								label: 'Solicitar documentos',
+								icono: 'ri:file-list-3-fill',
+							},
+							{
+								id: 'upload-tab',
+								tabs: 'upload',
+								label: 'Subir documentos',
+								icono: 'ri:upload-cloud-2-fill',
+							},
+							{
+								id: 'contacts-tab',
+								tabs: 'contacts',
+								label: 'Editar datos',
+								icono: 'ri:edit-fill',
+							},
+						].map((i) => (
+							<li class="me-2" role="presentation">
+								<button
+									class="flex items-center gap-2 rounded-t-lg border-b-2 p-4"
+									id={i.id}
+									data-tabs-target={`#${i.tabs}`}
+									type="button"
+									role="tab"
+									aria-controls={i.tabs}
+									aria-selected="false"
+								>
+									<Icon name={i.icono} class="text-lg" />
+									{i.label}
+								</button>
+							</li>
+						))}
+					</ul>
+				</div>
+				<div id="default-tab-content">
+					<div
+						class="grid gap-4 rounded-lg p-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
+						id="profile"
+						role="tabpanel"
+						aria-labelledby="profile-tab"
+					>
+						<CompanyHeader empresa={empresa} />
+						<CompanyLocation empresa={empresa} />
+						<CompanyProgress empresa={empresa} />
+						<CompanyInfoCard empresa={empresa} empresaId={empresaId} />
+						<CompanySociosList socios={socios} />
+						<CompanyAddress
+							empresa={empresa}
+							esMemberManaged={esMemberManaged}
+						/>
+						<CompanyManagersList managers={managers} />
+					</div>
 
-		<CompanyEditForm
-			empresa={empresa}
-			socios={socios}
-			managers={managers}
-			actividades={actividades}
-			paises={paises}
-			estados={estados}
-		/>
-		<div
-			class="my-4 grid w-full gap-4 xl:grid-cols-2 2xl:grid-cols-3"
-			id="upload"
-			role="tabpanel"
-			aria-labelledby="upload-tab"
-		>
-			<UploadHeader empresa={empresa} />
-			<UploadHeaderPlan pagos={pagos} />
-			<UploadHeaderName pagos={pagos} />
-			<UploadDropzone pagos={pagos} empresaId={empresaId} />
-			<UploadDocuments
-				documentos={documentos}
-				pagos={pagos}
-				empresaId={empresaId}
-			/>
-		</div>
-		<!-- <CampaniUpload empresaId={empresaId} /> -->
-	</div>
-</div>
-<ActivityModal />
-<ManagerModal empresaId={empresaId} paises={paises} />
+					<CompanyEditForm
+						empresa={empresa}
+						socios={socios}
+						managers={managers}
+						actividades={actividades}
+						paises={paises}
+						estados={estados}
+					/>
+					<div
+						class="my-4"
+						id="requests"
+						role="tabpanel"
+						aria-labelledby="requests-tab"
+					>
+						<DocumentRequestManager
+							client:load
+							incorporationCaseId={empresaId}
+							backPath={backPath}
+							documentTypes={documentTypes}
+							requests={documentRequests}
+						/>
+					</div>
+					<div
+						class="my-4"
+						id="upload"
+						role="tabpanel"
+						aria-labelledby="upload-tab"
+					>
+						<CompanyDocumentsUploadManager
+							client:load
+							incorporationCaseId={empresaId}
+							backPath={backPath}
+							documentTypes={documentTypes}
+							documents={documentsNew}
+							isStaff={isStaff}
+							sharedWithUserId={empresa.user_id ?? undefined}
+						/>
+					</div>
+					{/* <CampaniUpload empresaId={empresaId} /> */}
+				</div>
+			</div>
+			<ActivityModal />
+			<ManagerModal empresaId={empresaId} paises={paises} />
+		</>
+	)
+}
 
 <script src="@lib/alpinejs/alpine.js"></script>

@@ -19,5 +19,5 @@
 			"@services/*": ["./src/services/*"],
 			"@middleware/*": ["./src/middleware/*"]
 		}
-	}
+	},
 }

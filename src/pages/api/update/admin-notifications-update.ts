@@ -3,6 +3,8 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 // Ajusta esta ruta si tu estructura es distinta:
 import { createSupabaseServerClient } from '@lib/supabase';
+import { notifyByEvent } from '@lib/notifications';
+import type { NotificationChannel } from '@lib/notifications';
 import { safeBack } from '@lib/security/headers';
 
 const BACK_PATH = '/admin/notificaciones/';
@@ -39,6 +41,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
 			.get('descripcion-link-notificacion')
 			?.toString()
 			.trim();
+		const sendEmail = form.has('send_email');
+		const emailSubject = form.get('email_subject')?.toString().trim();
+		const emailHtml = form.get('email_html')?.toString().trim();
 
 		// Validación de campos requeridos
 		if (!userId) {
@@ -53,27 +58,62 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
 			);
 		}
 
-		// 4) Build payload
-		const payload: Record<string, any> = {
-			user_id: userId,
-			message: message,
-			link: link,
-			mensaje_link: linkDescription,
-			created_at: new Date().toISOString(),
-		};
+		const channels: NotificationChannel[] = sendEmail
+			? ['in_app', 'email']
+			: ['in_app'];
 
-		// 5) Insert en tabla notifications
-		const { error } = await supabase.from('notifications').insert(payload);
+		const notificationResult = await notifyByEvent({
+			eventKey: 'admin.custom',
+			recipients: [{ userId }],
+			channels,
+			link: link ?? null,
+			linkLabel: linkDescription ?? 'Ver detalle',
+			context: {
+				message,
+				link_label: linkDescription ?? 'Ver detalle',
+				email_subject: emailSubject || 'Tienes una nueva notificacion',
+				email_html:
+					emailHtml ||
+					`<p>Hola,</p><p>${message}</p>${link ? `<p><a href="${link}">${linkDescription || 'Ver detalle'}</a></p>` : ''}`,
+				email_text: message,
+			},
+		});
 
-		if (error) {
-			const msg = encodeURIComponent(`DB: ${error.message}`);
-			return redirect(`${back}?status=error&msg=${msg}`);
+		// Recolectamos errores de todos los canales fallidos
+		const channelFailures = notificationResult.results
+			.flatMap((r) => r.channels)
+			.filter((c) => !c.success)
+			.map((c) => `${c.channel}: ${c.error}`);
+
+		if (notificationResult.totalSuccess === 0) {
+			const details = channelFailures.join(' | ');
+			console.error('[admin-notifications-update] all channels failed', {
+				userId,
+				channels,
+				channelFailures,
+			});
+			return redirect(
+				`${back}?status=error&msg=${encodeURIComponent(details || 'No se pudo enviar la notificacion')}`,
+			);
+		}
+
+		if (channelFailures.length > 0) {
+			console.error('[admin-notifications-update] partial channel failures', {
+				userId,
+				channels,
+				channelFailures,
+			});
+			const warning = `Notificación enviada con errores parciales: ${channelFailures.join(', ')}`;
+			return redirect(
+				`${back}?status=warning&msg=${encodeURIComponent(warning)}`,
+			);
 		}
 
 		return redirect(
 			`${back}?status=success&msg=${encodeURIComponent('Notificación enviada correctamente')}`,
 		);
 	} catch (e: any) {
+		console.error('[admin-notifications-update] unexpected error', e);
 		const msg = encodeURIComponent(`Error inesperado: ${e?.message ?? e}`);
 		return redirect(`${back}?status=error&msg=${msg}`);
 	}

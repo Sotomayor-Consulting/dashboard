@@ -31,7 +31,7 @@ interface AddCompanyDialogProps {
 	estados: string[];
 }
 
-const BACK_PATH = '/companies/';
+const BACK_PATH = '/incorporations/';
 
 export default function AddCompanyDialog({
 	open,

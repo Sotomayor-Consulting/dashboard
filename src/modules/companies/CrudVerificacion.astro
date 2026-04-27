@@ -1,9 +1,6 @@
 ---
-import DataTable from '@components/ui/DataTable.astro';
-import StatusBadge from '@components/ui/StatusBadge.astro';
-import DateCell from '@components/ui/DateCell.astro';
-import StackedText from '@components/ui/StackedText.astro';
 import { FormsEnviosVericacion } from '@lib/tablas/forms/formulariosEnviados';
+import CrudVerificacionTable from '@modules/companies/views/CrudVerificacionTable';
 
 const supabase = Astro.locals.supabase;
 
@@ -66,61 +63,4 @@ const formularios = await FormsEnviosVericacion(supabase);
 	</div>
 </div>
 
-<DataTable
-	headers={[
-		'NOMBRE DEL FORMULARIO',
-		'SUBIDO POR',
-		'PORCENTAJE DE PROGRESO',
-		'FECHA DE INICIO DEL FORMULARIO',
-		'FECHA DE ULTIMA ACTUALIZACION',
-		'FECHA DE ULTIMA SUBIDA',
-		'ESTADO',
-	]}
-	noRowsMessage="No hay formularios a verificar"
-	noResultsMessage="No se encontraron formularios aun"
->
-	{
-		formularios?.map((formularios) => (
-			<tr
-				class="dark:bg-black-900 cursor-pointer border-b border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-700 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]"
-				onclick={`window.open('/forms/validaciones/${formularios.submission_id}', '_blank')`}
-			>
-				<th
-					scope="row"
-					class="px-6 py-4 font-medium whitespace-nowrap text-gray-900 dark:text-white"
-				>
-					<StackedText
-						title={formularios.formularios?.titulo ?? '— sin título —'}
-						subtitle={formularios.formularios?.slug ?? '— sin ctaegoria —'}
-					/>
-				</th>
-				<td class="px-6 py-4">
-					<data value="">
-						{formularios.usuarios.nombre} {formularios.usuarios.apellido}
-					</data>
-				</td>
-				<td class="px-6 py-4">
-					<data value="">% {formularios.progress_percent ?? '0'}</data>
-				</td>
-				<td class="px-6 py-4">
-					<DateCell date={formularios.created_at} />
-				</td>
-				<td class="px-6 py-4">
-					<DateCell date={formularios.updated_at} />
-				</td>
-				<td class="px-6 py-4">
-					<DateCell date={formularios.submitted_at} />
-				</td>
-				<td class="px-6 py-4">
-					<StatusBadge
-						active={formularios.status === 'submitted'}
-						activeLabel="Terminado"
-						inactiveLabel="En progreso"
-						activeColor="bg-green-400"
-						inactiveColor="bg-orange-400"
-					/>
-				</td>
-			</tr>
-		))
-	}
-</DataTable>
+<CrudVerificacionTable data={formularios ?? []} client:load />

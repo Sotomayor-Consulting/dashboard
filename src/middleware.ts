@@ -44,7 +44,6 @@ const CSP_DIRECTIVES = [
 	...(IS_PRODUCTION ? ['upgrade-insecure-requests'] : []),
 ].join('; ');
 
-
 /**
  * Añade CSP y otros headers de seguridad a respuestas HTML.
  * No modifica respuestas JSON/API ni redirects.
@@ -63,9 +62,15 @@ function addSecurityHeaders(response: Response, pathname: string): Response {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('X-Frame-Options', 'DENY');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+	response.headers.set(
+		'Permissions-Policy',
+		'camera=(), microphone=(), geolocation=()',
+	);
 	// Permitir que la ventana principal pueda comunicarse con popups OAuth
-	response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+	response.headers.set(
+		'Cross-Origin-Opener-Policy',
+		'same-origin-allow-popups',
+	);
 
 	return response;
 }
@@ -134,9 +139,9 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 	},
 	// Single-rol — admin
 	{
-		path: '/companies/',
-		roles: [ROLES.ADMIN],
-		errorMsg: 'Acceso solo para admins',
+		path: '/incorporations/',
+		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
+		errorMsg: 'Acceso solo para admins y operaciones',
 	},
 	{
 		path: '/usuarios/',
@@ -152,6 +157,11 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		path: '/admin/',
 		roles: [ROLES.ADMIN],
 		errorMsg: 'Acceso solo para admins',
+	},
+	{
+		path: '/operaciones/',
+		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
+		errorMsg: 'Acceso solo para operaciones',
 	},
 	// Legacy (mantener hasta eliminar old pages)
 	{
@@ -192,9 +202,7 @@ async function getUserRoles(
 		.select('rol_id, roles (name)')
 		.eq('user_id', userId);
 
-	const roles = extractRoleNames(
-		(usuarioData as UserRoleRow[] | null) ?? null,
-	);
+	const roles = extractRoleNames((usuarioData as UserRoleRow[] | null) ?? null);
 
 	rolesCache.set(userId, {
 		roles,

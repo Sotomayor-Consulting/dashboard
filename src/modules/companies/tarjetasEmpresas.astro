@@ -51,7 +51,7 @@ const empresas = userId
 							>
 							<span
 								class="ml-1 text-gray-400 md:ml-2 dark:text-gray-500"
-								aria-current="page">empresas</span
+								aria-current="page">incorporaciones</span
 							>
 						</div>
 					</li>
@@ -60,7 +60,7 @@ const empresas = userId
 			<h1
 				class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
 			>
-				Tus empresas
+				Tus incorporaciones
 			</h1>
 		</div>
 		<!-- Right Content -->
@@ -68,7 +68,9 @@ const empresas = userId
 			{
 				(empresas?.length ?? 0) === 0 ? (
 					<div class="col-span-3 flex flex-col items-center rounded-lg border p-6 text-center text-gray-600 dark:text-gray-300">
-						<h3 class="mb-5 text-lg font-semibold">No tienes empresas aún</h3>
+						<h3 class="mb-5 text-lg font-semibold">
+							No tienes incorporaciones aún
+						</h3>
 						<Image
 							src={imagen}
 							alt="Imagen tecnología"

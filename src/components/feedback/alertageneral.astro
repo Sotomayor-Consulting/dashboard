@@ -3,17 +3,21 @@ const status = Astro.url.searchParams.get('status'); // "success" | "error" | nu
 const msg = Astro.url.searchParams.get('msg') || '';
 
 const isSuccess = status === 'success';
+const isWarning = status === 'warning';
 
 const base =
 	'fixed right-4 top-24 z-50 flex items-center w-full max-w-sm p-4 text-sm rounded-lg shadow-sm transition-all';
 
-const variant = isSuccess
-	? 'text-green-700 bg-white dark:text-green-300 dark:bg-black-800'
-	: 'text-red-700 bg-white dark:text-red-300 dark:bg-black-800';
+let variant = 'text-red-700 bg-white dark:text-red-300 dark:bg-black-800';
+let iconVariant = 'text-red-500 bg-red-100 dark:bg-red-800 dark:text-red-200';
 
-const iconVariant = isSuccess
-	? 'text-green-500 bg-green-100 dark:bg-green-800 dark:text-green-200'
-	: 'text-red-500 bg-red-100 dark:bg-red-800 dark:text-red-200';
+if (isSuccess) {
+	variant = 'text-green-700 bg-white dark:text-green-300 dark:bg-black-800';
+	iconVariant = 'text-green-500 bg-green-100 dark:bg-green-800 dark:text-green-200';
+} else if (isWarning) {
+	variant = 'text-yellow-700 bg-white dark:text-yellow-300 dark:bg-black-800';
+	iconVariant = 'text-yellow-500 bg-yellow-100 dark:bg-yellow-800 dark:text-yellow-200';
+}
 
 const display = msg ? '' : 'hidden';
 ---

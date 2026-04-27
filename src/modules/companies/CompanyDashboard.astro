@@ -23,9 +23,9 @@ const user = Astro.locals.user;
 const userId = user?.id;
 const supabase = Astro.locals.supabase;
 
-if (!id || !userId) {
-	return Astro.redirect('/');
-}
+// if (!id || !userId) {
+// 	return Astro.redirect('/');
+// }
 
 const [empresa, porfirmar, clientWorkflowProgress, planContratado] =
 	await Promise.all([
@@ -41,24 +41,11 @@ if (!empresa) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
 }
 
-const clientWorkflowData = clientWorkflowProgress ?? {
-	companyName: empresa.nombre_1 ?? 'Empresa sin nombre',
-	businessType: empresa.tipo_de_negocio,
-	workflowStatus: 'not_started',
-	progressPercent: 0,
-	completedStages: 0,
-	totalStages: 0,
-	currentStageName: null,
-	estimatedCompletion: null,
-	stages: [],
-	pendingClientTasks: [],
-	upcomingEvents: [],
-	notifications: [],
-};
+const clientWorkflowData = clientWorkflowProgress;
 
 // Obtener estado de incorporación para el mapa
 let estadoMapa = null;
-if (empresa.estado_de_incorporacion) {
+if (empresa?.estado_de_incorporacion) {
 	const estadoData = await getEstadoPorEmpresa(
 		supabase,
 		empresa.estado_de_incorporacion,
@@ -112,63 +99,70 @@ const stageDescriptionBySlug: Record<string, string> = {
 	be13: 'Preparamos y enviamos el reporte BE-13 cuando aplica para tu caso.',
 };
 
-const processTasks =
-	clientWorkflowData.stages.length > 0
-		? clientWorkflowData.stages.map((stage) => ({
-				title: stage.name,
+const processTasks = clientWorkflowData
+	? clientWorkflowData.stages.map((stage) => ({
+			title: stage.name,
+			description:
+				stageDescriptionBySlug[stage.slug] ??
+				`Etapa ${stage.slug.replaceAll('_', ' ')}.`,
+			date: stage.dueAt ? FormateadorFecha.format(new Date(stage.dueAt)) : '-',
+			completed:
+				stage.status === 'completed'
+					? 'Completado'
+					: stage.status === 'in_progress'
+						? 'En proceso'
+						: 'Por completar',
+			icon: stageIconBySlug[stage.slug] ?? 'ri:file-list-3-line',
+		}))
+	: [
+			{
+				title: 'Registro de la empresa',
+				description: 'Hemos registrado tu empresa en el estado seleccionado.',
+				date: FormateadorFecha.format(
+					new Date(empresa?.fecha_de_validacion || '2024-03-22T14:30:00.000Z'),
+				),
+				completed: 'Completado',
+				icon: 'ri:check-line',
+			},
+			{
+				title: 'Obtención del EIN',
 				description:
-					stageDescriptionBySlug[stage.slug] ??
-					`Etapa ${stage.slug.replaceAll('_', ' ')}.`,
-				date: stage.dueAt
-					? FormateadorFecha.format(new Date(stage.dueAt))
-					: '-',
-				completed:
-					stage.status === 'completed'
-						? 'Completado'
-						: stage.status === 'in_progress'
-							? 'En proceso'
-							: 'Por completar',
-				icon: stageIconBySlug[stage.slug] ?? 'ri:file-list-3-line',
-			}))
-		: [
-				{
-					title: 'Registro de la empresa',
-					description: 'Hemos registrado tu empresa en el estado seleccionado.',
-					date: FormateadorFecha.format(new Date(empresa.fecha_de_validacion)),
-					completed: 'Completado',
-					icon: 'ri:check-line',
-				},
-				{
-					title: 'Obtención del EIN',
-					description:
-						'Estamos gestionando el número de identificación fiscal de tu empresa.',
-					date: FormateadorFecha.format(new Date(empresa.fecha_de_validacion)),
-					completed: 'En proceso',
-					icon: 'ri:profile-line',
-				},
-				{
-					title: 'Cuenta bancaria',
-					description:
-						'Próximamente te ayudaremos a abrir una cuenta bancaria para tu empresa.',
-					completed: 'Por completar',
-					icon: 'ri:bank-line',
-				},
-			];
+					'Estamos gestionando el número de identificación fiscal de tu empresa.',
+				date: FormateadorFecha.format(
+					new Date(empresa?.fecha_de_validacion || '2024-03-22T14:30:00.000Z'),
+				),
+				completed: 'En proceso',
+				icon: 'ri:profile-line',
+			},
+			{
+				title: 'Cuenta bancaria',
+				description:
+					'Próximamente te ayudaremos a abrir una cuenta bancaria para tu empresa.',
+				completed: 'Por completar',
+				icon: 'ri:bank-line',
+			},
+		];
 
-const completedStagesCount = clientWorkflowData.stages.filter(
-	(stage) => stage.status === 'completed',
-).length;
-const totalStagesCount =
-	clientWorkflowData.stages.length > 0
-		? clientWorkflowData.stages.length
-		: processTasks.length;
-const processProgressPercent =
-	totalStagesCount > 0
-		? Math.round((completedStagesCount / totalStagesCount) * 100)
-		: 0;
-const pendingProcessesCount = clientWorkflowData.stages.filter(
-	(stage) => stage.status !== 'completed',
-).length;
+const completedStagesCount = 0;
+
+// const completedStagesCount = clientWorkflowData.stages.filter(
+// 	(stage) => stage.status === 'completed',
+// ).length;
+// const totalStagesCount =
+// 	clientWorkflowData.stages.length > 0
+// 		? clientWorkflowData.stages.length
+// 		: processTasks.length;
+// const processProgressPercent =
+// 	totalStagesCount > 0
+// 		? Math.round((completedStagesCount / totalStagesCount) * 100)
+// 		: 0;
+// const pendingProcessesCount = clientWorkflowData.stages.filter(
+// 	(stage) => stage.status !== 'completed',
+// ).length;
+
+const pendingProcessesCount = 0;
+const processProgressPercent = 0;
+const totalStagesCount = 0;
 ---
 
 <div class="px-4 pt-6">
@@ -205,7 +199,7 @@ const pendingProcessesCount = clientWorkflowData.stages.filter(
 	<Gridline2
 		empresa={empresa}
 		porfirmar={porfirmarCount}
-		pendingProcesses={pendingProcessesCount}
+		pendingProcesses={pendingProcessesCount || 0}
 	/>
 	<div
 		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
@@ -290,41 +284,3 @@ const pendingProcessesCount = clientWorkflowData.stages.filter(
 		}
 	}
 </style>
-
-<script>
-	import { DataTable } from '@lib/simple-data-tables/simple-data-table.js';
-
-	function initDT() {
-		const el = document.querySelector('#myTable') as HTMLElement | null;
-		if (!el) return;
-		if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit === '1')
-			return;
-
-		new DataTable(el, {
-			searchable: true,
-			perPage: 25,
-			perPageSelect: [5, 10, 25, 50],
-
-			// Textos en español
-			labels: {
-				placeholder: 'Buscar...',
-				perPage: 'Filas',
-				noRows: 'No hay documentos de tu empresa',
-				noResults: 'No se encontraron resultados',
-				info: 'Mostrando {start} de {rows} registros',
-			},
-
-			// Layout estilo Flowbite (arriba: perPage + search / abajo: info + paging)
-			layout: {
-				top: '{select}{search}',
-				bottom: '{info}{pager}',
-			},
-		});
-
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInit = '1';
-		(el as HTMLElement & { dataset: DOMStringMap }).dataset.dtInstance = '1';
-	}
-
-	initDT();
-	document.addEventListener('astro:page-load', initDT);
-</script>

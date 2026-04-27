@@ -1,177 +1,193 @@
 ---
-import { Icon } from 'astro-icon/components';
-import { actions } from 'astro:actions';
+interface Props {
+	backPath?: string;
+}
 
-const result = Astro.getActionResult(actions.sendEmail);
+const { backPath = '/admin/notificaciones/' } = Astro.props as Props;
+const formAction = `/api/update/admin-notifications-update?back=${encodeURIComponent(backPath)}`;
 ---
 
-<!-- Alertas -->{
-	result?.data && (
-		<div
-			id="email-alert-sucess"
-			class="text-fg-success-strong rounded-base bg-success-soft fixed end-5 top-25 flex w-full max-w-sm items-center p-4 shadow-xs"
-			role="alert"
-		>
-			<Icon name="ri:checkbox-circle-line" />
-			<div class="ms-3 text-sm font-normal">Correo enviado exitodamente</div>
-			<button
-				type="button"
-				class="text-body hover:text-heading hover:bg-neutral-secondary-medium focus:ring-neutral-tertiary ms-auto box-border flex h-8 w-8 items-center justify-center rounded border border-transparent bg-transparent text-sm leading-5 font-medium focus:ring-4 focus:outline-none"
-				data-dismiss-target="#email-alert-success"
-				aria-label="Close"
-			>
-				<Icon name="ri:close-large-line" />
-			</button>
-		</div>
-	)
-}
-
-{
-	result?.error && (
-		<div
-			id="email-alert-error"
-			class="text-fg-danger-strong rounded-base bg-danger-soft fixed end-5 top-25 flex w-full max-w-sm items-center p-4 shadow-xs"
-			role="alert"
-		>
-			<Icon name="ri:error-warning-line" />
-			<div class="ms-3 text-sm font-normal">
-				Error al enviar correo electrónico
-			</div>
-			<button
-				type="button"
-				class="text-body hover:text-heading hover:bg-neutral-secondary-medium focus:ring-neutral-tertiary ms-auto box-border flex h-8 w-8 items-center justify-center rounded border border-transparent bg-transparent text-sm leading-5 font-medium focus:ring-4 focus:outline-none"
-				data-dismiss-target="#email-alert-error"
-				aria-label="Close"
-			>
-				<Icon name="ri:close-large-line" />
-			</button>
-		</div>
-	)
-}
-
-<!-- Main modal -->
 <div
 	id="send-email-modal"
-	data-modal-placement="top-right"
-	class="fixed top-0 right-0 left-0 z-50 hidden h-full w-full p-4 md:inset-0"
+	class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4"
 >
 	<div
-		id="loading-modal"
-		tabindex="-1"
-		class="bg-neutral-primary/95 absolute inset-s-0 top-0 z-10 flex hidden h-full w-full flex-col items-center justify-center gap-2"
+		class="w-full max-w-2xl rounded-lg border border-gray-200 bg-white p-5 shadow-xl dark:border-gray-700 dark:bg-[#0e2738]"
 	>
-		<div role="status">
-			<svg
-				aria-hidden="true"
-				class="text-neutral-quaternary fill-brand h-8 w-8 animate-spin"
-				viewBox="0 0 100 101"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-				><path
-					d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-					fill="currentColor"></path><path
-					d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-					fill="currentFill"></path></svg
-			>
-			<span class="sr-only">Loading...</span>
-		</div>
-	</div>
-
-	<div class="relative ms-auto h-full w-full max-w-md">
-		<div
-			class="bg-neutral-primary-soft border-default rounded-base relative flex h-full flex-col border p-4 shadow-sm md:p-6"
-		>
-			<div
-				class="border-default flex shrink-0 items-center justify-between border-b pb-4 md:pb-5"
-			>
-				<h3 class="text-heading text-lg font-medium">
-					Enviar notificación por correo electrónico
+		<div class="mb-4 flex items-center justify-between">
+			<div>
+				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+					Enviar notificacion
 				</h3>
-				<button
-					type="button"
-					class="text-body hover:bg-neutral-tertiary hover:text-heading rounded-base ms-auto inline-flex h-9 w-9 items-center justify-center bg-transparent text-sm"
-					data-modal-hide="send-email-modal"
+				<p
+					class="text-sm text-gray-500 dark:text-gray-400"
+					id="notification-target"
 				>
-					<Icon name="ri:close-large-line" />
-					<span class="sr-only">Close modal</span>
-				</button>
+					Selecciona un usuario para enviar
+				</p>
+			</div>
+			<button
+				type="button"
+				class="rounded-md p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#101522]"
+				data-close-notification-modal
+			>
+				Cerrar
+			</button>
+		</div>
+
+		<form
+			id="notification-form"
+			method="post"
+			action={formAction}
+			class="space-y-4"
+		>
+			<input
+				type="hidden"
+				name="user_id_modal_name"
+				id="notification-user-id"
+			/>
+
+			<div>
+				<label
+					for="mensaje-notificacion"
+					class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-100"
+				>
+					Mensaje
+				</label>
+				<textarea
+					id="mensaje-notificacion"
+					name="mensaje-notificacion"
+					rows="4"
+					required
+					class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-gray-700 dark:bg-[#101522] dark:text-white"
+					placeholder="Escribe el mensaje de la notificacion..."></textarea>
 			</div>
 
-			<form
-				action={actions.sendEmail}
-				method="POST"
-				class="-hiddenoverflow flex flex-1 flex-col"
-				id="emailForm"
-			>
-				<div class="grid flex-1 grid-cols-2 content-start gap-4 py-4 md:py-6">
-					<div class="col-span-2">
-						<label
-							for="to"
-							class="text-heading mb-2.5 block text-sm font-medium"
-							>Correo electrónico</label
-						>
-						<input
-							type="text"
-							name="email"
-							id="email"
-							class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
-							placeholder="Ingrese el correo electrónico"
-							required="True"
-							value=""
-						/>
-					</div>
-
-					<div class="col-span-2">
-						<label
-							for="subject"
-							class="text-heading mb-2.5 block text-sm font-medium"
-							>Asunto</label
-						>
-						<input
-							type="text"
-							name="subject"
-							id="subject"
-							class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border px-3 py-2.5 text-sm shadow-xs"
-							placeholder="Ingrese el asunto del correo"
-							required=""
-						/>
-					</div>
-
-					<div class="col-span-2">
-						<label
-							for="html"
-							class="text-heading mb-2.5 block text-sm font-medium"
-							>Mensaje</label
-						>
-						<textarea
-							id="html"
-							name="html"
-							rows="4"
-							class="bg-neutral-secondary-medium border-default-medium text-heading rounded-base focus:ring-brand focus:border-brand placeholder:text-body block w-full border p-3.5 text-sm shadow-xs"
-							placeholder="Escribe tu mensaje aquí"></textarea>
-					</div>
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<div>
+					<label
+						for="link-notificacion"
+						class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-100"
+					>
+						URL (opcional)
+					</label>
+					<input
+						type="text"
+						id="link-notificacion"
+						name="link-notificacion"
+						class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-gray-700 dark:bg-[#101522] dark:text-white"
+						placeholder="/my-companies/..."
+					/>
 				</div>
+				<div>
+					<label
+						for="descripcion-link-notificacion"
+						class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-100"
+					>
+						Texto del boton (opcional)
+					</label>
+					<input
+						type="text"
+						id="descripcion-link-notificacion"
+						name="descripcion-link-notificacion"
+						class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-gray-700 dark:bg-[#101522] dark:text-white"
+						placeholder="Ver detalle"
+					/>
+				</div>
+			</div>
 
-				<div
-					class="border-default mt-auto flex shrink-0 items-center space-x-2 border-t pt-4 md:pt-6"
+			<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+				<label
+					class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200"
 				>
-					<button
-						type="submit"
-						id="submitBtn"
-						class="bg-brand hover:bg-brand-strong focus:ring-brand-medium rounded-base box-border inline-flex items-center border border-transparent px-4 py-2.5 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
-					>
-						<Icon name="ri:send-plane-fill" class="me-1" />
-						Enviar
-					</button>
-					<button
-						data-modal-hide="send-email-modal"
-						type="button"
-						class="text-body bg-neutral-secondary-medium border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-neutral-tertiary rounded-base box-border border px-4 py-2.5 text-sm leading-5 font-medium shadow-xs focus:ring-4 focus:outline-none"
-					>
-						Cancelar
-					</button>
+					<input
+						type="checkbox"
+						name="send_email"
+						id="send-email-checkbox"
+						class="h-4 w-4 rounded border-gray-300"
+					/>
+					Enviar tambien por correo
+				</label>
+
+				<div class="mt-3 grid grid-cols-1 gap-3" id="email-extra-fields">
+					<input
+						type="text"
+						name="email_subject"
+						id="email_subject"
+						class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-gray-700 dark:bg-[#101522] dark:text-white"
+						placeholder="Asunto del correo (opcional)"
+					/>
+					<textarea
+						name="email_html"
+						id="email_html"
+						rows="4"
+						class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-gray-700 dark:bg-[#101522] dark:text-white"
+						placeholder="HTML del correo (opcional, si no se envias usa plantilla por defecto)"
+					></textarea>
 				</div>
-			</form>
-		</div>
+			</div>
+
+			<div class="flex items-center justify-end gap-2 pt-2">
+				<button
+					type="button"
+					data-close-notification-modal
+					class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-[#101522]"
+				>
+					Cancelar
+				</button>
+				<button
+					type="submit"
+					class="rounded-lg bg-[#8c681d] px-4 py-2 text-sm font-medium text-white hover:bg-[#8c681d]/90"
+				>
+					Enviar notificacion
+				</button>
+			</div>
+		</form>
 	</div>
 </div>
+
+<script is:inline>
+	(() => {
+		const modal = document.getElementById('send-email-modal');
+		const userIdInput = document.getElementById('notification-user-id');
+		const target = document.getElementById('notification-target');
+		const form = document.getElementById('notification-form');
+
+		if (!modal || !userIdInput || !target || !form) return;
+
+		const openModal = (detail) => {
+			userIdInput.value = detail?.userId ?? '';
+			const safeEmail =
+				detail?.email && detail.email !== '—' ? ` (${detail.email})` : '';
+			target.textContent = detail?.userName
+				? `Destino: ${detail.userName}${safeEmail}`
+				: 'Selecciona un usuario para enviar';
+			modal.classList.remove('hidden');
+			modal.classList.add('flex');
+		};
+
+		const closeModal = () => {
+			modal.classList.add('hidden');
+			modal.classList.remove('flex');
+		};
+
+		document.addEventListener('open-notification-modal', (event) => {
+			openModal(event.detail || {});
+		});
+
+		modal
+			.querySelectorAll('[data-close-notification-modal]')
+			.forEach((button) => {
+				button.addEventListener('click', closeModal);
+			});
+
+		modal.addEventListener('click', (event) => {
+			if (event.target === modal) closeModal();
+		});
+
+		form.addEventListener('submit', () => {
+			const submitButton = form.querySelector('button[type="submit"]');
+			if (submitButton) submitButton.setAttribute('disabled', 'true');
+		});
+	})();
+</script>

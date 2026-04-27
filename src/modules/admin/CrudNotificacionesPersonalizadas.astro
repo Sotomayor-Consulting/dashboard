@@ -1,26 +1,17 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
 import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
-import DataTable from '@components/ui/DataTable.astro';
-import AvatarCell from '@components/ui/AvatarCell.astro';
-import StackedText from '@components/ui/StackedText.astro';
-import StatusBadge from '@components/ui/StatusBadge.astro';
 import { getAllUsuarios } from '@lib/tablas/users/usuarios';
 import { RolesGeneralUsers } from '@lib/tablas/utils/roles/roles';
+import NotificacionesUsuariosTable from '@modules/admin/views/NotificacionesUsuariosTable';
 
 const supabase = Astro.locals.supabase;
 const [usuarios, roles] = await Promise.all([
 	getAllUsuarios(supabase),
 	RolesGeneralUsers(supabase),
 ]);
-
-const inputClasses =
-	'dark:bg-black-900 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[#967432] focus:ring-[#967432] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-[#967432] dark:focus:ring-[#967432]';
-const labelClasses =
-	'mb-2 block text-sm font-medium text-gray-900 dark:text-white';
 ---
 
-<script src="@lib/alpinejs/alpine.js"></script>
 <div
 	class="block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
@@ -36,117 +27,8 @@ const labelClasses =
 	/>
 </div>
 
-<DataTable
-	headers={[
-		'Foto',
-		'Nombre',
-		'Compañía',
-		'Cargo',
-		'País',
-		'Estado',
-		'Rol',
-		'Acciones',
-	]}
-	noRowsMessage="No hay usuarios"
-	noResultsMessage="No se encontraron usuarios"
->
-	{
-		usuarios?.map((user) => (
-			<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
-				<td class="w-4 pl-4">
-					<AvatarCell src={user.avatar_url} name={user.nombre} />
-				</td>
-				<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">
-					<StackedText
-						title={`${user.nombre} ${user.apellido}`}
-						subtitle={user.correo}
-					/>
-				</td>
-				<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-					{user.organizacion}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{user.cargo}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{user.countries?.name ?? '—'}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					<StatusBadge active={user.estado === 'activo'} label={user.estado} />
-				</td>
-				<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-					<div class="flex items-center gap-1">
-						{roles?.map(
-							(rol) =>
-								user.user_id === rol.user_id &&
-								(() => {
-									let badgeClass = 'text-xs font-medium px-1.5 py-0.5 rounded ';
-
-									switch (rol.roles.name) {
-										case 'admin':
-											badgeClass += 'bg-danger-soft text-fg-danger-strong';
-											break;
-										case 'cliente':
-											badgeClass += 'bg-success-soft text-fg-success-strong';
-											break;
-										case 'partner':
-											badgeClass += 'bg-warning-soft text-fg-warning';
-											break;
-										case 'operaciones':
-											badgeClass += 'bg-warning-soft text-fg-warning';
-											break;
-										default:
-											badgeClass += 'bg-success-soft text-fg-success-strong';
-									}
-
-									return <span class={badgeClass}>{rol.roles.name}</span>;
-								})(),
-						)}
-					</div>
-				</td>
-				<td class="flex space-x-2 p-4">
-					<button
-						data-modal-target="send-email-modal"
-						data-modal-toggle="send-email-modal"
-						data-user-notification
-						data-user-id={user.user_id}
-						class="block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-						type="button"
-					>
-						Enviar notificación
-					</button>
-				</td>
-			</tr>
-		))
-	}
-</DataTable>
-
-<script is:inline>
-	document.addEventListener('DOMContentLoaded', function () {
-		// Obtener todos los botones de notificación
-		const notificationButtons = document.querySelectorAll(
-			'button[data-user-notification]',
-		);
-
-		notificationButtons.forEach(function (button) {
-			button.addEventListener('click', function () {
-				// Obtener el user_id del dataset
-				const userId = this.getAttribute('data-user-id');
-
-				// Buscar el input en el modal por su name
-				const userInput = document.querySelector(
-					'input[name="user_id_modal_name"]',
-				);
-
-				if (userInput && userId) {
-					// Asignar el valor
-					userInput.value = userId;
-				} else {
-					console.log('No se encontró el input o no hay user_id');
-					console.log('User ID desde dataset:', userId);
-					console.log('Input encontrado:', userInput);
-				}
-			});
-		});
-	});
-</script>
+<NotificacionesUsuariosTable
+	client:load
+	usuarios={usuarios ?? []}
+	roles={roles ?? []}
+/>

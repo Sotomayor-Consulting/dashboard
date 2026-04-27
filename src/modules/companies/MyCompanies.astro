@@ -13,28 +13,33 @@ const empresas = userId
 	? await getEmpresasGenenralById(supabase, userId)
 	: null;
 
-const paths = [{ label: 'Inicio', href: '/' }, { label: 'Mis empresas' }];
+const paths = [
+	{ label: 'Inicio', href: '/' },
+	{ label: 'Mis incorporaciones' },
+];
 ---
 
 <SharedBreadcrumb paths={paths} />
 
 <div class="px-4">
 	<h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-		Tus empresas
+		Tus incorporaciones
 	</h1>
 
 	<div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 		{
 			(empresas?.length ?? 0) === 0 ? (
 				<div class="col-span-3 flex flex-col items-center rounded-lg border p-6 text-center text-gray-600 dark:text-gray-300">
-					<h3 class="mb-5 text-lg font-semibold">No tienes empresas aún</h3>
+					<h3 class="mb-5 text-lg font-semibold">
+						No tienes incorporaciones aún
+					</h3>
 					<Image src={imagen} alt="Sin empresas" width={400} height={300} />
 				</div>
 			) : (
 				empresas?.map((fr) => (
 					<div class="rounded-lg border border-gray-200 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-700 dark:bg-[#28314c] dark:hover:bg-[#101522]">
 						<a
-							href={`/my-companies/${fr.empresa_incorporacion_id}`}
+							href={`/my-companies/${fr.empresa_incorporacion_id}/dashboard`}
 							class="flex h-full flex-col items-center p-6 md:flex-row"
 						>
 							<Image

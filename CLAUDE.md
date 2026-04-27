@@ -169,7 +169,9 @@ No existe `tailwind.config.js`. Toda la config está en `src/styles/global.css` 
 
 - `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY` — Supabase client
 - `SUPABASE_SERVICE_ROLE_KEY` — admin client
-- `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS`, `MAIL_FROM` — Nodemailer
+- `BREVO_SMTP_HOST`, `BREVO_SMTP_PORT`, `BREVO_SMTP_USER`, `BREVO_SMTP_PASSWORD`, `BREVO_SMTP_FROM_EMAIL`, `BREVO_SMTP_FROM_NAME` — SMTP de Brevo (recomendado)
+- `SMTP_SERVER`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM`, `EMAIL_FROM_NAME` — compatibilidad
+- `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS`, `MAIL_FROM` — compatibilidad legada
 - `SUPABASE_OAUTH_REDIRECT_TO` — (opcional) OAuth redirect en producción
 
 ## Conventions

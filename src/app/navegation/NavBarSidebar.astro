@@ -72,10 +72,10 @@ const quickActions = [
 
 <nav
 	id="navbar-sidebar"
-	class="dark:bg-black-900 bg-white fixed top-0 right-0 left-0 z-30 h-14 w-full border-b border-gray-300/90 dark:border-gray-600/80"
+	class="dark:bg-black-900 fixed top-0 right-0 left-0 z-30 h-14 w-full border-b border-gray-300/90 bg-white dark:border-gray-600/80"
 	transition:persist="navbar"
 >
-	<div class="h-full pl-0 pr-3 lg:pr-5">
+	<div class="h-full pr-3 pl-0 lg:pr-5">
 		<div class="flex h-full items-center justify-between">
 			<div class="flex min-w-0 items-center justify-start">
 				<button
@@ -124,7 +124,7 @@ const quickActions = [
 				</a>
 
 				<div
-					class="hidden h-full items-center justify-center border-r border-gray-300/90 px-2 dark:border-gray-600/80 lg:flex"
+					class="hidden h-full items-center justify-center border-r border-gray-300/90 px-2 lg:flex dark:border-gray-600/80"
 					style="width: var(--sb-divider-x, 3rem);"
 				>
 					<a href="/" class="flex items-center justify-center">
@@ -142,44 +142,62 @@ const quickActions = [
 				</div>
 
 				<div class="hidden min-w-0 flex-col justify-center pl-4 lg:flex">
-					<p class="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
+					<p
+						class="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400"
+					>
 						{sectionLabel}
 					</p>
-					<nav aria-label="Breadcrumb" class="mt-0.5 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-						{breadcrumbItems.map((crumb, idx) => (
-							<>
-								{idx > 0 && <Icon name="ri:arrow-right-s-line" class="h-3 w-3" />}
-								<a
-									href={crumb.href}
-									class:list={{
-										'transition-colors hover:text-gray-700 dark:hover:text-gray-200': true,
-										'font-semibold text-gray-900 dark:text-white':
-											idx === breadcrumbItems.length - 1,
-									}}
-								>
-									{crumb.label}
-								</a>
-							</>
-						))}
+					<nav
+						aria-label="Breadcrumb"
+						class="mt-0.5 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"
+					>
+						{
+							breadcrumbItems.map((crumb, idx) => (
+								<>
+									{idx > 0 && (
+										<Icon name="ri:arrow-right-s-line" class="h-3 w-3" />
+									)}
+									<a
+										href={crumb.href}
+										class:list={{
+											'transition-colors hover:text-gray-700 dark:hover:text-gray-200': true,
+											'font-semibold text-gray-900 dark:text-white':
+												idx === breadcrumbItems.length - 1,
+										}}
+									>
+										{crumb.label}
+									</a>
+								</>
+							))
+						}
 					</nav>
 				</div>
 			</div>
 
 			<div class="flex items-center gap-1.5">
 				<div class="hidden items-center gap-1 pr-1 lg:flex">
-					{quickActions.map((action) => (
-						<a
-							href={action.href}
-							target={action.href.startsWith('http') ? '_blank' : undefined}
-							rel={action.href.startsWith('http') ? 'noreferrer noopener' : undefined}
-							class="inline-flex h-9 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
-						>
-							<Icon name={action.icon} class="h-5 w-5" />
-							<span>{action.label}</span>
-						</a>
-					))}
+					{
+						quickActions.map((action) => (
+							<a
+								href={action.href}
+								target={action.href.startsWith('http') ? '_blank' : undefined}
+								rel={
+									action.href.startsWith('http')
+										? 'noreferrer noopener'
+										: undefined
+								}
+								class="inline-flex h-9 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+							>
+								<Icon name={action.icon} class="h-5 w-5" />
+								<span>{action.label}</span>
+							</a>
+						))
+					}
 				</div>
-				<div class="mx-1 hidden h-5 w-px bg-gray-300/90 dark:bg-gray-600/80 lg:block"></div>
+				<div
+					class="mx-1 hidden h-5 w-px bg-gray-300/90 lg:block dark:bg-gray-600/80"
+				>
+				</div>
 				<div>
 					<!-- Notifications -->
 					<button
@@ -201,7 +219,7 @@ const quickActions = [
 						>
 						{
 							totalUnread > 0 && (
-								<span class="absolute -right-1.5 -top-1.5 inline-flex h-5 w-5 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 text-[10px] font-bold text-white dark:border-[#223848]">
+								<span class="absolute -top-1.5 -right-1.5 inline-flex h-5 w-5 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 text-[10px] font-bold text-white dark:border-[#223848]">
 									{totalUnread}
 								</span>
 							)
@@ -282,7 +300,7 @@ const quickActions = [
 							}
 						</div>
 						<a
-							href="/notificaciones"
+							href="/notifications"
 							class="dark:bg-black-800 group text-black-600 hover:text-black-700 block bg-gray-50 py-2 text-center text-base font-normal hover:bg-gray-100 dark:text-white dark:hover:bg-[#192033]/50 dark:hover:underline"
 						>
 							<div class="inline-flex items-center gap-2">
@@ -295,7 +313,10 @@ const quickActions = [
 						</a>
 					</div>
 				</div>
-				<div class="mx-0.5 hidden h-5 w-px bg-gray-300/90 dark:bg-gray-600/80 lg:block"></div>
+				<div
+					class="mx-0.5 hidden h-5 w-px bg-gray-300/90 lg:block dark:bg-gray-600/80"
+				>
+				</div>
 				<ColorModeSwitcher />
 			</div>
 		</div>

@@ -320,7 +320,7 @@ const einDisplayValue = maskedEin ?? (import.meta.env.DEV ? '12-34*****' : null)
 			<div class="w-fit text-start">
 				<span
 					class="text-xl leading-none font-bold text-gray-900 sm:text-2xl dark:text-white"
-					>{empresa.estado_de_incorporacion}</span
+					>{empresa?.estado_de_incorporacion || ''}</span
 				>
 				<h3 class="w-fit text-base font-light text-gray-500 dark:text-gray-400">
 					Estado de incorporación
