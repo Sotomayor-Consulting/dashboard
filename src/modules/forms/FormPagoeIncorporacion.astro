@@ -7,10 +7,6 @@ import { ListaServiciosStripe } from '@lib/tablas/services/servicios';
 const User = Astro.locals.user;
 const userId = User?.id || '';
 const supabase = Astro.locals.supabase;
-const stripePublishableKey =
-	process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ??
-	import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ??
-	'';
 
 const [empresas, servicios] = await Promise.all([
 	getIncorporacionesEnProceso(supabase, userId),
@@ -24,7 +20,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 ---
 
 <!-- ========== MAIN CONTENT ========== -->
-<main id="content" class={userId}>
+<main id="content" class={userId} data-user-id={userId}>
 	<div class="overflow-hidden">
 		<div class="relative flex h-[110vh] flex-col items-center pt-5" id="panel1">
 			<div class="mx-auto mb-10 max-w-2xl text-center">
@@ -389,6 +385,20 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 						)
 					}
 				</div>
+
+				<p
+					id="checkout-status"
+					class="mt-8 text-center text-sm text-gray-600 dark:text-neutral-400"
+				>
+				</p>
+
+				<div class="mt-6 flex items-center justify-center gap-2">
+					<p class="text-base font-normal text-gray-500 dark:text-gray-400">
+						Pago seguro gestionado por:
+					</p>
+					<Stripelogo width={80} />
+				</div>
+
 				<div class="mt-10 flex items-center justify-center gap-4">
 					<button
 						type="button"
@@ -401,383 +411,13 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 						id="btn-paso2"
 						class="bg-black-600 hover:bg-black-600/80 focus:bg-black-600/80 inline-flex w-fit items-center gap-x-2 rounded-lg border border-transparent px-4 py-3 text-center text-sm font-medium text-white focus:outline-hidden disabled:pointer-events-none disabled:opacity-50"
 					>
-						Continuar</button
+						Ir a pagar</button
 					>
-				</div>
-			</div>
-		</div>
-		<div class="relative hidden" id="panel3">
-			<div id="step-payment" class="grid md:grid-cols-2">
-				<div
-					class="dark:bg-black-900 row-start-2 mx-auto mt-10 mb-16 w-full place-self-center justify-self-center rounded-2xl border border-gray-200 bg-white/80 p-6 shadow-sm md:row-start-1 md:w-4/5 dark:border-neutral-800"
-				>
-					<div
-						id="stripe-config"
-						data-pk={stripePublishableKey}
-						data-id={userId}
-						class="hidden"
-					>
-					</div>
-					<h3
-						class="mb-2 text-xl font-semibold text-gray-800 dark:text-neutral-100"
-					>
-						Completa tu pago
-					</h3>
-					<p
-						class="mb-4 text-base text-gray-600 dark:text-neutral-400"
-						id="selected-plan-summary"
-					>
-						Estás pagando el plan seleccionado.
-					</p>
-
-					<form id="payment-form" class="space-y-4">
-						<div>
-							<label
-								class="mb-1 block text-sm font-medium text-gray-700 dark:text-neutral-300"
-							>
-								Datos de la tarjeta
-							</label>
-							<div
-								id="card-element"
-								class="dark:bg-black-800 rounded-lg border border-gray-300 bg-white p-3 text-neutral-700 dark:border-neutral-700"
-							>
-							</div>
-							<p id="card-errors" class="mt-2 text-sm text-red-500"></p>
-						</div>
-						<p
-							id="status-message"
-							class="text-base text-gray-600 dark:text-neutral-300"
-						>
-						</p>
-
-						<button
-							type="submit"
-							id="pay-button"
-							class="bg-black-600 hover:bg-black-600/80 inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-transparent px-4 py-3 text-sm font-medium text-white focus:outline-hidden disabled:pointer-events-none disabled:opacity-50"
-						>
-							Pagar ahora
-						</button>
-
-						<button
-							type="button"
-							id="btn-back"
-							class="dark:bg-black-900 mt-2 inline-flex w-full items-center justify-center gap-x-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-700"
-						>
-							Volver a elegir plan
-						</button>
-					</form>
-				</div>
-
-				<div class="mt-10 mb-16 w-full grow md:w-3/5">
-					<div
-						id="price-summary"
-						class="dark:bg-black-900 space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 dark:border-gray-700"
-					>
-						<div class="space-y-2">
-							<dl class="flex items-center justify-between gap-4">
-								<dt
-									class="text-base font-normal text-gray-500 dark:text-gray-400"
-								>
-									Precio del plan
-								</dt>
-								<dd
-									id="summary-base"
-									class="text-base font-medium text-gray-900 dark:text-white"
-								>
-									$0.00
-								</dd>
-							</dl>
-
-							<dl class="flex items-center justify-between gap-4">
-								<dt
-									class="text-base font-normal text-gray-500 dark:text-gray-400"
-								>
-									Tarifas de procesamiento
-								</dt>
-								<dd
-									id="summary-fee"
-									class="text-base font-medium text-gray-900 dark:text-white"
-								>
-									$0.00
-								</dd>
-							</dl>
-						</div>
-
-						<dl
-							class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700"
-						>
-							<dt class="text-base font-bold text-gray-900 dark:text-white">
-								Total
-							</dt>
-							<dd
-								id="summary-total"
-								class="text-base font-bold text-gray-900 dark:text-white"
-							>
-								$0.00
-							</dd>
-						</dl>
-					</div>
-
-					<div class="mt-6 flex items-center justify-center gap-2">
-						<p class="text-base font-normal text-gray-500 dark:text-gray-400">
-							Pago seguro gestionado por:
-						</p>
-						<Stripelogo width={80} />
-					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </main>
-
-<script id="stripe-js" src="https://js.stripe.com/v3/"></script>
-
-<script is:inline>
-	function initIncorporacionPaymentConfig() {
-		const cfg = document.getElementById('stripe-config');
-		if (!cfg || cfg.dataset.paymentConfigInitialized === 'true') return;
-
-		if (typeof window.Stripe !== 'function') {
-			const stripeScript = document.getElementById('stripe-js');
-			if (stripeScript && cfg.dataset.paymentConfigWaiting !== 'true') {
-				cfg.dataset.paymentConfigWaiting = 'true';
-				stripeScript.addEventListener('load', initIncorporacionPaymentConfig, {
-					once: true,
-				});
-			}
-			return;
-		}
-
-		cfg.dataset.paymentConfigInitialized = 'true';
-
-		// --- NUEVO: toggle de facturación (mostrar/ocultar y required) ---
-		const facturaCheckbox = document.getElementById('factura-checkbox');
-		const contFacturacion = document.getElementById('contenedor-facturacion');
-		function setBillingRequired(on) {
-			if (!contFacturacion) return;
-			const fields = contFacturacion.querySelectorAll(
-				'input, select, textarea',
-			);
-			fields.forEach((el) => {
-				el.required = !!on;
-			});
-		}
-		if (facturaCheckbox && contFacturacion) {
-			// estado inicial
-			contFacturacion.classList.toggle('hidden', !facturaCheckbox.checked);
-			setBillingRequired(facturaCheckbox.checked);
-			// cambio
-			facturaCheckbox.addEventListener('change', () => {
-				const on = facturaCheckbox.checked;
-				contFacturacion.classList.toggle('hidden', !on);
-				setBillingRequired(on);
-			});
-		}
-		// --- FIN NUEVO ---
-
-		// 1) Config Stripe
-		const pk = cfg.dataset.pk;
-		const userId = cfg.dataset.id; // user_id del dataset
-		if (!pk || !userId) {
-			console.error('Stripe publishable key or user ID missing', {
-				hasPublishableKey: Boolean(pk),
-				hasUserId: Boolean(userId),
-			});
-			return;
-		}
-
-		// 2) Inicializar Stripe y Elements
-		const stripe = window.Stripe(pk);
-		const elements = stripe.elements();
-		const cardElement = elements.create('card', {
-			hidePostalCode: true,
-			style: {
-				base: {
-					color: '#88898a',
-					fontFamily:
-						'"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-					fontSize: '14px',
-					'::placeholder': { color: '#9ca3af' },
-					iconColor: '#facc15',
-				},
-				invalid: { color: '#f97373', iconColor: '#f97373' },
-			},
-		});
-		cardElement.mount('#card-element');
-
-		// Exponer para el segundo script
-		window.stripeInstance = stripe;
-		window.cardElementInstance = cardElement;
-		window.userIdGlobal = userId;
-
-		// 3) DOM refs
-		const btnContinue = document.getElementById('btn-continue');
-		const btnBack = document.getElementById('btn-back');
-		const stepPayment = document.getElementById('step-payment');
-		const paymentForm = document.getElementById('payment-form');
-		const cardErrors = document.getElementById('card-errors');
-		const statusMessage = document.getElementById('status-message');
-		const payButton = document.getElementById('pay-button');
-		const planSummary = document.getElementById('selected-plan-summary');
-
-		// Resumen de precios
-		const baseEl = document.getElementById('summary-base');
-		const feeEl = document.getElementById('summary-fee');
-		const totalEl = document.getElementById('summary-total');
-
-		// selector de empresa (ya existía)
-		const empresaSelect = document.getElementById('empresa-select');
-
-		let currentClientSecret = null;
-
-		// Helpers selección plan/empresa
-		function getSelectedPlan() {
-			const radio = document.querySelector('input[name="plan"]:checked');
-			if (!radio) return null;
-			const label = radio.closest('label') || radio.parentElement;
-			const titleEl = label ? label.querySelector('h4') : null;
-			const rawPrice = radio.dataset.price;
-			const price = rawPrice ? parseFloat(rawPrice) : NaN;
-			return {
-				id: radio.value,
-				label: titleEl ? titleEl.textContent.trim() : 'Plan seleccionado',
-				price,
-			};
-		}
-		function getSelectedEmpresaId() {
-			if (!empresaSelect) return null;
-			const v = empresaSelect.value;
-			return v && v.length ? v : null;
-		}
-		function getSelectedEmpresaLabel() {
-			if (!empresaSelect) return null;
-			const opt = empresaSelect.options[empresaSelect.selectedIndex];
-			return opt ? opt.textContent.trim() : null;
-		}
-
-		// Resumen precios
-		function formatUSD(amount) {
-			if (!Number.isFinite(amount)) return '$0.00';
-			return '$' + amount.toFixed(2);
-		}
-
-		function updatePriceSummary(plan) {
-			console.log('DEBUG updatePriceSummary:', plan);
-			if (!plan || !Number.isFinite(plan.price)) {
-				baseEl.textContent = '$0.00';
-				feeEl.textContent = '$0.00';
-				totalEl.textContent = '$0.00';
-				return;
-			}
-
-			const base = plan.price;
-			const feePercent = 0.045;
-			const fee = base * feePercent;
-			const total = base + fee;
-
-			// Actualizar el texto del resumen
-			let summaryText = `Estás pagando: ${plan.label}`;
-
-			const empresaLabel = getSelectedEmpresaLabel();
-			if (empresaLabel) {
-				summaryText += ` | Empresa: ${empresaLabel}`;
-			}
-
-			planSummary.textContent = summaryText;
-
-			baseEl.textContent = formatUSD(plan.price);
-			feeEl.textContent = formatUSD(fee);
-			totalEl.textContent = formatUSD(total);
-		}
-
-		// Crear PaymentIntent
-		async function createPaymentIntent(planId, userId, empresaId) {
-			statusMessage.textContent = 'Preparando el pago...';
-			payButton.disabled = true;
-			try {
-				const res = await fetch('/api/payment/payment-intent', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						planId,
-						userId,
-						empresaId,
-					}),
-				});
-				const data = await res.json();
-				if (!res.ok || !data.clientSecret)
-					throw new Error(data.error || 'Error al crear el pago');
-				currentClientSecret = data.clientSecret;
-				statusMessage.textContent = 'Ingresa los datos de tu tarjeta.';
-			} catch (err) {
-				console.error(err);
-				statusMessage.textContent =
-					'No se pudo preparar el pago. Intenta nuevamente.';
-			} finally {
-				payButton.disabled = false;
-			}
-		}
-
-		// --- NUEVO: recolectar datos de facturación con TUS IDs actuales ---
-		function getBillingPayload() {
-			const personaEl = document.querySelector(
-				'input[name="bill-legal-type"]:checked',
-			);
-			return {
-				userId,
-				empresaId: getSelectedEmpresaId(),
-				persona: personaEl ? personaEl.value : '', // "natural" | "juridica"
-				nombre_razon:
-					document.getElementById('bill-razon')?.value?.trim() || '',
-				email: document.getElementById('bill-email')?.value?.trim() || '',
-				telefono_codigo:
-					document.getElementById('bill-phone-country')?.value || '', // ej. "+593"
-				telefono_numero:
-					document.getElementById('bill-phone')?.value?.trim() || '',
-				id_tipo: document.getElementById('bill-id-type')?.value || '', // "Cedula", "RUC", etc.
-				id_numero:
-					document.getElementById('bill-id-number')?.value?.trim() || '',
-				direccion:
-					document.getElementById('bill-address1')?.value?.trim() || '',
-				ciudad: document.getElementById('bill-city')?.value?.trim() || '',
-				pais: document.getElementById('bill-country')?.value || '', // ISO del país
-			};
-		}
-		async function enviarFacturacion(payload) {
-			try {
-				const res = await fetch('/api/facturacion/upsert', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(payload),
-				});
-				const data = await res.json();
-				if (!res.ok) {
-					console.error('[Billing] error:', data);
-					return false;
-				}
-				return true;
-			} catch (e) {
-				console.error('[Billing] network error:', e);
-				return false;
-			}
-		}
-		// --- FIN NUEVO ---
-	}
-
-	if (document.readyState === 'loading') {
-		document.addEventListener(
-			'DOMContentLoaded',
-			initIncorporacionPaymentConfig,
-			{
-				once: true,
-			},
-		);
-	} else {
-		initIncorporacionPaymentConfig();
-	}
-
-	document.addEventListener('astro:page-load', initIncorporacionPaymentConfig);
-</script>
 
 <script>
 	function initIncorporacionPaymentFlow() {
@@ -785,23 +425,28 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 		if (!root || root.dataset.paymentFlowInitialized === 'true') return;
 		root.dataset.paymentFlowInitialized = 'true';
 
-		const boton = document.getElementById('btn-paso1');
-		const regresar = document.getElementById('btn-atras');
-		const boton2 = document.getElementById('btn-paso2');
-		const div2 = document.getElementById('panel2');
-		const div1 = document.getElementById('panel1');
+		const userId = root.dataset.userId || '';
 
-		boton?.addEventListener('click', function () {
-			div1?.classList.add('hidden');
-			div2?.classList.remove('hidden');
+		const btnPaso1 = document.getElementById('btn-paso1');
+		const btnAtras = document.getElementById('btn-atras');
+		const btnPaso2 = document.getElementById(
+			'btn-paso2',
+		) as HTMLButtonElement | null;
+		const panel1 = document.getElementById('panel1');
+		const panel2 = document.getElementById('panel2');
+		const status = document.getElementById('checkout-status');
+
+		btnPaso1?.addEventListener('click', () => {
+			panel1?.classList.add('hidden');
+			panel2?.classList.remove('hidden');
 		});
 
-		regresar?.addEventListener('click', function () {
-			div2?.classList.add('hidden');
-			div1?.classList.remove('hidden');
+		btnAtras?.addEventListener('click', () => {
+			panel2?.classList.add('hidden');
+			panel1?.classList.remove('hidden');
 		});
 
-		boton2?.addEventListener('click', function () {
+		btnPaso2?.addEventListener('click', async () => {
 			const radio = document.querySelector(
 				'input[name="plan"]:checked',
 			) as HTMLInputElement | null;
@@ -809,15 +454,6 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				alert('Por favor selecciona un plan antes de continuar.');
 				return;
 			}
-			const label = radio.closest('label') || radio.parentElement;
-			const titleEl = label ? label.querySelector('h4') : null;
-			const rawPrice = radio.dataset.price;
-			const price = rawPrice ? parseFloat(rawPrice) : NaN;
-			const plan = {
-				id: radio.value,
-				label: titleEl ? titleEl.textContent.trim() : 'Plan seleccionado',
-				price,
-			};
 
 			const empresaSelect = document.getElementById(
 				'empresa-select',
@@ -826,191 +462,45 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				alert('Por favor selecciona la empresa para la que vas a pagar.');
 				return;
 			}
-			const empresaId = empresaSelect.value;
-			const empresaLabel =
-				empresaSelect.options[
-					empresaSelect.selectedIndex
-				]?.textContent?.trim() || '';
 
-			const planSummary = document.getElementById('selected-plan-summary');
-			const baseEl = document.getElementById('summary-base');
-			const feeEl = document.getElementById('summary-fee');
-			const totalEl = document.getElementById('summary-total');
-
-			const empresaInfo = empresaLabel ? ` | Empresa: ${empresaLabel}` : '';
-			if (planSummary)
-				planSummary.textContent = `Estás pagando: ${plan.label}${empresaInfo}`;
-
-			if (!plan || !Number.isFinite(plan.price)) {
-				if (baseEl) baseEl.textContent = '$0.00';
-				if (feeEl) feeEl.textContent = '$0.00';
-				if (totalEl) totalEl.textContent = '$0.00';
-			} else {
-				const base = plan.price;
-				const feePercent = 0.045;
-				const fee = base * feePercent;
-				const total = base + fee;
-				if (baseEl) baseEl.textContent = '$' + base.toFixed(2);
-				if (feeEl) feeEl.textContent = '$' + fee.toFixed(2);
-				if (totalEl) totalEl.textContent = '$' + total.toFixed(2);
+			if (!userId) {
+				alert('No se detectó tu sesión. Vuelve a iniciar sesión.');
+				return;
 			}
 
-			const statusMessage = document.getElementById('status-message');
-			const payButton = document.getElementById(
-				'pay-button',
-			) as HTMLButtonElement | null;
-			const cfg = document.getElementById('stripe-config');
-			const userId = cfg?.dataset.id;
+			btnPaso2.disabled = true;
+			if (status) status.textContent = 'Redirigiendo a Stripe…';
 
-			async function createPaymentIntentAndShow() {
-				if (statusMessage) statusMessage.textContent = 'Preparando el pago...';
-				if (payButton) payButton.disabled = true;
-				try {
-					const res = await fetch('/api/payment/payment-intent', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							planId: plan.id,
-							userId,
-							empresaId,
-						}),
-					});
-					const data = await res.json();
-					if (!res.ok || !data.clientSecret)
-						throw new Error(data.error || 'Error al crear el pago');
-					(window as any).currentClientSecret = data.clientSecret;
-					if (statusMessage)
-						statusMessage.textContent = 'Ingresa los datos de tu tarjeta.';
-				} catch (err) {
-					console.error(err);
-					if (statusMessage)
-						statusMessage.textContent =
-							'No se pudo preparar el pago. Intenta nuevamente.';
-				} finally {
-					if (payButton) payButton.disabled = false;
+			try {
+				const res = await fetch('/api/payment/checkout-session', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						planId: radio.value,
+						userId,
+						empresaId: empresaSelect.value,
+					}),
+				});
+				const data = await res.json();
+				if (!res.ok || !data.url) {
+					throw new Error(data.error || 'No se pudo iniciar el pago');
 				}
+				window.location.href = data.url;
+			} catch (err) {
+				console.error('[checkout]', err);
+				if (status)
+					status.textContent =
+						'No se pudo iniciar el pago. Intenta nuevamente.';
+				btnPaso2.disabled = false;
 			}
-
-			createPaymentIntentAndShow();
-
-			div2?.classList.add('hidden');
-			document.getElementById('panel3')?.classList.remove('hidden');
-			document.getElementById('step-payment')?.classList.remove('hidden');
 		});
-
-		const btnBack = document.getElementById('btn-back');
-		btnBack?.addEventListener('click', function () {
-			document.getElementById('step-payment')?.classList.add('hidden');
-			document.getElementById('panel3')?.classList.add('hidden');
-			div2?.classList.remove('hidden');
-		});
-
-		const paymentForm = document.getElementById('payment-form');
-		const statusMessage = document.getElementById('status-message');
-		const cardErrors = document.getElementById('card-errors');
-		const payButton = document.getElementById(
-			'pay-button',
-		) as HTMLButtonElement | null;
-
-		if (paymentForm) {
-			paymentForm.addEventListener('submit', async (event) => {
-				event.preventDefault();
-
-				const stripe = (window as any).stripeInstance;
-				const cardElement = (window as any).cardElementInstance;
-				if (!stripe || !cardElement) {
-					if (statusMessage) {
-						statusMessage.textContent =
-							'El formulario de pago aun no esta listo. Espera un momento e intenta nuevamente.';
-					}
-					if (cardErrors) {
-						cardErrors.textContent =
-							'No se pudo inicializar Stripe correctamente.';
-					}
-					return;
-				}
-
-				const currentClientSecret = (window as any).currentClientSecret;
-				if (!currentClientSecret) {
-					if (statusMessage)
-						statusMessage.textContent =
-							'El pago no está listo. Vuelve a intentar (elige el plan de nuevo).';
-					return;
-				}
-
-				if (payButton) payButton.disabled = true;
-				if (statusMessage) statusMessage.textContent = 'Procesando pago...';
-				if (cardErrors) cardErrors.textContent = '';
-
-				try {
-					const { error, paymentIntent } = await stripe.confirmCardPayment(
-						currentClientSecret,
-						{ payment_method: { card: cardElement } },
-					);
-
-					if (error) {
-						console.error(error);
-						if (cardErrors)
-							cardErrors.textContent =
-								error.message || 'Error al procesar el pago.';
-						if (statusMessage)
-							statusMessage.textContent =
-								'No se pudo completar el pago. Intenta nuevamente.';
-						if (payButton) payButton.disabled = false;
-						return;
-					}
-
-					if (paymentIntent && paymentIntent.status === 'succeeded') {
-						if (statusMessage)
-							statusMessage.textContent =
-								'Pago realizado con éxito. Registrando la información...';
-
-						const res = await fetch('/api/payment/register', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
-						});
-						const data = await res.json();
-						console.log('Register response:', { status: res.status, data });
-						if (!res.ok) {
-							console.error('Error registrando pago en BD:', data);
-							if (statusMessage)
-								statusMessage.textContent =
-									'El pago se realizó, pero hubo un problema registrándolo internamente. Nuestro equipo lo revisará. Error: ' +
-									(data.error || JSON.stringify(data));
-							if (payButton) payButton.disabled = false;
-							return;
-						} else {
-							console.log('Pago registrado en BD:', data);
-							if (statusMessage)
-								statusMessage.textContent =
-									'Pago realizado con éxito. Estamos iniciando el proceso de incorporación de tu LLC.';
-						}
-
-						window.location.href = '/';
-					} else {
-						if (statusMessage)
-							statusMessage.textContent =
-								'No se pudo completar el pago. Intenta nuevamente.';
-						if (payButton) payButton.disabled = false;
-					}
-				} catch (err) {
-					console.error(err);
-					if (statusMessage)
-						statusMessage.textContent = 'Ocurrió un error al procesar el pago.';
-					if (payButton) payButton.disabled = false;
-				}
-			});
-		}
 	}
 
 	if (document.readyState === 'loading') {
 		document.addEventListener(
 			'DOMContentLoaded',
 			initIncorporacionPaymentFlow,
-			{
-				once: true,
-			},
+			{ once: true },
 		);
 	} else {
 		initIncorporacionPaymentFlow();
