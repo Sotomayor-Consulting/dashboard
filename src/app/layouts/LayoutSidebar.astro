@@ -17,6 +17,12 @@ import {
 	getEstadoIncorporacionByUserId,
 	getBannerIncorporacionData,
 } from '@lib/tablas/companies/empresa_incorporaciones';
+import {
+	getEmpresasForSwitcher,
+	resolveActiveCompany,
+	type EmpresaSwitcherItem,
+} from '@lib/tablas/companies/empresas';
+import { ACTIVE_COMPANY_COOKIE } from '@lib/companies/active-cookie';
 
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
@@ -30,16 +36,32 @@ let usuario: any = null;
 let notificationsData: any = { notifications: [], totalUnread: 0 };
 let incorporaciones: any[] = [];
 let bannerIncorpData = { shouldShow: false, empresaId: null as string | null };
+let empresasSwitcher: EmpresaSwitcherItem[] = [];
 
 if (user && userId) {
-	[usuario, notificationsData, incorporaciones, bannerIncorpData] =
+	[usuario, notificationsData, incorporaciones, bannerIncorpData, empresasSwitcher] =
 		await Promise.all([
 			getUsuarioById(supabase, userId),
 			getNotifications(supabase, userId),
 			getEstadoIncorporacionByUserId(supabase, userId),
 			getBannerIncorporacionData(supabase, userId),
+			getEmpresasForSwitcher(supabase, userId),
 		]);
 }
+
+const activeCompany = resolveActiveCompany(
+	empresasSwitcher,
+	Astro.cookies.get(ACTIVE_COMPANY_COOKIE)?.value,
+);
+
+const routeCompanyIdMatch = Astro.url.pathname.match(
+	/^\/my-companies\/([^/]+)\//,
+);
+const routeCompanyId = routeCompanyIdMatch?.[1];
+const routeCompany = routeCompanyId
+	? empresasSwitcher.find((company) => company.id === routeCompanyId) ?? null
+	: null;
+const selectedCompany = routeCompany ?? activeCompany;
 
 // Derivar datos de banner desde los resultados
 const showBannerEnProceso =
@@ -59,7 +81,7 @@ const showBannerPartner = missingPartnerFields.length > 0;
 <LayoutCommon>
 	<NavBarSidebar usuario={usuario} notificationsData={notificationsData} />
 
-	<SideBar />
+	<SideBar empresas={empresasSwitcher} activeCompany={selectedCompany} />
 
 	<div class="dark:bg-black-900 bg-white flex overflow-hidden pt-14">
 		<div

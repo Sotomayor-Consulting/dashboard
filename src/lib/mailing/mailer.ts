@@ -4,7 +4,7 @@ const SMTP_HOST = import.meta.env.SMTP_HOST
 const SMTP_USER = import.meta.env.SMTP_USER
 const SMTP_PASS = import.meta.env.SMTP_PASS
 const EMAIL_FROM = import.meta.env.EMAIL_FROM
-const SMTP_PORT = import.meta.env.SMPT_PORT
+const SMTP_PORT = Number(import.meta.env.SMTP_PORT || 587)
 const EMAIL_FROM_NAME = import.meta.env.EMAIL_FROM_NAME
 
 if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !EMAIL_FROM) {
@@ -13,7 +13,7 @@ if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !EMAIL_FROM) {
 	);
 }
 
-const MAIL_FROM = !EMAIL_FROM
+const MAIL_FROM = !EMAIL_FROM_NAME
 	? EMAIL_FROM
 	: `"${EMAIL_FROM_NAME}" <${EMAIL_FROM}>`;
 

@@ -19,18 +19,7 @@ export const menuItems: MenuItem[] = [
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:building-2-line',
 		sequence: 10,
-		group: 'Get Started',
-		colors: 'text-cyan-700',
-	},
-	{
-		id: 'my-companies',
-		label: 'Mis incorporaciones',
-		href: '/my-companies/',
-		tooltip: 'Consulta el estado de tus incorporaciones',
-		roles: ['cliente', 'partner'],
-		svgname: 'ri:hand-coin-line',
-		sequence: 20,
-		group: 'Get Started',
+		group: 'Company',
 		colors: 'text-cyan-700',
 	},
 	{
@@ -41,7 +30,7 @@ export const menuItems: MenuItem[] = [
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:file-copy-2-line',
 		sequence: 40,
-		group: 'Get Started',
+		group: 'Company',
 		colors: 'text-cyan-700',
 	},
 	{
@@ -74,7 +63,7 @@ export const menuItems: MenuItem[] = [
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:calendar-line',
 		sequence: 70,
-		group: 'Get Started',
+		group: 'Company',
 		colors: 'text-cyan-700',
 	},
 

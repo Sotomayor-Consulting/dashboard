@@ -222,7 +222,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			custom_text: {
 				submit: { message: 'Iniciaremos tu proceso de incorporación al confirmar el pago.' },
 			},
-			invoice_creation: { enabled: true },
+			invoice_creation: { enabled: true, invoice_data: { metadata } },
 			payment_intent_data: {
 				metadata,
 				description:

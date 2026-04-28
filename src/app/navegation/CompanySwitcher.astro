@@ -1,0 +1,289 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { EmpresaSwitcherItem } from '@lib/tablas/companies/empresas';
+
+interface Props {
+	empresas: EmpresaSwitcherItem[];
+	activeCompany: EmpresaSwitcherItem | null;
+	id: string;
+}
+
+const { empresas, activeCompany, id } = Astro.props;
+
+const triggerLabel =
+	activeCompany?.nombre ??
+	(empresas.length === 0 ? 'Sin empresa' : 'Selecciona una empresa');
+const showSearch = empresas.length > 3;
+---
+
+<div
+	class="relative w-full px-2 py-2"
+	data-company-switcher
+	data-switcher-id={id}
+>
+	<button
+		type="button"
+		class="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-2 py-1 text-left shadow-md shadow-gray-200/70 transition-all hover:border-gray-300 hover:bg-gray-50/70 focus:ring-2 focus:ring-gray-300/70 focus:outline-none dark:border-gray-700 dark:bg-black-900 dark:shadow-none dark:hover:border-gray-600 dark:hover:bg-black-800/70 dark:focus:ring-gray-600/60"
+		aria-haspopup="listbox"
+		aria-expanded="false"
+		data-switcher-trigger
+	>
+		<span class="flex min-w-0 items-center gap-3">
+			<span
+				class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-black-800"
+			>
+				<Icon
+					name="ri:building-2-line"
+					class="h-5 w-5 text-gray-500 dark:text-gray-300"
+				/>
+			</span>
+			<span class="min-w-0 flex-1 overflow-hidden">
+				<span
+					class="block w-full truncate text-sm leading-5 font-semibold text-gray-900 dark:text-gray-100"
+				>
+					{triggerLabel}
+				</span>
+			</span>
+		</span>
+		<Icon
+			name="ri:arrow-down-s-line"
+			class="h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200 dark:text-gray-500"
+			data-switcher-chevron
+		/>
+	</button>
+
+	<div
+		class="absolute inset-x-0 top-full z-50 mt-2 hidden w-70 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl shadow-gray-200/70 dark:border-gray-700 dark:bg-black-900 dark:shadow-none"
+		data-switcher-panel
+		role="listbox"
+	>
+		{
+			showSearch && (
+				<div class="border-b border-gray-200/90 p-3 dark:border-gray-700/80">
+					<div class="relative">
+						<Icon
+							name="ri:search-line"
+							class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400"
+						/>
+						<input
+							type="text"
+							placeholder="Buscar empresa..."
+							class="dark:bg-black-700 w-full rounded-md border border-gray-200 bg-white py-2 pr-3 pl-9 text-sm text-gray-700 transition outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:text-gray-200 dark:focus:border-gray-500 dark:focus:ring-gray-600/40"
+							data-switcher-search
+						/>
+					</div>
+				</div>
+			)
+		}
+
+		{
+			empresas.length > 0 && (
+				<div class="max-h-60 overflow-y-auto py-2" data-switcher-list>
+					<div class="px-3 py-1.5">
+						<span class="text-[11px] font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+							Empresas
+						</span>
+					</div>
+					{empresas.map((e) => {
+						const isActive = activeCompany?.id === e.id;
+						const targetUrl = `/my-companies/${e.id}/dashboard`;
+						return (
+							<button
+								type="button"
+								data-switcher-option
+								data-company-name={e.nombre.toLowerCase()}
+								data-company-id={e.id}
+								data-target-url={targetUrl}
+								class:list={[
+									'mx-2 mb-1 flex w-[calc(100%-1rem)] cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] transition-colors',
+									isActive
+									? 'bg-gray-100 dark:bg-black-800'
+									: 'text-gray-700 hover:bg-gray-50/70 dark:text-gray-200 dark:hover:bg-black-800/70',
+								]}
+								role="option"
+								aria-selected={isActive}
+							>
+								<span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-black-800">
+									<Icon
+										name="ri:building-2-line"
+										class="h-4 w-4 text-gray-500 dark:text-gray-300"
+									/>
+								</span>
+								<span class="min-w-0 flex-1 overflow-hidden">
+									<span class="block w-full truncate text-sm leading-5 font-medium text-gray-900 dark:text-gray-100">
+										{e.nombre}
+									</span>
+									<span class="block w-full truncate text-[11px] leading-4 text-gray-500 dark:text-gray-400">
+										{e.tipo_de_negocio ?? 'Sin tipo'}
+									</span>
+								</span>
+								{isActive && (
+									<Icon
+										name="ri:check-line"
+										class="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-300"
+									/>
+								)}
+							</button>
+						);
+					})}
+					<p
+						class="hidden py-5 text-center text-xs text-gray-500 dark:text-gray-400"
+						data-switcher-empty
+					>
+						No se encontraron empresas
+					</p>
+				</div>
+			)
+		}
+
+		<div
+			class:list={[
+				'space-y-1 p-2',
+				empresas.length > 0 &&
+					'border-t border-gray-200/90 dark:border-gray-700/80',
+			]}
+		>
+			<a
+				href="/start/"
+				class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-50/70 dark:text-gray-200 dark:hover:bg-black-800/70"
+			>
+				<span
+					class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-black-800"
+				>
+					<Icon name="ri:sparkling-line" class="h-4 w-4" />
+				</span>
+				<span class="flex flex-col">
+					<span>Nueva Incorporación</span>
+					<span class="text-[11px] font-normal text-gray-500 dark:text-gray-400"
+						>Crear una nueva empresa</span
+					>
+				</span>
+			</a>
+			<a
+				href="/my-companies/agregar/"
+				class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-50/70 dark:text-gray-200 dark:hover:bg-black-800/70"
+			>
+				<span
+					class="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-black-800"
+				>
+					<Icon name="ri:add-line" class="h-4 w-4" />
+				</span>
+				<span class="flex flex-col">
+					<span>Añadir empresa existente</span>
+					<span class="text-[11px] font-normal text-gray-500 dark:text-gray-400"
+						>Vincular empresa registrada</span
+					>
+				</span>
+			</a>
+		</div>
+	</div>
+</div>
+
+<script>
+	async function selectCompany(companyId: string, targetUrl: string) {
+		if (!companyId || !targetUrl) return;
+		window.location.assign(targetUrl);
+	}
+
+	function initCompanySwitcher() {
+		const switchers = document.querySelectorAll<HTMLElement>(
+			'[data-company-switcher]',
+		);
+
+		switchers.forEach((switcher) => {
+			if (switcher.dataset.switcherInit === 'true') return;
+			switcher.dataset.switcherInit = 'true';
+
+			const trigger = switcher.querySelector<HTMLButtonElement>(
+				'[data-switcher-trigger]',
+			);
+			const panel = switcher.querySelector<HTMLElement>(
+				'[data-switcher-panel]',
+			);
+			const chevron = switcher.querySelector<HTMLElement>(
+				'[data-switcher-chevron]',
+			);
+			const searchInput = switcher.querySelector<HTMLInputElement>(
+				'[data-switcher-search]',
+			);
+			const options = Array.from(
+				panel?.querySelectorAll<HTMLButtonElement>('[data-switcher-option]') ??
+					[],
+			);
+			const emptyState = panel?.querySelector<HTMLElement>(
+				'[data-switcher-empty]',
+			);
+			if (!trigger || !panel) return;
+
+			const applyFilter = () => {
+				const query = (searchInput?.value ?? '').toLowerCase().trim();
+				let visibleCount = 0;
+
+				options.forEach((opt) => {
+					const name = opt.dataset.companyName ?? '';
+					const visible = name.includes(query);
+					opt.classList.toggle('hidden', !visible);
+					if (visible) visibleCount += 1;
+				});
+
+				if (emptyState) {
+					emptyState.classList.toggle('hidden', visibleCount > 0);
+				}
+			};
+
+			const close = () => {
+				panel.classList.add('hidden');
+				trigger.setAttribute('aria-expanded', 'false');
+				chevron?.classList.remove('rotate-180');
+				if (searchInput) {
+					searchInput.value = '';
+					applyFilter();
+				}
+			};
+			const open = () => {
+				document
+					.querySelectorAll<HTMLElement>('[data-switcher-panel]')
+					.forEach((p) => p.classList.add('hidden'));
+				panel.classList.remove('hidden');
+				trigger.setAttribute('aria-expanded', 'true');
+				chevron?.classList.add('rotate-180');
+				if (searchInput) searchInput.focus();
+			};
+
+			if (searchInput) {
+				searchInput.addEventListener('input', applyFilter);
+				applyFilter();
+			}
+
+			trigger.addEventListener('click', (ev) => {
+				ev.stopPropagation();
+				if (panel.classList.contains('hidden')) {
+					open();
+				} else {
+					close();
+				}
+			});
+
+			options.forEach((opt) => {
+				opt.addEventListener('click', (ev) => {
+					ev.preventDefault();
+					const companyId = opt.dataset.companyId ?? '';
+					const targetUrl = opt.dataset.targetUrl ?? '/';
+					if (!companyId) return;
+					close();
+					selectCompany(companyId, targetUrl);
+				});
+			});
+
+			document.addEventListener('click', (ev) => {
+				if (!switcher.contains(ev.target as Node)) close();
+			});
+
+			document.addEventListener('keydown', (ev) => {
+				if (ev.key === 'Escape') close();
+			});
+		});
+	}
+
+	document.addEventListener('astro:page-load', initCompanySwitcher);
+</script>
