@@ -1,0 +1,60 @@
+---
+import LayoutCommon from '@app/layouts/LayoutCommon.astro';
+import Stripe from 'stripe';
+
+const STRIPE_SECRET_KEY =
+	process.env.STRIPE_SECRET_KEY ?? import.meta.env.STRIPE_SECRET_KEY;
+const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
+
+const sessionId = Astro.url.searchParams.get('session_id');
+let paid = false;
+let amount = 0;
+
+if (stripe && sessionId) {
+	try {
+		const session = await stripe.checkout.sessions.retrieve(sessionId);
+		paid = session.payment_status === 'paid';
+		amount = (session.amount_total ?? 0) / 100;
+	} catch (err) {
+		console.error('[success] retrieve error:', err);
+	}
+}
+---
+
+<LayoutCommon title="Pago confirmado">
+	<main class="flex min-h-screen items-center justify-center p-6">
+		<div
+			class="dark:bg-black-900 w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-neutral-800"
+		>
+			{
+				paid ? (
+					<>
+						<h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
+							¡Pago realizado con éxito!
+						</h1>
+						<p class="mt-2 text-gray-600 dark:text-neutral-400">
+							Hemos recibido tu pago de{' '}
+							<strong>${amount.toFixed(2)} USD</strong>. Estamos iniciando el
+							proceso. Recibirás un correo con los detalles.
+						</p>
+					</>
+				) : (
+					<>
+						<h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
+							Procesando tu pago…
+						</h1>
+						<p class="mt-2 text-gray-600 dark:text-neutral-400">
+							Si el cobro fue aprobado, verás la confirmación en unos segundos.
+						</p>
+					</>
+				)
+			}
+			<a
+				href="/"
+				class="bg-black-600 hover:bg-black-600/80 mt-6 inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white"
+			>
+				Volver al inicio
+			</a>
+		</div>
+	</main>
+</LayoutCommon>

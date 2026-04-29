@@ -1,6 +1,15 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { menuItems } from '@lib/interfaz/itemsNavegacion';
+import { menuItems, type MenuItem } from '@lib/interfaz/itemsNavegacion';
+import CompanySwitcher from './CompanySwitcher.astro';
+import type { EmpresaSwitcherItem } from '@lib/tablas/companies/empresas';
+
+interface Props {
+	empresas?: EmpresaSwitcherItem[];
+	activeCompany?: EmpresaSwitcherItem | null;
+}
+
+const { empresas = [], activeCompany = null } = Astro.props;
 
 const userRoles = Astro.locals.userRoles;
 const user = Astro.locals.user;
@@ -8,16 +17,41 @@ const userId = user?.id ?? '';
 const userName = user?.user_metadata?.name ?? user?.email ?? 'Usuario';
 const userEmail = user?.email ?? '';
 
-const visibleMenu = menuItems.filter(
+const isClientOrPartner =
+	userRoles.includes('cliente') || userRoles.includes('partner');
+const showCompanySwitcher = userRoles.includes('cliente') && empresas.length > 0;
+const showClientOnlyHome =
+	userRoles.includes('cliente') &&
+	!userRoles.includes('admin') &&
+	!userRoles.includes('operaciones') &&
+	empresas.length === 0;
+
+const dynamicItems: MenuItem[] = [];
+if (isClientOrPartner && activeCompany) {
+	dynamicItems.push({
+		id: 'company-details',
+		label: 'Detalles',
+		href: `/my-companies/${activeCompany.id}/dashboard`,
+		tooltip: 'Detalles de la empresa activa',
+		roles: ['cliente', 'partner'],
+		svgname: 'ri:hand-coin-line',
+		sequence: 20,
+		group: 'Company',
+		colors: 'text-cyan-700',
+	});
+}
+
+const visibleMenu = [...menuItems, ...dynamicItems].filter(
 	(item) =>
-		(item.roles.includes('all') && userRoles.length > 0) ||
-		item.roles.includes('todos') ||
-		item.roles.some((r) => userRoles.includes(r)),
+		!showClientOnlyHome &&
+		((item.roles.includes('all') && userRoles.length > 0) ||
+			item.roles.includes('todos') ||
+			item.roles.some((r) => userRoles.includes(r))),
 );
 
 const sortedMenu = [...visibleMenu].sort((a, b) => a.sequence - b.sequence);
 
-const groupOrder = ['Get Started', 'Partner Hub', 'Admin', 'Servicios', 'Cuenta', 'General'];
+const groupOrder = ['Company', 'Partner Hub', 'Admin', 'Servicios', 'Cuenta', 'General'];
 
 const groupedMenu = sortedMenu.reduce(
 	(acc, item) => {
@@ -55,25 +89,24 @@ const inactiveClass =
 	transition:persist="sidebar-mobile"
 >
 	<div class="flex h-full flex-col">
-		<!-- Logo + close -->
-		<div class="flex items-center justify-between px-3 pt-5 pb-2">
-			<div>
-				<Icon
-					name="logo-en-azul"
-					class="block text-3xl dark:hidden"
-					title="Logo Sotomayor Consulting"
-				/>
-				<Icon
-					name="logo-en-blanco-alt"
-					class="hidden text-3xl dark:block"
-					title="Logo Sotomayor Consulting"
-				/>
-			</div>
+		<!-- Header: Company switcher + close -->
+		<div class="flex items-start gap-1 pt-3 pr-2">
+			{
+				showCompanySwitcher && (
+					<div class="min-w-0 flex-1">
+						<CompanySwitcher
+							empresas={empresas}
+							activeCompany={activeCompany}
+							id="mobile"
+						/>
+					</div>
+				)
+			}
 			<button
 				type="button"
 				data-drawer-hide="sidebar"
 				aria-controls="sidebar"
-				class="flex items-center justify-center rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-white/5 dark:hover:text-gray-200"
+				class="mt-3 flex shrink-0 items-center justify-center rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-white/5 dark:hover:text-gray-200"
 			>
 				<Icon name="ri:close-line" class="h-5 w-5" />
 				<span class="sr-only">Cerrar menú</span>
@@ -93,12 +126,15 @@ const inactiveClass =
 				<li>
 					<a
 						href="/"
-						class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${ruta === '/' ? activeClass : inactiveClass}`}
-					>
-						<Icon name="ri:home-9-line" class="h-5 w-5 shrink-0" />
-						<span>Inicio</span>
-					</a>
-				</li>
+					class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${ruta === '/' ? activeClass : inactiveClass}`}
+				>
+					<Icon
+						name={showClientOnlyHome ? 'ri:rocket-2-line' : 'ri:home-9-line'}
+						class="h-5 w-5 shrink-0"
+					/>
+					<span>{showClientOnlyHome ? 'Comenzar' : 'Inicio'}</span>
+				</a>
+			</li>
 				{
 					visibleGroups.map((group) => (
 					<li class="mt-1 pt-1">
@@ -204,6 +240,16 @@ const inactiveClass =
 	class="dark:bg-black-900 bg-white fixed top-14 left-0 z-20 hidden h-[calc(100vh-3.5rem)] w-60 flex-col border-r border-gray-300/90 box-border lg:flex dark:border-gray-600/90"
 	transition:persist="sidebar-desktop"
 >
+	{
+		showCompanySwitcher && (
+			<CompanySwitcher
+				empresas={empresas}
+				activeCompany={activeCompany}
+				id="desktop"
+			/>
+		)
+	}
+
 	<nav
 		class:list={[
 			'flex-1 overflow-x-hidden overflow-y-auto px-1.5 py-2',
@@ -217,10 +263,15 @@ const inactiveClass =
 				<a
 					href="/"
 					class={`sb-link flex items-center gap-3 rounded-md px-2 py-1.75 text-[13px] font-medium transition-colors ${ruta === '/' ? activeClass : inactiveClass}`}
-					title="Inicio"
+					title={showClientOnlyHome ? 'Comenzar' : 'Inicio'}
 				>
-					<Icon name="ri:home-9-line" class="h-5 w-5 shrink-0" />
-					<span class="sb-label whitespace-nowrap">Inicio</span>
+					<Icon
+						name={showClientOnlyHome ? 'ri:rocket-2-line' : 'ri:home-9-line'}
+						class="h-5 w-5 shrink-0"
+					/>
+					<span class="sb-label whitespace-nowrap">
+						{showClientOnlyHome ? 'Comenzar' : 'Inicio'}
+					</span>
 				</a>
 			</li>
 			{
