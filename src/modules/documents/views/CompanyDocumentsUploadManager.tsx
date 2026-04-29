@@ -180,7 +180,7 @@ export default function CompanyDocumentsUploadManager({
 	};
 
 	return (
-		<div className="space-y-4">
+		<div className="to-black-600 from-black-900 space-y-4 dark:bg-linear-to-tr">
 			<div className="rounded-lg border p-4">
 				<h4 className="mb-1 text-base font-semibold">Subir documentos</h4>
 				<p className="text-muted-foreground mb-4 text-sm">

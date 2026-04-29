@@ -2,7 +2,7 @@
 import Alerta from '@components/feedback/alertageneral.astro';
 import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
 import { pagosRealizadosData } from '@lib/tablas/payments/PagosPorLeer';
-import PagosRealizadosTable from '@modules/billing/views/PagosRealizadosTable';
+import Tabs from '@modules/billing/views/Tabs';
 
 const supabase = Astro.locals.supabase;
 
@@ -11,15 +11,12 @@ const pagosRealizados = await pagosRealizadosData(supabase);
 
 <Alerta />
 <div>
-	<div
-		class="block w-full items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5"
-	>
+	<div class="block w-full items-center justify-between p-4 sm:flex lg:mt-1.5">
 		<CrudPageHeader
 			title="Todos los pagos realizados"
 			breadcrumbItems={[
 				{ label: 'Formularios', href: '/formularios/enviados/' },
 			]}
-			refreshHref="/admin/pagos/"
 		/>
 	</div>
 
@@ -27,7 +24,7 @@ const pagosRealizados = await pagosRealizadosData(supabase);
 		<div class="overflow-x-auto">
 			<div class="inline-block min-w-full align-middle">
 				<div class="overflow-hidden shadow">
-					<PagosRealizadosTable data={pagosRealizados ?? []} client:load />
+					<Tabs data={pagosRealizados ?? []} client:load />
 				</div>
 			</div>
 		</div>

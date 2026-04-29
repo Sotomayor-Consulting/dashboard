@@ -247,7 +247,7 @@ export default function NotificacionesUsuariosTable({
 				className="max-w-sm"
 			/>
 
-			<div className="overflow-hidden rounded-md border bg-white dark:bg-[#28314c]">
+			<div className="to-black-600 from-black-900 overflow-hidden rounded-md border bg-white dark:bg-linear-to-tr">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (

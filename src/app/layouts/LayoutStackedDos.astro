@@ -1,22 +1,12 @@
 ---
 import LayoutCommon from './LayoutCommon.astro';
 import NavBarStacked from '../navegation/NavBarStacked.astro';
-import { Image } from 'astro:assets';
-import fondo from '@assets/edificios-fondo.avif';
 ---
 
 <LayoutCommon>
 	<NavBarStacked />
 
-	<div class="dark:bg-black-800 flex overflow-hidden bg-gray-50 pt-16">
-		<div class="">
-			<Image
-				src={fondo}
-				alt="Fondo edificios"
-				class="absolute z-0 h-[140%] w-full object-cover object-center opacity-10 sm:min-h-svh dark:opacity-10"
-				loading="eager"
-			/>
-		</div>
+	<div class="fondo flex overflow-hidden bg-gray-50 bg-cover bg-center pt-16">
 		<div
 			id="main-content"
 			class="relative z-10 mx-auto h-full min-h-[calc(100svh-4rem)] w-full max-w-screen-2xl"
@@ -27,3 +17,17 @@ import fondo from '@assets/edificios-fondo.avif';
 		</div>
 	</div>
 </LayoutCommon>
+
+<style>
+	html.dark .fondo {
+		background-image: url(/src/assets/edificios-fondo-transparente.avif);
+		background-size: cover;
+		background-position: center;
+	}
+
+	.fondo {
+		background-image: url(/src/assets/edificios-fondo-transparente-blanco.avif);
+		background-size: cover;
+		background-position: center;
+	}
+</style>

@@ -57,13 +57,16 @@ export default function FormSignIn() {
 		clearPopupWatchers();
 	}, [clearPopupWatchers]);
 
-	const handleOAuthResult = useCallback((data: any) => {
-		if (data?.type !== 'oauth-callback') return;
-		stopGooglePending();
-		if (data.status === 'success') {
-			window.location.href = '/';
-		}
-	}, [stopGooglePending]);
+	const handleOAuthResult = useCallback(
+		(data: any) => {
+			if (data?.type !== 'oauth-callback') return;
+			stopGooglePending();
+			if (data.status === 'success') {
+				window.location.href = '/';
+			}
+		},
+		[stopGooglePending],
+	);
 
 	useEffect(() => {
 		// BroadcastChannel: funciona aunque COOP rompa window.opener
@@ -103,9 +106,7 @@ export default function FormSignIn() {
 		const clientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID;
 		if (!clientId || oneTapInitialized.current) return undefined;
 
-		const handleOneTapResponse = async (response: {
-			credential: string;
-		}) => {
+		const handleOneTapResponse = async (response: { credential: string }) => {
 			setGooglePending(true);
 			try {
 				const res = await fetch('/api/auth/google-one-tap', {
@@ -189,9 +190,12 @@ export default function FormSignIn() {
 			}
 		}, 350);
 
-		popupTimeoutRef.current = window.setTimeout(() => {
-			stopGooglePending();
-		}, 2 * 60 * 1000);
+		popupTimeoutRef.current = window.setTimeout(
+			() => {
+				stopGooglePending();
+			},
+			2 * 60 * 1000,
+		);
 
 		try {
 			const res = await fetch('/api/auth/oauth-popup-url', {
@@ -363,9 +367,7 @@ export default function FormSignIn() {
 						</button>
 					</div>
 
-					{emailError && (
-						<p className="text-sm text-red-500">{emailError}</p>
-					)}
+					{emailError && <p className="text-sm text-red-500">{emailError}</p>}
 
 					<div className="text-sm font-medium text-gray-500 dark:text-gray-400">
 						¿No tienes una cuenta?{' '}
@@ -383,7 +385,7 @@ export default function FormSignIn() {
 					<div>
 						<div className="inline-flex w-full items-center justify-center">
 							<hr className="dark:bg-black-100 my-5 h-px w-11/12 border-0 bg-gray-300" />
-							<span className="dark:bg-black-900 absolute z-10 bg-white px-5 font-medium text-gray-900 dark:text-white">
+							<span className="dark:bg-black-900 absolute z-10 bg-gray-200 px-5 font-medium text-gray-900 dark:text-white">
 								o
 							</span>
 						</div>
