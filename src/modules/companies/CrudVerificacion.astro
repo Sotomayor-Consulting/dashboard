@@ -1,6 +1,7 @@
 ---
 import { FormsEnviosVericacion } from '@lib/tablas/forms/formulariosEnviados';
 import CrudVerificacionTable from '@modules/companies/views/CrudVerificacionTable';
+import Tab from '@components/ui/tabs.astro';
 
 const supabase = Astro.locals.supabase;
 
@@ -8,7 +9,7 @@ const formularios = await FormsEnviosVericacion(supabase);
 ---
 
 <div
-	class="block items-center justify-between border-b border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
+	class="block items-center justify-between p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<div class="mb-1 w-full">
 		<div class="mb-4">
@@ -60,6 +61,29 @@ const formularios = await FormsEnviosVericacion(supabase);
 				Lista de formularios
 			</h1>
 		</div>
+		<Tab
+			slot="tabs"
+			buttons={[
+				{
+					label: 'Formularios',
+					icon: 'ri:folder-6-line',
+					active: false,
+					link: `/formularios/`,
+				},
+				{
+					label: 'Formularios enviados',
+					icon: 'ri:contract-line',
+					active: false,
+					link: `/formularios/enviados/`,
+				},
+				{
+					label: 'Formularios por revisar',
+					icon: 'ri:file-check-line',
+					active: true,
+					link: `/admin/verificacion/`,
+				},
+			]}
+		/>
 	</div>
 </div>
 

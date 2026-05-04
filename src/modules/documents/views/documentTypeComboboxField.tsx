@@ -8,7 +8,7 @@ type Props = {
 	documentTypes: DocumentTypeLite[];
 	name?: string;
 	defaultValue?: string;
-	placeholder?: string;
+	placeholder?: string | undefined;
 };
 
 export function DocumentTypeComboboxField({
@@ -25,7 +25,7 @@ export function DocumentTypeComboboxField({
 				documentTypes={documentTypes}
 				value={value}
 				onChange={setValue}
-				placeholder={placeholder}
+				placeholder={placeholder ?? ''}
 			/>
 			<input type="hidden" name={name} value={value} />
 		</div>

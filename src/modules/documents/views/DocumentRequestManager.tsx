@@ -1,11 +1,7 @@
 import * as React from 'react';
 import { Badge } from '@components/components/ui/badge';
 import { Button } from '@components/components/ui/button';
-import {
-	Field,
-	FieldGroup,
-	FieldLabel,
-} from '@components/components/ui/field';
+import { Field, FieldGroup, FieldLabel } from '@components/components/ui/field';
 import { Input } from '@components/components/ui/input';
 import {
 	Select,
@@ -65,7 +61,7 @@ export default function DocumentRequestManager({
 	requests,
 }: Props) {
 	return (
-		<div className="space-y-4">
+		<div className="to-black-600 from-black-900 space-y-4 dark:bg-linear-to-tr">
 			<div className="rounded-lg border p-4">
 				<h4 className="mb-1 text-base font-semibold">Solicitar documentos</h4>
 				<p className="text-muted-foreground mb-4 text-sm">
@@ -82,16 +78,18 @@ export default function DocumentRequestManager({
 						name="incorporationCaseId"
 						value={incorporationCaseId}
 					/>
-					<input type="hidden" name="relatedToType" value="incorporation_case" />
 					<input
 						type="hidden"
-						name="relatedToId"
-						value={incorporationCaseId}
+						name="relatedToType"
+						value="incorporation_case"
 					/>
+					<input type="hidden" name="relatedToId" value={incorporationCaseId} />
 
 					<FieldGroup className="grid gap-4 md:grid-cols-2">
 						<Field>
-							<FieldLabel htmlFor="documentTypeId">Tipo de documento</FieldLabel>
+							<FieldLabel htmlFor="documentTypeId">
+								Tipo de documento
+							</FieldLabel>
 							<Select name="documentTypeId" required>
 								<SelectTrigger id="documentTypeId" className="w-full">
 									<SelectValue placeholder="Selecciona un tipo" />

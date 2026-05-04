@@ -14,7 +14,7 @@ import { getClientWorkflowProgress } from '@modules/companies/services/getClient
 import Tab from '@components/ui/tabs.astro';
 
 interface Props {
-	empresaId: string;
+	empresaId: string | undefined;
 }
 
 const { empresaId } = Astro.props;
@@ -22,9 +22,9 @@ const user = Astro.locals.user;
 const userId = user?.id;
 const supabase = Astro.locals.supabase;
 
-// if (!id || !userId) {
-// 	return Astro.redirect('/');
-// }
+if (!empresaId || !userId) {
+	return Astro.redirect('/');
+}
 
 const [empresa, porfirmar, clientWorkflowProgress, planContratado] =
 	await Promise.all([
@@ -186,14 +186,14 @@ const totalStagesCount = 0;
 		empresa={empresa}
 		estadoMapa={estadoMapa ?? ''}
 		planName={planName}
-		progressPercent={clientWorkflowData.progressPercent}
+		progressPercent={clientWorkflowData?.progressPercent ?? 0}
 		completedStages={completedStagesCount}
 		totalStages={totalStagesCount}
-		currentStageName={clientWorkflowData.currentStageName}
-		currentStageOrder={clientWorkflowData.stages.find(
+		currentStageName={clientWorkflowData?.currentStageName ?? ''}
+		currentStageOrder={clientWorkflowData?.stages?.find(
 			(stage) => stage.status === 'in_progress',
 		)?.displayOrder ?? null}
-		estimatedCompletion={clientWorkflowData.estimatedCompletion}
+		estimatedCompletion={clientWorkflowData?.estimatedCompletion ?? null}
 	/>
 	<Gridline2
 		empresa={empresa}

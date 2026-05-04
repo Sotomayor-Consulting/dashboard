@@ -13,7 +13,11 @@ import CompanyManagersList from './components/CompanyManagersList.astro';
 import CompanyEditForm from './components/CompanyEditForm.astro';
 import ActivityModal from './components/ActivityModal.astro';
 import ManagerModal from './components/ManagerModal.astro';
+import type { CompanyDetailData } from './types';
 import {
+	type DocumentDashboardRow,
+	type DocumentRequestDashboardRow,
+	type DocumentTypeLite,
 	getDocumentRequestsForIncorporationCase,
 	getDocumentTypesList,
 	getDocumentsForIncorporationCase,
@@ -22,11 +26,7 @@ import { supabaseAdmin } from '@lib/supabase/admin';
 import DocumentRequestManager from '@modules/documents/views/DocumentRequestManager';
 import CompanyDocumentsUploadManager from '@modules/documents/views/CompanyDocumentsUploadManager';
 
-interface Props {
-	empresaId: string;
-}
-
-const { empresaId } = Astro.props;
+const empresaId = String(Astro.props.empresaId ?? '');
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
@@ -35,12 +35,29 @@ const isStaff =
 	userRoles.includes('admin') || userRoles.includes('operaciones');
 const backPath = Astro.url.pathname;
 
-const data = await getCompanyDetailData(supabase, empresaId);
-const [documentRequests, documentTypes, documentsNew] = await Promise.all([
-	getDocumentRequestsForIncorporationCase(supabaseAdmin, empresaId),
-	getDocumentTypesList(supabaseAdmin),
-	getDocumentsForIncorporationCase(supabaseAdmin, empresaId, userId, userRoles),
-]);
+let data: CompanyDetailData | null = null;
+let documentRequests: DocumentRequestDashboardRow[] = [];
+let documentTypes: DocumentTypeLite[] = [];
+let documentsNew: DocumentDashboardRow[] = [];
+
+if (empresaId) {
+	data = await getCompanyDetailData(supabase, empresaId);
+	const documentResults: [
+		DocumentRequestDashboardRow[],
+		DocumentTypeLite[],
+		DocumentDashboardRow[],
+	] = await Promise.all([
+		getDocumentRequestsForIncorporationCase(supabaseAdmin, empresaId),
+		getDocumentTypesList(supabaseAdmin),
+		getDocumentsForIncorporationCase(
+			supabaseAdmin,
+			empresaId,
+			userId,
+			userRoles,
+		),
+	]);
+	[documentRequests, documentTypes, documentsNew] = documentResults;
+}
 
 const empresa = data?.empresa ?? null;
 const socios = data?.socios ?? [];
@@ -49,7 +66,12 @@ const actividades = data?.actividades ?? [];
 const paises = data?.paises ?? [];
 const estados = data?.estados ?? [];
 const esMemberManaged = empresa?.forma_administracion === 'Member-Managed';
-const errorMessage = !data ? 'No se encontró esta empresa' : '';
+const empresaSafe = empresa as CompanyDetailData['empresa'];
+const errorMessage = !empresaId
+	? 'ID de empresa no valido'
+	: !data
+		? 'No se encontro esta empresa'
+		: '';
 ---
 
 {
@@ -121,20 +143,20 @@ const errorMessage = !data ? 'No se encontró esta empresa' : '';
 						role="tabpanel"
 						aria-labelledby="profile-tab"
 					>
-						<CompanyHeader empresa={empresa} />
-						<CompanyLocation empresa={empresa} />
-						<CompanyProgress empresa={empresa} />
-						<CompanyInfoCard empresa={empresa} empresaId={empresaId} />
+						<CompanyHeader empresa={empresaSafe} />
+						<CompanyLocation empresa={empresaSafe} />
+						<CompanyProgress empresa={empresaSafe} />
+						<CompanyInfoCard empresa={empresaSafe} empresaId={empresaId} />
 						<CompanySociosList socios={socios} />
 						<CompanyAddress
-							empresa={empresa}
+							empresa={empresaSafe}
 							esMemberManaged={esMemberManaged}
 						/>
 						<CompanyManagersList managers={managers} />
 					</div>
 
 					<CompanyEditForm
-						empresa={empresa}
+						empresa={empresaSafe}
 						socios={socios}
 						managers={managers}
 						actividades={actividades}
@@ -168,7 +190,7 @@ const errorMessage = !data ? 'No se encontró esta empresa' : '';
 							documentTypes={documentTypes}
 							documents={documentsNew}
 							isStaff={isStaff}
-							sharedWithUserId={empresa.user_id ?? undefined}
+							sharedWithUserId={empresaSafe.user_id ?? undefined}
 						/>
 					</div>
 					{/* <CampaniUpload empresaId={empresaId} /> */}

@@ -37,7 +37,7 @@ type PaymentRow = {
 	createdAt: string;
 };
 
-interface RawPaymentItem {
+export interface RawPaymentItem {
 	id_pagos?: number | null;
 	stripe_payment_intent_id?: string | null;
 	amount?: number | null;
@@ -206,7 +206,7 @@ export default function PagosRealizadosTable({
 	});
 
 	return (
-		<div className="space-y-4">
+		<div className="mt-10 space-y-4">
 			<div className="flex items-center gap-2">
 				<Input
 					placeholder="Buscar por empresa o servicio..."
@@ -224,7 +224,7 @@ export default function PagosRealizadosTable({
 				/>
 			</div>
 
-			<div className="overflow-hidden rounded-md border bg-white dark:bg-[#28314c]">
+			<div className="to-black-600 from-black-900 overflow-hidden rounded-md border bg-white dark:bg-linear-to-tr">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (

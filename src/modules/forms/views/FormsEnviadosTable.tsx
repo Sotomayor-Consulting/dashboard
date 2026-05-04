@@ -69,7 +69,7 @@ export default function FormsEnviadosTable({ data }: FormsEnviadosTableProps) {
 	}, [query]);
 
 	return (
-		<div className="space-y-4">
+		<div className="mt-10 space-y-4">
 			<Input
 				placeholder="Buscar por formulario o usuario..."
 				value={query}
@@ -77,7 +77,7 @@ export default function FormsEnviadosTable({ data }: FormsEnviadosTableProps) {
 				className="max-w-sm"
 			/>
 
-			<div className="overflow-hidden rounded-md border bg-white dark:bg-[#28314c]">
+			<div className="to-black-600 from-black-900 overflow-hidden rounded-md border bg-white dark:bg-linear-to-tr">
 				<Table>
 					<TableHeader>
 						<TableRow>
