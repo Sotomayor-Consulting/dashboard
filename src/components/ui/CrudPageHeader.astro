@@ -88,5 +88,13 @@ const { title, breadcrumbItems } = Astro.props;
 		<h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
 			{title}
 		</h1>
+		<div>
+			<div>
+				<slot name="tabs" />
+			</div>
+			<div class="flex justify-end gap-5">
+				<slot name="actions" />
+			</div>
+		</div>
 	</div>
 </div>

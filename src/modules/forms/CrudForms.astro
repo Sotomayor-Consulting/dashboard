@@ -7,6 +7,7 @@ import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
 import Modal from '@components/ui/Modal.astro';
 import { ListaFormulariosGeneral } from '@lib/tablas/forms/formularios';
 import FormsCrudTable from '@modules/forms/views/FormsCrudTable';
+import Tab from '@components/ui/tabs.astro';
 
 const supabase = Astro.locals.supabase;
 const servicio = await ListaFormulariosGeneral(supabase);
@@ -23,7 +24,6 @@ const actionBtnClass =
 	'focus:ring-primary-300 inline-flex items-center justify-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d] focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]';
 ---
 
-<script src="@lib/alpinejs/alpine.js"></script>
 <Alerta />
 <div>
 	<div
@@ -33,6 +33,29 @@ const actionBtnClass =
 			title="Lista de Formularios creados"
 			breadcrumbItems={[{ label: 'servicios' }]}
 		>
+			<Tab
+				slot="tabs"
+				buttons={[
+					{
+						label: 'Formularios',
+						icon: 'ri:folder-6-line',
+						active: true,
+						link: `/formularios/`,
+					},
+					{
+						label: 'Formularios enviados',
+						icon: 'ri:contract-line',
+						active: false,
+						link: `/formularios/enviados/`,
+					},
+					{
+						label: 'Formularios por revisar',
+						icon: 'ri:file-check-line',
+						active: false,
+						link: `/admin/verificacion/`,
+					},
+				]}
+			/>
 			<button
 				slot="actions"
 				id="createProductButton"
@@ -53,7 +76,7 @@ const actionBtnClass =
 						d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
 						clip-rule="evenodd"></path></svg
 				>
-				Anadir formulario
+				Añadir formulario
 			</button>
 			<a
 				slot="actions"

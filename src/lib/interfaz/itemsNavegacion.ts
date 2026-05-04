@@ -77,17 +77,7 @@ export const menuItems: MenuItem[] = [
 		group: 'Admin',
 		colors: 'text-violet-500'
 	},
-	{
-		id: 'verificacion-formulario-incorp',
-		label: 'Incorporación',
-		href: '/admin/verificacion/',
-		tooltip: 'Gestiona y verifica los datos del formulario de incorporación',
-		roles: ['admin'],
-		svgname: 'ri:archive-stack-line',
-		sequence: 110,
-		group: 'Admin',
-		colors: 'text-violet-500'
-	},
+
 	{
 		id: 'menu-vista-de-pagos',
 		label: 'Pagos',
@@ -129,17 +119,6 @@ export const menuItems: MenuItem[] = [
 		roles: ['admin'],
 		svgname: 'ri:file-edit-line',
 		sequence: 150,
-		group: 'Admin',
-		colors: 'text-violet-500'
-	},
-	{
-		id: 'crud-formularios-enviados',
-		label: 'Docs Enviados',
-		href: '/formularios/enviados/',
-		tooltip: 'Gestiona las respuestas y estados de documentos',
-		roles: ['admin'],
-		svgname: 'ri:file-check-line',
-		sequence: 160,
 		group: 'Admin',
 		colors: 'text-violet-500'
 	},

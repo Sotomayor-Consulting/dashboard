@@ -6,6 +6,7 @@ import DrawerConfirm from '@components/ui/DrawerConfirm.astro';
 import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
 import { FormsEnviadosDataGeneral } from '@lib/tablas/forms/formulariosEnviados';
 import FormsEnviadosTable from '@modules/forms/views/FormsEnviadosTable';
+import Tab from '@components/ui/tabs.astro';
 
 const supabase = Astro.locals.supabase;
 const formularios_envios = await FormsEnviadosDataGeneral(supabase);
@@ -51,6 +52,29 @@ const actionBtnClass =
 				>
 				Gestionar formularios
 			</a>
+			<Tab
+				slot="tabs"
+				buttons={[
+					{
+						label: 'Formularios',
+						icon: 'ri:folder-6-line',
+						active: false,
+						link: `/formularios/`,
+					},
+					{
+						label: 'Formularios enviados',
+						icon: 'ri:contract-line',
+						active: true,
+						link: `/formularios/enviados/`,
+					},
+					{
+						label: 'Formularios por revisar',
+						icon: 'ri:file-check-line',
+						active: false,
+						link: `/admin/verificacion/`,
+					},
+				]}
+			/>
 		</CrudPageHeader>
 	</div>
 
