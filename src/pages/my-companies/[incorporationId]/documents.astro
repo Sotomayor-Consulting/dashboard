@@ -2,6 +2,7 @@
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
 import CompanyDocumentsDashboard from '@modules/documents/CompanyDocumentsDashboard.astro';
+import Tab from '@components/ui/tabs.astro';
 
 const { incorporationId } = Astro.params;
 ---
@@ -9,24 +10,22 @@ const { incorporationId } = Astro.params;
 <LayoutSidebar>
 	<Alerta />
 	<div class="px-4 pt-4">
-		<nav
-			class="mb-4 inline-flex rounded-lg border border-gray-200 bg-white p-1 text-sm dark:border-gray-700 dark:bg-[#28314c]"
-			aria-label="Submenú de empresa"
-		>
-			<a
-				href={`/my-companies/${incorporationId}/dashboard`}
-				class="rounded-md px-3 py-2 font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10"
-			>
-				Inicio
-			</a>
-			<a
-				href={`/my-companies/${incorporationId}/documents`}
-				class="rounded-md bg-blue-600 px-3 py-2 font-semibold text-white"
-				aria-current="page"
-			>
-				Documentos
-			</a>
-		</nav>
+		<Tab
+			buttons={[
+				{
+					label: 'General',
+					icon: 'ri:layout-grid-line',
+					active: false,
+					link: `/my-companies/${incorporationId}/dashboard`,
+				},
+				{
+					label: 'Documentos',
+					icon: 'ri:file-copy-line',
+					active: true,
+					link: `/my-companies/${incorporationId}/documents`,
+				},
+			]}
+		/>
 	</div>
 
 	<CompanyDocumentsDashboard

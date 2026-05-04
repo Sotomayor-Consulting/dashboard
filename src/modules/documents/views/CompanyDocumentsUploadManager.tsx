@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Badge } from '@components/components/ui/badge';
 import { Button } from '@components/components/ui/button';
 import DocumentDropzoneField from '@components/forms/DocumentDropzoneField';
@@ -33,31 +32,19 @@ import {
 	MoreHorizontal,
 	XCircle,
 } from 'lucide-react';
+import type {
+	DocumentDashboardRow,
+	DocumentTypeLite,
+} from '@lib/tablas/documents/document_dashboard';
 import { DocumentTypeComboboxField } from './documentTypeComboboxField';
-
-type DocumentTypeLite = {
-	id: number;
-	code: number;
-	name: string;
-};
-
-type DocumentItem = {
-	id: string;
-	status: string;
-	file_name: string;
-	file_title: string | null;
-	uploaded_at: string | null;
-	visibility: string;
-	document_type: DocumentTypeLite | null;
-};
 
 type Props = {
 	incorporationCaseId: string;
 	backPath: string;
 	documentTypes: DocumentTypeLite[];
-	documents: DocumentItem[];
+	documents: DocumentDashboardRow[];
 	isStaff?: boolean;
-	sharedWithUserId?: string;
+	sharedWithUserId?: string | undefined;
 };
 
 function badgeForDocumentStatus(status: string) {

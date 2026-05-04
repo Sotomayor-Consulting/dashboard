@@ -4,8 +4,8 @@ import { listDocumentEvents, resolveDocumentActor } from '@lib/documents';
 import { getDocumentsForIncorporationCase } from '@lib/tablas/documents/document_dashboard';
 
 interface Props {
-	incorporationCaseId: string;
-	documentId: string;
+	incorporationCaseId: string | undefined;
+	documentId: string | undefined;
 	backPath: string;
 }
 
@@ -21,6 +21,8 @@ let events: any[] = [];
 
 if (!userId) {
 	errorMessage = 'No autenticado';
+} else if (!incorporationCaseId) {
+	errorMessage = 'ID de caso no disponible';
 } else {
 	const documents = await getDocumentsForIncorporationCase(
 		supabase,
@@ -35,7 +37,7 @@ if (!userId) {
 		errorMessage = 'Documento no encontrado';
 	} else {
 		const actor = await resolveDocumentActor(supabase, userRoles);
-		const eventsResult = await listDocumentEvents(actor, documentId).catch(
+		const eventsResult = await listDocumentEvents(actor, documentId!).catch(
 			() => [],
 		);
 		events = Array.isArray(eventsResult) ? (eventsResult as any[]) : [];

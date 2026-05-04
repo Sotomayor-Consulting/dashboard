@@ -13,7 +13,7 @@ import { supabaseAdmin } from '@lib/supabase/admin';
 import { DocumentTypeComboboxField } from '@modules/documents/views/documentTypeComboboxField';
 
 interface Props {
-	incorporationCaseId: string;
+	incorporationCaseId: string | undefined;
 	showQuickUpload?: boolean;
 	dashboardVariant?: 'client' | 'staff';
 }
@@ -44,6 +44,8 @@ let documentTypes: any[] = [];
 
 if (!userId) {
 	errorMessage = 'No autenticado';
+} else if (!incorporationCaseId) {
+	errorMessage = 'ID de incorporación no válido';
 } else {
 	company = isStaffDashboard
 		? await getIncorporacionByIdAdmin(dataClient, incorporationCaseId)
@@ -66,7 +68,7 @@ if (!userId) {
 }
 
 const uploadEndpointBase = `/api/documents/upload?incorporationCaseId=${encodeURIComponent(
-	incorporationCaseId,
+	incorporationCaseId ?? '',
 )}&back=${encodeURIComponent(Astro.url.pathname)}`;
 
 const BLOCKED_REQUEST_STATUSES = new Set([
@@ -109,8 +111,8 @@ const canUploadForRequest = (status: string) =>
 				</div>
 
 				<div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-					<section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-[#28314c]">
-					{canUseStaffActions && showQuickUpload ? (
+					<section class="to-black-600 from-black-900 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-linear-to-tl">
+						{canUseStaffActions && showQuickUpload ? (
 							<div class="mb-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-white/5">
 								<h3 class="text-sm font-semibold text-gray-900 dark:text-white">
 									Subida rápida (Operaciones/Admin)
@@ -195,7 +197,7 @@ const canUploadForRequest = (status: string) =>
 													class="block w-full text-sm text-gray-900 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200 dark:text-gray-200 dark:file:bg-white/10 dark:file:text-gray-200 dark:hover:file:bg-white/15"
 													accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
 												/>
-										{canUseStaffActions ? (
+												{canUseStaffActions ? (
 													<select
 														name="visibility"
 														class="block w-full rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 dark:border-gray-700 dark:bg-white/5 dark:text-gray-300"
@@ -226,7 +228,7 @@ const canUploadForRequest = (status: string) =>
 						)}
 					</section>
 
-					<section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-[#28314c]">
+					<section class="to-black-600 from-black-900 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-linear-to-tr">
 						<div class="mb-3 flex items-center justify-between">
 							<h2 class="text-lg font-semibold text-gray-900 dark:text-white">
 								Documentos
@@ -269,7 +271,7 @@ const canUploadForRequest = (status: string) =>
 												<Icon name="ri:download-2-line" class="text-base" />
 												Descargar
 											</button>
-									{canUseStaffActions ? (
+											{canUseStaffActions ? (
 												<>
 													<button
 														type="button"
@@ -280,7 +282,10 @@ const canUploadForRequest = (status: string) =>
 														Historial
 													</button>
 													{document.shares.some(
-														(share) =>
+														(share: {
+															shared_with_user_id: string;
+															share_status: string;
+														}) =>
 															share.shared_with_user_id === company.user_id &&
 															share.share_status === 'active',
 													) ? (

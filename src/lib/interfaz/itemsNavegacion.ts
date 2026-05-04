@@ -23,17 +23,6 @@ export const menuItems: MenuItem[] = [
 		colors: 'text-cyan-700',
 	},
 	{
-		id: 'documentos',
-		label: 'Documentos',
-		href: '/documentos/',
-		tooltip: 'Mira tus documentos y formularios',
-		roles: ['cliente', 'partner'],
-		svgname: 'ri:file-copy-2-line',
-		sequence: 40,
-		group: 'Company',
-		colors: 'text-cyan-700',
-	},
-	{
 		id: 'partners',
 		label: 'Partners',
 		href: '/partners/datos-referidos/',
@@ -66,7 +55,6 @@ export const menuItems: MenuItem[] = [
 		group: 'Company',
 		colors: 'text-cyan-700',
 	},
-
 	{
 		id: 'crud-users',
 		label: 'Clientes',
@@ -111,7 +99,6 @@ export const menuItems: MenuItem[] = [
 		group: 'Admin',
 		colors: 'text-violet-500'
 	},
-
 	{
 		id: 'menu-notificaciones-a-usuarios',
 		label: 'Notificaciones',
