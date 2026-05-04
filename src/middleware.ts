@@ -294,8 +294,12 @@ export function onRequest(context: any, next: any) {
 			return addSecurityHeaders(response, pathname);
 		}
 
-		// 6) Reset password: ruta pública especial (necesita token en URL)
-		if (pathname === PATHS.resetPassword) {
+		// 6) Reset / Set password: rutas especiales accesibles tras el
+		//    callback de invitación / recovery (requieren sesión recién creada).
+		if (
+			pathname === PATHS.resetPassword ||
+			pathname === PATHS.setPassword
+		) {
 			const response = await next();
 			return addSecurityHeaders(response, pathname);
 		}

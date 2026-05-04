@@ -130,7 +130,10 @@ const inactiveClass =
 				>
 					<Icon
 						name={showClientOnlyHome ? 'ri:rocket-2-line' : 'ri:home-9-line'}
-						class="h-5 w-5 shrink-0"
+						class:list={[
+							'h-5 w-5 shrink-0',
+							showClientOnlyHome && 'rotate-45',
+						]}
 					/>
 					<span>{showClientOnlyHome ? 'Comenzar' : 'Inicio'}</span>
 				</a>
@@ -267,7 +270,10 @@ const inactiveClass =
 				>
 					<Icon
 						name={showClientOnlyHome ? 'ri:rocket-2-line' : 'ri:home-9-line'}
-						class="h-5 w-5 shrink-0"
+						class:list={[
+							'h-5 w-5 shrink-0',
+							showClientOnlyHome && 'rotate-45',
+						]}
 					/>
 					<span class="sb-label whitespace-nowrap">
 						{showClientOnlyHome ? 'Comenzar' : 'Inicio'}
