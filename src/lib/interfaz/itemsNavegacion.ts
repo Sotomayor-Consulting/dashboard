@@ -77,7 +77,6 @@ export const menuItems: MenuItem[] = [
 		group: 'Admin',
 		colors: 'text-violet-500'
 	},
-
 	{
 		id: 'menu-vista-de-pagos',
 		label: 'Pagos',
