@@ -24,6 +24,12 @@ const { incorporationId } = Astro.params;
 					active: true,
 					link: `/my-companies/${incorporationId}/documents`,
 				},
+				{
+					label: 'Ordenes',
+					icon: 'ri:contract-line',
+					active: false,
+					link: `/my-companies/${incorporationId}/orders`,
+				},
 			]}
 		/>
 	</div>
