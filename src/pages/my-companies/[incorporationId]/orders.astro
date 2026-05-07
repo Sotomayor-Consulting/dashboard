@@ -1,6 +1,7 @@
 ---
 import Tab from '@components/ui/tabs.astro';
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
+import Orders from '@modules/documents/Orders.astro';
 
 const { incorporationId } = Astro.params;
 ---
@@ -28,4 +29,5 @@ const { incorporationId } = Astro.params;
 			},
 		]}
 	/>
+	<Orders />
 </LayoutSidebar>

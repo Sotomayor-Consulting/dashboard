@@ -34,6 +34,9 @@ export default defineConfig({
 	}),
 	vite: {
 		plugins: [tailwindcss()],
+		optimizeDeps: {
+			exclude: ['astro/virtual-modules/prefetch.js'],
+		},
 		build: {
 			rollupOptions: {
 				external: ['puppeteer', 'carbone'],
