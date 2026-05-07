@@ -43,6 +43,7 @@ export interface EmpresaSwitcherItem {
 	nombre: string;
 	tipo_de_negocio: string | null;
 	estado: string | null;
+	estado_de_incorporacion: string | null;
 }
 
 export const getEmpresasForSwitcher = async (
@@ -52,7 +53,7 @@ export const getEmpresasForSwitcher = async (
 	const { data, error } = await supabase
 		.from('empresas_incorporaciones')
 		.select(
-			'empresa_incorporacion_id, nombre_1, nombre_2, nombre_3, tipo_de_negocio, estado, updated_at',
+			'empresa_incorporacion_id, nombre_1, nombre_2, nombre_3, tipo_de_negocio, estado, estado_de_incorporacion, updated_at',
 		)
 		.eq('user_id', userId)
 		.order('updated_at', { ascending: false });
@@ -68,6 +69,8 @@ export const getEmpresasForSwitcher = async (
 			'Empresa sin nombre',
 		tipo_de_negocio: (e.tipo_de_negocio as string) ?? null,
 		estado: (e.estado as string) ?? null,
+		estado_de_incorporacion:
+			(e.estado_de_incorporacion as string) ?? null,
 	}));
 };
 

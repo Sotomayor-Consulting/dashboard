@@ -1,6 +1,7 @@
 ---
 import { Icon } from 'astro-icon/components';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
+import GlobalSearch from '@components/navigation/GlobalSearch.astro';
 import logonotificaciones from '@assets/avatarSCI.png';
 import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
@@ -174,6 +175,10 @@ const quickActions = [
 				</div>
 			</div>
 
+			<div class="hidden flex-1 items-center justify-center px-4 md:flex">
+				<GlobalSearch />
+			</div>
+
 			<div class="flex items-center gap-1.5">
 				<div class="hidden items-center gap-1 pr-1 lg:flex">
 					{
@@ -207,19 +212,10 @@ const quickActions = [
 						class="relative inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-[#101522] dark:hover:text-white"
 					>
 						<span class="sr-only">Ver Notificaciones</span>
-						<!-- Bell icon -->
-						<svg
-							class="h-5 w-5"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-							xmlns="http://www.w3.org/2000/svg"
-							><path
-								d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
-							></path></svg
-						>
+						<Icon name="ri:notification-3-line" class="h-5 w-5" />
 						{
 							totalUnread > 0 && (
-								<span class="absolute -top-1.5 -right-1.5 inline-flex h-5 w-5 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 text-[10px] font-bold text-white dark:border-[#223848]">
+								<span class="text-2xs absolute -top-1.5 -right-1.5 inline-flex h-5 w-5 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 font-bold text-white dark:border-[#223848]">
 									{totalUnread}
 								</span>
 							)

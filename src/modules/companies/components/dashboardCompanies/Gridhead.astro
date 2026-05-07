@@ -1,5 +1,10 @@
 ---
 import { Icon } from 'astro-icon/components';
+import { Image } from 'astro:assets';
+import AppSciLogo from '@assets/avatarSCI.png';
+
+// Ruta
+// C:\Users\Juan Diego Gualotuna\DevWorkSpace\dashboard\src\assets\avatarSCI.png
 
 interface Props {
 	empresa: {
@@ -98,13 +103,13 @@ const einDisplayValue =
 							<div class="mb-2 inline-flex items-center gap-2">
 								<Icon name="ri:star-fill" class="h-3.5 w-3.5 text-amber-500" />
 								<span
-									class="line-clamp-1 max-w-full text-sm font-semibold tracking-wide [overflow-wrap:anywhere] text-amber-600 uppercase dark:text-amber-300"
+									class="line-clamp-1 max-w-full text-sm font-semibold tracking-wide wrap-anywhere text-amber-600 uppercase dark:text-amber-300"
 								>
 									{planName}
 								</span>
 							</div>
 							<h2
-								class="line-clamp-2 text-2xl leading-tight font-semibold tracking-tight [overflow-wrap:anywhere] text-gray-900 sm:text-3xl dark:text-white"
+								class="line-clamp-2 text-2xl leading-tight font-semibold tracking-tight wrap-anywhere text-gray-900 sm:text-3xl dark:text-white"
 							>
 								{empresa.nombre_1}
 							</h2>
@@ -224,9 +229,13 @@ const einDisplayValue =
 						</p>
 						<div class="flex items-center gap-3">
 							<div
-								class="relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#d9e4ff] bg-[#eef3ff] text-sm font-semibold text-[#134aed] dark:border-white/30 dark:bg-white/20 dark:text-white"
+								class="relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-200 bg-[#eef3ff] text-sm font-semibold text-[#134aed] dark:border-white/30 dark:bg-white/20 dark:text-white"
 							>
-								SC
+								<Image
+									src={AppSciLogo}
+									alt="Asesor de incorporación"
+									class="h-8 w-8 rounded-full object-cover"
+								/>
 								<span
 									class="dark:bg-black-900/80 absolute -right-0.5 -bottom-0.5 inline-flex h-3 w-3 items-center justify-center rounded-full bg-white"
 								>

@@ -1,0 +1,88 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	placeholder?: string;
+	id?: string;
+}
+
+const {
+	placeholder = 'Buscar empresa, documento o tarea...',
+	id = 'global-search',
+} = Astro.props;
+---
+
+<div class="relative w-full max-w-md" data-global-search data-search-id={id}>
+	<label for={id} class="sr-only">Buscar</label>
+	<Icon
+		name="ri:search-line"
+		class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500"
+	/>
+	<input
+		id={id}
+		type="search"
+		role="searchbox"
+		autocomplete="off"
+		spellcheck="false"
+		placeholder={placeholder}
+		aria-label="Buscar"
+		aria-keyshortcuts="Control+K Meta+K"
+		class="dark:bg-black-900 h-9 w-full rounded-lg border border-gray-200 bg-white py-1.5 pr-20 pl-9 text-sm text-gray-700 transition outline-none placeholder:text-gray-400 focus:border-gray-300 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-gray-500 dark:focus:ring-gray-600/40"
+		data-global-search-input
+	/>
+	<kbd
+		class="dark:bg-black-800 pointer-events-none absolute top-1/2 right-2 hidden -translate-y-1/2 select-none items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-1.5 py-0.5 font-mono text-[11px] font-medium text-gray-500 sm:inline-flex dark:border-gray-700 dark:text-gray-400"
+		aria-hidden="true"
+		data-global-search-hint
+	>
+		<span data-global-search-mod>Ctrl</span>
+		<span>K</span>
+	</kbd>
+</div>
+
+<script>
+	function initGlobalSearch() {
+		const containers = document.querySelectorAll<HTMLElement>(
+			'[data-global-search]',
+		);
+		if (containers.length === 0) return;
+
+		const isMac =
+			typeof navigator !== 'undefined' &&
+			/Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent);
+
+		containers.forEach((container) => {
+			if (container.dataset.searchInit === 'true') return;
+			container.dataset.searchInit = 'true';
+
+			const modEl = container.querySelector<HTMLElement>(
+				'[data-global-search-mod]',
+			);
+			if (modEl) modEl.textContent = isMac ? '⌘' : 'Ctrl';
+		});
+
+		if ((window as any).__globalSearchHotkeyBound) return;
+		(window as any).__globalSearchHotkeyBound = true;
+
+		document.addEventListener('keydown', (ev) => {
+			const mod = isMac ? ev.metaKey : ev.ctrlKey;
+			if (mod && ev.key.toLowerCase() === 'k') {
+				ev.preventDefault();
+				const input = document.querySelector<HTMLInputElement>(
+					'[data-global-search-input]',
+				);
+				input?.focus();
+				input?.select();
+				return;
+			}
+			if (ev.key === 'Escape') {
+				const active = document.activeElement as HTMLElement | null;
+				if (active && active.matches('[data-global-search-input]')) {
+					(active as HTMLInputElement).blur();
+				}
+			}
+		});
+	}
+
+	document.addEventListener('astro:page-load', initGlobalSearch);
+</script>

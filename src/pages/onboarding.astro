@@ -12,8 +12,12 @@ const user = Astro.locals.user;
 
 if (!user) return Astro.redirect(PATHS.signIn);
 
+const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+const appMeta = (user.app_metadata ?? {}) as Record<string, unknown>;
+const isOdooUser = meta.source === 'odoo' || appMeta.source === 'odoo';
+
 // Buscar empresa pendiente (source='odoo' y sin tipo_de_negocio)
-const { data: empresa } = await supabase
+let { data: empresa } = await supabase
 	.from('empresas_incorporaciones')
 	.select(
 		'empresa_incorporacion_id, tipo_de_negocio, estado_de_incorporacion, nombre_1, nombre_2, nombre_3',
@@ -25,7 +29,30 @@ const { data: empresa } = await supabase
 	.limit(1)
 	.maybeSingle();
 
-// Si ya completó onboarding, mandarlo al dashboard
+// Si el usuario viene de Odoo pero no hay fila pendiente (ej: la RPC
+// procesar_orden_odoo falló porque el producto no estaba mapeado),
+// creamos un stub para que pueda completar el onboarding igualmente.
+if (!empresa && isOdooUser) {
+	const odooSaleOrderId = meta.odoo_sale_order_id ?? null;
+	const { data: created, error: insertError } = await supabase
+		.from('empresas_incorporaciones')
+		.insert({
+			user_id: user.id,
+			estado_de_incorporacion: 'pendiente',
+			estado: 'En proceso',
+			porcentaje_de_incorporacion: 1,
+			source: 'odoo',
+			odoo_sale_order_id: odooSaleOrderId,
+		})
+		.select(
+			'empresa_incorporacion_id, tipo_de_negocio, estado_de_incorporacion, nombre_1, nombre_2, nombre_3',
+		)
+		.single();
+	if (insertError || !created) return Astro.redirect(PATHS.home);
+	empresa = created;
+}
+
+// Si ya completó onboarding (o no es usuario Odoo), mandarlo al dashboard
 if (!empresa) return Astro.redirect(PATHS.home);
 ---
 
