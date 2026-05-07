@@ -1,0 +1,36 @@
+---
+// ─── Onboarding (post set-password) ─────────────────────
+// Página a la que llega el usuario tras setear su contraseña cuando
+// viene de una invitación de Odoo. Pide los datos faltantes de su
+// empresa (nombre y estado de incorporación).
+import LayoutStackedDos from '@app/layouts/LayoutStackedDos.astro';
+import FormOnboarding from '@modules/auth/FormOnboarding.astro';
+import { PATHS } from '@lib/auth';
+
+const supabase = Astro.locals.supabase;
+const user = Astro.locals.user;
+
+if (!user) return Astro.redirect(PATHS.signIn);
+
+// Buscar empresa pendiente (source='odoo' y sin tipo_de_negocio)
+const { data: empresa } = await supabase
+	.from('empresas_incorporaciones')
+	.select(
+		'empresa_incorporacion_id, tipo_de_negocio, estado_de_incorporacion, nombre_1, nombre_2, nombre_3',
+	)
+	.eq('user_id', user.id)
+	.eq('source', 'odoo')
+	.is('tipo_de_negocio', null)
+	.order('updated_at', { ascending: false })
+	.limit(1)
+	.maybeSingle();
+
+// Si ya completó onboarding, mandarlo al dashboard
+if (!empresa) return Astro.redirect(PATHS.home);
+---
+
+<LayoutStackedDos>
+	<div class="flex min-h-screen items-start pb-[8vh]">
+		<FormOnboarding empresaId={empresa.empresa_incorporacion_id} />
+	</div>
+</LayoutStackedDos>

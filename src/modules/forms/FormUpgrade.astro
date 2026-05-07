@@ -1,60 +1,331 @@
 ---
-import SelectCompany from './upgrade/Select_company.astro';
-import StripeElement from './upgrade/Stripe_element.astro';
-import PriceInfo from './upgrade/PriceInfo.astro';
-
+import { Icon } from 'astro-icon/components';
+import stripeBadge from '@assets/stripe.svg?url';
+import mercuryBadge from '@assets/MercuryBank.svg?url';
 import { getIncorporacionesUpgrade } from '@lib/tablas/companies/empresa_incorporaciones';
 import { getServicioUpgrade } from '@lib/tablas/services/servicios';
 
 const User = Astro.locals.user;
 const userId = User?.id || '';
 const supabase = Astro.locals.supabase;
+
 const stripePublishableKey =
 	process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ??
 	import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ??
 	'';
 
-const UPGRADE_BASE_PRICE = 600;
 const PROCESSING_FEE_PERCENT = 0.045;
+const FALLBACK_BASE_PRICE = 600;
 
 const [empresas, servicioUpgrade] = await Promise.all([
 	getIncorporacionesUpgrade(supabase, userId),
 	getServicioUpgrade(supabase),
 ]);
 
-const processingFee = UPGRADE_BASE_PRICE * PROCESSING_FEE_PERCENT;
-const totalAmount = UPGRADE_BASE_PRICE + processingFee;
+const basePrice = Number(servicioUpgrade?.precio ?? FALLBACK_BASE_PRICE);
+const fee = +(basePrice * PROCESSING_FEE_PERCENT).toFixed(2);
+const total = +(basePrice + fee).toFixed(2);
+
+const fmt = (n: number) =>
+	new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency: 'USD',
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	}).format(n);
+
 const hasRequiredConfig = Boolean(stripePublishableKey && userId);
 const isPaymentEnabled =
 	hasRequiredConfig && (empresas?.length ?? 0) > 0 && Boolean(servicioUpgrade);
+
+const benefits = [
+	{
+		icon: 'ri:bank-line',
+		title: 'Acompañamiento Bancario',
+		desc: 'Asistencia personalizada para abrir tu cuenta bancaria comercial sin complicaciones.',
+		showLogos: true,
+	},
+	{
+		icon: 'ri:shield-check-line',
+		title: 'Protección extendida',
+		desc: 'Cobertura legal y fiscal ampliada todo el año.',
+		showLogos: false,
+	},
+	{
+		icon: 'ri:flashlight-line',
+		title: 'EIN Acelerado',
+		desc: 'Obtén tu EIN en tiempo récord para empezar a operar sin demoras.',
+		showLogos: false,
+	},
+	{
+		icon: 'ri:customer-service-2-line',
+		title: 'Consultas ilimitadas',
+		desc: 'Acceso directo a nuestro equipo de expertos para resolver todas tus dudas.',
+		showLogos: false,
+	},
+];
+
+const firstCompanyLabel = empresas?.[0]?.nombre_1 ?? 'tu empresa';
 ---
 
 <main id="content" class={userId}>
-	<div class="overflow-hidden">
-		<SelectCompany empresas={empresas} />
+	<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
+		{/* Stripe config (datos para el cliente JS) */}
+		<div
+			id="stripe-config"
+			data-pk={stripePublishableKey}
+			data-user-id={userId}
+			data-servicio-id={String(servicioUpgrade?.id_servicios ?? '')}
+			data-base-price={String(basePrice)}
+			data-fee-percent={String(PROCESSING_FEE_PERCENT)}
+			data-enabled={isPaymentEnabled ? 'true' : 'false'}
+			class="hidden"
+		>
+		</div>
 
-		<div class="relative hidden" id="panel2">
-			<div id="step-payment" class="grid gap-8 md:grid-cols-2">
-				<StripeElement
-					stripePublishableKey={stripePublishableKey}
-					userId={userId}
-					servicioUpgrade={servicioUpgrade}
-					isPaymentEnabled={isPaymentEnabled}
-					UPGRADE_BASE_PRICE={UPGRADE_BASE_PRICE}
-					PROCESSING_FEE_PERCENT={PROCESSING_FEE_PERCENT}
-				/>
+		{/* Back link */}
+		<a
+			href="/my-companies/"
+			class="inline-flex items-center gap-2 text-sm text-neutral-600 transition-colors hover:text-[#8c681d] dark:text-neutral-400 dark:hover:text-[#d4af37]"
+		>
+			<Icon name="ri:arrow-left-line" class="h-4 w-4" />
+			Volver a mis empresas
+		</a>
 
-				<PriceInfo
-					UPGRADE_BASE_PRICE={UPGRADE_BASE_PRICE}
-					processingFee={processingFee}
-					totalAmount={totalAmount}
-				/>
+		{/* Hero */}
+		<div class="mt-8 text-center">
+			<div
+				class="inline-flex items-center gap-2 rounded-full border border-[#8c681d]/30 bg-[#8c681d]/10 px-4 py-1.5 dark:border-[#d4af37]/30 dark:bg-[#d4af37]/10"
+			>
+				<span
+					class="text-xs font-semibold tracking-[0.2em] text-[#8c681d] uppercase dark:text-[#d4af37]"
+				>
+					Upgrade
+				</span>
 			</div>
+			<h1
+				class="mt-5 text-4xl font-bold tracking-tight text-balance text-neutral-900 sm:text-5xl dark:text-white"
+			>
+				Lleva a
+				<span id="hero-company" class="text-[#8c681d] dark:text-[#d4af37]">
+					{firstCompanyLabel}
+				</span>
+				<br />
+				al siguiente nivel
+			</h1>
+			<p
+				class="mx-auto mt-4 max-w-xl text-balance text-neutral-600 dark:text-neutral-400"
+			>
+				Estás a un paso de desbloquear el plan business. Más velocidad, más
+				respaldo, más resultados.
+			</p>
+		</div>
+
+		{/* Main grid */}
+		<div class="mt-12 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+			{/* Benefits column */}
+			<div class="space-y-5">
+				<h2
+					class="text-xs font-semibold tracking-widest text-neutral-500 uppercase dark:text-neutral-400"
+				>
+					¿Qué incluye el upgrade?
+				</h2>
+
+				<div class="grid gap-5 sm:grid-cols-2">
+					{
+						benefits.map(({ icon, title, desc, showLogos }) => (
+							<div class="group dark:from-black-600 dark:to-black-900 min-h-56 rounded-2xl border border-neutral-200 bg-white p-8 transition-all hover:border-[#8c681d]/40 hover:shadow-md dark:border-neutral-800 dark:bg-linear-to-tr dark:hover:border-[#d4af37]/40">
+								<div class="flex items-center gap-3">
+									<div class="flex h-14 w-14 items-center justify-center rounded-xl bg-[#8c681d]/10 text-[#8c681d] dark:bg-[#d4af37]/15 dark:text-[#d4af37]">
+										<Icon name={icon} class="h-8 w-8" />
+									</div>
+									{showLogos && (
+										<div class="flex items-center text-sm text-neutral-300 dark:text-neutral-700">
+											<span aria-hidden="true" class="mx-3">
+												|
+											</span>
+											<div class="flex items-center gap-4">
+												<div class="flex h-14 items-center">
+													<img
+														src={stripeBadge}
+														alt="Stripe"
+														class="h-5 w-auto object-contain opacity-60 brightness-0 transition-opacity hover:opacity-100 dark:opacity-50 dark:invert"
+														loading="lazy"
+													/>
+												</div>
+												<div class="flex h-14 items-center">
+													<img
+														src={mercuryBadge}
+														alt="Mercury Bank"
+														class="h-7 w-auto object-contain opacity-60 transition-opacity hover:opacity-100 dark:opacity-50 dark:brightness-0 dark:invert"
+														loading="lazy"
+													/>
+												</div>
+											</div>
+										</div>
+									)}
+								</div>
+								<h3 class="mt-5 text-lg font-semibold text-neutral-800 dark:text-neutral-100">
+									{title}
+								</h3>
+								<p class="mt-1.5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+									{desc}
+								</p>
+							</div>
+						))
+					}
+				</div>
+			</div>
+
+			{/* Payment card */}
+			<aside
+				class="dark:from-black-600 dark:to-black-900 h-fit rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm sm:p-8 dark:border-neutral-800 dark:bg-linear-to-tr"
+			>
+				<div class="flex items-start justify-between gap-4">
+					<div class="min-w-0">
+						<p
+							class="text-xs font-semibold tracking-widest text-neutral-500 uppercase dark:text-neutral-400"
+						>
+							Tu upgrade
+						</p>
+						<p
+							id="card-company"
+							class="mt-1 truncate text-lg font-semibold text-neutral-900 dark:text-white"
+						>
+							{firstCompanyLabel}
+						</p>
+					</div>
+					<span
+						class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#8c681d]/10 text-[#8c681d] dark:bg-[#d4af37]/15 dark:text-[#d4af37]"
+					>
+						<Icon name="ri:vip-crown-line" class="h-5 w-5" />
+					</span>
+				</div>
+
+				{
+					/* Empresa target — id oculto para el cliente JS, sin selector visible */
+				}
+				{
+					!empresas || empresas.length === 0 ? (
+						<div class="mt-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+							No tienes empresas elegibles para upgrade en este momento.
+						</div>
+					) : (
+						<input
+							type="hidden"
+							id="empresa-id"
+							value={empresas[0]!.empresa_incorporacion_id}
+						/>
+					)
+				}
+
+				{/* Precio destacado */}
+				<div
+					class="mt-6 flex items-end gap-2 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+				>
+					<span
+						id="hero-total"
+						class="text-5xl font-bold tracking-tight text-neutral-900 dark:text-white"
+					>
+						{fmt(total)}
+					</span>
+					<span class="mb-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+						USD · pago único
+					</span>
+				</div>
+
+				{/* Breakdown + CTA */}
+				<form id="payment-form" class="mt-6 space-y-3 text-sm">
+					<div class="flex items-center justify-between">
+						<span class="text-neutral-600 dark:text-neutral-400">
+							Precio del upgrade
+						</span>
+						<span
+							id="summary-base"
+							class="font-medium text-neutral-900 dark:text-neutral-100"
+						>
+							{fmt(basePrice)}
+						</span>
+					</div>
+					<div class="flex items-center justify-between">
+						<span class="text-neutral-600 dark:text-neutral-400">
+							Tarifas de procesamiento
+						</span>
+						<span
+							id="summary-fee"
+							class="font-medium text-neutral-900 dark:text-neutral-100"
+						>
+							{fmt(fee)}
+						</span>
+					</div>
+					<div class="my-1 h-px bg-neutral-200 dark:bg-neutral-800"></div>
+					<div class="flex items-center justify-between">
+						<span class="font-semibold text-neutral-900 dark:text-white">
+							Total
+						</span>
+						<span
+							id="summary-total"
+							class="text-base font-bold text-[#8c681d] dark:text-[#d4af37]"
+						>
+							{fmt(total)}
+						</span>
+					</div>
+
+					<p
+						id="status-message"
+						class="min-h-4 pt-1 text-xs text-neutral-500 dark:text-neutral-400"
+						aria-live="polite"
+					>
+					</p>
+
+					<button
+						type="submit"
+						id="pay-button"
+						disabled={!isPaymentEnabled}
+						class="bg-black-500 hover:bg-black-700 dark:text-black-900 mt-2 inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold text-white transition-colors focus:ring-2 focus:ring-[#8c681d]/40 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[#d4af37] dark:hover:bg-[#e8c873]"
+					>
+						<Icon name="ri:bank-card-line" class="h-4 w-4" />
+						<span id="pay-button-label">Confirmar y pagar ahora</span>
+					</button>
+				</form>
+
+				<a
+					href="/my-companies/"
+					class="dark:hover:bg-black-800 mt-3 block w-full rounded-lg border border-neutral-300 py-2.5 text-center text-xs font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-neutral-600"
+				>
+					Cancelar
+				</a>
+				<div
+					class="mt-6 space-y-2 border-t border-neutral-200 pt-4 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-500"
+				>
+					<div class="flex items-center justify-center gap-4">
+						<span class="flex items-center gap-1.5">
+							<Icon name="ri:shield-keyhole-line" class="h-3.5 w-3.5" />
+							Pago seguro
+						</span>
+						<span
+							class="h-1 w-1 rounded-full bg-neutral-300 dark:bg-neutral-700"
+						></span>
+						<span class="flex items-center gap-1.5">
+							<Icon name="ri:lock-line" class="h-3.5 w-3.5" />
+							Cifrado SSL
+						</span>
+					</div>
+					<div class="flex items-center justify-center gap-1.5">
+						<Icon name="ri:customer-service-2-line" class="h-3.5 w-3.5" />
+						<span>¿Necesitas ayuda?</span>
+						<a
+							href="mailto:soporte@sotomayorconsulting.com"
+							class="font-semibold text-[#8c681d] hover:underline dark:text-[#d4af37]"
+						>
+							Contáctanos
+						</a>
+					</div>
+				</div>
+			</aside>
 		</div>
 	</div>
 </main>
-
-<script id="stripe-js" src="https://js.stripe.com/v3/"></script>
 
 <script>
 	import './upgrade/FormUpgrade.client.ts';

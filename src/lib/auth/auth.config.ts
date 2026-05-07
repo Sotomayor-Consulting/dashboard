@@ -18,6 +18,7 @@ export const PATHS = {
 	forgotPassword: '/forgot-password',
 	resetPassword: '/reset-password',
 	setPassword: '/set-password',
+	onboarding: '/onboarding',
 	oauthCallback: '/api/auth/callback',
 } as const;
 

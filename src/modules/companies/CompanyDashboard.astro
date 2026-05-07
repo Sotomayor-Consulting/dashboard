@@ -34,7 +34,13 @@ const [empresa, porfirmar, clientWorkflowProgress, planContratado] =
 		getPlanContratadoPorEmpresa(supabase, empresaId),
 	]);
 
-const planName = planContratado?.servicios?.nombre ?? 'Plan Business';
+// El servicio "Upgrade" promueve la empresa al Plan Business — mostrar el
+// plan resultante en lugar del nombre del servicio de upgrade.
+const rawPlanName = planContratado?.servicios?.nombre ?? 'Plan Business';
+const planName =
+	rawPlanName.trim().toLowerCase() === 'upgrade'
+		? 'Plan Business'
+		: rawPlanName;
 
 if (!empresa) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');

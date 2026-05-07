@@ -298,8 +298,13 @@ export function onRequest(context: any, next: any) {
 		//    callback de invitación / recovery (requieren sesión recién creada).
 		if (
 			pathname === PATHS.resetPassword ||
-			pathname === PATHS.setPassword
+			pathname === PATHS.setPassword ||
+			pathname === PATHS.onboarding
 		) {
+			// Onboarding requires a session
+			if (pathname === PATHS.onboarding && !context.locals.user) {
+				return redirect(PATHS.signIn);
+			}
 			const response = await next();
 			return addSecurityHeaders(response, pathname);
 		}
