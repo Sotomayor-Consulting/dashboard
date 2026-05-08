@@ -16,15 +16,7 @@ const [usuarios, roles] = await Promise.all([
 	class="block items-center justify-between p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<Alerta />
-	<CrudPageHeader
-		title="Lista de usuarios"
-		breadcrumbItems={[
-			{
-				label: 'Notificaciones',
-				href: '/admin/notificaciones/',
-			},
-		]}
-	/>
+	<CrudPageHeader title="Lista de usuarios" />
 </div>
 
 <NotificacionesUsuariosTable

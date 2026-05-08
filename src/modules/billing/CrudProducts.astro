@@ -16,7 +16,6 @@ const labelClass =
 	'mb-2 block text-sm font-medium text-gray-900 dark:text-white';
 ---
 
-<script src="@lib/alpinejs/alpine.js"></script>
 <div
 	class="block items-center justify-between p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
@@ -25,10 +24,7 @@ const labelClass =
 		<div
 			class="block w-full items-center justify-between border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 		>
-			<CrudPageHeader
-				title="Todos los servicios"
-				breadcrumbItems={[{ label: 'Servicios' }]}
-			>
+			<CrudPageHeader title="Todos los servicios">
 				<button
 					slot="actions"
 					id="createProductButton"

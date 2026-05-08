@@ -3,6 +3,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import node from '@astrojs/node';
 import icon from 'astro-icon';
+import pagefind from 'astro-pagefind';
 
 import react from '@astrojs/react';
 
@@ -44,7 +45,7 @@ export default defineConfig({
 		},
 	},
 	base: '/',
-	integrations: [sitemap(), icon(), react()],
+	integrations: [sitemap(), icon(), react(), pagefind()],
 	image: {
 		remotePatterns: [{ protocol: 'https' }],
 	},

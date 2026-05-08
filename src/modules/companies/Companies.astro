@@ -1,6 +1,5 @@
 ---
 import CompaniesCrudTable from '@modules/companies/views/CompaniesCrudTable.tsx';
-import { SharedBreadcrumb } from '@components/ui/bread-crumb.tsx';
 import { getCompaniesPageData } from '@modules/companies/services/getCompaniesPageData';
 
 const supabase = Astro.locals.supabase;
@@ -11,9 +10,6 @@ const [tableData, estadosResult] = await Promise.all([
 ]);
 
 const estados = (estadosResult.data ?? []).map((e) => e.Estado as string);
-
-const paths = [{ label: 'Inicio', href: '/' }, { label: 'Empresas' }];
 ---
 
-<SharedBreadcrumb paths={paths} />
 <CompaniesCrudTable data={tableData} estados={estados} client:load />

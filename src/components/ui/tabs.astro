@@ -14,7 +14,7 @@ const { buttons } = Astro.props;
 ---
 
 <ul
-	class="dark:bg-black-900 mt-4 inline-flex w-full flex-wrap items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 text-sm font-medium shadow-sm shadow-gray-200/70 md:w-auto dark:border-gray-700 dark:shadow-none"
+	class="dark:bg-black-900 mt-4 flex w-fit items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium shadow-sm shadow-gray-200/70 md:w-auto xl:inline-flex xl:text-sm dark:border-gray-700 dark:shadow-none"
 >
 	{
 		buttons.map((li, idx) => (
@@ -29,7 +29,6 @@ const { buttons } = Astro.props;
 					<a
 						href={li.link}
 						data-astro-prefetch
-						data-tab-prefetch
 						class:list={{
 							'link-moderate inline-flex w-full items-center gap-2 rounded-md px-3 py-2 transition-colors md:w-auto': true,
 							'dark:bg-black-700 bg-gray-100 text-gray-900 shadow-sm dark:text-white':

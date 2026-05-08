@@ -57,6 +57,7 @@
 		"apexcharts": "^3.54.1",
 		"astro": "6.0.2",
 		"astro-icon": "^1.1.5",
+		"astro-pagefind": "^1.8.6",
 		"axios": "^1.13.6",
 		"boring-avatars": "^2.0.4",
 		"carbone": "^3.5.6",
