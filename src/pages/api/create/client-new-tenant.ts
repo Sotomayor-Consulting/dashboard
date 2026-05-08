@@ -5,7 +5,7 @@ import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
 import { safeBack } from '@lib/security/headers';
 
-const BACK_PATH = '/pages/crear-empresa'; // TODO: actualizar cuando se migre esta page
+const BACK_PATH = '/crear-empresa';
 const BUCKET = 'empresa-logos';
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 

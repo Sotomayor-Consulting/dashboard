@@ -58,7 +58,7 @@ import DashBoard from '@modules/dashboard/DashBoard.astro';
 ### Key Directories
 
 - **`src/app/layouts/`** — Layouts maestros. `LayoutCommon` es el HTML shell base (head, dark mode, flowbite). `LayoutSidebar` y `LayoutStacked` extienden `LayoutCommon` con navegación.
-- **`src/app/navegation/`** — Componentes de navegación (NavBar, SideBar). La sidebar se configura desde `src/lib/interfaz/itemsNavegacion.ts` donde cada item tiene un array `roles` (`'all'` = universal, o roles específicos).
+- **`src/app/navigation/`** — Componentes de navegación (NavBar, SideBar). La sidebar se configura desde `src/lib/interfaz/itemsNavegacion.ts` donde cada item tiene un array `roles` (`'all'` = universal, o roles específicos).
 - **`src/app/constants.js`** — `SITE_TITLE`, `API_URL`, `REMOTE_ASSETS_BASE_URL`.
 - **`src/pages/`** — Rutas Astro. Las pages importan un layout + un módulo y los componen.
 - **`src/modules/`** — Features completas por dominio (auth, dashboard, crud, billing, forms, partners, companies, landing, errors, shared). Cada módulo tiene sus propios `.astro` components y opcionalmente `.client.ts` para JS del browser.
