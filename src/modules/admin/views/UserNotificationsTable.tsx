@@ -62,7 +62,7 @@ interface TableRow {
 	roles: string[];
 }
 
-interface NotificacionesUsuariosTableProps {
+interface UserNotificationsTableProps {
 	usuarios: UserItem[];
 	roles: RoleItem[];
 }
@@ -95,10 +95,10 @@ function mapRows(usuarios: UserItem[], roles: RoleItem[]): TableRow[] {
 	}));
 }
 
-export default function NotificacionesUsuariosTable({
+export default function UserNotificationsTable({
 	usuarios,
 	roles,
-}: NotificacionesUsuariosTableProps) {
+}: UserNotificationsTableProps) {
 	const data = React.useMemo(() => mapRows(usuarios, roles), [usuarios, roles]);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(

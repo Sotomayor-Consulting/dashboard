@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@lib/supabase';
-import { completeTask } from '@lib/tablas/workflow';
+import { completeTask } from '@lib/tables/workflow';
 import { SECURITY_HEADERS } from '@lib/security/headers';
 
 export const prerender = false;

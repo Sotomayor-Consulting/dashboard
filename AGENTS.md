@@ -58,7 +58,7 @@ import DashBoard from '@modules/dashboard/DashBoard.astro';
 ### Key Directories
 
 - **`src/app/layouts/`** — Layouts maestros. `LayoutCommon` es el HTML shell base (head, dark mode, flowbite). `LayoutSidebar` y `LayoutStacked` extienden `LayoutCommon` con navegación.
-- **`src/app/navigation/`** — Componentes de navegación (NavBar, SideBar). La sidebar se configura desde `src/lib/interfaz/itemsNavegacion.ts` donde cada item tiene un array `roles` (`'all'` = universal, o roles específicos).
+- **`src/app/navigation/`** — Componentes de navegación (NavBar, SideBar). La sidebar se configura desde `src/lib/interface/itemsNavegacion.ts` donde cada item tiene un array `roles` (`'all'` = universal, o roles específicos).
 - **`src/app/constants.js`** — `SITE_TITLE`, `API_URL`, `REMOTE_ASSETS_BASE_URL`.
 - **`src/pages/`** — Rutas Astro. Las pages importan un layout + un módulo y los componen.
 - **`src/modules/`** — Features completas por dominio (auth, dashboard, crud, billing, forms, partners, companies, landing, errors, shared). Cada módulo tiene sus propios `.astro` components y opcionalmente `.client.ts` para JS del browser.
@@ -66,10 +66,10 @@ import DashBoard from '@modules/dashboard/DashBoard.astro';
 - **`src/lib/`** — Lógica de negocio e infraestructura:
   - `auth/` — AuthService, config, helpers, types (barrel export en index.ts)
   - `supabase/` — Tres clientes: `createSupabaseServerClient` (SSR, preferido), `supabaseAdmin` (service role), `supabaseBrowser` (client-side). El singleton `supabase` en `client.ts` está `@deprecated`.
-  - `tablas/` — ~21 módulos de acceso a datos por tabla. Cada archivo exporta funciones typed que reciben `SupabaseClient` + identificadores y retornan data tipada o `null`.
+  - `tables/` — ~21 módulos de acceso a datos por tabla. Cada archivo exporta funciones typed que reciben `SupabaseClient` + identificadores y retornan data tipada o `null`.
   - `roles.ts` — Constantes y helpers de roles (`admin`, `partner`, `cliente`, `operaciones`)
   - `security/headers.ts` — `SECURITY_HEADERS` para API routes que retornan JSON.
-  - `interfaz/` — Definiciones de items de navegación (`itemsNavegacion.ts`) y headers de tablas.
+  - `interface/` — Definiciones de items de navegación (`itemsNavegacion.ts`) y headers de tablas.
   - `odoo/` — Integración con Odoo via XML-RPC
   - `mailing/` — Nodemailer
   - `carbone.ts` — Generación de documentos con Carbone
@@ -123,7 +123,7 @@ const supabase = createSupabaseServerClient({ headers: request.headers, cookies 
 
 `supabaseAdmin` (service role) para operaciones privilegiadas. `supabaseBrowser` para client-side.
 
-### Tablas Pattern (`src/lib/tablas/`)
+### Tables Pattern (`src/lib/tables/`)
 
 Funciones typed de acceso a datos. Siempre reciben `SupabaseClient` como primer argumento:
 

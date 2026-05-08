@@ -30,7 +30,7 @@ interface NotificationItem {
 	leido_en?: string | null;
 }
 
-interface NotificacionesTableProps {
+interface NotificationsTableProps {
 	notificaciones: NotificationItem[];
 }
 
@@ -43,9 +43,9 @@ function formatDate(value?: string | null) {
 	return date.toLocaleDateString('es-ES').replace(/\//g, '-');
 }
 
-export default function NotificacionesTable({
+export default function NotificationsTable({
 	notificaciones,
-}: NotificacionesTableProps) {
+}: NotificationsTableProps) {
 	const [query, setQuery] = React.useState('');
 	const [page, setPage] = React.useState(1);
 

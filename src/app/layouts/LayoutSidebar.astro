@@ -2,7 +2,7 @@
 import Banner from '@components/feedback/Banner.astro';
 import BannerUpgrade from '@components/feedback/BannerUpgrade.astro';
 import BannerPartner from '@components/feedback/Banner_partner_profile.astro';
-import BannerIncorporacion from '@components/feedback/Banner_formulario_de_incorporacion.astro';
+import BannerIncorporacion from '@components/feedback/BannerIncorporationForm.astro';
 import LayoutCommon from './LayoutCommon.astro';
 import NavBarSidebar from '../navigation/NavBarSidebar.astro';
 import SideBar from '../navigation/SideBar.astro';
@@ -11,17 +11,17 @@ import {
 	getUsuarioById,
 	getMissingFieldsFromProfile,
 	type PartnerRequiredField,
-} from '@lib/tablas/users/usuarios';
-import { getNotifications } from '@lib/tablas/users/notificaciones';
+} from '@lib/tables/users/usuarios';
+import { getNotifications } from '@lib/tables/users/notificaciones';
 import {
 	getEstadoIncorporacionByUserId,
 	getBannerIncorporacionData,
-} from '@lib/tablas/companies/empresa_incorporaciones';
+} from '@lib/tables/companies/empresa_incorporaciones';
 import {
 	getEmpresasForSwitcher,
 	resolveActiveCompany,
 	type EmpresaSwitcherItem,
-} from '@lib/tablas/companies/empresas';
+} from '@lib/tables/companies/empresas';
 import { ACTIVE_COMPANY_COOKIE } from '@lib/companies/active-cookie';
 
 const supabase = Astro.locals.supabase;

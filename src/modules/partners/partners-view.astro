@@ -1,12 +1,12 @@
 ---
 import Dropzone from '@components/display/Dropzone.astro';
 import { Icon } from 'astro-icon/components';
-import ImprimirContrato from '@components/display/ImprimirContrato.astro';
+import PrintContract from '@components/display/PrintContract.astro';
 import {
 	getUsuarioById,
 	getMissingPartnerFields,
-} from '@lib/tablas/users/usuarios';
-import { getDocumentosGenerales } from '@lib/tablas/documents/documentos';
+} from '@lib/tables/users/usuarios';
+import { getDocumentosGenerales } from '@lib/tables/documents/documentos';
 const user = Astro.locals.user;
 const userRoles = Astro.locals.userRoles || [];
 const UserId = user?.id;
@@ -220,7 +220,7 @@ if (isPartner && user) {
 						width="70"
 						height="70"
 					/>
-					<ImprimirContrato
+					<PrintContract
 						data={datosParaReporte}
 						reportName="CONTRATO DE PARTNERS.pdf"
 						templatePath="CONTRATO_DE_PARTNERS.docx"

@@ -1,9 +1,9 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
 import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
-import { getAllUsuarios } from '@lib/tablas/users/usuarios';
-import { RolesGeneralUsers } from '@lib/tablas/utils/roles/roles';
-import NotificacionesUsuariosTable from '@modules/admin/views/NotificacionesUsuariosTable';
+import { getAllUsuarios } from '@lib/tables/users/usuarios';
+import { RolesGeneralUsers } from '@lib/tables/utils/roles/roles';
+import UserNotificationsTable from '@modules/admin/views/UserNotificationsTable';
 
 const supabase = Astro.locals.supabase;
 const [usuarios, roles] = await Promise.all([
@@ -19,7 +19,7 @@ const [usuarios, roles] = await Promise.all([
 	<CrudPageHeader title="Lista de usuarios" />
 </div>
 
-<NotificacionesUsuariosTable
+<UserNotificationsTable
 	client:load
 	usuarios={usuarios ?? []}
 	roles={roles ?? []}

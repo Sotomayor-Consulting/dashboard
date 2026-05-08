@@ -1,7 +1,7 @@
 ---
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
 import Alerta from '@components/feedback/alertageneral.astro';
-import { IncorporacionesEmpresasBase } from '@lib/tablas/companies/empresa_incorporaciones';
+import { IncorporacionesEmpresasBase } from '@lib/tables/companies/empresa_incorporaciones';
 
 const supabase = Astro.locals.supabase;
 const empresas = await IncorporacionesEmpresasBase(supabase);

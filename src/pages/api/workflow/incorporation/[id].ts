@@ -4,7 +4,7 @@ import {
 	getWorkflowByIncorporation,
 	listStages,
 	listTasksByIncorporation,
-} from '@lib/tablas/workflow';
+} from '@lib/tables/workflow';
 import { SECURITY_HEADERS } from '@lib/security/headers';
 
 export const prerender = false;

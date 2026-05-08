@@ -28,7 +28,7 @@ interface FormSubmissionItem {
 	};
 }
 
-interface FormsEnviadosTableProps {
+interface SubmittedFormsTableProps {
 	data: FormSubmissionItem[];
 }
 
@@ -41,7 +41,7 @@ function formatDate(value?: string | null) {
 	return date.toLocaleDateString('es-ES');
 }
 
-export default function FormsEnviadosTable({ data }: FormsEnviadosTableProps) {
+export default function SubmittedFormsTable({ data }: SubmittedFormsTableProps) {
 	const [query, setQuery] = React.useState('');
 	const [page, setPage] = React.useState(1);
 

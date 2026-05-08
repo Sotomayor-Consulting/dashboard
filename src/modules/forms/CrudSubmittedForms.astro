@@ -4,8 +4,8 @@ import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
 import Drawer from '@components/ui/Drawer.astro';
 import DrawerConfirm from '@components/ui/DrawerConfirm.astro';
 import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
-import { FormsEnviadosDataGeneral } from '@lib/tablas/forms/formulariosEnviados';
-import FormsEnviadosTable from '@modules/forms/views/FormsEnviadosTable';
+import { FormsEnviadosDataGeneral } from '@lib/tables/forms/formulariosEnviados';
+import SubmittedFormsTable from '@modules/forms/views/SubmittedFormsTable';
 import Tab from '@components/ui/tabs.astro';
 
 const supabase = Astro.locals.supabase;
@@ -74,7 +74,7 @@ const actionBtnClass =
 		<div class="overflow-x-auto">
 			<div class="inline-block min-w-full align-middle">
 				<div class="overflow-hidden shadow">
-					<FormsEnviadosTable data={formularios_envios ?? []} client:load />
+					<SubmittedFormsTable data={formularios_envios ?? []} client:load />
 				</div>
 			</div>
 		</div>

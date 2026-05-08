@@ -27,7 +27,7 @@ interface VerificationItem {
 	};
 }
 
-interface CrudVerificacionTableProps {
+interface CrudVerificationTableProps {
 	data: VerificationItem[];
 }
 
@@ -40,9 +40,9 @@ function formatDate(value?: string | null) {
 	return date.toLocaleDateString('es-ES');
 }
 
-export default function CrudVerificacionTable({
+export default function CrudVerificationTable({
 	data,
-}: CrudVerificacionTableProps) {
+}: CrudVerificationTableProps) {
 	const [query, setQuery] = React.useState('');
 	const [page, setPage] = React.useState(1);
 

@@ -1,7 +1,7 @@
 ---
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
-import Vistapartner from '@modules/partners/vista-partners.astro';
-import { getUsuarioById } from '@lib/tablas/users/usuarios';
+import Vistapartner from '@modules/partners/partners-view.astro';
+import { getUsuarioById } from '@lib/tables/users/usuarios';
 const supabase = Astro.locals.supabase;
 
 const user = Astro.locals.user;

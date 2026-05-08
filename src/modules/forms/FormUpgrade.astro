@@ -2,8 +2,8 @@
 import { Icon } from 'astro-icon/components';
 import stripeBadge from '@assets/stripe.svg?url';
 import mercuryBadge from '@assets/MercuryBank.svg?url';
-import { getIncorporacionesUpgrade } from '@lib/tablas/companies/empresa_incorporaciones';
-import { getServicioUpgrade } from '@lib/tablas/services/servicios';
+import { getIncorporacionesUpgrade } from '@lib/tables/companies/empresa_incorporaciones';
+import { getServicioUpgrade } from '@lib/tables/services/servicios';
 
 const User = Astro.locals.user;
 const userId = User?.id || '';

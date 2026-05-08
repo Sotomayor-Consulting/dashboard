@@ -53,7 +53,7 @@ export const markNotificationAsRead = async (
 	return { success: true, error: null };
 };
 
-export const getNotificacionesGeneral = async (supabase: SupabaseClient) => {
+export const getNotificationsGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
 		.from('notifications')
 		.select(
@@ -78,7 +78,7 @@ export const getNotificacionesGeneral = async (supabase: SupabaseClient) => {
 	return data;
 };
 
-export const getNotificacionesGeneralPorId = async (
+export const getNotificationsGeneralPorId = async (
 	supabase: SupabaseClient,
 	userId: string,
 ) => {

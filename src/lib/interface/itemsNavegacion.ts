@@ -90,7 +90,7 @@ export const menuItems: MenuItem[] = [
 	},
 	{
 		id: 'menu-notificaciones-a-usuarios',
-		label: 'Notificaciones',
+		label: 'Notifications',
 		href: '/admin/notificaciones/',
 		tooltip: 'Notifica a los usuarios con mensajes personalizados',
 		roles: ['admin'],

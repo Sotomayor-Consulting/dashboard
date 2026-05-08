@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { IncorporacionesEmpresasBase } from '@lib/tablas/companies/empresa_incorporaciones';
+import { IncorporacionesEmpresasBase } from '@lib/tables/companies/empresa_incorporaciones';
 import type { CompanyCrudRow } from '../types';
 
 export const getCompaniesPageData = async (

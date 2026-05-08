@@ -35,7 +35,7 @@ import {
 import type {
 	DocumentDashboardRow,
 	DocumentTypeLite,
-} from '@lib/tablas/documents/document_dashboard';
+} from '@lib/tables/documents/document_dashboard';
 import { DocumentTypeComboboxField } from './documentTypeComboboxField';
 
 type Props = {

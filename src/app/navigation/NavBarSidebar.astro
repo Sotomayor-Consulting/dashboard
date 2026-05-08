@@ -3,7 +3,7 @@ import { Icon } from 'astro-icon/components';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
 import GlobalSearch from '@components/navigation/GlobalSearch.astro';
 import logonotificaciones from '@assets/avatarSCI.png';
-import { menuItems } from '@lib/interfaz/itemsNavegacion';
+import { menuItems } from '@lib/interface/itemsNavegacion';
 
 // Datos recibidos desde LayoutSidebar (ya consultados en paralelo)
 const { notificationsData: notifProp } = Astro.props;
@@ -211,7 +211,7 @@ const quickActions = [
 						data-dropdown-toggle="notification-dropdown"
 						class="relative inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-[#101522] dark:hover:text-white"
 					>
-						<span class="sr-only">Ver Notificaciones</span>
+						<span class="sr-only">Ver Notifications</span>
 						<Icon name="ri:notification-3-line" class="h-5 w-5" />
 						{
 							totalUnread > 0 && (
@@ -229,7 +229,7 @@ const quickActions = [
 						<div
 							class="to-black-600 from-black-900 block bg-gray-50 px-4 py-2 text-center text-base font-medium text-gray-700 dark:bg-linear-to-tl dark:text-gray-400"
 						>
-							Notificaciones
+							Notifications
 						</div>
 						<div
 							id="notifications-list"

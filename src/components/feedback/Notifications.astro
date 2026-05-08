@@ -1,20 +1,20 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
-import { getNotificacionesGeneralPorId } from '@lib/tablas/users/notificaciones';
-import NotificacionesTable from '@components/feedback/views/NotificacionesTable';
+import { getNotificationsGeneralPorId } from '@lib/tables/users/notificaciones';
+import NotificationsTable from '@components/feedback/views/NotificationsTable';
 
 const user = Astro.locals.user;
 const userId = user?.id;
 const supabase = Astro.locals.supabase;
 
 const notificaciones = userId
-	? await getNotificacionesGeneralPorId(supabase, userId)
+	? await getNotificationsGeneralPorId(supabase, userId)
 	: null;
 ---
 
 <script src="@lib/alpinejs/alpine.js"></script>
 <Alerta />
-<NotificacionesTable notificaciones={notificaciones ?? []} client:load />
+<NotificationsTable notificaciones={notificaciones ?? []} client:load />
 
 <!-- Edit User Modal -->
 <div
