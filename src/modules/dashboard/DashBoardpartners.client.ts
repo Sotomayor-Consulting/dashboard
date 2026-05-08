@@ -1,7 +1,15 @@
 /* eslint-disable max-lines */
 
-import ApexCharts from 'apexcharts';
+import type ApexChartsType from 'apexcharts';
 import { supabaseBrowser } from '@lib/supabase/browser';
+
+let ApexChartsCtor: typeof ApexChartsType | null = null;
+async function getApexCharts() {
+	if (!ApexChartsCtor) {
+		ApexChartsCtor = (await import('apexcharts')).default;
+	}
+	return ApexChartsCtor;
+}
 
 async function fetchOdooData(params: Record<string, string> = {}) {
 	const url = new URL('/api/charts/odooParners', window.location.origin);
@@ -231,6 +239,7 @@ async function initMainChart() {
 		// ¡LIMPIA el contenedor antes de renderizar!
 		el.innerHTML = '';
 
+		const ApexCharts = await getApexCharts();
 		chart = new ApexCharts(el, getMainChartOptions(data));
 		await chart.render();
 

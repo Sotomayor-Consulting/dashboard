@@ -21,3 +21,21 @@ declare namespace App {
 		supabase: import('@supabase/supabase-js').SupabaseClient;
 	}
 }
+
+// Allow non-standard SVG namespaces (Inkscape/Sodipodi/xlink/data:*) used in inline SVGs
+declare namespace astroHTML.JSX {
+	interface SVGAttributes {
+		'inkscape:label'?: string;
+		'inkscape:collect'?: string;
+		'inkscape:version'?: string;
+		'inkscape:groupmode'?: string;
+		'sodipodi:docname'?: string;
+		'sodipodi:nodetypes'?: string;
+		'xmlns:inkscape'?: string;
+		'xmlns:sodipodi'?: string;
+		'xmlns:svg'?: string;
+		'xmlns:xlink'?: string;
+		'xlink:href'?: string;
+		'data:realIndex'?: string;
+	}
+}

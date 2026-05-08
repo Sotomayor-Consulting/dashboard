@@ -46,18 +46,19 @@ export function DocumentTypeCombobox({
 	return (
 		<div className="w-full">
 			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger asChild>
-					<Button
-						type="button"
-						variant="outline"
-						role="combobox"
-						aria-expanded={open}
-						className="w-full justify-between"
-					>
-						{selected ? `${selected.code} - ${selected.name}` : placeholder}
-						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0" />
-					</Button>
-				</PopoverTrigger>
+				<PopoverTrigger
+					render={
+						<Button
+							type="button"
+							variant="outline"
+							aria-expanded={open}
+							className="w-full justify-between"
+						>
+							{selected ? `${selected.code} - ${selected.name}` : placeholder}
+							<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0" />
+						</Button>
+					}
+				/>
 
 				<PopoverContent className="w-[--radix-popover-trigger-width] p-0">
 					<Command>

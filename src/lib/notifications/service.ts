@@ -1,7 +1,4 @@
-import {
-	findMissingContextKeys,
-	renderTemplate,
-} from './renderer';
+import { findMissingContextKeys, renderTemplate } from './renderer';
 import { getNotificationTemplate } from './templates';
 import { sendEmailNotification } from './channels/email';
 import { sendInAppNotification } from './channels/inApp';
@@ -15,7 +12,9 @@ import type {
 	NotifyByEventResult,
 } from './types';
 
-function normalizeContext(context: NotificationContext = {}): NotificationContext {
+function normalizeContext(
+	context: NotificationContext = {},
+): NotificationContext {
 	return context;
 }
 
@@ -68,8 +67,10 @@ function buildRenderedPayload(
 
 	const sourceEmailSubject =
 		input.overrides?.emailSubject ?? template.email?.subject ?? '';
-	const sourceEmailHtml = input.overrides?.emailHtml ?? template.email?.html ?? '';
-	const sourceEmailText = input.overrides?.emailText ?? template.email?.text ?? '';
+	const sourceEmailHtml =
+		input.overrides?.emailHtml ?? template.email?.html ?? '';
+	const sourceEmailText =
+		input.overrides?.emailText ?? template.email?.text ?? '';
 
 	if (channels.includes('email') && (!sourceEmailSubject || !sourceEmailHtml)) {
 		throw new Error(
@@ -140,6 +141,15 @@ async function sendChannelsForRecipient(
 		}
 
 		if (channel === 'email') {
+			if (!recipient.email) {
+				channelResults.push({
+					channel,
+					success: false,
+					error: 'El destinatario no tiene correo configurado',
+				});
+				continue;
+			}
+
 			try {
 				await sendEmailNotification({
 					userId: recipient.userId,

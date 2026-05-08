@@ -94,7 +94,9 @@ export default function DocumentDropzoneField({
 		if (disabled) return;
 		const dropped = Array.from(event.dataTransfer.files ?? []);
 		if (dropped.length === 0) return;
-		const normalized = multiple ? dropped : [dropped[0]];
+		const firstDropped = dropped[0];
+		if (!firstDropped) return;
+		const normalized = multiple ? dropped : [firstDropped];
 		assignFilesToInput(normalized);
 	};
 
@@ -108,7 +110,9 @@ export default function DocumentDropzoneField({
 	};
 
 	const helper =
-		helperText || `Formatos permitidos: ${accept}. Tamaño máximo: ${maxSizeMb} MB.`;
+		helperText ||
+		`Formatos permitidos: ${accept}. Tamaño máximo: ${maxSizeMb} MB.`;
+	const firstFile = files[0];
 
 	return (
 		<div className={cn('space-y-2', className)}>
@@ -163,12 +167,14 @@ export default function DocumentDropzoneField({
 				</div>
 			</div>
 
-			{files.length > 0 ? (
+			{firstFile ? (
 				<div className="rounded-md border bg-white p-2 text-sm dark:bg-white/5">
 					<div className="flex items-center justify-between gap-2">
 						<div className="min-w-0">
-							<p className="truncate font-medium">{files[0].name}</p>
-							<p className="text-muted-foreground text-xs">{toMb(files[0].size)}</p>
+							<p className="truncate font-medium">{firstFile.name}</p>
+							<p className="text-muted-foreground text-xs">
+								{toMb(firstFile.size)}
+							</p>
 						</div>
 						<Button
 							type="button"
@@ -184,7 +190,9 @@ export default function DocumentDropzoneField({
 			) : null}
 
 			{error ? (
-				<p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
+				<p className="text-sm font-medium text-red-600 dark:text-red-400">
+					{error}
+				</p>
 			) : null}
 		</div>
 	);

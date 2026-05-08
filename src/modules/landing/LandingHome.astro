@@ -1,89 +1,22 @@
 ---
-import { Icon } from 'astro-icon/components';
-import MenuCard from '@components/display/MenuCard.astro';
 import ClientOnboarding from '@modules/onboarding/ClientOnboarding.astro';
+import DashBoard from '@modules/dashboard/DashBoard.astro';
 import { getUserWithRole } from '@lib/tablas/users/menu';
-import { getFormulariosPendientes } from '@lib/tablas/forms/formulariosEnviados';
-import { getPagosPorLeer } from '@lib/tablas/payments/PagosPorLeer';
 import { getEmpresasForSwitcher } from '@lib/tablas/companies/empresas';
-import { menuItems } from '@lib/interfaz/itemsNavegacion';
 
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
 
-const [userData, formularioData, empresasSwitcher] = await Promise.all([
+const [userData, empresasSwitcher] = await Promise.all([
 	getUserWithRole(supabase, userId),
-	getFormulariosPendientes(supabase),
 	getEmpresasForSwitcher(supabase, userId ?? ''),
 ]);
 
-const { role: userRole, roles: userRoles } = userData;
-const { count: formularioPendientesCount } = formularioData;
+const { roles: userRoles } = userData;
 const userName = user?.user_metadata?.name ?? user?.email ?? 'Usuario';
 const hasCompanies = empresasSwitcher.length > 0;
 const isNewClient = userRoles.includes('cliente') && !hasCompanies;
-
-const { count: pagosCount } = await getPagosPorLeer(supabase, userRole);
-
-const visibleMenu = menuItems
-	.filter(
-		(item) =>
-			(item.roles.includes('all') && userRoles.length > 0) ||
-			item.roles.includes('todos') ||
-			item.roles.some((r) => userRoles.includes(r)),
-	)
-	.sort((a, b) => a.sequence - b.sequence);
 ---
 
-{
-	isNewClient ? (
-		<ClientOnboarding userName={userName} />
-	) : (
-		<div
-			class="dark:bg-black-900 mt-10 mb-20 h-full p-4 lg:p-16 dark:text-slate-100"
-		>
-			<header
-				class="mt-5 flex w-full flex-col flex-wrap items-center justify-center p-8"
-			>
-				<div class="flex w-full justify-center">
-					<Icon name="logo-en-azul" class="block text-5xl dark:hidden" />
-					<Icon name="logo-en-blanco-alt" class="hidden text-5xl dark:block" />
-				</div>
-			</header>
-
-			<article class="flex h-full justify-center pt-20 pb-32">
-				<div
-					class="grid grid-flow-row grid-cols-2 gap-y-10 sm:grid-cols-3 md:grid-cols-4 md:gap-10 lg:grid-cols-5"
-				>
-					{
-						visibleMenu &&
-							visibleMenu.map((item) => (
-								<MenuCard
-									href={item.href}
-									label={item.label}
-									tooltipId={item.id}
-									tooltipText={item.tooltip}
-									badge={
-										item.id === 'verificacion-formulario-incorp' &&
-										formularioPendientesCount > 0
-											? formularioPendientesCount
-											: item.id === 'menu-vista-de-pagos' && pagosCount > 0
-												? pagosCount
-												: null
-									}
-								>
-									<Icon
-										name={item.svgname}
-										class={`text-5xl ${item.colors}`}
-										aria-label={item.label}
-										title={item.label}
-									/>
-								</MenuCard>
-							))
-					}
-				</div>
-			</article>
-		</div>
-	)
-}
+{isNewClient ? <ClientOnboarding userName={userName} /> : <DashBoard />}

@@ -246,7 +246,7 @@ const selectedCountry = usuario?.pais_id ? String(usuario.pais_id) : '';
 			) as HTMLElement | null;
 
 			if (errorEl) {
-				errorEl.textContent = messages[0];
+				errorEl.textContent = messages[0] ?? '';
 				errorEl.classList.remove('hidden');
 			}
 			if (inputEl) {

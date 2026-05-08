@@ -54,7 +54,8 @@ export const GET: APIRoute = async ({ cookies, request }) => {
 		if (!r.create_date) continue;
 
 		// según formato de Odoo, suele ser "2024-11-28 15:30:22"
-		const day = r.create_date.split(' ')[0]; // "YYYY-MM-DD"
+		const day = r.create_date.split(' ')[0] ?? ''; // "YYYY-MM-DD"
+		if (!day) continue;
 		const prev = countsByDay.get(day) ?? 0;
 		countsByDay.set(day, prev + 1);
 	}

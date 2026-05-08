@@ -38,9 +38,6 @@ export function initUpgradePaymentFlow(): void {
 	const feeEl = document.getElementById('summary-fee');
 	const totalEl = document.getElementById('summary-total');
 	const heroTotal = document.getElementById('hero-total');
-	const heroCompany = document.getElementById('hero-company');
-	const cardCompany = document.getElementById('card-company');
-	const buttonLabel = document.getElementById('pay-button-label');
 
 	const userId = cfg.dataset.userId || '';
 	const enabled = cfg.dataset.enabled === 'true';

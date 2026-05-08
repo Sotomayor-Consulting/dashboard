@@ -16,6 +16,8 @@ import {
 	TableHeader,
 	TableRow,
 } from '@components/components/ui/table';
+import { buttonVariants } from '@components/components/ui/button';
+import { cn } from '@components/lib/utils';
 
 interface NotificationItem {
 	id: string;
@@ -100,14 +102,14 @@ export default function NotificacionesTable({
 											{user.message}
 										</TableCell>
 										<TableCell>
-											<Button
-												render={<a />}
-												variant="outline"
+											<a
+												className={cn(buttonVariants({ variant: 'outline' }))}
 												href={user.link ?? '#'}
 												target="_blank"
+												rel="noreferrer"
 											>
 												{user.mensaje_link ?? 'Abrir'}
-											</Button>
+											</a>
 										</TableCell>
 										<TableCell>{formatDate(user.created_at)}</TableCell>
 										<TableCell>

@@ -4,8 +4,6 @@
 		"module": "ESNext",
 		"moduleResolution": "bundler",
 		"esModuleInterop": true,
-		"jsx": "react-jsx",
-		"jsxImportSource": "react",
 		"paths": {
 			"@components/*": ["./src/components/*"],
 			"@assets/*": ["./src/assets/*"],
@@ -20,4 +18,12 @@
 			"@middleware/*": ["./src/middleware/*"]
 		}
 	},
+	"exclude": [
+		"dist",
+		"node_modules",
+		"public",
+		"src/lib/alpinejs",
+		"src/lib/simple-data-tables",
+		"src/lib/surveyjs"
+	]
 }

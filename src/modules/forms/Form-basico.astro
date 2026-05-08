@@ -539,7 +539,7 @@ const display = msg ? 'flex' : 'hidden';
 	const boton2 = document.getElementById('dashboard-styled-tab');
 
 	checkbox?.addEventListener('change', (event) => {
-		if (event.target?.checked) {
+		if ((event.target as HTMLInputElement)?.checked) {
 			target?.classList.remove('hidden');
 			target?.classList.add('block');
 		} else {

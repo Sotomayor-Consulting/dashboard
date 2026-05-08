@@ -18,7 +18,7 @@ export async function getReferralsByEmail(
 		const referrals = (await executeKw(
 			'res.partner',
 			'search_read',
-			[[['x_referido_id', '=', parents[0].id]]],
+			[[['x_referido_id', '=', parents[0]!.id]]],
 			{
 				fields: [
 					'name',
@@ -41,7 +41,6 @@ export async function getReferralsByEmail(
 
 		console.log('orders :>> ', orders);
 
-		referrals.forEach((element) => {});
 
 		return { success: true, data: referrals };
 	} catch (error) {

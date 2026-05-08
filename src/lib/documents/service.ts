@@ -461,7 +461,11 @@ export async function listDocumentsByContext(
 	}
 
 	const docs = (
-		((links ?? []) as Array<{ documents?: Record<string, unknown> | null }>)
+		(
+			(links ?? []) as unknown as Array<{
+				documents?: Record<string, unknown> | null;
+			}>
+		)
 			.map((item) => item.documents)
 			.filter(Boolean) as Record<string, unknown>[]
 	).map((doc) => ({

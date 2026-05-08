@@ -61,7 +61,7 @@ export const GET: APIRoute = async ({ request, cookies, url, locals }) => {
 			JSON.stringify({
 				related_to_type: relatedToType,
 				related_to_id: relatedToId,
-				...payload,
+				...(payload as Record<string, unknown>),
 			}),
 			{
 				status: 200,

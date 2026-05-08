@@ -1,11 +1,11 @@
 import nodemailer from 'nodemailer';
 
-const SMTP_HOST = import.meta.env.SMTP_HOST
-const SMTP_USER = import.meta.env.SMTP_USER
-const SMTP_PASS = import.meta.env.SMTP_PASS
-const EMAIL_FROM = import.meta.env.EMAIL_FROM
-const SMTP_PORT = Number(import.meta.env.SMTP_PORT || 587)
-const EMAIL_FROM_NAME = import.meta.env.EMAIL_FROM_NAME
+const SMTP_HOST = import.meta.env.SMTP_HOST;
+const SMTP_USER = import.meta.env.SMTP_USER;
+const SMTP_PASS = import.meta.env.SMTP_PASS;
+const EMAIL_FROM = import.meta.env.EMAIL_FROM;
+const SMTP_PORT = Number(import.meta.env.SMTP_PORT || 587);
+const EMAIL_FROM_NAME = import.meta.env.EMAIL_FROM_NAME;
 
 if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !EMAIL_FROM) {
 	throw new Error(
@@ -24,7 +24,7 @@ export const transporter = nodemailer.createTransport({
 	auth: {
 		user: SMTP_USER,
 		pass: SMTP_PASS,
-	}
+	},
 });
 
 export async function sendMail(opts: {

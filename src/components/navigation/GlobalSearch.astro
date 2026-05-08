@@ -31,7 +31,7 @@ const {
 		data-global-search-input
 	/>
 	<kbd
-		class="dark:bg-black-800 pointer-events-none absolute top-1/2 right-2 hidden -translate-y-1/2 select-none items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-1.5 py-0.5 font-mono text-[11px] font-medium text-gray-500 sm:inline-flex dark:border-gray-700 dark:text-gray-400"
+		class="dark:bg-black-800 pointer-events-none absolute top-1/2 right-2 hidden -translate-y-1/2 items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-1.5 py-0.5 font-mono text-[11px] font-medium text-gray-500 select-none sm:inline-flex dark:border-gray-700 dark:text-gray-400"
 		aria-hidden="true"
 		data-global-search-hint
 	>
@@ -39,6 +39,23 @@ const {
 		<span>K</span>
 	</kbd>
 </div>
+
+<style>
+	input[type='search']::-webkit-search-cancel-button {
+		-webkit-appearance: none;
+		appearance: none;
+		height: 16px;
+		width: 16px;
+		background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg>");
+		background-size: contain;
+		background-repeat: no-repeat;
+		cursor: pointer;
+		margin-right: 6px;
+	}
+	:global(.dark) input[type='search']::-webkit-search-cancel-button {
+		background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg>");
+	}
+</style>
 
 <script>
 	function initGlobalSearch() {
@@ -49,7 +66,7 @@ const {
 
 		const isMac =
 			typeof navigator !== 'undefined' &&
-			/Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent);
+			/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 		containers.forEach((container) => {
 			if (container.dataset.searchInit === 'true') return;

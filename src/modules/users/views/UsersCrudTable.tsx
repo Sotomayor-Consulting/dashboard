@@ -204,7 +204,7 @@ export default function UsersCrudTable({
 							<h1 className="text-xl font-semibold">Todos los usuarios</h1>
 						</div>
 						<div className="flex flex-wrap items-center gap-2">
-							<Button onClick={() => setInviteOpen(true)} variant="primary">
+							<Button onClick={() => setInviteOpen(true)} variant="default">
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									width="24"
@@ -389,12 +389,12 @@ export default function UsersCrudTable({
 						<DialogFooter>
 							<Button
 								type="button"
-								variant="second"
+								variant="secondary"
 								onClick={() => setInviteOpen(false)}
 							>
 								Cancelar
 							</Button>
-							<Button type="submit" variant="primary">
+							<Button type="submit" variant="default">
 								Enviar invitación
 							</Button>
 						</DialogFooter>
@@ -430,12 +430,12 @@ export default function UsersCrudTable({
 						<DialogFooter>
 							<Button
 								type="button"
-								variant="second"
+								variant="secondary"
 								onClick={() => setCreateRoleOpen(false)}
 							>
 								Cancelar
 							</Button>
-							<Button type="submit" variant="primary">
+							<Button type="submit" variant="default">
 								Guardar rol
 							</Button>
 						</DialogFooter>
@@ -689,7 +689,7 @@ export default function UsersCrudTable({
 						<DialogFooter>
 							<Button
 								type="button"
-								variant="second"
+								variant="secondary"
 								onClick={() => setEstadoOpen(false)}
 							>
 								Cancelar

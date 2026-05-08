@@ -99,8 +99,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		}
 
 		const nextRevision =
-			revRows && revRows.length > 0 && Number.isInteger(revRows[0].revision)
-				? (revRows[0].revision as number) + 1
+			revRows && revRows.length > 0 && Number.isInteger(revRows[0]?.revision)
+				? (revRows[0]!.revision as number) + 1
 				: 1;
 
 		// 7) Build payload de INSERT

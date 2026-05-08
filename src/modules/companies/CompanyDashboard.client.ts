@@ -1,5 +1,4 @@
 /* eslint-disable max-lines */
-import ApexCharts from 'apexcharts';
 
 const clamp = (n: number, min = 0, max = 100) =>
 	Math.min(max, Math.max(min, n));
@@ -113,6 +112,7 @@ async function initPorcentajeRadioChart() {
 		},
 	};
 
+	const { default: ApexCharts } = await import('apexcharts');
 	const chart = new ApexCharts(el, options);
 	await chart.render();
 

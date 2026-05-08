@@ -86,7 +86,6 @@ const PUBLIC_ROUTES: readonly string[] = [
 	'/start',
 	'/incorporacion-y-pago',
 	'/test',
-	'/playground',
 	'/assets',
 	'/_image',
 	'/payment/success',

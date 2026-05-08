@@ -119,11 +119,14 @@ export default function FormsEnviadosTable({ data }: FormsEnviadosTableProps) {
 									</TableCell>
 									<TableCell>
 										<Button
-											render={<a />}
+											render={
+												<a
+													href={`/forms/enviados/${sr.submission_id}`}
+													target="_blank"
+												/>
+											}
 											variant="outline"
 											size="sm"
-											href={`/forms/enviados/${sr.submission_id}`}
-											target="_blank"
 										>
 											Ver respuestas
 										</Button>

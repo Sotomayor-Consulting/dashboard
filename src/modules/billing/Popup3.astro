@@ -85,6 +85,8 @@
 		const closeButton = document.getElementById('closeModal3');
 		const modal = document.getElementById('actionModal3');
 
+		if (!openButton || !closeButton || !modal) return;
+
 		openButton.addEventListener('click', function () {
 			modal.classList.remove('hidden');
 			modal.classList.add('flex');

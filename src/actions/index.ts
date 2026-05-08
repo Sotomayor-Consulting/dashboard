@@ -6,7 +6,7 @@ export const server = {
 	sendEmail: defineAction({
 		accept: 'form',
 		input: z.object({
-			email: z.string().email('Ingrese un correo válido.'),
+			email: z.email('Ingrese un correo válido.'),
 			subject: z.string().min(1, 'El asunto es obligatorio.'),
 			html: z.string().optional().default(''),
 		}),
@@ -18,7 +18,7 @@ export const server = {
 			});
 
 			if (!result.success) {
-				throw new Error(result.status);
+				throw new Error(String(result.status));
 			}
 
 			return {

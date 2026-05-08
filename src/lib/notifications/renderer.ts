@@ -25,7 +25,8 @@ export function extractTemplateTokens(template: string): string[] {
 	let match: RegExpExecArray | null;
 
 	while ((match = TOKEN_REGEX.exec(template)) !== null) {
-		tokens.add(match[1]);
+		const token = match[1];
+		if (token) tokens.add(token);
 	}
 
 	TOKEN_REGEX.lastIndex = 0;

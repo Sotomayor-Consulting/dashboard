@@ -13,11 +13,11 @@ export interface FormularioEnviadoDetalle {
 	formularios: {
 		titulo: string;
 		tema_json: Record<string, unknown>;
-	}[];
+	} | null;
 	usuarios: {
 		nombre: string;
 		apellido: string;
-	}[];
+	} | null;
 }
 
 export interface FormularioEnviadoDetalleItem {
@@ -68,7 +68,18 @@ export async function getFormularioEnviadoDetalle(
 		return { data: null, error };
 	}
 
-	return { data: data as FormularioEnviadoDetalle, error: null };
+	return {
+		data: {
+			...data,
+			formularios: Array.isArray(data.formularios)
+				? (data.formularios[0] ?? null)
+				: (data.formularios ?? null),
+			usuarios: Array.isArray(data.usuarios)
+				? (data.usuarios[0] ?? null)
+				: (data.usuarios ?? null),
+		} as FormularioEnviadoDetalle,
+		error: null,
+	};
 }
 
 export async function getFormularioEnviadoDetalleItem(
@@ -109,8 +120,12 @@ export async function getFormularioEnviadoDetalleItem(
 		created_at: data.created_at,
 		submitted_at: data.submitted_at,
 		empresa_incorporacion_id: data.empresa_incorporacion_id,
-		formularios: data.formularios ?? null,
-		usuarios: data.usuarios ?? null,
+		formularios: Array.isArray(data.formularios)
+			? (data.formularios[0] ?? null)
+			: (data.formularios ?? null),
+		usuarios: Array.isArray(data.usuarios)
+			? (data.usuarios[0] ?? null)
+			: (data.usuarios ?? null),
 	};
 
 	return { data: detalle, error: null };

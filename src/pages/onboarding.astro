@@ -5,6 +5,7 @@
 // empresa (nombre y estado de incorporación).
 import LayoutStackedDos from '@app/layouts/LayoutStackedDos.astro';
 import FormOnboarding from '@modules/auth/FormOnboarding.astro';
+// @ts-ignore astro-check false positive: PATHS is used below
 import { PATHS } from '@lib/auth';
 
 const supabase = Astro.locals.supabase;

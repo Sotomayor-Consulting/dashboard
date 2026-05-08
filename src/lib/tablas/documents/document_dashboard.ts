@@ -226,7 +226,7 @@ export async function getDocumentsForIncorporationCase(
 			if (!currentUserId) return false;
 			if (doc.visibility !== 'client_visible') return false;
 			return doc.shares.some(
-				(share) =>
+				(share: any) =>
 					share.shared_with_user_id === currentUserId &&
 					share.share_status === 'active',
 			);

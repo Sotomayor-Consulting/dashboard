@@ -46,9 +46,16 @@ if (isPartner && user) {
 	)
 }
 
-<script define:vars={{ btnId, data, templatePath, reportName }} is:inline>
-	const btn = document.getElementById(btnId);
-	btn.addEventListener('click', async () => {
+<script
+	define:vars={{ data, templatePath, reportName }}
+	data-btn-id={btnId}
+	is:inline
+>
+	const currentScript = document.currentScript;
+	const injectedBtnId = currentScript?.getAttribute('data-btn-id');
+	const btn = injectedBtnId ? document.getElementById(injectedBtnId) : null;
+
+	btn?.addEventListener('click', async () => {
 		const originalText = btn.innerText;
 		btn.innerText = 'Generando contrato...';
 		btn.disabled = true;

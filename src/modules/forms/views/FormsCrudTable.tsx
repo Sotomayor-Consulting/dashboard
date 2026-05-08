@@ -177,12 +177,15 @@ export default function FormsCrudTable({ data }: FormsCrudTableProps) {
 												Desarchivar
 											</Button>
 											<Button
-												render={<a />}
+												render={
+													<a
+														href={`/forms/${sr.form_id}`}
+														target="_blank"
+														rel="noopener noreferrer"
+													/>
+												}
 												variant="outline"
 												size="sm"
-												href={`/forms/${sr.form_id}`}
-												target="_blank"
-												rel="noopener noreferrer"
 											>
 												Ver
 											</Button>

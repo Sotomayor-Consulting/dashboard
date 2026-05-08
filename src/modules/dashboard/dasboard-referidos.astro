@@ -32,6 +32,8 @@ type Referral = {
 let referrals: Referral[] = [];
 let errorMsg = '';
 let loading = true;
+void errorMsg;
+void loading;
 
 try {
 	const apiUrl = new URL('/api/odoo/referrals', Astro.request.url);
