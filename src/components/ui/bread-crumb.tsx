@@ -5,7 +5,7 @@ import {
 	BreadcrumbList,
 	BreadcrumbPage,
 	BreadcrumbSeparator,
-} from '@components/components/ui/breadcrumb';
+} from '@components/ui/breadcrumb';
 import React from 'react';
 
 export interface BreadcrumbPath {

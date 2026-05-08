@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { buttonVariants } from '@components/components/ui/button';
-import { FieldLabel, FieldLegend } from '@components/components/ui/field';
-import { Input } from '@components/components/ui/input';
-import { Spinner } from '@components/components/ui/spinner';
-import { Checkbox } from '@components/components/ui/checkbox';
+import { buttonVariants } from '@components/ui/button';
+import { FieldLabel, FieldLegend } from '@components/ui/field';
+import { Input } from '@components/ui/input';
+import { Spinner } from '@components/ui/spinner';
+import { Checkbox } from '@components/ui/checkbox';
 import { cn } from '@components/lib/utils';
 
 declare const google: {

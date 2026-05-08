@@ -54,9 +54,6 @@ import DashBoard from '@modules/dashboard/DashBoard.astro';
 - `@lib/supabase` → `src/lib/supabase/index.ts`
 - `@app/*` → `src/app/*`
 - `@services/*` → `src/services/*`
-- `@types/*` → `src/types/*`
-- `@datatables/*` → `src/lib/datatables/*` (archivos vendored de DataTables + Alpine.js)
-- `@middleware/*` → `src/middleware/*`
 
 ### Key Directories
 

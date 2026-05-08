@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { Badge } from '@components/components/ui/badge';
+import { Badge } from '@components/ui/badge';
 import type { FormulariosItem } from '@modules/forms/types';
 
 export interface FormTableRow {

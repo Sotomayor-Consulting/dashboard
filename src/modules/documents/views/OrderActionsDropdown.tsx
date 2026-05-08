@@ -8,13 +8,13 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from '@components/components/ui/dialog';
+} from '@components/ui/dialog';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from '@components/components/ui/dropdown-menu';
+} from '@components/ui/dropdown-menu';
 
 export type OrderActionsDropdownOrder = {
 	id: string;

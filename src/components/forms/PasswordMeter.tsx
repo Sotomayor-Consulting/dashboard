@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ZXCVBNResult, ZXCVBNScore } from 'zxcvbn';
 import { CheckIcon } from 'lucide-react';
-import { Input } from '@components/components/ui/input';
+import { Input } from '@components/ui/input';
 import { cn } from '@components/lib/utils';
-import { FieldError } from '@components/components/ui/field';
+import { FieldError } from '@components/ui/field';
 
 type ZxcvbnFn = (password: string) => ZXCVBNResult;
 

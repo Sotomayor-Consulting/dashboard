@@ -1,13 +1,13 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { Button } from '@components/components/ui/button';
-import { Badge } from '@components/components/ui/badge';
+import { Button } from '@components/ui/button';
+import { Badge } from '@components/ui/badge';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from '@components/components/ui/dropdown-menu';
+} from '@components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
 import type { CompanyCrudRow } from '../types';
 

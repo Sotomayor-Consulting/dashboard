@@ -6,14 +6,14 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from '@components/components/ui/dialog';
-import { Button } from '@components/components/ui/button';
-import { Input } from '@components/components/ui/input';
+} from '@components/ui/dialog';
+import { Button } from '@components/ui/button';
+import { Input } from '@components/ui/input';
 import {
 	Field,
 	FieldGroup,
 	FieldLabel,
-} from '@components/components/ui/field';
+} from '@components/ui/field';
 import {
 	Select,
 	SelectContent,
@@ -21,8 +21,8 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@components/components/ui/select';
-import { Spinner } from '@components/components/ui/spinner';
+} from '@components/ui/select';
+import { Spinner } from '@components/ui/spinner';
 import { BUSINESS_TYPES, PROCESS_STATES } from '../utils/company-options';
 
 interface AddCompanyDialogProps {

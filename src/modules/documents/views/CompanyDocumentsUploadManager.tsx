@@ -1,7 +1,7 @@
-import { Badge } from '@components/components/ui/badge';
-import { Button } from '@components/components/ui/button';
+import { Badge } from '@components/ui/badge';
+import { Button } from '@components/ui/button';
 import DocumentDropzoneField from '@components/forms/DocumentDropzoneField';
-import { Field, FieldGroup, FieldLabel } from '@components/components/ui/field';
+import { Field, FieldGroup, FieldLabel } from '@components/ui/field';
 import {
 	Select,
 	SelectContent,
@@ -9,7 +9,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@components/components/ui/select';
+} from '@components/ui/select';
 import {
 	Table,
 	TableBody,
@@ -17,13 +17,13 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@components/components/ui/table';
+} from '@components/ui/table';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from '@components/components/ui/dropdown-menu';
+} from '@components/ui/dropdown-menu';
 import {
 	CheckCircle2,
 	Download,

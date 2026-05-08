@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Badge } from '@components/components/ui/badge';
-import { Input } from '@components/components/ui/input';
+import { Badge } from '@components/ui/badge';
+import { Input } from '@components/ui/input';
 import {
 	Table,
 	TableBody,
@@ -8,7 +8,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@components/components/ui/table';
+} from '@components/ui/table';
 
 interface VerificationItem {
 	submission_id?: string;

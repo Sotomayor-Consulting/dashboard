@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Badge } from '@components/components/ui/badge';
-import { Button } from '@components/components/ui/button';
-import { Field, FieldGroup, FieldLabel } from '@components/components/ui/field';
-import { Input } from '@components/components/ui/input';
+import { Badge } from '@components/ui/badge';
+import { Button } from '@components/ui/button';
+import { Field, FieldGroup, FieldLabel } from '@components/ui/field';
+import { Input } from '@components/ui/input';
 import {
 	Select,
 	SelectContent,
@@ -10,7 +10,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@components/components/ui/select';
+} from '@components/ui/select';
 import {
 	Table,
 	TableBody,
@@ -18,8 +18,8 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@components/components/ui/table';
-import { Textarea } from '@components/components/ui/textarea';
+} from '@components/ui/table';
+import { Textarea } from '@components/ui/textarea';
 
 type DocumentTypeLite = {
 	id: number;

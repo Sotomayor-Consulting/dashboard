@@ -3,11 +3,11 @@ import {
 	FieldLabel,
 	FieldLegend,
 	FieldDescription,
-} from '@components/components/ui/field';
-import { buttonVariants } from '@components/components/ui/button';
-import { Input } from '@components/components/ui/input';
-import { Spinner } from '@components/components/ui/spinner';
-import { Checkbox } from '@components/components/ui/checkbox';
+} from '@components/ui/field';
+import { buttonVariants } from '@components/ui/button';
+import { Input } from '@components/ui/input';
+import { Spinner } from '@components/ui/spinner';
+import { Checkbox } from '@components/ui/checkbox';
 import { cn } from '@components/lib/utils';
 import PasswordMeter from '@components/forms/PasswordMeter';
 

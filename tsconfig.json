@@ -13,9 +13,7 @@
 			"@lib/supabase": ["./src/lib/supabase/index.ts"],
 			"@app/*": ["./src/app/*"],
 			"@modules/*": ["./src/modules/*"],
-			"@types/*": ["./src/types/*"],
-			"@services/*": ["./src/services/*"],
-			"@middleware/*": ["./src/middleware/*"]
+			"@services/*": ["./src/services/*"]
 		}
 	},
 	"exclude": [
