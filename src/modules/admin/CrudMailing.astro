@@ -150,7 +150,7 @@ const submitBtnClass =
 
 <!-- Update Form Drawer -->
 <Drawer id="drawer-update-product-default" title="Actualizar Formulario">
-	<form action="/api/update/admin-update-forms" method="post">
+	<form action="/api/forms/update" method="post">
 		<div class="space-y-4">
 			<input type="hidden" name="service_id" id="modal_form_id" value="" />
 			<div>
@@ -227,7 +227,7 @@ const submitBtnClass =
 
 <!-- Invite User Modal -->
 <Modal id="add-user-modal" title="Invitar usuario">
-	<form action="/api/update/admin-invite" method="post">
+	<form action="/api/users/invite" method="post">
 		<div class="space-y-6 p-6">
 			<div class="grid gap-6">
 				<div>
@@ -253,7 +253,7 @@ const submitBtnClass =
 
 <!-- Add Role Modal -->
 <Modal id="rol-modal-admin" title="Añadir Rol">
-	<form action="/api/create/admin-new-rol" method="post">
+	<form action="/api/roles/create" method="post">
 		<div class="space-y-6 p-6">
 			<div class="grid gap-6">
 				<div>
@@ -316,7 +316,7 @@ const submitBtnClass =
 					<span class="sr-only">Close modal</span>
 				</button>
 			</div>
-			<form action="/api/update/admin-update" method="post" id="updaterolForm">
+			<form action="/api/users/update" method="post" id="updaterolForm">
 				<input type="hidden" name="user_id" id="updaterol_user_id" />
 				<div class="mb-4 grid gap-4">
 					<div>
@@ -382,7 +382,7 @@ const submitBtnClass =
 				estadoSel.value = hasOption ? estCur : '';
 
 				const back = getSafeBackPath();
-				form.action = `/api/admin/usuarios/update?back=${encodeURIComponent(back)}`;
+				form.action = `/api/users/update?back=${encodeURIComponent(back)}`;
 			});
 		});
 

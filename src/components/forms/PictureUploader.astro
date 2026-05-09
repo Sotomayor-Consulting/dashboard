@@ -59,7 +59,7 @@ const { slug } = Astro.params;
 	<div class="flex items-center space-x-4">
 		<form
 			method="post"
-			action="/api/update/update-avatar_empresas"
+			action="/api/companies/update-avatar"
 			enctype="multipart/form-data"
 		>
 			<input type="hidden" name="slug" value={slug} />

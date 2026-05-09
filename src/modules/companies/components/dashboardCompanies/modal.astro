@@ -42,7 +42,7 @@ const { userId, empresaId } = Astro.props;
 				<Dropzone
 					mensaje="Arrastra el documento pendiente a firmar aquí o haz clic para subir."
 					id="ConFirma"
-					endpoint={`/api/documentos/upload_file_signed?empresaId=${empresaId}&userId=${userId}`}
+					endpoint={`/api/documents/upload-signed?empresaId=${empresaId}&userId=${userId}`}
 				/>
 			</div>
 		</div>

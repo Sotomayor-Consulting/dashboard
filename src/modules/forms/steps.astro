@@ -771,7 +771,7 @@ const estadosData = estados ?? [];
 			try {
 				if (!(registerFormElement instanceof HTMLFormElement)) return;
 				const formData = new FormData(registerFormElement);
-				const response = await fetch('/api/auth/register_start', {
+				const response = await fetch('/api/auth/register-start', {
 					method: 'POST',
 					headers: {
 						Accept: 'application/json',

@@ -370,7 +370,7 @@ export default function UsersCrudTable({
 						</DialogDescription>
 					</DialogHeader>
 					<form
-						action={`/api/update/admin-invite?back=${encodeURIComponent(BACK_PATH)}`}
+						action={`/api/users/invite?back=${encodeURIComponent(BACK_PATH)}`}
 						method="post"
 						className="space-y-4"
 					>
@@ -411,7 +411,7 @@ export default function UsersCrudTable({
 						</DialogDescription>
 					</DialogHeader>
 					<form
-						action={`/api/create/admin-new-rol?back=${encodeURIComponent(BACK_PATH)}`}
+						action={`/api/roles/create?back=${encodeURIComponent(BACK_PATH)}`}
 						method="post"
 						className="space-y-4"
 					>
@@ -453,7 +453,7 @@ export default function UsersCrudTable({
 					</DialogHeader>
 					<form
 						key={activeUser?.user_id ?? 'edit-form'}
-						action={`/api/update/admin-update?back=${encodeURIComponent(BACK_PATH)}`}
+						action={`/api/users/update?back=${encodeURIComponent(BACK_PATH)}`}
 						method="post"
 						className="space-y-5"
 						onSubmit={() => setIsSavingUpdate(true)}
@@ -658,7 +658,7 @@ export default function UsersCrudTable({
 						</DialogDescription>
 					</DialogHeader>
 					<form
-						action={`/api/update/admin-update?back=${encodeURIComponent(BACK_PATH)}`}
+						action={`/api/users/update?back=${encodeURIComponent(BACK_PATH)}`}
 						method="post"
 						className="space-y-4"
 						onSubmit={() => setIsSavingUpdate(true)}

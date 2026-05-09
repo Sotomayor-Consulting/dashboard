@@ -141,7 +141,7 @@ import LandingReadme from '@modules/landing/LandingHome.astro';
 				formData.append('nombre_3', data.nombre_3 || '');
 				formData.append('estado_de', data.estado_de || '');
 
-				const response = await fetch('/api/incorp/save', {
+				const response = await fetch('/api/incorporations/save', {
 					method: 'POST',
 					body: formData,
 				});

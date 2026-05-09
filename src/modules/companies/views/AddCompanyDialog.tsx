@@ -51,7 +51,7 @@ export default function AddCompanyDialog({
 					</DialogDescription>
 				</DialogHeader>
 				<form
-					action={`/api/incorp/save?back=${encodeURIComponent(BACK_PATH)}`}
+					action={`/api/incorporations/save?back=${encodeURIComponent(BACK_PATH)}`}
 					method="post"
 					className="space-y-5"
 					onSubmit={() => setIsSubmitting(true)}

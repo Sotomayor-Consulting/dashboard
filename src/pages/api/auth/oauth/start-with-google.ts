@@ -1,4 +1,4 @@
-// src/pages/api/auth/start_with_google.ts
+// src/pages/api/auth/oauth/start-with-google.ts
 // ─── Thin handler: Start with Google (preserva business data) ─
 export const prerender = false;
 
@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
 		const result = await auth.signInWithOAuth(
 			'google',
-			'/api/auth/callback_start',
+			'/api/auth/oauth/callback-start',
 		);
 
 		return redirect(result.url);

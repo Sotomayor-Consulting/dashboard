@@ -46,7 +46,7 @@ export default function FormSignUp() {
 	const handleGoogleLogin = async () => {
 		setGooglePending(true);
 		try {
-			const res = await fetch('/api/auth/oauth-popup-url', {
+			const res = await fetch('/api/auth/oauth/popup-url', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ provider: 'google' }),

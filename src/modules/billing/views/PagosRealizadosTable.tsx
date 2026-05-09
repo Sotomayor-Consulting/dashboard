@@ -167,7 +167,7 @@ const columns: ColumnDef<PaymentRow>[] = [
 
 			return (
 				<form
-					action="/api/update/operaciones-update-lectura-de-pagos"
+					action="/api/operations/mark-payment-read"
 					method="post"
 				>
 					<input type="hidden" name="pago_id" value={row.original.id} />

@@ -247,7 +247,7 @@ import '@styles/surveyjs.css';
 			}
 		}
 
-		// === AUTOSAVE BACKEND (borrador) === -> /api/forms/submit_incorp
+		// === AUTOSAVE BACKEND (borrador) === -> /api/forms/submit-incorporation
 		async function autosaveDraft() {
 			if (!UUID_RE.test(formId)) return; // evita 400 si no hay UUID
 			if (!empresaId) return; // evita enviar sin empresa
@@ -258,7 +258,7 @@ import '@styles/surveyjs.css';
 					: null;
 
 				await fetch(
-					`/api/forms/submit_incorp?empresa=${encodeURIComponent(empresaId)}`,
+					`/api/forms/submit-incorporation?empresa=${encodeURIComponent(empresaId)}`,
 					{
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
@@ -328,7 +328,7 @@ import '@styles/surveyjs.css';
 			}
 		});
 
-		// submit_incorp final -> /api/forms/submit_incorp con finalize:true
+		// submit_incorp final -> /api/forms/submit-incorporation con finalize:true
 		survey.onComplete.add(async (sender) => {
 			if (!UUID_RE.test(formId)) {
 				console.error('[Survey] form_id inválido: no se puede enviar.');
@@ -352,7 +352,7 @@ import '@styles/surveyjs.css';
 
 			try {
 				const res = await fetch(
-					`/api/forms/submit_incorp?empresa=${encodeURIComponent(empresaId)}`,
+					`/api/forms/submit-incorporation?empresa=${encodeURIComponent(empresaId)}`,
 					{
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },

@@ -12,7 +12,7 @@ async function getApexCharts() {
 }
 
 async function fetchOdooData(params: Record<string, string> = {}) {
-	const url = new URL('/api/charts/odooParners', window.location.origin);
+	const url = new URL('/api/charts/odoo-partners', window.location.origin);
 	Object.entries(params).forEach(([k, v]) =>
 		url.searchParams.set(k, String(v)),
 	);

@@ -35,8 +35,8 @@ export async function renderizarMapaEstados(
 	try {
 		// Usa empresaId si existe
 		const url = empresaId
-			? `/api/generales/estado-incorporacion?empresaId=${empresaId}`
-			: '/api/generales/estado-incorporacion';
+			? `/api/incorporations/get-status?empresaId=${empresaId}`
+			: '/api/incorporations/get-status';
 
 		const res = await fetch(url);
 		if (res.ok) {

@@ -378,7 +378,7 @@ const quickActions = [
 				formData.append('id', id);
 				formData.append('estado_lectura', 'true');
 
-				const res = await fetch('/api/update/update-notification', {
+				const res = await fetch('/api/notifications/update', {
 					method: 'POST',
 					body: formData,
 					credentials: 'include',

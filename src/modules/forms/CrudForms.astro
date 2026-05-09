@@ -111,7 +111,7 @@ const actionBtnClass =
 		title="Actualizar Formulario"
 		maxWidth="max-w-lg"
 	>
-		<form action="/api/update/admin-update-forms" method="post">
+		<form action="/api/forms/update" method="post">
 			<div class="space-y-4">
 				<input type="hidden" name="service_id" id="modal_form_id" value="" />
 				<div>
@@ -196,7 +196,7 @@ const actionBtnClass =
 		id="drawer-delete-product-default"
 		title="Archivar Formulario"
 		message="¿Estas seguro de querer archivar este servicio?"
-		action="/api/update/admin-services-delete"
+		action="/api/services/soft-delete"
 		formId="archivar_form"
 		variant="danger"
 	>
@@ -209,7 +209,7 @@ const actionBtnClass =
 		id="desarchivar-menu"
 		title="Desarchivar servicio"
 		message="¿Estas seguro de querer archivar este servicio?"
-		action="/api/update/admin-services-add"
+		action="/api/services/restore"
 		formId="desarchivar_form"
 		variant="success"
 	>
@@ -223,7 +223,7 @@ const actionBtnClass =
 		title="Nuevo Formulario"
 		maxWidth="max-w-xs"
 	>
-		<form action="/api/create/admin-new-form" method="POST">
+		<form action="/api/forms/create" method="POST">
 			<div class="space-y-4">
 				<div>
 					<label for="titulo-form" class={labelClass}

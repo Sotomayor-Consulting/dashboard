@@ -1,4 +1,4 @@
-// src/pages/api/auth/signin.ts
+// src/pages/api/auth/sign-in.ts
 // ─── Thin handler: Sign In ──────────────────────────────
 export const prerender = false;
 

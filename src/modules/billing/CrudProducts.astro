@@ -55,7 +55,7 @@ const labelClass =
 
 		<!-- Edit Product Drawer -->
 		<Drawer id="drawer-update-product-default" title="Actualizar servicio">
-			<form action="/api/update/admin-update-services" method="post">
+			<form action="/api/services/update" method="post">
 				<div class="space-y-4">
 					<input
 						type="hidden"
@@ -120,7 +120,7 @@ const labelClass =
 			id="drawer-delete-product-default"
 			title="Archivar servicio"
 			message="¿Estas seguro de querer archivar este servicio?"
-			action="/api/update/admin-services-delete"
+			action="/api/services/soft-delete"
 			formId="archivar_form"
 			variant="danger"
 		>
@@ -133,7 +133,7 @@ const labelClass =
 			id="desarchivar-menu"
 			title="Desarchivar servicio"
 			message="¿Estas seguro de querer desarchivar este servicio?"
-			action="/api/update/admin-services-add"
+			action="/api/services/restore"
 			formId="desarchivar_form"
 			variant="success"
 		>
@@ -143,7 +143,7 @@ const labelClass =
 
 		<!-- Add Product Drawer -->
 		<Drawer id="drawer-create-product-default" title="Nuevo Servicio">
-			<form action="/api/create/admin-new-service" method="POST">
+			<form action="/api/services/create" method="POST">
 				<div class="space-y-4">
 					<div>
 						<label for="nombre-service" class={labelClass}>Nombre</label>

@@ -1,4 +1,4 @@
-// src/pages/api/auth/oauth-popup-url.ts
+// src/pages/api/auth/oauth/popup-url.ts
 // ─── Get OAuth URL for Popup Flow ─────────────────────
 export const prerender = false;
 
@@ -13,7 +13,7 @@ import {
 } from '@infrastructure/auth';
 import type { OAuthProvider } from '@infrastructure/auth';
 
-const POPUP_CALLBACK_PATH = '/api/auth/callback-popup';
+const POPUP_CALLBACK_PATH = '/api/auth/oauth/callback-popup';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	try {

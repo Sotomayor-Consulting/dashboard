@@ -1,4 +1,4 @@
-// src/pages/api/auth/oauth-url.ts
+// src/pages/api/auth/oauth/url.ts
 // ─── Thin handler: Get OAuth URL (JSON) ─────────────────
 export const prerender = false;
 
@@ -24,7 +24,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		const origin = new URL(request.url).origin;
 		const result = await auth.signInWithOAuth(
 			provider as OAuthProvider,
-			`${origin}/api/auth/callback_start`,
+			`${origin}/api/auth/oauth/callback-start`,
 		);
 
 		return jsonSuccess({ url: result.url });

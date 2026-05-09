@@ -19,7 +19,7 @@ export const PATHS = {
 	resetPassword: '/reset-password',
 	setPassword: '/set-password',
 	onboarding: '/onboarding',
-	oauthCallback: '/api/auth/callback',
+	oauthCallback: '/api/auth/oauth/callback',
 } as const;
 
 // ─── Validation ─────────────────────────────────────────

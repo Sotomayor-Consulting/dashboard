@@ -61,7 +61,7 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 	<h3 class="mb-4 text-xl font-semibold dark:text-white">
 		Datos de facturación
 	</h3>
-	<form method="post" action="/api/update/update-factura">
+	<form method="post" action="/api/billing/update-invoice">
 		<input type="hidden" value={userId} name="user_id_factura" />
 		<div class="grid grid-cols-6 gap-6">
 			<!-- Personería / Razón Social -->

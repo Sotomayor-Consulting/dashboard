@@ -1,4 +1,4 @@
-// src/pages/api/auth/google.ts
+// src/pages/api/auth/oauth/google.ts
 // ─── Thin handler: Google OAuth Initiation ──────────────
 export const prerender = false;
 
@@ -19,7 +19,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		});
 		const auth = new AuthService(supabase, cookies);
 
-		const redirectTo = `${url.origin}/api/auth/callback_start?next=/`;
+		const redirectTo = `${url.origin}/api/auth/oauth/callback-start?next=/`;
 		const result = await auth.signInWithOAuth('google', redirectTo);
 
 		return redirect(result.url);

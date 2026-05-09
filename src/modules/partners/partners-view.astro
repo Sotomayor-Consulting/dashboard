@@ -256,7 +256,7 @@ if (isPartner && user) {
 								mensaje="Arrastra tu contrato aquí o haz clic para subir."
 								id="ContratoPartner"
 								maxFilesize={5}
-								endpoint="/api/update/contrato-partner-upload"
+								endpoint="/api/partners/upload-contract"
 							/>
 						</>
 					) : (
@@ -476,7 +476,7 @@ if (isPartner && user) {
 													</td>
 													<td class="p-4 text-sm font-semibold whitespace-nowrap text-gray-900 dark:text-neutral-500">
 														<a
-															href={`/api/documentos/contrato-partners?user_id=${documento?.user_id}&filename=${documento?.nombre_archivo}`}
+															href={`/api/partners/contract?user_id=${documento?.user_id}&filename=${documento?.nombre_archivo}`}
 															target="_blank"
 															rel="noopener noreferrer"
 															title="Ver documento"
@@ -497,7 +497,7 @@ if (isPartner && user) {
 													</td>
 													<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-neutral-500">
 														<a
-															href={`/api/documentos/contrato-partners?user_id=${documento?.user_id}&filename=${documento?.nombre_archivo}&mode=download`}
+															href={`/api/partners/contract?user_id=${documento?.user_id}&filename=${documento?.nombre_archivo}&mode=download`}
 															title="Descargar el documento"
 															target="_blank"
 															download={documento?.nombre_archivo}

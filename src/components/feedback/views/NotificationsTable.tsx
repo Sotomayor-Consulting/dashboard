@@ -130,7 +130,7 @@ export default function NotificationsTable({
 													) : (
 														<DropdownMenuItem>
 															<form
-																action="/api/update/update-notification"
+																action="/api/notifications/update"
 																method="post"
 															>
 																<input

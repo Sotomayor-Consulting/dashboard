@@ -109,7 +109,7 @@ export default function FormSignIn() {
 		const handleOneTapResponse = async (response: { credential: string }) => {
 			setGooglePending(true);
 			try {
-				const res = await fetch('/api/auth/google-one-tap', {
+				const res = await fetch('/api/auth/oauth/google-one-tap', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({
@@ -198,7 +198,7 @@ export default function FormSignIn() {
 		);
 
 		try {
-			const res = await fetch('/api/auth/oauth-popup-url', {
+			const res = await fetch('/api/auth/oauth/popup-url', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ provider: 'google' }),
@@ -225,7 +225,7 @@ export default function FormSignIn() {
 		setEmailError(null);
 		try {
 			const formData = new FormData(e.currentTarget);
-			const response = await fetch('/api/auth/signin', {
+			const response = await fetch('/api/auth/sign-in', {
 				method: 'POST',
 				body: formData,
 				headers: { Accept: 'application/json' },

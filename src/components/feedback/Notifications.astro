@@ -212,7 +212,7 @@ const notificaciones = userId
 
 				// Endpoint + retorno a esta misma página
 				const back = location.pathname + location.search;
-				form.action = `/api/admin/usuarios/update?back=${encodeURIComponent(back)}`;
+				form.action = `/api/users/update?back=${encodeURIComponent(back)}`;
 			});
 		});
 

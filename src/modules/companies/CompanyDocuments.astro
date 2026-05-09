@@ -119,7 +119,7 @@ if (!empresa) {
 		const fileId = btn.dataset.fileId;
 		if (!fileId) return;
 
-		const newEndpoint = `/api/documentos/upload_file_signed?empresaId=${empresaId}&userId=${userId}&fileId=${fileId}`;
+		const newEndpoint = `/api/documents/upload-signed?empresaId=${empresaId}&userId=${userId}&fileId=${fileId}`;
 
 		const event = new CustomEvent('dropzone:update-endpoint', {
 			detail: { id: 'ConFirma', endpoint: newEndpoint, fileId },
