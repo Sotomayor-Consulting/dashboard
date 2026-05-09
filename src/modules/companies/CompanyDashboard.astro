@@ -1,9 +1,9 @@
 ---
 import '@styles/datatables.css';
-import { getIncorporacionById } from '@domains/companies/empresa_incorporaciones';
-import { getEstadoPorEmpresa } from '@domains/utils/generals/estados';
-import { getDocumentosPorFirmar } from '@domains/documents/documentos_por_firmar';
-import { getPlanContratadoPorEmpresa } from '@domains/payments/pagos';
+import { getIncorporacionById } from '@domains/companies/incorporations';
+import { getEstadoPorEmpresa } from '@domains/utils/generals/states';
+import { getDocumentosPorFirmar } from '@domains/documents/pending-signature';
+import { getPlanContratadoPorEmpresa } from '@domains/payments/payments';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import Head from '@modules/companies/components/dashboardCompanies/Gridhead.astro';
 import Gridline2 from '@modules/companies/components/dashboardCompanies/Gridlenetwo.astro';

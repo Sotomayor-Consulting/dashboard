@@ -1,9 +1,9 @@
 ---
 import '@styles/datatables.css';
-import { getIncorporacionById } from '@domains/companies/empresa_incorporaciones';
+import { getIncorporacionById } from '@domains/companies/incorporations';
 import CrudPageHeader from '@modules/companies/components/dashboardCompanies/breadcrumbs.astro';
 import { getUserFolders } from '@infrastructure/storage/test.ts';
-import { getDocumentosPorFirmar } from '@domains/documents/documentos_por_firmar';
+import { getDocumentosPorFirmar } from '@domains/documents/pending-signature';
 import DocumentsLIst from '@modules/companies/components/dashboardCompanies/DocumentsLIst.astro';
 import SignedPanel from '@modules/companies/components/dashboardCompanies/SignedPanel.astro';
 import ModalDropzone from '@modules/companies/components/dashboardCompanies/modal.astro';

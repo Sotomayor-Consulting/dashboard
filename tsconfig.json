@@ -5,7 +5,7 @@
 		"moduleResolution": "bundler",
 		"esModuleInterop": true,
 		"paths": {
-			"@app/*": ["./src/app/*"],
+			"@layouts/*": ["./src/layouts/*"],
 			"@components/*": ["./src/components/*"],
 			"@modules/*": ["./src/modules/*"],
 			"@domains/*": ["./src/domains/*"],

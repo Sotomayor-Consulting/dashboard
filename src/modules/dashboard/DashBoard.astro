@@ -5,12 +5,12 @@ import {
 	getEmpresasForSwitcher,
 	resolveActiveCompany,
 	type EmpresaSwitcherItem,
-} from '@domains/companies/empresas';
+} from '@domains/companies/companies';
 import {
 	getDocumentsForIncorporationCase,
 	getDocumentRequestsForIncorporationCase,
 } from '@domains/documents/document_dashboard';
-import { getNotifications } from '@domains/users/notificaciones';
+import { getNotifications } from '@domains/users/notifications';
 import { ACTIVE_COMPANY_COOKIE } from '@domains/companies/active-cookie';
 
 type NotificationRow = {
