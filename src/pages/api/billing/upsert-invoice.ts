@@ -1,4 +1,3 @@
-// src/pages/api/facturacion/upsert.ts
 // ─── Insertar datos de facturación ──────────────────────
 // Requiere autenticación. Valida que el userId del body
 // coincida con el usuario autenticado (previene suplantación).

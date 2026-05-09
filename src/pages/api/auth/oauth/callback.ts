@@ -1,4 +1,3 @@
-// src/pages/api/auth/oauth/callback.ts
 // ─── Thin handler: OAuth Callback ───────────────────────
 export const prerender = false;
 

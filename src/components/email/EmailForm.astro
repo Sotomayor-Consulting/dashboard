@@ -3,7 +3,7 @@ interface Props {
 	backPath?: string;
 }
 
-const { backPath = '/admin/notificaciones/' } = Astro.props as Props;
+const { backPath = '/admin/notifications/' } = Astro.props as Props;
 const formAction = `/api/notifications/admin-update?back=${encodeURIComponent(backPath)}`;
 ---
 

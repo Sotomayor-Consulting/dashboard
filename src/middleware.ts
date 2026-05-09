@@ -84,7 +84,7 @@ const PUBLIC_ROUTES: readonly string[] = [
 	'/api',
 	'/_image',
 	'/start',
-	'/incorporacion-y-pago',
+	'/incorporation-and-payment',
 	'/test',
 	'/assets',
 	'/_image',
@@ -118,12 +118,7 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		errorMsg: 'Acceso no autorizado',
 	},
 	{
-		path: '/documentos/',
-		roles: [ROLES.PARTNER, ROLES.CLIENT],
-		errorMsg: 'Acceso no autorizado',
-	},
-	{
-		path: '/servicios/',
+		path: '/services/',
 		roles: [ROLES.PARTNER, ROLES.CLIENT],
 		errorMsg: 'Acceso no autorizado',
 	},
@@ -145,12 +140,12 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		errorMsg: 'Acceso solo para admins y operaciones',
 	},
 	{
-		path: '/usuarios/',
+		path: '/users/',
 		roles: [ROLES.ADMIN],
 		errorMsg: 'Acceso solo para admins',
 	},
 	{
-		path: '/formularios/',
+		path: '/forms/',
 		roles: [ROLES.ADMIN],
 		errorMsg: 'Acceso solo para admins',
 	},
@@ -158,11 +153,6 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		path: '/admin/',
 		roles: [ROLES.ADMIN],
 		errorMsg: 'Acceso solo para admins',
-	},
-	{
-		path: '/operaciones/',
-		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
-		errorMsg: 'Acceso solo para operaciones',
 	},
 	// Legacy (mantener hasta eliminar old pages)
 	{
@@ -173,11 +163,6 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 	// Partners
 	{
 		path: '/partners/',
-		roles: [ROLES.PARTNER],
-		errorMsg: 'Acceso solo para partners',
-	},
-	{
-		path: '/afiliados/',
 		roles: [ROLES.PARTNER],
 		errorMsg: 'Acceso solo para partners',
 	},

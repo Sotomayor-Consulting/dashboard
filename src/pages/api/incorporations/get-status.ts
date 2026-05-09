@@ -1,4 +1,3 @@
-// src/pages/api/generales/estado-incorporacion.ts
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';

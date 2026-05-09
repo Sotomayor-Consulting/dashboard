@@ -1,4 +1,3 @@
-// src/pages/api/generar.ts
 import type { APIRoute } from 'astro';
 import { generatePdf } from '@integrations/carbone';
 import { createSupabaseServerClient } from '@infrastructure/supabase';

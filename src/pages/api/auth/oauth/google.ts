@@ -1,4 +1,3 @@
-// src/pages/api/auth/oauth/google.ts
 // ─── Thin handler: Google OAuth Initiation ──────────────
 export const prerender = false;
 

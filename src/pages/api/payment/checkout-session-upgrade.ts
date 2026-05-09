@@ -1,4 +1,3 @@
-// src/pages/api/payment/checkout-session-upgrade.ts
 // ─── Stripe Checkout Session: Upgrade LLC ────────────────
 // Crea una sesión hosted de Stripe Checkout para el upgrade de una
 // empresa existente. Equivalente a checkout-session.ts pero con un solo

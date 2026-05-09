@@ -1,4 +1,3 @@
-// src/pages/api/profile/avatar.ts
 export const prerender = false;
 
 import type { APIRoute } from 'astro';

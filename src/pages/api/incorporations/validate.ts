@@ -1,4 +1,3 @@
-// src/pages/api/operaciones/validacion_de_incorporacion.ts
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
@@ -6,7 +5,7 @@ import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack, SECURITY_HEADERS } from '@infrastructure/security/headers';
 import crypto from 'node:crypto';
 
-const BACK_PATH = '/admin/verificacion/';
+const BACK_PATH = '/admin/verification/';
 const BUCKET = 'documentos_empresas'; // <-- tu bucket
 
 const UUID_RE =

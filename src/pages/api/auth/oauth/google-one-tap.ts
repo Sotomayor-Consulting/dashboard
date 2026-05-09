@@ -1,4 +1,3 @@
-// src/pages/api/auth/oauth/google-one-tap.ts
 // ─── Google One Tap: recibe ID token y crea sesión ──────
 export const prerender = false;
 

@@ -1,4 +1,3 @@
-// src/pages/api/auth/oauth/url.ts
 // ─── Thin handler: Get OAuth URL (JSON) ─────────────────
 export const prerender = false;
 

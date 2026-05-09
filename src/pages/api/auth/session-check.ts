@@ -1,4 +1,3 @@
-// src/pages/api/auth/session-check.ts
 // ─── Thin handler: Session Check ────────────────────────
 export const prerender = false;
 

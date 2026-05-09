@@ -1,4 +1,3 @@
-// src/pages/api/auth/oauth/invite-callback.ts
 // ─── Thin handler: Invite Callback ──────────────────────
 // Acepta dos formas de invite:
 //  1) PKCE: ?code=...   → exchangeCodeForSession

@@ -1,1 +1,0 @@
-(bucket_id = 'test' AND ((SELECT is_admin()) OR owner_id = (auth.uid())::text))

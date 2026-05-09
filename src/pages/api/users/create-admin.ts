@@ -1,11 +1,10 @@
-// src/pages/api/admin/usuarios/create.ts
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
 
-const BACK_PATH = '/usuarios/';
+const BACK_PATH = '/users/';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const back = safeBack(url.searchParams.get('back'), BACK_PATH);

@@ -1,4 +1,3 @@
-// src/pages/api/auth/forgot-password.ts
 // ─── Thin handler: Forgot Password ─────────────────────
 export const prerender = false;
 

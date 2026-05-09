@@ -25,7 +25,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'partners',
 		label: 'Partners',
-		href: '/partners/datos-referidos/',
+		href: '/partners/referrals/',
 		tooltip: 'Mira tus referidos',
 		roles: ['partner'],
 		svgname: 'ri:shake-hands-line',
@@ -36,7 +36,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'partners-configuracion',
 		label: 'Estado Partner',
-		href: '/partners/configuracion-partners/',
+		href: '/partners/settings/',
 		tooltip: 'Configuración de partner',
 		roles: ['partner'],
 		svgname: 'ri:award-line',
@@ -58,7 +58,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'crud-users',
 		label: 'Clientes',
-		href: '/usuarios/',
+		href: '/users/',
 		tooltip: 'Gestionar clientes',
 		roles: ['admin'],
 		svgname: 'ri:user-add-line',
@@ -80,7 +80,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'menu-vista-de-pagos',
 		label: 'Pagos',
-		href: '/admin/pagos/',
+		href: '/admin/payments/',
 		tooltip: 'verifica y gestiona los pagos realizados por los clientes',
 		roles: ['admin'],
 		svgname: 'ri:coins-line',
@@ -91,7 +91,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'menu-notificaciones-a-usuarios',
 		label: 'Notifications',
-		href: '/admin/notificaciones/',
+		href: '/admin/notifications/',
 		tooltip: 'Notifica a los usuarios con mensajes personalizados',
 		roles: ['admin'],
 		svgname: 'ri:chat-ai-line',
@@ -102,7 +102,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'crud-servicios',
 		label: 'Servicios',
-		href: '/admin/servicios/',
+		href: '/admin/services/',
 		tooltip: 'Gestionar servicios',
 		roles: ['admin'],
 		svgname: 'ri:function-add-line',
@@ -113,7 +113,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'crud-formularios',
 		label: 'Formularios',
-		href: '/formularios/',
+		href: '/forms/',
 		tooltip: 'Crea y gestiona formularios',
 		roles: ['admin'],
 		svgname: 'ri:file-edit-line',
@@ -124,7 +124,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'otros-servicios',
 		label: 'Otros servicios',
-		href: '/servicios/',
+		href: '/services/',
 		tooltip: 'Explora otros servicios disponibles',
 		roles: ['cliente', 'partner'],
 		svgname: 'ri:dashboard-horizontal-line',

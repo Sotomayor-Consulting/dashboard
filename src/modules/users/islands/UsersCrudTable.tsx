@@ -67,7 +67,7 @@ interface UsersCrudTableProps {
 	rolesGeneral: UserRoleItem[];
 }
 
-const BACK_PATH = '/usuarios/';
+const BACK_PATH = '/users/';
 
 const mapUsersToRows = (
 	usuarios: UsuarioItem[],

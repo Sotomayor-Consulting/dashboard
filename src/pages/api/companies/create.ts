@@ -1,11 +1,10 @@
-// src/pages/api/empresa/crear.ts
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
 
-const BACK_PATH = '/crear-empresa';
+const BACK_PATH = '/create-company';
 const BUCKET = 'empresa-logos';
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 

@@ -1,4 +1,3 @@
-// src/pages/api/payment/webhook.ts
 // ─── Webhook de Stripe Checkout ──────────────────────────
 // Recibe checkout.session.completed y registra el pago via RPC existente.
 // IMPORTANTE: este endpoint es público (no usa auth de Supabase). La firma

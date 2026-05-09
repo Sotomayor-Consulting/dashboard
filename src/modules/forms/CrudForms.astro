@@ -5,7 +5,7 @@ import Drawer from '@components/ui/Drawer.astro';
 import DrawerConfirm from '@components/ui/DrawerConfirm.astro';
 import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
 import Modal from '@components/ui/Modal.astro';
-import { ListaFormulariosGeneral } from '@domains/forms/formularios';
+import { ListaFormulariosGeneral } from '@domains/forms/forms';
 import FormsCrudTable from '@modules/forms/islands/FormsCrudTable';
 import Tab from '@components/ui/tabs.astro';
 
@@ -37,19 +37,19 @@ const actionBtnClass =
 						label: 'Formularios',
 						icon: 'ri:folder-6-line',
 						active: true,
-						link: `/formularios/`,
+						link: `/forms/`,
 					},
 					{
 						label: 'Formularios enviados',
 						icon: 'ri:contract-line',
 						active: false,
-						link: `/formularios/enviados/`,
+						link: `/forms/submitted/`,
 					},
 					{
 						label: 'Formularios por revisar',
 						icon: 'ri:file-check-line',
 						active: false,
-						link: `/admin/verificacion/`,
+						link: `/admin/verification/`,
 					},
 				]}
 			/>

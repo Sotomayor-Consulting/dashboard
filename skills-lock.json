@@ -4,7 +4,8 @@
     "astro": {
       "source": "astrolicious/agent-skills",
       "sourceType": "github",
-      "computedHash": "ab44e2f297b232ff433e219664ee7df199bd8dd1dff4b8ee42408b880e8d7359"
+      "skillPath": "skills/astro/SKILL.md",
+      "computedHash": "3a70f9666e7b6a03efb939b7e62938f4d3a6a5d956b2cc3c10011fda6ba27e9b"
     },
     "docker-expert": {
       "source": "sickn33/antigravity-awesome-skills",

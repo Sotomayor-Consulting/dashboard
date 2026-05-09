@@ -1,11 +1,10 @@
-// src/pages/api/contract/upload.ts
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
 
-const DEFAULT_BACK_PATH = '/partners/configuracion-partners/';
+const DEFAULT_BACK_PATH = '/partners/settings/';
 const BUCKET_NAME = 'documentos_usuarios';
 const RLS_SUB_FOLDER = 'contratos-partner';
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB

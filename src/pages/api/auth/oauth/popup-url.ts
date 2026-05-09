@@ -1,4 +1,3 @@
-// src/pages/api/auth/oauth/popup-url.ts
 // ─── Get OAuth URL for Popup Flow ─────────────────────
 export const prerender = false;
 

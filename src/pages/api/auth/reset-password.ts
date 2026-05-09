@@ -1,4 +1,3 @@
-// src/pages/api/auth/reset-password.ts
 // ─── Thin handler: Reset Password ───────────────────────
 // Establece una nueva contraseña tras recibir el link de recuperación.
 export const prerender = false;

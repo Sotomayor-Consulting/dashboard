@@ -4,7 +4,7 @@ import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
 import Drawer from '@components/ui/Drawer.astro';
 import DrawerConfirm from '@components/ui/DrawerConfirm.astro';
 import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
-import { FormsEnviadosDataGeneral } from '@domains/forms/formulariosEnviados';
+import { FormsEnviadosDataGeneral } from '@domains/forms/submittedForms';
 import SubmittedFormsTable from '@modules/forms/islands/SubmittedFormsTable';
 import Tab from '@components/ui/tabs.astro';
 
@@ -29,7 +29,7 @@ const actionBtnClass =
 		<CrudPageHeader title="Todos los formularios de incorporacion enviados">
 			<a
 				slot="actions"
-				href="/formularios/"
+				href="/forms/"
 				target="_blank"
 				class={actionBtnClass}
 			>
@@ -51,19 +51,19 @@ const actionBtnClass =
 						label: 'Formularios',
 						icon: 'ri:folder-6-line',
 						active: false,
-						link: `/formularios/`,
+						link: `/forms/`,
 					},
 					{
 						label: 'Formularios enviados',
 						icon: 'ri:contract-line',
 						active: true,
-						link: `/formularios/enviados/`,
+						link: `/forms/submitted/`,
 					},
 					{
 						label: 'Formularios por revisar',
 						icon: 'ri:file-check-line',
 						active: false,
-						link: `/admin/verificacion/`,
+						link: `/admin/verification/`,
 					},
 				]}
 			/>

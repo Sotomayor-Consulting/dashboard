@@ -1,11 +1,10 @@
-// src/pages/api/admin/formularios/insert.ts
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
 
-const BACK_PATH = '/formularios/';
+const BACK_PATH = '/forms/';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const back = safeBack(url.searchParams.get('back'), BACK_PATH);

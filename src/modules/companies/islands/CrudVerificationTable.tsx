@@ -95,7 +95,7 @@ export default function CrudVerificationTable({
 									onClick={() => {
 										if (!item.submission_id) return;
 										window.open(
-											`/forms/validaciones/${item.submission_id}`,
+											`/forms/validations/${item.submission_id}`,
 											'_blank',
 										);
 									}}

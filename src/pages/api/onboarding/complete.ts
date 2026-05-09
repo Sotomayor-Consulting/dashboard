@@ -1,4 +1,3 @@
-// src/pages/api/onboarding/complete.ts
 // ─── Onboarding: completar datos de empresa Odoo ────────
 // Actualiza la fila de empresas_incorporaciones creada por el flujo
 // Odoo con el tipo de negocio, estado y nombres elegidos por el usuario.

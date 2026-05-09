@@ -1,4 +1,3 @@
-// src/pages/api/auth/register-start.ts
 // ─── Thin handler: Register (start flow) ────────────────
 export const prerender = false;
 

@@ -1,4 +1,3 @@
-// src/pages/api/payment/checkout-session.ts
 // ─── Crear Checkout Session en Stripe ────────────────────
 // Requiere autenticación. Valida servicio + microservicios contra la BD,
 // calcula el fee del 4.5% y devuelve la URL hosted de Stripe Checkout.

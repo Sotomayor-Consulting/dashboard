@@ -1,4 +1,3 @@
-// src/pages/api/auth/sign-out.ts
 // ─── Thin handler: Sign Out ─────────────────────────────
 export const prerender = false;
 

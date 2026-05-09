@@ -51,7 +51,7 @@ export const formsColumns: ColumnDef<FormTableRow>[] = [
 		header: 'Formulario',
 		cell: ({ row }) => (
 			<a
-				href={`/forms/validaciones/${row.original.submission_id}`}
+				href={`/forms/validations/${row.original.submission_id}`}
 				target="_blank"
 				rel="noopener noreferrer"
 				className="block min-w-0"

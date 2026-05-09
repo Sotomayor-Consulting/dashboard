@@ -5,7 +5,7 @@ import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
 
 // Define la ruta a la que se redirige después de la operación (ajusta si es necesario)
-const BACK_PATH = '/notificaciones';
+const BACK_PATH = '/notifications';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const back = safeBack(new URL(request.url).searchParams.get('back'), BACK_PATH);

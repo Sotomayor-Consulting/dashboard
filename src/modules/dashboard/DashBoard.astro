@@ -168,7 +168,7 @@ const activityItems = [
 	...submittedForms.map((form) => ({
 		title: form.formularios?.titulo || 'Formulario enviado',
 		meta: formatRelativeDate(form.submitted_at || form.updated_at),
-		href: '/formularios/enviados',
+		href: '/forms/submitted',
 		isUnread: false,
 	})),
 	...empresas.slice(0, 3).map((company) => ({
@@ -193,21 +193,21 @@ const quickActions = [
 	{
 		title: 'Agendar cita',
 		description: 'Reserva una sesion con un asesor.',
-		href: '/servicios',
+		href: '/services',
 		icon: 'ri:calendar-event-line',
 		tone: 'violet',
 	},
 	{
 		title: 'Mi perfil',
 		description: 'Gestiona tu informacion personal.',
-		href: '/settings/informacion-general',
+		href: '/settings/general',
 		icon: 'ri:user-3-line',
 		tone: 'emerald',
 	},
 	{
 		title: 'Otros servicios',
 		description: 'Explora todo lo que ofrecemos.',
-		href: '/servicios',
+		href: '/services',
 		icon: 'ri:apps-2-line',
 		tone: 'amber',
 	},
@@ -327,7 +327,7 @@ const toneClasses = {
 					Acciones rapidas
 				</h2>
 				<a
-					href="/servicios"
+					href="/services"
 					class="text-sm font-medium text-gray-500 transition hover:text-gray-950 dark:text-gray-400 dark:hover:text-white"
 				>
 					Ver todo

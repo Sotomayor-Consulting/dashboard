@@ -1,4 +1,3 @@
-// src/pages/api/auth/oauth/callback-popup.ts
 // ─── OAuth Callback for Popup Flow ────────────────────
 // Intercambia el code por sesión y cierra el popup,
 // notificando a la ventana padre que el login fue exitoso.

@@ -3,7 +3,7 @@ import PersonalInfoForm from './components/PersonalInfoForm.astro';
 import UserAccountPanel from './components/UserAccountPanel.astro';
 import BillingForm from './components/BillingForm.astro';
 import Tab from '@components/ui/tabs.astro';
-import { getUsuarioById } from '@domains/users/usuarios';
+import { getUsuarioById } from '@domains/users/users';
 import { PaisesGeneral } from '@domains/utils/generals/paises';
 import { FacturacionbyId } from '@domains/users/facturacion';
 
@@ -37,13 +37,13 @@ const tabs = [
 		label: 'Información general',
 		icon: 'ri:file-user-line',
 		active: section === 'general',
-		link: '/settings/informacion-general/',
+		link: '/settings/general/',
 	},
 	{
 		label: 'Datos de facturación',
 		icon: 'ri:receipt-line',
 		active: section === 'billing',
-		link: '/settings/datos-facturacion/',
+		link: '/settings/billing-info/',
 	},
 ];
 ---

@@ -1,11 +1,10 @@
-// src/pages/api/update/operaciones-update-lectura-de-pagos.ts
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
 
-const BACK_PATH = '/admin/pagos/';
+const BACK_PATH = '/admin/payments/';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const back = safeBack(url.searchParams.get('back'), BACK_PATH);

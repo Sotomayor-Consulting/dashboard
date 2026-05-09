@@ -121,7 +121,7 @@ export default function SubmittedFormsTable({ data }: SubmittedFormsTableProps) 
 										<Button
 											render={
 												<a
-													href={`/forms/enviados/${sr.submission_id}`}
+													href={`/forms/submitted/${sr.submission_id}`}
 													target="_blank"
 												/>
 											}

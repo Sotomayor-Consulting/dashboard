@@ -1,4 +1,3 @@
-// src/pages/api/payment/register.ts
 // ─── Registrar pago desde Stripe ────────────────────────
 // Requiere autenticación. Llama al RPC registrar_pago_desde_stripe
 // con el paymentIntentId proporcionado.

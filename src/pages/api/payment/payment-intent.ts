@@ -1,4 +1,3 @@
-// src/pages/api/payment/payment-intent.ts
 // ─── Crear PaymentIntent en Stripe ──────────────────────
 // Requiere autenticación. Valida que el userId del body
 // coincida con el usuario autenticado (previene suplantación).

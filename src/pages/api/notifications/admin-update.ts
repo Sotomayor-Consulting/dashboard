@@ -7,7 +7,7 @@ import { notifyByEvent } from '@infrastructure/notifications';
 import type { NotificationChannel } from '@infrastructure/notifications';
 import { safeBack } from '@infrastructure/security/headers';
 
-const BACK_PATH = '/admin/notificaciones/';
+const BACK_PATH = '/admin/notifications/';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }) => {
 	const back = safeBack(url.searchParams.get('back'), BACK_PATH);

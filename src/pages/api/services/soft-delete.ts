@@ -1,11 +1,10 @@
-// src/pages/api/admin/servicios/update-activo.ts
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
 
-const BACK_PATH = '/admin/servicios/'; // Ajusta esta ruta según tu frontend
+const BACK_PATH = '/admin/services/'; // Ajusta esta ruta según tu frontend
 
 // Helper: parsea a boolean desde strings comunes de formularios
 function parseBoolean(input: unknown): boolean | null {

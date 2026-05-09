@@ -1,5 +1,5 @@
 ---
-import { FormsEnviosVericacion } from '@domains/forms/formulariosEnviados';
+import { FormsEnviosVericacion } from '@domains/forms/submittedForms';
 import CrudVerificationTable from '@modules/companies/islands/CrudVerificationTable';
 import Tab from '@components/ui/tabs.astro';
 
@@ -68,19 +68,19 @@ const formularios = await FormsEnviosVericacion(supabase);
 					label: 'Formularios',
 					icon: 'ri:folder-6-line',
 					active: false,
-					link: `/formularios/`,
+					link: `/forms/`,
 				},
 				{
 					label: 'Formularios enviados',
 					icon: 'ri:contract-line',
 					active: false,
-					link: `/formularios/enviados/`,
+					link: `/forms/submitted/`,
 				},
 				{
 					label: 'Formularios por revisar',
 					icon: 'ri:file-check-line',
 					active: true,
-					link: `/admin/verificacion/`,
+					link: `/admin/verification/`,
 				},
 			]}
 		/>

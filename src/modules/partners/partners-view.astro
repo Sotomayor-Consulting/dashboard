@@ -5,7 +5,7 @@ import PrintContract from '@components/display/PrintContract.astro';
 import {
 	getUsuarioById,
 	getMissingPartnerFields,
-} from '@domains/users/usuarios';
+} from '@domains/users/users';
 import { getDocumentosGenerales } from '@domains/documents/documentos';
 const user = Astro.locals.user;
 const userRoles = Astro.locals.userRoles || [];
@@ -333,7 +333,7 @@ if (isPartner && user) {
 									nombre: 'Mira tus referidos',
 									descripcion:
 										'Encuentra links a tus documentos completados, bandeja de notificaciones, formularios, email, y descarga plantillas de documentos importantes.',
-									link: '/partners/datos-referidos/',
+									link: '/partners/referrals/',
 									icono: 'ri:shake-hands-fill',
 								},
 								{

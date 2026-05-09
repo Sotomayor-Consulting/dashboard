@@ -1,4 +1,3 @@
-// src/pages/api/auth/oauth/start-with-google.ts
 // ─── Thin handler: Start with Google (preserva business data) ─
 export const prerender = false;
 

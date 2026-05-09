@@ -1,10 +1,9 @@
-// src/pages/api/admin/formularios/update.ts
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 
-const FALLBACK_BACK = '/formularios/';
+const FALLBACK_BACK = '/forms/';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	// 0) Leer el form UNA sola vez y sacar el slug temprano
