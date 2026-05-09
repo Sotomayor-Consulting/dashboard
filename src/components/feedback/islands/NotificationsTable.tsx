@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { Badge } from '@components/ui/badge';
-import { Button } from '@components/ui/button';
-import { Input } from '@components/ui/input';
+import { Badge } from '@components/ui/Badge';
+import { Button } from '@components/ui/Button';
+import { Input } from '@components/ui/Input';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from '@components/ui/dropdown-menu';
+} from '@components/ui/DropdownMenu';
 import {
 	Table,
 	TableBody,
@@ -15,8 +15,8 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@components/ui/table';
-import { buttonVariants } from '@components/ui/button';
+} from '@components/ui/Table';
+import { buttonVariants } from '@components/ui/Button';
 import { cn } from '@components/utils';
 
 interface NotificationItem {

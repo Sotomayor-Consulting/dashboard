@@ -7,7 +7,7 @@ import {
 } from 'react-day-picker';
 
 import { cn } from '@components/utils';
-import { Button, buttonVariants } from '@components/ui/button';
+import { Button, buttonVariants } from '@components/ui/Button';
 import {
 	ChevronLeftIcon,
 	ChevronRightIcon,

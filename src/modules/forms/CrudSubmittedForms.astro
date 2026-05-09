@@ -1,12 +1,12 @@
 ---
-import Alerta from '@components/feedback/alertageneral.astro';
+import Alerta from '@components/feedback/Alert.astro';
 import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
 import Drawer from '@components/ui/Drawer.astro';
 import DrawerConfirm from '@components/ui/DrawerConfirm.astro';
 import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
 import { FormsEnviadosDataGeneral } from '@domains/forms/submittedForms';
 import SubmittedFormsTable from '@modules/forms/islands/SubmittedFormsTable';
-import Tab from '@components/ui/tabs.astro';
+import Tab from '@components/navigation/TabBar.astro';
 
 const supabase = Astro.locals.supabase;
 const formularios_envios = await FormsEnviadosDataGeneral(supabase);

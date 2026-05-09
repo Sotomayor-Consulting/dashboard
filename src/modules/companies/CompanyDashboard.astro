@@ -5,13 +5,13 @@ import { getEstadoPorEmpresa } from '@domains/utils/generals/states';
 import { getDocumentosPorFirmar } from '@domains/documents/pending-signature';
 import { getPlanContratadoPorEmpresa } from '@domains/payments/payments';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
-import Head from '@modules/companies/components/dashboardCompanies/Gridhead.astro';
-import Gridline2 from '@modules/companies/components/dashboardCompanies/Gridlenetwo.astro';
-import ProcessIncorp from '@modules/companies/components/dashboardCompanies/ProcessIncorp.astro';
-import SignedPanel from '@modules/companies/components/dashboardCompanies/SignedPanel.astro';
-import ModalDropzone from '@modules/companies/components/dashboardCompanies/modal.astro';
-import { getClientWorkflowProgress } from '@modules/companies/services/getClientWorkflowProgress';
-import Tab from '@components/ui/tabs.astro';
+import Head from '@modules/companies/components/dashboard-companies/DashboardHeader.astro';
+import Gridline2 from '@modules/companies/components/dashboard-companies/StatusGrid.astro';
+import ProcessIncorp from '@modules/companies/components/dashboard-companies/IncorporationProcess.astro';
+import SignedPanel from '@modules/companies/components/dashboard-companies/SignedPanel.astro';
+import ModalDropzone from '@modules/companies/components/dashboard-companies/DropzoneModal.astro';
+import { getClientWorkflowProgress } from '@modules/companies/services/get-client-workflow-progress';
+import Tab from '@components/navigation/TabBar.astro';
 
 interface Props {
 	empresaId: string | undefined;

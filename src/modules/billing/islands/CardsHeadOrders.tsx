@@ -4,7 +4,7 @@ import {
 	CardHeader,
 	CardTitle,
 	CardAction,
-} from '@components/ui/card';
+} from '@components/ui/Card';
 import { FileArchive, BadgeCheck, Star } from 'lucide-react';
 
 export default function CardsHeadOrders() {

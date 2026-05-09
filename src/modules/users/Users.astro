@@ -1,6 +1,6 @@
 ---
 import UsersCrudTable from '@modules/users/islands/UsersCrudTable';
-import { getUsersPageData } from '@modules/users/services/getUsersPageData';
+import { getUsersPageData } from '@modules/users/services/get-users-page-data';
 
 const supabase = Astro.locals.supabase;
 const { usuarios, roles, paises, rolesGeneral } = await getUsersPageData(supabase);

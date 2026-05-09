@@ -2,13 +2,13 @@ import * as React from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@components/utils';
-import { Button } from '@components/ui/button';
-import { Calendar } from '@components/ui/calendar';
+import { Button } from '@components/ui/Button';
+import { Calendar } from '@components/ui/Calendar';
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from '@components/ui/popover';
+} from '@components/ui/Popover';
 
 function parseISODate(value: string): Date | undefined {
 	if (!value) return undefined;

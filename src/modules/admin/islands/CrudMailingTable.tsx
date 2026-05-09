@@ -3,10 +3,10 @@ import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
-} from '@components/ui/avatar';
-import { Badge } from '@components/ui/badge';
-import { Button } from '@components/ui/button';
-import { Input } from '@components/ui/input';
+} from '@components/ui/Avatar';
+import { Badge } from '@components/ui/Badge';
+import { Button } from '@components/ui/Button';
+import { Input } from '@components/ui/Input';
 import {
 	Table,
 	TableBody,
@@ -14,7 +14,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@components/ui/table';
+} from '@components/ui/Table';
 
 interface MailingUser {
 	user_id: string;

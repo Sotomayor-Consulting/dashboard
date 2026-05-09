@@ -1,6 +1,6 @@
 import { defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
-import { sendEmail } from '@infrastructure/emails/sendEmail';
+import { sendEmail } from '@infrastructure/email/send-email';
 
 export const server = {
 	sendEmail: defineAction({

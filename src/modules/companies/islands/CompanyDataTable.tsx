@@ -15,7 +15,7 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
-import { Button } from '@components/ui/button';
+import { Button } from '@components/ui/Button';
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -23,8 +23,8 @@ import {
 	DropdownMenuGroup,
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
-} from '@components/ui/dropdown-menu';
-import { Input } from '@components/ui/input';
+} from '@components/ui/DropdownMenu';
+import { Input } from '@components/ui/Input';
 import {
 	Table,
 	TableBody,
@@ -32,7 +32,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@components/ui/table';
+} from '@components/ui/Table';
 
 interface CompanyDataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];

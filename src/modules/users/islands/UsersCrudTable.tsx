@@ -13,7 +13,7 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
-import { Button } from '@components/ui/button';
+import { Button } from '@components/ui/Button';
 import {
 	Dialog,
 	DialogContent,
@@ -21,7 +21,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from '@components/ui/dialog';
+} from '@components/ui/Dialog';
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -29,9 +29,9 @@ import {
 	DropdownMenuGroup,
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
-} from '@components/ui/dropdown-menu';
-import { Field, FieldGroup, FieldLabel } from '@components/ui/field';
-import { Input } from '@components/ui/input';
+} from '@components/ui/DropdownMenu';
+import { Field, FieldGroup, FieldLabel } from '@components/ui/Field';
+import { Input } from '@components/ui/Input';
 import {
 	Table,
 	TableBody,
@@ -39,7 +39,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@components/ui/table';
+} from '@components/ui/Table';
 import type {
 	PaisItem,
 	RolItem,
@@ -47,7 +47,7 @@ import type {
 	UsuarioItem,
 } from '@modules/users/types';
 import { createUsersColumns, type UserTableRow } from './UsersColumns';
-import { Checkbox } from '@components/ui/checkbox';
+import { Checkbox } from '@components/ui/Checkbox';
 import {
 	Select,
 	SelectContent,
@@ -55,10 +55,10 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@components/ui/select';
+} from '@components/ui/Select';
 import PhoneInputField from './PhoneInputField';
 import { BirthDatePicker } from '@components/forms/BirthDatePicker';
-import { Spinner } from '@components/ui/spinner';
+import { Spinner } from '@components/ui/Spinner';
 
 interface UsersCrudTableProps {
 	usuarios: UsuarioItem[];

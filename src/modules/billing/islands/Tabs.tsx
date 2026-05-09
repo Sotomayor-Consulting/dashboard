@@ -11,7 +11,7 @@ import {
 	TabsContent,
 	TabsList,
 	TabsTrigger,
-} from '@components/ui/tabs';
+} from '@components/ui/Tabs';
 
 interface TabsIconsProps {
 	data: RawPaymentItem[];

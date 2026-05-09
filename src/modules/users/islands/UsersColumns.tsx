@@ -3,10 +3,10 @@ import {
 	Avatar,
 	AvatarFallback,
 	AvatarImage,
-} from '@components/ui/avatar';
-import { Badge } from '@components/ui/badge';
-import { Button } from '@components/ui/button';
-import { Checkbox } from '@components/ui/checkbox';
+} from '@components/ui/Avatar';
+import { Badge } from '@components/ui/Badge';
+import { Button } from '@components/ui/Button';
+import { Checkbox } from '@components/ui/Checkbox';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -14,7 +14,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from '@components/ui/dropdown-menu';
+} from '@components/ui/DropdownMenu';
 import { Archive, BellRing, Pencil, RefreshCw } from 'lucide-react';
 
 export interface UserTableRow {

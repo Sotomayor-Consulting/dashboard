@@ -14,7 +14,7 @@ import {
 } from '@tanstack/react-table';
 import { EyeIcon, MoreHorizontalIcon } from 'lucide-react';
 
-import { Button } from '@components/ui/button';
+import { Button } from '@components/ui/Button';
 import {
 	Dialog,
 	DialogContent,
@@ -22,14 +22,14 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from '@components/ui/dialog';
+} from '@components/ui/Dialog';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from '@components/ui/dropdown-menu';
-import { Input } from '@components/ui/input';
+} from '@components/ui/DropdownMenu';
+import { Input } from '@components/ui/Input';
 import {
 	Table,
 	TableBody,
@@ -37,7 +37,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@components/ui/table';
+} from '@components/ui/Table';
 
 type OrderRow = {
 	id: number;

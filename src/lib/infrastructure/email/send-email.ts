@@ -1,4 +1,4 @@
-import { sendMail } from '@infrastructure/mailing/mailer';
+import { sendMail } from '@infrastructure/email/mailer';
 
 export type SendEmailInput = {
 	to: string;

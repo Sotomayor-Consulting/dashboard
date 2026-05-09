@@ -1,7 +1,7 @@
 import { findMissingContextKeys, renderTemplate } from './renderer';
 import { getNotificationTemplate } from './templates';
 import { sendEmailNotification } from './channels/email';
-import { sendInAppNotification } from './channels/inApp';
+import { sendInAppNotification } from './channels/in-app';
 import type {
 	NotificationChannel,
 	NotificationChannelResult,

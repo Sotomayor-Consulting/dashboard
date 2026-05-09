@@ -12,9 +12,9 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
-import { Badge } from '@components/ui/badge';
-import { Button } from '@components/ui/button';
-import { Input } from '@components/ui/input';
+import { Badge } from '@components/ui/Badge';
+import { Button } from '@components/ui/Button';
+import { Input } from '@components/ui/Input';
 import {
 	Table,
 	TableBody,
@@ -22,7 +22,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@components/ui/table';
+} from '@components/ui/Table';
 
 type PaymentRow = {
 	id: number;

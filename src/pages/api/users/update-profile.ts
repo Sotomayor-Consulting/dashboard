@@ -3,11 +3,11 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { personalInfoSchema } from '@shared/schemas/personalInfo.schema';
+import { personalInfoSchema } from '@shared/schemas/personal-info.schema';
 import {
 	validateFormData,
 	formDataToObject,
-} from '@shared/validation/formValidator';
+} from '@shared/validation/form-validator';
 import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/settings';
