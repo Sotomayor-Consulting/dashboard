@@ -46,7 +46,7 @@ import type {
 	UserRoleItem,
 	UsuarioItem,
 } from '@modules/users/types';
-import { createUsersColumns, type UserTableRow } from './users-columns';
+import { createUsersColumns, type UserTableRow } from './UsersColumns';
 import { Checkbox } from '@components/ui/checkbox';
 import {
 	Select,

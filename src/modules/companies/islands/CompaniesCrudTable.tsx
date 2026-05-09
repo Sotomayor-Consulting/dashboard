@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import CompanyDataTable from './CompanyDataTable';
 import AddCompanyDialog from './AddCompanyDialog';
-import { companiesColumns } from './company-columns';
+import { companiesColumns } from './CompanyColumns';
 import type { CompanyCrudRow } from '../types';
 
 interface CompaniesCrudTableProps {

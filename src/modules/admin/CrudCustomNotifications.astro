@@ -3,7 +3,7 @@ import Alerta from '@components/feedback/alertageneral.astro';
 import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
 import { getAllUsuarios } from '@domains/users/usuarios';
 import { RolesGeneralUsers } from '@domains/utils/roles/roles';
-import UserNotificationsTable from '@modules/admin/views/UserNotificationsTable';
+import UserNotificationsTable from '@modules/admin/islands/UserNotificationsTable';
 
 const supabase = Astro.locals.supabase;
 const [usuarios, roles] = await Promise.all([

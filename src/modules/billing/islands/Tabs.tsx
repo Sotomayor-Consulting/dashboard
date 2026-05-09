@@ -1,10 +1,10 @@
 import { AppWindowIcon } from 'lucide-react';
 import PagosRealizadosTable, {
 	type RawPaymentItem,
-} from '@modules/billing/views/PagosRealizadosTable';
+} from '@modules/billing/islands/PagosRealizadosTable';
 
-import CardsHeadOrders from '@modules/billing/views/CardsHeadOrders';
-import OrdersTable from '@modules/billing/views/OrdersTable';
+import CardsHeadOrders from '@modules/billing/islands/CardsHeadOrders';
+import OrdersTable from '@modules/billing/islands/OrdersTable';
 
 import {
 	Tabs,

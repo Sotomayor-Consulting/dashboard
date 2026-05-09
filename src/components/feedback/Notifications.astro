@@ -1,7 +1,7 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
 import { getNotificationsGeneralPorId } from '@domains/users/notificaciones';
-import NotificationsTable from '@components/feedback/views/NotificationsTable';
+import NotificationsTable from '@components/feedback/islands/NotificationsTable';
 
 const user = Astro.locals.user;
 const userId = user?.id;

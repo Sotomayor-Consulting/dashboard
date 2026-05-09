@@ -23,8 +23,8 @@ import {
 	getDocumentsForIncorporationCase,
 } from '@domains/documents/document_dashboard';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
-import DocumentRequestManager from '@modules/documents/views/DocumentRequestManager';
-import CompanyDocumentsUploadManager from '@modules/documents/views/CompanyDocumentsUploadManager';
+import DocumentRequestManager from '@modules/documents/islands/DocumentRequestManager';
+import CompanyDocumentsUploadManager from '@modules/documents/islands/CompanyDocumentsUploadManager';
 
 const empresaId = String(Astro.props.empresaId ?? '');
 const supabase = Astro.locals.supabase;

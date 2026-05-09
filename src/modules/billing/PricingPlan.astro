@@ -1,7 +1,5 @@
 ---
-import Popup from './Popup.astro';
-import Popup2 from './Popup2.astro';
-import Popup3 from './Popup3.astro';
+import ActionModal from './components/ActionModal.astro';
 
 /* eslint max-lines: 'off' */
 ---
@@ -458,9 +456,9 @@ import Popup3 from './Popup3.astro';
 			>
 		</div>
 	</section>
-	<Popup />
-	<Popup2 />
-	<Popup3 />
+	<ActionModal />
+	<ActionModal suffix="2" />
+	<ActionModal suffix="3" />
 	<!-- Comparison Table 
 	<section class="flex flex-col pt-10 md:pt-20">
 		<div class="overflow-x-auto rounded-lg">

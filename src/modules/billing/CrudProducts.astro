@@ -5,7 +5,7 @@ import Drawer from '@components/ui/Drawer.astro';
 import DrawerConfirm from '@components/ui/DrawerConfirm.astro';
 import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
 import { ListaServiciosGeneral } from '@domains/services/servicios';
-import CrudProductsTable from '@modules/billing/views/CrudProductsTable';
+import CrudProductsTable from '@modules/billing/islands/CrudProductsTable';
 
 const supabase = Astro.locals.supabase;
 const servicio = await ListaServiciosGeneral(supabase);

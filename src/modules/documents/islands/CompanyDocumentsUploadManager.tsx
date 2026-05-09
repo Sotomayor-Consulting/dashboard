@@ -36,7 +36,7 @@ import type {
 	DocumentDashboardRow,
 	DocumentTypeLite,
 } from '@domains/documents/document_dashboard';
-import { DocumentTypeComboboxField } from './documentTypeComboboxField';
+import { DocumentTypeComboboxField } from './DocumentTypeComboboxField';
 
 type Props = {
 	incorporationCaseId: string;

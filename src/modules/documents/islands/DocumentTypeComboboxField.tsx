@@ -2,7 +2,7 @@ import * as React from 'react';
 import {
 	DocumentTypeCombobox,
 	type DocumentTypeLite,
-} from './documentTypeCombobox';
+} from './DocumentTypeCombobox';
 
 type Props = {
 	documentTypes: DocumentTypeLite[];
