@@ -32,10 +32,10 @@ import '@styles/surveyjs.css';
 			<div id="surveyContainer" class="h-dvh w-full rounded-2xl"></div>
 		</section>
 
-		<script type="text/javascript" src="/surveyjs/survey_core_min.js"></script>
-		<script type="text/javascript" src="/surveyjs/survey_js_ui_min.js"></script>
+		<script is:inline type="text/javascript" src="/surveyjs/survey_core_min.js"></script>
+		<script is:inline type="text/javascript" src="/surveyjs/survey_js_ui_min.js"></script>
 	</main>
-	<script type="module" define:vars={{ schemaSnapshot, answers, themeJson }}>
+	<script is:inline type="module" define:vars={{ schemaSnapshot, answers, themeJson }}>
 		const survey = new Survey.Model(schemaSnapshot);
 		survey.data = answers;
 		survey.mode = 'display';

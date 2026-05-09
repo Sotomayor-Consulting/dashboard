@@ -1,4 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+	useState,
+	useEffect,
+	useCallback,
+	useRef,
+	type SyntheticEvent,
+} from 'react';
 import { buttonVariants } from '@components/ui/Button';
 import { FieldLabel, FieldLegend } from '@components/ui/Field';
 import { Input } from '@components/ui/Input';
@@ -219,7 +225,7 @@ export default function FormSignIn() {
 	const [emailPending, setEmailPending] = useState(false);
 	const [emailError, setEmailError] = useState<string | null>(null);
 
-	const handleEmailSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleEmailSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setEmailPending(true);
 		setEmailError(null);

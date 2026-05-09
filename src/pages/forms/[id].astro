@@ -22,10 +22,10 @@ import '@styles/surveyjs.css';
 	<head>
 		<title>{formulario?.titulo}</title>
 		<meta charset="utf-8" />
-		<script
+		<script is:inline
 			type="text/javascript"
 			src="https://unpkg.com/survey-core@2.3.9/survey.core.min.js"></script>
-		<script
+		<script is:inline
 			type="text/javascript"
 			src="https://unpkg.com/survey-js-ui@2.3.9/survey-js-ui.min.js"></script>
 		<script>
@@ -59,7 +59,7 @@ import '@styles/surveyjs.css';
 	</body>
 </html>
 
-<script type="module" define:vars={{ jsonConfig, themeJson }}>
+<script is:inline type="module" define:vars={{ jsonConfig, themeJson }}>
 	const spanishTranslations = {
 		pagePrevText: 'Anterior',
 		pageNextText: 'Siguiente',

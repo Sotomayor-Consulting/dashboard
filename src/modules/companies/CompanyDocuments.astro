@@ -109,7 +109,7 @@ if (!empresa) {
 	});
 </script>
 
-<script lang="ts" define:vars={{ empresaId, userId }}>
+<script is:inline define:vars={{ empresaId, userId }}>
 	document.addEventListener('click', async (e) => {
 		const target = e.target;
 		if (!(target instanceof HTMLElement)) return;

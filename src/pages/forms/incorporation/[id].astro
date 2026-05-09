@@ -64,10 +64,10 @@ import '@styles/surveyjs.css';
 			style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; min-height: 100%; height:100%"
 		>
 		</div>
-		<script type="text/javascript" src="/surveyjs/survey_core_min.js"></script>
-		<script type="text/javascript" src="/surveyjs/survey_js_ui_min.js"></script>
+		<script is:inline type="text/javascript" src="/surveyjs/survey_core_min.js"></script>
+		<script is:inline type="text/javascript" src="/surveyjs/survey_js_ui_min.js"></script>
 	</main>
-	<script type="module" define:vars={{ jsonConfig, themeJson }}>
+	<script is:inline type="module" define:vars={{ jsonConfig, themeJson }}>
 		const spanishTranslations = {
 			pagePrevText: 'Anterior',
 			pageNextText: 'Siguiente',

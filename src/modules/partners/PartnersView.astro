@@ -629,19 +629,16 @@ if (isPartner && user) {
 			return;
 		}
 
-		copyButton.addEventListener('click', function () {
-			// Seleccionar y copiar el texto
+		copyButton.addEventListener('click', async function () {
+			// Seleccionar para feedback visual al usuario
 			inputField.select();
-			inputField.setSelectionRange(0, 99999); // Para móviles
+			inputField.setSelectionRange(0, 99999);
 
 			try {
-				navigator.clipboard.writeText(inputField.value).then(() => {
-					showManualSuccess();
-				});
-			} catch (err) {
-				// Fallback para navegadores antiguos
-				document.execCommand('copy');
+				await navigator.clipboard.writeText(inputField.value);
 				showManualSuccess();
+			} catch {
+				// Clipboard API no disponible o denegada
 			}
 		});
 
