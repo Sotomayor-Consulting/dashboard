@@ -3,7 +3,7 @@
 
 import type { RedirectStatus } from './auth.types';
 import { PATHS } from './auth.config';
-import { SECURITY_HEADERS } from '@lib/security/headers';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 
 type AstroRedirectFn = (
 	path: string,

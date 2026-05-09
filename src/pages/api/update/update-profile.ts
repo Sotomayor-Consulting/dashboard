@@ -2,14 +2,14 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { personalInfoSchema } from '@lib/schemas/personalInfo.schema';
+import { personalInfoSchema } from '@shared/schemas/personalInfo.schema';
 import {
 	validateFormData,
 	formDataToObject,
-} from '@lib/validation/formValidator';
-import { safeBack } from '@lib/security/headers';
+} from '@shared/validation/formValidator';
+import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/settings';
 

@@ -11,18 +11,18 @@ import {
 	getUsuarioById,
 	getMissingFieldsFromProfile,
 	type PartnerRequiredField,
-} from '@lib/tables/users/usuarios';
-import { getNotifications } from '@lib/tables/users/notificaciones';
+} from '@domains/users/usuarios';
+import { getNotifications } from '@domains/users/notificaciones';
 import {
 	getEstadoIncorporacionByUserId,
 	getBannerIncorporacionData,
-} from '@lib/tables/companies/empresa_incorporaciones';
+} from '@domains/companies/empresa_incorporaciones';
 import {
 	getEmpresasForSwitcher,
 	resolveActiveCompany,
 	type EmpresaSwitcherItem,
-} from '@lib/tables/companies/empresas';
-import { ACTIVE_COMPANY_COOKIE } from '@lib/companies/active-cookie';
+} from '@domains/companies/empresas';
+import { ACTIVE_COMPANY_COOKIE } from '@domains/companies/active-cookie';
 
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;

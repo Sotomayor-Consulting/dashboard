@@ -3,15 +3,15 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
 import {
 	AuthService,
 	AuthError,
 	jsonSuccess,
 	jsonError,
 	buildOAuthRedirectUrl,
-} from '@lib/auth';
-import type { OAuthProvider } from '@lib/auth';
+} from '@infrastructure/auth';
+import type { OAuthProvider } from '@infrastructure/auth';
 
 const POPUP_CALLBACK_PATH = '/api/auth/callback-popup';
 

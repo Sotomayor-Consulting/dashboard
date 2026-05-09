@@ -1,8 +1,8 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { safeBack } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { safeBack } from '@infrastructure/security/headers';
 
 // Define la ruta a la que se redirige después de la operación (ajusta si es necesario)
 const BACK_PATH = '/notificaciones';

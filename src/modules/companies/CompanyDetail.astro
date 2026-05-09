@@ -21,8 +21,8 @@ import {
 	getDocumentRequestsForIncorporationCase,
 	getDocumentTypesList,
 	getDocumentsForIncorporationCase,
-} from '@lib/tables/documents/document_dashboard';
-import { supabaseAdmin } from '@lib/supabase/admin';
+} from '@domains/documents/document_dashboard';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import DocumentRequestManager from '@modules/documents/views/DocumentRequestManager';
 import CompanyDocumentsUploadManager from '@modules/documents/views/CompanyDocumentsUploadManager';
 
@@ -202,4 +202,4 @@ const errorMessage = !empresaId
 	)
 }
 
-<script src="@lib/alpinejs/alpine.js"></script>
+<script src="@third-party/alpinejs/alpine.js"></script>

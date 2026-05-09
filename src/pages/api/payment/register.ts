@@ -3,9 +3,9 @@
 // Requiere autenticación. Llama al RPC registrar_pago_desde_stripe
 // con el paymentIntentId proporcionado.
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { supabaseAdmin } from '@lib/supabase/admin';
-import { SECURITY_HEADERS } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	// ─── 1) Autenticación (server-verified via getUser) ──

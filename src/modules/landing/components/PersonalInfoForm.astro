@@ -194,11 +194,11 @@ const selectedCountry = usuario?.pais_id ? String(usuario.pais_id) : '';
 </div>
 
 <script>
-	import { personalInfoSchema } from '@lib/schemas/personalInfo.schema';
+	import { personalInfoSchema } from '@shared/schemas/personalInfo.schema';
 	import {
 		validateFormData,
 		formDataToObject,
-	} from '@lib/validation/formValidator';
+	} from '@shared/validation/formValidator';
 
 	function initPersonalInfoValidation() {
 		const form = document.getElementById(

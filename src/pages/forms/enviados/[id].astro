@@ -1,6 +1,6 @@
 ---
 import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
-import { getFormularioEnviadoDetalleItem } from '@lib/tables/forms/formulariosEnviados';
+import { getFormularioEnviadoDetalleItem } from '@domains/forms/formulariosEnviados';
 const user = Astro.locals.user!;
 const userRoles = Astro.locals.userRoles || [];
 const { id } = Astro.params;

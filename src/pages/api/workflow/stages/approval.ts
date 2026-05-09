@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { recordApproval, type ApprovalDecision } from '@lib/tables/workflow';
-import { SECURITY_HEADERS } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { recordApproval, type ApprovalDecision } from '@domains/workflow';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 
 export const prerender = false;
 

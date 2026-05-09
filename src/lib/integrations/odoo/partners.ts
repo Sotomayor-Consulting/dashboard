@@ -1,5 +1,5 @@
-import { executeKw } from '@lib/odoo/client';
-import type { OdooPartner, ServiceResponse } from '../types/odoo';
+import { executeKw } from '@integrations/odoo/client';
+import type { OdooPartner, ServiceResponse } from '../../../types/odoo';
 
 export async function getReferralsByEmail(
 	email: string,

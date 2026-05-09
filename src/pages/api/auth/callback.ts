@@ -3,8 +3,8 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { AuthService, AuthError, PATHS, redirectWithMessage } from '@lib/auth';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { AuthService, AuthError, PATHS, redirectWithMessage } from '@infrastructure/auth';
 
 export const GET: APIRoute = async ({ url, request, cookies, redirect }) => {
 	// 1) Error de OAuth (usuario cancela, etc.)

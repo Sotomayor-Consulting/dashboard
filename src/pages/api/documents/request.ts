@@ -6,8 +6,8 @@ import {
 	DocumentsError,
 	createDocumentRequest,
 	resolveDocumentActor,
-} from '@lib/documents';
-import { createSupabaseServerClient } from '@lib/supabase';
+} from '@domains/documents';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
 
 const ALLOWED_RELATED_TYPES = new Set<DocumentRelatedType>([
 	'user',

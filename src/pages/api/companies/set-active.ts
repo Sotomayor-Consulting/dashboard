@@ -1,9 +1,9 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { SECURITY_HEADERS, safeBack } from '@lib/security/headers';
-import { ACTIVE_COMPANY_COOKIE } from '@lib/companies/active-cookie';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { SECURITY_HEADERS, safeBack } from '@infrastructure/security/headers';
+import { ACTIVE_COMPANY_COOKIE } from '@domains/companies/active-cookie';
 
 const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 const UUID_RE =

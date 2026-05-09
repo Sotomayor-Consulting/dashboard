@@ -5,7 +5,7 @@
 // del header stripe-signature es la única validación.
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
-import { supabaseAdmin } from '@lib/supabase/admin';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 
 export const prerender = false;
 

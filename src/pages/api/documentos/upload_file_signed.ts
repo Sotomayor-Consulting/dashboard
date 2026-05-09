@@ -2,7 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
 
 const BUCKET_NAME = 'test';
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB

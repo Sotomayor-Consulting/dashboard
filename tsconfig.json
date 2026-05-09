@@ -5,23 +5,24 @@
 		"moduleResolution": "bundler",
 		"esModuleInterop": true,
 		"paths": {
-			"@components/*": ["./src/components/*"],
-			"@assets/*": ["./src/assets/*"],
-			"@styles/*": ["./src/styles/*"],
-			"@lib/*": ["./src/lib/*"],
-			"@lib/auth": ["./src/lib/auth/index.ts"],
-			"@lib/supabase": ["./src/lib/supabase/index.ts"],
 			"@app/*": ["./src/app/*"],
+			"@components/*": ["./src/components/*"],
 			"@modules/*": ["./src/modules/*"],
-			"@services/*": ["./src/services/*"]
+			"@domains/*": ["./src/domains/*"],
+			"@infrastructure/*": ["./src/lib/infrastructure/*"],
+			"@integrations/*": ["./src/lib/integrations/*"],
+			"@shared/*": ["./src/lib/shared/*"],
+			"@third-party/*": ["./src/lib/third-party/*"],
+			"@assets/*": ["./src/assets/*"],
+			"@styles/*": ["./src/styles/*"]
 		}
 	},
 	"exclude": [
 		"dist",
 		"node_modules",
 		"public",
-		"src/lib/alpinejs",
-		"src/lib/simple-data-tables",
-		"src/lib/surveyjs"
+		"src/lib/third-party/alpinejs",
+		"src/lib/third-party/simple-data-tables",
+		"src/lib/third-party/surveyjs"
 	]
 }

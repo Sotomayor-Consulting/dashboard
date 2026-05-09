@@ -4,9 +4,9 @@
 // coincida con el usuario autenticado (previene suplantación).
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { supabaseAdmin } from '@lib/supabase/admin';
-import { SECURITY_HEADERS } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 
 const STRIPE_SECRET_KEY =
 	process.env.STRIPE_SECRET_KEY ?? import.meta.env.STRIPE_SECRET_KEY;

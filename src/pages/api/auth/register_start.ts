@@ -3,8 +3,8 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { AuthService, AuthError, jsonError, jsonSuccess } from '@lib/auth';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { AuthService, AuthError, jsonError, jsonSuccess } from '@infrastructure/auth';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	try {

@@ -1,10 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { getEmpresaById } from '@lib/tables/companies/empresas';
-import { getSociosByEmpresa } from '@lib/tables/companies/socios';
-import { getManagerByEmpresa } from '@lib/tables/companies/managers';
-import { actividadesGeneral } from '@lib/tables/utils/generals/actividades';
-import { PaisesGeneral } from '@lib/tables/utils/generals/paises';
-import { EstadosGeneral } from '@lib/tables/utils/generals/estados';
+import { getEmpresaById } from '@domains/companies/empresas';
+import { getSociosByEmpresa } from '@domains/companies/socios';
+import { getManagerByEmpresa } from '@domains/companies/managers';
+import { actividadesGeneral } from '@domains/utils/generals/actividades';
+import { PaisesGeneral } from '@domains/utils/generals/paises';
+import { EstadosGeneral } from '@domains/utils/generals/estados';
 import type { CompanyDetailData } from '../types';
 
 export const getCompanyDetailData = async (

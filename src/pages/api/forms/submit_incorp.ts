@@ -2,8 +2,8 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { SECURITY_HEADERS } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 import { createHash } from 'node:crypto';
 
 type SaveBody = {

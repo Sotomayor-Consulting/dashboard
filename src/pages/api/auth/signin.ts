@@ -3,7 +3,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
 import {
 	AuthService,
 	AuthError,
@@ -12,8 +12,8 @@ import {
 	buildOAuthRedirectUrl,
 	jsonSuccess,
 	jsonError,
-} from '@lib/auth';
-import type { OAuthProvider } from '@lib/auth';
+} from '@infrastructure/auth';
+import type { OAuthProvider } from '@infrastructure/auth';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // Safety net: si algo hace GET a esta ruta, redirigir al formulario

@@ -5,8 +5,8 @@ import PrintContract from '@components/display/PrintContract.astro';
 import {
 	getUsuarioById,
 	getMissingPartnerFields,
-} from '@lib/tables/users/usuarios';
-import { getDocumentosGenerales } from '@lib/tables/documents/documentos';
+} from '@domains/users/usuarios';
+import { getDocumentosGenerales } from '@domains/documents/documentos';
 const user = Astro.locals.user;
 const userRoles = Astro.locals.userRoles || [];
 const UserId = user?.id;

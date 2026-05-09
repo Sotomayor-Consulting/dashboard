@@ -2,11 +2,11 @@
 // ─── Middleware de autenticación y autorización ─────────
 // Valida sesión via @supabase/ssr (getClaims) y aplica control de acceso por rol.
 
-import { createSupabaseServerClient } from '@lib/supabase';
-import { PATHS } from '@lib/auth';
-import type { RouteRoleConfig } from '@lib/roles';
-import { ROLES, extractRoleNames, hasAnyRole } from '@lib/roles';
-import type { UserRoleRow } from '@lib/roles';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { PATHS } from '@infrastructure/auth';
+import type { RouteRoleConfig } from '@shared/roles';
+import { ROLES, extractRoleNames, hasAnyRole } from '@shared/roles';
+import type { UserRoleRow } from '@shared/roles';
 import type { User } from '@supabase/supabase-js';
 
 // ─── CSP: Content-Security-Policy ───────────────────────

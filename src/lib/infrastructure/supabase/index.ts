@@ -5,7 +5,7 @@
 // 1. createSupabaseServerClient → SSR (per-request, con cookies) — PREFERIDO
 // 2. supabaseBrowser            → Client-side (singleton, para <script> tags)
 //
-// Nota: supabaseAdmin se importa directo desde "@lib/supabase/admin"
+// Nota: supabaseAdmin se importa directo desde "@infrastructure/supabase/admin"
 // para evitar side effects al importar este barrel en rutas SSR.
 
 export { createSupabaseServerClient } from './server';

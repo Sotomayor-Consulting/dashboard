@@ -1,8 +1,8 @@
 ---
 import ClientOnboarding from '@modules/onboarding/ClientOnboarding.astro';
 import DashBoard from '@modules/dashboard/DashBoard.astro';
-import { getUserWithRole } from '@lib/tables/users/menu';
-import { getEmpresasForSwitcher } from '@lib/tables/companies/empresas';
+import { getUserWithRole } from '@domains/users/menu';
+import { getEmpresasForSwitcher } from '@domains/companies/empresas';
 
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;

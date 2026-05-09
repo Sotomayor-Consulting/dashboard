@@ -1,7 +1,7 @@
-import { apiClient } from '@lib/odoo/axios-odoo-instance';
+import { apiClient } from '@integrations/odoo/axios-odoo-instance';
 import type { APIRoute } from 'astro';
-import { SECURITY_HEADERS } from '@lib/security/headers';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
 
 export const GET: APIRoute = async ({ request, cookies }) => {
 	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });

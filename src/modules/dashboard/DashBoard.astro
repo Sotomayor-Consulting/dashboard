@@ -5,13 +5,13 @@ import {
 	getEmpresasForSwitcher,
 	resolveActiveCompany,
 	type EmpresaSwitcherItem,
-} from '@lib/tables/companies/empresas';
+} from '@domains/companies/empresas';
 import {
 	getDocumentsForIncorporationCase,
 	getDocumentRequestsForIncorporationCase,
-} from '@lib/tables/documents/document_dashboard';
-import { getNotifications } from '@lib/tables/users/notificaciones';
-import { ACTIVE_COMPANY_COOKIE } from '@lib/companies/active-cookie';
+} from '@domains/documents/document_dashboard';
+import { getNotifications } from '@domains/users/notificaciones';
+import { ACTIVE_COMPANY_COOKIE } from '@domains/companies/active-cookie';
 
 type NotificationRow = {
 	id?: string;

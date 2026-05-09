@@ -2,10 +2,10 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 // Ajusta esta ruta si tu estructura es distinta:
-import { createSupabaseServerClient } from '@lib/supabase';
-import { notifyByEvent } from '@lib/notifications';
-import type { NotificationChannel } from '@lib/notifications';
-import { safeBack } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { notifyByEvent } from '@infrastructure/notifications';
+import type { NotificationChannel } from '@infrastructure/notifications';
+import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/admin/notificaciones/';
 

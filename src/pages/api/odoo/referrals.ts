@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { getReferralsByEmail } from '@services/partnerService';
-import { SECURITY_HEADERS } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { getReferralsByEmail } from '@integrations/odoo/partners';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 
 export const GET: APIRoute = async ({ cookies, request }) => {
 	// 1) Cliente Supabase SSR

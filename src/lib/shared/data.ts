@@ -1,4 +1,4 @@
-import { REMOTE_ASSETS_BASE_URL } from '../app/constants.js';
+import { REMOTE_ASSETS_BASE_URL } from '@app/constants';
 
 // NOTE: These helpers are useful for unifying paths, app-wide
 export function url(path = '') {

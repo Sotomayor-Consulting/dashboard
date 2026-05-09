@@ -1,5 +1,5 @@
-import { sendMail } from '@lib/mailing/mailer';
-import { supabaseAdmin } from '@lib/supabase/admin';
+import { sendMail } from '@infrastructure/mailing/mailer';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 
 type ResolveEmailInput = {
 	userId: string;

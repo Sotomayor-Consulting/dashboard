@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
 
 const FALLBACK_BACK = '/settings';
 

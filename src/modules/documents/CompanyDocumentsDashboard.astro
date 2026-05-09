@@ -3,13 +3,13 @@ import { Icon } from 'astro-icon/components';
 import {
 	getIncorporacionById,
 	getIncorporacionByIdAdmin,
-} from '@lib/tables/companies/empresa_incorporaciones';
+} from '@domains/companies/empresa_incorporaciones';
 import {
 	getDocumentRequestsForIncorporationCase,
 	getDocumentsForIncorporationCase,
 	getDocumentTypesList,
-} from '@lib/tables/documents/document_dashboard';
-import { supabaseAdmin } from '@lib/supabase/admin';
+} from '@domains/documents/document_dashboard';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { DocumentTypeComboboxField } from '@modules/documents/views/documentTypeComboboxField';
 
 interface Props {

@@ -1,11 +1,11 @@
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
 import {
 	getWorkflowByIncorporation,
 	listStages,
 	listTasksByIncorporation,
-} from '@lib/tables/workflow';
-import { SECURITY_HEADERS } from '@lib/security/headers';
+} from '@domains/workflow';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 
 export const prerender = false;
 

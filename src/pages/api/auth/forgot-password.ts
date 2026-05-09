@@ -3,9 +3,9 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { AuthService, PATHS, redirectWithMessage } from '@lib/auth';
-import { safeBack } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { AuthService, PATHS, redirectWithMessage } from '@infrastructure/auth';
+import { safeBack } from '@infrastructure/security/headers';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const back = safeBack(url.searchParams.get('back'), PATHS.signIn);

@@ -1,8 +1,8 @@
 // src/pages/api/generar.ts
 import type { APIRoute } from 'astro';
-import { generatePdf } from '@lib/carbone';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { SECURITY_HEADERS } from '@lib/security/headers';
+import { generatePdf } from '@integrations/carbone';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 
 type GenerateBody = {
 	data?: unknown;

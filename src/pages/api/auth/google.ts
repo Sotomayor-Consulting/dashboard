@@ -3,9 +3,9 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { AuthService, AuthError, redirectWithMessage } from '@lib/auth';
-import { safeBack } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { AuthService, AuthError, redirectWithMessage } from '@infrastructure/auth';
+import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/start';
 

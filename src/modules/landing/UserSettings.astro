@@ -3,9 +3,9 @@ import PersonalInfoForm from './components/PersonalInfoForm.astro';
 import UserAccountPanel from './components/UserAccountPanel.astro';
 import BillingForm from './components/BillingForm.astro';
 import Tab from '@components/ui/tabs.astro';
-import { getUsuarioById } from '@lib/tables/users/usuarios';
-import { PaisesGeneral } from '@lib/tables/utils/generals/paises';
-import { FacturacionbyId } from '@lib/tables/users/facturacion';
+import { getUsuarioById } from '@domains/users/usuarios';
+import { PaisesGeneral } from '@domains/utils/generals/paises';
+import { FacturacionbyId } from '@domains/users/facturacion';
 
 interface Props {
 	section?: 'account' | 'general' | 'billing';

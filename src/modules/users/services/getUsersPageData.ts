@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { getAllUsuarios } from '@lib/tables/users/usuarios';
-import { RolesGeneral, RolesGeneralUsers } from '@lib/tables/utils/roles/roles';
-import { PaisesGeneral } from '@lib/tables/utils/generals/paises';
+import { getAllUsuarios } from '@domains/users/usuarios';
+import { RolesGeneral, RolesGeneralUsers } from '@domains/utils/roles/roles';
+import { PaisesGeneral } from '@domains/utils/generals/paises';
 
 export const getUsersPageData = async (supabase: SupabaseClient) => {
 	const [usuarios, roles, paises, rolesGeneral] = await Promise.all([

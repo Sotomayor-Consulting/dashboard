@@ -2,8 +2,8 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { safeBack } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { safeBack } from '@infrastructure/security/headers';
 
 const DEFAULT_BACK_PATH = '/partners/configuracion-partners/';
 const BUCKET_NAME = 'documentos_usuarios';

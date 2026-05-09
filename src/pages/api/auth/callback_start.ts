@@ -3,8 +3,8 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { AuthService, AuthError, redirectWithMessage } from '@lib/auth';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { AuthService, AuthError, redirectWithMessage } from '@infrastructure/auth';
 
 export const GET: APIRoute = async ({ request, cookies, redirect }) => {
 	const { searchParams } = new URL(request.url);

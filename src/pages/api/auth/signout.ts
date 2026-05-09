@@ -3,8 +3,8 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { AuthService, PATHS, AuthError, redirectWithMessage } from '@lib/auth';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { AuthService, PATHS, AuthError, redirectWithMessage } from '@infrastructure/auth';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // GET: prefetch de Astro o navegación directa → redirigir al sign-in

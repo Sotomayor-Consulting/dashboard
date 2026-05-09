@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { supabaseAdmin } from '@lib/supabase/admin';
-import { notifyByEvent } from '@lib/notifications';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { notifyByEvent } from '@infrastructure/notifications';
 import {
 	DEFAULT_SIGNED_URL_TTL_SECONDS,
 	MAX_FILE_SIZE_BYTES,

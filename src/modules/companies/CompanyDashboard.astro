@@ -1,10 +1,10 @@
 ---
 import '@styles/datatables.css';
-import { getIncorporacionById } from '@lib/tables/companies/empresa_incorporaciones';
-import { getEstadoPorEmpresa } from '@lib/tables/utils/generals/estados';
-import { getDocumentosPorFirmar } from '@lib/tables/documents/documentos_por_firmar';
-import { getPlanContratadoPorEmpresa } from '@lib/tables/payments/pagos';
-import { supabaseAdmin } from '@lib/supabase/admin';
+import { getIncorporacionById } from '@domains/companies/empresa_incorporaciones';
+import { getEstadoPorEmpresa } from '@domains/utils/generals/estados';
+import { getDocumentosPorFirmar } from '@domains/documents/documentos_por_firmar';
+import { getPlanContratadoPorEmpresa } from '@domains/payments/pagos';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import Head from '@modules/companies/components/dashboardCompanies/Gridhead.astro';
 import Gridline2 from '@modules/companies/components/dashboardCompanies/Gridlenetwo.astro';
 import ProcessIncorp from '@modules/companies/components/dashboardCompanies/ProcessIncorp.astro';

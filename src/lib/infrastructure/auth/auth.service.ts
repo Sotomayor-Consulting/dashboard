@@ -26,7 +26,7 @@ import { friendlyAuthError } from './auth.helpers';
  * AuthService — un servicio por request.
  *
  * Recibe el SupabaseClient ya configurado con cookies (creado vía
- * `createSupabaseServerClient` de `@lib/supabase/server.ts`) y las cookies
+ * `createSupabaseServerClient` de `@infrastructure/supabase/server.ts`) y las cookies
  * de Astro para poder setear/limpiar tokens.
  *
  * @example

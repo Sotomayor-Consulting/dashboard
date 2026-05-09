@@ -1,6 +1,6 @@
 ---
 import Alerta from '@components/feedback/alertageneral.astro';
-import { getNotificationsGeneralPorId } from '@lib/tables/users/notificaciones';
+import { getNotificationsGeneralPorId } from '@domains/users/notificaciones';
 import NotificationsTable from '@components/feedback/views/NotificationsTable';
 
 const user = Astro.locals.user;
@@ -12,7 +12,7 @@ const notificaciones = userId
 	: null;
 ---
 
-<script src="@lib/alpinejs/alpine.js"></script>
+<script src="@third-party/alpinejs/alpine.js"></script>
 <Alerta />
 <NotificationsTable notificaciones={notificaciones ?? []} client:load />
 

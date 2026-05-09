@@ -5,8 +5,8 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { PATHS } from '@lib/auth';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { PATHS } from '@infrastructure/auth';
 
 const BACK = PATHS.onboarding;
 

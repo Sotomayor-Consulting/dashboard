@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 
 import type ApexChartsType from 'apexcharts';
-import { supabaseBrowser } from '@lib/supabase/browser';
+import { supabaseBrowser } from '@infrastructure/supabase/browser';
 
 let ApexChartsCtor: typeof ApexChartsType | null = null;
 async function getApexCharts() {

@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@lib/supabase/admin';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 
 type SendInAppInput = {
 	userId: string;

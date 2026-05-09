@@ -6,8 +6,8 @@ import {
 	listDocumentEvents,
 	resolveDocumentActor,
 	toJsonErrorResponse,
-} from '@lib/documents';
-import { createSupabaseServerClient } from '@lib/supabase';
+} from '@domains/documents';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
 
 export const GET: APIRoute = async ({ request, cookies, url, locals }) => {
 	try {
