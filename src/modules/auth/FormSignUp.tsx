@@ -8,7 +8,7 @@ import { buttonVariants } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { Spinner } from '@components/ui/spinner';
 import { Checkbox } from '@components/ui/checkbox';
-import { cn } from '@components/lib/utils';
+import { cn } from '@components/utils';
 import PasswordMeter from '@components/forms/PasswordMeter';
 
 type FormState = { error: string | null };

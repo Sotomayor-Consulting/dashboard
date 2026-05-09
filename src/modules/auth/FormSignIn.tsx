@@ -4,7 +4,7 @@ import { FieldLabel, FieldLegend } from '@components/ui/field';
 import { Input } from '@components/ui/input';
 import { Spinner } from '@components/ui/spinner';
 import { Checkbox } from '@components/ui/checkbox';
-import { cn } from '@components/lib/utils';
+import { cn } from '@components/utils';
 
 declare const google: {
 	accounts: {

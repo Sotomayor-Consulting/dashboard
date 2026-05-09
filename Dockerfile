@@ -58,7 +58,8 @@ COPY --from=builder --chown=astro:nodejs /app/dist ./dist
 COPY --from=builder --chown=astro:nodejs /app/server.mjs ./server.mjs
 
 # Templates usados en runtime (carbone, emails)
-COPY --from=builder --chown=astro:nodejs /app/src/templates ./src/templates
+COPY --from=builder --chown=astro:nodejs /app/src/lib/documents/templates ./src/lib/documents/templates
+COPY --from=builder --chown=astro:nodejs /app/src/lib/emails/templates ./src/lib/emails/templates
 
 USER astro
 

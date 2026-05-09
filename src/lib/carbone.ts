@@ -31,7 +31,7 @@ export const generatePdf = async ({
 	// leer plantilla
 	const resolvedTemplatePath = path.resolve(
 		process.cwd(),
-		'src/templates/documents',
+		'src/lib/documents/templates',
 		templatePath,
 	);
 

@@ -17,7 +17,7 @@ import {
 	TableRow,
 } from '@components/ui/table';
 import { buttonVariants } from '@components/ui/button';
-import { cn } from '@components/lib/utils';
+import { cn } from '@components/utils';
 
 interface NotificationItem {
 	id: string;

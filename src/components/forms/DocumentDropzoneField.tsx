@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { UploadCloud, X } from 'lucide-react';
 import { Button } from '@components/ui/button';
-import { cn } from '@components/lib/utils';
+import { cn } from '@components/utils';
 
 type Props = {
 	name?: string;
