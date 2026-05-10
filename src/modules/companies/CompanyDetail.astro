@@ -170,7 +170,7 @@ const errorMessage = !empresaId
 						aria-labelledby="requests-tab"
 					>
 						<DocumentRequestManager
-							client:load
+							client:visible
 							incorporationCaseId={empresaId}
 							backPath={backPath}
 							documentTypes={documentTypes}
@@ -184,7 +184,7 @@ const errorMessage = !empresaId
 						aria-labelledby="upload-tab"
 					>
 						<CompanyDocumentsUploadManager
-							client:load
+							client:visible
 							incorporationCaseId={empresaId}
 							backPath={backPath}
 							documentTypes={documentTypes}
