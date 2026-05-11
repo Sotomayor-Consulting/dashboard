@@ -1,0 +1,129 @@
+---
+import { Icon } from 'astro-icon/components';
+
+type Specialist = {
+	id: string;
+	title: string;
+	description: string;
+	icon: string;
+	iconWrapper: string;
+	iconColor: string;
+	dotColor: string;
+	cardGradient: string;
+	href: string;
+};
+
+const specialists: Specialist[] = [
+	{
+		id: 'contador',
+		title: 'Contador',
+		description: 'Estados financieros, libros y cierres mensuales para tu LLC.',
+		icon: 'ri:calculator-line',
+		iconWrapper: 'bg-emerald-500/10 ring-1 ring-inset ring-emerald-400/20',
+		iconColor: 'text-emerald-400',
+		dotColor: 'bg-emerald-500',
+		cardGradient: 'from-emerald-500/10 via-transparent to-transparent',
+		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
+	},
+	{
+		id: 'tributario',
+		title: 'Tributario',
+		description: 'Declaraciones, planificación fiscal y cumplimiento IRS.',
+		icon: 'ri:scales-3-line',
+		iconWrapper: 'bg-sky-500/10 ring-1 ring-inset ring-sky-400/20',
+		iconColor: 'text-sky-400',
+		dotColor: 'bg-sky-500',
+		cardGradient: 'from-sky-500/10 via-transparent to-transparent',
+		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
+	},
+	{
+		id: 'cripto',
+		title: 'Especialista Cripto',
+		description:
+			'Tratamiento fiscal y contable de operaciones con criptoactivos.',
+		icon: 'ri:bit-coin-line',
+		iconWrapper: 'bg-orange-500/15 ring-1 ring-inset ring-orange-400/30',
+		iconColor: 'text-orange-400',
+		dotColor: 'bg-orange-500',
+		cardGradient: 'from-orange-500/10 via-transparent to-transparent',
+		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
+	},
+	{
+		id: 'operaciones',
+		title: 'Operaciones SotomayorConsulting',
+		description:
+			'Resuelve dudas sobre tus servicios, pagos y procesos internos.',
+		icon: 'ri:briefcase-line',
+		iconWrapper: 'bg-violet-500/10 ring-1 ring-inset ring-violet-400/20',
+		iconColor: 'text-violet-400',
+		dotColor: 'bg-violet-500',
+		cardGradient: 'from-violet-500/10 via-transparent to-transparent',
+		href: 'https://zcal.co/t/agendar-asesoria-llc/60min',
+	},
+];
+---
+
+<section class="mx-auto w-full max-w-7xl px-2 py-8 sm:px-4 lg:px-6">
+	<header class="mb-10">
+		<p
+			class="mb-4 text-xs font-semibold tracking-[0.38em] text-gray-400 uppercase dark:text-gray-500"
+		>
+			Consultas
+		</p>
+		<h1
+			class="text-4xl font-semibold tracking-normal text-gray-950 sm:text-5xl dark:text-white"
+		>
+			Agenda con un especialista
+		</h1>
+		<p class="mt-4 max-w-2xl text-base text-gray-500 dark:text-gray-400">
+			Elige al profesional que mejor se adapta a tu necesidad. Después de enviar
+			tu consulta, coordinaremos la fecha y hora contigo.
+		</p>
+	</header>
+
+	<div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+		{
+			specialists.map((s) => (
+				<article
+					class={`relative flex min-h-64 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white p-6 transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-sm dark:border-gray-800 dark:bg-linear-to-br dark:from-gray-900 dark:to-black dark:hover:border-gray-700`}
+				>
+					<div
+						class={`pointer-events-none absolute inset-0 bg-linear-to-br opacity-0 transition group-hover:opacity-100 dark:opacity-100 ${s.cardGradient}`}
+					/>
+
+					<div class="relative">
+						<span
+							class={`inline-flex h-12 w-12 items-center justify-center rounded-lg ${s.iconWrapper}`}
+						>
+							<Icon name={s.icon} class={`h-6 w-6 ${s.iconColor}`} />
+						</span>
+					</div>
+
+					<div class="relative mt-6 flex-1">
+						<h2 class="text-lg font-semibold text-gray-950 dark:text-white">
+							{s.title}
+						</h2>
+						<p class="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+							{s.description}
+						</p>
+					</div>
+
+					<div class="relative mt-6 flex items-center justify-between gap-3">
+						<span class="inline-flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+							<span class={`h-1.5 w-1.5 rounded-full ${s.dotColor}`} />
+							Disponible
+						</span>
+						<a
+							href={s.href}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-950 transition hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-700 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 dark:focus:ring-gray-800"
+						>
+							Agendar
+						</a>
+					</div>
+				</article>
+			))
+		}
+	</div>
+</section>

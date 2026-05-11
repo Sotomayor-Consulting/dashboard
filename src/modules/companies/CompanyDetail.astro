@@ -11,6 +11,7 @@ import CompanyAddress from './components/CompanyAddress.astro';
 import CompanyManagersList from './components/CompanyManagersList.astro';
 
 import CompanyEditForm from './components/CompanyEditForm.astro';
+import CompanyOperationsPanel from './components/CompanyOperationsPanel.astro';
 import ActivityModal from './components/ActivityModal.astro';
 import ManagerModal from './components/ManagerModal.astro';
 import type { CompanyDetailData } from './types';
@@ -95,28 +96,34 @@ const errorMessage = !empresaId
 					>
 						{[
 							{
+								id: 'operations-tab',
+								tabs: 'operations',
+								label: 'Tareas',
+								icono: 'ri:survey-line',
+							},
+							{
 								id: 'profile-tab',
 								tabs: 'profile',
 								label: 'Datos Generales',
-								icono: 'ri:building-2-fill',
+								icono: 'ri:building-2-line',
 							},
 							{
 								id: 'requests-tab',
 								tabs: 'requests',
 								label: 'Solicitar documentos',
-								icono: 'ri:file-list-3-fill',
+								icono: 'ri:file-list-3-line',
 							},
 							{
 								id: 'upload-tab',
 								tabs: 'upload',
 								label: 'Subir documentos',
-								icono: 'ri:upload-cloud-2-fill',
+								icono: 'ri:upload-cloud-2-line',
 							},
 							{
 								id: 'contacts-tab',
 								tabs: 'contacts',
 								label: 'Editar datos',
-								icono: 'ri:edit-fill',
+								icono: 'ri:edit-line',
 							},
 						].map((i) => (
 							<li class="me-2" role="presentation">
@@ -163,6 +170,17 @@ const errorMessage = !empresaId
 						paises={paises}
 						estados={estados}
 					/>
+					<div
+						class="my-4"
+						id="operations"
+						role="tabpanel"
+						aria-labelledby="operations-tab"
+					>
+						<CompanyOperationsPanel
+							empresaId={empresaId}
+							empresaNombre={empresaSafe?.nombre_1}
+						/>
+					</div>
 					<div
 						class="my-4"
 						id="requests"

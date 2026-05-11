@@ -43,7 +43,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		}
 
 		// 4) Enviar invitación usando el cliente ADMIN (service_role)
-		const redirectTo = `${url.origin}/api/auth/oauth/invite-callback`;
+		const redirectTo = `${url.origin}/api/auth/invite-callback`;
 
 		const { error: inviteError } =
 			await supabaseAdmin.auth.admin.inviteUserByEmail(email, {

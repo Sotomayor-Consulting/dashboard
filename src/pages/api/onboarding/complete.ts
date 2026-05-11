@@ -5,6 +5,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { invalidateLayoutCache } from '@infrastructure/cache/layout-cache';
 import { PATHS } from '@infrastructure/auth';
 
 const BACK = PATHS.onboarding;
@@ -51,6 +52,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 		.eq('user_id', user.id);
 
 	if (error) return redirect(back(`No se pudo guardar: ${error.message}`));
+
+	invalidateLayoutCache(user.id);
 
 	return redirect(`${PATHS.home}?status=success&msg=${encodeURIComponent('¡Bienvenido! Hemos registrado tu empresa.')}`);
 };
