@@ -1,0 +1,604 @@
+---
+// ─── Operations Panel ───────────────────────────────────
+// Vista de operaciones del workflow por empresa. Pensado para el
+// rol `operaciones` (y `admin`): muestra etapa actual, tareas,
+// cola del equipo, progreso de etapas y alertas de SLA.
+//
+// NOTA: actualmente con data mock para iterar sobre la vista.
+// La integración con @domains/workflow se hará en una siguiente fase.
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	empresaId: string;
+	empresaNombre?: string | null;
+}
+
+const { empresaNombre } = Astro.props;
+
+type StatusTone = 'success' | 'warning' | 'danger' | 'neutral' | 'info';
+type Priority = 'urgent' | 'high' | 'normal' | 'low';
+
+type Task = {
+	id: string;
+	title: string;
+	description: string;
+	priority: Priority;
+	status: 'pending' | 'in_progress' | 'completed';
+	assignee: { name: string; initials: string } | null;
+};
+
+type Stage = {
+	order: number;
+	name: string;
+	slaHours: number;
+	status: 'pending' | 'in_progress' | 'completed';
+};
+
+// ── Mock data (TODO: reemplazar con queries reales de @domains/workflow)
+const workflow = {
+	companyName: empresaNombre || 'TechStart Solutions S.A. de C.V.',
+	responsible: 'Juan Pérez Hernández',
+	startedAt: '15/4/2026',
+	stagesCompleted: 3,
+	stagesTotal: 11,
+};
+
+const stats = [
+	{
+		label: 'Tareas pendientes',
+		value: '5',
+		icon: 'ri:list-check-2',
+		tone: 'warning' as StatusTone,
+	},
+	{
+		label: 'En progreso',
+		value: '1',
+		icon: 'ri:line-chart-line',
+		tone: 'neutral' as StatusTone,
+	},
+	{
+		label: 'Por vencer (24h)',
+		value: '2',
+		icon: 'ri:error-warning-line',
+		tone: 'danger' as StatusTone,
+	},
+	{
+		label: 'SLA etapa actual',
+		value: '120h',
+		icon: 'ri:timer-line',
+		tone: 'success' as StatusTone,
+	},
+];
+
+const currentStage = {
+	name: 'Reunión de Planificación',
+	description: 'Coordinación de reunión inicial con el cliente',
+	tasks: [
+		{
+			id: 't1',
+			title: 'Agendar reunión con cliente',
+			description: 'Coordinar fecha y hora para reunión inicial',
+			priority: 'high',
+			status: 'completed',
+			assignee: { name: 'María García', initials: 'MG' },
+		},
+		{
+			id: 't2',
+			title: 'Preparar agenda de reunión',
+			description: 'Elaborar puntos a tratar durante la reunión',
+			priority: 'normal',
+			status: 'in_progress',
+			assignee: { name: 'Carlos López', initials: 'CL' },
+		},
+		{
+			id: 't3',
+			title: 'Enviar invitación y documentos previos',
+			description: 'Compartir enlace de videoconferencia y materiales',
+			priority: 'normal',
+			status: 'pending',
+			assignee: null,
+		},
+		{
+			id: 't4',
+			title: 'Realizar reunión de planificación',
+			description: 'Ejecutar la reunión según agenda establecida',
+			priority: 'high',
+			status: 'pending',
+			assignee: null,
+		},
+		{
+			id: 't5',
+			title: 'Documentar acuerdos y próximos pasos',
+			description: 'Registrar minutas y compromisos de la reunión',
+			priority: 'normal',
+			status: 'pending',
+			assignee: null,
+		},
+	] satisfies Task[],
+};
+
+const teamQueue = [
+	{
+		id: 'q1',
+		title: 'Revisar documentos - TechStart',
+		assignee: 'María García',
+		priority: 'high' as Priority,
+		eta: '2 horas',
+	},
+	{
+		id: 'q2',
+		title: 'Agendar reunión - InnovateMX',
+		assignee: 'Sin asignar',
+		priority: 'urgent' as Priority,
+		eta: '30 min',
+	},
+	{
+		id: 'q3',
+		title: 'Enviar invitación - GlobalTech',
+		assignee: 'Carlos López',
+		priority: 'normal' as Priority,
+		eta: '1 día',
+	},
+];
+
+const stages: Stage[] = [
+	{
+		order: 1,
+		name: 'Recepción de Solicitud',
+		slaHours: 24,
+		status: 'completed',
+	},
+	{
+		order: 2,
+		name: 'Verificación de Documentos',
+		slaHours: 48,
+		status: 'completed',
+	},
+	{
+		order: 3,
+		name: 'Análisis de Elegibilidad',
+		slaHours: 72,
+		status: 'completed',
+	},
+	{
+		order: 4,
+		name: 'Reunión de Planificación',
+		slaHours: 120,
+		status: 'in_progress',
+	},
+	{ order: 5, name: 'Preparación Legal', slaHours: 168, status: 'pending' },
+	{ order: 6, name: 'Revisión de Compliance', slaHours: 48, status: 'pending' },
+	{ order: 7, name: 'Firma de Documentos', slaHours: 72, status: 'pending' },
+	{
+		order: 8,
+		name: 'Registro Gubernamental',
+		slaHours: 240,
+		status: 'pending',
+	},
+	{ order: 9, name: 'Configuración Fiscal', slaHours: 72, status: 'pending' },
+	{
+		order: 10,
+		name: 'Envío de Documentación',
+		slaHours: 48,
+		status: 'pending',
+	},
+	{ order: 11, name: 'Cierre y Entrega', slaHours: 24, status: 'pending' },
+];
+
+const slaAlerts = [
+	{
+		id: 'sla1',
+		stage: 'Reunión de Planificación',
+		warning: 'SLA Warning: 36 horas',
+		remaining: '48h restantes',
+		progress: 70,
+	},
+];
+
+const progressPct = Math.round(
+	(workflow.stagesCompleted / workflow.stagesTotal) * 100,
+);
+
+// Helpers de estilo
+const priorityClass = (p: Priority) =>
+	({
+		urgent: 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300',
+		high: 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
+		normal: 'bg-gray-100 text-gray-600 dark:bg-white/5 dark:text-gray-300',
+		low: 'bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300',
+	})[p];
+
+const taskStatusBadge = (s: Task['status']) =>
+	({
+		completed:
+			'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
+		in_progress:
+			'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
+		pending: 'bg-gray-100 text-gray-600 dark:bg-white/5 dark:text-gray-300',
+	})[s];
+
+const taskStatusLabel = (s: Task['status']) =>
+	({
+		completed: 'Completado',
+		in_progress: 'En progreso',
+		pending: 'Pendiente',
+	})[s];
+
+const stageRingClass = (s: Stage['status']) =>
+	({
+		completed:
+			'border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10',
+		in_progress:
+			'border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10',
+		pending: 'border-gray-200 bg-white dark:border-gray-700/60 dark:bg-white/5',
+	})[s];
+
+const stageIcon = (s: Stage['status']) =>
+	({
+		completed: 'ri:checkbox-circle-fill',
+		in_progress: 'ri:time-fill',
+		pending: 'ri:checkbox-blank-circle-line',
+	})[s];
+
+const stageIconColor = (s: Stage['status']) =>
+	({
+		completed: 'text-emerald-500 dark:text-emerald-400',
+		in_progress: 'text-amber-500 dark:text-amber-400',
+		pending: 'text-gray-400 dark:text-gray-500',
+	})[s];
+
+const statTone = (t: StatusTone) =>
+	({
+		success:
+			'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400',
+		warning:
+			'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
+		danger: 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400',
+		info: 'bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400',
+		neutral: 'bg-gray-100 text-gray-600 dark:bg-white/5 dark:text-gray-300',
+	})[t];
+---
+
+<div class="space-y-4 p-1">
+	{/* ─── Header card ──────────────────────────────────── */}
+	<article
+		class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900/60"
+	>
+		<div
+			class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+		>
+			<div class="min-w-0">
+				<p
+					class="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400"
+				>
+					<Icon name="ri:building-2-line" class="h-4 w-4" />
+					Workflow activo
+				</p>
+				<h3 class="mt-1 text-lg font-semibold text-gray-950 dark:text-white">
+					{workflow.companyName}
+				</h3>
+				<div
+					class="mt-2 flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400"
+				>
+					<span class="inline-flex items-center gap-1.5">
+						<Icon name="ri:user-3-line" class="h-3.5 w-3.5" />
+						{workflow.responsible}
+					</span>
+					<span class="inline-flex items-center gap-1.5">
+						<Icon name="ri:calendar-line" class="h-3.5 w-3.5" />
+						Inicio: {workflow.startedAt}
+					</span>
+				</div>
+			</div>
+
+			<div class="shrink-0 text-right">
+				<p class="text-2xl font-semibold text-gray-950 dark:text-white">
+					{workflow.stagesCompleted}/{workflow.stagesTotal}
+				</p>
+				<p class="text-xs text-gray-500 dark:text-gray-400">
+					Etapas completadas
+				</p>
+				<div
+					class="mt-2 h-1.5 w-40 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800"
+				>
+					<div
+						class="h-full rounded-full bg-gray-950 dark:bg-white"
+						style={`width:${progressPct}%`}
+					>
+					</div>
+				</div>
+			</div>
+		</div>
+	</article>
+
+	{/* ─── Stats row ────────────────────────────────────── */}
+	<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+		{
+			stats.map((s) => (
+				<article class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/60">
+					<div>
+						<p class="text-2xl font-semibold text-gray-950 dark:text-white">
+							{s.value}
+						</p>
+						<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+							{s.label}
+						</p>
+					</div>
+					<span
+						class={`inline-flex h-9 w-9 items-center justify-center rounded-lg ${statTone(s.tone)}`}
+					>
+						<Icon name={s.icon} class="h-4 w-4" />
+					</span>
+				</article>
+			))
+		}
+	</div>
+
+	{/* ─── Body: stage tasks + team queue ──────────────── */}
+	<div class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)]">
+		<section
+			class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900/60"
+		>
+			<header class="mb-4 flex items-start justify-between gap-3">
+				<div class="min-w-0">
+					<p
+						class="flex items-center gap-2 text-sm font-semibold text-gray-950 dark:text-white"
+					>
+						<Icon
+							name="ri:time-line"
+							class="h-4 w-4 text-amber-500 dark:text-amber-400"
+						/>
+						{currentStage.name}
+					</p>
+					<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+						{currentStage.description}
+					</p>
+				</div>
+				<button
+					type="button"
+					class="inline-flex shrink-0 items-center gap-2 rounded-lg bg-gray-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-100"
+				>
+					<Icon name="ri:arrow-right-line" class="h-3.5 w-3.5" />
+					Avanzar etapa
+				</button>
+			</header>
+
+			<ul class="space-y-2">
+				{
+					currentStage.tasks.map((t) => (
+						<li
+							class={`flex items-start gap-3 rounded-lg border p-3 transition ${
+								t.status === 'in_progress'
+									? 'border-amber-200 bg-amber-50/60 dark:border-amber-500/20 dark:bg-amber-500/5'
+									: 'border-gray-200 bg-white dark:border-gray-800 dark:bg-transparent'
+							}`}
+						>
+							<input
+								type="checkbox"
+								checked={t.status === 'completed'}
+								class="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 dark:border-gray-600"
+								disabled
+							/>
+							<div class="min-w-0 flex-1">
+								<div class="flex flex-wrap items-center gap-2">
+									<p
+										class={`text-sm font-medium ${
+											t.status === 'completed'
+												? 'text-gray-400 line-through dark:text-gray-500'
+												: 'text-gray-950 dark:text-white'
+										}`}
+									>
+										{t.title}
+									</p>
+									<span
+										class={`text-2xs rounded px-1.5 py-0.5 font-semibold tracking-wide uppercase ${priorityClass(t.priority)}`}
+									>
+										{t.priority === 'urgent'
+											? 'Urgente'
+											: t.priority === 'high'
+												? 'Alta'
+												: t.priority === 'low'
+													? 'Baja'
+													: 'Normal'}
+									</span>
+								</div>
+								<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+									{t.description}
+								</p>
+							</div>
+
+							<div class="flex shrink-0 items-center gap-3">
+								{t.assignee ? (
+									<span class="inline-flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+										<span class="text-2xs inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+											{t.assignee.initials}
+										</span>
+										{t.assignee.name}
+									</span>
+								) : (
+									<button
+										type="button"
+										class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-950 dark:text-gray-400 dark:hover:text-white"
+									>
+										<Icon name="ri:user-add-line" class="h-3.5 w-3.5" />
+										Asignar
+									</button>
+								)}
+								<span
+									class={`rounded-full px-2 py-0.5 text-[11px] font-medium ${taskStatusBadge(t.status)}`}
+								>
+									{taskStatusLabel(t.status)}
+								</span>
+								<button
+									type="button"
+									class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+									aria-label="Más opciones"
+								>
+									<Icon name="ri:more-2-fill" class="h-4 w-4" />
+								</button>
+							</div>
+						</li>
+					))
+				}
+			</ul>
+		</section>
+
+		<aside class="space-y-4">
+			{/* Team queue */}
+			<section
+				class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900/60"
+			>
+				<header class="mb-3 flex items-center justify-between">
+					<h4 class="text-sm font-semibold text-gray-950 dark:text-white">
+						Cola del Equipo
+					</h4>
+					<span
+						class="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-white/10 dark:text-gray-300"
+					>
+						{teamQueue.length} tareas
+					</span>
+				</header>
+				<ul class="space-y-2">
+					{
+						teamQueue.map((q) => (
+							<li class="rounded-lg border border-gray-200 p-3 dark:border-gray-800">
+								<div class="flex items-start justify-between gap-2">
+									<p class="text-sm font-medium text-gray-950 dark:text-white">
+										{q.title}
+									</p>
+									<span
+										class={`text-2xs shrink-0 rounded px-1.5 py-0.5 font-semibold ${priorityClass(q.priority)}`}
+									>
+										{q.priority === 'urgent'
+											? 'Urgente'
+											: q.priority === 'high'
+												? 'Alta'
+												: 'Normal'}
+									</span>
+								</div>
+								<div class="mt-1.5 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+									<span class="inline-flex items-center gap-1">
+										<Icon name="ri:user-line" class="h-3 w-3" />
+										{q.assignee}
+									</span>
+									<span class="inline-flex items-center gap-1">
+										<Icon name="ri:time-line" class="h-3 w-3" />
+										{q.eta}
+									</span>
+								</div>
+							</li>
+						))
+					}
+				</ul>
+				<button
+					type="button"
+					class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/5"
+				>
+					Ver cola completa
+					<Icon name="ri:arrow-right-s-line" class="h-3.5 w-3.5" />
+				</button>
+			</section>
+
+			{/* Quick actions */}
+			<section
+				class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900/60"
+			>
+				<h4 class="mb-3 text-sm font-semibold text-gray-950 dark:text-white">
+					Acciones Rápidas
+				</h4>
+				<div class="grid grid-cols-2 gap-2">
+					{
+						[
+							{ icon: 'ri:play-circle-line', label: 'Nueva tarea' },
+							{ icon: 'ri:user-shared-line', label: 'Reasignar' },
+							{ icon: 'ri:error-warning-line', label: 'Reportar' },
+							{ icon: 'ri:calendar-event-line', label: 'Agendar' },
+						].map((a) => (
+							<button
+								type="button"
+								class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/5"
+							>
+								<Icon name={a.icon} class="h-3.5 w-3.5" />
+								{a.label}
+							</button>
+						))
+					}
+				</div>
+			</section>
+		</aside>
+	</div>
+
+	{/* ─── Stages overview + SLA alerts ────────────────── */}
+	<div class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)]">
+		<section
+			class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900/60"
+		>
+			<h4 class="mb-4 text-sm font-semibold text-gray-950 dark:text-white">
+				Vista General de Etapas
+			</h4>
+			<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+				{
+					stages.map((s) => (
+						<article
+							class={`rounded-lg border p-3 transition ${stageRingClass(s.status)}`}
+						>
+							<div class="flex items-center gap-2 text-[11px] font-medium text-gray-500 dark:text-gray-400">
+								<Icon
+									name={stageIcon(s.status)}
+									class={`h-3.5 w-3.5 ${stageIconColor(s.status)}`}
+								/>
+								Etapa {s.order}
+							</div>
+							<p class="mt-1 text-sm font-semibold text-gray-950 dark:text-white">
+								{s.name}
+							</p>
+							<p class="mt-1 inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+								<Icon name="ri:time-line" class="h-3 w-3" />
+								SLA: {s.slaHours}h
+							</p>
+						</article>
+					))
+				}
+			</div>
+		</section>
+
+		<aside
+			class="h-fit rounded-xl border border-amber-200 bg-amber-50/60 p-5 dark:border-amber-500/20 dark:bg-amber-500/5"
+		>
+			<h4
+				class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-950 dark:text-white"
+			>
+				<Icon
+					name="ri:alert-line"
+					class="h-4 w-4 text-amber-500 dark:text-amber-400"
+				/>
+				Alertas de SLA
+			</h4>
+			<ul class="space-y-3">
+				{
+					slaAlerts.map((a) => (
+						<li class="rounded-lg border border-amber-200/70 bg-white p-3 dark:border-amber-500/20 dark:bg-gray-900/40">
+							<div class="flex items-center justify-between gap-2">
+								<p class="text-sm font-medium text-gray-950 dark:text-white">
+									{a.stage}
+								</p>
+								<span class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+									{a.remaining}
+								</span>
+							</div>
+							<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+								{a.warning}
+							</p>
+							<div class="mt-2 h-1 overflow-hidden rounded-full bg-amber-100 dark:bg-amber-500/15">
+								<div
+									class="h-full rounded-full bg-amber-500 dark:bg-amber-400"
+									style={`width:${a.progress}%`}
+								/>
+							</div>
+						</li>
+					))
+				}
+			</ul>
+		</aside>
+	</div>
+</div>
