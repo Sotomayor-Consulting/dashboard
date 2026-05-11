@@ -3,18 +3,11 @@ import { Icon } from 'astro-icon/components';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
 import GlobalSearch from '@components/navigation/GlobalSearch.astro';
 import logonotificaciones from '@assets/avatarSCI.png';
+import NotificationsPopover from '@components/navigation/islands/NotificationsPopover';
 import { menuItems } from '@components/navigation/items';
 
 // Datos recibidos desde LayoutSidebar (ya consultados en paralelo)
 const { notificationsData: notifProp } = Astro.props;
-
-const user = Astro.locals?.user;
-const supabaseUrl =
-	process.env.PUBLIC_SUPABASE_URL ?? import.meta.env.PUBLIC_SUPABASE_URL ?? '';
-const supabaseAnonKey =
-	process.env.PUBLIC_SUPABASE_ANON_KEY ??
-	import.meta.env.PUBLIC_SUPABASE_ANON_KEY ??
-	'';
 
 const { notifications, totalUnread } = notifProp ?? {
 	notifications: [],
@@ -203,111 +196,13 @@ const quickActions = [
 					class="mx-1 hidden h-5 w-px bg-gray-300/90 lg:block dark:bg-gray-600/80"
 				>
 				</div>
-				<div>
-					<!-- Notifications -->
-					<button
-						type="button"
-						id="notifications-toggle"
-						data-dropdown-toggle="notification-dropdown"
-						class="relative inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-[#101522] dark:hover:text-white"
-					>
-						<span class="sr-only">Ver Notifications</span>
-						<Icon name="ri:notification-3-line" class="h-5 w-5" />
-						{
-							totalUnread > 0 && (
-								<span class="text-2xs absolute -top-1.5 -right-1.5 inline-flex h-5 w-5 animate-pulse items-center justify-center rounded-full border-2 border-white bg-red-500 font-bold text-white dark:border-[#223848]">
-									{totalUnread}
-								</span>
-							)
-						}
-					</button>
-					<!-- Dropdown menu -->
-					<div
-						class="to-black-600 from-black-900 z-20 my-4 hidden max-w-sm min-w-[24rem] list-none divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-200 bg-white text-base dark:divide-gray-600 dark:border-gray-700 dark:bg-linear-to-tr"
-						id="notification-dropdown"
-					>
-						<div
-							class="to-black-600 from-black-900 block bg-gray-50 px-4 py-2 text-center text-base font-medium text-gray-700 dark:bg-linear-to-tl dark:text-gray-400"
-						>
-							Notifications
-						</div>
-						<div
-							id="notifications-list"
-							class="scrollbar-thin scrollbar-thumb-neutral-400 h-96 overflow-y-auto"
-						>
-							{
-								notifications.length === 0 ? (
-									<div class="flex px-4 py-3 text-neutral-500 dark:text-neutral-500">
-										No hay notificaciones
-									</div>
-								) : (
-									notifications.map((notification: any) => (
-										<div
-											class="flex border-b px-4 py-3 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-[#101522]/5"
-											data-id={notification.id}
-										>
-											<div class="shrink-0">
-												<img
-													src={logonotificaciones.src}
-													width="44"
-													height="44"
-													alt="Logo notificación Sotomayor Consulting"
-													class="rounded-full"
-													loading="lazy"
-												/>
-											</div>
-											<div class="w-full pl-3">
-												<div class="mb-1.5 flex flex-col gap-2 text-sm font-normal text-gray-500 dark:text-gray-400">
-													<span class="font-semibold text-gray-900 dark:text-white">
-														{notification.message}
-													</span>
-													<a
-														href={notification.link}
-														target="_blank"
-														class="dark:bg-black-400 dark:hover:bg-black-500 bg-black-600 hover:bg-black-700 focus:ring-brand-medium rounded-base group box-border flex w-fit items-center gap-1 border border-transparent px-2 py-1 text-sm leading-5 font-medium text-white shadow-xs focus:ring-4 focus:outline-none"
-													>
-														{notification.mensaje_link}
-														<Icon
-															name="ri:arrow-right-s-fill"
-															class="transition-all delay-105 ease-in-out group-hover:translate-x-1"
-														/>
-													</a>
-												</div>
-												<div class="flex justify-between">
-													<span class="text-xs text-gray-400">
-														{new Date(
-															notification.created_at,
-														).toLocaleDateString()}
-													</span>
-													{!notification.is_read && (
-														<button
-															class="mark-as-read text-primary-600 hover:bg-primary-50 hover:text-primary-700 dark:hover:text-primary-400 inline-flex cursor-pointer rounded-lg px-2 py-1 text-xs font-medium dark:text-neutral-400"
-															class="mark-as-read text-primary-600 hover:bg-primary-50 hover:text-primary-700 dark:hover:text-primary-400 inline-flex cursor-pointer rounded-lg px-2 py-1 text-xs font-medium dark:text-neutral-400"
-															data-id={notification.id}
-														>
-															Marcar como leída
-														</button>
-													)}
-												</div>
-											</div>
-										</div>
-									))
-								)
-							}
-						</div>
-						<a
-							href="/notifications"
-							class="dark:bg-black-800 group text-black-600 hover:text-black-700 block bg-gray-50 py-2 text-center text-base font-normal hover:bg-gray-100 dark:text-white dark:hover:bg-[#192033]/50 dark:hover:underline"
-						>
-							<div class="inline-flex items-center gap-2">
-								<Icon
-									name="ri:eye-fill"
-									class="group-hover:text-black-700 text-black-600 text-xl"
-								/>
-								Ver todo
-							</div>
-						</a>
-					</div>
+				<div id="notificaciones">
+					<NotificationsPopover
+						notifications={notifications}
+						totalUnread={totalUnread}
+						avatarSrc={logonotificaciones.src}
+						client:load
+					/>
 				</div>
 				<div
 					class="mx-0.5 hidden h-5 w-px bg-gray-300/90 lg:block dark:bg-gray-600/80"
@@ -318,85 +213,3 @@ const quickActions = [
 		</div>
 	</div>
 </nav>
-<script
-	type="module"
-	define:vars={{
-		SB_URL: supabaseUrl,
-		SB_ANON: supabaseAnonKey,
-		USER_ID: user?.id ?? '',
-		TOTAL_UNREAD: totalUnread ?? 0,
-	}}
-	is:inline
->
-	import { createBrowserClient } from 'https://esm.sh/@supabase/ssr@0.7.0';
-
-	const start = async () => {
-		const listEl = document.getElementById('notifications-list');
-		const bellBtn = document.getElementById('notifications-toggle');
-		if (!listEl || !bellBtn)
-			return console.error(
-				'[notifications] Falta #notifications-list o #notifications-toggle',
-			);
-		if (!SB_URL || !SB_ANON)
-			return console.error('[notifications] Faltan claves Supabase');
-		if (!USER_ID)
-			return console.info('[notifications] Sin usuario; no suscribo');
-
-		const supabase = createBrowserClient(SB_URL, SB_ANON, {
-			isSingleton: true,
-		});
-
-		const getBadgeEl = () => bellBtn?.querySelector('span.inline-flex.w-6.h-6');
-		const updateBadge = (count) => {
-			const existing = getBadgeEl();
-			if (count <= 0) return existing?.remove();
-			if (!existing) {
-				const b = document.createElement('span');
-				b.className =
-					'absolute inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1.5 -end-1.5 dark:border-gray-900';
-				bellBtn.appendChild(b);
-				b.textContent = String(count);
-			} else {
-				existing.textContent = String(count);
-			}
-		};
-
-		// Usar el valor del servidor directamente
-		updateBadge(TOTAL_UNREAD);
-
-		listEl.addEventListener('click', async (e) => {
-			const btn = e.target.closest('.mark-as-read');
-			if (!btn) return;
-			const id = btn.getAttribute('data-id');
-
-			// Actualizar el badge restando 1
-			const currentCount = parseInt(getBadgeEl()?.textContent || '0');
-			updateBadge(Math.max(0, currentCount - 1));
-
-			try {
-				const formData = new FormData();
-				formData.append('id', id);
-				formData.append('estado_lectura', 'true');
-
-				const res = await fetch('/api/notifications/update', {
-					method: 'POST',
-					body: formData,
-					credentials: 'include',
-				});
-
-				if (!res.ok) {
-					const err = await res.text();
-					console.error('[notifications] Error:', err);
-				}
-			} catch (error) {
-				console.error('[notifications] marcar como leída error:', error);
-			}
-		});
-	};
-
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', start);
-	} else {
-		start();
-	}
-</script>
