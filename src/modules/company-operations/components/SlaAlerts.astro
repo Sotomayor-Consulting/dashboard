@@ -1,0 +1,54 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { SlaAlert } from '../types';
+
+interface Props {
+	slaAlerts: SlaAlert[];
+}
+
+const { slaAlerts } = Astro.props;
+---
+
+<aside
+	class="to-black-600 from-black-900 h-fit rounded-xl border border-amber-200 bg-amber-50/60 p-5 dark:border-amber-500/20 dark:bg-amber-500/5 dark:bg-linear-to-tr"
+>
+	<h4
+		class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-950 dark:text-white"
+	>
+		<Icon
+			name="ri:alert-line"
+			class="h-4 w-4 text-amber-500 dark:text-amber-400"
+		/>
+		Alertas de SLA
+	</h4>
+	<ul class="space-y-3">
+		{slaAlerts.length === 0 && (
+			<li class="rounded-lg border border-dashed border-amber-200/70 p-3 text-center text-xs text-gray-500 dark:border-amber-500/20 dark:text-gray-400">
+				Sin alertas de SLA activas.
+			</li>
+		)}
+		{
+			slaAlerts.map((a) => (
+				<li class="rounded-lg border border-amber-200/70 bg-white p-3 dark:border-amber-500/20 dark:bg-gray-900/40">
+					<div class="flex items-center justify-between gap-2">
+						<p class="text-sm font-medium text-gray-950 dark:text-white">
+							{a.stage}
+						</p>
+						<span class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+							{a.remaining}
+						</span>
+					</div>
+					<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+						{a.warning}
+					</p>
+					<div class="mt-2 h-1 overflow-hidden rounded-full bg-amber-100 dark:bg-amber-500/15">
+						<div
+							class="h-full rounded-full bg-amber-500 dark:bg-amber-400"
+							style={`width:${a.progress}%`}
+						/>
+					</div>
+				</li>
+			))
+		}
+	</ul>
+</aside>

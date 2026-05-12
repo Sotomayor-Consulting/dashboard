@@ -7,6 +7,11 @@ interface Props {
 		date?: string;
 		completed: string;
 		icon: string;
+		action?: {
+			label: string;
+			href: string;
+			icon?: string;
+		};
 	}[];
 	completedCount: number;
 	totalCount: number;
@@ -77,19 +82,32 @@ const { tasks, completedCount, totalCount, progressPercent } = Astro.props;
 							<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
 								{li.description}
 							</p>
-							<span
-								class:list={{
-									'mt-2 inline-flex rounded-md px-2 py-0.5 text-[11px] font-medium': true,
-									'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300':
-										li.completed === 'Completado',
-									'bg-blue-50 text-blue-700 dark:bg-blue-900/25 dark:text-blue-300':
-										li.completed === 'En proceso',
-									'bg-gray-100 text-gray-600 dark:bg-black-700 dark:text-gray-300':
-										li.completed === 'Por completar',
-								}}
-							>
-								{li.completed}
-							</span>
+							<div class="mt-2 flex flex-wrap items-center gap-2">
+								<span
+									class:list={{
+										'inline-flex rounded-md px-2 py-0.5 text-[11px] font-medium': true,
+										'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300':
+											li.completed === 'Completado',
+										'bg-blue-50 text-blue-700 dark:bg-blue-900/25 dark:text-blue-300':
+											li.completed === 'En proceso',
+										'bg-gray-100 text-gray-600 dark:bg-black-700 dark:text-gray-300':
+											li.completed === 'Por completar',
+									}}
+								>
+									{li.completed}
+								</span>
+								{li.action && (
+									<a
+										href={li.action.href}
+										class="inline-flex items-center gap-1.5 rounded-md bg-[#134aed] px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-[#0f3bc4]"
+									>
+										{li.action.icon && (
+											<Icon name={li.action.icon} class="h-3.5 w-3.5" />
+										)}
+										{li.action.label}
+									</a>
+								)}
+							</div>
 						</div>
 						<div class="mt-0.5 hidden rounded-md bg-gray-50 px-2 py-1 text-xs text-gray-500 lg:block dark:bg-black-700 dark:text-gray-400">
 							{li.date}

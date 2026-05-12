@@ -104,6 +104,17 @@ const stageDescriptionBySlug: Record<string, string> = {
 	be13: 'Preparamos y enviamos el reporte BE-13 cuando aplica para tu caso.',
 };
 
+const stageActionBySlug: Record<
+	string,
+	{ label: string; href: string; icon?: string }
+> = {
+	planning_meeting: {
+		label: 'Agendar reunión de planificación',
+		href: `https://zcal.co/i/WVeAMS5w`,
+		icon: 'ri:calendar-event-line',
+	},
+};
+
 const processTasks = clientWorkflowData
 	? clientWorkflowData.stages.map((stage) => ({
 			title: stage.name,
@@ -118,6 +129,10 @@ const processTasks = clientWorkflowData
 						? 'En proceso'
 						: 'Por completar',
 			icon: stageIconBySlug[stage.slug] ?? 'ri:file-list-3-line',
+			action:
+				stage.status === 'in_progress'
+					? stageActionBySlug[stage.slug]
+					: undefined,
 		}))
 	: [
 			{
