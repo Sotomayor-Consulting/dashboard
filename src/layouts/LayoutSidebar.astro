@@ -3,6 +3,7 @@ import Banner from '@components/feedback/Banner.astro';
 import BannerUpgrade from '@components/feedback/BannerUpgrade.astro';
 import BannerPartner from '@components/feedback/PartnerProfileBanner.astro';
 import BannerIncorporacion from '@components/feedback/BannerIncorporationForm.astro';
+import Toaster from '@components/ui/Sonner';
 import LayoutCommon from './LayoutCommon.astro';
 import NavBarSidebar from '../components/navigation/NavBarSidebar.astro';
 import SideBar from '../components/navigation/SideBar.astro';
@@ -50,8 +51,13 @@ if (user && userId) {
 	const cached = getLayoutCache(userId);
 
 	if (cached) {
-		({ usuario, notificationsData, incorporaciones, bannerIncorpData, empresasSwitcher } =
-			cached);
+		({
+			usuario,
+			notificationsData,
+			incorporaciones,
+			bannerIncorpData,
+			empresasSwitcher,
+		} = cached);
 	} else if (isClientRouterFetch) {
 		// SideBar (transition:persist="sidebar-*") y NavBarSidebar (transition:persist="navbar")
 		// conservan su DOM en el swap → su HTML server-rendered se descarta. Saltamos
@@ -65,14 +71,19 @@ if (user && userId) {
 		// No persistimos al LRU: entrada incompleta. Una navegación full-document
 		// repoblará el cache con las 5 queries.
 	} else {
-		[usuario, notificationsData, incorporaciones, bannerIncorpData, empresasSwitcher] =
-			await Promise.all([
-				getUsuarioById(supabase, userId),
-				getNotifications(supabase, userId),
-				getEstadoIncorporacionByUserId(supabase, userId),
-				getBannerIncorporacionData(supabase, userId),
-				getEmpresasForSwitcher(supabase, userId),
-			]);
+		[
+			usuario,
+			notificationsData,
+			incorporaciones,
+			bannerIncorpData,
+			empresasSwitcher,
+		] = await Promise.all([
+			getUsuarioById(supabase, userId),
+			getNotifications(supabase, userId),
+			getEstadoIncorporacionByUserId(supabase, userId),
+			getBannerIncorporacionData(supabase, userId),
+			getEmpresasForSwitcher(supabase, userId),
+		]);
 
 		setLayoutCache(userId, {
 			usuario,
@@ -94,7 +105,7 @@ const routeCompanyIdMatch = Astro.url.pathname.match(
 );
 const routeCompanyId = routeCompanyIdMatch?.[1];
 const routeCompany = routeCompanyId
-	? empresasSwitcher.find((company) => company.id === routeCompanyId) ?? null
+	? (empresasSwitcher.find((company) => company.id === routeCompanyId) ?? null)
 	: null;
 const selectedCompany = routeCompany ?? activeCompany;
 
@@ -118,11 +129,14 @@ const showBannerPartner = missingPartnerFields.length > 0;
 
 	<SideBar empresas={empresasSwitcher} activeCompany={selectedCompany} />
 
-	<div class="dark:bg-black-900 bg-white flex overflow-hidden pt-14">
+	<div class="dark:bg-black-900 flex overflow-hidden bg-white pt-14">
 		<div
 			id="main-content"
-			class="dark:bg-black-900 bg-white relative h-full min-h-screen w-full px-6"
+			class="dark:bg-black-900 relative h-full min-h-screen w-full bg-white px-6"
 		>
+			<div transition:persist="global-toaster">
+				<Toaster client:load />
+			</div>
 			<Banner shouldShowBanner={showBannerEnProceso} />
 			<BannerUpgrade shouldShowBanner={showBannerUpgrade} />
 			<BannerPartner
