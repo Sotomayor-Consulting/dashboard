@@ -1,3 +1,7 @@
+allowBuilds:
+  esbuild: false
+  msw: false
+  sharp: false
 onlyBuiltDependencies:
   - esbuild
   - puppeteer
