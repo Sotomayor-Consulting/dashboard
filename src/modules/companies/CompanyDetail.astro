@@ -34,6 +34,8 @@ const userId = user?.id;
 const userRoles = Astro.locals.userRoles || [];
 const isStaff =
 	userRoles.includes('admin') || userRoles.includes('operaciones');
+const canEditDetails =
+	userRoles.includes('admin') || userRoles.includes('gerencia');
 const backPath = Astro.url.pathname;
 
 let data: CompanyDetailData | null = null;
@@ -102,6 +104,12 @@ const errorMessage = !empresaId
 								icono: 'ri:survey-line',
 							},
 							{
+								id: 'contacts-tab',
+								tabs: 'contacts',
+								label: 'Editar datos',
+								icono: 'ri:edit-line',
+							},
+							{
 								id: 'profile-tab',
 								tabs: 'profile',
 								label: 'Datos Generales',
@@ -118,12 +126,6 @@ const errorMessage = !empresaId
 								tabs: 'upload',
 								label: 'Subir documentos',
 								icono: 'ri:upload-cloud-2-line',
-							},
-							{
-								id: 'contacts-tab',
-								tabs: 'contacts',
-								label: 'Editar datos',
-								icono: 'ri:edit-line',
 							},
 						].map((i) => (
 							<li class="me-2" role="presentation">
@@ -167,8 +169,9 @@ const errorMessage = !empresaId
 						socios={socios}
 						managers={managers}
 						actividades={actividades}
-						paises={paises}
 						estados={estados}
+						canEditDetails={canEditDetails}
+						backPath={backPath}
 					/>
 					<div
 						class="my-4"
