@@ -1,77 +1,34 @@
 ---
-import { Icon } from 'astro-icon/components';
-
-interface MeetingData {
-	id: string;
-	title: string;
-	status: string;
-	scheduled_at: string;
-	duration_minutes: number;
-	platform: string;
-	meeting_url?: string;
-	meeting_external_id?: string;
-	meeting_passcode?: string;
-	advisor_name?: string;
-	advisor_email?: string;
-}
+import { STAGE_REGISTRY, isKnownStage } from './stages/registry.ts';
+import type { MeetingData, StageItem } from './stages/types';
 
 interface Props {
-	tasks: {
-		title: string;
-		description: string;
-		date?: string | undefined;
-		completed: string;
-		icon: string;
-		action?: {
-			label: string;
-			href: string;
-			icon?: string | undefined;
-			needsIntent?: boolean | undefined;
-			empresaId?: string | undefined;
-			userId?: string | undefined;
-		} | undefined;
-		meeting?: MeetingData | undefined;
-	}[];
+	stages: StageItem[];
 	completedCount: number;
 	totalCount: number;
 	progressPercent: number;
+	empresaId: string;
+	userId: string;
+	meeting?: MeetingData | null;
 }
-const { tasks, completedCount, totalCount, progressPercent } = Astro.props;
 
-const formatMeetingDate = (isoDate: string) => {
-	const date = new Date(isoDate);
-	return new Intl.DateTimeFormat('es-ES', {
-		weekday: 'long',
-		day: 'numeric',
-		month: 'long',
-		year: 'numeric',
-	}).format(date);
-};
-
-const formatMeetingTime = (isoDate: string) => {
-	const date = new Date(isoDate);
-	return new Intl.DateTimeFormat('es-ES', {
-		hour: '2-digit',
-		minute: '2-digit',
-		hour12: true,
-		timeZoneName: 'short',
-	}).format(date);
-};
-
-const platformLabel = (platform: string) => {
-	const labels: Record<string, string> = {
-		zoom: 'Zoom',
-		google_meet: 'Google Meet',
-		teams: 'Microsoft Teams',
-	};
-	return labels[platform] ?? platform.charAt(0).toUpperCase() + platform.slice(1);
-};
+const {
+	stages,
+	completedCount,
+	totalCount,
+	progressPercent,
+	empresaId,
+	userId,
+	meeting,
+} = Astro.props;
 ---
 
 <div
 	class="to-black-600 from-black-900 rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-gray-200/70 sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-linear-to-br dark:shadow-none"
 >
-	<div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+	<div
+		class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+	>
 		<div>
 			<h2 class="text-xl font-semibold text-gray-900 dark:text-white">
 				Proceso de incorporación
@@ -81,10 +38,14 @@ const platformLabel = (platform: string) => {
 			</p>
 		</div>
 		<div class="flex items-center gap-2">
-			<span class="rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-black-700 dark:text-gray-300">
+			<span
+				class="dark:bg-black-700 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300"
+			>
 				{completedCount}/{totalCount} completadas
 			</span>
-			<span class="rounded-md bg-[#e8efff] px-2 py-1 text-xs font-semibold text-[#134aed] dark:bg-[#134aed]/20 dark:text-[#9ab5ff]">
+			<span
+				class="rounded-md bg-[#e8efff] px-2 py-1 text-xs font-semibold text-[#134aed] dark:bg-[#134aed]/20 dark:text-[#9ab5ff]"
+			>
 				{progressPercent}%
 			</span>
 		</div>
@@ -93,291 +54,19 @@ const platformLabel = (platform: string) => {
 	<div class="px-1 pb-1">
 		<ol class="relative border-s border-gray-200 pl-1 dark:border-gray-700">
 			{
-				tasks.map((li) => (
-					<li class="ms-6 mb-7 flex items-start justify-between gap-3 last:mb-0">
-						<div class="min-w-0 flex-1">
-							<span
-								class:list={{
-									'absolute -inset-s-4 flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white dark:ring-black-900':
-										true,
-									'bg-success-soft text-fg-success-strong':
-										li.completed === 'Completado',
-									'bg-neutral-tertiary text-body':
-										li.completed === 'Por completar',
-									'bg-[#134aed] animate-pulse text-white':
-										li.completed === 'En proceso',
-								}}
-							>
-								<Icon
-									name={li.icon}
-									class:list={{
-										'text-base': true,
-										'animate-pulse': li.completed === 'En proceso',
-									}}
-								/>
-							</span>
-
-							<h3
-								class:list={{
-									'leading-tight font-semibold': true,
-									'text-fg-success-strong': li.completed === 'Completado',
-									'text-gray-800 dark:text-gray-200': li.completed === 'Por completar',
-									'text-[#134aed]': li.completed === 'En proceso',
-								}}
-							>
-								{li.title}
-							</h3>
-							<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-								{li.description}
-							</p>
-							<div class="mt-2 flex flex-wrap items-center gap-2">
-								<span
-									class:list={{
-										'inline-flex rounded-md px-2 py-0.5 text-[11px] font-medium': true,
-										'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300':
-											li.completed === 'Completado',
-										'bg-blue-50 text-blue-700 dark:bg-blue-900/25 dark:text-blue-300':
-											li.completed === 'En proceso',
-										'bg-gray-100 text-gray-600 dark:bg-black-700 dark:text-gray-300':
-											li.completed === 'Por completar',
-									}}
-								>
-									{li.completed}
-								</span>
-
-								{/* ── Sin reunión: mostrar botones de acción ── */}
-								{li.action && !li.meeting && !li.action.needsIntent && (
-									<a
-										href={li.action.href}
-										target="_blank"
-										rel="noopener noreferrer"
-										class="inline-flex items-center gap-1.5 rounded-md bg-[#134aed] px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-[#0f3bc4]"
-									>
-										{li.action.icon && (
-											<Icon name={li.action.icon} class="h-3.5 w-3.5" />
-										)}
-										{li.action.label}
-									</a>
-								)}
-								{li.action && !li.meeting && li.action.needsIntent && (
-									<button
-										type="button"
-										class="btn-booking-intent inline-flex items-center gap-1.5 rounded-md bg-[#134aed] px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-[#0f3bc4]"
-										data-href={li.action.href}
-										data-empresa-id={li.action.empresaId}
-										data-user-id={li.action.userId}
-									>
-										{li.action.icon && (
-											<Icon name={li.action.icon} class="h-3.5 w-3.5" />
-										)}
-										{li.action.label}
-									</button>
-								)}
-
-								{/* ── Con reunión agendada: badge "Agendado" ── */}
-								{li.meeting && li.meeting.status === 'scheduled' && (
-									<button
-										type="button"
-										class="btn-toggle-meeting inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-emerald-700"
-									>
-										<Icon name="ri:calendar-check-line" class="h-3.5 w-3.5" />
-										Agendado
-										<Icon name="ri:arrow-down-s-line" class="h-3.5 w-3.5 transition-transform duration-200" />
-									</button>
-								)}
-
-								{/* ── Reunión cancelada ── */}
-								{li.meeting && li.meeting.status === 'cancelled' && (
-									<span class="inline-flex items-center gap-1.5 rounded-md bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-700 dark:bg-red-900/25 dark:text-red-300">
-										<Icon name="ri:close-circle-line" class="h-3.5 w-3.5" />
-										Reunión cancelada
-									</span>
-								)}
-
-								{/* ── Reunión completada ── */}
-								{li.meeting && li.meeting.status === 'completed' && (
-									<button
-										type="button"
-										class="btn-toggle-meeting inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:bg-emerald-900/25 dark:text-emerald-300"
-									>
-										<Icon name="ri:check-double-line" class="h-3.5 w-3.5" />
-										Reunión realizada
-										<Icon name="ri:arrow-down-s-line" class="h-3.5 w-3.5 transition-transform duration-200" />
-									</button>
-								)}
-							</div>
-
-							{/* ── Panel desplegable con detalles de la reunión ── */}
-							{li.meeting && (li.meeting.status === 'scheduled' || li.meeting.status === 'completed') && (
-								<div class="meeting-details mt-3 hidden overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-black-800">
-									<div class="p-3 sm:p-4">
-										<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-											{/* Fecha */}
-											<div class="flex items-start gap-2.5">
-												<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/25">
-													<Icon name="ri:calendar-line" class="h-4 w-4 text-blue-600 dark:text-blue-400" />
-												</div>
-												<div class="min-w-0">
-													<p class="text-[11px] font-medium text-gray-500 dark:text-gray-400">Fecha</p>
-													<p class="text-sm font-semibold text-gray-900 dark:text-white capitalize">
-														{formatMeetingDate(li.meeting.scheduled_at)}
-													</p>
-												</div>
-											</div>
-
-											{/* Hora */}
-											<div class="flex items-start gap-2.5">
-												<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-50 dark:bg-purple-900/25">
-													<Icon name="ri:time-line" class="h-4 w-4 text-purple-600 dark:text-purple-400" />
-												</div>
-												<div class="min-w-0">
-													<p class="text-[11px] font-medium text-gray-500 dark:text-gray-400">Hora</p>
-													<p class="text-sm font-semibold text-gray-900 dark:text-white">
-														{formatMeetingTime(li.meeting.scheduled_at)} ({li.meeting.duration_minutes} min)
-													</p>
-												</div>
-											</div>
-
-											{/* Plataforma */}
-											<div class="flex items-start gap-2.5">
-												<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/25">
-													<Icon name="ri:video-chat-line" class="h-4 w-4 text-green-600 dark:text-green-400" />
-												</div>
-												<div class="min-w-0">
-													<p class="text-[11px] font-medium text-gray-500 dark:text-gray-400">Plataforma</p>
-													<p class="text-sm font-semibold text-gray-900 dark:text-white">
-														{platformLabel(li.meeting.platform)}
-													</p>
-												</div>
-											</div>
-
-											{/* Asesor */}
-											{li.meeting.advisor_name && (
-												<div class="flex items-start gap-2.5">
-													<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-900/25">
-														<Icon name="ri:user-star-line" class="h-4 w-4 text-amber-600 dark:text-amber-400" />
-													</div>
-													<div class="min-w-0">
-														<p class="text-[11px] font-medium text-gray-500 dark:text-gray-400">Asesor</p>
-														<p class="text-sm font-semibold text-gray-900 dark:text-white">
-															{li.meeting.advisor_name}
-														</p>
-													</div>
-												</div>
-											)}
-										</div>
-
-										{/* Botón para unirse a la reunión */}
-										{li.meeting.meeting_url && li.meeting.status === 'scheduled' && (
-											<div class="mt-4 flex items-center gap-2 border-t border-gray-200 pt-3 dark:border-gray-700">
-												<a
-													href={li.meeting.meeting_url}
-													target="_blank"
-													rel="noopener noreferrer"
-													class="inline-flex items-center gap-2 rounded-lg bg-[#134aed] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#0f3bc4]"
-												>
-													<Icon name="ri:video-on-line" class="h-4 w-4" />
-													Unirse a la reunión
-												</a>
-												{li.meeting.meeting_passcode && (
-													<span class="rounded-md bg-gray-100 px-2 py-1 text-[11px] text-gray-600 dark:bg-black-700 dark:text-gray-400">
-														Código: {li.meeting.meeting_passcode}
-													</span>
-												)}
-											</div>
-										)}
-									</div>
-								</div>
-							)}
-						</div>
-						<div class="mt-0.5 hidden rounded-md bg-gray-50 px-2 py-1 text-xs text-gray-500 lg:block dark:bg-black-700 dark:text-gray-400">
-							{li.date}
-						</div>
-					</li>
-				))
+				stages.map((stage) => {
+					if (!isKnownStage(stage.slug)) return null;
+					const StageComponent = STAGE_REGISTRY[stage.slug];
+					return (
+						<StageComponent
+							stage={stage}
+							empresaId={empresaId}
+							userId={userId}
+							meeting={stage.slug === 'planning_meeting' ? meeting : null}
+						/>
+					);
+				})
 			}
 		</ol>
 	</div>
 </div>
-
-<script>
-	// Toggle del panel desplegable de meeting
-	document.addEventListener('click', (e) => {
-		const target = e.target as HTMLElement;
-		const btn = target.closest('.btn-toggle-meeting') as HTMLElement | null;
-		if (!btn) return;
-
-		const li = btn.closest('li');
-		if (!li) return;
-
-		const details = li.querySelector('.meeting-details') as HTMLElement | null;
-		if (!details) return;
-
-		const isHidden = details.classList.contains('hidden');
-		const arrow = btn.querySelector('[data-icon="ri:arrow-down-s-line"]') as HTMLElement | null;
-
-		if (isHidden) {
-			details.classList.remove('hidden');
-			details.style.maxHeight = '0px';
-			details.style.opacity = '0';
-			requestAnimationFrame(() => {
-				details.style.transition = 'max-height 0.3s ease, opacity 0.3s ease';
-				details.style.maxHeight = details.scrollHeight + 'px';
-				details.style.opacity = '1';
-			});
-			if (arrow) arrow.style.transform = 'rotate(180deg)';
-		} else {
-			details.style.maxHeight = '0px';
-			details.style.opacity = '0';
-			setTimeout(() => {
-				details.classList.add('hidden');
-				details.style.transition = '';
-				details.style.maxHeight = '';
-				details.style.opacity = '';
-			}, 300);
-			if (arrow) arrow.style.transform = '';
-		}
-	});
-
-	// Booking intent (agendar reunión)
-	document.addEventListener('click', async (e) => {
-		const target = e.target as HTMLElement;
-		const btn = target.closest('.btn-booking-intent') as HTMLElement | null;
-		if (!btn) return;
-
-		e.preventDefault();
-
-		const href = btn.dataset.href;
-		const empresaId = btn.dataset.empresaId;
-
-		if (!href || !empresaId) return;
-
-		btn.setAttribute('disabled', 'true');
-		btn.style.opacity = '0.6';
-		const originalText = btn.textContent;
-		btn.textContent = ' Preparando...';
-
-		try {
-			const res = await fetch('/api/meetings/create-booking-intent', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ empresa_id: empresaId }),
-			});
-
-			const data = await res.json();
-
-			if (!res.ok || !data.success) {
-				throw new Error(data.error || 'Error al preparar la reunión');
-			}
-
-			window.open(href, '_blank');
-		} catch (error) {
-			console.error('Error creating booking intent:', error);
-			alert('Error al preparar el agendamiento. Intenta de nuevo.');
-		} finally {
-			btn.removeAttribute('disabled');
-			btn.style.opacity = '1';
-			if (originalText) btn.textContent = originalText;
-		}
-	});
-</script>

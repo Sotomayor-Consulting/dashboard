@@ -71,122 +71,9 @@ if (empresa?.estado_de_incorporacion) {
 	}
 }
 
-const FormateadorFecha = new Intl.DateTimeFormat('es-ES', {
-	day: 'numeric',
-	month: 'long',
-	year: 'numeric',
-});
-
 const porfirmarCount = porfirmar.length;
 
-const stageIconBySlug: Record<string, string> = {
-	planning_meeting: 'ri:calendar-schedule-line',
-	client_form: 'ri:file-list-3-line',
-	state_registration: 'ri:government-line',
-	fiscal_documents: 'ri:file-paper-2-line',
-	document_signing: 'ri:quill-pen-line',
-	ein_request: 'ri:profile-line',
-	boir_registration: 'ri:shield-check-line',
-	bank_account: 'ri:bank-line',
-	stripe_account: 'ri:bank-card-line',
-	tax_election_8832: 'ri:calculator-line',
-	be13: 'ri:building-4-line',
-};
-
-const stageDescriptionBySlug: Record<string, string> = {
-	planning_meeting:
-		'Coordinamos y agendamos la reunión de planificación con tu asesor.',
-	client_form:
-		'Completa el formulario inicial con los datos de tu empresa y responsables.',
-	state_registration:
-		'Presentamos la incorporación ante la secretaría del estado correspondiente.',
-	fiscal_documents:
-		'Preparamos, revisamos y organizamos los documentos fiscales requeridos.',
-	document_signing: 'Te enviamos la documentación final para revisión y firma.',
-	ein_request: 'Gestionamos la solicitud del EIN de tu empresa ante el IRS.',
-	boir_registration:
-		'Realizamos el registro BOIR ante FinCEN con la información validada.',
-	bank_account: 'Te acompañamos en la apertura de cuenta bancaria empresarial.',
-	stripe_account:
-		'Configuramos y dejamos operativa tu cuenta Stripe empresarial.',
-	tax_election_8832:
-		'Procesamos la elección tributaria corporativa mediante el Form 8832.',
-	be13: 'Preparamos y enviamos el reporte BE-13 cuando aplica para tu caso.',
-};
-
-const stageActionBySlug: Record<
-	string,
-	{ label: string; href: string; icon?: string; needsIntent?: boolean }
-> = {
-	planning_meeting: {
-		label: 'Agendar reunión de planificación',
-		href: `https://zcal.co/sotomayorconsulting/disenotributario`,
-		icon: 'ri:calendar-event-line',
-		needsIntent: true,
-	},
-};
-
-const processTasks = clientWorkflowData
-	? clientWorkflowData.stages.map((stage) => {
-			const baseAction =
-				stage.status === 'in_progress'
-					? stageActionBySlug[stage.slug]
-					: undefined;
-
-			// Si es planning_meeting y ya hay reunión agendada, inyectar meeting data
-			const meeting =
-				stage.slug === 'planning_meeting' && workflowMeeting
-					? workflowMeeting
-					: undefined;
-
-			return {
-				title: stage.name,
-				description:
-					stageDescriptionBySlug[stage.slug] ??
-					`Etapa ${stage.slug.replaceAll('_', ' ')}.`,
-				date: stage.dueAt
-					? FormateadorFecha.format(new Date(stage.dueAt))
-					: '-',
-				completed:
-					stage.status === 'completed'
-						? 'Completado'
-						: stage.status === 'in_progress'
-							? 'En proceso'
-							: 'Por completar',
-				icon: stageIconBySlug[stage.slug] ?? 'ri:file-list-3-line',
-				action: baseAction ? { ...baseAction, empresaId, userId } : undefined,
-				meeting,
-			};
-		})
-	: [
-			{
-				title: 'Registro de la empresa',
-				description: 'Hemos registrado tu empresa en el estado seleccionado.',
-				date: FormateadorFecha.format(
-					new Date(empresa?.fecha_de_validacion || '2024-03-22T14:30:00.000Z'),
-				),
-				completed: 'Completado',
-				icon: 'ri:check-line',
-			},
-			{
-				title: 'Obtención del EIN',
-				description:
-					'Estamos gestionando el número de identificación fiscal de tu empresa.',
-				date: FormateadorFecha.format(
-					new Date(empresa?.fecha_de_validacion || '2024-03-22T14:30:00.000Z'),
-				),
-				completed: 'En proceso',
-				icon: 'ri:profile-line',
-			},
-			{
-				title: 'Cuenta bancaria',
-				description:
-					'Próximamente te ayudaremos a abrir una cuenta bancaria para tu empresa.',
-				completed: 'Por completar',
-				icon: 'ri:bank-line',
-			},
-		];
-
+const stages = clientWorkflowData?.stages ?? [];
 const completedStagesCount = 0;
 
 // const completedStagesCount = clientWorkflowData.stages.filter(
@@ -255,10 +142,13 @@ const totalStagesCount = 0;
 		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
 	>
 		<ProcessIncorp
-			tasks={processTasks}
+			stages={stages}
 			completedCount={completedStagesCount}
 			totalCount={totalStagesCount}
 			progressPercent={processProgressPercent}
+			empresaId={empresaId}
+			userId={userId}
+			meeting={workflowMeeting}
 		/>
 		<SignedPanel porfirmar={porfirmar} />
 	</div>

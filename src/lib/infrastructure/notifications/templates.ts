@@ -68,6 +68,54 @@ const templates: NotificationTemplate[] = [
 		},
 	},
 	{
+		eventKey: 'workflow.planning.doc_uploaded',
+		locale: 'es',
+		defaultChannels: ['in_app', 'email'],
+		requiredContext: ['company_name', 'action_url'],
+		inApp: {
+			message:
+				'Tu documento de planificacion y diseno esta listo para revision en {{company_name}}.',
+			linkLabel: 'Revisar documento',
+		},
+		email: {
+			subject: 'Documento de planificacion listo para revision - {{company_name}}',
+			html: '<p>Hola,</p><p>Operaciones subio el documento de planificacion y diseno para <strong>{{company_name}}</strong>. Por favor revisa y aprueba o rechaza el documento.</p><p><a href="{{action_url}}">Revisar documento</a></p>',
+			text: 'Operaciones subio el documento de planificacion para {{company_name}}. Revisa aqui: {{action_url}}',
+		},
+	},
+	{
+		eventKey: 'workflow.planning.doc_approved',
+		locale: 'es',
+		defaultChannels: ['in_app', 'email'],
+		requiredContext: ['company_name', 'action_url'],
+		inApp: {
+			message:
+				'El cliente aprobo el documento de planificacion de {{company_name}}.',
+			linkLabel: 'Ver incorporacion',
+		},
+		email: {
+			subject: 'Planificacion aprobada por el cliente - {{company_name}}',
+			html: '<p>Hola,</p><p>El cliente aprobo el documento de planificacion para <strong>{{company_name}}</strong>. La etapa avanza al siguiente paso.</p><p><a href="{{action_url}}">Ver incorporacion</a></p>',
+			text: 'El cliente aprobo la planificacion de {{company_name}}. Ver detalle: {{action_url}}',
+		},
+	},
+	{
+		eventKey: 'workflow.planning.doc_rejected',
+		locale: 'es',
+		defaultChannels: ['in_app', 'email'],
+		requiredContext: ['company_name', 'action_url', 'comments'],
+		inApp: {
+			message:
+				'El cliente rechazo el documento de planificacion de {{company_name}}. Comentarios: {{comments}}',
+			linkLabel: 'Revisar comentarios',
+		},
+		email: {
+			subject: 'Planificacion rechazada por el cliente - {{company_name}}',
+			html: '<p>Hola,</p><p>El cliente rechazo el documento de planificacion para <strong>{{company_name}}</strong>.</p><p><strong>Comentarios del cliente:</strong></p><blockquote>{{comments}}</blockquote><p><a href="{{action_url}}">Subir nueva version</a></p>',
+			text: 'El cliente rechazo la planificacion de {{company_name}}. Comentarios: {{comments}} - Ver: {{action_url}}',
+		},
+	},
+	{
 		eventKey: 'workflow.task.assigned',
 		locale: 'es',
 		defaultChannels: ['in_app', 'email'],

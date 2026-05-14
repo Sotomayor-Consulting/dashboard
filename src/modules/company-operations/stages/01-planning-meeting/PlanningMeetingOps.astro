@@ -1,0 +1,144 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { OpsStageProps } from '../types';
+import {
+	resolvePlanningMeetingContext,
+	type PlanningMeetingSubstate,
+} from '@domains/workflow/stages/planning-meeting';
+import {
+	createDocumentSignedUrl,
+	resolveDocumentActor,
+	DocumentsError,
+} from '@domains/documents';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import MeetingScheduledOps from './components/MeetingScheduledOps.astro';
+import UploadPlanningDoc from './components/UploadPlanningDoc.astro';
+import AwaitingApprovalCard from './components/AwaitingApprovalCard.astro';
+import RejectionFeedbackCard from './components/RejectionFeedbackCard.astro';
+
+const { currentStage, empresaId } = Astro.props as OpsStageProps;
+const supabase = Astro.locals.supabase;
+const userRoles = Astro.locals.userRoles ?? [];
+
+const context = await resolvePlanningMeetingContext(supabase, {
+	incorporationId: empresaId,
+	stageId: currentStage.id,
+	stageStatus: 'in_progress',
+});
+
+let advisorName: string | null = null;
+if (context.meeting) {
+	const { data } = await supabaseAdmin
+		.schema('meetings')
+		.from('planning_meetings')
+		.select('advisor_id, usuarios:advisor_id(nombre)')
+		.eq('id', context.meeting.id)
+		.maybeSingle();
+	const usuarios = (data as { usuarios?: { nombre?: string | null } } | null)
+		?.usuarios;
+	advisorName = usuarios?.nombre ?? null;
+}
+
+let signedUrl: string | null = null;
+if (context.document) {
+	try {
+		const actor = await resolveDocumentActor(supabase, userRoles);
+		signedUrl = await createDocumentSignedUrl(actor, context.document.id);
+	} catch (err) {
+		if (!(err instanceof DocumentsError)) {
+			console.error('[ops/planning-meeting] signed url error:', err);
+		}
+	}
+}
+
+const substate: PlanningMeetingSubstate = context.substate;
+---
+
+<div class="space-y-3">
+	{
+		substate === 'schedule_pending' && (
+			<div class="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
+				<Icon
+					name="ri:calendar-todo-line"
+					class="h-5 w-5 shrink-0 text-gray-500 dark:text-gray-400"
+				/>
+				<div>
+					<p class="text-sm font-semibold text-gray-900 dark:text-white">
+						Esperando que el cliente agende la reunión
+					</p>
+					<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+						El cliente aún no ha agendado su reunión de planificación con un
+						asesor.
+					</p>
+				</div>
+			</div>
+		)
+	}
+
+	{
+		substate === 'meeting_scheduled' && context.meeting && (
+			<MeetingScheduledOps
+				scheduledAt={context.meeting.scheduled_at}
+				durationMinutes={context.meeting.duration_minutes}
+				advisorName={advisorName}
+				isPast={false}
+			/>
+		)
+	}
+
+	{
+		substate === 'awaiting_doc' && context.meeting && (
+			<>
+				<MeetingScheduledOps
+					scheduledAt={context.meeting.scheduled_at}
+					durationMinutes={context.meeting.duration_minutes}
+					advisorName={advisorName}
+					isPast={true}
+				/>
+				<UploadPlanningDoc empresaId={empresaId} mode="new" />
+			</>
+		)
+	}
+
+	{
+		substate === 'awaiting_approval' && context.document && (
+			<AwaitingApprovalCard
+				document={context.document}
+				signedUrl={signedUrl}
+			/>
+		)
+	}
+
+	{
+		substate === 'rejected' && context.latestApproval && (
+			<>
+				<RejectionFeedbackCard rejection={context.latestApproval} />
+				<UploadPlanningDoc empresaId={empresaId} mode="replace" />
+			</>
+		)
+	}
+
+	{
+		substate === 'approved' && (
+			<div class="flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50/50 p-3 dark:border-emerald-900/40 dark:bg-emerald-900/10">
+				<Icon
+					name="ri:checkbox-circle-line"
+					class="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400"
+				/>
+				<div>
+					<p class="text-sm font-semibold text-gray-900 dark:text-white">
+						Etapa completada
+					</p>
+					<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+						El cliente aprobó la planificación. El workflow avanzó al siguiente
+						paso.
+					</p>
+				</div>
+			</div>
+		)
+	}
+</div>
+
+<script>
+	import './planning-meeting-ops.client.ts';
+</script>

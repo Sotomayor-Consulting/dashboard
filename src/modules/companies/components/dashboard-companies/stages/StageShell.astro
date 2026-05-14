@@ -1,0 +1,73 @@
+---
+import { Icon } from 'astro-icon/components';
+import { STATUS_LABEL, type StageItem } from './types';
+
+interface Props {
+	stage: StageItem;
+	icon: string;
+	description: string;
+	formattedDate?: string | undefined;
+}
+
+const { stage, icon, description, formattedDate } = Astro.props;
+const { status } = stage;
+---
+
+<li class="ms-6 mb-7 flex items-start justify-between gap-3 last:mb-0">
+	<div class="min-w-0 flex-1">
+		<span
+			class:list={{
+				'dark:ring-black-900 absolute -inset-s-4 flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white': true,
+				'bg-success-soft text-fg-success-strong': status === 'completed',
+				'bg-neutral-tertiary text-body': status === 'pending',
+				'animate-pulse bg-[#134aed] text-white': status === 'in_progress',
+			}}
+		>
+			<Icon
+				name={icon}
+				class:list={{
+					'text-base': true,
+					'animate-pulse': status === 'in_progress',
+				}}
+			/>
+		</span>
+
+		<h3
+			class:list={{
+				'leading-tight font-semibold': true,
+				'text-fg-success-strong': status === 'completed',
+				'text-gray-800 dark:text-gray-200': status === 'pending',
+				'text-[#134aed]': status === 'in_progress',
+			}}
+		>
+			{stage.name}
+		</h3>
+		<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{description}</p>
+
+		<div class="mt-2 flex flex-wrap items-center gap-2">
+			<span
+				class:list={{
+					'inline-flex rounded-md px-2 py-0.5 text-[11px] font-medium': true,
+					'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300':
+						status === 'completed',
+					'bg-blue-50 text-blue-700 dark:bg-blue-900/25 dark:text-blue-300':
+						status === 'in_progress',
+					'dark:bg-black-700 bg-gray-100 text-gray-600 dark:text-gray-300':
+						status === 'pending',
+				}}
+			>
+				{STATUS_LABEL[status]}
+			</span>
+			<slot name="actions" />
+		</div>
+
+		<slot />
+	</div>
+	{
+		formattedDate && (
+			<div class="dark:bg-black-700 mt-0.5 hidden rounded-md bg-gray-50 px-2 py-1 text-xs text-gray-500 lg:block dark:text-gray-400">
+				{formattedDate}
+			</div>
+		)
+	}
+</li>
