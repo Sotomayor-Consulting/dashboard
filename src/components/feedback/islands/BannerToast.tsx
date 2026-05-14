@@ -22,7 +22,7 @@ export default function BannerToast({
 						<p className="text-center text-sm font-medium text-black dark:text-white">
 							{title}
 						</p>
-						<div className="mt-3 flex items-center justify-between gap-2">
+						<div className="mt-3 flex items-center justify-start gap-2">
 							<a
 								href={url}
 								className="inline-flex h-9 items-center rounded-lg bg-black px-4 text-sm font-medium text-white transition-colors hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"

@@ -26,13 +26,23 @@ if (!empresaId || !userId) {
 	return Astro.redirect('/');
 }
 
-const [empresa, porfirmar, clientWorkflowProgress, planContratado] =
-	await Promise.all([
-		getIncorporacionById(supabase, empresaId, userId),
-		getDocumentosPorFirmar(supabase, userId, empresaId),
-		getClientWorkflowProgress(supabaseAdmin, empresaId),
-		getPlanContratadoPorEmpresa(supabase, empresaId),
-	]);
+const [
+	empresa,
+	porfirmar,
+	clientWorkflowProgress,
+	planContratado,
+	workflowMeetingRaw,
+] = await Promise.all([
+	getIncorporacionById(supabase, empresaId, userId),
+	getDocumentosPorFirmar(supabase, userId, empresaId),
+	getClientWorkflowProgress(supabaseAdmin, empresaId),
+	getPlanContratadoPorEmpresa(supabase, empresaId),
+	supabaseAdmin
+		.rpc('get_workflow_meeting', { p_incorporation_id: empresaId })
+		.then((r) => r.data),
+]);
+
+const workflowMeeting = workflowMeetingRaw?.found ? workflowMeetingRaw : null;
 
 // El servicio "Upgrade" promueve la empresa al Plan Business — mostrar el
 // plan resultante en lugar del nombre del servicio de upgrade.
@@ -106,34 +116,48 @@ const stageDescriptionBySlug: Record<string, string> = {
 
 const stageActionBySlug: Record<
 	string,
-	{ label: string; href: string; icon?: string }
+	{ label: string; href: string; icon?: string; needsIntent?: boolean }
 > = {
 	planning_meeting: {
 		label: 'Agendar reunión de planificación',
-		href: `https://zcal.co/i/WVeAMS5w`,
+		href: `https://zcal.co/sotomayorconsulting/disenotributario`,
 		icon: 'ri:calendar-event-line',
+		needsIntent: true,
 	},
 };
 
 const processTasks = clientWorkflowData
-	? clientWorkflowData.stages.map((stage) => ({
-			title: stage.name,
-			description:
-				stageDescriptionBySlug[stage.slug] ??
-				`Etapa ${stage.slug.replaceAll('_', ' ')}.`,
-			date: stage.dueAt ? FormateadorFecha.format(new Date(stage.dueAt)) : '-',
-			completed:
-				stage.status === 'completed'
-					? 'Completado'
-					: stage.status === 'in_progress'
-						? 'En proceso'
-						: 'Por completar',
-			icon: stageIconBySlug[stage.slug] ?? 'ri:file-list-3-line',
-			action:
+	? clientWorkflowData.stages.map((stage) => {
+			const baseAction =
 				stage.status === 'in_progress'
 					? stageActionBySlug[stage.slug]
-					: undefined,
-		}))
+					: undefined;
+
+			// Si es planning_meeting y ya hay reunión agendada, inyectar meeting data
+			const meeting =
+				stage.slug === 'planning_meeting' && workflowMeeting
+					? workflowMeeting
+					: undefined;
+
+			return {
+				title: stage.name,
+				description:
+					stageDescriptionBySlug[stage.slug] ??
+					`Etapa ${stage.slug.replaceAll('_', ' ')}.`,
+				date: stage.dueAt
+					? FormateadorFecha.format(new Date(stage.dueAt))
+					: '-',
+				completed:
+					stage.status === 'completed'
+						? 'Completado'
+						: stage.status === 'in_progress'
+							? 'En proceso'
+							: 'Por completar',
+				icon: stageIconBySlug[stage.slug] ?? 'ri:file-list-3-line',
+				action: baseAction ? { ...baseAction, empresaId, userId } : undefined,
+				meeting,
+			};
+		})
 	: [
 			{
 				title: 'Registro de la empresa',
