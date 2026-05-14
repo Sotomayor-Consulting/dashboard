@@ -1,8 +1,5 @@
 ---
-import Banner from '@components/feedback/Banner.astro';
-import BannerUpgrade from '@components/feedback/BannerUpgrade.astro';
-import BannerPartner from '@components/feedback/PartnerProfileBanner.astro';
-import BannerIncorporacion from '@components/feedback/BannerIncorporationForm.astro';
+import BannerToastManager from '@components/feedback/islands/BannerToastManager.tsx';
 import Toaster from '@components/ui/Sonner';
 import LayoutCommon from './LayoutCommon.astro';
 import NavBarSidebar from '../components/navigation/NavBarSidebar.astro';
@@ -137,15 +134,14 @@ const showBannerPartner = missingPartnerFields.length > 0;
 			<div transition:persist="global-toaster">
 				<Toaster client:load />
 			</div>
-			<Banner shouldShowBanner={showBannerEnProceso} />
-			<BannerUpgrade shouldShowBanner={showBannerUpgrade} />
-			<BannerPartner
-				shouldShowBanner={showBannerPartner}
+			<BannerToastManager
+				showBannerEnProceso={showBannerEnProceso}
+				showBannerUpgrade={showBannerUpgrade}
+				showBannerPartner={showBannerPartner}
 				missingFields={missingPartnerFields}
-			/>
-			<BannerIncorporacion
-				shouldShowBanner={bannerIncorpData.shouldShow}
+				showBannerIncorporacion={bannerIncorpData.shouldShow}
 				empresaId={bannerIncorpData.empresaId}
+				client:load
 			/>
 			<slot />
 		</div>

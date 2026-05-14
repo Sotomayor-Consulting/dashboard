@@ -1,3 +1,13 @@
+allowBuilds:
+<<<<<<< HEAD
+  esbuild: false
+  msw: false
+  sharp: false
+=======
+  esbuild: true
+  msw: true
+  sharp: true
+>>>>>>> fdf25fa3254c23433e03de3d2e7aa23bd4327864
 onlyBuiltDependencies:
   - esbuild
   - puppeteer

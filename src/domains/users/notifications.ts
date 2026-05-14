@@ -2,8 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const getNotifications = async (
 	supabase: SupabaseClient,
-	userId: string,
-	limit = 5,
+	userId: string
 ) => {
 	if (!userId) {
 		return { notifications: [], totalUnread: 0 };
@@ -24,7 +23,6 @@ export const getNotifications = async (
 		.select('*')
 		.eq('user_id', userId)
 		.order('created_at', { ascending: false })
-		.limit(limit);
 
 	if (error || !data) {
 		return { notifications: [], totalUnread: 0 };

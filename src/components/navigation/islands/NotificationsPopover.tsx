@@ -1,7 +1,13 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { BellIcon, CheckCheck, Eye, ExternalLink } from 'lucide-react';
+import {
+	BellIcon,
+	CheckCheck,
+	Eye,
+	ChevronRight,
+	EllipsisVertical,
+} from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/Avatar';
 import { Badge } from '@components/ui/Badge';
@@ -35,7 +41,25 @@ const formatDate = (value: string) => {
 		return '';
 	}
 
-	return date.toLocaleDateString();
+	const diffMs = Date.now() - date.getTime();
+
+	if (diffMs < 0) {
+		return '0m';
+	}
+
+	const minute = 60 * 1000;
+	const hour = 60 * minute;
+	const day = 24 * hour;
+
+	if (diffMs < hour) {
+		return `${Math.max(1, Math.floor(diffMs / minute))}m`;
+	}
+
+	if (diffMs < day) {
+		return `${Math.floor(diffMs / hour)}h`;
+	}
+
+	return `${Math.floor(diffMs / day)}d`;
 };
 
 export default function NotificationsPopover({
@@ -142,7 +166,7 @@ export default function NotificationsPopover({
 		const isPending = pendingIds.includes(notification.id);
 
 		return (
-			<div className="hover:bg-muted/50 flex gap-3 px-4 py-3 transition-colors">
+			<div className="hover:bg-muted/50 group/card flex gap-3 px-4 py-3 transition-colors">
 				<div className="relative h-fit shrink-0">
 					<Avatar className="h-10 w-10 border border-gray-200 dark:border-gray-700">
 						<AvatarImage
@@ -153,49 +177,97 @@ export default function NotificationsPopover({
 					</Avatar>
 					{!notification.is_read && (
 						<>
-							<span className="absolute -right-0.5 -bottom-0.5 h-3 w-3 animate-ping rounded-full bg-emerald-500 dark:border-gray-950" />
-							<span className="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-950" />
+							<span className="absolute -right-0.5 bottom-11 h-3 w-3 animate-ping rounded-full bg-emerald-500 dark:border-gray-950" />
+							<span className="absolute -right-0.5 bottom-11 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-950" />
 						</>
 					)}
+					<p className="text-center text-xs text-gray-400">
+						{formatDate(notification.created_at)}
+					</p>
 				</div>
-				<div className="min-w-0 flex-1">
-					<p className="text-sm leading-snug font-semibold text-gray-900 dark:text-white">
+				<a
+					className="min-w-0 flex-1"
+					href={notification.link ?? undefined}
+					title={notification.mensaje_link ?? undefined}
+					target="_blank"
+					rel="noreferrer noopener"
+				>
+					<p className="text-xs leading-snug font-semibold text-gray-900 dark:text-white">
 						{notification.message}
 					</p>
-					<div className="mt-3 flex flex-wrap items-center gap-2">
+				</a>
+				<div className="relative flex flex-col justify-between">
+					{!notification.is_read && (
+						<Popover>
+							<PopoverTrigger
+								render={
+									<Button
+										variant="ghost"
+										size="sm"
+										className="mark-as-read text-primary-600 hover:bg-primary-50 hover:text-primary-700 dark:hover:text-primary-400 h-auto cursor-pointer px-2 py-1 text-xs font-medium dark:text-neutral-400"
+										disabled={isPending}
+										data-id={notification.id}
+										onClick={(event) => {
+											event.preventDefault();
+											event.stopPropagation();
+										}}
+									/>
+								}
+							>
+								<EllipsisVertical
+									className="h-3.5 w-3.5"
+									xlinkTitle="Marcar como leído"
+								/>
+							</PopoverTrigger>
+							<PopoverContent
+								align="end"
+								side="bottom"
+								sideOffset={8}
+								className="w-56 gap-3 rounded-xl border border-gray-200 bg-white p-3 text-xs shadow-lg dark:border-gray-700 dark:bg-[#111827]"
+								onClick={(event) => {
+									event.preventDefault();
+									event.stopPropagation();
+								}}
+							>
+								<Button
+									variant="ghost"
+									size="sm"
+									className="bg-primary-50 text-primary-700 hover:bg-primary-100 h-8 w-full cursor-pointer justify-center dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+									onClick={(event) => {
+										event.preventDefault();
+										event.stopPropagation();
+										void markAsRead(notification.id);
+									}}
+									disabled={isPending}
+								>
+									{isPending ? 'Marcando...' : 'Marcar como leida'}{' '}
+									<CheckCheck
+										className="ml-3 h-3.5 w-3.5"
+										xlinkTitle="Marcar como leído"
+									/>
+								</Button>
+							</PopoverContent>
+						</Popover>
+					)}
+					<div className="invisible mt-3 flex flex-wrap items-center gap-2 transition-all delay-105 group-hover/card:visible group-hover/card:translate-x-2">
 						{notification.link && notification.mensaje_link && (
 							<Button
-								variant="default"
+								variant="link"
 								size="sm"
 								className="h-auto gap-1.5 px-2 py-1 text-xs"
 								render={
 									<a
 										href={notification.link}
 										target="_blank"
+										title={notification.mensaje_link}
 										rel="noreferrer noopener"
 									/>
 								}
 							>
-								{notification.mensaje_link}
-								<ExternalLink className="h-3.5 w-3.5" />
-							</Button>
-						)}
-						{!notification.is_read && (
-							<Button
-								variant="ghost"
-								size="sm"
-								className="mark-as-read text-primary-600 hover:bg-primary-50 hover:text-primary-700 dark:hover:text-primary-400 h-auto cursor-pointer px-2 py-1 text-xs font-medium dark:text-neutral-400"
-								onClick={() => markAsRead(notification.id)}
-								disabled={isPending}
-								data-id={notification.id}
-							>
-								Marcar como leída
+								<ChevronRight className="h-3.5 w-3.5" />
 							</Button>
 						)}
 					</div>
-					<p className="mt-2 text-xs text-gray-400">
-						{formatDate(notification.created_at)}
-					</p>
 				</div>
 			</div>
 		);
@@ -223,8 +295,8 @@ export default function NotificationsPopover({
 			</PopoverTrigger>
 
 			<PopoverContent
-				align="end"
-				sideOffset={10}
+				align="center"
+				sideOffset={15}
 				className="to-black-600 from-black-900 z-20 w-[24rem] max-w-sm gap-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-0 shadow-xl ring-0 dark:border-gray-700 dark:bg-linear-to-tr"
 			>
 				<div className="to-black-600 from-black-900 flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-linear-to-tl">
