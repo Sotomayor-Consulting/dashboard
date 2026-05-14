@@ -3,6 +3,7 @@
 /** Nombres exactos de la tabla `roles.name` en BD */
 export const ROLES = {
 	ADMIN: 'admin',
+	GERENCIA: 'gerencia',
 	PARTNER: 'partner',
 	CLIENT: 'cliente',
 	OPERACIONES: 'operaciones',
@@ -33,6 +34,10 @@ export function hasAnyRole(userRoles: string[], roles: RoleName[]): boolean {
 
 export function isAdmin(userRoles: string[]): boolean {
 	return hasRole(userRoles, ROLES.ADMIN);
+}
+
+export function isGerencia(userRoles: string[]): boolean {
+	return hasRole(userRoles, ROLES.GERENCIA);
 }
 
 export function isPartner(userRoles: string[]): boolean {
