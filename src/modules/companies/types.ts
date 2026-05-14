@@ -64,6 +64,9 @@ export interface EmpresaDetail {
 	estado: string | null;
 	porcentaje_de_incorporacion: number | null;
 	actividad: string | null;
+	activity_id: number | null;
+	descripcion_empresa: string | null;
+	activity_description: string | null;
 	forma_tributacion: string | null;
 	forma_administracion: string | null;
 	Obtendra_ingresos_desde_eeuu: boolean | null;
@@ -74,6 +77,8 @@ export interface EmpresaDetail {
 	condado_eeuu: string | null;
 	ciudad_eeuu: string | null;
 	estado_eeuu: string | null;
+	estado_id: number | null;
+	state_id: number | null;
 	codigo_postal_eeuu: string | null;
 	Pais_operativo: string | null;
 	direccion_empresa: string | null;

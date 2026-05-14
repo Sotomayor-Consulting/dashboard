@@ -1,4 +1,5 @@
 ---
+import CompanyDetailsForm from '../islands/CompanyDetailsForm';
 import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
 import type {
@@ -6,7 +7,6 @@ import type {
 	SocioItem,
 	ManagerItem,
 	ActividadItem,
-	PaisItem,
 	EstadoItem,
 } from '../types';
 
@@ -15,12 +15,34 @@ interface Props {
 	socios: SocioItem[];
 	managers: ManagerItem[];
 	actividades: ActividadItem[];
-	paises: PaisItem[];
 	estados: EstadoItem[];
+	paises: PaisItem[];
+	canEditDetails: boolean;
+	backPath: string;
 }
 
-const { empresa, socios, managers, actividades, paises, estados } = Astro.props;
+const {
+	empresa,
+	socios,
+	managers,
+	actividades,
+	estados,
+	canEditDetails,
+	backPath,
+	paises,
+} = Astro.props;
 ---
+
+<CompanyDetailsForm
+	client:load
+	empresa={empresa}
+	socios={socios}
+	managers={managers}
+	actividades={actividades}
+	estados={estados}
+	canEditDetails={canEditDetails}
+	backPath={backPath}
+/>
 
 <form action="" method="post">
 	<div
