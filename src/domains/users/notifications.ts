@@ -2,7 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const getNotifications = async (
 	supabase: SupabaseClient,
-	userId: string
+	userId: string,
+	limit?: number,
 ) => {
 	if (!userId) {
 		return { notifications: [], totalUnread: 0 };
@@ -15,14 +16,18 @@ export const getNotifications = async (
 		.eq('user_id', userId)
 		.eq('is_read', false);
 
-
-
-	// Luego obtener las notificaciones con límite
-	const { data, error } = await supabase
+	// Luego obtener las notificaciones (con límite opcional)
+	let query = supabase
 		.from('notifications')
 		.select('*')
 		.eq('user_id', userId)
-		.order('created_at', { ascending: false })
+		.order('created_at', { ascending: false });
+
+	if (typeof limit === 'number' && limit > 0) {
+		query = query.limit(limit);
+	}
+
+	const { data, error } = await query;
 
 	if (error || !data) {
 		return { notifications: [], totalUnread: 0 };
