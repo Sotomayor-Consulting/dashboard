@@ -44,16 +44,29 @@ function initCompanyGeoChart() {
 			feature(usAtlas as any, (usAtlas as any).objects.states) as any
 		).features as Array<any>;
 
+		const selectedState = states.find(
+			(s) => s.properties.name.toLowerCase() === estadoMapa,
+		);
+
+		// Si encontramos el estado, hacemos zoom: outline = solo ese estado.
+		// chart.js ajusta la projection al bbox del outline → estados pequeños
+		// como Delaware se ven en tamaño real.
+		const outline = selectedState ?? nation;
+
 		const canvas = document.createElement('canvas');
 		container.innerHTML = '';
 		container.appendChild(canvas);
-		container.style.height = '200px';
-		container.style.maxHeight = '400px';
+		container.style.height = '240px';
+		container.style.maxHeight = '320px';
 
-		const mapData = states.map((state) => ({
-			feature: state,
-			value: state.properties.name.toLowerCase() === estadoMapa ? 1 : 0,
-		}));
+		// Cuando hay estado seleccionado, dibujamos solo ese feature (sin el
+		// resto del país). Si no, fallback al mapa completo.
+		const mapData = selectedState
+			? [{ feature: selectedState, value: 1 }]
+			: states.map((state) => ({
+					feature: state,
+					value: state.properties.name.toLowerCase() === estadoMapa ? 1 : 0,
+				}));
 
 		const win = window as GeoChartWindow;
 		win.companyGeoChart?.destroy();
@@ -71,16 +84,13 @@ function initCompanyGeoChart() {
 				datasets: [
 					{
 						label: 'Estados',
-						outline: nation,
+						outline,
 						data: mapData,
-						backgroundColor: (context) =>
-							context.raw && (context.raw as any).value === 1
-								? '#0078b7'
-								: 'transparent',
-						borderColor: '#0078b7',
-						borderWidth: 1,
-						hoverBackgroundColor: '#003e6c',
-						hoverBorderColor: '#003e6c',
+						backgroundColor: 'transparent',
+						borderColor: '#94a3b8',
+						borderWidth: 2,
+						hoverBackgroundColor: 'transparent',
+						hoverBorderColor: '#94a3b8',
 						hoverBorderWidth: 2,
 						skip: false,
 					},
@@ -101,27 +111,7 @@ function initCompanyGeoChart() {
 				},
 				plugins: {
 					legend: { display: false },
-					tooltip: {
-						enabled: true,
-						backgroundColor: 'rgba(0, 0, 0, 0.8)',
-						titleColor: '#fff',
-						bodyColor: '#fff',
-						borderColor: '#0078b7',
-						borderWidth: 1,
-						padding: 10,
-						displayColors: false,
-						callbacks: {
-							title(context) {
-								const item = context[0] as any;
-								return item?.raw?.feature?.properties?.name ?? '';
-							},
-							label(context) {
-								return (context.raw as any)?.value === 1
-									? 'El estado de tu empresa'
-									: '';
-							},
-						},
-					},
+					tooltip: { enabled: false },
 				},
 			},
 		});

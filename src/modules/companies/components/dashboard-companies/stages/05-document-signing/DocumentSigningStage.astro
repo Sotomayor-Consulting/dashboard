@@ -1,0 +1,14 @@
+---
+import StageShell from '../StageShell.astro';
+import { formatStageDate } from '../shared/format-date.ts';
+import type { StageProps } from '../types';
+
+const { stage } = Astro.props as StageProps;
+---
+
+<StageShell
+	stage={stage}
+	icon="ri:quill-pen-line"
+	description="Te enviamos la documentación final para revisión y firma."
+	formattedDate={formatStageDate(stage.dueAt)}
+/>

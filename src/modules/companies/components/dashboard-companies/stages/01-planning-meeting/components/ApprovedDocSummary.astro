@@ -1,0 +1,45 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { PlanningDesignDocument } from '@domains/workflow/stages/planning-meeting';
+
+interface Props {
+	document: PlanningDesignDocument;
+	signedUrl: string | null;
+}
+
+const { document: doc, signedUrl } = Astro.props;
+
+const downloadUrl = signedUrl
+	? `${signedUrl}${signedUrl.includes('?') ? '&' : '?'}download=${encodeURIComponent(doc.file_name)}`
+	: null;
+---
+
+<div
+	class="mt-3 flex items-center justify-between gap-3 rounded-lg border border-emerald-200 bg-emerald-50/50 p-3 dark:border-emerald-900/40 dark:bg-emerald-900/10"
+>
+	<div class="flex items-center gap-2 min-w-0">
+		<Icon
+			name="ri:checkbox-circle-line"
+			class="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400"
+		/>
+		<div class="min-w-0">
+			<p class="text-sm font-semibold text-gray-900 dark:text-white">
+				Planificación aprobada
+			</p>
+			<p class="truncate text-[11px] text-gray-500 dark:text-gray-400">
+				{doc.file_title ?? doc.file_name} · v{doc.version}
+			</p>
+		</div>
+	</div>
+	{
+		downloadUrl && (
+			<a
+				href={downloadUrl}
+				class="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50 dark:bg-gray-800 dark:text-emerald-300 dark:ring-emerald-900/40 dark:hover:bg-emerald-900/20"
+			>
+				<Icon name="ri:download-line" class="h-3.5 w-3.5" />
+				Descargar
+			</a>
+		)
+	}
+</div>

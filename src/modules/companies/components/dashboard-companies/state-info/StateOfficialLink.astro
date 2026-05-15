@@ -1,0 +1,22 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { StateInfo } from './states-data';
+
+interface Props {
+	state: StateInfo;
+}
+
+const { state } = Astro.props;
+---
+
+<a
+	href={`https://${state.website}`}
+	target="_blank"
+	rel="noopener noreferrer"
+	class="flex items-center justify-center gap-2 border-t border-gray-200 bg-gray-50/60 px-4 py-3 text-xs font-medium transition-opacity hover:opacity-80 dark:border-gray-700 dark:bg-white/5"
+	style={`color:${state.color}`}
+>
+	<Icon name="ri:global-line" class="h-3.5 w-3.5" />
+	Sitio oficial: {state.website}
+	<Icon name="ri:external-link-line" class="h-3 w-3" />
+</a>

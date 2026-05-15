@@ -5,7 +5,10 @@ export type NotificationEventKey =
 	| 'documents.shared'
 	| 'documents.share_revoked'
 	| 'workflow.stage.completed'
-	| 'workflow.task.assigned';
+	| 'workflow.task.assigned'
+	| 'workflow.planning.doc_uploaded'
+	| 'workflow.planning.doc_approved'
+	| 'workflow.planning.doc_rejected';
 
 export type NotificationContextValue =
 	| string

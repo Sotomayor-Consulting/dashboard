@@ -1,0 +1,43 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { PlanningMeetingApproval } from '@domains/workflow/stages/planning-meeting';
+
+interface Props {
+	rejection: PlanningMeetingApproval;
+}
+
+const { rejection } = Astro.props;
+
+const dateFmt = new Intl.DateTimeFormat('es-ES', {
+	day: 'numeric',
+	month: 'long',
+	hour: '2-digit',
+	minute: '2-digit',
+});
+---
+
+<div
+	class="rounded-lg border border-red-200 bg-red-50/50 p-3 dark:border-red-900/40 dark:bg-red-900/10"
+>
+	<div class="flex items-start gap-2">
+		<Icon
+			name="ri:close-circle-line"
+			class="h-5 w-5 shrink-0 text-red-600 dark:text-red-400"
+		/>
+		<div class="min-w-0 flex-1">
+			<p class="text-sm font-semibold text-red-800 dark:text-red-200">
+				Cliente rechazó la planificación · ronda {rejection.round}
+			</p>
+			<p class="text-[11px] text-red-600/80 dark:text-red-300/80">
+				Decisión: {dateFmt.format(new Date(rejection.decided_at))}
+			</p>
+			{
+				rejection.comments && (
+					<blockquote class="mt-2 rounded border-l-2 border-red-300 bg-white/60 px-2 py-1.5 text-xs text-gray-800 italic dark:border-red-500/50 dark:bg-gray-900/40 dark:text-gray-200">
+						{rejection.comments}
+					</blockquote>
+				)
+			}
+		</div>
+	</div>
+</div>

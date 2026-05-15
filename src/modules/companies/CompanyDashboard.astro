@@ -1,17 +1,19 @@
 ---
 import '@styles/datatables.css';
+import { Icon } from 'astro-icon/components';
 import { getIncorporacionById } from '@domains/companies/incorporations';
 import { getEstadoPorEmpresa } from '@domains/utils/generals/states';
 import { getDocumentosPorFirmar } from '@domains/documents/pending-signature';
 import { getPlanContratadoPorEmpresa } from '@domains/payments/payments';
+import { getServicioUpgrade } from '@domains/services/services';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import Head from '@modules/companies/components/dashboard-companies/DashboardHeader.astro';
 import Gridline2 from '@modules/companies/components/dashboard-companies/StatusGrid.astro';
 import ProcessIncorp from '@modules/companies/components/dashboard-companies/IncorporationProcess.astro';
 import SignedPanel from '@modules/companies/components/dashboard-companies/SignedPanel.astro';
 import ModalDropzone from '@modules/companies/components/dashboard-companies/DropzoneModal.astro';
+import InformationPanel from '@modules/companies/components/dashboard-companies/InformationPanel.astro';
 import { getClientWorkflowProgress } from '@modules/companies/services/get-client-workflow-progress';
-import Tab from '@components/navigation/TabBar.astro';
 
 interface Props {
 	empresaId: string | undefined;
@@ -32,6 +34,7 @@ const [
 	clientWorkflowProgress,
 	planContratado,
 	workflowMeetingRaw,
+	servicioUpgrade,
 ] = await Promise.all([
 	getIncorporacionById(supabase, empresaId, userId),
 	getDocumentosPorFirmar(supabase, userId, empresaId),
@@ -40,12 +43,11 @@ const [
 	supabaseAdmin
 		.rpc('get_workflow_meeting', { p_incorporation_id: empresaId })
 		.then((r) => r.data),
+	getServicioUpgrade(supabase).catch(() => null),
 ]);
 
 const workflowMeeting = workflowMeetingRaw?.found ? workflowMeetingRaw : null;
 
-// El servicio "Upgrade" promueve la empresa al Plan Business — mostrar el
-// plan resultante en lugar del nombre del servicio de upgrade.
 const rawPlanName = planContratado?.servicios?.nombre ?? 'Plan Business';
 const planName =
 	rawPlanName.trim().toLowerCase() === 'upgrade'
@@ -58,209 +60,162 @@ if (!empresa) {
 
 const clientWorkflowData = clientWorkflowProgress;
 
-// Obtener estado de incorporación para el mapa
 let estadoMapa = null;
 if (empresa?.estado_de_incorporacion) {
 	const estadoData = await getEstadoPorEmpresa(
 		supabase,
 		empresa.estado_de_incorporacion,
 	);
-
-	if (estadoData) {
-		estadoMapa = estadoData.code;
-	}
+	if (estadoData) estadoMapa = estadoData.Estado;
 }
-
-const FormateadorFecha = new Intl.DateTimeFormat('es-ES', {
-	day: 'numeric',
-	month: 'long',
-	year: 'numeric',
-});
 
 const porfirmarCount = porfirmar.length;
 
-const stageIconBySlug: Record<string, string> = {
-	planning_meeting: 'ri:calendar-schedule-line',
-	client_form: 'ri:file-list-3-line',
-	state_registration: 'ri:government-line',
-	fiscal_documents: 'ri:file-paper-2-line',
-	document_signing: 'ri:quill-pen-line',
-	ein_request: 'ri:profile-line',
-	boir_registration: 'ri:shield-check-line',
-	bank_account: 'ri:bank-line',
-	stripe_account: 'ri:bank-card-line',
-	tax_election_8832: 'ri:calculator-line',
-	be13: 'ri:building-4-line',
-};
+const stages = clientWorkflowData?.stages ?? [];
+const totalStagesCount = stages.length;
+const completedStagesCount = stages.filter(
+	(stage) => stage.status === 'completed',
+).length;
+const pendingProcessesCount = stages.filter(
+	(stage) => stage.status !== 'completed',
+).length;
+const processProgressPercent =
+	totalStagesCount > 0
+		? Math.round((completedStagesCount / totalStagesCount) * 100)
+		: 0;
 
-const stageDescriptionBySlug: Record<string, string> = {
-	planning_meeting:
-		'Coordinamos y agendamos la reunión de planificación con tu asesor.',
-	client_form:
-		'Completa el formulario inicial con los datos de tu empresa y responsables.',
-	state_registration:
-		'Presentamos la incorporación ante la secretaría del estado correspondiente.',
-	fiscal_documents:
-		'Preparamos, revisamos y organizamos los documentos fiscales requeridos.',
-	document_signing: 'Te enviamos la documentación final para revisión y firma.',
-	ein_request: 'Gestionamos la solicitud del EIN de tu empresa ante el IRS.',
-	boir_registration:
-		'Realizamos el registro BOIR ante FinCEN con la información validada.',
-	bank_account: 'Te acompañamos en la apertura de cuenta bancaria empresarial.',
-	stripe_account:
-		'Configuramos y dejamos operativa tu cuenta Stripe empresarial.',
-	tax_election_8832:
-		'Procesamos la elección tributaria corporativa mediante el Form 8832.',
-	be13: 'Preparamos y enviamos el reporte BE-13 cuando aplica para tu caso.',
-};
+const nextStage = stages.find((s) => s.status !== 'completed') ?? null;
+const nextStageName = nextStage?.name ?? null;
 
-const stageActionBySlug: Record<
-	string,
-	{ label: string; href: string; icon?: string; needsIntent?: boolean }
-> = {
-	planning_meeting: {
-		label: 'Agendar reunión de planificación',
-		href: `https://zcal.co/sotomayorconsulting/disenotributario`,
-		icon: 'ri:calendar-event-line',
-		needsIntent: true,
+// Upgrade banner: empresa con estado 'Upgrade' (elegible) + al menos
+// la primera etapa completada. El precio sale del servicio en DB.
+const firstStageCompleted = completedStagesCount >= 1;
+const upgradeAvailable =
+	empresa?.estado === 'Upgrade' && firstStageCompleted && !!servicioUpgrade;
+const upgradePrice = servicioUpgrade?.precio
+	? Number(servicioUpgrade.precio)
+	: null;
+
+const activeTabParam = Astro.url.searchParams.get('tab');
+const initialTab = activeTabParam === 'info' ? 'info' : 'general';
+
+const tabs = [
+	{
+		id: 'general',
+		label: 'General',
+		icon: 'ri:layout-grid-line',
+		kind: 'panel' as const,
 	},
-};
-
-const processTasks = clientWorkflowData
-	? clientWorkflowData.stages.map((stage) => {
-			const baseAction =
-				stage.status === 'in_progress'
-					? stageActionBySlug[stage.slug]
-					: undefined;
-
-			// Si es planning_meeting y ya hay reunión agendada, inyectar meeting data
-			const meeting =
-				stage.slug === 'planning_meeting' && workflowMeeting
-					? workflowMeeting
-					: undefined;
-
-			return {
-				title: stage.name,
-				description:
-					stageDescriptionBySlug[stage.slug] ??
-					`Etapa ${stage.slug.replaceAll('_', ' ')}.`,
-				date: stage.dueAt
-					? FormateadorFecha.format(new Date(stage.dueAt))
-					: '-',
-				completed:
-					stage.status === 'completed'
-						? 'Completado'
-						: stage.status === 'in_progress'
-							? 'En proceso'
-							: 'Por completar',
-				icon: stageIconBySlug[stage.slug] ?? 'ri:file-list-3-line',
-				action: baseAction ? { ...baseAction, empresaId, userId } : undefined,
-				meeting,
-			};
-		})
-	: [
-			{
-				title: 'Registro de la empresa',
-				description: 'Hemos registrado tu empresa en el estado seleccionado.',
-				date: FormateadorFecha.format(
-					new Date(empresa?.fecha_de_validacion || '2024-03-22T14:30:00.000Z'),
-				),
-				completed: 'Completado',
-				icon: 'ri:check-line',
-			},
-			{
-				title: 'Obtención del EIN',
-				description:
-					'Estamos gestionando el número de identificación fiscal de tu empresa.',
-				date: FormateadorFecha.format(
-					new Date(empresa?.fecha_de_validacion || '2024-03-22T14:30:00.000Z'),
-				),
-				completed: 'En proceso',
-				icon: 'ri:profile-line',
-			},
-			{
-				title: 'Cuenta bancaria',
-				description:
-					'Próximamente te ayudaremos a abrir una cuenta bancaria para tu empresa.',
-				completed: 'Por completar',
-				icon: 'ri:bank-line',
-			},
-		];
-
-const completedStagesCount = 0;
-
-// const completedStagesCount = clientWorkflowData.stages.filter(
-// 	(stage) => stage.status === 'completed',
-// ).length;
-// const totalStagesCount =
-// 	clientWorkflowData.stages.length > 0
-// 		? clientWorkflowData.stages.length
-// 		: processTasks.length;
-// const processProgressPercent =
-// 	totalStagesCount > 0
-// 		? Math.round((completedStagesCount / totalStagesCount) * 100)
-// 		: 0;
-// const pendingProcessesCount = clientWorkflowData.stages.filter(
-// 	(stage) => stage.status !== 'completed',
-// ).length;
-
-const pendingProcessesCount = 0;
-const processProgressPercent = 0;
-const totalStagesCount = 0;
+	{
+		id: 'info',
+		label: 'Información',
+		icon: 'ri:information-line',
+		kind: 'panel' as const,
+	},
+	{
+		id: 'documents',
+		label: 'Documentos',
+		icon: 'ri:file-copy-line',
+		kind: 'link' as const,
+		link: `/my-companies/${empresaId}/documents`,
+	},
+	{
+		id: 'orders',
+		label: 'Ordenes',
+		icon: 'ri:contract-line',
+		kind: 'link' as const,
+		link: `/my-companies/${empresaId}/orders`,
+	},
+];
 ---
 
 <div class="px-4 pt-6">
-	<Tab
-		buttons={[
-			{
-				label: 'General',
-				icon: 'ri:layout-grid-line',
-				active: true,
-				link: `/my-companies/${empresaId}/dashboard`,
-			},
-			{
-				label: 'Documentos',
-				icon: 'ri:file-copy-line',
-				active: false,
-				link: `/my-companies/${empresaId}/documents`,
-			},
-			{
-				label: 'Ordenes',
-				icon: 'ri:contract-line',
-				active: false,
-				link: `/my-companies/${empresaId}/orders`,
-			},
-		]}
-	/>
-
-	<Head
-		empresa={empresa}
-		estadoMapa={estadoMapa ?? ''}
-		planName={planName}
-		progressPercent={clientWorkflowData?.progressPercent ?? 0}
-		completedStages={completedStagesCount}
-		totalStages={totalStagesCount}
-		currentStageName={clientWorkflowData?.currentStageName ?? ''}
-		currentStageOrder={clientWorkflowData?.stages?.find(
-			(stage) => stage.status === 'in_progress',
-		)?.displayOrder ?? null}
-		estimatedCompletion={clientWorkflowData?.estimatedCompletion ?? null}
-	/>
-	<Gridline2
-		empresa={empresa}
-		porfirmar={porfirmarCount}
-		pendingProcesses={pendingProcessesCount || 0}
-	/>
-	<div
-		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
+	<ul
+		class="dark:bg-black-900 mt-4 flex w-fit items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium shadow-sm shadow-gray-200/70 md:w-auto xl:inline-flex xl:text-sm dark:border-gray-700 dark:shadow-none"
+		data-tab-strip
 	>
-		<ProcessIncorp
-			tasks={processTasks}
-			completedCount={completedStagesCount}
-			totalCount={totalStagesCount}
-			progressPercent={processProgressPercent}
+		{
+			tabs.map((tab, idx) => (
+				<>
+					{idx > 0 && (
+						<li
+							aria-hidden="true"
+							class="mx-1 hidden h-6 w-px self-center bg-gray-300/90 md:block dark:bg-gray-600/80"
+						/>
+					)}
+					<li class="m-0">
+						{tab.kind === 'link' ? (
+							<a
+								href={tab.link}
+								data-astro-prefetch="viewport"
+								class="link-moderate inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 md:w-auto dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+							>
+								<Icon name={tab.icon} class="h-4 w-4" />
+								{tab.label}
+							</a>
+						) : (
+							<button
+								type="button"
+								data-tab-btn={tab.id}
+								class:list={{
+									'link-moderate inline-flex w-full items-center gap-2 rounded-md px-3 py-2 transition-colors md:w-auto': true,
+									'dark:bg-black-700 bg-gray-100 text-gray-900 shadow-sm dark:text-white':
+										tab.id === initialTab,
+									'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white':
+										tab.id !== initialTab,
+								}}
+								aria-current={tab.id === initialTab ? 'page' : undefined}
+							>
+								<Icon name={tab.icon} class="h-4 w-4" />
+								{tab.label}
+							</button>
+						)}
+					</li>
+				</>
+			))
+		}
+	</ul>
+
+	<div data-tab-panel="general" hidden={initialTab !== 'general'}>
+		<Head
+			empresa={empresa}
+			estadoMapa={estadoMapa ?? ''}
+			planName={planName}
+			progressPercent={clientWorkflowData?.progressPercent ?? 0}
+			completedStages={completedStagesCount}
+			totalStages={totalStagesCount}
+			currentStageName={clientWorkflowData?.currentStageName ?? ''}
+			currentStageOrder={clientWorkflowData?.stages?.find(
+				(stage) => stage.status === 'in_progress',
+			)?.displayOrder ?? null}
+			estimatedCompletion={clientWorkflowData?.estimatedCompletion ?? null}
+			nextStageName={nextStageName}
+			upgradeAvailable={upgradeAvailable}
+			upgradePrice={upgradePrice}
 		/>
-		<SignedPanel porfirmar={porfirmar} />
+		<Gridline2
+			empresa={empresa}
+			porfirmar={porfirmarCount}
+			pendingProcesses={pendingProcessesCount || 0}
+		/>
+		<div
+			class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
+		>
+			<ProcessIncorp
+				stages={stages}
+				completedCount={completedStagesCount}
+				totalCount={totalStagesCount}
+				progressPercent={processProgressPercent}
+				empresaId={empresaId}
+				userId={userId}
+				meeting={workflowMeeting}
+			/>
+			<SignedPanel porfirmar={porfirmar} />
+		</div>
+	</div>
+
+	<div data-tab-panel="info" hidden={initialTab !== 'info'}>
+		<InformationPanel empresa={empresa} estadoMapa={estadoMapa ?? ''} />
 	</div>
 </div>
 
@@ -275,12 +230,66 @@ const totalStagesCount = 0;
 </script>
 
 <script>
+	const buttons =
+		document.querySelectorAll<HTMLButtonElement>('[data-tab-btn]');
+	const panels = document.querySelectorAll<HTMLElement>('[data-tab-panel]');
+	const activeClasses = [
+		'dark:bg-black-700',
+		'bg-gray-100',
+		'text-gray-900',
+		'shadow-sm',
+		'dark:text-white',
+	];
+	const inactiveClasses = [
+		'text-gray-600',
+		'hover:bg-gray-100',
+		'hover:text-gray-900',
+		'dark:text-gray-300',
+		'dark:hover:bg-white/5',
+		'dark:hover:text-white',
+	];
+
+	function setTab(id: string) {
+		panels.forEach((p) => {
+			p.hidden = p.dataset['tabPanel'] !== id;
+		});
+		buttons.forEach((b) => {
+			const isActive = b.dataset['tabBtn'] === id;
+			if (isActive) {
+				b.classList.add(...activeClasses);
+				b.classList.remove(...inactiveClasses);
+				b.setAttribute('aria-current', 'page');
+			} else {
+				b.classList.remove(...activeClasses);
+				b.classList.add(...inactiveClasses);
+				b.removeAttribute('aria-current');
+			}
+		});
+		const url = new URL(window.location.href);
+		if (id === 'general') url.searchParams.delete('tab');
+		else url.searchParams.set('tab', id);
+		window.history.replaceState({}, '', url.toString());
+		// Re-trigger map render if switching to info
+		if (id === 'info') {
+			document.dispatchEvent(new CustomEvent('dark-mode'));
+		}
+	}
+
+	buttons.forEach((b) => {
+		b.addEventListener('click', () => {
+			const id = b.dataset['tabBtn'];
+			if (id) setTab(id);
+		});
+	});
+</script>
+
+<script>
 	document.addEventListener('click', async (e) => {
 		const target = e.target as HTMLElement;
 		const btn = target.closest('.btn-ver-documento-table');
 		if (!btn) return;
 
-		const path = (btn as HTMLElement).dataset.path;
+		const path = (btn as HTMLElement).dataset['path'];
 		if (!path) return;
 
 		try {

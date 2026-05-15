@@ -1,0 +1,28 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	href: string;
+	empresaId: string;
+	userId: string;
+	label?: string;
+}
+
+const {
+	href,
+	empresaId,
+	userId,
+	label = 'Agendar reunión de planificación',
+} = Astro.props;
+---
+
+<button
+	type="button"
+	class="btn-booking-intent inline-flex items-center gap-1.5 rounded-md bg-[#134aed] px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-[#0f3bc4] disabled:opacity-60"
+	data-href={href}
+	data-empresa-id={empresaId}
+	data-user-id={userId}
+>
+	<Icon name="ri:calendar-event-line" class="h-3.5 w-3.5" />
+	{label}
+</button>

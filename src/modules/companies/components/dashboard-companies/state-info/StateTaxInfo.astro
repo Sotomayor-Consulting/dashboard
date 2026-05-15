@@ -1,0 +1,40 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { StateInfo } from './states-data';
+
+interface Props {
+	state: StateInfo;
+}
+
+const { state } = Astro.props;
+
+const rows = [
+	{ label: 'Imp. corporativo', value: state.taxInfo.corporateIncomeTax },
+	{ label: 'Imp. personal', value: state.taxInfo.personalIncomeTax },
+	{ label: 'Imp. ventas', value: state.taxInfo.salesTax },
+	{ label: 'Franchise tax', value: state.taxInfo.franchiseTax },
+];
+---
+
+<div>
+	<h4
+		class="mb-2.5 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"
+	>
+		<Icon
+			name="ri:money-dollar-circle-line"
+			class="h-4 w-4"
+			style={`color:${state.color}`}
+		/>
+		Información fiscal
+	</h4>
+	<dl class="space-y-1.5 text-xs">
+		{
+			rows.map((row) => (
+				<div class="flex justify-between gap-2">
+					<dt class="text-gray-500 dark:text-gray-400">{row.label}</dt>
+					<dd class="font-medium text-gray-900 dark:text-white">{row.value}</dd>
+				</div>
+			))
+		}
+	</dl>
+</div>

@@ -1,0 +1,86 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { StateInfo } from './states-data';
+
+interface Props {
+	state: StateInfo;
+	estadoMapa: string;
+}
+
+const { state, estadoMapa } = Astro.props;
+---
+
+<div
+	class="state-plate relative flex h-full flex-col overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-inner dark:border-gray-700 dark:bg-gray-900/40"
+	style={`--state-color:${state.color}`}
+>
+	<div
+		class="flex items-center justify-between border-b border-gray-200 px-3 py-1.5 dark:border-gray-700"
+	>
+		<span
+			class="text-[9px] font-semibold tracking-[0.18em] text-gray-400 uppercase dark:text-gray-500"
+		>
+			United States · {state.abbreviation}
+		</span>
+		<span class="flex items-center gap-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase dark:text-gray-500">
+			<Icon name="ri:star-fill" class="h-2.5 w-2.5" style={`color:${state.color}`} />
+			{state.capital}
+		</span>
+	</div>
+
+	<div class="relative flex flex-1 items-center justify-center px-2 py-2">
+		<div
+			id="datamap-container"
+			class="flex h-full w-full items-center justify-center"
+			data-estado-mapa={estadoMapa ?? ''}
+		>
+		</div>
+		<span
+			class="state-plate-name pointer-events-none absolute inset-0 flex items-center justify-center text-center text-2xl leading-none font-black tracking-[0.22em] text-gray-900 uppercase sm:text-3xl dark:text-white"
+		>
+			{state.name}
+		</span>
+	</div>
+</div>
+
+<style>
+	.state-plate-name {
+		text-shadow:
+			0 0 6px rgba(255, 255, 255, 0.95),
+			0 0 12px rgba(255, 255, 255, 0.85),
+			0 0 18px rgba(255, 255, 255, 0.6);
+	}
+	:global(.dark) .state-plate-name {
+		text-shadow:
+			0 0 6px rgba(11, 17, 32, 0.95),
+			0 0 12px rgba(11, 17, 32, 0.85),
+			0 0 18px rgba(11, 17, 32, 0.6);
+	}
+
+	.state-plate {
+		background-image:
+			radial-gradient(
+				circle at top left,
+				color-mix(in srgb, var(--state-color) 6%, transparent),
+				transparent 60%
+			),
+			radial-gradient(
+				circle at bottom right,
+				color-mix(in srgb, var(--state-color) 4%, transparent),
+				transparent 50%
+			);
+	}
+	:global(.dark) .state-plate {
+		background-image:
+			radial-gradient(
+				circle at top left,
+				color-mix(in srgb, var(--state-color) 14%, transparent),
+				transparent 60%
+			),
+			radial-gradient(
+				circle at bottom right,
+				color-mix(in srgb, var(--state-color) 10%, transparent),
+				transparent 50%
+			);
+	}
+</style>

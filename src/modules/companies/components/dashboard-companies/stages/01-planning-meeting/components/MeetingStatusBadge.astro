@@ -1,0 +1,43 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	variant: 'scheduled' | 'past' | 'completed' | 'cancelled';
+}
+
+const { variant } = Astro.props;
+
+const STYLES = {
+	scheduled: 'bg-emerald-600 text-white',
+	past:
+		'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+	completed:
+		'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300',
+	cancelled:
+		'bg-red-50 text-red-700 dark:bg-red-900/25 dark:text-red-300',
+} as const;
+
+const ICON = {
+	scheduled: 'ri:calendar-check-line',
+	past: 'ri:history-line',
+	completed: 'ri:check-double-line',
+	cancelled: 'ri:close-circle-line',
+} as const;
+
+const LABEL = {
+	scheduled: 'Agendado',
+	past: 'Reunión finalizada',
+	completed: 'Reunión realizada',
+	cancelled: 'Reunión cancelada',
+} as const;
+---
+
+<span
+	class:list={[
+		'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-semibold',
+		STYLES[variant],
+	]}
+>
+	<Icon name={ICON[variant]} class="h-3.5 w-3.5" />
+	{LABEL[variant]}
+</span>

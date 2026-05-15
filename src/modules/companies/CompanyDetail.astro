@@ -157,24 +157,18 @@ const errorMessage = !empresaId
 							esMemberManaged={esMemberManaged}
 						/>
 						<CompanyManagersList managers={managers} />
-					</div> */}
-					<div
-						id="contacts"
-						role="tabpanel"
-						aria-labelledby="contacts-tab"
-						class="my-4"
-					>
-						<CompanyEditForm
-							empresa={empresaSafe}
-							socios={socios}
-							managers={managers}
-							actividades={actividades}
-							canEditDetails={canEditDetails}
-							backPath={backPath}
-							states={us_states}
-						/>
 					</div>
 
+					<CompanyEditForm
+						empresa={empresaSafe}
+						socios={socios}
+						managers={managers}
+						actividades={actividades}
+						estados={estados}
+						paises={paises}
+						canEditDetails={canEditDetails}
+						backPath={backPath}
+					/>
 					<div
 						class="my-4"
 						id="operations"
