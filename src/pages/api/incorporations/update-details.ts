@@ -38,7 +38,7 @@ export const POST: APIRoute = async ({ request, cookies, locals, redirect, url }
 		return redirect(`${back}?status=error&msg=${encodeURIComponent('Empresa inválida')}`);
 	}
 
-	const payload: Record<string, string | number | null> = {
+	const payload: Record<string, string | number | boolean | null> = {
 		nombre_1: form.get('nombre_1')?.toString().trim() || null,
 		tipo_de_negocio: form.get('tipo_de_negocio')?.toString().trim() || null,
 		descripcion_empresa:
@@ -48,10 +48,15 @@ export const POST: APIRoute = async ({ request, cookies, locals, redirect, url }
 		forma_administracion:
 			form.get('forma_administracion')?.toString().trim() || null,
 		forma_tributacion: form.get('forma_tributacion')?.toString().trim() || null,
+		direccion_operativa_eeuu:
+			form.get('direccion_operativa_eeuu')?.toString().trim() || null,
+		Pais_operativo: form.get('Pais_operativo')?.toString().trim() || null,
 		direccion_eeuu: form.get('direccion_eeuu')?.toString().trim() || null,
 		ciudad_eeuu: form.get('ciudad_eeuu')?.toString().trim() || null,
 		codigo_postal_eeuu:
 			form.get('codigo_postal_eeuu')?.toString().trim() || null,
+		Obtendra_ingresos_desde_eeuu:
+			form.get('obtendra_ingresos_desde_eeuu') !== null,
 		updated_at: new Date().toISOString(),
 	};
 

@@ -77,8 +77,6 @@ export interface EmpresaDetail {
 	condado_eeuu: string | null;
 	ciudad_eeuu: string | null;
 	estado_eeuu: string | null;
-	estado_id: number | null;
-	state_id: number | null;
 	codigo_postal_eeuu: string | null;
 	Pais_operativo: string | null;
 	direccion_empresa: string | null;
@@ -86,6 +84,7 @@ export interface EmpresaDetail {
 	manager_es_miembro: boolean | null;
 	updated_at: string | null;
 	usuarios?: { nombre: string | null; apellido: string | null; correo: string | null }[];
+	state_id: number;
 }
 
 export interface SocioItem {
@@ -124,11 +123,6 @@ export interface ActividadItem {
 	Actividad: string;
 }
 
-export interface EstadoItem {
-	id: number;
-	Estado: string;
-	abreviatura: string | null;
-}
 
 export interface PaisItem {
 	id: number;
@@ -174,7 +168,6 @@ export interface PagoPorLeer {
 
 export interface Documento {
 	name: string;
-
 }
 
 export interface CompanyDetailData {
@@ -183,6 +176,11 @@ export interface CompanyDetailData {
 	managers: ManagerItem[];
 	actividades: ActividadItem[];
 	paises: PaisItem[];
-	estados: EstadoItem[];
+	state: State[];
 }
 
+export interface State {
+	id: number,
+	name: String,
+	code: String
+}

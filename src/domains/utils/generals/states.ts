@@ -13,12 +13,12 @@ export const EstadosGeneral = async (supabase: SupabaseClient) => {
 
 export const getEstadoPorEmpresa = async (
 	supabase: SupabaseClient,
-	estado: string,
+	estado: Number,
 ) => {
 	const { data, error } = await supabase
-		.from('estados')
-		.select('abreviatura, Estado')
-		.eq('Estado', estado)
+		.from('state')
+		.select('id, name, code')
+		.eq('id', estado)
 		.maybeSingle();
 	if (error) {
 		console.error('Error fetching estado por empresa:', error);
