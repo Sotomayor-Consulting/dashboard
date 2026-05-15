@@ -2,14 +2,6 @@
 import { Icon } from 'astro-icon/components';
 import { getCompanyDetailData } from './services/get-company-detail-data';
 
-import CompanyHeader from './components/CompanyHeader.astro';
-import CompanyLocation from './components/CompanyLocation.astro';
-import CompanyProgress from './components/CompanyProgress.astro';
-import CompanyInfoCard from './components/CompanyInfoCard.astro';
-import CompanySociosList from './components/CompanySociosList.astro';
-import CompanyAddress from './components/CompanyAddress.astro';
-import CompanyManagersList from './components/CompanyManagersList.astro';
-
 import CompanyEditForm from './components/CompanyEditForm.astro';
 import CompanyOperationsPanel from '@modules/company-operations/OperationsPanel.astro';
 import ActivityModal from './components/ActivityModal.astro';
@@ -26,6 +18,7 @@ import {
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import DocumentRequestManager from '@modules/documents/islands/DocumentRequestManager';
 import CompanyDocumentsUploadManager from '@modules/documents/islands/CompanyDocumentsUploadManager';
+import { getUsStates } from './services/get-us-states';
 
 const empresaId = String(Astro.props.empresaId ?? '');
 const supabase = Astro.locals.supabase;
@@ -62,13 +55,15 @@ if (empresaId) {
 	[documentRequests, documentTypes, documentsNew] = documentResults;
 }
 
+const us_states = await getUsStates(supabase);
 const empresa = data?.empresa ?? null;
+
+console.log(empresa);
+
 const socios = data?.socios ?? [];
 const managers = data?.managers ?? [];
 const actividades = data?.actividades ?? [];
 const paises = data?.paises ?? [];
-const estados = data?.estados ?? [];
-const esMemberManaged = empresa?.forma_administracion === 'Member-Managed';
 const empresaSafe = empresa as CompanyDetailData['empresa'];
 const errorMessage = !empresaId
 	? 'ID de empresa no valido'
@@ -109,12 +104,12 @@ const errorMessage = !empresaId
 								label: 'Editar datos',
 								icono: 'ri:edit-line',
 							},
-							{
-								id: 'profile-tab',
-								tabs: 'profile',
-								label: 'Datos Generales',
-								icono: 'ri:building-2-line',
-							},
+							// {
+							// 	id: 'profile-tab',
+							// 	tabs: 'profile',
+							// 	label: 'Datos Generales',
+							// 	icono: 'ri:building-2-line',
+							// },
 							{
 								id: 'requests-tab',
 								tabs: 'requests',
@@ -146,8 +141,8 @@ const errorMessage = !empresaId
 					</ul>
 				</div>
 				<div id="default-tab-content">
-					<div
-						class="grid gap-4 rounded-lg p-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
+					{/* <div
+						class="my-4"
 						id="profile"
 						role="tabpanel"
 						aria-labelledby="profile-tab"
@@ -162,17 +157,24 @@ const errorMessage = !empresaId
 							esMemberManaged={esMemberManaged}
 						/>
 						<CompanyManagersList managers={managers} />
+					</div> */}
+					<div
+						id="contacts"
+						role="tabpanel"
+						aria-labelledby="contacts-tab"
+						class="my-4"
+					>
+						<CompanyEditForm
+							empresa={empresaSafe}
+							socios={socios}
+							managers={managers}
+							actividades={actividades}
+							canEditDetails={canEditDetails}
+							backPath={backPath}
+							states={us_states}
+						/>
 					</div>
 
-					<CompanyEditForm
-						empresa={empresaSafe}
-						socios={socios}
-						managers={managers}
-						actividades={actividades}
-						estados={estados}
-						canEditDetails={canEditDetails}
-						backPath={backPath}
-					/>
 					<div
 						class="my-4"
 						id="operations"
