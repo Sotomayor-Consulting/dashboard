@@ -83,14 +83,11 @@ function initCompanyGeoChart() {
 						label: 'Estados',
 						outline,
 						data: mapData,
-						backgroundColor: (context) =>
-							context.raw && (context.raw as any).value === 1
-								? '#0078b7'
-								: 'transparent',
-						borderColor: '#0078b7',
-						borderWidth: 1,
-						hoverBackgroundColor: '#003e6c',
-						hoverBorderColor: '#003e6c',
+						backgroundColor: 'transparent',
+						borderColor: '#94a3b8',
+						borderWidth: 2,
+						hoverBackgroundColor: 'transparent',
+						hoverBorderColor: '#94a3b8',
 						hoverBorderWidth: 2,
 						skip: false,
 					},
@@ -111,27 +108,7 @@ function initCompanyGeoChart() {
 				},
 				plugins: {
 					legend: { display: false },
-					tooltip: {
-						enabled: true,
-						backgroundColor: 'rgba(0, 0, 0, 0.8)',
-						titleColor: '#fff',
-						bodyColor: '#fff',
-						borderColor: '#0078b7',
-						borderWidth: 1,
-						padding: 10,
-						displayColors: false,
-						callbacks: {
-							title(context) {
-								const item = context[0] as any;
-								return item?.raw?.feature?.properties?.name ?? '';
-							},
-							label(context) {
-								return (context.raw as any)?.value === 1
-									? 'El estado de tu empresa'
-									: '';
-							},
-						},
-					},
+					tooltip: { enabled: false },
 				},
 			},
 		});
