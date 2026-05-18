@@ -283,7 +283,12 @@ export default function FormSignIn() {
 					Inicia sesión
 				</FieldLegend>
 
-				<form className="mt-8 space-y-6" onSubmit={handleEmailSubmit}>
+				<form
+					className="mt-8 space-y-6"
+					method="POST"
+					action="/api/auth/sign-in"
+					onSubmit={handleEmailSubmit}
+				>
 					<div>
 						<FieldLabel
 							htmlFor="email"
