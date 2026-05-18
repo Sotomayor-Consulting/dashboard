@@ -44,16 +44,26 @@ function initCompanyGeoChart() {
 			feature(usAtlas as any, (usAtlas as any).objects.states) as any
 		).features as Array<any>;
 
+		const selectedState = states.find(
+			(s) => s.properties.name.toLowerCase() === estadoMapa,
+		);
+		// Si encontramos el estado: outline = solo ese feature → chart.js
+		// ajusta la projection al bbox y se hace zoom (estados pequeños se ven
+		// en tamaño real). Si no, fallback al mapa completo del país.
+		const outline = selectedState ?? nation;
+
 		const canvas = document.createElement('canvas');
 		container.innerHTML = '';
 		container.appendChild(canvas);
 		container.style.height = '200px';
 		container.style.maxHeight = '400px';
 
-		const mapData = states.map((state) => ({
-			feature: state,
-			value: state.properties.name.toLowerCase() === estadoMapa ? 1 : 0,
-		}));
+		const mapData = selectedState
+			? [{ feature: selectedState, value: 1 }]
+			: states.map((state) => ({
+					feature: state,
+					value: state.properties.name.toLowerCase() === estadoMapa ? 1 : 0,
+				}));
 
 		const win = window as GeoChartWindow;
 		win.companyGeoChart?.destroy();
@@ -71,7 +81,7 @@ function initCompanyGeoChart() {
 				datasets: [
 					{
 						label: 'Estados',
-						outline: nation,
+						outline,
 						data: mapData,
 						backgroundColor: (context) =>
 							context.raw && (context.raw as any).value === 1
