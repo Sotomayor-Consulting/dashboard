@@ -2,7 +2,6 @@
 import '@styles/datatables.css';
 import { Icon } from 'astro-icon/components';
 import { getIncorporacionById } from '@domains/companies/incorporations';
-import { getEstadoPorEmpresa } from '@domains/utils/generals/states';
 import { getDocumentosPorFirmar } from '@domains/documents/pending-signature';
 import { getPlanContratadoPorEmpresa } from '@domains/payments/payments';
 import { getServicioUpgrade } from '@domains/services/services';
@@ -60,14 +59,7 @@ if (!empresa) {
 
 const clientWorkflowData = clientWorkflowProgress;
 
-let estadoMapa = null;
-if (empresa?.estado_de_incorporacion) {
-	const estadoData = await getEstadoPorEmpresa(
-		supabase,
-		empresa.estado_de_incorporacion,
-	);
-	if (estadoData) estadoMapa = estadoData.name;
-}
+const estadoMapa = empresa?.estado_de_incorporacion ?? null;
 
 const porfirmarCount = porfirmar.length;
 

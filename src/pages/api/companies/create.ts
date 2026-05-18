@@ -3,7 +3,6 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
-import { invalidateLayoutCache } from '@infrastructure/cache/layout-cache';
 
 const BACK_PATH = '/create-company';
 const BUCKET = 'empresa-logos';
@@ -157,7 +156,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		}
 
 		// 7) Éxito (mensaje formal, sin mención al estado del logo)
-		invalidateLayoutCache(user.id);
 		const okMsg = `Su empresa "${nombre}" se creó con éxito.`;
 		return redirect(
 			`/incorporations/${slug}/?status=success&msg=${encodeURIComponent(okMsg)}`,

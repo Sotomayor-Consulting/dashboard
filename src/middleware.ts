@@ -175,40 +175,25 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 
 // ─── Middleware ──────────────────────────────────────────
 
-// Cache in-memory para roles de usuario (evita query a DB en cada request)
-const ROLES_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
-const rolesCache = new Map<string, { roles: string[]; expires: number }>();
-
-async function getUserRoles(
+// Los roles vienen como claim `user_roles` en el JWT, inyectados por el
+// Custom Access Token Hook de Supabase (ver supabase/sql/custom_access_token_hook.sql).
+// Fallback: query a la DB si el claim no existe (hook no activado o token previo).
+async function resolveUserRoles(
 	supabase: ReturnType<typeof createSupabaseServerClient>,
-	userId: string,
+	claims: Record<string, unknown>,
 ): Promise<string[]> {
-	const cached = rolesCache.get(userId);
-	if (cached && cached.expires > Date.now()) {
-		return cached.roles;
+	const fromClaim = claims['user_roles'];
+	if (Array.isArray(fromClaim)) {
+		return fromClaim.filter((r): r is string => typeof r === 'string');
 	}
 
-	const { data: usuarioData } = await supabase
+	const userId = claims['sub'] as string;
+	const { data } = await supabase
 		.from('user_roles')
 		.select('rol_id, roles (name)')
 		.eq('user_id', userId);
 
-	const roles = extractRoleNames((usuarioData as UserRoleRow[] | null) ?? null);
-
-	rolesCache.set(userId, {
-		roles,
-		expires: Date.now() + ROLES_CACHE_TTL_MS,
-	});
-
-	// Evitar memory leak: limpiar entradas expiradas periódicamente
-	if (rolesCache.size > 1000) {
-		const now = Date.now();
-		for (const [key, val] of rolesCache) {
-			if (val.expires <= now) rolesCache.delete(key);
-		}
-	}
-
-	return roles;
+	return extractRoleNames((data as UserRoleRow[] | null) ?? null);
 }
 
 export function onRequest(context: any, next: any) {
@@ -258,7 +243,7 @@ export function onRequest(context: any, next: any) {
 				is_anonymous: claims.is_anonymous ?? false,
 			} as User;
 
-			const userRoles = await getUserRoles(supabase, claims.sub);
+			const userRoles = await resolveUserRoles(supabase, claims);
 
 			context.locals.user = user;
 			context.locals.userRoles = userRoles;

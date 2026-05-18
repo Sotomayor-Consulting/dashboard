@@ -94,7 +94,6 @@ const inactiveClass =
 	class="dark:bg-primary-black fixed top-0 left-0 z-40 h-screen w-60 -translate-x-full overflow-hidden border-r border-gray-200/60 bg-white transition-transform lg:hidden dark:border-gray-700/50"
 	tabindex="-1"
 	aria-label="Menú de navegación"
-	transition:persist="sidebar-mobile"
 >
 	<div class="flex h-full flex-col">
 		<!-- Header: Company switcher + close -->
@@ -269,7 +268,6 @@ const inactiveClass =
 <aside
 	id="sidebar-desktop"
 	class="dark:bg-primary-black fixed top-14 left-0 z-20 box-border hidden h-[calc(100vh-3.5rem)] w-60 flex-col border-r border-gray-300/90 bg-white lg:flex dark:border-gray-600/90"
-	transition:persist="sidebar-desktop"
 >
 	{
 		showCompanySwitcher && (
