@@ -29,7 +29,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				</h3>
 			</div>
 			<div
-				class="dark:bg-black-900 flex w-full flex-col items-center rounded-2xl border border-neutral-500 bg-white p-4 md:w-1/2 md:p-8 dark:border-neutral-800"
+				class="flex w-full flex-col items-center rounded-2xl border border-neutral-500 bg-white p-4 md:w-1/2 md:p-8 dark:border-neutral-800 dark:bg-black"
 			>
 				<p
 					class="mt-2 mb-5 w-full text-left text-gray-800 lg:text-lg dark:text-neutral-200"
@@ -39,7 +39,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				<select
 					name="empresa"
 					id="empresa-select"
-					class="dark:bg-black-800 focus:border-black-600 focus:ring-black-600 mb-5 block w-full rounded-lg border-neutral-600 bg-gray-50 px-4 py-3 pe-9 text-sm disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+					class="mb-5 block w-full rounded-lg border-neutral-600 bg-gray-50 px-4 py-3 pe-9 text-sm focus:border-neutral-900 focus:ring-neutral-950 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
 				>
 					{
 						empresas?.map((empresa) => (
@@ -51,7 +51,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				</select>
 				<button
 					id="btn-paso1"
-					class="bg-black-600 hover:bg-black-600/80 focus:bg-black-600/80 inline-flex w-fit items-center gap-x-2 rounded-lg border border-transparent px-4 py-3 text-center text-sm font-medium text-white focus:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+					class="inline-flex w-fit items-center gap-x-2 rounded-lg border border-neutral-700 bg-black px-4 py-3 text-center text-sm font-medium text-white hover:bg-neutral-700 focus:bg-neutral-900 focus:outline-hidden disabled:pointer-events-none disabled:opacity-50"
 				>
 					Continuar</button
 				>
@@ -73,12 +73,12 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 				</div>
 
 				<div
-					class="mt-6 grid gap-3 md:mt-12 md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:items-center lg:gap-3 xl:gap-6"
+					class="mt-6 grid gap-3 md:mt-12 md:grid-cols-2 md:gap-6 lg:grid-cols-4 lg:items-center lg:gap-3 xl:gap-6"
 					id="divActivo"
 				>
 					{
 						planBasico && (
-							<div>
+							<div class="h-full">
 								<input
 									type="radio"
 									id={planBasico.id_servicios}
@@ -91,7 +91,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 								/>
 								<label
 									for={planBasico.id_servicios}
-									class="dark:bg-black-900 dark:peer-checked:border-black-400 peer-checked:border-black-600 flex cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white p-4 text-center md:p-8 dark:border-neutral-800"
+									class="dark:peer-checked:border-primary-gold peer-checked:border-primary-gold flex h-full cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white p-4 text-center md:p-8 dark:border-neutral-800 dark:bg-black"
 								>
 									<h4 class="text-lg font-medium text-gray-800 dark:text-neutral-200">
 										{planBasico.nombre}
@@ -111,7 +111,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 											<li class="flex gap-x-2">
 												<Icon
 													name="ri:check-line"
-													class="text-black-600 mt-0.5 size-4 shrink-0"
+													class="text-primary-gold mt-0.5 size-4 shrink-0"
 												/>
 												<span class="text-left text-gray-800 dark:text-neutral-400">
 													{li}
@@ -126,7 +126,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 
 					{
 						planBusiness && (
-							<div class="tarjeta-2">
+							<div class="tarjeta-2 h-full">
 								<input
 									type="radio"
 									id={planBusiness.id_servicios}
@@ -140,10 +140,10 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 								/>
 								<label
 									for={planBusiness.id_servicios}
-									class="dark:bg-black-900 peer-checked:border-black-600 dark:peer-checked:border-black-400 flex cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white p-4 text-center md:p-8 dark:border-neutral-800"
+									class="peer-checked:border-primary-gold dark:peer-checked:border-primary-gold relative flex h-full cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white p-4 text-center md:p-8 dark:border-neutral-800 dark:bg-black"
 								>
-									<p class="mb-3">
-										<span class="bg-black-600 dark:bg-black-600 inline-flex animate-pulse items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white uppercase dark:text-white">
+									<p class="absolute left-1/2">
+										<span class="bg-primary-gold dark:bg-primary-gold inline-flex animate-pulse items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white uppercase dark:text-white">
 											Más popular
 										</span>
 									</p>
@@ -182,7 +182,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 											<li class="flex gap-x-2">
 												<Icon
 													name={li.icono}
-													class="text-black-600 mt-0.5 size-4 shrink-0"
+													class="text-primary-gold mt-0.5 size-4 shrink-0"
 												/>
 												<span class="text-left text-gray-800 dark:text-neutral-400">
 													{li.label}
@@ -197,7 +197,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 
 					{
 						planEstandar && (
-							<div class="tarjeta-3">
+							<div class="tarjeta-3 h-full">
 								<input
 									type="radio"
 									id={planEstandar.id_servicios}
@@ -210,7 +210,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 								/>
 								<label
 									for={planEstandar.id_servicios}
-									class="dark:bg-black-900 peer-checked:border-black-600 dark:peer-checked:border-black-400 flex cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white p-4 text-center md:p-8 dark:border-neutral-800"
+									class="peer-checked:border-primary-gold dark:peer-checked:border-primary-gold flex h-full cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white p-4 text-center md:p-8 dark:border-neutral-800 dark:bg-black"
 								>
 									<h4 class="text-lg font-medium text-gray-800 dark:text-neutral-200">
 										{planEstandar.nombre}
@@ -236,7 +236,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 											<li class="flex gap-x-2">
 												<Icon
 													name="ri:check-line"
-													class="text-black-600 mt-0.5 size-4 shrink-0"
+													class="text-primary-gold mt-0.5 size-4 shrink-0"
 												/>
 												<span class="text-left text-gray-800 dark:text-neutral-400">
 													{li}
@@ -248,15 +248,9 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 							</div>
 						)
 					}
-				</div>
-
-				<div
-					class="diseño-contenedor mt-6 grid gap-3 md:mt-12 md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:items-center lg:gap-3 xl:gap-6"
-					id="divInactivo"
-				>
 					{
 						planDiseno && (
-							<div class="tarjeta-4 col-start-2">
+							<div class="tarjeta-4 h-full">
 								<input
 									type="radio"
 									id={planDiseno.id_servicios}
@@ -269,7 +263,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 								/>
 								<label
 									for={planDiseno.id_servicios}
-									class="dark:bg-black-900 peer-checked:border-black-600 dark:peer-checked:border-black-400 flex cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white p-4 text-center md:p-8 dark:border-neutral-800"
+									class="peer-checked:border-primary-gold dark:peer-checked:border-primary-gold flex h-full cursor-pointer flex-col rounded-2xl border border-gray-200 bg-white p-4 text-center md:p-8 dark:border-neutral-800 dark:bg-black"
 								>
 									<div class="col-span-2 mt-2">
 										<button
@@ -373,7 +367,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 										<li class="flex gap-x-2">
 											<Icon
 												name="ri:check-line"
-												class="text-black-600 mt-0.5 size-4 shrink-0"
+												class="text-primary-gold mt-0.5 size-4 shrink-0"
 											/>
 											<span class="text-left text-gray-800 dark:text-neutral-400">
 												Planificación y diseño de LLC
@@ -409,7 +403,7 @@ const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade')
 					</button>
 					<button
 						id="btn-paso2"
-						class="bg-black-600 hover:bg-black-600/80 focus:bg-black-600/80 inline-flex w-fit items-center gap-x-2 rounded-lg border border-transparent px-4 py-3 text-center text-sm font-medium text-white focus:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+						class="bg-primary-gold hover:bg-primary-gold/80 focus:bg-primary-gold inline-flex w-fit items-center gap-x-2 rounded-lg border border-transparent px-4 py-3 text-center text-sm font-medium text-white focus:outline-hidden disabled:pointer-events-none disabled:opacity-50"
 					>
 						Ir a pagar</button
 					>
