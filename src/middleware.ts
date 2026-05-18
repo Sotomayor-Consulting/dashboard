@@ -141,8 +141,8 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 	// Single-rol — admin
 	{
 		path: '/incorporations/',
-		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
-		errorMsg: 'Acceso solo para admins y operaciones',
+		roles: [ROLES.ADMIN, ROLES.GERENCIA, ROLES.OPERACIONES],
+		errorMsg: 'Acceso solo para admins, gerencia y operaciones',
 	},
 	{
 		path: '/users/',
