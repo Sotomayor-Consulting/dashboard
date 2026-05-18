@@ -9,7 +9,6 @@ import {
 	formDataToObject,
 } from '@shared/validation/form-validator';
 import { safeBack } from '@infrastructure/security/headers';
-import { invalidateLayoutCache } from '@infrastructure/cache/layout-cache';
 
 const BACK_PATH = '/settings';
 
@@ -101,8 +100,6 @@ export const POST: APIRoute = async ({
 		const msg = encodeURIComponent(`Error: ${error.message}`);
 		return redirect(`${back}?status=error&msg=${msg}`);
 	}
-
-	invalidateLayoutCache(user.id);
 
 	const msg = encodeURIComponent('Datos guardados');
 	return redirect(`${back}?status=success&msg=${msg}`);

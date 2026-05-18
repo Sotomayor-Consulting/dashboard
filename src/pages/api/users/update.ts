@@ -3,6 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 // Ajusta esta ruta si tu estructura es distinta:
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/users/';
@@ -184,6 +185,18 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 					const msg = encodeURIComponent(`DB insert roles: ${insertError.message}`);
 					return redirect(`${back}?status=error&msg=${msg}`);
 				}
+			}
+
+			// Invalidar las sesiones del usuario afectado para que el próximo
+			// request emita un JWT nuevo con los roles actualizados (el custom
+			// access token hook los re-inyecta en cada emisión).
+			// auth.admin.signOut() acepta un JWT, no un user_id — por eso
+			// usamos una función Postgres que borra auth.sessions/refresh_tokens
+			// del usuario (ver supabase/sql/force_logout_user.sql).
+			if (rolesToAdd.length > 0 || rolesToRemove.length > 0) {
+				await supabaseAdmin.rpc('force_logout_user', {
+					target_user_id: targetUserId,
+				});
 			}
 		}
 

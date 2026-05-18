@@ -21,10 +21,6 @@ import {
 	type EmpresaSwitcherItem,
 } from '@domains/companies/companies';
 import { ACTIVE_COMPANY_COOKIE } from '@shared/cookies';
-import {
-	getLayoutCache,
-	setLayoutCache,
-} from '@infrastructure/cache/layout-cache';
 
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
@@ -38,58 +34,20 @@ let incorporaciones: any[] = [];
 let bannerIncorpData = { shouldShow: false, empresaId: null as string | null };
 let empresasSwitcher: EmpresaSwitcherItem[] = [];
 
-// Detectar si es un fetch del ClientRouter (navegación SPA o prefetch).
-// Sec-Fetch-Dest=document → navegación nativa (F5, URL bar, link sin prefetch).
-// Sec-Fetch-Dest=empty    → fetch() programático (View Transitions / prefetch).
-const fetchDest = Astro.request.headers.get('sec-fetch-dest');
-const isClientRouterFetch = fetchDest !== null && fetchDest !== 'document';
-
 if (user && userId) {
-	const cached = getLayoutCache(userId);
-
-	if (cached) {
-		({
-			usuario,
-			notificationsData,
-			incorporaciones,
-			bannerIncorpData,
-			empresasSwitcher,
-		} = cached);
-	} else if (isClientRouterFetch) {
-		// SideBar (transition:persist="sidebar-*") y NavBarSidebar (transition:persist="navbar")
-		// conservan su DOM en el swap → su HTML server-rendered se descarta. Saltamos
-		// las queries que SOLO los alimentan (notificaciones y empresas del switcher).
-		// Los banners NO son persistidos, así que mantenemos sus 3 queries.
-		[usuario, incorporaciones, bannerIncorpData] = await Promise.all([
-			getUsuarioById(supabase, userId),
-			getEstadoIncorporacionByUserId(supabase, userId),
-			getBannerIncorporacionData(supabase, userId),
-		]);
-		// No persistimos al LRU: entrada incompleta. Una navegación full-document
-		// repoblará el cache con las 5 queries.
-	} else {
-		[
-			usuario,
-			notificationsData,
-			incorporaciones,
-			bannerIncorpData,
-			empresasSwitcher,
-		] = await Promise.all([
-			getUsuarioById(supabase, userId),
-			getNotifications(supabase, userId),
-			getEstadoIncorporacionByUserId(supabase, userId),
-			getBannerIncorporacionData(supabase, userId),
-			getEmpresasForSwitcher(supabase, userId),
-		]);
-
-		setLayoutCache(userId, {
-			usuario,
-			notificationsData,
-			incorporaciones,
-			bannerIncorpData,
-			empresasSwitcher,
-		});
-	}
+	[
+		usuario,
+		notificationsData,
+		incorporaciones,
+		bannerIncorpData,
+		empresasSwitcher,
+	] = await Promise.all([
+		getUsuarioById(supabase, userId),
+		getNotifications(supabase, userId),
+		getEstadoIncorporacionByUserId(supabase, userId),
+		getBannerIncorporacionData(supabase, userId),
+		getEmpresasForSwitcher(supabase, userId),
+	]);
 }
 
 const activeCompany = resolveActiveCompany(
