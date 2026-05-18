@@ -11,19 +11,8 @@ document.addEventListener('click', async (e) => {
 
 		try {
 			await navigator.clipboard.writeText(passcode);
-		} catch {
-			const textarea = document.createElement('textarea');
-			textarea.value = passcode;
-			textarea.style.position = 'fixed';
-			textarea.style.opacity = '0';
-			document.body.appendChild(textarea);
-			textarea.select();
-			try {
-				document.execCommand('copy');
-			} catch (err) {
-				console.error('Error copying passcode:', err);
-			}
-			document.body.removeChild(textarea);
+		} catch (err) {
+			console.error('Error copying passcode:', err);
 		}
 
 		const defaultIcon = copyBtn.querySelector(

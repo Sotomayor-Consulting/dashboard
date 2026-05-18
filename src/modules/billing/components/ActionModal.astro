@@ -84,6 +84,7 @@ const modalId = `actionModal${suffix}`;
 </div>
 
 <script is:inline define:vars={{ triggerId, closeId, modalId }}>
+	// @ts-nocheck
 	document.addEventListener('DOMContentLoaded', function () {
 		const openButton = document.getElementById(triggerId);
 		const closeButton = document.getElementById(closeId);

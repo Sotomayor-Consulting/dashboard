@@ -11,7 +11,7 @@ export const getUsStates = async (
 ): Promise<State[]> => {
 	const { data: states, error } = await supabase
 		.from('states')
-		.select('id, name')
+		.select('id, name, code')
 		.eq('country_id', 75)
 
 	if (error) {

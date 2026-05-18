@@ -58,8 +58,6 @@ if (empresaId) {
 const us_states = await getUsStates(supabase);
 const empresa = data?.empresa ?? null;
 
-console.log(empresa);
-
 const socios = data?.socios ?? [];
 const managers = data?.managers ?? [];
 const actividades = data?.actividades ?? [];
@@ -104,12 +102,6 @@ const errorMessage = !empresaId
 								label: 'Editar datos',
 								icono: 'ri:edit-line',
 							},
-							// {
-							// 	id: 'profile-tab',
-							// 	tabs: 'profile',
-							// 	label: 'Datos Generales',
-							// 	icono: 'ri:building-2-line',
-							// },
 							{
 								id: 'requests-tab',
 								tabs: 'requests',
@@ -141,34 +133,6 @@ const errorMessage = !empresaId
 					</ul>
 				</div>
 				<div id="default-tab-content">
-					{/* <div
-						class="my-4"
-						id="profile"
-						role="tabpanel"
-						aria-labelledby="profile-tab"
-					>
-						<CompanyHeader empresa={empresaSafe} />
-						<CompanyLocation empresa={empresaSafe} />
-						<CompanyProgress empresa={empresaSafe} />
-						<CompanyInfoCard empresa={empresaSafe} empresaId={empresaId} />
-						<CompanySociosList socios={socios} />
-						<CompanyAddress
-							empresa={empresaSafe}
-							esMemberManaged={esMemberManaged}
-						/>
-						<CompanyManagersList managers={managers} />
-					</div>
-
-					<CompanyEditForm
-						empresa={empresaSafe}
-						socios={socios}
-						managers={managers}
-						actividades={actividades}
-						estados={estados}
-						paises={paises}
-						canEditDetails={canEditDetails}
-						backPath={backPath}
-					/>
 					<div
 						class="my-4"
 						id="operations"
@@ -178,6 +142,22 @@ const errorMessage = !empresaId
 						<CompanyOperationsPanel
 							empresaId={empresaId}
 							empresaNombre={empresaSafe?.nombre_1}
+						/>
+					</div>
+					<div
+						id="contacts"
+						role="tabpanel"
+						aria-labelledby="contacts-tab"
+						class="my-4"
+					>
+						<CompanyEditForm
+							empresa={empresaSafe}
+							socios={socios}
+							managers={managers}
+							actividades={actividades}
+							canEditDetails={canEditDetails}
+							backPath={backPath}
+							states={us_states}
 						/>
 					</div>
 					<div
@@ -207,10 +187,9 @@ const errorMessage = !empresaId
 							documentTypes={documentTypes}
 							documents={documentsNew}
 							isStaff={isStaff}
-							sharedWithUserId={empresaSafe.user_id ?? undefined}
+							sharedWithUserId={empresaSafe?.user_id ?? undefined}
 						/>
 					</div>
-					{/* <CampaniUpload empresaId={empresaId} /> */}
 				</div>
 			</div>
 			<ActivityModal />
