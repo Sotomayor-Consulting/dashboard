@@ -42,7 +42,7 @@ const { title, description } = Astro.props;
 						{name.nombre}
 					</label>
 					<div class="flex">
-						<span class="rounded-e-0 dark:bg-black-600 inline-flex items-center rounded-s-md border border-e-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:text-gray-400">
+						<span class="rounded-e-0 inline-flex items-center rounded-s-md border border-e-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:bg-neutral-900 dark:text-gray-400">
 							<svg
 								class="h-4 w-4 text-neutral-700 dark:text-white"
 								viewBox="0 0 48 48"
@@ -70,7 +70,7 @@ const { title, description } = Astro.props;
 							type="text"
 							id={name.id}
 							name={name.name}
-							class="dark:bg-black-900 focus:border-black-400 focus:ring-black-400 dark:border-black-400 w-full rounded-none rounded-e-lg border border-neutral-500/10 bg-gray-100 p-2.5 text-sm text-neutral-900 placeholder-gray-500 lg:min-w-10 dark:text-white"
+							class="w-full rounded-none rounded-e-lg border border-neutral-500/10 bg-gray-100 p-2.5 text-sm text-neutral-900 placeholder-gray-500 focus:border-neutral-500 focus:ring-neutral-700 lg:min-w-10 dark:bg-neutral-950 dark:text-white"
 							placeholder="Sotomayor Consulting"
 							required
 						/>
@@ -83,13 +83,13 @@ const { title, description } = Astro.props;
 		<button
 			type="button"
 			id="atrasBtn4"
-			class="from-black-400 via-black-500 to-black-600 w-full justify-self-center rounded-lg bg-linear-to-r px-5 py-2.5 text-center text-xs font-medium text-white hover:bg-linear-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:focus:ring-neutral-500"
+			class="w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-transparent px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:border-neutral-600 dark:text-white dark:focus:ring-neutral-500"
 			>Volver</button
 		>
 		<button
 			type="button"
 			id="continuarBtn3"
-			class="from-black-400 via-black-500 to-black-600 w-full justify-self-center rounded-lg bg-linear-to-r px-5 py-2.5 text-center text-xs font-medium text-white hover:bg-linear-to-br focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:focus:ring-neutral-500"
+			class="w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-transparent px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:border-neutral-600 dark:text-white dark:focus:ring-neutral-500"
 			>Continuar</button
 		>
 	</div>

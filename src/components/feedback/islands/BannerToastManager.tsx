@@ -67,7 +67,7 @@ function BannerToastCard({
 						{description}
 					</p>
 				) : null}
-				<div className="mt-3 flex items-center justify-between gap-2">
+				<div className="mt-3 flex items-center justify-center gap-2">
 					<a
 						href={url}
 						className={[

@@ -83,7 +83,7 @@ const ruta = Astro.url.pathname;
 
 /* Clases reutilizables */
 const activeClass =
-	'bg-gray-100 text-gray-900 font-semibold dark:bg-black-600 dark:text-white';
+	'bg-gray-100 text-gray-900 font-semibold dark:bg-neutral-900 dark:text-white';
 const inactiveClass =
 	'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-200';
 ---
@@ -91,7 +91,7 @@ const inactiveClass =
 <!-- ===== Mobile drawer (< lg) ===== -->
 <aside
 	id="sidebar"
-	class="dark:bg-black-900 fixed top-0 left-0 z-40 h-screen w-60 -translate-x-full overflow-hidden border-r border-gray-200/60 bg-white transition-transform lg:hidden dark:border-gray-700/50"
+	class="dark:bg-primary-black fixed top-0 left-0 z-40 h-screen w-60 -translate-x-full overflow-hidden border-r border-gray-200/60 bg-white transition-transform lg:hidden dark:border-gray-700/50"
 	tabindex="-1"
 	aria-label="Menú de navegación"
 	transition:persist="sidebar-mobile"
@@ -268,7 +268,7 @@ const inactiveClass =
 <!-- ===== Desktop collapsible sidebar (>= lg) ===== -->
 <aside
 	id="sidebar-desktop"
-	class="dark:bg-black-900 fixed top-14 left-0 z-20 box-border hidden h-[calc(100vh-3.5rem)] w-60 flex-col border-r border-gray-300/90 bg-white lg:flex dark:border-gray-600/90"
+	class="dark:bg-primary-black fixed top-14 left-0 z-20 box-border hidden h-[calc(100vh-3.5rem)] w-60 flex-col border-r border-gray-300/90 bg-white lg:flex dark:border-gray-600/90"
 	transition:persist="sidebar-desktop"
 >
 	{
@@ -449,7 +449,7 @@ const inactiveClass =
 		'bg-gray-100',
 		'text-gray-900',
 		'font-semibold',
-		'dark:bg-black-600',
+		'dark:bg-neutral-900',
 		'dark:text-white',
 	];
 	const INACTIVE_CLASSES = [

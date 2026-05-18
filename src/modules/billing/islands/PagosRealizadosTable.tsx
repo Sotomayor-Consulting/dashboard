@@ -166,10 +166,7 @@ const columns: ColumnDef<PaymentRow>[] = [
 			}
 
 			return (
-				<form
-					action="/api/operations/mark-payment-read"
-					method="post"
-				>
+				<form action="/api/operations/mark-payment-read" method="post">
 					<input type="hidden" name="pago_id" value={row.original.id} />
 					<input type="hidden" name="marcar_como_visto" value="true" />
 					<Button type="submit" variant="outline" size="sm">
@@ -224,7 +221,7 @@ export default function PagosRealizadosTable({
 				/>
 			</div>
 
-			<div className="to-black-600 from-black-900 overflow-hidden rounded-md border bg-white dark:bg-linear-to-tr">
+			<div className="overflow-hidden rounded-md border bg-white dark:bg-neutral-900">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (

@@ -17,7 +17,7 @@ export default function CardsHeadOrders() {
 						45
 					</CardTitle>
 					<CardAction>
-						<FileArchive className="text-black-300" />
+						<FileArchive className="text-primary-gold" />
 					</CardAction>
 				</CardHeader>
 			</Card>
@@ -28,7 +28,7 @@ export default function CardsHeadOrders() {
 						100
 					</CardTitle>
 					<CardAction>
-						<BadgeCheck className="text-black-300" />
+						<BadgeCheck className="text-primary-gold" />
 					</CardAction>
 				</CardHeader>
 			</Card>
@@ -39,7 +39,7 @@ export default function CardsHeadOrders() {
 						Plan Business
 					</CardTitle>
 					<CardAction>
-						<Star className="text-black-300" />
+						<Star className="text-primary-gold" />
 					</CardAction>
 				</CardHeader>
 			</Card>

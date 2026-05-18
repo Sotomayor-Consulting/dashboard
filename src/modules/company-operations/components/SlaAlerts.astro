@@ -10,7 +10,7 @@ const { slaAlerts } = Astro.props;
 ---
 
 <aside
-	class="to-black-600 from-black-900 h-fit rounded-xl border border-amber-200 bg-amber-50/60 p-5 dark:border-amber-500/20 dark:bg-amber-500/5 dark:bg-linear-to-tr"
+	class="h-fit rounded-xl border border-amber-200 bg-amber-50/60 p-5 dark:border-amber-500/20 dark:bg-amber-500/5 dark:bg-transparent"
 >
 	<h4
 		class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-950 dark:text-white"
@@ -22,11 +22,13 @@ const { slaAlerts } = Astro.props;
 		Alertas de SLA
 	</h4>
 	<ul class="space-y-3">
-		{slaAlerts.length === 0 && (
-			<li class="rounded-lg border border-dashed border-amber-200/70 p-3 text-center text-xs text-gray-500 dark:border-amber-500/20 dark:text-gray-400">
-				Sin alertas de SLA activas.
-			</li>
-		)}
+		{
+			slaAlerts.length === 0 && (
+				<li class="rounded-lg border border-dashed border-amber-200/70 p-3 text-center text-xs text-gray-500 dark:border-amber-500/20 dark:text-gray-400">
+					Sin alertas de SLA activas.
+				</li>
+			)
+		}
 		{
 			slaAlerts.map((a) => (
 				<li class="rounded-lg border border-amber-200/70 bg-white p-3 dark:border-amber-500/20 dark:bg-gray-900/40">

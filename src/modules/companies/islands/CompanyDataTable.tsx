@@ -183,7 +183,7 @@ export default function CompanyDataTable<TData, TValue>({
 						</DropdownMenu>
 					</div>
 
-					<div className="overflow-hidden rounded-md border">
+					<div className="overflow-hidden rounded-md border dark:bg-neutral-900">
 						<Table>
 							<TableHeader>
 								{table.getHeaderGroups().map((headerGroup) => (

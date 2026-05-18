@@ -28,7 +28,7 @@ const { title, description, listButtons } = Astro.props;
 	</div>
 	<ol class="mt-8 w-full space-y-8 overflow-hidden">
 		{
-			listButtons.map((i) => (
+			listButtons.map((i, index) => (
 				<li
 					id={i.id}
 					class="relative flex-1 after:absolute after:-bottom-11 after:left-1/4 after:inline-block after:h-full after:w-0.5 after:content-['']"
@@ -50,10 +50,10 @@ const { title, description, listButtons } = Astro.props;
 								</span>
 							</div>
 							<div class="flex flex-col items-start justify-center rounded-md">
-								<h6 id="steph6-1" class="mb-0.5 text-base font-semibold">
+								<h6 id={`steph6-${index + 1}`} class="mb-0.5 text-base font-semibold">
 									{i.title}
 								</h6>
-								<p id="stepp-1" class="text-xs font-normal">
+								<p id={`stepp-${index + 1}`} class="text-xs font-normal">
 									{i.description}
 								</p>
 							</div>

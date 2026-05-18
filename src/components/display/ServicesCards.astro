@@ -18,7 +18,7 @@ const servicios = await serviciosExtras(supabase);
 	{
 		servicios?.slice(0, 3).map((sr) => (
 			<a class="h-full" id={sr.servicio_ex_id} href={sr.link} target="_blank">
-				<div class="bg-white-50 to-black-600 from-black-900 h-full overflow-hidden rounded-lg border border-neutral-600 shadow-sm dark:bg-linear-to-tr dark:text-white">
+				<div class="bg-white-50 h-full overflow-hidden rounded-lg border border-neutral-600 shadow-sm dark:bg-transparent dark:text-white">
 					<div class="bg-surface-400 relative flex h-24 w-full items-center justify-center overflow-hidden rounded-t-md">
 						<Image
 							alt="Cron integration"
@@ -54,7 +54,7 @@ const servicios = await serviciosExtras(supabase);
 	{
 		servicios?.map((cards) => (
 			<a class="h-full" href={cards.link} target="_blank">
-				<div class="bg-white-50 to-black-600 from-black-900 text-card-foreground h-full overflow-hidden rounded-lg border border-neutral-600 shadow-sm dark:bg-linear-to-tr">
+				<div class="bg-white-50 text-card-foreground h-full overflow-hidden rounded-lg border border-neutral-600 shadow-sm dark:bg-transparent">
 					<div class="flex h-full flex-col border-b p-4 last:border-none @2xl:p-6">
 						<div class="mb-4 flex items-start justify-between">
 							<div class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-600 bg-white">

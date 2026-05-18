@@ -59,7 +59,7 @@ const benefits = [
 <main class="min-h-screen px-4 py-8 sm:px-6 lg:px-10 lg:py-12">
 	<div class="mx-auto w-full max-w-5xl">
 		<header
-			class="to-black-600 from-black-900 mb-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 lg:mb-12 lg:p-10 dark:border-gray-700 dark:bg-linear-to-tr"
+			class="mb-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 lg:mb-12 lg:p-10 dark:border-gray-700 dark:bg-transparent"
 		>
 			<p
 				class="mb-4 inline-flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1 text-[11px] font-semibold tracking-wide text-gray-500 uppercase dark:border-gray-600 dark:text-gray-400"
@@ -105,7 +105,7 @@ const benefits = [
 							aria-disabled={option.comingSoon ? 'true' : undefined}
 							tabindex={option.comingSoon ? -1 : undefined}
 							class:list={[
-								'to-black-600 from-black-900 group relative overflow-hidden rounded-2xl border bg-white p-6 shadow-sm transition-all duration-200 dark:bg-linear-to-tr',
+								'group relative overflow-hidden rounded-2xl border bg-white p-6 shadow-sm transition-all duration-200 dark:bg-transparent',
 								option.comingSoon
 									? 'cursor-not-allowed border-dashed border-gray-300 dark:border-gray-600'
 									: 'hover:-translate-y-1 hover:shadow-md',
@@ -208,7 +208,7 @@ const benefits = [
 				<div class="grid grid-cols-1 gap-5 md:grid-cols-3">
 					{
 						benefits.map((benefit) => (
-							<div class="to-black-600 from-black-900 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-linear-to-tr">
+							<div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
 								<Icon name={benefit.icon} class="mb-3 h-5 w-5 text-[#8c681d]" />
 								<h3 class="text-base font-semibold text-gray-900 dark:text-white">
 									{benefit.title}
@@ -223,7 +223,7 @@ const benefits = [
 			</section>
 
 			<section
-				class="to-black-600 from-black-900 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 dark:border-gray-700 dark:bg-linear-to-tr"
+				class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 dark:border-gray-700 dark:bg-transparent"
 			>
 				<div class="mb-4 flex justify-center text-[#8c681d]">
 					{

@@ -166,12 +166,12 @@ export default function NotificationsPopover({
 		const isPending = pendingIds.includes(notification.id);
 
 		return (
-			<div className="hover:bg-muted/50 group/card flex gap-3 px-4 py-3 transition-colors">
+			<div className="group/card flex gap-3 px-4 py-3 transition-colors hover:bg-neutral-900">
 				<div className="relative h-fit shrink-0">
 					<Avatar className="h-10 w-10 border border-gray-200 dark:border-gray-700">
 						<AvatarImage
 							src={avatarSrc}
-							alt="Logo notificacion Sotomayor Consulting"
+							alt="Logo notificación Sotomayor Consulting"
 						/>
 						<AvatarFallback>SC</AvatarFallback>
 					</Avatar>
@@ -223,7 +223,7 @@ export default function NotificationsPopover({
 								align="end"
 								side="bottom"
 								sideOffset={8}
-								className="w-56 gap-3 rounded-xl border border-gray-200 bg-white p-3 text-xs shadow-lg dark:border-gray-700 dark:bg-[#111827]"
+								className="w-56 gap-3 rounded-xl border border-gray-200 bg-white text-xs shadow-lg dark:border-gray-700 dark:bg-black"
 								onClick={(event) => {
 									event.preventDefault();
 									event.stopPropagation();
@@ -297,9 +297,9 @@ export default function NotificationsPopover({
 			<PopoverContent
 				align="center"
 				sideOffset={15}
-				className="to-black-600 from-black-900 z-20 w-[24rem] max-w-sm gap-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-0 shadow-xl ring-0 dark:border-gray-700 dark:bg-linear-to-tr"
+				className="z-20 w-[24rem] max-w-sm gap-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-0 shadow-xl ring-0 dark:border-gray-700 dark:bg-black"
 			>
-				<div className="to-black-600 from-black-900 flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-linear-to-tl">
+				<div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-transparent">
 					<div className="flex items-center gap-2">
 						<span className="text-sm font-semibold text-gray-900 dark:text-white">
 							Notificaciones
@@ -325,16 +325,16 @@ export default function NotificationsPopover({
 
 				<Tabs defaultValue="all" className="gap-0">
 					<div className="border-b border-gray-200 px-4 py-2 dark:border-gray-700">
-						<TabsList className="dark:bg-black-900 h-auto w-full rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium shadow-sm shadow-gray-200/70 dark:border-gray-700 dark:shadow-none">
+						<TabsList className="h-auto w-full rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium shadow-sm shadow-gray-200/70 dark:border-gray-700 dark:bg-neutral-950 dark:shadow-none">
 							<TabsTrigger
 								value="all"
-								className="dark:data-active:bg-black-700 inline-flex h-auto w-full flex-1 items-center justify-center gap-2 rounded-md border-none p-0 text-gray-600 shadow-none transition-colors after:hidden hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:outline-none data-active:bg-gray-100 data-active:text-gray-900 data-active:shadow-sm dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white dark:data-active:text-white"
+								className="inline-flex h-auto w-full flex-1 items-center justify-center gap-2 rounded-md border-none p-0 text-gray-600 shadow-none transition-colors after:hidden hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:outline-none data-active:bg-gray-100 data-active:text-gray-900 data-active:shadow-sm dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white dark:data-active:bg-neutral-900 dark:data-active:text-white"
 							>
 								Todas
 							</TabsTrigger>
 							<TabsTrigger
 								value="unread"
-								className="dark:data-active:bg-black-700 inline-flex h-auto flex-1 items-center justify-center gap-2 rounded-md border-none p-0 text-gray-600 shadow-none transition-colors after:hidden hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:outline-none data-active:bg-gray-100 data-active:text-gray-900 data-active:shadow-sm dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white dark:data-active:text-white"
+								className="inline-flex h-auto flex-1 items-center justify-center gap-2 rounded-md border-none p-0 text-gray-600 shadow-none transition-colors after:hidden hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:outline-none data-active:bg-gray-100 data-active:text-gray-900 data-active:shadow-sm dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white dark:data-active:bg-neutral-900 dark:data-active:text-white"
 							>
 								Sin leer
 								{unreadCount > 0 && <span>({unreadCount})</span>}

@@ -172,7 +172,7 @@ export default function OrdersTable() {
 					/>
 				</div>
 
-				<div className="to-black-600 from-black-900 overflow-hidden rounded-md border bg-white dark:bg-linear-to-tr">
+				<div className="overflow-hidden rounded-md border bg-white dark:bg-neutral-900">
 					<Table>
 						<TableHeader>
 							{table.getHeaderGroups().map((headerGroup) => (

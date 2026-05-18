@@ -54,7 +54,7 @@ if (userId) {
 				.eq('user_id', userId)
 				.maybeSingle(),
 			getEmpresasForSwitcher(supabase, userId),
-			getNotifications(supabase, userId, 5),
+			getNotifications(supabase, userId),
 			supabase
 				.from('submitted_forms')
 				.select(
@@ -289,13 +289,13 @@ const stats = [
 	<div class="grid gap-4 py-10 sm:grid-cols-2 xl:grid-cols-4">
 		{
 			stats.map((stat) => (
-				<article class="group to-black-600 from-black-900 relative min-h-36 rounded-lg border border-gray-200 bg-white p-5 transition hover:border-gray-300 hover:shadow-sm dark:border-gray-800 dark:bg-linear-to-tr dark:hover:border-gray-700">
+				<article class="group hover:border-primary-gold relative min-h-36 rounded-lg border border-gray-200 bg-white p-5 transition hover:shadow-sm dark:border-gray-800 dark:bg-transparent dark:hover:border-gray-700">
 					<div class="flex items-start justify-between gap-4">
 						<p class="text-xs font-semibold tracking-[0.28em] text-gray-400 uppercase dark:text-gray-500">
 							{stat.label}
 						</p>
 						<span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 dark:border-gray-700 dark:text-gray-500">
-							<Icon name={stat.icon} class="h-4 w-4" />
+							<Icon name={stat.icon} class="text-primary-gold h-4 w-4" />
 						</span>
 					</div>
 					<div class="mt-8">
@@ -315,7 +315,7 @@ const stats = [
 		<section>
 			<div class="mb-4 flex items-center justify-between gap-4">
 				<h2 class="text-lg font-semibold text-gray-950 dark:text-white">
-					Acciones rapidas
+					Acciones rápidas
 				</h2>
 				<a
 					href="/services"
@@ -330,12 +330,12 @@ const stats = [
 					quickActions.map((action) => (
 						<a
 							href={action.href}
-							class="to-black-600 from-black-900 group flex min-h-28 items-start gap-4 rounded-lg border border-gray-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-sm focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-800 dark:bg-linear-to-tr dark:hover:border-gray-700 dark:focus:ring-gray-800"
+							class="group flex min-h-28 items-start gap-4 rounded-lg border border-gray-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-sm focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-800 dark:bg-transparent dark:hover:border-gray-700 dark:focus:ring-gray-800"
 						>
 							<span
 								class={`} inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg`}
 							>
-								<Icon name={action.icon} class="h-5 w-5" />
+								<Icon name={action.icon} class="text-primary-gold h-5 w-5" />
 							</span>
 							<span class="min-w-0 flex-1">
 								<span class="block font-semibold text-gray-950 dark:text-white">

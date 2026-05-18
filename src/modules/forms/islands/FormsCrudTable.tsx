@@ -71,16 +71,16 @@ export default function FormsCrudTable({ data }: FormsCrudTableProps) {
 				className="max-w-sm"
 			/>
 
-			<div className="to-black-600 from-black-900 overflow-hidden rounded-md border bg-white dark:bg-linear-to-tr">
+			<div className="overflow-hidden rounded-md border bg-white dark:bg-neutral-900">
 				<Table>
 					<TableHeader>
 						<TableRow>
 							<TableHead>Titulo</TableHead>
-							<TableHead>Categoria</TableHead>
-							<TableHead>Descripcion</TableHead>
+							<TableHead>Categoría</TableHead>
+							<TableHead>Descripción</TableHead>
 							<TableHead>Revision</TableHead>
-							<TableHead>Fecha de actualizacion</TableHead>
-							<TableHead>Fecha de creacion</TableHead>
+							<TableHead>Fecha de actualización</TableHead>
+							<TableHead>Fecha de creación</TableHead>
 							<TableHead>Estado</TableHead>
 							<TableHead>Acciones</TableHead>
 						</TableRow>

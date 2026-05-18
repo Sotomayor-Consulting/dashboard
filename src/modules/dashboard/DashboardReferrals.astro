@@ -81,7 +81,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 		{
 			referidosCombinados.length !== 0 ? (
 				<>
-					<div class="dark:bg-black-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700">
+					<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-transparent">
 						<div class="mb-4 flex items-center justify-between">
 							<div class="shrink-0">
 								<span class="text-xl leading-none font-bold text-gray-900 sm:text-2xl dark:text-white">
@@ -103,7 +103,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 						</div>
 					</div>
 
-					<div class="dark:bg-black-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700">
+					<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-transparent">
 						<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
 							Lista de usuarios que referiste
 							<button
@@ -133,7 +133,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 							data-popover
 							id="popover-description"
 							role="tooltip"
-							class="dark:bg-black-800 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 bg-white text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600 dark:text-gray-400"
+							class="invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 bg-white text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600 dark:bg-transparent dark:text-gray-400"
 						>
 							<div class="space-y-2 p-3">
 								<h3 class="font-semibold text-gray-900 dark:text-white">
@@ -203,7 +203,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 				</>
 			) : (
 				<>
-					<div class="dark:bg-black-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700">
+					<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-transparent">
 						<div>
 							<section>
 								<div class="mx-auto max-w-7xl gap-16 px-4 py-8 lg:px-6 lg:py-16">
@@ -259,7 +259,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 													<h2 id={`recomendacion-${index}`}>
 														<button
 															type="button"
-															class="text-body rounded-base border-default hover:text-heading dark:bg-black-900 dark:hover:bg-black-700 flex w-full items-center justify-between gap-3 border bg-white p-5 font-medium shadow-xs hover:bg-gray-100 aria-expanded:rounded-b-none aria-expanded:shadow-none rtl:text-right"
+															class="text-body rounded-base border-default hover:text-heading flex w-full items-center justify-between gap-3 border bg-white p-5 font-medium shadow-xs hover:bg-gray-100 aria-expanded:rounded-b-none aria-expanded:shadow-none rtl:text-right dark:bg-neutral-950 dark:hover:bg-neutral-900"
 															data-accordion-target={`#recomendacion-body-${index}`}
 															aria-expanded="true"
 															aria-controls={`recomendacion-body-${index}`}
@@ -298,7 +298,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 						</div>
 					</div>
 
-					<div class="dark:bg-black-800 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700">
+					<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-transparent">
 						<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
 							Acciones Rápidas
 							<button
@@ -328,7 +328,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 							data-popover
 							id="popover-description"
 							role="tooltip"
-							class="dark:bg-black-800 invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 bg-white text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600 dark:text-gray-400"
+							class="invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 bg-white text-sm font-light text-gray-500 opacity-0 shadow-sm transition-opacity duration-300 dark:border-gray-600 dark:bg-black dark:text-gray-400"
 						>
 							<div class="space-y-2 p-3">
 								<h3 class="font-semibold text-gray-900 dark:text-white">
@@ -339,7 +339,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 							<div data-popper-arrow />
 						</div>
 
-						<div class="dark:bg-black-700 bg-white-50 mb-5 flex flex-col gap-2 rounded-xl p-5 drop-shadow-2xl">
+						<div class="bg-white-50 mb-5 flex flex-col gap-2 rounded-xl p-5 drop-shadow-2xl dark:bg-neutral-950">
 							<div>
 								<h5 class="dark:text-white">Copia tu código de partner:</h5>
 							</div>
@@ -351,14 +351,14 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 									<input
 										id="copiarCodigo"
 										type="text"
-										class="bg-neutral-secondary-medium border-default-medium text-body rounded-base focus:ring-brand focus:border-brand placeholder:text-body col-span-6 block w-full border px-3 py-2.5 text-sm shadow-xs"
+										class="bg-neutral-secondary-medium border-default-medium text-body rounded-base focus:ring-brand focus:border-brand placeholder:text-body col-span-6 block w-full border px-3 py-2.5 text-sm shadow-xs dark:bg-black"
 										value={codigo?.codigo_de_partner}
 										disabled
 										readonly
 									/>
 									<button
 										data-copy-to-clipboard-target="copiarCodigo"
-										class="text-body bg-neutral-primary-strong border-default-strong hover:bg-neutral-secondary-strong/70 hover:text-heading focus:ring-neutral-tertiary-soft active:group absolute inset-e-1.5 top-1/2 flex -translate-y-1/2 items-center rounded border px-3 py-1.5 text-xs leading-5 font-medium focus:ring-4 focus:outline-none"
+										class="text-body bg-neutral-primary-strong border-default-strong hover:bg-neutral-secondary-strong/70 hover:text-heading focus:ring-neutral-tertiary-soft active:group absolute inset-e-1.5 top-1/2 flex -translate-y-1/2 items-center rounded border px-3 py-1.5 text-xs leading-5 font-medium focus:ring-4 focus:outline-none dark:bg-neutral-950"
 									>
 										<span id="default-message-codigo">
 											<span class="flex items-center">
@@ -385,7 +385,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 										<span id="success-message-codigo" class="hidden">
 											<span class="flex items-center">
 												<svg
-													class="dark:text-black-400 me-1.5 h-4 w-4"
+													class="dark:text-primary-gold me-1.5 h-4 w-4"
 													aria-hidden="true"
 													xmlns="http://www.w3.org/2000/svg"
 													width="24"
@@ -401,7 +401,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 														d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 7 2 2 4-4m-5-9v4h4V3h-4Z"
 													/>
 												</svg>
-												<span class="dark:text-black-400 text-xs font-semibold">
+												<span class="dark:text-primary-gold text-xs font-semibold">
 													¡Copiado!
 												</span>
 											</span>

@@ -75,12 +75,12 @@ function initCompanyGeoChart() {
 						data: mapData,
 						backgroundColor: (context) =>
 							context.raw && (context.raw as any).value === 1
-								? '#0078b7'
+								? '#b98d33'
 								: 'transparent',
-						borderColor: '#0078b7',
+						borderColor: '#b98d33',
 						borderWidth: 1,
-						hoverBackgroundColor: '#003e6c',
-						hoverBorderColor: '#003e6c',
+						hoverBackgroundColor: '#b98d33',
+						hoverBorderColor: '#b98d33',
 						hoverBorderWidth: 2,
 						skip: false,
 					},
@@ -106,7 +106,7 @@ function initCompanyGeoChart() {
 						backgroundColor: 'rgba(0, 0, 0, 0.8)',
 						titleColor: '#fff',
 						bodyColor: '#fff',
-						borderColor: '#0078b7',
+						borderColor: '#00000',
 						borderWidth: 1,
 						padding: 10,
 						displayColors: false,

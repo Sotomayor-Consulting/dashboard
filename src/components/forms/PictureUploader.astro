@@ -63,36 +63,38 @@ const { slug } = Astro.params;
 			enctype="multipart/form-data"
 		>
 			<input type="hidden" name="slug" value={slug} />
-			<label
-				class="dark:bg-black-400 bg-white-50 hover:bg-white-100 mb-5 inline-flex cursor-pointer items-center rounded-lg border border-gray-300 px-5 py-2.5 text-gray-700 drop-shadow-2xl transition dark:border-gray-600 dark:text-white dark:hover:bg-[#05121d]"
-			>
-				<span>Seleccionar archivo</span>
-				<input
-					class="hidden"
-					type="file"
-					name="avatar"
-					accept="image/*"
-					required
-					id="avatar-input"
-				/>
-			</label>
-
-			<button
-				type="submit"
-				class="bg-black-600 hover:bg-black-500 focus:ring-primary-300 dark:bg-black-400 dark:hover:bg-black-400/80 inline-flex cursor-pointer items-center rounded-lg px-3 py-2 text-center text-sm font-medium text-white focus:ring-4 dark:focus:ring-[#323f67]"
-			>
-				<svg
-					class="mr-2 -ml-1 h-4 w-4"
-					fill="currentColor"
-					viewBox="0 0 20 20"
-					xmlns="http://www.w3.org/2000/svg"
-					><path
-						fill="currentColor"
-						d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h11.175q.4 0 .763.15t.637.425l2.85 2.85q.275.275.425.638t.15.762V19q0 .825-.587 1.413T19 21zm7-3q1.25 0 2.125-.875T15 15t-.875-2.125T12 12t-2.125.875T9 15t.875 2.125T12 18m-5-8h7q.425 0 .713-.288T15 9V7q0-.425-.288-.712T14 6H7q-.425 0-.712.288T6 7v2q0 .425.288.713T7 10"
-					></path></svg
+			<div class="flex justify-center gap-2">
+				<label
+					class="bg-primary-gold hover:bg-primary-gold/80 inline-flex cursor-pointer items-center rounded-lg border px-3 py-2 text-white drop-shadow-2xl transition"
 				>
-				Actualizar foto de perfil
-			</button>
+					<span>Seleccionar archivo</span>
+					<input
+						class="hidden"
+						type="file"
+						name="avatar"
+						accept="image/*"
+						required
+						id="avatar-input"
+					/>
+				</label>
+
+				<button
+					type="submit"
+					class="bg-primary-gold hover:bg-primary-gold/80 inline-flex cursor-pointer items-center rounded-lg border px-3 py-2 text-white drop-shadow-2xl transition"
+				>
+					<svg
+						class="mr-2 -ml-1 h-4 w-4"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill="currentColor"
+							d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h11.175q.4 0 .763.15t.637.425l2.85 2.85q.275.275.425.638t.15.762V19q0 .825-.587 1.413T19 21zm7-3q1.25 0 2.125-.875T15 15t-.875-2.125T12 12t-2.125.875T9 15t.875 2.125T12 18m-5-8h7q.425 0 .713-.288T15 9V7q0-.425-.288-.712T14 6H7q-.425 0-.712.288T6 7v2q0 .425.288.713T7 10"
+						></path></svg
+					>
+					Actualizar foto de perfil
+				</button>
+			</div>
 		</form>
 	</div>
 </div>

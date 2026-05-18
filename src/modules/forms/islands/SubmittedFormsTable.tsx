@@ -41,7 +41,9 @@ function formatDate(value?: string | null) {
 	return date.toLocaleDateString('es-ES');
 }
 
-export default function SubmittedFormsTable({ data }: SubmittedFormsTableProps) {
+export default function SubmittedFormsTable({
+	data,
+}: SubmittedFormsTableProps) {
 	const [query, setQuery] = React.useState('');
 	const [page, setPage] = React.useState(1);
 
@@ -77,7 +79,7 @@ export default function SubmittedFormsTable({ data }: SubmittedFormsTableProps) 
 				className="max-w-sm"
 			/>
 
-			<div className="to-black-600 from-black-900 overflow-hidden rounded-md border bg-white dark:bg-linear-to-tr">
+			<div className="overflow-hidden rounded-md border bg-white dark:bg-transparent">
 				<Table>
 					<TableHeader>
 						<TableRow>

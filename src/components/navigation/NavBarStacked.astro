@@ -7,20 +7,22 @@ const user = Astro.locals.user;
 ---
 
 <nav
-	class="dark:bg-black-900/60 fixed z-50 w-full border-b border-gray-200/60 bg-white/80 backdrop-blur-md sm:py-2 dark:border-gray-700/50 dark:backdrop-blur-md"
+	class="fixed z-50 w-full border-b border-gray-200/60 bg-white/80 backdrop-blur-md sm:py-2 dark:border-gray-700/50 dark:bg-black dark:backdrop-blur-md"
 >
 	<div class="container mx-auto py-3">
 		<div class="flex items-center justify-between">
 			<div class="flex items-center justify-start">
 				<a href="/" class="mr-4 flex">
 					<Icon
-						name="logo-en-blanco-alt"
-						class="mx-3 hidden text-3xl dark:block"
+						name="logo-sotomayor-consulting"
+						id="isotipo"
+						class="block text-4xl dark:hidden"
 						title="Logo Sotomayor Consulting"
 					/>
 					<Icon
-						name="logo-en-azul"
-						class="mx-3 block text-3xl dark:hidden"
+						name="logo-sotomayor-consulting-black"
+						id="isotipo"
+						class="hidden text-4xl dark:block"
 						title="Logo Sotomayor Consulting"
 					/>
 				</a>
@@ -44,7 +46,7 @@ const user = Astro.locals.user;
 								<li>
 									<a
 										href={li.link}
-										class="dark:hover:text-black-300 hover:text-black-700 text-sm font-medium text-gray-700 dark:text-gray-400"
+										class="hover:text-primary-gold text-sm font-medium text-gray-700 dark:text-gray-400"
 										aria-current="page"
 									>
 										{li.label}
@@ -62,7 +64,7 @@ const user = Astro.locals.user;
 						<a
 							href="/sign-in"
 							target="_blank"
-							class="bg-primary-600 hover:bg-primary-700 focus:ring-primary-300 hidden items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 md:inline-flex dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-[#323f67]"
+							class="bg-primary-gold hover:bg-primary-gold/80 focus:ring-primary-300 hidden items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 md:inline-flex"
 						>
 							<svg
 								class="mr-2 -ml-1 h-5 w-5"

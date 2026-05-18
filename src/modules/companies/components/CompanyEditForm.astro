@@ -65,7 +65,7 @@ const { empresa, socios, managers, actividades, paises, estados } = Astro.props;
 		<!-- ── Edit sub-tab sidebar ──────────────────────────── -->
 		<div class="mb-4 md:max-w-72 md:min-w-72 dark:border-gray-700">
 			<ul
-				class="flex-column to-black-600 from-black-900 space-y-5 rounded-lg p-5 text-sm font-medium text-gray-500 dark:bg-linear-to-tr dark:text-gray-400"
+				class="flex-column space-y-5 rounded-lg p-5 text-sm font-medium text-gray-500 dark:bg-transparent dark:text-gray-400"
 				id="default-tab-2"
 				data-tabs-toggle="#default-tab-content-2"
 				role="tablist"
@@ -152,14 +152,14 @@ const { empresa, socios, managers, actividades, paises, estados } = Astro.props;
 		<div id="default-tab-content-2" class="ml-0 min-w-full">
 			<!-- Sub-tab: Generales -->
 			<div
-				class="to-black-600 from-black-900 hidden rounded-lg bg-gray-50 p-4 dark:bg-linear-to-tr"
+				class="hidden rounded-lg bg-gray-50 p-4 dark:bg-transparent"
 				id="generales"
 				role="tabpanel"
 				aria-labelledby="generales-tab"
 			>
 				<div class="dark:bg-black-900 w-full rounded-lg bg-white shadow">
 					<div
-						class="to-black-600 from-black-900 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700 dark:bg-linear-to-tr"
+						class="mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700 dark:bg-transparent"
 					>
 						<h3 class="mb-4 text-xl font-semibold dark:text-white">
 							Datos Generales
@@ -377,7 +377,7 @@ const { empresa, socios, managers, actividades, paises, estados } = Astro.props;
 
 			<!-- Sub-tab: Ubicacion -->
 			<div
-				class="to-black-600 from-black-900 hidden min-w-full rounded-lg bg-gray-50 p-4 dark:bg-linear-to-tr"
+				class="hidden min-w-full rounded-lg bg-gray-50 p-4 dark:bg-transparent"
 				id="ubicacion"
 				role="tabpanel"
 				aria-labelledby="ubicacion-tab"
@@ -386,7 +386,7 @@ const { empresa, socios, managers, actividades, paises, estados } = Astro.props;
 					class="dark:bg-black-900 relative min-w-full rounded-lg bg-white shadow"
 				>
 					<div
-						class="to-black-600 from-black-900 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700 dark:bg-linear-to-tr"
+						class="mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700 dark:bg-transparent"
 					>
 						<h3 class="mb-4 text-xl font-semibold dark:text-white">
 							Ubicacion
@@ -590,14 +590,14 @@ const { empresa, socios, managers, actividades, paises, estados } = Astro.props;
 
 			<!-- Sub-tab: Socios -->
 			<div
-				class="to-black-600 from-black-900 hidden rounded-lg bg-gray-50 p-4 dark:bg-linear-to-tr"
+				class="hidden rounded-lg bg-gray-50 p-4 dark:bg-transparent"
 				id="socios-edit"
 				role="tabpanel"
 				aria-labelledby="socios-edit-tab"
 			>
 				<div
 					id="datos-socios"
-					class="to-black-600 from-black-900 mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700 dark:bg-linear-to-tr"
+					class="mb-4 min-w-full rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700 dark:bg-transparent"
 				>
 					<h3 class="mb-4 text-xl font-semibold dark:text-white">
 						Datos de los socios
@@ -1056,7 +1056,7 @@ const { empresa, socios, managers, actividades, paises, estados } = Astro.props;
 
 			<!-- Sub-tab: Manager -->
 			<div
-				class="to-black-600 from-black-900 hidden rounded-lg bg-gray-50 p-4 dark:bg-linear-to-tr"
+				class="hidden rounded-lg bg-gray-50 p-4 dark:bg-transparent"
 				id="manager"
 				role="tabpanel"
 				aria-labelledby="manager-tab"
@@ -1064,7 +1064,7 @@ const { empresa, socios, managers, actividades, paises, estados } = Astro.props;
 				<template x-if="formadeAdministracion === 'Member-Managed'">
 					<div
 						id="datos-managers"
-						class="to-black-600 from-black-900 mb-4 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700 dark:bg-linear-to-tr"
+						class="mb-4 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-neutral-700 dark:bg-transparent"
 						x-data="{ espartedelosMiembros: '' }"
 						x-init="espartedelosMiembros = document.getElementById('informacion_miembros').value"
 					>

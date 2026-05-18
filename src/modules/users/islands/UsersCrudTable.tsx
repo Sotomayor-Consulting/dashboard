@@ -165,7 +165,8 @@ export default function UsersCrudTable({
 						new CustomEvent('open-notification-modal', {
 							detail: {
 								userId: user.user_id,
-								userName: `${user.nombre} ${user.apellido}`.trim() || user.nombre,
+								userName:
+									`${user.nombre} ${user.apellido}`.trim() || user.nombre,
 								email: user.correo,
 							},
 						}),
@@ -246,7 +247,7 @@ export default function UsersCrudTable({
 								onChange={(event) =>
 									table.getColumn('nombre')?.setFilterValue(event.target.value)
 								}
-								className="dark:bg-black-700 w-full bg-white pl-9"
+								className="w-full bg-white pl-9 dark:bg-neutral-900"
 							/>
 						</div>
 						<DropdownMenu>
@@ -288,7 +289,7 @@ export default function UsersCrudTable({
 						</DropdownMenu>
 					</div>
 
-					<div className="dark:bg-black-800 overflow-hidden rounded-md border bg-white">
+					<div className="overflow-hidden rounded-md border bg-white dark:bg-neutral-900">
 						<Table>
 							<TableHeader>
 								{table.getHeaderGroups().map((headerGroup) => (
@@ -444,7 +445,7 @@ export default function UsersCrudTable({
 			</Dialog>
 
 			<Dialog open={editOpen} onOpenChange={setEditOpen}>
-				<DialogContent className="max-w-4xl">
+				<DialogContent className="max-w-6xl">
 					<DialogHeader>
 						<DialogTitle>Editar usuario</DialogTitle>
 						<DialogDescription>
@@ -574,7 +575,7 @@ export default function UsersCrudTable({
 									</SelectTrigger>
 									<SelectContent>
 										<SelectGroup>
-											<SelectItem value="Cédula">Cedula</SelectItem>
+											<SelectItem value="Cédula">Cédula</SelectItem>
 											<SelectItem value="RUC">RUC</SelectItem>
 											<SelectItem value="ID">ID</SelectItem>
 											<SelectItem value="Pasaporte">Pasaporte</SelectItem>
