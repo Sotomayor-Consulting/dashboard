@@ -2,14 +2,6 @@
 import { Icon } from 'astro-icon/components';
 import { getCompanyDetailData } from './services/get-company-detail-data';
 
-import CompanyHeader from './components/CompanyHeader.astro';
-import CompanyLocation from './components/CompanyLocation.astro';
-import CompanyProgress from './components/CompanyProgress.astro';
-import CompanyInfoCard from './components/CompanyInfoCard.astro';
-import CompanySociosList from './components/CompanySociosList.astro';
-import CompanyAddress from './components/CompanyAddress.astro';
-import CompanyManagersList from './components/CompanyManagersList.astro';
-
 import CompanyEditForm from './components/CompanyEditForm.astro';
 import CompanyOperationsPanel from '@modules/company-operations/OperationsPanel.astro';
 import ActivityModal from './components/ActivityModal.astro';
@@ -26,6 +18,7 @@ import {
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import DocumentRequestManager from '@modules/documents/islands/DocumentRequestManager';
 import CompanyDocumentsUploadManager from '@modules/documents/islands/CompanyDocumentsUploadManager';
+import { getUsStates } from './services/get-us-states';
 
 const empresaId = String(Astro.props.empresaId ?? '');
 const supabase = Astro.locals.supabase;
@@ -34,6 +27,8 @@ const userId = user?.id;
 const userRoles = Astro.locals.userRoles || [];
 const isStaff =
 	userRoles.includes('admin') || userRoles.includes('operaciones');
+const canEditDetails =
+	userRoles.includes('admin') || userRoles.includes('gerencia');
 const backPath = Astro.url.pathname;
 
 let data: CompanyDetailData | null = null;
@@ -60,13 +55,15 @@ if (empresaId) {
 	[documentRequests, documentTypes, documentsNew] = documentResults;
 }
 
+const us_states = await getUsStates(supabase);
 const empresa = data?.empresa ?? null;
+
+console.log(empresa);
+
 const socios = data?.socios ?? [];
 const managers = data?.managers ?? [];
 const actividades = data?.actividades ?? [];
 const paises = data?.paises ?? [];
-const estados = data?.estados ?? [];
-const esMemberManaged = empresa?.forma_administracion === 'Member-Managed';
 const empresaSafe = empresa as CompanyDetailData['empresa'];
 const errorMessage = !empresaId
 	? 'ID de empresa no valido'
@@ -102,11 +99,17 @@ const errorMessage = !empresaId
 								icono: 'ri:survey-line',
 							},
 							{
-								id: 'profile-tab',
-								tabs: 'profile',
-								label: 'Datos Generales',
-								icono: 'ri:building-2-line',
+								id: 'contacts-tab',
+								tabs: 'contacts',
+								label: 'Editar datos',
+								icono: 'ri:edit-line',
 							},
+							// {
+							// 	id: 'profile-tab',
+							// 	tabs: 'profile',
+							// 	label: 'Datos Generales',
+							// 	icono: 'ri:building-2-line',
+							// },
 							{
 								id: 'requests-tab',
 								tabs: 'requests',
@@ -118,12 +121,6 @@ const errorMessage = !empresaId
 								tabs: 'upload',
 								label: 'Subir documentos',
 								icono: 'ri:upload-cloud-2-line',
-							},
-							{
-								id: 'contacts-tab',
-								tabs: 'contacts',
-								label: 'Editar datos',
-								icono: 'ri:edit-line',
 							},
 						].map((i) => (
 							<li class="me-2" role="presentation">
@@ -144,8 +141,8 @@ const errorMessage = !empresaId
 					</ul>
 				</div>
 				<div id="default-tab-content">
-					<div
-						class="grid gap-4 rounded-lg p-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
+					{/* <div
+						class="my-4"
 						id="profile"
 						role="tabpanel"
 						aria-labelledby="profile-tab"
@@ -167,8 +164,10 @@ const errorMessage = !empresaId
 						socios={socios}
 						managers={managers}
 						actividades={actividades}
-						paises={paises}
 						estados={estados}
+						paises={paises}
+						canEditDetails={canEditDetails}
+						backPath={backPath}
 					/>
 					<div
 						class="my-4"

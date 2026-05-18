@@ -1,18 +1,15 @@
 ---
 import { Icon } from 'astro-icon/components';
 import type { CurrentStage } from '../types';
-import {
-	priorityClass,
-	priorityLabel,
-	taskStatusBadge,
-	taskStatusLabel,
-} from '../lib/style-helpers';
+import { resolveOpsStageComponent } from '../stages/registry.ts';
 
 interface Props {
 	currentStage: CurrentStage;
+	empresaId: string;
 }
 
-const { currentStage } = Astro.props;
+const { currentStage, empresaId } = Astro.props;
+const StageBody = resolveOpsStageComponent(currentStage.slug);
 ---
 
 <section
@@ -43,7 +40,7 @@ const { currentStage } = Astro.props;
 					title="Esta etapa requiere aprobación del cliente"
 				>
 					<Icon name="ri:user-received-line" class="h-3.5 w-3.5" />
-					Esperando aprobación del cliente
+					Requiere aprobación del cliente
 				</button>
 			) : (
 				<button
@@ -57,82 +54,5 @@ const { currentStage } = Astro.props;
 		}
 	</header>
 
-	{
-		currentStage.tasks.length === 0 ? (
-			<p class="rounded-lg border border-dashed border-gray-200 p-4 text-center text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
-				No hay tareas registradas en esta etapa todavía.
-			</p>
-		) : (
-			<ul class="space-y-2">
-				{currentStage.tasks.map((t) => (
-					<li
-						class={`flex items-start gap-3 rounded-lg border p-3 transition ${
-							t.status === 'in_progress'
-								? 'border-amber-200 bg-amber-50/60 dark:border-amber-500/20 dark:bg-amber-500/5'
-								: 'border-gray-200 bg-white dark:border-gray-700 dark:bg-transparent'
-						}`}
-					>
-						<input
-							type="checkbox"
-							checked={t.status === 'completed'}
-							class="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 dark:border-gray-600"
-							disabled
-						/>
-						<div class="min-w-0 flex-1">
-							<div class="flex flex-wrap items-center gap-2">
-								<p
-									class={`text-sm font-medium ${
-										t.status === 'completed'
-											? 'text-gray-400 line-through dark:text-gray-500'
-											: 'text-gray-950 dark:text-white'
-									}`}
-								>
-									{t.title}
-								</p>
-								<span
-									class={`text-2xs rounded px-1.5 py-0.5 font-semibold tracking-wide uppercase ${priorityClass(t.priority)}`}
-								>
-									{priorityLabel(t.priority)}
-								</span>
-							</div>
-							<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-								{t.description}
-							</p>
-						</div>
-
-						<div class="flex shrink-0 items-center gap-3">
-							{t.assignee ? (
-								<span class="inline-flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
-									<span class="text-2xs inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">
-										{t.assignee.initials}
-									</span>
-									{t.assignee.name}
-								</span>
-							) : (
-								<button
-									type="button"
-									class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-950 dark:text-gray-400 dark:hover:text-white"
-								>
-									<Icon name="ri:user-add-line" class="h-3.5 w-3.5" />
-									Asignar
-								</button>
-							)}
-							<span
-								class={`rounded-full px-2 py-0.5 text-[11px] font-medium ${taskStatusBadge(t.status)}`}
-							>
-								{taskStatusLabel(t.status)}
-							</span>
-							<button
-								type="button"
-								class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-								aria-label="Más opciones"
-							>
-								<Icon name="ri:more-2-fill" class="h-4 w-4" />
-							</button>
-						</div>
-					</li>
-				))}
-			</ul>
-		)
-	}
+	<StageBody currentStage={currentStage} empresaId={empresaId} />
 </section>

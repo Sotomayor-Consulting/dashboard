@@ -1,0 +1,34 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { StateInfo } from './states-data';
+
+interface Props {
+	state: StateInfo;
+}
+
+const { state } = Astro.props;
+
+const items = [
+	{ icon: 'ri:money-dollar-circle-line', label: 'Incorporación', value: state.incorporationFee },
+	{ icon: 'ri:file-list-3-line', label: 'Reporte anual', value: state.annualReportFee },
+	{ icon: 'ri:time-line', label: 'Tiempo', value: state.filingTime },
+];
+---
+
+<div
+	class="grid grid-cols-3 divide-x divide-gray-200 border-y border-gray-200 dark:divide-gray-700 dark:border-gray-700"
+>
+	{
+		items.map((item) => (
+			<div class="p-3 text-center">
+				<div class="flex items-center justify-center gap-1.5 text-gray-500 dark:text-gray-400">
+					<Icon name={item.icon} class="h-3.5 w-3.5" />
+					<span class="text-[10.5px]">{item.label}</span>
+				</div>
+				<p class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+					{item.value}
+				</p>
+			</div>
+		))
+	}
+</div>

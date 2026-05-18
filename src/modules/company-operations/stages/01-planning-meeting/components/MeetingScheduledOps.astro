@@ -1,0 +1,63 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	scheduledAt: string;
+	durationMinutes: number;
+	advisorName?: string | null;
+	isPast: boolean;
+}
+
+const { scheduledAt, durationMinutes, advisorName, isPast } = Astro.props;
+
+const dateFmt = new Intl.DateTimeFormat('es-ES', {
+	weekday: 'long',
+	day: 'numeric',
+	month: 'long',
+	year: 'numeric',
+});
+const timeFmt = new Intl.DateTimeFormat('es-ES', {
+	hour: '2-digit',
+	minute: '2-digit',
+	hour12: true,
+	timeZoneName: 'short',
+});
+---
+
+<div
+	class:list={[
+		'rounded-lg border p-3',
+		isPast
+			? 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900/40'
+			: 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-900/40 dark:bg-emerald-900/10',
+	]}
+>
+	<div class="flex items-start gap-2">
+		<Icon
+			name={isPast ? 'ri:history-line' : 'ri:calendar-check-line'}
+			class:list={[
+				'h-5 w-5 shrink-0',
+				isPast
+					? 'text-gray-500 dark:text-gray-400'
+					: 'text-emerald-600 dark:text-emerald-400',
+			]}
+		/>
+		<div class="min-w-0 flex-1">
+			<p class="text-sm font-semibold text-gray-900 dark:text-white">
+				{isPast ? 'Reunión finalizada' : 'Cliente agendó la reunión'}
+			</p>
+			<p class="mt-0.5 text-xs text-gray-600 capitalize dark:text-gray-300">
+				{dateFmt.format(new Date(scheduledAt))} · {
+					timeFmt.format(new Date(scheduledAt))
+				} ({durationMinutes} min)
+			</p>
+			{
+				advisorName && (
+					<p class="text-[11px] text-gray-500 dark:text-gray-400">
+						Asesor: {advisorName}
+					</p>
+				)
+			}
+		</div>
+	</div>
+</div>

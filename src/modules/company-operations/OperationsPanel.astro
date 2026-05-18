@@ -54,7 +54,10 @@ const data = await getOperationsPanelData(supabase, empresaId, empresaNombre);
 
 				<div class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)]">
 					{data.currentStage ? (
-						<CurrentStageTasks currentStage={data.currentStage} />
+						<CurrentStageTasks
+							currentStage={data.currentStage}
+							empresaId={empresaId}
+						/>
 					) : (
 						<article class="rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-900/60 dark:text-gray-400">
 							No hay una etapa activa para este workflow.

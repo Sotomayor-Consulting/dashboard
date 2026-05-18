@@ -64,6 +64,9 @@ export interface EmpresaDetail {
 	estado: string | null;
 	porcentaje_de_incorporacion: number | null;
 	actividad: string | null;
+	activity_id: number | null;
+	descripcion_empresa: string | null;
+	activity_description: string | null;
 	forma_tributacion: string | null;
 	forma_administracion: string | null;
 	Obtendra_ingresos_desde_eeuu: boolean | null;
@@ -81,6 +84,7 @@ export interface EmpresaDetail {
 	manager_es_miembro: boolean | null;
 	updated_at: string | null;
 	usuarios?: { nombre: string | null; apellido: string | null; correo: string | null }[];
+	state_id: number;
 }
 
 export interface SocioItem {
@@ -119,11 +123,6 @@ export interface ActividadItem {
 	Actividad: string;
 }
 
-export interface EstadoItem {
-	id: number;
-	Estado: string;
-	abreviatura: string | null;
-}
 
 export interface PaisItem {
 	id: number;
@@ -169,7 +168,6 @@ export interface PagoPorLeer {
 
 export interface Documento {
 	name: string;
-
 }
 
 export interface CompanyDetailData {
@@ -178,6 +176,11 @@ export interface CompanyDetailData {
 	managers: ManagerItem[];
 	actividades: ActividadItem[];
 	paises: PaisItem[];
-	estados: EstadoItem[];
+	state: State[];
 }
 
+export interface State {
+	id: number,
+	name: String,
+	code: String
+}

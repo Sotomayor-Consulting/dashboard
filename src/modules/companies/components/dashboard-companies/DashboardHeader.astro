@@ -12,6 +12,7 @@ interface Props {
 		tipo_de_negocio: string;
 		porcentaje_de_incorporacion: number;
 		estado_de_incorporacion: string;
+		estado?: string;
 		ein?: string | null;
 		numero_ein?: string | null;
 		ein_number?: string | null;
@@ -26,11 +27,13 @@ interface Props {
 	currentStageName?: string | null;
 	currentStageOrder?: number | null;
 	estimatedCompletion?: string | null;
+	nextStageName?: string | null;
+	upgradeAvailable?: boolean;
+	upgradePrice?: number | null;
 }
 
 const {
 	empresa,
-	estadoMapa,
 	progressPercent = empresa.porcentaje_de_incorporacion,
 	planName = 'Plan Business',
 	completedStages = 0,
@@ -38,6 +41,9 @@ const {
 	currentStageName = null,
 	currentStageOrder = null,
 	estimatedCompletion = null,
+	nextStageName = null,
+	upgradeAvailable = false,
+	upgradePrice = null,
 } = Astro.props;
 
 const daysRemaining = (() => {
@@ -85,7 +91,57 @@ const maskedEin = (() => {
 
 const einDisplayValue =
 	maskedEin ?? (import.meta.env.DEV ? '12-34*****' : null);
+
+const fmtUsd = (n: number | null | undefined) =>
+	typeof n === 'number' && !Number.isNaN(n)
+		? new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: 'USD',
+				maximumFractionDigits: 0,
+			}).format(n)
+		: null;
+
+const planLabelShort = planName.replace(/^Plan\s+/i, '').trim();
+const upgradePriceLabel = fmtUsd(upgradePrice);
 ---
+
+{
+	upgradeAvailable && (
+		<div class="dark:via-black-900 mt-4 overflow-hidden rounded-xl border bg-linear-to-r shadow-md dark:border-gray-700 dark:bg-transparent dark:shadow-none">
+			<div class="flex flex-col items-stretch gap-3 p-3 sm:p-4 md:flex-row md:items-center md:gap-4">
+				<div class="flex flex-1 items-center gap-3">
+					<span class="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600 sm:inline-flex dark:text-amber-300">
+						<Icon name="ri:star-fill" class="h-5 w-5" />
+					</span>
+					<div class="min-w-0">
+						<p class="text-[11px] font-semibold tracking-[0.18em] text-amber-700 uppercase dark:text-amber-300">
+							Plan {planLabelShort} · Etapa 1 completada
+						</p>
+						<p class="mt-0.5 truncate text-sm text-gray-700 dark:text-gray-200">
+							Continúa a{' '}
+							<span class="font-semibold text-gray-900 dark:text-white">
+								{nextStageName ? `Plan ${nextStageName}` : 'Plan Business'}
+							</span>
+						</p>
+					</div>
+				</div>
+				<div class="flex items-center justify-between gap-3 md:justify-end">
+					<a
+						href="/upgrade"
+						class="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-gray-300 bg-transparent px-4 py-2 text-sm font-semibold text-black hover:bg-gray-50 dark:border-[#b98d33] dark:text-white dark:hover:bg-gray-800"
+					>
+						<Icon name="ri:bank-card-line" class="h-4 w-4" />
+						Pagar upgrade
+						{upgradePriceLabel && (
+							<span class="opacity-90">· {upgradePriceLabel}</span>
+						)}
+						<Icon name="ri:arrow-right-line" class="h-4 w-4" />
+					</a>
+				</div>
+			</div>
+		</div>
+	)
+}
 
 <div class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2">
 	<div
@@ -175,12 +231,19 @@ const einDisplayValue =
 						>
 							<span>{completedStages} de {totalStages} etapas completadas</span>
 							{
-								daysRemaining !== null && (
+								nextStageName ? (
+									<>
+										Siguiente:{' '}
+										<span class="font-semibold text-gray-700 dark:text-gray-200">
+											{nextStageName}
+										</span>
+									</>
+								) : daysRemaining !== null ? (
 									<span class="inline-flex items-center gap-1">
 										<Icon name="ri:time-line" class="h-3 w-3" />
 										{daysRemaining} días restantes
 									</span>
-								)
+								) : null
 							}
 						</div>
 					</div>
@@ -342,11 +405,21 @@ const einDisplayValue =
 				</h3>
 			</div>
 		</div>
+
 		<div
-			id="datamap-container"
-			class="flex h-fit w-full items-center justify-center"
-			data-estado-mapa={estadoMapa ?? ''}
+			class="mt-4 flex items-center justify-between border-t border-gray-200 pt-3 text-[11px] text-gray-500 dark:border-gray-700 dark:text-gray-400"
 		>
+			<a
+				href="mailto:soporte@sotomayorconsulting.com"
+				class="inline-flex items-center gap-1.5 hover:text-gray-700 dark:hover:text-gray-300"
+			>
+				<Icon name="ri:mail-line" class="h-3.5 w-3.5" />
+				soporte@sotomayorconsulting.com
+			</a>
+			<span class="inline-flex items-center gap-1.5">
+				<Icon name="ri:time-line" class="h-3.5 w-3.5" />
+				Resp. &lt; 2h
+			</span>
 		</div>
 	</div>
 </div>

@@ -1,0 +1,87 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	empresaId: string;
+	mode: 'new' | 'replace';
+}
+
+const { empresaId, mode } = Astro.props;
+
+const TITLE = mode === 'new'
+	? 'Subir documento de planificación y diseño'
+	: 'Subir nueva versión del documento';
+
+const DESCRIPTION = mode === 'new'
+	? 'Adjunta el PDF entregable al cliente para que pueda revisarlo y aprobarlo.'
+	: 'El cliente rechazó la versión anterior. Sube la versión corregida.';
+---
+
+<form
+	class="planning-upload-form rounded-lg border border-dashed border-amber-300 bg-amber-50/40 p-4 dark:border-amber-900/40 dark:bg-amber-900/10"
+	data-empresa-id={empresaId}
+	enctype="multipart/form-data"
+>
+	<div class="flex items-start gap-3">
+		<div
+			class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40"
+		>
+			<Icon
+				name="ri:upload-cloud-2-line"
+				class="h-5 w-5 text-amber-600 dark:text-amber-300"
+			/>
+		</div>
+		<div class="min-w-0 flex-1 space-y-3">
+			<div>
+				<p class="text-sm font-semibold text-gray-900 dark:text-white">
+					{TITLE}
+				</p>
+				<p class="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
+					{DESCRIPTION}
+				</p>
+			</div>
+
+			<label class="block">
+				<span
+					class="mb-1 block text-[11px] font-semibold text-gray-700 dark:text-gray-200"
+				>
+					Archivo PDF *
+				</span>
+				<input
+					type="file"
+					name="file"
+					accept="application/pdf,.pdf"
+					required
+					class="block w-full cursor-pointer rounded-md border border-gray-300 bg-white text-xs text-gray-700 file:mr-3 file:cursor-pointer file:rounded-l-md file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-gray-700 hover:file:bg-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:file:bg-gray-800 dark:file:text-gray-200"
+				/>
+			</label>
+
+			<label class="block">
+				<span
+					class="mb-1 block text-[11px] font-semibold text-gray-700 dark:text-gray-200"
+				>
+					Notas internas (opcional)
+				</span>
+				<textarea
+					name="notes"
+					rows="2"
+					placeholder="Cambios respecto a la versión anterior, observaciones para el cliente, etc."
+					class="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-xs text-gray-900 placeholder:text-gray-400 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-500"
+				></textarea>
+			</label>
+
+			<div class="flex items-center justify-between gap-2">
+				<p class="planning-upload-status text-[11px] text-gray-500 dark:text-gray-400">
+					Tamaño máximo: 15 MB · solo PDF
+				</p>
+				<button
+					type="submit"
+					class="planning-upload-submit inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-amber-700 disabled:opacity-60"
+				>
+					<Icon name="ri:send-plane-line" class="h-4 w-4" />
+					{mode === 'new' ? 'Enviar al cliente' : 'Enviar nueva versión'}
+				</button>
+			</div>
+		</div>
+	</div>
+</form>

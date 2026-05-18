@@ -1,0 +1,112 @@
+---
+import StageShell from '../StageShell.astro';
+import { formatStageDate } from '../shared/format-date.ts';
+import type { StageProps } from '../types';
+import { resolveMeetingState } from './meeting-state.ts';
+import { resolvePlanningMeetingContext } from '@domains/workflow/stages/planning-meeting';
+import {
+	createDocumentSignedUrl,
+	resolveDocumentActor,
+	DocumentsError,
+} from '@domains/documents';
+import BookingButton from './components/BookingButton.astro';
+import MeetingStatusBadge from './components/MeetingStatusBadge.astro';
+import MeetingDetailsPanel from './components/MeetingDetailsPanel.astro';
+import AwaitingDocBanner from './components/AwaitingDocBanner.astro';
+import PlanningDocReview from './components/PlanningDocReview.astro';
+import RejectedAwaitingNewVersion from './components/RejectedAwaitingNewVersion.astro';
+import ApprovedDocSummary from './components/ApprovedDocSummary.astro';
+
+const { stage, empresaId, userId, meeting } = Astro.props as StageProps;
+
+const BOOKING_URL = 'https://zcal.co/sotomayorconsulting/disenotributario';
+const meetingUiState = resolveMeetingState(stage.status, meeting);
+const hasMeetingPanel =
+	!!meeting &&
+	(meetingUiState === 'scheduled' ||
+		meetingUiState === 'past' ||
+		meetingUiState === 'completed');
+const hasMeetingBadge =
+	meetingUiState !== 'idle' && meetingUiState !== 'awaiting_booking';
+
+const supabase = Astro.locals.supabase;
+const userRoles = Astro.locals.userRoles ?? [];
+
+const context = await resolvePlanningMeetingContext(supabase, {
+	incorporationId: empresaId,
+	stageId: stage.id,
+	stageStatus: stage.status,
+});
+
+let signedUrl: string | null = null;
+if (context.document) {
+	try {
+		const actor = await resolveDocumentActor(supabase, userRoles);
+		signedUrl = await createDocumentSignedUrl(actor, context.document.id);
+	} catch (err) {
+		if (!(err instanceof DocumentsError)) {
+			console.error('[planning-meeting] signed url error:', err);
+		}
+	}
+}
+
+const showAwaitingDoc = context.substate === 'awaiting_doc';
+const showDocReview = context.substate === 'awaiting_approval' && context.document;
+const showRejected =
+	context.substate === 'rejected' && context.latestApproval;
+const showApproved = context.substate === 'approved' && context.document;
+---
+
+<StageShell
+	stage={stage}
+	icon="ri:calendar-schedule-line"
+	description="Coordinamos y agendamos la reunión de planificación con tu asesor."
+	formattedDate={formatStageDate(stage.dueAt)}
+>
+	{
+		meetingUiState === 'awaiting_booking' && (
+			<BookingButton
+				slot="actions"
+				href={BOOKING_URL}
+				empresaId={empresaId}
+				userId={userId}
+			/>
+		)
+	}
+	{
+		hasMeetingBadge && (
+			<MeetingStatusBadge
+				slot="actions"
+				variant={
+					meetingUiState as 'scheduled' | 'past' | 'completed' | 'cancelled'
+				}
+			/>
+		)
+	}
+	{hasMeetingPanel && meeting && <MeetingDetailsPanel meeting={meeting} />}
+
+	{showAwaitingDoc && <AwaitingDocBanner />}
+	{
+		showDocReview && context.document && (
+			<PlanningDocReview
+				document={context.document}
+				signedUrl={signedUrl}
+				stageId={stage.id}
+			/>
+		)
+	}
+	{
+		showRejected && context.latestApproval && (
+			<RejectedAwaitingNewVersion rejection={context.latestApproval} />
+		)
+	}
+	{
+		showApproved && context.document && (
+			<ApprovedDocSummary document={context.document} signedUrl={signedUrl} />
+		)
+	}
+</StageShell>
+
+<script>
+	import './planning-meeting.client.ts';
+</script>

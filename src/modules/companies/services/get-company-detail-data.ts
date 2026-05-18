@@ -29,6 +29,6 @@ export const getCompanyDetailData = async (
 		managers: (managers ?? []) as CompanyDetailData['managers'],
 		actividades: (actividades ?? []) as CompanyDetailData['actividades'],
 		paises: (paises ?? []) as CompanyDetailData['paises'],
-		estados: (estados ?? []) as CompanyDetailData['estados'],
+		state: (estados ?? []) as CompanyDetailData['state'],
 	};
 };

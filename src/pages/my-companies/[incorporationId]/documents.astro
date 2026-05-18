@@ -19,6 +19,12 @@ const { incorporationId } = Astro.params;
 					link: `/my-companies/${incorporationId}/dashboard`,
 				},
 				{
+					label: 'Información',
+					icon: 'ri:information-line',
+					active: false,
+					link: `/my-companies/${incorporationId}/dashboard?tab=info`,
+				},
+				{
 					label: 'Documentos',
 					icon: 'ri:file-copy-line',
 					active: true,
