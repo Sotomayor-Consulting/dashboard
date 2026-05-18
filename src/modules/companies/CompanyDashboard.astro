@@ -131,7 +131,7 @@ const tabs = [
 
 <div class="px-4 pt-6">
 	<ul
-		class="dark:bg-black-900 mt-4 flex w-fit items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium shadow-sm shadow-gray-200/70 md:w-auto xl:inline-flex xl:text-sm dark:border-gray-700 dark:shadow-none"
+		class="mt-4 flex w-fit items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium shadow-sm shadow-gray-200/70 md:w-auto xl:inline-flex xl:text-sm dark:border-gray-700 dark:bg-black dark:shadow-none"
 		data-tab-strip
 	>
 		{
@@ -234,7 +234,7 @@ const tabs = [
 		document.querySelectorAll<HTMLButtonElement>('[data-tab-btn]');
 	const panels = document.querySelectorAll<HTMLElement>('[data-tab-panel]');
 	const activeClasses = [
-		'dark:bg-black-700',
+		'dark:bg-neutral-900',
 		'bg-gray-100',
 		'text-gray-900',
 		'shadow-sm',

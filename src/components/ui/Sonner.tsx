@@ -37,12 +37,12 @@ export default function Toaster(props: ToasterProps) {
 			toastOptions={{
 				classNames: {
 					toast:
-						'border border-gray-200 rounded-xl bg-white text-black shadow-lg dark:border-[#2d3654] dark:bg-[#111827] dark:text-white',
+						'border border-gray-200 rounded-xl bg-white text-black shadow-lg dark:border-[#2d3654] dark:bg-black dark:text-white',
 					description: 'text-gray-600 dark:text-gray-300',
 					actionButton:
 						'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200',
 					cancelButton:
-						'border border-gray-200 bg-white text-gray-700 hover:bg-gray-100 dark:border-[#38415f] dark:bg-[#111827] dark:text-gray-200 dark:hover:bg-[#1a2235]',
+						'border border-gray-200 bg-white text-gray-700 hover:bg-gray-100 dark:border-[#38415f] dark:bg-transparent dark:text-gray-200 dark:hover:bg-neutral-950',
 				},
 			}}
 			{...props}

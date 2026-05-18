@@ -11,7 +11,7 @@ const { state, estadoMapa } = Astro.props;
 ---
 
 <div
-	class="state-plate relative flex h-full flex-col overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-inner dark:border-gray-700 dark:bg-gray-900/40"
+	class="state-plate relative flex h-full flex-col overflow-hidden rounded-xl border-2 border-gray-200 bg-white shadow-inner dark:border-gray-700 dark:bg-black"
 	style={`--state-color:${state.color}`}
 >
 	<div
@@ -22,8 +22,14 @@ const { state, estadoMapa } = Astro.props;
 		>
 			United States · {state.abbreviation}
 		</span>
-		<span class="flex items-center gap-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase dark:text-gray-500">
-			<Icon name="ri:star-fill" class="h-2.5 w-2.5" style={`color:${state.color}`} />
+		<span
+			class="flex items-center gap-1 text-[9px] font-semibold tracking-wider text-gray-400 uppercase dark:text-gray-500"
+		>
+			<Icon
+				name="ri:star-fill"
+				class="h-2.5 w-2.5"
+				style={`color:${state.color}`}
+			/>
 			{state.capital}
 		</span>
 	</div>

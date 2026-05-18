@@ -52,7 +52,7 @@ function BannerToastCard({
 	return (
 		<div
 			className={[
-				'dark:bg-black-700 flex w-full max-w-md items-start justify-between gap-4 rounded-2xl bg-white p-4 shadow-lg',
+				'flex w-full max-w-md items-start justify-between gap-4 rounded-lg bg-white p-4 shadow-lg dark:bg-neutral-900',
 				accentClassName,
 			]
 				.filter(Boolean)
@@ -82,7 +82,7 @@ function BannerToastCard({
 					<button
 						type="button"
 						onClick={onClose}
-						className="inline-flex h-9 items-center rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:border-[#38415f] dark:text-gray-300 dark:hover:bg-[#1a2235] dark:hover:text-white"
+						className="inline-flex h-9 items-center rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:border-[#38415f] dark:text-gray-300 dark:hover:bg-neutral-950 dark:hover:text-white"
 					>
 						Cerrar
 					</button>

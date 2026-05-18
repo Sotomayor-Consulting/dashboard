@@ -17,7 +17,7 @@ export default function BannerToast({
 	useEffect(() => {
 		toast.custom(
 			(id) => (
-				<div className="flex w-full max-w-md items-start justify-between gap-4 rounded-2xl bg-white p-4 shadow-lg dark:border-[#2d3654] dark:bg-[#111827]">
+				<div className="flex w-full max-w-md items-start justify-between gap-4 rounded-2xl bg-white p-4 shadow-lg dark:border-[#2d3654] dark:bg-neutral-900">
 					<div className="min-w-0 flex-1">
 						<p className="text-center text-sm font-medium text-black dark:text-white">
 							{title}
