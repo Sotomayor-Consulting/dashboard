@@ -1,4 +1,4 @@
-import { AppWindowIcon } from 'lucide-react';
+import { LayoutList, CircleDollarSign } from 'lucide-react';
 import PagosRealizadosTable, {
 	type RawPaymentItem,
 } from '@modules/billing/islands/PagosRealizadosTable';
@@ -6,12 +6,7 @@ import PagosRealizadosTable, {
 import CardsHeadOrders from '@modules/billing/islands/CardsHeadOrders';
 import OrdersTable from '@modules/billing/islands/OrdersTable';
 
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '@components/ui/Tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/Tabs';
 
 interface TabsIconsProps {
 	data: RawPaymentItem[];
@@ -20,13 +15,13 @@ interface TabsIconsProps {
 export default function TabsIcons({ data }: TabsIconsProps) {
 	return (
 		<Tabs defaultValue="pagos-realizados" className="w-full">
-			<TabsList className="w-full justify-start" variant="line">
+			<TabsList className="w-fit justify-start" variant="line">
 				<TabsTrigger value="pagos-realizados" className="flex-none">
-					<AppWindowIcon />
+					<CircleDollarSign />
 					Pagos realizados
 				</TabsTrigger>
 				<TabsTrigger value="test" className="flex-none">
-					<AppWindowIcon />
+					<LayoutList />
 					Ordenes
 				</TabsTrigger>
 			</TabsList>

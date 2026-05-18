@@ -12,9 +12,6 @@ import Register from '@components/ui/Payment_Stepper/registrerStep.astro';
 const supabase = Astro.locals.supabase;
 const { data: estados } = await supabase.from('estados').select('Estado');
 const estadosData = estados ?? [];
-
-const ClassActive =
-	"relative flex-1 after:content-[''] after:w-0.5 after:h-full after:bg-primary-gold after:inline-block after:absolute after:-bottom-11 after:left-1/4";
 ---
 
 <Alerta />
@@ -24,12 +21,16 @@ const ClassActive =
 <Modal
 	id="modalCard"
 	IdClose="closeBtn"
-	title="Encuentre el tipo de entidad adecuado para su negocio"
-	description="La elección de tu entidad legal es el primer gran paso. Evita riesgos fiscales y legales. Nuestros consultores te brindan una asesoría gratuita para identificar la mejor opción para tu negocio, asegurando un crecimiento sólido y protegido en EE. UU."
+	title1="Encuentre el tipo de entidad"
+	titlecolored="adecuado para su negocio"
+	description="La elección de tu entidad legal es el primer gran paso. Evita riesgos
+				fiscales y legales. Nuestros consultores te brindan una asesoría
+				gratuita para identificar la mejor opción."
 	button1="Realiza un Diagnostico breve"
 	button1link="https://sotomayorconsulting.com/diagnostico-llc/"
 	button2="Agendar una cita"
 	button2link="https://zcal.co/t/agendar-asesoria-llc/60min"
+	footer="Asegurando un crecimiento sólido y protegido en EE. UU."
 />
 
 <div

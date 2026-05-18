@@ -258,11 +258,11 @@ export default function FormSignIn() {
 
 	const anyPending = emailPending || googlePending;
 	const cleanInputClass =
-		'h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/30 dark:border-slate-600 dark:bg-[#0b1220] dark:text-slate-100 dark:placeholder:text-slate-500';
+		'h-11 rounded-xl border border-slate-300 bg-gray-200 px-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/30 dark:border-slate-600 dark:bg-neutral-900 dark:text-slate-100 dark:placeholder:text-slate-500';
 
 	return (
 		<div className="mx-auto flex w-full flex-col items-center justify-center px-6 pt-10">
-			<div className="dark:bg-black-900 min-h-[720px] w-full max-w-xl space-y-8 rounded-lg bg-gray-200 p-6 shadow sm:p-8">
+			<div className="min-h-[720px] w-full max-w-xl space-y-8 rounded-lg bg-white p-6 shadow sm:p-8 dark:bg-black">
 				<a
 					href="/sign-in"
 					className="mb-8 flex items-center justify-center text-2xl font-semibold lg:mb-10 dark:text-white"
@@ -391,7 +391,7 @@ export default function FormSignIn() {
 					<div>
 						<div className="inline-flex w-full items-center justify-center">
 							<hr className="dark:bg-black-100 my-5 h-px w-11/12 border-0 bg-gray-300" />
-							<span className="dark:bg-black-900 absolute z-10 bg-gray-200 px-5 font-medium text-gray-900 dark:text-white">
+							<span className="absolute z-10 bg-white px-5 font-medium text-gray-900 dark:bg-black dark:text-white">
 								o
 							</span>
 						</div>

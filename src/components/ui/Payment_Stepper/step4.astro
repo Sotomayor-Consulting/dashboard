@@ -43,7 +43,7 @@ const { title, description, description2 } = Astro.props;
 					},
 				].map((li) => (
 					<div id={li.id} class="mt-5">
-						<div class="flex w-full items-center justify-between rounded-lg border border-neutral-700 bg-white p-3 text-neutral-600 hover:text-neutral-200 focus:ring-neutral-600 dark:bg-black dark:text-gray-400 dark:hover:text-white">
+						<div class="border-primary-gold flex w-full items-center justify-between rounded-lg border bg-white p-3 text-white hover:text-neutral-200 focus:ring-neutral-600 dark:border-neutral-700 dark:bg-black dark:text-gray-400 dark:hover:text-white">
 							<div>
 								<p class="text-black-700 mt-1 text-sm dark:text-gray-400">
 									{li.title}
@@ -58,7 +58,7 @@ const { title, description, description2 } = Astro.props;
 							<button
 								id={li.idButton}
 								type="button"
-								class="hover:bg-black-600 flex cursor-pointer items-center justify-center rounded-lg border bg-neutral-400 p-1 dark:bg-neutral-900 dark:hover:bg-neutral-950/80"
+								class="bg-primary-gold hover:bg-primary-gold/80 flex cursor-pointer items-center justify-center rounded-lg border p-1 dark:bg-neutral-900 dark:hover:bg-neutral-950/80"
 								title="editar"
 							>
 								<svg

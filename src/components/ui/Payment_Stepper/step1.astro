@@ -1,9 +1,13 @@
 ---
-
+import { Icon } from 'astro-icon/components';
 ---
 
 <div id="paso1">
-	<div class="px-10 py-10 text-center">
+	<div class="px-10 pt-6 pb-10 text-center">
+		<span
+			class="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase"
+			>Paso 01</span
+		>
 		<h3 class="text-black-900 text-2xl lg:text-3xl dark:text-white">
 			Estructura de la empresa
 		</h3>
@@ -43,27 +47,22 @@
 					/>
 					<label
 						for={li.id}
-						class="bg-white-100 hover:bg-white-50 inline-flex w-full cursor-pointer items-center justify-between rounded-lg border border-neutral-700 p-5 text-neutral-500 peer-checked:border-black peer-checked:bg-white peer-checked:text-black hover:text-neutral-900 dark:bg-transparent dark:text-gray-400 dark:peer-checked:border-white dark:peer-checked:bg-neutral-900 dark:peer-checked:text-white dark:hover:bg-neutral-950 dark:hover:text-white"
+						class="bg-white-100 hover:bg-white-50 dark:peer-checked:border-primary-gold group peer-checked:border-primary-gold grid w-full cursor-pointer grid-cols-[auto_1fr_auto] items-center justify-between gap-5 rounded-lg border border-neutral-700 p-5 text-neutral-500 peer-checked:bg-white peer-checked:text-black hover:text-neutral-900 dark:bg-transparent dark:text-gray-400 dark:peer-checked:bg-neutral-900 dark:peer-checked:text-white dark:hover:bg-neutral-950 dark:hover:text-white"
 					>
+						<div class="bg-primary-gold/20 text-brand-gold rounded-xl p-3">
+							<Icon
+								name="ri:building-4-line"
+								class="text-primary-gold text-3xl"
+							/>
+						</div>
 						<div class="block max-w-[90%]">
 							<div class="w-full text-lg font-semibold">{li.title}</div>
 							<div class="w-full text-sm">{li.description}</div>
 						</div>
-						<svg
-							class="ms-3 h-5 w-5 rtl:rotate-180"
-							aria-hidden="true"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="none"
-							viewBox="0 0 14 10"
-						>
-							<path
-								stroke="currentColor"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M1 5h12m0 0L9 1m4 4L9 9"
-							/>
-						</svg>
+						<Icon
+							name="ri:arrow-right-s-fill"
+							class="text-primary-gold ms-3 text-2xl transition-all delay-105 group-hover:translate-x-2 rtl:rotate-180 dark:text-white"
+						/>
 					</label>
 				</li>
 			))
@@ -73,29 +72,23 @@
 			<button
 				id="openBtnxd"
 				type="button"
-				class="bg-white-50 hover:bg-white-50 inline-flex w-full cursor-pointer items-center justify-between rounded-lg border border-neutral-700 p-5 text-neutral-500 peer-checked:border-black peer-checked:bg-white peer-checked:text-black hover:text-neutral-900 dark:bg-transparent dark:text-gray-400 dark:peer-checked:border-white dark:peer-checked:bg-neutral-900 dark:peer-checked:text-white dark:hover:bg-neutral-950 dark:hover:text-white"
+				class="bg-white-50 hover:bg-white-50 group border-primary-gold grid w-full cursor-pointer grid-cols-[auto_1fr_auto] grid-rows-1 items-center justify-between gap-5 rounded-lg border p-5 text-neutral-500 peer-checked:border-black peer-checked:bg-white peer-checked:text-black hover:text-neutral-900 dark:border-neutral-700 dark:bg-transparent dark:text-gray-400 dark:peer-checked:border-white dark:peer-checked:bg-neutral-900 dark:peer-checked:text-white dark:hover:bg-neutral-950 dark:hover:text-white"
 			>
-				<div class="block max-w-[90%]">
+				<div class="bg-primary-gold/20 rounded-xl p-3">
+					<Icon name="ri:question-line" class="text-primary-gold text-3xl" />
+				</div>
+				<div class="block max-w-[90%] text-left">
 					<div class="w-full text-lg font-semibold">Ayúdame a elegir</div>
-					<div class="w-full text-sm">
+					<div class="w-full text-sm text-pretty">
 						Una evaluación estratégica para entender tu etapa actual, tus
 						riesgos y el paso exacto que necesitas dar.
 					</div>
 				</div>
-				<svg
-					class="ms-3 h-5 w-5 rtl:rotate-180"
-					aria-hidden="true"
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 14 10"
-				>
-					<path
-						stroke="currentColor"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-				</svg>
+
+				<Icon
+					name="ri:arrow-right-s-fill"
+					class="text-primary-gold ms-3 text-2xl transition-all delay-105 group-hover:translate-x-2 rtl:rotate-180 dark:text-white"
+				/>
 			</button>
 		</li>
 	</ul>

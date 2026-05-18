@@ -166,7 +166,7 @@ export default function NotificationsPopover({
 		const isPending = pendingIds.includes(notification.id);
 
 		return (
-			<div className="group/card flex gap-3 px-4 py-3 transition-colors hover:bg-neutral-900">
+			<div className="group/card hover:bg-white-50 flex gap-3 px-4 py-3 transition-colors dark:hover:bg-neutral-900">
 				<div className="relative h-fit shrink-0">
 					<Avatar className="h-10 w-10 border border-gray-200 dark:border-gray-700">
 						<AvatarImage
