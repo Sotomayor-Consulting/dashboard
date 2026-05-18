@@ -80,14 +80,14 @@ const errorMessage = !empresaId
 	) : (
 		<>
 			<div class="mx-5 mt-5">
-				<div class="mb-4 border-b border-neutral-200 dark:border-[#1f3443]">
+				<div class="">
 					<ul
-						class="-mb-px flex flex-wrap text-center text-sm font-medium"
+						class="mt-4 flex w-fit items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium shadow-sm shadow-gray-200/70 md:w-auto xl:inline-flex xl:text-sm dark:border-gray-700 dark:bg-black dark:shadow-none"
 						id="default-tab"
 						data-tabs-toggle="#default-tab-content"
 						role="tablist"
-						data-tabs-active-classes="text-primary-gold hover:text-primary-gold/80 dark:text-primary-gold dark:hover:text-primary-gold/80 border-primary-gold dark:border-primary-gold"
-						data-tabs-inactive-classes="dark:border-transparent text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 border-neutral-100 hover:border-neutral-300 dark:border-neutral-700 dark:hover:text-neutral-300"
+						data-tabs-active-classes="bg-gray-100 text-gray-900 shadow-sm dark:bg-neutral-900 dark:text-white"
+						data-tabs-inactive-classes="text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
 					>
 						{[
 							{
@@ -115,9 +115,9 @@ const errorMessage = !empresaId
 								icono: 'ri:upload-cloud-2-line',
 							},
 						].map((i) => (
-							<li class="me-2" role="presentation">
+							<li class="m-0" role="presentation">
 								<button
-									class="flex items-center gap-2 rounded-t-lg border-b-2 p-4"
+									class="link-moderate inline-flex w-full items-center gap-2 rounded-md px-3 py-2 transition-colors md:w-auto"
 									id={i.id}
 									data-tabs-target={`#${i.tabs}`}
 									type="button"
