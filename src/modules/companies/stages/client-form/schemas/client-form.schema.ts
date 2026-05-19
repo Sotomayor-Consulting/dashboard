@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import type { ClientFormData } from '../types';
 import {
 	activityRefinements,
 	activityStepBaseSchema,
@@ -64,16 +65,32 @@ const crossStepRefinements: ReadonlyArray<{
 	},
 ];
 
-export const clientFormSchema = [
-	...activityRefinements,
-	...crossStepRefinements,
-].reduce(
-	(schema, r) =>
-		schema.refine(r.check as (d: unknown) => boolean, {
-			message: r.message,
-			path: r.path,
-		}),
-	baseClientFormSchema as unknown as z.ZodTypeAny,
-);
+/**
+ * Schema tipado con Input (state mutable del form, permite null/incompleto)
+ * distinto de Output (resultado validado y estricto):
+ *
+ *   - Input  = `ClientFormData`        ← lo que recibe la validación desde RHF
+ *   - Output = `BaseClientFormInput`   ← lo que produce el schema tras validar
+ *
+ * En runtime el schema rechaza valores como `ingresosEEUU: null` (con su
+ * mensaje de error), pero a nivel de tipos el resolver debe aceptarlos
+ * porque el state del wizard sí los permite mientras el usuario no haya
+ * elegido. Esta separación Input/Output es la forma idiomática de modelar
+ * un wizard parcialmente lleno con react-hook-form + zod.
+ */
+export const clientFormSchema: z.ZodType<BaseClientFormInput, ClientFormData> =
+	[...activityRefinements, ...crossStepRefinements].reduce<
+		z.ZodType<BaseClientFormInput, ClientFormData>
+	>(
+		(schema, r) =>
+			schema.refine(r.check as (d: BaseClientFormInput) => boolean, {
+				message: r.message,
+				path: r.path,
+			}) as z.ZodType<BaseClientFormInput, ClientFormData>,
+		baseClientFormSchema as unknown as z.ZodType<
+			BaseClientFormInput,
+			ClientFormData
+		>,
+	);
 
 export type ClientFormInput = BaseClientFormInput;

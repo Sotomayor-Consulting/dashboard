@@ -45,36 +45,36 @@ export const activityRefinements: ReadonlyArray<{
 	message: string;
 	path: (string | number)[];
 }> = [
-	{
-		check: (d) => d.actividadNoEnLista || d.actividad.length > 0,
-		message: 'Selecciona una actividad o marca "no está en la lista"',
-		path: ['actividad'],
-	},
-	{
-		check: (d) => !d.actividadNoEnLista || d.descripcionActividad.length > 0,
-		message: 'Describe la actividad',
-		path: ['descripcionActividad'],
-	},
-	{
-		check: (d) =>
-			d.direccionOperativaEEUU !== 'si' ||
-			Boolean(d.direccion && d.ciudad && d.estado && d.codigoPostal),
-		message: 'Completa la dirección en EE. UU.',
-		path: ['direccion'],
-	},
-	{
-		check: (d) =>
-			d.direccionOperativaEEUU !== 'no' ||
-			Boolean(d.pais && d.direccionEmpresa && d.facturaServicioBasico),
-		message: 'Completa país, dirección y factura de servicio básico',
-		path: ['direccionEmpresa'],
-	},
-];
+		{
+			check: (d) => d.actividadNoEnLista || d.actividad.length > 0,
+			message: 'Selecciona una actividad o marca "no está en la lista"',
+			path: ['actividad'],
+		},
+		{
+			check: (d) => !d.actividadNoEnLista || d.descripcionActividad.length > 0,
+			message: 'Describe la actividad',
+			path: ['descripcionActividad'],
+		},
+		{
+			check: (d) =>
+				d.direccionOperativaEEUU !== 'si' ||
+				Boolean(d.direccion && d.ciudad && d.estado && d.codigoPostal),
+			message: 'Completa la dirección en EE. UU.',
+			path: ['direccion'],
+		},
+		{
+			check: (d) =>
+				d.direccionOperativaEEUU !== 'no' ||
+				Boolean(d.pais && d.direccionEmpresa && d.facturaServicioBasico),
+			message: 'Completa país, dirección y factura de servicio básico',
+			path: ['direccionEmpresa'],
+		},
+	];
 
 /** Schema usado para validar el Step 2 de forma aislada. */
 export const activityStepSchema = activityRefinements.reduce(
 	(schema, r) => schema.refine(r.check, { message: r.message, path: r.path }),
-	activityStepBaseSchema as unknown as z.ZodTypeAny,
+	activityStepBaseSchema
 );
 
 export type ActivityStepInput = z.infer<typeof activityStepBaseSchema>;

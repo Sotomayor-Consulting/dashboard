@@ -26,8 +26,11 @@ export function WizardHeader() {
 						<span>Datos seguros</span>
 					</div>
 					<div className="hidden items-center gap-1.5 sm:flex">
-						<Icon icon="ri:time-line" className="text-accent h-4 w-4" />
-						<span>~15 min</span>
+						<Icon
+							icon="ri:time-line"
+							className="text-muted-foreground h-4 w-4"
+						/>
+						<span>Tiempo estimado: ~15 min</span>
 					</div>
 				</div>
 			</div>

@@ -23,7 +23,16 @@ importers:
       '@emotion/css':
         specifier: ^11.13.5
         version: 11.13.5
+      '@fontsource-variable/caveat':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource-variable/dancing-script':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@fontsource-variable/geist':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/great-vibes':
         specifier: ^5.2.8
         version: 5.2.8
       '@hookform/resolvers':
@@ -167,6 +176,9 @@ importers:
       react-hook-form:
         specifier: ^7.76.0
         version: 7.76.0(react@19.2.4)
+      react-signature-pad-wrapper:
+        specifier: ^4.3.2
+        version: 4.3.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       shiki:
         specifier: ^0.14.7
         version: 0.14.7
@@ -743,8 +755,17 @@ packages:
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
 
+  '@fontsource-variable/caveat@5.2.8':
+    resolution: {integrity: sha512-Iv+G8xn0pKG7RtanBmYGMjIfkO819N13LXZBwmRVcgfJvJwKVom/v3KT9pwANXTSoUbPeRp228twRDK7hcabLw==}
+
+  '@fontsource-variable/dancing-script@5.2.8':
+    resolution: {integrity: sha512-K6Mkb5bn00WJTDsiKZ83p1hWZ3Q5U9YSH1nIp2ATknHi8ladevGGjIUQBs+LAgEr2y2W1XRV3VVuLsLVxH+G8g==}
+
   '@fontsource-variable/geist@5.2.8':
     resolution: {integrity: sha512-cJ6m9e+8MQ5dCYJsLylfZrgBh6KkG4bOLckB35Tr9J/EqdkEM6QllH5PxqP1dhTvFup+HtMRPuz9xOjxXJggxw==}
+
+  '@fontsource/great-vibes@5.2.8':
+    resolution: {integrity: sha512-/PATz436NGixjNaigierUpv50wfNv2UhAAijcCPkn4ynvl41x66TCLbXVSVfp4pth9gjWnGqgoj0lVIhHapAuw==}
 
   '@hono/node-server@1.19.11':
     resolution: {integrity: sha512-dr8/3zEaB+p0D2n/IUrlPF1HZm586qgJNXK1a9fhg/PzdtkK7Ksd5l312tJX2yBuALqDYBlG20QEbayqPyxn+g==}
@@ -3496,6 +3517,10 @@ packages:
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
 
+  loose-envify@1.4.0:
+    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
+    hasBin: true
+
   lop@0.4.2:
     resolution: {integrity: sha512-RefILVDQ4DKoRZsJ4Pj22TxE3omDO47yFpkIBoDKzkqPRISs5U1cnAdg/5583YPkWPaLIYHOKRMQSvjFsO26cw==}
 
@@ -4099,6 +4124,9 @@ packages:
     resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
     engines: {node: '>= 6'}
 
+  prop-types@15.8.1:
+    resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
+
   property-information@7.1.0:
     resolution: {integrity: sha512-TwEZ+X+yCJmYfL7TPUOcvBZ4QfoT5YenQiJuX//0th53DE6w0xxLEtfK3iyryQFddXuvkIk51EEgrJQ0WJkOmQ==}
 
@@ -4158,6 +4186,9 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
 
+  react-is@16.13.1:
+    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
+
   react-refresh@0.18.0:
     resolution: {integrity: sha512-QgT5//D3jfjJb6Gsjxv0Slpj23ip+HtOpnNgnb2S5zU3CB26G/IDPGoy4RJB42wzFE46DRsstbW6tKHoKbhAxw==}
     engines: {node: '>=0.10.0'}
@@ -4181,6 +4212,12 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  react-signature-pad-wrapper@4.3.2:
+    resolution: {integrity: sha512-hs1xyRSzzdhX0p3YTSOjPt91ORM9VHLP75aZCp4V1CfO7+3J8l6q4OdLirD+WY2xT/q2aglNmSdtap1K4hTlDw==}
+    peerDependencies:
+      react: 17 - 19
+      react-dom: 17 - 19
 
   react-style-singleton@2.2.3:
     resolution: {integrity: sha512-b6jSvxvVnyptAiLjbkWLE/lOnR4lfTtDAl+eUC7RZy+QQWc6wRzIV2CE6xBuMmDxc2qIihtDCZD5NPOFl7fRBQ==}
@@ -4419,6 +4456,9 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
+  signature_pad@5.1.3:
+    resolution: {integrity: sha512-zyxW5vuJVnQdGcU+kAj9FYl7WaAunY3kA5S7mPg0xJiujL9+sPAWfSQHS5tXaJXDUa4FuZeKhfdCDQ6K3wfkpQ==}
+
   simple-datatables@10.2.0:
     resolution: {integrity: sha512-Lq3k5JZ4WXT0G0dhIAUfYc3M+GRs9y8U15wfbF7i67/rPm8wa43Iyrac+yP+lXQVTy1MPCPvxvZ44P9N4k0OhQ==}
 
@@ -4621,6 +4661,10 @@ packages:
 
   text-decoder@1.2.7:
     resolution: {integrity: sha512-vlLytXkeP4xvEq2otHeJfSQIRyWxo/oZGEbXrtEEF9Hnmrdly59sUbzZ/QgyWuLYHctCHxFF4tRQZNQ9k60ExQ==}
+
+  throttle-debounce@5.0.2:
+    resolution: {integrity: sha512-B71/4oyj61iNH0KeCamLuE2rmKuTO5byTOSVwECM5FA7TiAiAW+UqTKZ9ERueC4qvgSttUhdmq1mXC3kJqGX7A==}
+    engines: {node: '>=12.22'}
 
   tiny-inflate@1.0.3:
     resolution: {integrity: sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==}
@@ -5749,7 +5793,13 @@ snapshots:
 
   '@floating-ui/utils@0.2.11': {}
 
+  '@fontsource-variable/caveat@5.2.8': {}
+
+  '@fontsource-variable/dancing-script@5.2.8': {}
+
   '@fontsource-variable/geist@5.2.8': {}
+
+  '@fontsource/great-vibes@5.2.8': {}
 
   '@hono/node-server@1.19.11(hono@4.12.16)':
     dependencies:
@@ -8394,6 +8444,10 @@ snapshots:
 
   longest-streak@3.1.0: {}
 
+  loose-envify@1.4.0:
+    dependencies:
+      js-tokens: 4.0.0
+
   lop@0.4.2:
     dependencies:
       duck: 0.1.12
@@ -9131,6 +9185,12 @@ snapshots:
       kleur: 3.0.3
       sisteransi: 1.0.5
 
+  prop-types@15.8.1:
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+      react-is: 16.13.1
+
   property-information@7.1.0: {}
 
   proxy-addr@2.0.7:
@@ -9187,6 +9247,8 @@ snapshots:
     dependencies:
       react: 19.2.4
 
+  react-is@16.13.1: {}
+
   react-refresh@0.18.0: {}
 
   react-remove-scroll-bar@2.3.8(@types/react@19.2.14)(react@19.2.4):
@@ -9207,6 +9269,14 @@ snapshots:
       use-sidecar: 1.1.3(@types/react@19.2.14)(react@19.2.4)
     optionalDependencies:
       '@types/react': 19.2.14
+
+  react-signature-pad-wrapper@4.3.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      prop-types: 15.8.1
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+      signature_pad: 5.1.3
+      throttle-debounce: 5.0.2
 
   react-style-singleton@2.2.3(@types/react@19.2.14)(react@19.2.4):
     dependencies:
@@ -9605,6 +9675,8 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
+  signature_pad@5.1.3: {}
+
   simple-datatables@10.2.0:
     dependencies:
       dayjs: 1.11.20
@@ -9827,6 +9899,8 @@ snapshots:
       b4a: 1.8.0
     transitivePeerDependencies:
       - react-native-b4a
+
+  throttle-debounce@5.0.2: {}
 
   tiny-inflate@1.0.3: {}
 
