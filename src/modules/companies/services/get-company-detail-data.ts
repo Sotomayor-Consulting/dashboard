@@ -27,7 +27,7 @@ export const getCompanyDetailData = async (
 		empresa: empresa as CompanyDetailData['empresa'],
 		socios: (socios ?? []) as CompanyDetailData['socios'],
 		managers: (managers ?? []) as CompanyDetailData['managers'],
-		actividades: (actividades ?? []) as CompanyDetailData['actividades'],
+		actividades: (actividades ?? []) as unknown as CompanyDetailData['actividades'],
 		paises: (paises ?? []) as CompanyDetailData['paises'],
 		state: (estados ?? []) as CompanyDetailData['state'],
 	};

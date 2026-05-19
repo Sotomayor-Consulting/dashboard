@@ -28,9 +28,9 @@ const { data: paises } = await supabase
 	.order('nombre_paises');
 
 const { data: actividades } = await supabase
-	.from('actividades')
-	.select('Actividad')
-	.order('Actividad');
+	.from('activity')
+	.select('id, irs_code, name_es')
+	.order('name_es');
 
 const managers = formularios?.data_json?.Managers || [];
 ---
@@ -203,27 +203,27 @@ const managers = formularios?.data_json?.Managers || [];
 									Actividad
 								</label>
 								<select
-									name="actividad"
+									name="activity_id"
 									class="dark:bg-black-800 block w-full rounded-lg border border-neutral-300 bg-neutral-50 p-2.5 text-sm text-neutral-900 focus:border-[#8c681d] focus:ring-[#8c681d] dark:border-neutral-600 dark:text-white dark:placeholder-neutral-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
 								>
 									<option
 										value=""
 										disabled
 										hidden
-										selected={formularios?.data_json?.Actividad == null}
+										selected={formularios?.data_json?.activity_id == null}
 									>
 										Seleccione una opción
 									</option>
 
 									{actividades?.map((actividad) => (
 										<option
-											value={actividad.Actividad}
+											value={actividad.id}
 											selected={
-												formularios?.data_json?.Actividad ===
-												actividad.Actividad
+												formularios?.data_json?.activity_id ===
+												actividad.id
 											}
 										>
-											{actividad.Actividad}
+											{actividad.irs_code} — {actividad.name_es}
 										</option>
 									))}
 								</select>

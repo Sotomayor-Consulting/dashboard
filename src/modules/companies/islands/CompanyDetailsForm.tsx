@@ -160,7 +160,7 @@ export default function CompanyDetailsForm({
 													<SelectGroup>
 														{actividades.map((a) => (
 															<SelectItem key={a.id} value={String(a.id)}>
-																{a.Actividad}
+																{a.irs_code} — {a.name_es}
 															</SelectItem>
 														))}
 													</SelectGroup>

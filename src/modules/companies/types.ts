@@ -120,7 +120,14 @@ export interface ManagerItem {
 
 export interface ActividadItem {
 	id: number;
-	Actividad: string;
+	irs_code: string;
+	name_es: string;
+	name_en: string;
+	category: {
+		id: number;
+		name: string;
+		sector?: { id: number; name: string }
+	}
 }
 
 

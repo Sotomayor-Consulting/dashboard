@@ -409,7 +409,9 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 				),
 				actividad_no_listada:
 					asString(approved_data?.actividad_en_lista) || 'Si está en la lista',
-				actividad: asString(approved_data?.Actividad) || null,
+				activity_id: approved_data?.activity_id
+						? Number(approved_data.activity_id)
+						: null,
 				forma_administracion:
 					asString(approved_data?.forma_administracion) || null,
 				forma_tributacion: asString(approved_data?.forma_tributacion) || null,
