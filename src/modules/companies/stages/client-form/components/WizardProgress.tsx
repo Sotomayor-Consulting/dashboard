@@ -40,7 +40,7 @@ export function WizardProgress({ currentStep, onStepClick }: Props) {
 								className={cn(
 									'flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300',
 									isCompleted
-										? 'bg-accent border-accent hover:bg-accent/90 cursor-pointer'
+										? 'bg-accent border-accent cursor-pointer hover:bg-black/20'
 										: isCurrent
 											? 'bg-card border-accent shadow-md'
 											: 'bg-card border-border cursor-not-allowed',

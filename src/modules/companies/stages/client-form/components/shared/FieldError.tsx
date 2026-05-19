@@ -1,8 +1,10 @@
 import { cn } from '@components/utils';
 
 interface Props {
-	message?: string;
-	className?: string;
+	// Con `exactOptionalPropertyTypes` activado, el `| undefined` explícito
+	// permite pasar el resultado directo de `errors.foo?.message` sin asserts.
+	message?: string | undefined;
+	className?: string | undefined;
 }
 
 export function FieldError({ message, className }: Props) {
