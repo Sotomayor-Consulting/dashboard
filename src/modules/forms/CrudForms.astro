@@ -25,81 +25,88 @@ const actionBtnClass =
 ---
 
 <Alerta />
-<div>
-	<div
-		class="block w-full items-center justify-between p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
-	>
-		<CrudPageHeader title="Lista de Formularios creados">
-			<Tab
-				slot="tabs"
-				buttons={[
-					{
-						label: 'Formularios',
-						icon: 'ri:folder-6-line',
-						active: true,
-						link: `/forms/`,
-					},
-					{
-						label: 'Formularios enviados',
-						icon: 'ri:contract-line',
-						active: false,
-						link: `/forms/submitted/`,
-					},
-					{
-						label: 'Formularios por revisar',
-						icon: 'ri:file-check-line',
-						active: false,
-						link: `/admin/verification/`,
-					},
-				]}
+<section class="space-y-4 p-4 lg:p-6">
+	<div class="p-4">
+		<div
+			class="block w-full items-center justify-between sm:flex lg:mt-1.5 dark:border-gray-700"
+		>
+			<CrudPageHeader
+				title="Lista de Formularios creados"
+				descripcion="Formularios"
 			/>
-			<button
-				slot="actions"
-				id="createProductButton"
-				class={actionBtnClass}
-				type="button"
-				data-drawer-target="drawer-create-product-default"
-				data-drawer-show="drawer-create-product-default"
-				aria-controls="drawer-create-product-default"
-				data-drawer-placement="right"
-			>
-				<svg
-					class="mr-2 -ml-1 h-5 w-5"
-					fill="currentColor"
-					viewBox="0 0 20 20"
-					xmlns="http://www.w3.org/2000/svg"
-					><path
-						fill-rule="evenodd"
-						d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-						clip-rule="evenodd"></path></svg
-				>
-				Añadir formulario
-			</button>
-			<a
-				slot="actions"
-				href="https://surveyjs.io/create-free-survey"
-				target="_blank"
-				class={actionBtnClass}
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="mr-2 -ml-1 h-5 w-5"
-					viewBox="0 0 24 24"
-					><path
-						fill="currentColor"
-						d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6v2H5v12h12v-6zM13 3v2h4.586l-7.793 7.793l1.414 1.414L19 6.414V11h2V3z"
-					></path></svg
-				>
-				Construye un formulario
-			</a>
-		</CrudPageHeader>
-	</div>
 
-	<div class="flex flex-col">
-		<div class="overflow-x-auto">
-			<div class="inline-block min-w-full align-middle">
-				<div class="overflow-hidden shadow">
-					<FormsCrudTable data={servicio ?? []} client:load />
+			<div>
+				<button
+					slot="actions"
+					id="createProductButton"
+					class={actionBtnClass}
+					type="button"
+					data-drawer-target="drawer-create-product-default"
+					data-drawer-show="drawer-create-product-default"
+					aria-controls="drawer-create-product-default"
+					data-drawer-placement="right"
+				>
+					<svg
+						class="mr-2 -ml-1 h-5 w-5"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+						xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+							clip-rule="evenodd"></path></svg
+					>
+					Añadir formulario
+				</button>
+				<a
+					slot="actions"
+					href="https://surveyjs.io/create-free-survey"
+					target="_blank"
+					class={actionBtnClass}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="mr-2 -ml-1 h-5 w-5"
+						viewBox="0 0 24 24"
+						><path
+							fill="currentColor"
+							d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6v2H5v12h12v-6zM13 3v2h4.586l-7.793 7.793l1.414 1.414L19 6.414V11h2V3z"
+						></path></svg
+					>
+					Construye un formulario
+				</a>
+			</div>
+		</div>
+		<Tab
+			slot="tabs"
+			buttons={[
+				{
+					label: 'Formularios',
+					icon: 'ri:folder-6-line',
+					active: true,
+					link: `/forms/`,
+				},
+				{
+					label: 'Formularios enviados',
+					icon: 'ri:contract-line',
+					active: false,
+					link: `/forms/submitted/`,
+				},
+				{
+					label: 'Formularios por revisar',
+					icon: 'ri:file-check-line',
+					active: false,
+					link: `/admin/verification/`,
+				},
+			]}
+		/>
+
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
+					<div class="overflow-hidden shadow">
+						<FormsCrudTable data={servicio ?? []} client:load />
+					</div>
 				</div>
 			</div>
 		</div>
@@ -538,4 +545,4 @@ const actionBtnClass =
 		document.addEventListener('DOMContentLoaded', bindCopyIconButton);
 		document.addEventListener('astro:page-load', bindCopyIconButton);
 	</script>
-</div>
+</section>

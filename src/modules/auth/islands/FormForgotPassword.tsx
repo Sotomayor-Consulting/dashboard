@@ -27,20 +27,20 @@ export default function FormForgotPassword() {
 
 	return (
 		<div className="mx-auto flex w-full flex-col items-center justify-center px-6 pt-10">
-			<div className="dark:bg-black-900 w-full max-w-xl space-y-8 rounded-lg bg-gray-200 p-6 shadow sm:p-8">
+			<div className="w-full max-w-xl space-y-8 rounded-lg bg-gray-200 p-6 shadow sm:p-8 dark:bg-black">
 				<a
 					href="/"
 					className="mb-8 flex items-center justify-center text-2xl font-semibold lg:mb-10 dark:text-white"
 				>
 					<img
-						src="/logo-en-blanco.svg"
+						src="/src/icons/logo-sotomayor-consulting-white.svg"
 						alt="Sotomayor Consulting"
-						className="mr-4 hidden h-9 dark:block"
+						className="mr-4 hidden h-10 dark:block"
 					/>
 					<img
-						src="/logo-en-negro.svg"
+						src="/src/icons/logo-sotomayor-consulting-black.svg"
 						alt="Sotomayor Consulting"
-						className="mr-4 block h-9 dark:hidden"
+						className="mr-4 block h-10 invert dark:hidden"
 					/>
 				</a>
 
@@ -110,9 +110,7 @@ export default function FormForgotPassword() {
 						</button>
 					</div>
 
-					{state.error && (
-						<p className="text-sm text-red-500">{state.error}</p>
-					)}
+					{state.error && <p className="text-sm text-red-500">{state.error}</p>}
 
 					<div className="text-sm font-medium text-gray-500 dark:text-gray-400">
 						¿Recordaste tu contraseña?{' '}

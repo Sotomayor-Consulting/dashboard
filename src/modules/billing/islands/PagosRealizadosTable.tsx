@@ -203,8 +203,8 @@ export default function PagosRealizadosTable({
 	});
 
 	return (
-		<div className="mt-10 space-y-4">
-			<div className="flex items-center gap-2">
+		<div className="space-y-4">
+			<div className="mt-2 flex items-center gap-2">
 				<Input
 					placeholder="Buscar por empresa o servicio..."
 					value={

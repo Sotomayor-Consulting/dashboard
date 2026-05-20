@@ -78,24 +78,13 @@ export const menuItems: MenuItem[] = [
 		colors: 'text-violet-500'
 	},
 	{
-		id: 'menu-vista-de-pagos',
-		label: 'Pagos',
-		href: '/admin/payments/',
-		tooltip: 'verifica y gestiona los pagos realizados por los clientes',
-		roles: ['admin'],
-		svgname: 'ri:coins-line',
-		sequence: 120,
-		group: 'Admin',
-		colors: 'text-violet-500'
-	},
-	{
 		id: 'menu-notificaciones-a-usuarios',
 		label: 'Notifications',
 		href: '/admin/notifications/',
 		tooltip: 'Notifica a los usuarios con mensajes personalizados',
 		roles: ['admin'],
 		svgname: 'ri:chat-ai-line',
-		sequence: 130,
+		sequence: 120,
 		group: 'Admin',
 		colors: 'text-violet-500'
 	},
@@ -106,7 +95,7 @@ export const menuItems: MenuItem[] = [
 		tooltip: 'Gestionar servicios',
 		roles: ['admin'],
 		svgname: 'ri:function-add-line',
-		sequence: 140,
+		sequence: 130,
 		group: 'Admin',
 		colors: 'text-violet-500'
 	},
@@ -117,6 +106,17 @@ export const menuItems: MenuItem[] = [
 		tooltip: 'Crea y gestiona formularios',
 		roles: ['admin'],
 		svgname: 'ri:file-edit-line',
+		sequence: 140,
+		group: 'Admin',
+		colors: 'text-violet-500'
+	},
+	{
+		id: 'menu-vista-de-pagos',
+		label: 'Pagos',
+		href: '/admin/payments/',
+		tooltip: 'verifica y gestiona los pagos realizados por los clientes',
+		roles: ['admin'],
+		svgname: 'ri:coins-line',
 		sequence: 150,
 		group: 'Admin',
 		colors: 'text-violet-500'

@@ -95,20 +95,20 @@ export default function FormSignUp() {
 	return (
 		<div className="pt:mt-0 mx-auto mb-0 grid w-full grid-cols-1 gap-5 px-6 pt-0 lg:grid-cols-2">
 			<div className="pt:mt-0 mx-auto flex w-full flex-col items-center justify-center px-4 pt-0 sm:px-6">
-				<div className="w-full max-w-xl space-y-7 rounded-2xl border border-slate-200/70 bg-white/95 p-6 shadow-xl shadow-slate-200/40 backdrop-blur-sm sm:p-8 dark:border-slate-700/60 dark:bg-[#020817]/90 dark:shadow-black/30">
+				<div className="w-full max-w-xl space-y-7 rounded-2xl border border-slate-200/70 bg-white/95 p-6 shadow-xl shadow-slate-200/40 backdrop-blur-sm sm:p-8 dark:border-slate-700/60 dark:bg-black dark:shadow-black/30">
 					<a
 						href="/sign-up"
 						className="mb-8 flex items-center justify-center text-2xl font-semibold lg:mb-10 dark:text-white"
 					>
 						<img
-							src="/logo-en-blanco.svg"
+							src="/src/icons/logo-sotomayor-consulting-black.svg"
 							alt="Sotomayor Consulting"
-							className="mr-4 hidden h-9 dark:block"
+							className="mr-4 hidden h-10 dark:block"
 						/>
 						<img
-							src="/logo-en-negro.svg"
+							src="/src/icons/logo-sotomayor-consulting-black.svg"
 							alt="Sotomayor Consulting"
-							className="mr-4 block h-9 dark:hidden"
+							className="mr-4 block h-10 invert dark:hidden"
 						/>
 					</a>
 
@@ -261,7 +261,7 @@ export default function FormSignUp() {
 					<div>
 						<div className="inline-flex w-full items-center justify-center">
 							<hr className="my-5 h-px w-11/12 border-0 bg-slate-300 dark:bg-slate-700" />
-							<span className="absolute z-10 bg-white px-5 font-medium text-slate-600 dark:bg-[#020817] dark:text-slate-300">
+							<span className="absolute z-10 bg-white px-5 font-medium text-slate-600 dark:bg-black dark:text-slate-300">
 								o
 							</span>
 						</div>
