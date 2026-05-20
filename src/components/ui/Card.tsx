@@ -2,29 +2,17 @@ import * as React from 'react';
 
 import { cn } from '@components/utils';
 
-type CardColor = 'default' | 'brand';
-
 function Card({
 	className,
-	color = 'default',
 	size = 'default',
 	...props
-}: React.ComponentProps<'div'> & {
-	color?: CardColor;
-	size?: 'default' | 'sm';
-}) {
-	const colorClassName =
-		color === 'brand'
-			? 'text-card-foreground to-black-600 from-black-900 border-gray-200 bg-white dark:border-gray-700 dark:bg-linear-to-tr dark:shadow-none'
-			: 'bg-card text-card-foreground border-border';
-
+}: React.ComponentProps<'div'> & { size?: 'default' | 'sm' }) {
 	return (
 		<div
 			data-slot="card"
 			data-size={size}
 			className={cn(
-				'group/card text-card-foreground ring-foreground/10 flex flex-col gap-4 overflow-hidden rounded-xl border border-gray-200 bg-white px-5 py-10 text-sm ring-1 has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0 dark:border-gray-700 dark:bg-transparent dark:shadow-none *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl',
-				colorClassName,
+				'group/card bg-card text-card-foreground ring-foreground/10 flex flex-col gap-4 overflow-hidden rounded-xl py-4 text-sm ring-1 has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl',
 				className,
 			)}
 			{...props}
