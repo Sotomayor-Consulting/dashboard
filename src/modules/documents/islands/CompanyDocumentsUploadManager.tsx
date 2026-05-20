@@ -1,6 +1,6 @@
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
-import DocumentDropzoneField from '@components/forms/DocumentDropzoneField';
+import { DropzoneField } from '@components/ui/DropzoneField';
 import { Field, FieldGroup, FieldLabel } from '@components/ui/Field';
 import {
 	Select,
@@ -179,11 +179,12 @@ export default function CompanyDocumentsUploadManager({
 					<FieldGroup className="grid gap-4 md:grid-cols-2">
 						<Field>
 							<FieldLabel>Archivo</FieldLabel>
-							<DocumentDropzoneField
+							<DropzoneField
 								name="file"
 								id="file"
 								required
-								maxSizeMb={15}
+								maxFileSizeMb={15}
+								maxFiles={1}
 							/>
 						</Field>
 
