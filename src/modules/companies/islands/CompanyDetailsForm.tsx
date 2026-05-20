@@ -1,45 +1,75 @@
 import * as React from 'react';
-import {
-	Popover,
-	PopoverTrigger,
-	PopoverContent,
-} from '@components/ui/Popover';
-import {
-	Building2Icon,
-	MapPinHouseIcon,
-	UsersIcon,
-	ChevronDownIcon,
-} from 'lucide-react';
 import { format } from 'date-fns';
+import { Building2Icon, MapPinHouseIcon, UsersIcon } from 'lucide-react';
 import { Button } from '@components/ui/Button';
-import { CardContent, CardFooter } from '@components/ui/Card';
-import { Field, FieldGroup, FieldLabel } from '@components/ui/Field';
-import { Input } from '@components/ui/Input';
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@components/ui/Select';
+import { CardContent } from '@components/ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/Tabs';
-import { Textarea } from '@components/ui/Textarea';
 import CompanyAddressesSection from '../components/CompanyAddressesSection';
 import CompanyMembersCrudSection from '../components/CompanyMembersCrudSection';
+import CompanyManagersCrudSection from '../components/CompanyManagersCrudSection';
 import { useCompanyAddresses } from '../hooks/use-company-addresses';
 import type {
 	ActividadItem,
+	CompanyAddressItem,
+	CompanyMemberItem,
 	EmpresaDetail,
 	ManagerItem,
 	SocioItem,
 	State,
 } from '../types';
-import { Calendar } from '@components/ui/Calendar';
+import { mockCompanyMembers } from '../mock-company-members';
+import { mockCompanyManagers } from '../mocks/managers.mock';
+import CompanyAccountingSection from './company-details/sections/CompanyAccountingSection';
+import CompanyGeneralSection from './company-details/sections/CompanyGeneralSection';
+import CompanyStructureSection from './company-details/sections/CompanyStructureSection';
+
+const mockMembersFallback: CompanyMemberItem[] = mockCompanyMembers.map(
+	(member, index) => ({
+		id: index + 1,
+		company_id: member.id_empresa,
+		full_name: member.nombre_de_socio,
+		email: member.correo,
+		member_type: member.tipo_de_socio,
+		country_nationality_id: null,
+		marital_status: member.estado_civil,
+		is_us_tax_resident:
+			member.residente_fiscal === null
+				? null
+				: member.residente_fiscal.toLowerCase() === 'si',
+		passport_number: member.numero_de_pasaporte,
+		ssn: member.numero_de_seguro_social,
+		itin: member.numero_itin,
+		is_member: true,
+		is_manager: member.roles?.some((role) =>
+			role.toLowerCase().includes('manager'),
+		)
+			? true
+			: false,
+		percentage: member.porcentaje,
+		is_active: true,
+		deleted_at: null,
+		tax_address: {
+			id: index + 1,
+			company_member_id: index + 1,
+			type: 'tax',
+			line1: member.direccion_planilla ?? '',
+			line2: null,
+			city: null,
+			state_id: null,
+			state: null,
+			country_id: null,
+			zip: null,
+			is_primary: true,
+			deleted_at: null,
+		},
+	}),
+);
 
 interface Props {
 	empresa: EmpresaDetail;
 	socios: SocioItem[];
+	addresses: CompanyAddressItem[];
+	companyMembers: CompanyMemberItem[];
 	managers: ManagerItem[];
 	actividades: ActividadItem[];
 	canEditDetails: boolean;
@@ -49,7 +79,9 @@ interface Props {
 
 export default function CompanyDetailsForm({
 	empresa,
-	socios,
+	addresses,
+	companyMembers,
+	managers,
 	actividades,
 	canEditDetails,
 	backPath,
@@ -62,7 +94,16 @@ export default function CompanyDetailsForm({
 	);
 
 	const hasUsIncome = Boolean(empresa.Obtendra_ingresos_desde_eeuu);
-	const addressesState = useCompanyAddresses(empresa);
+	const addressesState = useCompanyAddresses(
+		addresses,
+		empresa.empresa_incorporacion_id,
+	);
+	const membersToRender =
+		companyMembers.length > 0 ? companyMembers : mockMembersFallback;
+	const managersToRender = managers.length > 0 ? managers : mockCompanyManagers;
+	const isManagerManaged = empresa.forma_administracion === 'Manager-Managed';
+	const showManagersTab = true;
+
 	const initialStateRegistrationDate = React.useMemo(() => {
 		const value =
 			(
@@ -99,7 +140,7 @@ export default function CompanyDetailsForm({
 		<section>
 			<CardContent className="p-0">
 				{!canEditDetails && (
-					<div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 text-sm text-blue-900 dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-100">
+					<div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-100">
 						Solo admin/gerencia puede editar en esta fase.
 					</div>
 				)}
@@ -107,7 +148,7 @@ export default function CompanyDetailsForm({
 				<form
 					action={`/api/incorporations/update-details?empresa=${encodeURIComponent(empresa.empresa_incorporacion_id)}&back=${encodeURIComponent(backPath)}`}
 					method="post"
-					className="space-y-4"
+					className="flex flex-col gap-4"
 				>
 					<input
 						type="hidden"
@@ -147,272 +188,51 @@ export default function CompanyDetailsForm({
 								<UsersIcon data-icon="inline-start" />
 								Socios
 							</TabsTrigger>
+							{showManagersTab && (
+								<TabsTrigger
+									value="managers"
+									className="group-data-vertical/tabs:w-full"
+								>
+									<UsersIcon data-icon="inline-start" />
+									Managers
+								</TabsTrigger>
+							)}
 						</TabsList>
 
 						<div className="min-w-0">
 							<TabsContent
 								value="informacion"
-								className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+								className="gap-4 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
 							>
-								<section className="space-y-5">
-									<h3 className="mb-3 text-sm font-semibold">General</h3>
-									<div className="space-y-2">
-										<FieldLabel
-											htmlFor="nombre_1"
-											className="text-sm font-medium"
-										>
-											Opciones de nombre
-										</FieldLabel>
-										<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-											<Input
-												id="nombre_1"
-												name="nombre_1"
-												placeholder="Primera opcion"
-												defaultValue={empresa.nombre_1 ?? ''}
-											/>
+								<CompanyGeneralSection
+									empresa={empresa}
+									canEditDetails={canEditDetails}
+									states={states}
+									actividades={actividades}
+									stateId={stateId}
+									setStateId={setStateId}
+									open={open}
+									setOpen={setOpen}
+									date={date}
+									handleSelectDate={handleSelectDate}
+								/>
 
-											<Input
-												id="nombre_2"
-												name="nombre_2"
-												placeholder="Segunda opcion"
-												defaultValue={empresa.nombre_2 ?? ''}
-											/>
+								<CompanyAccountingSection
+									empresa={empresa}
+									canEditDetails={canEditDetails}
+									hasUsIncome={hasUsIncome}
+								/>
 
-											<Input
-												id="nombre_3"
-												name="nombre_3"
-												placeholder="Tercera opcion"
-												defaultValue={empresa.nombre_3 ?? ''}
-											/>
-										</div>
-									</div>
+								<CompanyStructureSection
+									empresa={empresa}
+									canEditDetails={canEditDetails}
+									isManagerManaged={isManagerManaged}
+								/>
 
-									{/* Datos de registro estatal */}
-									<FieldGroup className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-										<Field data-disabled={!canEditDetails}>
-											<FieldLabel htmlFor="legal_name">
-												Nombre principal
-											</FieldLabel>
-											<Input
-												id="legal_name"
-												name="legal_name"
-												defaultValue={
-													(empresa as unknown as { legal_name?: string | null })
-														.legal_name ?? ''
-												}
-												disabled={!canEditDetails}
-											/>
-										</Field>
-										<Field data-disabled={!canEditDetails}>
-											<FieldLabel htmlFor="state_id">Jurisdicción</FieldLabel>
-											<Select
-												name="state_id"
-												value={stateId}
-												onValueChange={(value) => setStateId(value ?? '')}
-												disabled={!canEditDetails}
-											>
-												<SelectTrigger id="state_id" className="w-full">
-													<SelectValue placeholder="Seleccione" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectGroup>
-														{states.map((state) => (
-															<SelectItem
-																key={String(state.id)}
-																value={String(state.id)}
-															>
-																{state.name ?? ''}
-															</SelectItem>
-														))}
-													</SelectGroup>
-												</SelectContent>
-											</Select>
-										</Field>
-										<Field
-											data-disabled={!canEditDetails}
-											className="md:col-span-2 xl:col-span-1"
-										>
-											<FieldLabel htmlFor="state_registration_date">
-												Fecha de registro estatal
-											</FieldLabel>
-											<Popover open={open} onOpenChange={setOpen}>
-												<PopoverTrigger
-													render={
-														<Button
-															type="button"
-															variant="outline"
-															id="state_registration_date"
-															disabled={!canEditDetails}
-															data-empty={!date}
-															className="data-[empty=true]:text-muted-foreground w-full justify-between"
-														/>
-													}
-												>
-													{date ? format(date, 'dd/MM/yyyy') : 'Seleccione'}
-													<ChevronDownIcon data-icon="inline-end" />
-												</PopoverTrigger>
-												<PopoverContent
-													align="start"
-													className="w-auto overflow-hidden p-0"
-												>
-													<Calendar
-														mode="single"
-														selected={date}
-														onSelect={handleSelectDate}
-													/>
-												</PopoverContent>
-											</Popover>
-										</Field>
-									</FieldGroup>
-									{/* Actividad de empresa */}
-									<div className="space-y-4">
-										<div className="space-y-2">
-											<FieldLabel htmlFor="activity_id">Actividad</FieldLabel>
-											<Select
-												name="activity_id"
-												defaultValue={
-													empresa.activity_id ? String(empresa.activity_id) : ''
-												}
-												disabled={!canEditDetails}
-											>
-												<SelectTrigger id="activity_id" className="w-full">
-													<SelectValue placeholder="Seleccione" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectGroup>
-														{actividades.map((a) => (
-															<SelectItem key={a.id} value={String(a.id)}>
-																{a.irs_code} — {a.name_es}
-															</SelectItem>
-														))}
-													</SelectGroup>
-												</SelectContent>
-											</Select>
-										</div>
-										<div className="space-y-2">
-											<FieldLabel htmlFor="activity_description">
-												Descripcion de empresa
-											</FieldLabel>
-											<Textarea
-												id="activity_description"
-												name="activity_description"
-												defaultValue={
-													empresa.activity_description ??
-													empresa.descripcion_empresa ??
-													''
-												}
-												disabled={!canEditDetails}
-												rows={2}
-												className="my-0"
-											/>
-										</div>
-									</div>
-								</section>
-								<section className="mt-5 border-t border-gray-200 pt-5 dark:border-gray-700">
-									<h3 className="mb-3 text-sm font-semibold">Contable</h3>
-									<FieldGroup className="grid gap-4 md:grid-cols-2">
-										<Field>
-											<FieldLabel htmlFor="forma_tributacion">
-												Forma de tributacion
-											</FieldLabel>
-											<Select
-												name="forma_tributacion"
-												defaultValue={empresa.forma_tributacion ?? ''}
-												disabled={!canEditDetails}
-											>
-												<SelectTrigger
-													id="forma_tributacion"
-													className="w-full"
-												>
-													<SelectValue placeholder="Seleccione" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectGroup>
-														<SelectItem value="Entidad de paso">
-															Entidad de paso
-														</SelectItem>
-														<SelectItem value="Corporación">
-															Corporacion
-														</SelectItem>
-													</SelectGroup>
-												</SelectContent>
-											</Select>
-										</Field>
-										<Field>
-											<FieldLabel htmlFor="obtendra_ingresos_desde_eeuu">
-												Ingresos en Estados Unidos
-											</FieldLabel>
-											<label className="mt-2 inline-flex items-center gap-2 text-sm">
-												<input
-													id="obtendra_ingresos_desde_eeuu"
-													name="obtendra_ingresos_desde_eeuu"
-													type="checkbox"
-													defaultChecked={hasUsIncome}
-													disabled={!canEditDetails}
-													className="size-4 rounded border-gray-300"
-												/>
-												<span>
-													La empresa obtiene ingresos de fuente americana
-												</span>
-											</label>
-										</Field>
-									</FieldGroup>
-								</section>
-
-								<section className="mt-5 border-t border-gray-200 pt-5 dark:border-gray-700">
-									<h3 className="mb-3 text-sm font-semibold">Estructura</h3>
-									<FieldGroup className="grid gap-4 md:grid-cols-2">
-										<Field>
-											<FieldLabel htmlFor="forma_administracion">
-												Forma de administrar
-											</FieldLabel>
-											<Select
-												name="forma_administracion"
-												defaultValue={empresa.forma_administracion ?? ''}
-												disabled={!canEditDetails}
-											>
-												<SelectTrigger
-													id="forma_administracion"
-													className="w-full"
-												>
-													<SelectValue placeholder="Seleccione" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectGroup>
-														<SelectItem value="Member-Managed">
-															Member-Managed
-														</SelectItem>
-														<SelectItem value="Manager-Managed">
-															Manager-Managed
-														</SelectItem>
-													</SelectGroup>
-												</SelectContent>
-											</Select>
-										</Field>
-										<Field>
-											<FieldLabel htmlFor="informacion_miembros">
-												Informacion de miembros
-											</FieldLabel>
-											<Select
-												name="informacion_miembros"
-												defaultValue={empresa.informacion_miembros ?? ''}
-												disabled={!canEditDetails}
-											>
-												<SelectTrigger
-													id="informacion_miembros"
-													className="w-full"
-												>
-													<SelectValue placeholder="Seleccione" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectGroup>
-														<SelectItem value="Pública">Pública</SelectItem>
-														<SelectItem value="Privada">Privada</SelectItem>
-													</SelectGroup>
-												</SelectContent>
-											</Select>
-										</Field>
-									</FieldGroup>
+								<section className="flex justify-end border-gray-200 pt-5 dark:border-gray-700">
+									<Button type="submit" disabled={!canEditDetails}>
+										Guardar cambios
+									</Button>
 								</section>
 							</TabsContent>
 
@@ -431,28 +251,43 @@ export default function CompanyDetailsForm({
 									newAddress={addressesState.newAddress}
 									handleNewAddressChange={addressesState.handleNewAddressChange}
 									handleAddAddress={addressesState.handleAddAddress}
+									handleSaveAddress={addressesState.handleSaveAddress}
+									handleDeleteAddress={addressesState.handleDeleteAddress}
 									openAddressDetail={addressesState.openAddressDetail}
+									openCreateAddress={addressesState.openCreateAddress}
+									isSaving={addressesState.isSaving}
 									addressCardHeightClass={addressesState.addressCardHeightClass}
 								/>
 							</TabsContent>
 
-							<TabsContent value="socios" className="rounded-lg border p-4">
+							<TabsContent
+								value="socios"
+								className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+							>
 								<CompanyMembersCrudSection
-									initialMembers={socios}
+									initialMembers={membersToRender}
+									incorporationId={empresa.empresa_incorporacion_id}
 									canEditDetails={canEditDetails}
 								/>
 							</TabsContent>
+
+							{showManagersTab && (
+								<TabsContent
+									value="managers"
+									className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+								>
+									<CompanyManagersCrudSection
+										initialManagers={managersToRender}
+										members={membersToRender}
+										companyId={
+											empresa.company_id ?? empresa.empresa_incorporacion_id
+										}
+										canEditDetails={canEditDetails}
+									/>
+								</TabsContent>
+							)}
 						</div>
 					</Tabs>
-
-					<CardFooter className="mt-4 flex items-center justify-between rounded-lg border p-3">
-						<div className="text-muted-foreground text-xs">
-							Estado legacy: <strong>{empresa.estado ?? 'Sin estado'}</strong>
-						</div>
-						<Button type="submit" disabled={!canEditDetails}>
-							Guardar cambios
-						</Button>
-					</CardFooter>
 				</form>
 			</CardContent>
 		</section>

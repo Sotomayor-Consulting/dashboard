@@ -55,6 +55,7 @@ export interface CompanyCrudRow {
 // ── Detail view types (empresas_incorporaciones + relations) ────
 export interface EmpresaDetail {
 	empresa_incorporacion_id: string;
+	company_id: string | null;
 	user_id: string;
 	nombre_1: string | null;
 	nombre_2: string | null;
@@ -102,6 +103,57 @@ export interface SocioItem {
 	numero_itin: string | null;
 	direccion_planilla: string | null;
 	roles: string[] | null;
+}
+
+export interface CompanyMemberAddressItem {
+	id: number;
+	company_member_id: number;
+	type: 'tax' | 'residence' | 'mailing' | 'other';
+	line1: string;
+	line2: string | null;
+	city: string | null;
+	state_id: number | null;
+	state: string | null;
+	country_id: number | null;
+	zip: string | null;
+	is_primary: boolean;
+	deleted_at: string | null;
+}
+
+export interface CompanyAddressItem {
+	id: number;
+	incorporation_id: string;
+	type: string;
+	line1: string;
+	line2: string | null;
+	city: string;
+	county: string | null;
+	zip: string | null;
+	country_id: number;
+	state_id: number | null;
+	country?: string | null;
+	state?: string | null;
+	deleted_at: string | null;
+}
+
+export interface CompanyMemberItem {
+	id: number;
+	company_id: string;
+	full_name: string | null;
+	email: string | null;
+	member_type: string | null;
+	country_nationality_id: number | null;
+	marital_status: string | null;
+	is_us_tax_resident: boolean | null;
+	passport_number: string | null;
+	ssn: string | null;
+	itin: string | null;
+	is_member: boolean | null;
+	is_manager: boolean | null;
+	percentage: number | null;
+	is_active: boolean | null;
+	deleted_at: string | null;
+	tax_address?: CompanyMemberAddressItem | null;
 }
 
 export interface ManagerItem {
@@ -180,6 +232,8 @@ export interface Documento {
 export interface CompanyDetailData {
 	empresa: EmpresaDetail;
 	socios: SocioItem[];
+	addresses: CompanyAddressItem[];
+	companyMembers: CompanyMemberItem[];
 	managers: ManagerItem[];
 	actividades: ActividadItem[];
 	paises: PaisItem[];

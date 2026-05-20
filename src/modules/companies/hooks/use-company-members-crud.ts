@@ -1,35 +1,117 @@
 import * as React from 'react';
-import type { SocioItem } from '../types';
+import type { CompanyMemberItem } from '../types';
 
-type MemberDraft = Omit<SocioItem, 'id' | 'id_empresa'>;
-
-const emptyDraft: MemberDraft = {
-	nombre_de_socio: '',
-	correo: '',
-	tipo_de_socio: '',
-	porcentaje: null,
-	pais_de_nacionalidad: '',
-	estado_civil: '',
-	residente_fiscal: '',
-	numero_de_pasaporte: null,
-	numero_de_seguro_social: null,
-	numero_itin: null,
-	direccion_planilla: null,
-	roles: null,
+type TaxAddressDraft = {
+	line1: string;
+	line2: string;
+	city: string;
+	state: string;
+	zip: string;
 };
 
-export function useCompanyMembersCrud(initialMembers: SocioItem[]) {
-	const [members, setMembers] = React.useState<SocioItem[]>(initialMembers);
+export type CompanyMemberDraft = {
+	full_name: string;
+	email: string;
+	member_type: string;
+	percentage: number | null;
+	is_member: boolean;
+	is_manager: boolean;
+	is_us_tax_resident: boolean | null;
+	passport_number: string;
+	ssn: string;
+	itin: string;
+	tax_address: TaxAddressDraft;
+};
+
+const emptyDraft: CompanyMemberDraft = {
+	full_name: '',
+	email: '',
+	member_type: '',
+	percentage: null,
+	is_member: true,
+	is_manager: false,
+	is_us_tax_resident: null,
+	passport_number: '',
+	ssn: '',
+	itin: '',
+	tax_address: {
+		line1: '',
+		line2: '',
+		city: '',
+		state: '',
+		zip: '',
+	},
+};
+
+const toDraft = (member: CompanyMemberItem): CompanyMemberDraft => ({
+	full_name: member.full_name ?? '',
+	email: member.email ?? '',
+	member_type: member.member_type ?? '',
+	percentage: member.percentage ?? null,
+	is_member: member.is_member ?? true,
+	is_manager: member.is_manager ?? false,
+	is_us_tax_resident: member.is_us_tax_resident,
+	passport_number: member.passport_number ?? '',
+	ssn: member.ssn ?? '',
+	itin: member.itin ?? '',
+	tax_address: {
+		line1: member.tax_address?.line1 ?? '',
+		line2: member.tax_address?.line2 ?? '',
+		city: member.tax_address?.city ?? '',
+		state: member.tax_address?.state ?? '',
+		zip: member.tax_address?.zip ?? '',
+	},
+});
+
+const requestJson = async <T>(url: string, init: RequestInit): Promise<T> => {
+	const response = await fetch(url, {
+		...init,
+		headers: {
+			'Content-Type': 'application/json',
+			...(init.headers ?? {}),
+		},
+	});
+	const payload = await response.json().catch(() => null);
+	if (!response.ok || !payload?.ok) {
+		throw new Error(payload?.error ?? 'No se pudo guardar el cambio');
+	}
+	return payload.data as T;
+};
+
+export function useCompanyMembersCrud(
+	initialMembers: CompanyMemberItem[],
+	incorporationId: string,
+) {
+	const [members, setMembers] =
+		React.useState<CompanyMemberItem[]>(initialMembers);
 	const [isCreateOpen, setIsCreateOpen] = React.useState(false);
 	const [isEditOpen, setIsEditOpen] = React.useState(false);
 	const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
-	const [activeMember, setActiveMember] = React.useState<SocioItem | null>(null);
-	const [draft, setDraft] = React.useState<MemberDraft>(emptyDraft);
+	const [activeMember, setActiveMember] =
+		React.useState<CompanyMemberItem | null>(null);
+	const [draft, setDraft] = React.useState<CompanyMemberDraft>(emptyDraft);
+	const [isSaving, setIsSaving] = React.useState(false);
+
+	React.useEffect(() => {
+		setMembers(initialMembers);
+	}, [initialMembers]);
 
 	const updateDraft =
-		<K extends keyof MemberDraft>(field: K) =>
-		(value: MemberDraft[K]) => {
+		<K extends keyof CompanyMemberDraft>(field: K) =>
+		(value: CompanyMemberDraft[K]) => {
 			setDraft((prev) => ({ ...prev, [field]: value }));
+		};
+
+	const updateTaxAddress =
+		<K extends keyof TaxAddressDraft>(field: K) =>
+		(value: TaxAddressDraft[K]) => {
+			setDraft((prev) => ({
+				...prev,
+				tax_address: {
+					...prev.tax_address,
+					[field]: value,
+				},
+			}));
 		};
 
 	const openCreate = () => {
@@ -37,65 +119,85 @@ export function useCompanyMembersCrud(initialMembers: SocioItem[]) {
 		setIsCreateOpen(true);
 	};
 
-	const openEdit = (member: SocioItem) => {
+	const openEdit = (member: CompanyMemberItem) => {
 		setActiveMember(member);
-		setDraft({
-			nombre_de_socio: member.nombre_de_socio,
-			correo: member.correo,
-			tipo_de_socio: member.tipo_de_socio,
-			porcentaje: member.porcentaje,
-			pais_de_nacionalidad: member.pais_de_nacionalidad,
-			estado_civil: member.estado_civil,
-			residente_fiscal: member.residente_fiscal,
-			numero_de_pasaporte: member.numero_de_pasaporte,
-			numero_de_seguro_social: member.numero_de_seguro_social,
-			numero_itin: member.numero_itin,
-			direccion_planilla: member.direccion_planilla,
-			roles: member.roles,
-		});
+		setDraft(toDraft(member));
 		setIsEditOpen(true);
 	};
 
-	const openDelete = (member: SocioItem) => {
+	const openDelete = (member: CompanyMemberItem) => {
 		setActiveMember(member);
 		setIsDeleteOpen(true);
 	};
 
-	const createMember = () => {
-		const newMember: SocioItem = {
-			id: `tmp-${Date.now()}`,
-			id_empresa: members[0]?.id_empresa ?? '',
-			...draft,
-		};
-		setMembers((prev) => [newMember, ...prev]);
-		setIsCreateOpen(false);
+	const createMember = async () => {
+		setIsSaving(true);
+		try {
+			const created = await requestJson<CompanyMemberItem>(
+				`/api/incorporations/${incorporationId}/members`,
+				{
+					method: 'POST',
+					body: JSON.stringify(draft),
+				},
+			);
+			setMembers((prev) => [created, ...prev]);
+			setIsCreateOpen(false);
+		} catch (error) {
+			window.alert(error instanceof Error ? error.message : 'Error inesperado');
+		} finally {
+			setIsSaving(false);
+		}
 	};
 
-	const saveMember = () => {
+	const saveMember = async () => {
 		if (!activeMember) return;
-		setMembers((prev) =>
-			prev.map((member) =>
-				member.id === activeMember.id
-					? {
-							...member,
-							...draft,
-					  }
-					: member,
-			),
-		);
-		setIsEditOpen(false);
+		setIsSaving(true);
+		try {
+			const updated = await requestJson<CompanyMemberItem>(
+				`/api/incorporations/${incorporationId}/members/${activeMember.id}`,
+				{
+					method: 'PATCH',
+					body: JSON.stringify(draft),
+				},
+			);
+			setMembers((prev) =>
+				prev.map((member) => (member.id === updated.id ? updated : member)),
+			);
+			setIsEditOpen(false);
+		} catch (error) {
+			window.alert(error instanceof Error ? error.message : 'Error inesperado');
+		} finally {
+			setIsSaving(false);
+		}
 	};
 
-	const removeMember = () => {
+	const removeMember = async () => {
 		if (!activeMember) return;
-		setMembers((prev) => prev.filter((member) => member.id !== activeMember.id));
-		setIsDeleteOpen(false);
+		setIsSaving(true);
+		try {
+			await requestJson<CompanyMemberItem>(
+				`/api/incorporations/${incorporationId}/members/${activeMember.id}`,
+				{
+					method: 'DELETE',
+					body: JSON.stringify({ reason: 'Eliminado desde Editar Datos' }),
+				},
+			);
+			setMembers((prev) =>
+				prev.filter((member) => member.id !== activeMember.id),
+			);
+			setIsDeleteOpen(false);
+		} catch (error) {
+			window.alert(error instanceof Error ? error.message : 'Error inesperado');
+		} finally {
+			setIsSaving(false);
+		}
 	};
 
 	return {
 		members,
 		activeMember,
 		draft,
+		isSaving,
 		isCreateOpen,
 		setIsCreateOpen,
 		isEditOpen,
@@ -106,6 +208,7 @@ export function useCompanyMembersCrud(initialMembers: SocioItem[]) {
 		openEdit,
 		openDelete,
 		updateDraft,
+		updateTaxAddress,
 		createMember,
 		saveMember,
 		removeMember,
