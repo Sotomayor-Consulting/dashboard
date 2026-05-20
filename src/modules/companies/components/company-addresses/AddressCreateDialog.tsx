@@ -10,16 +10,17 @@ import {
 } from '@components/ui/Dialog';
 import { Field, FieldGroup, FieldLabel } from '@components/ui/Field';
 import { Input } from '@components/ui/Input';
-import type { AddressItem } from '../../hooks/use-company-addresses';
+import type { AddressDraft } from '../../hooks/use-company-addresses';
 
 interface Props {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	newAddress: Omit<AddressItem, 'id'>;
+	newAddress: AddressDraft;
 	handleNewAddressChange: (
-		field: keyof Omit<AddressItem, 'id'>,
+		field: keyof AddressDraft,
 	) => (event: React.ChangeEvent<HTMLInputElement>) => void;
 	handleAddAddress: () => void;
+	isSaving: boolean;
 }
 
 export default function AddressCreateDialog({
@@ -28,6 +29,7 @@ export default function AddressCreateDialog({
 	newAddress,
 	handleNewAddressChange,
 	handleAddAddress,
+	isSaving,
 }: Props) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
@@ -81,7 +83,7 @@ export default function AddressCreateDialog({
 					</Field>
 				</FieldGroup>
 				<DialogFooter>
-					<Button type="button" onClick={handleAddAddress}>
+					<Button type="button" onClick={handleAddAddress} disabled={isSaving}>
 						Agregar
 					</Button>
 					<Button

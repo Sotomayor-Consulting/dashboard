@@ -13,7 +13,7 @@ import { BriefcaseBusinessIcon } from 'lucide-react';
 interface Props {
 	address: AddressItem;
 	addressCardHeightClass: string;
-	onOpenDetail: (addressId: string) => void;
+	onOpenDetail: (addressId: number) => void;
 }
 
 export default function AddressCard({ address, onOpenDetail }: Props) {

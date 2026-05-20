@@ -1,4 +1,4 @@
-import type { AddressItem } from '../hooks/use-company-addresses';
+import type { AddressDraft, AddressItem } from '../hooks/use-company-addresses';
 import AddressCard from './company-addresses/AddressCard';
 import AddressCreateCard from './company-addresses/AddressCreateCard';
 import AddressCreateDialog from './company-addresses/AddressCreateDialog';
@@ -12,12 +12,16 @@ interface Props {
 	setIsDetailModalOpen: (open: boolean) => void;
 	isAddModalOpen: boolean;
 	setIsAddModalOpen: (open: boolean) => void;
-	newAddress: Omit<AddressItem, 'id'>;
+	newAddress: AddressDraft;
 	handleNewAddressChange: (
-		field: keyof Omit<AddressItem, 'id'>,
+		field: keyof AddressDraft,
 	) => (event: React.ChangeEvent<HTMLInputElement>) => void;
 	handleAddAddress: () => void;
-	openAddressDetail: (addressId: string) => void;
+	handleSaveAddress: () => void;
+	handleDeleteAddress: () => void;
+	openAddressDetail: (addressId: number) => void;
+	openCreateAddress: () => void;
+	isSaving: boolean;
 	addressCardHeightClass: string;
 }
 
@@ -32,7 +36,11 @@ export default function CompanyAddressesSection({
 	newAddress,
 	handleNewAddressChange,
 	handleAddAddress,
+	handleSaveAddress,
+	handleDeleteAddress,
 	openAddressDetail,
+	openCreateAddress,
+	isSaving,
 	addressCardHeightClass,
 }: Props) {
 	return (
@@ -57,7 +65,7 @@ export default function CompanyAddressesSection({
 				<AddressCreateCard
 					canEditDetails={canEditDetails}
 					addressCardHeightClass={addressCardHeightClass}
-					onClick={() => setIsAddModalOpen(true)}
+					onClick={openCreateAddress}
 				/>
 			</div>
 
@@ -65,6 +73,11 @@ export default function CompanyAddressesSection({
 				open={isDetailModalOpen}
 				onOpenChange={setIsDetailModalOpen}
 				selectedAddress={selectedAddress}
+				draft={newAddress}
+				handleDraftChange={handleNewAddressChange}
+				handleSaveAddress={handleSaveAddress}
+				handleDeleteAddress={handleDeleteAddress}
+				isSaving={isSaving}
 			/>
 
 			<AddressCreateDialog
@@ -73,6 +86,7 @@ export default function CompanyAddressesSection({
 				newAddress={newAddress}
 				handleNewAddressChange={handleNewAddressChange}
 				handleAddAddress={handleAddAddress}
+				isSaving={isSaving}
 			/>
 		</section>
 	);
