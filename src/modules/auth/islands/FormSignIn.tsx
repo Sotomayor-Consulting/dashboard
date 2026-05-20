@@ -268,14 +268,14 @@ export default function FormSignIn() {
 					className="mb-8 flex items-center justify-center text-2xl font-semibold lg:mb-10 dark:text-white"
 				>
 					<img
-						src="/logo-en-blanco.svg"
+						src="/src/icons/logo-sotomayor-consulting-black.svg"
 						alt="Sotomayor Consulting"
-						className="mr-4 hidden h-9 dark:block"
+						className="mr-4 hidden h-10 dark:block"
 					/>
 					<img
-						src="/logo-en-negro.svg"
+						src="/src/icons/logo-sotomayor-consulting-black.svg"
 						alt="Sotomayor Consulting"
-						className="mr-4 block h-9 dark:hidden"
+						className="mr-4 block h-10 invert dark:hidden"
 					/>
 				</a>
 

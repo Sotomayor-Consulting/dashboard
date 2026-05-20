@@ -20,36 +20,11 @@ const labelClass =
 	class="block items-center justify-between p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<Alerta />
-	<div class="w-full">
-		<div
-			class="block w-full items-center justify-between border-gray-200 p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
-		>
-			<CrudPageHeader title="Todos los servicios">
-				<button
-					slot="actions"
-					id="createProductButton"
-					class="focus:ring-primary-300 dark:focus:ring-primary-800 inline-flex w-1/2 items-center justify-center rounded-lg bg-[#8c681d] px-3 py-2 text-center text-sm font-medium text-white hover:bg-[#8c681d]/90 focus:ring-4 sm:w-auto dark:bg-[#134aed] dark:hover:bg-[#134aed]/80"
-					type="button"
-					data-drawer-target="drawer-create-product-default"
-					data-drawer-show="drawer-create-product-default"
-					aria-controls="drawer-create-product-default"
-					data-drawer-placement="right"
-				>
-					<svg
-						class="mr-2 -ml-1 h-5 w-5"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							fill-rule="evenodd"
-							d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-							clip-rule="evenodd"></path>
-					</svg>
-					Añadir servicio
-				</button>
-			</CrudPageHeader>
-		</div>
+	<div class="w-full space-y-4 p-4 lg:p-6">
+		<CrudPageHeader
+			title="Todos los servicios"
+			descripcion="Gestiona todos los servicios disponibles"
+		/>
 
 		<CrudProductsTable data={servicio ?? []} client:load />
 
@@ -168,7 +143,7 @@ const labelClass =
 						/>
 					</div>
 					<div>
-						<label for="categoria-service" class={labelClass}>Categoria</label>
+						<label for="categoria-service" class={labelClass}>Categoría</label>
 						<input
 							type="text"
 							name="categoria-service"
