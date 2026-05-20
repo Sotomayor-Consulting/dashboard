@@ -57,7 +57,13 @@ export default function CompanyMembersCrudSection({
 	} = useCompanyMembersCrud(initialMembers);
 
 	return (
-		<div className="flex flex-col gap-4">
+		<section className="flex flex-col gap-4 border-gray-200 dark:border-gray-700">
+			<header className="flex flex-col gap-1">
+				<h3 className="text-lg font-semibold">Socios</h3>
+				<p className="text-muted-foreground text-sm">
+					Revisa o edita la información de los miembros de la empresa.
+				</p>
+			</header>
 			<div className="flex items-center justify-between">
 				<h3 className="text-sm font-semibold">Socios</h3>
 				<Button
@@ -78,8 +84,6 @@ export default function CompanyMembersCrudSection({
 						<TableHead>Tipo</TableHead>
 						<TableHead>Porcentaje</TableHead>
 						<TableHead>Pais</TableHead>
-						<TableHead>Estado civil</TableHead>
-						<TableHead>Residente fiscal</TableHead>
 						<TableHead className="text-right">Acciones</TableHead>
 					</TableRow>
 				</TableHeader>
@@ -185,7 +189,7 @@ export default function CompanyMembersCrudSection({
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-		</div>
+		</section>
 	);
 }
 
@@ -235,9 +239,7 @@ function MemberForm({ draft, updateDraft }: { draft: any; updateDraft: any }) {
 				<Input
 					id="member_pais"
 					value={draft.pais_de_nacionalidad ?? ''}
-					onChange={(e) =>
-						updateDraft('pais_de_nacionalidad')(e.target.value)
-					}
+					onChange={(e) => updateDraft('pais_de_nacionalidad')(e.target.value)}
 				/>
 			</Field>
 			<Field>
