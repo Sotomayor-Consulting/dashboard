@@ -1,6 +1,5 @@
 import { Icon } from '@iconify/react';
 
-import { cn } from '@components/utils';
 import { Button } from '@components/ui/Button';
 
 import { STEPS } from '../data/steps';
@@ -39,21 +38,10 @@ export function WizardNavigation({
 				<span className="hidden sm:inline">Anterior</span>
 			</Button>
 
-			<div className="flex items-center gap-1.5">
-				{STEPS.map((_, i) => (
-					<div
-						key={i}
-						className={cn(
-							'h-2 w-2 rounded-full transition-colors',
-							i + 1 === currentStep
-								? 'bg-accent'
-								: i + 1 < currentStep
-									? 'bg-accent/50'
-									: 'bg-border',
-						)}
-					/>
-				))}
-			</div>
+			<span className="text-muted-foreground text-xs tracking-widest">
+				{String(currentStep).padStart(2, '0')} /{' '}
+				{String(STEPS.length).padStart(2, '0')}
+			</span>
 
 			{!isLast ? (
 				<Button

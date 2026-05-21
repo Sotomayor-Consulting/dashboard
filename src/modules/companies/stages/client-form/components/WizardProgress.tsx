@@ -15,11 +15,11 @@ export function WizardProgress({ currentStep, onStepClick }: Props) {
 		<nav className="mb-8" aria-label="Progress">
 			<ol className="relative flex items-center justify-between">
 				<div
-					className="bg-border absolute top-5 right-[10%] left-[10%] hidden h-0.5 md:block"
+					className="bg-border absolute top-5 right-[10%] left-[10%] z-0 hidden h-0.5 md:block"
 					aria-hidden="true"
 				/>
 				<div
-					className="bg-accent absolute top-5 left-[10%] hidden h-0.5 transition-all duration-500 md:block"
+					className="absolute top-5 left-[10%] z-0 hidden h-0.5 bg-green-500 transition-all duration-500 md:block"
 					style={{
 						width: `${((currentStep - 1) / (STEPS.length - 1)) * 80}%`,
 					}}
@@ -40,24 +40,26 @@ export function WizardProgress({ currentStep, onStepClick }: Props) {
 								className={cn(
 									'flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300',
 									isCompleted
-										? 'bg-accent border-accent cursor-pointer hover:bg-black/20'
+										? 'cursor-pointer border-green-500 bg-green-100 hover:bg-green-200 dark:bg-green-950 dark:hover:bg-green-900'
 										: isCurrent
-											? 'bg-card border-accent shadow-md'
-											: 'bg-card border-border cursor-not-allowed',
+											? 'bg-card border-gray-900 shadow-md dark:border-gray-100'
+											: 'bg-card border-border opacity cursor-not-allowed',
 								)}
 								aria-current={isCurrent ? 'step' : undefined}
 							>
 								{isCompleted ? (
 									<Icon
 										icon="ri:check-line"
-										className="text-accent-foreground h-5 w-5"
+										className="h-5 w-5 text-green-500"
 									/>
 								) : (
 									<Icon
 										icon={step.icon}
 										className={cn(
 											'h-5 w-5',
-											isCurrent ? 'text-accent' : 'text-muted-foreground',
+											isCurrent
+												? 'text-black dark:text-white'
+												: 'text-gray-500',
 										)}
 									/>
 								)}

@@ -1,38 +1,79 @@
-import { Icon } from '@iconify/react';
+import { useEffect, useState } from 'react';
+import LogoDark from '../../../../../icons/logo-sotomayor-consulting-black.svg';
+import LogoLight from '../../../../../icons/logo-sotomayor-consulting.svg';
 
 export function WizardHeader() {
+	const [isDark, setIsDark] = useState(false);
+
+	useEffect(() => {
+		setIsDark(document.documentElement.classList.contains('dark'));
+	}, []);
+
+	const toggleTheme = () => {
+		const goingDark = !document.documentElement.classList.contains('dark');
+		if (goingDark) {
+			document.documentElement.classList.add('dark');
+			localStorage.setItem('color-theme', 'dark');
+		} else {
+			document.documentElement.classList.remove('dark');
+			localStorage.setItem('color-theme', 'light');
+		}
+		setIsDark(goingDark);
+		document.dispatchEvent(new Event('dark-mode'));
+	};
+
 	return (
 		<header className="bg-card/95 supports-[backdrop-filter]:bg-card/80 border-border sticky top-0 z-50 border-b backdrop-blur">
-			<div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
-				<div className="flex items-center gap-3">
-					<div className="bg-primary flex h-10 w-10 items-center justify-center rounded-lg">
-						<Icon
-							icon="ri:building-2-line"
-							className="text-primary-foreground h-5 w-5"
-						/>
-					</div>
+			<div className="flex items-center justify-between px-4 py-4">
+				<div className="flex items-center gap-4">
+					<img
+						src={isDark ? LogoDark.src : LogoLight.src}
+						alt="Logo"
+						className="h-12 w-auto object-contain"
+					/>
+					<span className="text-muted-foreground text-lg">—</span>
 					<div>
-						<span className="text-foreground block text-lg leading-tight font-semibold">
-							Sotomayor Consulting
+						<span className="text-foreground block text-base leading-tight font-semibold">
+							Formulario de incorporación
 						</span>
 						<span className="text-muted-foreground text-xs">
-							Incorporación LLC
+							Completa la información de tu empresa para comenzar
 						</span>
 					</div>
 				</div>
-				<div className="text-muted-foreground flex items-center gap-4 text-sm">
-					<div className="hidden items-center gap-1.5 sm:flex">
-						<Icon icon="ri:shield-check-line" className="text-accent h-4 w-4" />
-						<span>Datos seguros</span>
-					</div>
-					<div className="hidden items-center gap-1.5 sm:flex">
-						<Icon
-							icon="ri:time-line"
-							className="text-muted-foreground h-4 w-4"
-						/>
-						<span>Tiempo estimado: ~15 min</span>
-					</div>
-				</div>
+				<button
+					onClick={toggleTheme}
+					type="button"
+					className="text-muted-foreground hover:bg-accent inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+					aria-label="Toggle dark mode"
+				>
+					{isDark ? (
+						<svg
+							className="h-5 w-5"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.8"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							viewBox="0 0 24 24"
+						>
+							<circle cx="12" cy="12" r="4" />
+							<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+						</svg>
+					) : (
+						<svg
+							className="h-5 w-5"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.8"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							viewBox="0 0 24 24"
+						>
+							<path d="M12 3a6 6 0 1 0 9 9 9 9 0 1 1-9-9z" />
+						</svg>
+					)}
+				</button>
 			</div>
 		</header>
 	);

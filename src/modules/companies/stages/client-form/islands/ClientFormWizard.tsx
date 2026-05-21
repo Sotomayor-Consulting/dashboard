@@ -168,7 +168,7 @@ export default function ClientFormWizard({ activities, empresaId }: Props) {
 							¿Necesitas ayuda?{' '}
 							<a
 								href="mailto:info@sotomayorconsulting.com"
-								className="text-accent font-medium underline-offset-4 hover:underline"
+								className="text-accent font-medium text-black underline-offset-4 hover:underline dark:text-white"
 							>
 								Contáctanos
 							</a>

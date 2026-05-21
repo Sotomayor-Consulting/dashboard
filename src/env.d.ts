@@ -22,6 +22,11 @@ declare namespace App {
 	}
 }
 
+declare module '*.svg' {
+	const src: string;
+	export default src;
+}
+
 // Allow non-standard SVG namespaces (Inkscape/Sodipodi/xlink/data:*) used in inline SVGs
 declare namespace astroHTML.JSX {
 	interface SVGAttributes {

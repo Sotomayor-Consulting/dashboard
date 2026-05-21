@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { format } from 'date-fns';
-import { Building2Icon, MapPinHouseIcon, UsersIcon } from 'lucide-react';
+import { Icon } from '@iconify/react';
+
+import '@shared/iconify-ri'; // Registra el set `ri` de Remix Icons (side-effect).
 import { Button } from '@components/ui/Button';
 import { CardContent } from '@components/ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/Tabs';
@@ -22,6 +24,11 @@ import { mockCompanyManagers } from '../mocks/managers.mock';
 import CompanyAccountingSection from './company-details/sections/CompanyAccountingSection';
 import CompanyGeneralSection from './company-details/sections/CompanyGeneralSection';
 import CompanyStructureSection from './company-details/sections/CompanyStructureSection';
+
+// Estilo inline-vertical para tabs: sin contenedor, sólo el borde
+// izquierdo en la pestaña activa marcando la posición.
+const verticalTabTriggerClass =
+	'!w-full !justify-start !rounded-l-none !rounded-r-md border-l-2 border-transparent !bg-transparent !px-3 !py-2 !shadow-none hover:!bg-gray-50 hover:!text-gray-900 data-active:border-gray-900 data-active:!bg-gray-100 data-active:!text-gray-900 data-active:!shadow-none dark:hover:!bg-white/5 dark:hover:!text-white dark:data-active:border-white dark:data-active:!bg-white/10 dark:data-active:!text-white';
 
 const mockMembersFallback: CompanyMemberItem[] = mockCompanyMembers.map(
 	(member, index) => ({
@@ -164,36 +171,36 @@ export default function CompanyDetailsForm({
 					<Tabs
 						defaultValue="informacion"
 						orientation="vertical"
-						className="grid w-full grid-cols-1 gap-4 lg:grid-cols-[260px_minmax(0,1fr)]"
+						className="grid w-full grid-cols-1 gap-6 lg:grid-cols-[160px_minmax(0,1fr)]"
 					>
-						<TabsList className="m-0 w-full">
+						<TabsList className="!h-auto !w-full !flex-col !items-stretch !gap-0 !border-0 !bg-transparent !p-0 !shadow-none">
 							<TabsTrigger
 								value="informacion"
-								className="group-data-vertical/tabs:w-full"
+								className={verticalTabTriggerClass}
 							>
-								<Building2Icon data-icon="inline-start" />
+								<Icon icon="ri:building-2-line" data-icon="inline-start" />
 								Informacion
 							</TabsTrigger>
 							<TabsTrigger
 								value="direcciones"
-								className="group-data-vertical/tabs:w-full"
+								className={verticalTabTriggerClass}
 							>
-								<MapPinHouseIcon data-icon="inline-start" />
+								<Icon icon="ri:map-pin-line" data-icon="inline-start" />
 								Direcciones
 							</TabsTrigger>
 							<TabsTrigger
 								value="socios"
-								className="group-data-vertical/tabs:w-full"
+								className={verticalTabTriggerClass}
 							>
-								<UsersIcon data-icon="inline-start" />
+								<Icon icon="ri:group-line" data-icon="inline-start" />
 								Socios
 							</TabsTrigger>
 							{showManagersTab && (
 								<TabsTrigger
 									value="managers"
-									className="group-data-vertical/tabs:w-full"
+									className={verticalTabTriggerClass}
 								>
-									<UsersIcon data-icon="inline-start" />
+									<Icon icon="ri:user-settings-line" data-icon="inline-start" />
 									Managers
 								</TabsTrigger>
 							)}
