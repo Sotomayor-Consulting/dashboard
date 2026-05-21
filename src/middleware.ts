@@ -5,7 +5,13 @@
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { PATHS } from '@infrastructure/auth';
 import type { RouteRoleConfig } from '@shared/roles';
-import { ROLES, extractRoleNames, hasAnyRole } from '@shared/roles';
+import {
+	ROLES,
+	ROLE_GROUPS,
+	extractRoleNames,
+	extractTokenRoleNames,
+	hasAnyRole,
+} from '@shared/roles';
 import type { UserRoleRow } from '@shared/roles';
 import type { User } from '@supabase/supabase-js';
 
@@ -141,8 +147,8 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 	// Single-rol — admin
 	{
 		path: '/incorporations/',
-		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
-		errorMsg: 'Acceso solo para admins y operaciones',
+		roles: ROLE_GROUPS.INCORPORATION_ROUTE,
+		errorMsg: 'Acceso solo para admins, gerencia y operaciones',
 	},
 	{
 		path: '/users/',
@@ -184,7 +190,7 @@ async function resolveUserRoles(
 ): Promise<string[]> {
 	const fromClaim = claims['user_roles'];
 	if (Array.isArray(fromClaim)) {
-		return fromClaim.filter((r): r is string => typeof r === 'string');
+		return extractTokenRoleNames(claims);
 	}
 
 	const userId = claims['sub'] as string;
