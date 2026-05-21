@@ -27,7 +27,7 @@ export const getCompanyDetailData = async (
 
 	const companyId = (empresa as { company_id?: string | null }).company_id;
 	const [addresses, companyMembers] = await Promise.all([
-		listCompanyAddresses(supabase, empresaId),
+		listCompanyAddresses(supabase, empresaId, companyId),
 		companyId ? listCompanyMembers(supabase, companyId) : [],
 	]);
 

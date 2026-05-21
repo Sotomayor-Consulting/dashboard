@@ -19,16 +19,15 @@ import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import DocumentRequestManager from '@modules/documents/islands/DocumentRequestManager';
 import CompanyDocumentsUploadManager from '@modules/documents/islands/CompanyDocumentsUploadManager';
 import { getUsStates } from './services/get-us-states';
+import { canManageCompanyData, hasAnyRole, ROLE_GROUPS } from '@shared/roles';
 
 const empresaId = String(Astro.props.empresaId ?? '');
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
 const userRoles = Astro.locals.userRoles || [];
-const isStaff =
-	userRoles.includes('admin') || userRoles.includes('operaciones');
-const canEditDetails =
-	userRoles.includes('admin') || userRoles.includes('gerencia');
+const isStaff = hasAnyRole(userRoles, ROLE_GROUPS.INCORPORATION_ROUTE);
+const canEditDetails = canManageCompanyData(userRoles);
 const backPath = Astro.url.pathname;
 
 let data: CompanyDetailData | null = null;
