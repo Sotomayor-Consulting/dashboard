@@ -51,9 +51,14 @@ export const activityRefinements: ReadonlyArray<{
 			path: ['actividad'],
 		},
 		{
-			check: (d) => !d.actividadNoEnLista || d.descripcionActividad.length > 0,
-			message: 'Describe la actividad',
+			check: (d) => d.descripcionActividad.trim().length >= 10,
+			message: 'Describe brevemente tu negocio (mínimo 10 caracteres)',
 			path: ['descripcionActividad'],
+		},
+		{
+			check: (d) => !d.actividadNoEnLista || d.codigoActividad.trim().length > 0,
+			message: 'Ingresa el código IRS de la actividad',
+			path: ['codigoActividad'],
 		},
 		{
 			check: (d) =>

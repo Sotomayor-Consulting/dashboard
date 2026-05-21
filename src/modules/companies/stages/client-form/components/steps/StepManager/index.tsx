@@ -41,7 +41,7 @@ export function StepManager() {
 	const formaAdministracion = useWatch<ClientFormData>({
 		control,
 		name: 'formaAdministracion',
-	}) as ClientFormData['formaAdministracion'];
+	}) as string;
 	const managerSCI = useWatch<ClientFormData>({
 		control,
 		name: 'managerSCI',
@@ -62,7 +62,7 @@ export function StepManager() {
 		| ClientFormData['miembros']
 		| undefined;
 
-	const showManagerSection = formaAdministracion === 'member-managed';
+	const showManagerSection = formaAdministracion === 'manager-managed';
 	const showManagerForm =
 		(managerEsMiembro === false || agregarOtrosSocios) && managerSCI === false;
 
@@ -250,7 +250,7 @@ export function StepManager() {
 															'border-b-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors',
 															activeManagerTab === index
 																? 'border-accent text-accent bg-card'
-																: 'border-transparent text-muted-foreground hover:text-foreground',
+																: 'text-muted-foreground hover:text-foreground border-transparent',
 														)}
 													>
 														Manager {index + 1}
@@ -279,9 +279,7 @@ export function StepManager() {
 											{managerFields.map((field, index) => (
 												<div
 													key={field._key}
-													className={cn(
-														activeManagerTab !== index && 'hidden',
-													)}
+													className={cn(activeManagerTab !== index && 'hidden')}
 												>
 													<ManagerForm
 														index={index}
@@ -356,7 +354,7 @@ export function StepManager() {
 					/>
 					<p className="text-muted-foreground">
 						La configuración de manager solo aplica cuando selecciona{' '}
-						<strong>Member-Managed</strong> como forma de administración.
+						<strong>Manager-Managed</strong> como forma de administración.
 					</p>
 					<p className="text-muted-foreground mt-2 text-sm">
 						Actualmente tiene seleccionado:{' '}

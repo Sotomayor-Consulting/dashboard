@@ -19,7 +19,7 @@ import { Textarea } from '@components/ui/Textarea';
 
 import type { Activity } from '../../../data/activities';
 import type { ClientFormData } from '../../../types';
-import { ActivityCombobox } from '../../shared/ActivityCombobox';
+import { ActivityPicker } from '../../shared/ActivityPicker';
 import { FieldError } from '../../shared/FieldError';
 import { FieldTooltip } from '../../shared/FieldTooltip';
 import { YesNoRadio } from '../../shared/YesNoRadio';
@@ -46,13 +46,12 @@ export function StepActivity({ activities }: Props) {
 		<div className="space-y-8">
 			<div>
 				<h2 className="text-foreground text-2xl font-semibold">
-					Actividad de la compañía
+					Información General
 				</h2>
 				<p className="text-muted-foreground mt-1">
-					Información sobre la actividad económica de su LLC.
+					Información sobre como va a estar constituida y operativa tu empresa.
 				</p>
 			</div>
-
 			{/* Ingresos EE. UU. */}
 			<fieldset className="space-y-3">
 				<legend className="text-foreground flex items-center text-sm font-medium">
@@ -68,19 +67,19 @@ export function StepActivity({ activities }: Props) {
 				/>
 				<FieldError message={errors.ingresosEEUU?.message as string} />
 			</fieldset>
-
 			{/* Actividad */}
 			<div className="space-y-4">
 				<div>
-					<Label htmlFor="actividad" className="text-sm font-medium">
-						Actividad
+					<Label className="text-sm font-medium">
+						Actividad económica
+						<FieldTooltip text="Selecciona primero el sector, luego la categoría y finalmente la actividad específica." />
 					</Label>
 					<div className="mt-2">
 						<Controller
 							control={control}
 							name="actividad"
 							render={({ field }) => (
-								<ActivityCombobox
+								<ActivityPicker
 									activities={activities}
 									value={field.value}
 									onChange={(id) => {
@@ -94,7 +93,23 @@ export function StepActivity({ activities }: Props) {
 					</div>
 					<FieldError message={errors.actividad?.message as string} />
 				</div>
-
+				{/* Descripción del negocio — siempre visible */}
+				<div>
+					<Label htmlFor="descripcionActividad" className="text-sm font-medium">
+						Describa su negocio
+						<FieldTooltip text="Describe brevemente a qué se dedicará tu empresa, qué productos o servicios ofrece y a qué mercado apunta." />
+					</Label>
+					<Textarea
+						id="descripcionActividad"
+						{...register('descripcionActividad')}
+						className="mt-2"
+						placeholder="Ej: Ofrecemos servicios de consultoría en tecnología de la información a pequeñas y medianas empresas en EE. UU…"
+						rows={3}
+					/>
+					<FieldError
+						message={errors.descripcionActividad?.message as string}
+					/>
+				</div>
 				<div className="flex items-center gap-2">
 					<Controller
 						control={control}
@@ -117,7 +132,7 @@ export function StepActivity({ activities }: Props) {
 						Mi actividad no está en la lista
 					</label>
 				</div>
-
+				{/* Código IRS — solo si la actividad no está en la lista */}
 				<AnimatePresence>
 					{actividadNoEnLista && (
 						<motion.div
@@ -126,61 +141,43 @@ export function StepActivity({ activities }: Props) {
 							exit={{ opacity: 0, height: 0 }}
 							className="overflow-hidden"
 						>
-							<div className="bg-muted/50 space-y-4 rounded-lg p-4">
-								<div>
-									<Label
-										htmlFor="descripcionActividad"
-										className="text-sm font-medium"
-									>
-										Describa la actividad
-										<FieldTooltip text="Describe cuál será la actividad económica de tu empresa." />
-									</Label>
-									<Textarea
-										id="descripcionActividad"
-										{...register('descripcionActividad')}
-										className="mt-2"
-										placeholder="Ej: Servicios de consultoría en tecnología de la información…"
-										rows={3}
+							<div className="bg-muted/50 rounded-lg p-4">
+								<Label
+									htmlFor="codigoActividad"
+									className="text-sm font-medium"
+								>
+									Código IRS de la actividad
+									<FieldTooltip text="Ingresa el código de la actividad según el IRS." />
+								</Label>
+								<div className="mt-2 flex gap-2">
+									<Input
+										id="codigoActividad"
+										{...register('codigoActividad')}
+										placeholder="Ej: 541512"
 									/>
-									<FieldError
-										message={errors.descripcionActividad?.message as string}
+									<Button
+										variant="outline"
+										size="sm"
+										className="shrink-0"
+										type="button"
+										render={
+											<a
+												href="https://www.irs.gov/pub/irs-soi/18pf_business_codes.pdf"
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												Ver códigos
+												<Icon
+													icon="ri:external-link-line"
+													className="ml-1 h-3.5 w-3.5"
+												/>
+											</a>
+										}
 									/>
 								</div>
-								<div>
-									<Label
-										htmlFor="codigoActividad"
-										className="text-sm font-medium"
-									>
-										Código de actividad
-										<FieldTooltip text="Ingresa el código de la actividad según el IRS." />
-									</Label>
-									<div className="mt-2 flex gap-2">
-										<Input
-											id="codigoActividad"
-											{...register('codigoActividad')}
-											placeholder="Ej: 541512"
-										/>
-										<Button
-											variant="outline"
-											size="sm"
-											className="shrink-0"
-											type="button"
-											render={
-												<a
-													href="https://www.irs.gov/pub/irs-soi/18pf_business_codes.pdf"
-													target="_blank"
-													rel="noopener noreferrer"
-												>
-													Ver códigos
-													<Icon
-														icon="ri:external-link-line"
-														className="ml-1 h-3.5 w-3.5"
-													/>
-												</a>
-											}
-										/>
-									</div>
-								</div>
+								<FieldError
+									message={errors.codigoActividad?.message as string}
+								/>
 							</div>
 						</motion.div>
 					)}

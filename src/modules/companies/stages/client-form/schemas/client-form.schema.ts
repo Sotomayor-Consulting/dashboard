@@ -16,7 +16,7 @@ import { memberSchema } from './member.schema';
  * - Añade reglas cross-step:
  *   · porcentajes de miembros suman 100,
  *   · responsableIRS es id de un miembro,
- *   · si forma === member-managed && managerSCI === false debe haber manager.
+ *   · si forma === manager-managed && managerSCI === false debe haber manager.
  */
 const baseClientFormSchema = activityStepBaseSchema.extend({
 	miembros: z.array(memberSchema).min(1, 'Agrega al menos un socio'),
@@ -52,7 +52,7 @@ const crossStepRefinements: ReadonlyArray<{
 	},
 	{
 		check: (d) => {
-			if (d.formaAdministracion !== 'member-managed') return true;
+			if (d.formaAdministracion !== 'manager-managed') return true;
 			if (d.managerSCI === true) return true;
 			if (d.managerSCI === false) {
 				return d.seleccionManagers.length > 0 || d.managers.length > 0;
