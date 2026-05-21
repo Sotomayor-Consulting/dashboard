@@ -1,0 +1,22 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import UsuariosPage from '@modules/admin/usuarios/UsuariosPage';
+import type { UserRole } from '@modules/admin/lib/types';
+
+const userRoles = Astro.locals.userRoles ?? [];
+const allowedRoles = ['admin', 'operaciones'];
+const canView = userRoles.some((r) => allowedRoles.includes(r));
+
+if (!canView) {
+	return Astro.redirect('/?status=error&msg=Acceso restringido');
+}
+
+// Sólo pasamos los roles del viewer relevantes al island (para gating de UI).
+const viewerRoles = userRoles.filter((r): r is UserRole =>
+	['admin', 'operaciones', 'cliente'].includes(r),
+);
+---
+
+<LayoutSidebar>
+	<UsuariosPage viewerRoles={viewerRoles} client:only="react" />
+</LayoutSidebar>

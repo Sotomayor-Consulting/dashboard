@@ -1,7 +1,7 @@
 ---
-import { Icon } from 'astro-icon/components';
 import { getCompanyDetailData } from './services/get-company-detail-data';
 
+import TabBar from '@components/navigation/TabBar.astro';
 import CompanyEditForm from './components/CompanyEditForm.astro';
 import CompanyOperationsPanel from '@modules/company-operations/OperationsPanel.astro';
 import ActivityModal from './components/ActivityModal.astro';
@@ -70,6 +70,37 @@ const errorMessage = !empresaId
 	: !data
 		? 'No se encontro esta empresa'
 		: '';
+
+const operationsTabs = [
+	{
+		id: 'operations',
+		label: 'Tareas',
+		icon: 'ri:survey-line',
+		kind: 'panel' as const,
+		active: true,
+	},
+	{
+		id: 'contacts',
+		label: 'Editar datos',
+		icon: 'ri:edit-line',
+		kind: 'panel' as const,
+		active: false,
+	},
+	{
+		id: 'requests',
+		label: 'Solicitar documentos',
+		icon: 'ri:file-list-3-line',
+		kind: 'panel' as const,
+		active: false,
+	},
+	{
+		id: 'upload',
+		label: 'Subir documentos',
+		icon: 'ri:upload-cloud-2-line',
+		kind: 'panel' as const,
+		active: false,
+	},
+];
 ---
 
 {
@@ -82,118 +113,46 @@ const errorMessage = !empresaId
 	) : (
 		<>
 			<div class="mx-5 mt-5">
-				<div class="">
-					<ul
-						class="mt-4 flex w-fit items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium shadow-sm shadow-gray-200/70 md:w-auto xl:inline-flex xl:text-sm dark:border-gray-700 dark:bg-black dark:shadow-none"
-						id="default-tab"
-						data-tabs-toggle="#default-tab-content"
-						role="tablist"
-						data-tabs-active-classes="bg-gray-100 text-gray-900 shadow-sm dark:bg-neutral-900 dark:text-white"
-						data-tabs-inactive-classes="text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
-					>
-						{[
-							{
-								id: 'operations-tab',
-								tabs: 'operations',
-								label: 'Tareas',
-								icono: 'ri:survey-line',
-							},
-							{
-								id: 'contacts-tab',
-								tabs: 'contacts',
-								label: 'Editar datos',
-								icono: 'ri:edit-line',
-							},
-							{
-								id: 'requests-tab',
-								tabs: 'requests',
-								label: 'Solicitar documentos',
-								icono: 'ri:file-list-3-line',
-							},
-							{
-								id: 'upload-tab',
-								tabs: 'upload',
-								label: 'Subir documentos',
-								icono: 'ri:upload-cloud-2-line',
-							},
-						].map((i) => (
-							<li class="m-0" role="presentation">
-								<button
-									class="link-moderate inline-flex w-full items-center gap-2 rounded-md px-3 py-2 transition-colors md:w-auto"
-									id={i.id}
-									data-tabs-target={`#${i.tabs}`}
-									type="button"
-									role="tab"
-									aria-controls={i.tabs}
-									aria-selected="false"
-								>
-									<Icon name={i.icono} class="text-lg" />
-									{i.label}
-								</button>
-							</li>
-						))}
-					</ul>
+				<TabBar buttons={operationsTabs} syncUrl={false} />
+
+				<div data-tab-panel="operations" class="my-4">
+					<CompanyOperationsPanel
+						empresaId={empresaId}
+						empresaNombre={empresaSafe?.nombre_1}
+					/>
 				</div>
-				<div id="default-tab-content">
-					<div
-						class="my-4"
-						id="operations"
-						role="tabpanel"
-						aria-labelledby="operations-tab"
-					>
-						<CompanyOperationsPanel
-							empresaId={empresaId}
-							empresaNombre={empresaSafe?.nombre_1}
-						/>
-					</div>
-					<div
-						id="contacts"
-						role="tabpanel"
-						aria-labelledby="contacts-tab"
-						class="my-4"
-					>
-						<CompanyEditForm
-							empresa={empresaSafe}
-							socios={socios}
-							addresses={addresses}
-							companyMembers={companyMembers}
-							managers={managers}
-							actividades={actividades}
-							canEditDetails={canEditDetails}
-							backPath={backPath}
-							states={us_states}
-						/>
-					</div>
-					<div
-						class="my-4"
-						id="requests"
-						role="tabpanel"
-						aria-labelledby="requests-tab"
-					>
-						<DocumentRequestManager
-							client:load
-							incorporationCaseId={empresaId}
-							backPath={backPath}
-							documentTypes={documentTypes}
-							requests={documentRequests}
-						/>
-					</div>
-					<div
-						class="my-4"
-						id="upload"
-						role="tabpanel"
-						aria-labelledby="upload-tab"
-					>
-						<CompanyDocumentsUploadManager
-							client:load
-							incorporationCaseId={empresaId}
-							backPath={backPath}
-							documentTypes={documentTypes}
-							documents={documentsNew}
-							isStaff={isStaff}
-							sharedWithUserId={empresaSafe?.user_id ?? undefined}
-						/>
-					</div>
+				<div data-tab-panel="contacts" class="my-4" hidden>
+					<CompanyEditForm
+						empresa={empresaSafe}
+						socios={socios}
+						addresses={addresses}
+						companyMembers={companyMembers}
+						managers={managers}
+						actividades={actividades}
+						canEditDetails={canEditDetails}
+						backPath={backPath}
+						states={us_states}
+					/>
+				</div>
+				<div data-tab-panel="requests" class="my-4" hidden>
+					<DocumentRequestManager
+						client:load
+						incorporationCaseId={empresaId}
+						backPath={backPath}
+						documentTypes={documentTypes}
+						requests={documentRequests}
+					/>
+				</div>
+				<div data-tab-panel="upload" class="my-4" hidden>
+					<CompanyDocumentsUploadManager
+						client:load
+						incorporationCaseId={empresaId}
+						backPath={backPath}
+						documentTypes={documentTypes}
+						documents={documentsNew}
+						isStaff={isStaff}
+						sharedWithUserId={empresaSafe?.user_id ?? undefined}
+					/>
 				</div>
 			</div>
 			<ActivityModal />

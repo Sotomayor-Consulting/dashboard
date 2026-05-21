@@ -51,13 +51,25 @@ if (!empresa) {
 				label: 'General',
 				icon: 'ri:layout-grid-line',
 				active: false,
-				link: `/my-companies/${id}`,
+				link: `/my-companies/${id}/dashboard`,
+			},
+			{
+				label: 'Información',
+				icon: 'ri:information-line',
+				active: false,
+				link: `/my-companies/${id}/dashboard?tab=info`,
 			},
 			{
 				label: 'Documentos',
 				icon: 'ri:file-copy-line',
 				active: true,
-				link: `/my-companies/documents/${id}`,
+				link: `/my-companies/${id}/documents`,
+			},
+			{
+				label: 'Ordenes',
+				icon: 'ri:contract-line',
+				active: false,
+				link: `/my-companies/${id}/orders`,
 			},
 		]}
 	/>
