@@ -1,6 +1,10 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 
-export type AuditAction = 'create' | 'update' | 'soft_delete' | 'restore';
+export type AuditAction =
+	| 'create'
+	| 'update'
+	| 'soft_delete'
+	| 'restore';
 
 interface AuditEventInput {
 	entityType: string;
@@ -13,11 +17,8 @@ interface AuditEventInput {
 	afterData?: unknown;
 }
 
-export async function recordAuditEvent(
-	supabase: SupabaseClient,
-	input: AuditEventInput,
-) {
-	const { error } = await supabase.from('audit_events').insert({
+export async function recordAuditEvent(input: AuditEventInput) {
+	const { error } = await supabaseAdmin.from('audit_events').insert({
 		entity_type: input.entityType,
 		entity_id: input.entityId,
 		parent_type: input.parentType ?? null,
