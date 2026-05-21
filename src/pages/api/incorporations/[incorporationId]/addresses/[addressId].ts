@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
-import { ROLES, hasAnyRole } from '@shared/roles';
+import { canManageCompanyData, extractTokenRoleNames } from '@shared/roles';
+import { getCanonicalCompanyIdForIncorporation } from '@domains/companies/canonical-company';
 import {
 	softDeleteCompanyAddress,
 	updateCompanyAddress,
@@ -16,15 +17,12 @@ const json = (status: number, payload: unknown) =>
 		headers: SECURITY_HEADERS,
 	});
 
-const canEdit = (roles: string[]) =>
-	hasAnyRole(roles, [ROLES.ADMIN, ROLES.GERENCIA, ROLES.OPERACIONES]);
-
 const parseAddressId = (raw: string | undefined) => {
 	const parsed = Number(raw);
 	return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 };
 
-async function resolveContext({ request, cookies, locals, params }: Parameters<APIRoute>[0]) {
+async function resolveContext({ request, cookies, params }: Parameters<APIRoute>[0]) {
 	const incorporationId = params.incorporationId?.trim();
 	const addressId = parseAddressId(params.addressId);
 
@@ -44,16 +42,25 @@ async function resolveContext({ request, cookies, locals, params }: Parameters<A
 		data: { user },
 		error: authError,
 	} = await supabase.auth.getUser();
+	const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
 
-	if (authError || !user) {
+	if (authError || claimsError || !user || !claimsData?.claims) {
 		return { error: json(401, { ok: false, error: 'NO_AUTH_USER' }) };
 	}
 
-	if (!canEdit((locals.userRoles || []) as string[])) {
+	if (!canManageCompanyData(extractTokenRoleNames(claimsData.claims))) {
 		return { error: json(403, { ok: false, error: 'FORBIDDEN' }) };
 	}
 
-	return { supabase, user, incorporationId, addressId };
+	const companyId = await getCanonicalCompanyIdForIncorporation(
+		supabase,
+		incorporationId,
+	);
+	if (!companyId) {
+		return { error: json(409, { ok: false, error: 'COMPANY_NOT_CREATED' }) };
+	}
+
+	return { supabase, user, incorporationId, companyId, addressId };
 }
 
 export const PATCH: APIRoute = async (context) => {
@@ -71,6 +78,7 @@ export const PATCH: APIRoute = async (context) => {
 		const address = await updateCompanyAddress(
 			resolved.supabase,
 			resolved.incorporationId,
+			resolved.companyId,
 			resolved.addressId,
 			body,
 			resolved.user.id,
@@ -97,6 +105,7 @@ export const DELETE: APIRoute = async (context) => {
 		const address = await softDeleteCompanyAddress(
 			resolved.supabase,
 			resolved.incorporationId,
+			resolved.companyId,
 			resolved.addressId,
 			resolved.user.id,
 			body?.reason ?? null,
