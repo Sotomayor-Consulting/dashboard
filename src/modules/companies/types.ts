@@ -2,7 +2,14 @@
 export type TaxClasification = 'disregarded_entity' | 'corporation';
 export type Managmentype = 'member-managed' | 'manager-managed';
 export type EntityLLC = 'llc';
-export type LegalStatus = 'active' | 'inactive' | 'suspended' | 'pending' | 'dissolved';
+export type LegalStatus =
+	| 'draft'
+	| 'pending_validation'
+	| 'active'
+	| 'inactive'
+	| 'suspended'
+	| 'pending'
+	| 'dissolved';
 
 // ── companies table (legacy) ────────────────────────────────────
 export interface Company {
@@ -123,6 +130,7 @@ export interface CompanyMemberAddressItem {
 export interface CompanyAddressItem {
 	id: number;
 	incorporation_id: string;
+	company_id: string | null;
 	type: string;
 	line1: string;
 	line2: string | null;

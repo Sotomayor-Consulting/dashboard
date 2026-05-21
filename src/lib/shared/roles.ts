@@ -11,10 +11,16 @@ export const ROLES = {
 
 export type RoleName = (typeof ROLES)[keyof typeof ROLES];
 
+export const ROLE_GROUPS = {
+	COMPANY_STAFF: [ROLES.ADMIN, ROLES.GERENCIA, ROLES.OPERACIONES],
+	AUDIT_READERS: [ROLES.ADMIN, ROLES.GERENCIA],
+	INCORPORATION_ROUTE: [ROLES.ADMIN, ROLES.GERENCIA, ROLES.OPERACIONES],
+} as const satisfies Record<string, readonly RoleName[]>;
+
 /** Configuración de acceso por rol para rutas protegidas */
 export interface RouteRoleConfig {
 	path: string;
-	roles: RoleName[];
+	roles: readonly RoleName[];
 	errorMsg: string;
 }
 
@@ -28,7 +34,10 @@ export function hasRole(userRoles: string[], role: RoleName): boolean {
 	return userRoles.includes(role);
 }
 
-export function hasAnyRole(userRoles: string[], roles: RoleName[]): boolean {
+export function hasAnyRole(
+	userRoles: string[],
+	roles: readonly RoleName[],
+): boolean {
 	return roles.some((role) => userRoles.includes(role));
 }
 
@@ -50,6 +59,24 @@ export function isClient(userRoles: string[]): boolean {
 
 export function isOperaciones(userRoles: string[]): boolean {
 	return hasRole(userRoles, ROLES.OPERACIONES);
+}
+
+export function canManageCompanyData(userRoles: string[]): boolean {
+	return hasAnyRole(userRoles, ROLE_GROUPS.COMPANY_STAFF);
+}
+
+export function canReadAuditEvents(userRoles: string[]): boolean {
+	return hasAnyRole(userRoles, ROLE_GROUPS.AUDIT_READERS);
+}
+
+export function extractTokenRoleNames(claims: Record<string, unknown>): RoleName[] {
+	const fromClaim = claims['user_roles'];
+	if (!Array.isArray(fromClaim)) return [];
+
+	return fromClaim.filter((role): role is RoleName => {
+		const validRoles: string[] = Object.values(ROLES);
+		return typeof role === 'string' && validRoles.includes(role);
+	});
 }
 
 /**

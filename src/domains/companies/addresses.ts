@@ -16,6 +16,7 @@ export interface CompanyAddressInput {
 export interface CompanyAddressRow {
 	id: number;
 	incorporation_id: string;
+	company_id: string | null;
 	type: string;
 	line1: string;
 	line2: string | null;
@@ -45,15 +46,6 @@ const cleanNumber = (value: unknown) => {
 	if (typeof value !== 'string' || value.trim() === '') return null;
 	const parsed = Number(value);
 	return Number.isInteger(parsed) ? parsed : null;
-};
-
-const isMissingColumnError = (error: unknown, column: string) => {
-	const err = error as { code?: string; message?: string } | null;
-	return (
-		err?.code === '42703' &&
-		typeof err.message === 'string' &&
-		err.message.includes(column)
-	);
 };
 
 async function resolveCountryId(
@@ -127,29 +119,21 @@ function mapAddress(row: any): CompanyAddressRow {
 
 export async function listCompanyAddresses(
 	supabase: SupabaseClient,
-	incorporationId: string,
+	_incorporationId: string,
+	companyId?: string | null,
 ): Promise<CompanyAddressRow[]> {
-	const select = `*,
-		country:country_id ( id, name, iso ),
-		state_ref:state_id ( id, name, code )`;
+	if (!companyId) return [];
 
-	const query = supabase
+	const { data, error } = await supabase
 		.from('company_addresses')
-		.select(select)
-		.eq('incorporation_id', incorporationId)
+		.select(
+			`*,
+			country:country_id ( id, name, iso ),
+			state_ref:state_id ( id, name, code )`,
+		)
+		.eq('company_id', companyId)
+		.is('deleted_at', null)
 		.order('created_at', { ascending: true });
-
-	const { data, error } = await query.is('deleted_at', null);
-	if (isMissingColumnError(error, 'deleted_at')) {
-		const fallback = await supabase
-			.from('company_addresses')
-			.select(select)
-			.eq('incorporation_id', incorporationId)
-			.order('created_at', { ascending: true });
-
-		if (fallback.error) throw fallback.error;
-		return (fallback.data ?? []).map(mapAddress);
-	}
 
 	if (error) throw error;
 	return (data ?? []).map(mapAddress);
@@ -158,6 +142,7 @@ export async function listCompanyAddresses(
 export async function createCompanyAddress(
 	supabase: SupabaseClient,
 	incorporationId: string,
+	companyId: string,
 	input: CompanyAddressInput,
 	actorUserId: string,
 ) {
@@ -167,6 +152,7 @@ export async function createCompanyAddress(
 		.insert({
 			...payload,
 			incorporation_id: incorporationId,
+			company_id: companyId,
 		})
 		.select(
 			`*,
@@ -178,11 +164,11 @@ export async function createCompanyAddress(
 	if (error) throw error;
 	const address = mapAddress(data);
 
-	await recordAuditEvent(supabase, {
+	await recordAuditEvent({
 		entityType: 'company_address',
 		entityId: String(address.id),
-		parentType: 'incorporation',
-		parentId: incorporationId,
+		parentType: 'company',
+		parentId: companyId,
 		action: 'create',
 		changedBy: actorUserId,
 		afterData: address,
@@ -194,6 +180,7 @@ export async function createCompanyAddress(
 export async function updateCompanyAddress(
 	supabase: SupabaseClient,
 	incorporationId: string,
+	companyId: string,
 	addressId: number,
 	input: CompanyAddressInput,
 	actorUserId: string,
@@ -201,18 +188,18 @@ export async function updateCompanyAddress(
 	const before = await getActiveCompanyAddress(
 		supabase,
 		incorporationId,
+		companyId,
 		addressId,
 	);
 	if (!before) throw new Error('COMPANY_ADDRESS_NOT_FOUND');
 
 	const payload = await addressPayload(supabase, input, actorUserId);
-	const query = supabase
+	const { data, error } = await supabase
 		.from('company_addresses')
 		.update(payload)
 		.eq('id', addressId)
-		.eq('incorporation_id', incorporationId);
-
-	const { data, error } = await query
+		.eq('incorporation_id', incorporationId)
+		.eq('company_id', companyId)
 		.is('deleted_at', null)
 		.select(
 			`*,
@@ -221,44 +208,14 @@ export async function updateCompanyAddress(
 		)
 		.single();
 
-	if (isMissingColumnError(error, 'deleted_at')) {
-		const fallback = await supabase
-			.from('company_addresses')
-			.update(await addressPayload(supabase, input))
-			.eq('id', addressId)
-			.eq('incorporation_id', incorporationId)
-			.select(
-				`*,
-				country:country_id ( id, name, iso ),
-				state_ref:state_id ( id, name, code )`,
-			)
-			.single();
-
-		if (fallback.error) throw fallback.error;
-		const address = mapAddress(fallback.data);
-
-		await recordAuditEvent(supabase, {
-			entityType: 'company_address',
-			entityId: String(address.id),
-			parentType: 'incorporation',
-			parentId: incorporationId,
-			action: 'update',
-			changedBy: actorUserId,
-			beforeData: before,
-			afterData: address,
-		});
-
-		return address;
-	}
-
 	if (error) throw error;
 	const address = mapAddress(data);
 
-	await recordAuditEvent(supabase, {
+	await recordAuditEvent({
 		entityType: 'company_address',
 		entityId: String(address.id),
-		parentType: 'incorporation',
-		parentId: incorporationId,
+		parentType: 'company',
+		parentId: companyId,
 		action: 'update',
 		changedBy: actorUserId,
 		beforeData: before,
@@ -271,6 +228,7 @@ export async function updateCompanyAddress(
 export async function softDeleteCompanyAddress(
 	supabase: SupabaseClient,
 	incorporationId: string,
+	companyId: string,
 	addressId: number,
 	actorUserId: string,
 	reason: string | null,
@@ -278,6 +236,7 @@ export async function softDeleteCompanyAddress(
 	const before = await getActiveCompanyAddress(
 		supabase,
 		incorporationId,
+		companyId,
 		addressId,
 	);
 	if (!before) throw new Error('COMPANY_ADDRESS_NOT_FOUND');
@@ -294,17 +253,18 @@ export async function softDeleteCompanyAddress(
 		})
 		.eq('id', addressId)
 		.eq('incorporation_id', incorporationId)
+		.eq('company_id', companyId)
 		.is('deleted_at', null)
 		.select('*')
 		.single<CompanyAddressRow>();
 
 	if (error) throw error;
 
-	await recordAuditEvent(supabase, {
+	await recordAuditEvent({
 		entityType: 'company_address',
 		entityId: String(addressId),
-		parentType: 'incorporation',
-		parentId: incorporationId,
+		parentType: 'company',
+		parentId: companyId,
 		action: 'soft_delete',
 		changedBy: actorUserId,
 		beforeData: before,
@@ -317,30 +277,21 @@ export async function softDeleteCompanyAddress(
 async function getActiveCompanyAddress(
 	supabase: SupabaseClient,
 	incorporationId: string,
+	companyId: string,
 	addressId: number,
 ) {
-	const select = `*,
-		country:country_id ( id, name, iso ),
-		state_ref:state_id ( id, name, code )`;
-
-	const query = supabase
+	const { data, error } = await supabase
 		.from('company_addresses')
-		.select(select)
+		.select(
+			`*,
+			country:country_id ( id, name, iso ),
+			state_ref:state_id ( id, name, code )`,
+		)
 		.eq('id', addressId)
-		.eq('incorporation_id', incorporationId);
-
-	const { data, error } = await query.is('deleted_at', null).maybeSingle();
-	if (isMissingColumnError(error, 'deleted_at')) {
-		const fallback = await supabase
-			.from('company_addresses')
-			.select(select)
-			.eq('id', addressId)
-			.eq('incorporation_id', incorporationId)
-			.maybeSingle();
-
-		if (fallback.error) throw fallback.error;
-		return fallback.data ? mapAddress(fallback.data) : null;
-	}
+		.eq('incorporation_id', incorporationId)
+		.eq('company_id', companyId)
+		.is('deleted_at', null)
+		.maybeSingle();
 
 	if (error) throw error;
 	return data ? mapAddress(data) : null;

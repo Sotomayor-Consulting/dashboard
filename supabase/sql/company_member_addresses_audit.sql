@@ -33,16 +33,50 @@ create index if not exists empresas_incorporaciones_company_id_idx
 	on public.empresas_incorporaciones (company_id)
 	where company_id is not null;
 
+create index if not exists empresas_incorporaciones_user_id_idx
+	on public.empresas_incorporaciones (user_id);
+
+create index if not exists companies_user_id_idx
+	on public.companies (user_id);
+
+alter table public.companies
+	drop constraint if exists companies_legal_status_check;
+
+alter table public.companies
+	add constraint companies_legal_status_check check (
+		legal_status in (
+			'draft',
+			'pending_validation',
+			'pending',
+			'active',
+			'inactive',
+			'suspended',
+			'dissolved'
+		)
+	) not valid;
+
 alter table public.company_addresses
+	add column if not exists company_id uuid references public.companies(id),
 	add column if not exists updated_at timestamptz,
 	add column if not exists updated_by uuid references public.usuarios(user_id),
 	add column if not exists deleted_at timestamptz,
 	add column if not exists deleted_by uuid references public.usuarios(user_id),
 	add column if not exists delete_reason text;
 
+update public.company_addresses ca
+set company_id = ei.company_id
+from public.empresas_incorporaciones ei
+where ca.company_id is null
+	and ca.incorporation_id = ei.empresa_incorporacion_id
+	and ei.company_id is not null;
+
 create index if not exists company_addresses_active_incorporation_idx
 	on public.company_addresses (incorporation_id, type)
 	where deleted_at is null;
+
+create index if not exists company_addresses_active_company_idx
+	on public.company_addresses (company_id, type)
+	where deleted_at is null and company_id is not null;
 
 alter table public.company_members
 	add column if not exists full_name text,
@@ -93,3 +127,310 @@ create index if not exists company_member_addresses_active_member_idx
 create unique index if not exists company_member_addresses_one_primary_per_type_idx
 	on public.company_member_addresses (company_member_id, type)
 	where is_primary = true and deleted_at is null;
+
+-- ---------------------------------------------------------------------------
+-- RLS helpers and policies
+-- ---------------------------------------------------------------------------
+
+create or replace function public.jwt_has_role(role_name text)
+returns boolean
+language sql
+stable
+as $$
+	select coalesce(auth.jwt()->'user_roles', '[]'::jsonb) ? role_name;
+$$;
+
+create or replace function public.jwt_has_any_role(role_names text[])
+returns boolean
+language sql
+stable
+as $$
+	select exists (
+		select 1
+		from unnest(role_names) as role_name
+		where public.jwt_has_role(role_name)
+	);
+$$;
+
+create or replace function public.is_company_staff()
+returns boolean
+language sql
+stable
+as $$
+	select public.jwt_has_any_role(array['admin', 'gerencia', 'operaciones']);
+$$;
+
+create or replace function public.is_audit_reader()
+returns boolean
+language sql
+stable
+as $$
+	select public.jwt_has_any_role(array['admin', 'gerencia']);
+$$;
+
+create or replace function public.user_can_access_incorporation(p_incorporation_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+	select public.is_company_staff()
+		or exists (
+			select 1
+			from public.empresas_incorporaciones ei
+			where ei.empresa_incorporacion_id = p_incorporation_id
+				and ei.user_id = auth.uid()
+		);
+$$;
+
+create or replace function public.user_can_access_company(p_company_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+	select public.is_company_staff()
+		or exists (
+			select 1
+			from public.companies c
+			where c.id = p_company_id
+				and c.user_id = auth.uid()
+		)
+		or exists (
+			select 1
+			from public.empresas_incorporaciones ei
+			where ei.company_id = p_company_id
+				and ei.user_id = auth.uid()
+		);
+$$;
+
+alter table public.empresas_incorporaciones enable row level security;
+alter table public.companies enable row level security;
+alter table public.company_addresses enable row level security;
+alter table public.company_members enable row level security;
+alter table public.company_member_addresses enable row level security;
+alter table public.audit_events enable row level security;
+
+drop policy if exists empresas_incorporaciones_select_accessible on public.empresas_incorporaciones;
+create policy empresas_incorporaciones_select_accessible
+	on public.empresas_incorporaciones
+	for select
+	to authenticated
+	using (public.user_can_access_incorporation(empresa_incorporacion_id));
+
+drop policy if exists empresas_incorporaciones_insert_owner_or_staff on public.empresas_incorporaciones;
+create policy empresas_incorporaciones_insert_owner_or_staff
+	on public.empresas_incorporaciones
+	for insert
+	to authenticated
+	with check (
+		public.is_company_staff()
+		or user_id = auth.uid()
+	);
+
+drop policy if exists empresas_incorporaciones_update_owner_or_staff on public.empresas_incorporaciones;
+create policy empresas_incorporaciones_update_owner_or_staff
+	on public.empresas_incorporaciones
+	for update
+	to authenticated
+	using (
+		public.is_company_staff()
+		or user_id = auth.uid()
+	)
+	with check (
+		public.is_company_staff()
+		or user_id = auth.uid()
+	);
+
+drop policy if exists companies_select_accessible on public.companies;
+create policy companies_select_accessible
+	on public.companies
+	for select
+	to authenticated
+	using (public.user_can_access_company(id));
+
+drop policy if exists companies_insert_owner_or_staff on public.companies;
+create policy companies_insert_owner_or_staff
+	on public.companies
+	for insert
+	to authenticated
+	with check (
+		public.is_company_staff()
+		or user_id = auth.uid()
+	);
+
+drop policy if exists companies_update_owner_or_staff on public.companies;
+create policy companies_update_owner_or_staff
+	on public.companies
+	for update
+	to authenticated
+	using (
+		public.is_company_staff()
+		or user_id = auth.uid()
+	)
+	with check (
+		public.is_company_staff()
+		or user_id = auth.uid()
+	);
+
+drop policy if exists company_addresses_select_accessible on public.company_addresses;
+create policy company_addresses_select_accessible
+	on public.company_addresses
+	for select
+	to authenticated
+	using (
+		deleted_at is null
+		and (
+			(
+				company_id is not null
+				and public.user_can_access_company(company_id)
+			)
+			or (
+				company_id is null
+				and public.user_can_access_incorporation(incorporation_id)
+			)
+		)
+	);
+
+drop policy if exists company_addresses_insert_accessible on public.company_addresses;
+create policy company_addresses_insert_accessible
+	on public.company_addresses
+	for insert
+	to authenticated
+	with check (
+		public.is_company_staff()
+		and company_id is not null
+		and public.user_can_access_company(company_id)
+	);
+
+drop policy if exists company_addresses_update_accessible on public.company_addresses;
+create policy company_addresses_update_accessible
+	on public.company_addresses
+	for update
+	to authenticated
+	using (
+		deleted_at is null
+		and
+		public.is_company_staff()
+		and company_id is not null
+		and public.user_can_access_company(company_id)
+	)
+	with check (
+		public.is_company_staff()
+		and company_id is not null
+		and public.user_can_access_company(company_id)
+	);
+
+drop policy if exists company_members_select_accessible on public.company_members;
+create policy company_members_select_accessible
+	on public.company_members
+	for select
+	to authenticated
+	using (
+		deleted_at is null
+		and public.user_can_access_company(company_id)
+	);
+
+drop policy if exists company_members_insert_accessible on public.company_members;
+create policy company_members_insert_accessible
+	on public.company_members
+	for insert
+	to authenticated
+	with check (
+		public.is_company_staff()
+		and public.user_can_access_company(company_id)
+	);
+
+drop policy if exists company_members_update_accessible on public.company_members;
+create policy company_members_update_accessible
+	on public.company_members
+	for update
+	to authenticated
+	using (
+		deleted_at is null
+		and
+		public.is_company_staff()
+		and public.user_can_access_company(company_id)
+	)
+	with check (
+		public.is_company_staff()
+		and public.user_can_access_company(company_id)
+	);
+
+drop policy if exists company_member_addresses_select_accessible on public.company_member_addresses;
+create policy company_member_addresses_select_accessible
+	on public.company_member_addresses
+	for select
+	to authenticated
+	using (
+		deleted_at is null
+		and
+		exists (
+			select 1
+			from public.company_members cm
+			where cm.id = company_member_addresses.company_member_id
+				and cm.deleted_at is null
+				and public.user_can_access_company(cm.company_id)
+		)
+	);
+
+drop policy if exists company_member_addresses_insert_accessible on public.company_member_addresses;
+create policy company_member_addresses_insert_accessible
+	on public.company_member_addresses
+	for insert
+	to authenticated
+	with check (
+		public.is_company_staff()
+		and
+		exists (
+			select 1
+			from public.company_members cm
+			where cm.id = company_member_addresses.company_member_id
+				and cm.deleted_at is null
+				and public.user_can_access_company(cm.company_id)
+		)
+	);
+
+drop policy if exists company_member_addresses_update_accessible on public.company_member_addresses;
+create policy company_member_addresses_update_accessible
+	on public.company_member_addresses
+	for update
+	to authenticated
+	using (
+		deleted_at is null
+		and
+		public.is_company_staff()
+		and
+		exists (
+			select 1
+			from public.company_members cm
+			where cm.id = company_member_addresses.company_member_id
+				and cm.deleted_at is null
+				and public.user_can_access_company(cm.company_id)
+		)
+	)
+	with check (
+		public.is_company_staff()
+		and
+		exists (
+			select 1
+			from public.company_members cm
+			where cm.id = company_member_addresses.company_member_id
+				and cm.deleted_at is null
+				and public.user_can_access_company(cm.company_id)
+		)
+	);
+
+drop policy if exists audit_events_select_admin_gerencia on public.audit_events;
+create policy audit_events_select_admin_gerencia
+	on public.audit_events
+	for select
+	to authenticated
+	using (public.is_audit_reader());
+
+drop policy if exists audit_events_insert_authenticated_actor on public.audit_events;
+
+revoke insert, update, delete on public.audit_events from anon, authenticated;
+grant select on public.audit_events to authenticated;

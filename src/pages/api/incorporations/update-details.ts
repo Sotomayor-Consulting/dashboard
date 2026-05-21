@@ -2,12 +2,12 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
-import { ROLES } from '@shared/roles';
+import { canManageCompanyData, extractTokenRoleNames } from '@shared/roles';
 import { safeBack } from '@infrastructure/security/headers';
 
 const FALLBACK_BACK = '/incorporations/';
 
-export const POST: APIRoute = async ({ request, cookies, locals, redirect, url }) => {
+export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const back = safeBack(url.searchParams.get('back'), FALLBACK_BACK);
 	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
@@ -15,14 +15,13 @@ export const POST: APIRoute = async ({ request, cookies, locals, redirect, url }
 		data: { user },
 		error: userErr,
 	} = await supabase.auth.getUser();
+	const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
 
-	if (userErr || !user) {
+	if (userErr || claimsError || !user || !claimsData?.claims) {
 		return redirect(`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`);
 	}
 
-	const userRoles = (locals.userRoles || []) as string[];
-	const canEdit =
-		userRoles.includes(ROLES.ADMIN) || userRoles.includes(ROLES.GERENCIA);
+	const canEdit = canManageCompanyData(extractTokenRoleNames(claimsData.claims));
 
 	if (!canEdit) {
 		return redirect(`${back}?status=error&msg=${encodeURIComponent('No autorizado')}`);

@@ -2,8 +2,8 @@ import type { APIRoute } from 'astro';
 import type { AstroCookies } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
-import { ROLES, hasAnyRole } from '@shared/roles';
-import { ensureCanonicalCompanyForIncorporation } from '@domains/companies/canonical-company';
+import { canManageCompanyData, extractTokenRoleNames } from '@shared/roles';
+import { getCanonicalCompanyIdForIncorporation } from '@domains/companies/canonical-company';
 import {
 	softDeleteCompanyMember,
 	updateCompanyMember,
@@ -18,9 +18,6 @@ const json = (status: number, payload: unknown) =>
 		headers: SECURITY_HEADERS,
 	});
 
-const canEdit = (roles: string[]) =>
-	hasAnyRole(roles, [ROLES.ADMIN, ROLES.GERENCIA, ROLES.OPERACIONES]);
-
 const parseMemberId = (raw: string | undefined) => {
 	const parsed = Number(raw);
 	return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
@@ -29,7 +26,6 @@ const parseMemberId = (raw: string | undefined) => {
 async function resolveRequestContext(
 	request: Request,
 	cookies: AstroCookies,
-	locals: App.Locals,
 	params: Record<string, string | undefined>,
 ) {
 	const incorporationId = params.incorporationId?.trim();
@@ -50,20 +46,23 @@ async function resolveRequestContext(
 		data: { user },
 		error: authError,
 	} = await supabase.auth.getUser();
+	const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
 
-	if (authError || !user) {
+	if (authError || claimsError || !user || !claimsData?.claims) {
 		return { error: json(401, { ok: false, error: 'NO_AUTH_USER' }) };
 	}
 
-	if (!canEdit((locals.userRoles || []) as string[])) {
+	if (!canManageCompanyData(extractTokenRoleNames(claimsData.claims))) {
 		return { error: json(403, { ok: false, error: 'FORBIDDEN' }) };
 	}
 
-	const companyId = await ensureCanonicalCompanyForIncorporation(
+	const companyId = await getCanonicalCompanyIdForIncorporation(
 		supabase,
 		incorporationId,
-		user.id,
 	);
+	if (!companyId) {
+		return { error: json(409, { ok: false, error: 'COMPANY_NOT_CREATED' }) };
+	}
 
 	return { supabase, user, companyId, memberId };
 }
@@ -71,14 +70,12 @@ async function resolveRequestContext(
 export const PATCH: APIRoute = async ({
 	request,
 	cookies,
-	locals,
 	params,
 }) => {
 	try {
 		const context = await resolveRequestContext(
 			request,
 			cookies,
-			locals,
 			params,
 		);
 		if ('error' in context) return context.error;
@@ -111,14 +108,12 @@ export const PATCH: APIRoute = async ({
 export const DELETE: APIRoute = async ({
 	request,
 	cookies,
-	locals,
 	params,
 }) => {
 	try {
 		const context = await resolveRequestContext(
 			request,
 			cookies,
-			locals,
 			params,
 		);
 		if ('error' in context) return context.error;

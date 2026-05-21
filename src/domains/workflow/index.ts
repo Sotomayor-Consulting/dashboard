@@ -151,8 +151,7 @@ export const listPendingTasksForRole = async (
 		.from('incorporation_tasks')
 		.select(
 			`id, title, priority, due_date, incorporation_id, workflow_stage_id,
-			stage:workflow_stage_id ( catalog:stage_id ( slug, name ) ),
-			empresa:incorporation_id ( nombre_1, estado_de_incorporacion )`,
+			stage:workflow_stage_id ( catalog:stage_id ( slug, name ) )`,
 		)
 		.eq('assigned_role', assignedRole)
 		.in('status', ['pending', 'in_progress'])

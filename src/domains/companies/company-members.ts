@@ -199,7 +199,7 @@ export async function createCompanyMember(
 	}
 
 	const afterData = { ...member, tax_address: taxAddress };
-	await recordAuditEvent(supabase, {
+	await recordAuditEvent({
 		entityType: 'company_member',
 		entityId: String(member.id),
 		parentType: 'company',
@@ -210,7 +210,7 @@ export async function createCompanyMember(
 	});
 
 	if (taxAddress) {
-		await recordAuditEvent(supabase, {
+		await recordAuditEvent({
 			entityType: 'company_member_address',
 			entityId: String(taxAddress.id),
 			parentType: 'company_member',
@@ -275,7 +275,7 @@ export async function updateCompanyMember(
 		tax_address: taxAddress,
 	};
 
-	await recordAuditEvent(supabase, {
+	await recordAuditEvent({
 		entityType: 'company_member',
 		entityId: String(member.id),
 		parentType: 'company',
@@ -334,7 +334,7 @@ export async function softDeleteCompanyMember(
 		.eq('company_member_id', memberId)
 		.is('deleted_at', null);
 
-	await recordAuditEvent(supabase, {
+	await recordAuditEvent({
 		entityType: 'company_member',
 		entityId: String(member.id),
 		parentType: 'company',
@@ -418,7 +418,7 @@ async function upsertPrimaryTaxAddress(
 
 		if (error) throw error;
 
-		await recordAuditEvent(supabase, {
+		await recordAuditEvent({
 			entityType: 'company_member_address',
 			entityId: String(data.id),
 			parentType: 'company_member',
@@ -476,7 +476,7 @@ async function softDeleteCompanyMemberAddress(
 
 	if (error) throw error;
 
-	await recordAuditEvent(supabase, {
+	await recordAuditEvent({
 		entityType: 'company_member_address',
 		entityId: String(addressId),
 		parentType: 'company_member',

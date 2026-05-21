@@ -2,11 +2,7 @@ import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 import { canManageCompanyData, extractTokenRoleNames } from '@shared/roles';
-import { getCanonicalCompanyIdForIncorporation } from '@domains/companies/canonical-company';
-import {
-	createCompanyMember,
-	type CompanyMemberInput,
-} from '@domains/companies/company-members';
+import { createCanonicalCompanyFromIncorporation } from '@domains/companies/canonical-company';
 
 export const prerender = false;
 
@@ -41,27 +37,17 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		return json(403, { ok: false, error: 'FORBIDDEN' });
 	}
 
-	const body = (await request.json().catch(() => null)) as
-		| CompanyMemberInput
-		| null;
-	if (!body) {
-		return json(400, { ok: false, error: 'INVALID_BODY' });
-	}
-
 	try {
-		const companyId = await getCanonicalCompanyIdForIncorporation(
+		const companyId = await createCanonicalCompanyFromIncorporation(
 			supabase,
 			incorporationId,
+			user.id,
+			'draft',
 		);
-		if (!companyId) {
-			return json(409, { ok: false, error: 'COMPANY_NOT_CREATED' });
-		}
 
-		const member = await createCompanyMember(supabase, companyId, body, user.id);
-
-		return json(200, { ok: true, data: member });
+		return json(200, { ok: true, data: { company_id: companyId } });
 	} catch (error) {
-		console.error('[company_members:create]', error);
+		console.error('[companies:create-from-incorporation]', error);
 		return json(500, {
 			ok: false,
 			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',

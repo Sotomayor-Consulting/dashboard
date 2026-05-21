@@ -1,6 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { recordAuditEvent } from '@domains/audit/audit-events';
 
 type ManagementType = 'member-managed' | 'manager-managed';
+type CanonicalCompanyStatus = 'draft' | 'pending_validation';
 
 interface IncorporationForCompany {
 	empresa_incorporacion_id: string;
@@ -23,10 +25,25 @@ const normalizeManagementType = (value: string | null): ManagementType => {
 	return 'member-managed';
 };
 
-export async function ensureCanonicalCompanyForIncorporation(
+export async function getCanonicalCompanyIdForIncorporation(
+	supabase: SupabaseClient,
+	incorporationId: string,
+): Promise<string | null> {
+	const { data, error } = await supabase
+		.from('empresas_incorporaciones')
+		.select('company_id')
+		.eq('empresa_incorporacion_id', incorporationId)
+		.maybeSingle<{ company_id: string | null }>();
+
+	if (error) throw error;
+	return data?.company_id ?? null;
+}
+
+export async function createCanonicalCompanyFromIncorporation(
 	supabase: SupabaseClient,
 	incorporationId: string,
 	actorUserId: string,
+	status: CanonicalCompanyStatus = 'draft',
 ): Promise<string> {
 	const { data: incorporation, error: incorporationError } = await supabase
 		.from('empresas_incorporaciones')
@@ -63,7 +80,7 @@ export async function ensureCanonicalCompanyForIncorporation(
 				incorporation.descripcion_empresa ??
 				null,
 			us_source_income: Boolean(incorporation.Obtendra_ingresos_desde_eeuu),
-			legal_status: 'pending',
+			legal_status: status,
 			created_by: actorUserId,
 			updated_by: actorUserId,
 			created_at: now,
@@ -83,6 +100,21 @@ export async function ensureCanonicalCompanyForIncorporation(
 		.eq('empresa_incorporacion_id', incorporationId);
 
 	if (updateError) throw updateError;
+
+	await recordAuditEvent({
+		entityType: 'company',
+		entityId: company.id,
+		parentType: 'incorporation',
+		parentId: incorporationId,
+		action: 'create',
+		changedBy: actorUserId,
+		afterData: {
+			id: company.id,
+			incorporation_id: incorporationId,
+			legal_status: status,
+			legal_name: incorporation.nombre_1,
+		},
+	});
 
 	return company.id;
 }
