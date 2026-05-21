@@ -204,7 +204,19 @@ export default function PagosRealizadosTable({
 
 	return (
 		<div className="space-y-4">
-			<div className="mt-2 flex items-center gap-2">
+			<div className="relative w-full max-w-sm">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+				>
+					<path
+						fill="currentColor"
+						d="M11 2c4.968 0 9 4.032 9 9s-4.032 9-9 9s-9-4.032-9-9s4.032-9 9-9m0 16c3.867 0 7-3.133 7-7s-3.133-7-7-7s-7 3.133-7 7s3.133 7 7 7m8.485.071l2.829 2.828l-1.415 1.415l-2.828-2.829z"
+					/>
+				</svg>
 				<Input
 					placeholder="Buscar por empresa o servicio..."
 					value={
@@ -217,7 +229,7 @@ export default function PagosRealizadosTable({
 						table.getColumn('companyName')?.setFilterValue(value);
 						table.getColumn('serviceName')?.setFilterValue(value);
 					}}
-					className="max-w-md"
+					className="max-w-sm pl-9"
 				/>
 			</div>
 

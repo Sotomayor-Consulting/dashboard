@@ -16,11 +16,9 @@ const labelClass =
 	'mb-2 block text-sm font-medium text-gray-900 dark:text-white';
 ---
 
-<div
-	class="block items-center justify-between p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
->
+<section class="space-y-4 p-4 lg:p-6">
 	<Alerta />
-	<div class="w-full space-y-4 p-4 lg:p-6">
+	<div class="w-full space-y-4 p-4">
 		<CrudPageHeader
 			title="Todos los servicios"
 			descripcion="Gestiona todos los servicios disponibles"
@@ -50,7 +48,7 @@ const labelClass =
 						/>
 					</div>
 					<div>
-						<label for="categoria_service" class={labelClass}>Categoria</label>
+						<label for="categoria_service" class={labelClass}>Categoría</label>
 						<input
 							type="text"
 							name="categoria-service"
@@ -73,7 +71,7 @@ const labelClass =
 					</div>
 					<div>
 						<label for="descripcion-servicio" class={labelClass}
-							>Descripcion</label
+							>Descripción</label
 						>
 						<textarea
 							id="descripcion-servicio"
@@ -262,4 +260,4 @@ const labelClass =
 			document.addEventListener('astro:page-load', bindDesarchivarButtons);
 		</script>
 	</div>
-</div>
+</section>
