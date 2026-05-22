@@ -3,13 +3,16 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { canManageCompanyData, extractTokenRoleNames } from '@shared/roles';
-import { safeBack } from '@infrastructure/security/headers';
 import { updateIncorporationDetails } from '@domains/companies/incorporation-details';
+import { updateIncorporationDetailsRequestSchema } from '@modules/companies/islands/company-details/schemas/incorporation-registration.schema';
 
-const FALLBACK_BACK = '/incorporations/';
+const json = (status: number, payload: unknown) =>
+	new Response(JSON.stringify(payload), {
+		status,
+		headers: { 'Content-Type': 'application/json' },
+	});
 
-export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
-	const back = safeBack(url.searchParams.get('back'), FALLBACK_BACK);
+export const POST: APIRoute = async ({ request, cookies }) => {
 	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
 
 	const {
@@ -19,64 +22,43 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
 
 	if (userErr || claimsError || !user || !claimsData?.claims) {
-		return redirect(`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`);
+		return json(401, { ok: false, error: 'No autenticado' });
 	}
 
 	const canEdit = canManageCompanyData(extractTokenRoleNames(claimsData.claims));
 
 	if (!canEdit) {
-		return redirect(`${back}?status=error&msg=${encodeURIComponent('No autorizado')}`);
+		return json(403, { ok: false, error: 'No autorizado' });
 	}
 
-	const form = await request.formData();
-	console.log(form);
-	const empresaId =
-		form.get('empresa_incorporacion_id')?.toString().trim() ||
-		url.searchParams.get('empresa')?.trim() ||
-		'';
+	const body = await request.json().catch(() => null);
+	const parsed = updateIncorporationDetailsRequestSchema.safeParse(body);
 
-	if (!empresaId) {
-		return redirect(`${back}?status=error&msg=${encodeURIComponent('Empresa inválida')}`);
+	if (!parsed.success) {
+		return json(400, { ok: false, error: 'Datos inválidos' });
 	}
 
-	const payload = {
-		nombre_1:
-			form.get('name_option_1')?.toString().trim() ||
-			form.get('nombre_1')?.toString().trim() ||
-			null,
-		nombre_2:
-			form.get('name_option_2')?.toString().trim() ||
-			form.get('nombre_2')?.toString().trim() ||
-			null,
-		nombre_3:
-			form.get('name_option_3')?.toString().trim() ||
-			form.get('nombre_3')?.toString().trim() ||
-			null,
-		tipo_de_negocio:
-			form.get('business_type')?.toString().trim() ||
-			form.get('tipo_de_negocio')?.toString().trim() ||
-			null,
-	};
-
-	const estadoIdRaw = form.get('state_id')?.toString().trim() || '';
-	const stateId = estadoIdRaw ? Number(estadoIdRaw) : null;
+	const { empresa_incorporacion_id: empresaId, ...payload } = parsed.data;
 
 	try {
 		await updateIncorporationDetails(
 			supabase,
 			empresaId,
-			{ ...payload, state_id: Number.isFinite(stateId) ? stateId : null },
+			{
+				nombre_1: payload.name_option_1,
+				nombre_2: payload.name_option_2,
+				nombre_3: payload.name_option_3,
+				tipo_de_negocio: payload.business_type,
+				state_id: payload.state_id,
+			},
 			user.id,
 		);
 	} catch (error) {
-		return redirect(
-			`${back}?status=error&msg=${encodeURIComponent(
-				error instanceof Error ? error.message : 'Error inesperado',
-			)}`,
-		);
+		return json(500, {
+			ok: false,
+			error: error instanceof Error ? error.message : 'Error inesperado',
+		});
 	}
 
-	return redirect(
-		`${back}?status=success&msg=${encodeURIComponent('Detalles actualizados')}`,
-	);
+	return json(200, { ok: true, message: 'Detalles actualizados' });
 };
