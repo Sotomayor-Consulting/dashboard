@@ -162,6 +162,7 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 	},
 	// Excepción específica: /admin/usuarios accesible a operaciones (read-only,
 	// la edición de roles se valida en la API).
+	// IMPORTANTE: debe ir ANTES de /admin/ para que el startsWith no la tape.
 	{
 		path: '/admin/usuarios',
 		roles: [ROLES.ADMIN, ROLES.OPERACIONES],

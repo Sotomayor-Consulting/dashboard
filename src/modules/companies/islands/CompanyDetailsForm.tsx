@@ -37,47 +37,47 @@ import CompanyStructureSection from './company-details/sections/CompanyStructure
 const verticalTabTriggerClass =
 	'!w-full !justify-start !rounded-l-none !rounded-r-md border-l-2 border-transparent !bg-transparent !px-3 !py-2 !shadow-none hover:!bg-gray-50 hover:!text-gray-900 data-active:border-gray-900 data-active:!bg-gray-100 data-active:!text-gray-900 data-active:!shadow-none dark:hover:!bg-white/5 dark:hover:!text-white dark:data-active:border-white dark:data-active:!bg-white/10 dark:data-active:!text-white';
 
-const mockMembersFallback: CompanyMemberItem[] = mockCompanyMembers.map(
-	(member, index) => ({
-		id: index + 1,
-		company_id: member.id_empresa,
-		full_name: member.nombre_de_socio,
-		email: member.correo,
-		member_type: member.tipo_de_socio,
-		country_nationality_id: null,
-		marital_status: member.estado_civil,
-		is_us_tax_resident:
-			member.residente_fiscal === null
-				? null
-				: member.residente_fiscal.toLowerCase() === 'si',
-		passport_number: member.numero_de_pasaporte,
-		ssn: member.numero_de_seguro_social,
-		itin: member.numero_itin,
-		is_member: true,
-		is_manager: member.roles?.some((role) =>
-			role.toLowerCase().includes('manager'),
-		)
-			? true
-			: false,
-		percentage: member.porcentaje,
-		is_active: true,
-		deleted_at: null,
-		tax_address: {
-			id: index + 1,
-			company_member_id: index + 1,
-			type: 'tax',
-			line1: member.direccion_planilla ?? '',
-			line2: null,
-			city: null,
-			state_id: null,
-			state: null,
-			country_id: null,
-			zip: null,
-			is_primary: true,
-			deleted_at: null,
-		},
-	}),
-);
+// const mockMembersFallback: CompanyMemberItem[] = mockCompanyManagers.map(
+// 	(member, index) => ({
+// 		id: index + 1,
+// 		company_id: member.id_empresa,
+// 		full_name: member.nombre_de_socio,
+// 		email: member.correo,
+// 		member_type: member.tipo_de_socio,
+// 		country_nationality_id: null,
+// 		marital_status: member.estado_civil,
+// 		is_us_tax_resident:
+// 			member.residente_fiscal === null
+// 				? null
+// 				: member.residente_fiscal.toLowerCase() === 'si',
+// 		passport_number: member.numero_de_pasaporte,
+// 		ssn: member.numero_de_seguro_social,
+// 		itin: member.numero_itin,
+// 		is_member: true,
+// 		is_manager: member.roles?.some((role) =>
+// 			role.toLowerCase().includes('manager'),
+// 		)
+// 			? true
+// 			: false,
+// 		percentage: member.porcentaje,
+// 		is_active: true,
+// 		deleted_at: null,
+// 		tax_address: {
+// 			id: index + 1,
+// 			company_member_id: index + 1,
+// 			type: 'tax',
+// 			line1: member.direccion_planilla ?? '',
+// 			line2: null,
+// 			city: null,
+// 			state_id: null,
+// 			state: null,
+// 			country_id: null,
+// 			zip: null,
+// 			is_primary: true,
+// 			deleted_at: null,
+// 		},
+// 	}),
+// );
 
 interface Props {
 	empresa: EmpresaDetail;
@@ -219,18 +219,15 @@ export default function CompanyDetailsForm({
 								value="informacion"
 								className={verticalTabTriggerClass}
 							>
-								<Icon icon="ri:building-2-line" data-icon="inline-start" />
 								Informacion
 							</TabsTrigger>
 							<TabsTrigger
 								value="direcciones"
 								className={verticalTabTriggerClass}
 							>
-								<Icon icon="ri:map-pin-line" data-icon="inline-start" />
 								Direcciones
 							</TabsTrigger>
 							<TabsTrigger value="socios" className={verticalTabTriggerClass}>
-								<Icon icon="ri:group-line" data-icon="inline-start" />
 								Socios
 							</TabsTrigger>
 							{showManagersTab && (
