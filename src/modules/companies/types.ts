@@ -1,7 +1,7 @@
 // ── Enums / unions ──────────────────────────────────────────────
 export type TaxClasification = 'disregarded_entity' | 'corporation';
 export type Managmentype = 'member-managed' | 'manager-managed';
-export type EntityLLC = 'llc';
+export type EntityType = 'llc';
 export type LegalStatus =
 	| 'draft'
 	| 'pending_validation'
@@ -167,20 +167,20 @@ export interface CompanyMemberItem {
 export interface CompanyItem {
 	id: string;
 	legal_name: string | null;
+	filing_number: string | null;
 	identification_number: string | null;
-	entity_type: string | null;
-	formation_state_id?: number | null;
-	formation_country_id?: number | null;
-	management_type: string | null;
-	tax_clasification: string | null;
-	activity_code_id?: number | null;
+	entity_type: EntityType;
+	formation_state_id: number | null;
+	formation_country_id: number | null;
+	tax_clasification: TaxClasification;
+	management_type: Managmentype;
+	activity_code_id: number | null;
 	activity_description: string | null;
-	activity_service?: string | null;
 	us_source_income?: boolean | null;
 	joint_ownership?: boolean | null;
 	incorporation_date?: string | null;
 	irs_email?: string | null;
-	legal_status?: string | null;
+	legal_status: LegalStatus;
 }
 
 export interface ManagerItem {

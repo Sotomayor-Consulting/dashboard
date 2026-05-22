@@ -98,7 +98,10 @@ export default function CompanyDetailsForm({
 	});
 
 	const createCompany = async () => {
+		if (!canEditDetails || isCreatingCompany) return;
+
 		setIsCreatingCompany(true);
+		const loadingToastId = toast.loading('Creando empresa...');
 		try {
 			const response = await fetch(
 				`/api/incorporations/${empresa.empresa_incorporacion_id}/company`,
@@ -111,9 +114,25 @@ export default function CompanyDetailsForm({
 
 			setCompanyId(payload.data.company_id);
 			setIsCreateCompanyOpen(false);
-			window.location.reload();
+			toast.success('Empresa creada', { id: loadingToastId });
+			window.setTimeout(() => {
+				window.location.reload();
+			}, 300);
 		} catch (error) {
-			window.alert(error instanceof Error ? error.message : 'Error inesperado');
+			const message =
+				error instanceof Error ? error.message : 'Error inesperado';
+			const friendlyMessage =
+				message === 'MISSING_INCORPORATION_ID'
+					? 'No se encontró la incorporación.'
+					: message === 'INCORPORATION_NOT_FOUND'
+						? 'No se encontró la incorporación.'
+						: message === 'No autorizado'
+							? 'No tienes permisos para crear la empresa.'
+							: message === 'FORBIDDEN'
+								? 'No tienes permisos para crear la empresa.'
+								: 'No se pudo crear la empresa. Intenta nuevamente.';
+
+			toast.error(friendlyMessage, { id: loadingToastId });
 		} finally {
 			setIsCreatingCompany(false);
 		}
@@ -124,7 +143,9 @@ export default function CompanyDetailsForm({
 		setIsCreateCompanyOpen(true);
 	};
 
-	const handleSaveIncorporation = async (values: IncorporationRegistrationInput) => {
+	const handleSaveIncorporation = async (
+		values: IncorporationRegistrationInput,
+	) => {
 		if (!canEditDetails || isSavingIncorporation) return;
 
 		setIsSavingIncorporation(true);
@@ -187,7 +208,7 @@ export default function CompanyDetailsForm({
 							className={verticalTabTriggerClass}
 						>
 							<Icon icon="ri:building-2-line" data-icon="inline-start" />
-							Información
+							Formulario
 						</TabsTrigger>
 
 						<div className="mt-3 px-3 py-2 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">

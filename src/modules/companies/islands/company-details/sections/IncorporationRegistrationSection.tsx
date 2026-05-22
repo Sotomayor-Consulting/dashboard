@@ -45,7 +45,7 @@ export default function IncorporationRegistrationSection({
 	return (
 		<section className="flex flex-col gap-4">
 			<header className="flex flex-col gap-1">
-				<h3 className="text-lg font-semibold">Información</h3>
+				<h3 className="text-lg font-semibold">Formulario</h3>
 				<FieldDescription>
 					Revise o edite detalles del registro de incorporación.
 				</FieldDescription>
@@ -89,7 +89,7 @@ export default function IncorporationRegistrationSection({
 			</div>
 			<FieldGroup className="grid gap-4 md:grid-cols-2">
 				<Field>
-					<FieldLabel htmlFor="business_type">Tipo de negocio</FieldLabel>
+					<FieldLabel htmlFor="business_type">Tipo de entidad</FieldLabel>
 					<Controller
 						name="businessType"
 						control={control}

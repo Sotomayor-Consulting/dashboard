@@ -29,16 +29,16 @@ export const getCompanyDetailData = async (
 	const [company, addresses, companyMembers] = await Promise.all([
 		companyId
 			? supabase
-					.from('companies')
-					.select(
-						`id, legal_name, identification_number, entity_type,
+				.from('companies')
+				.select(
+					`id, legal_name, identification_number, entity_type,
 						formation_state_id, formation_country_id, management_type,
 						tax_clasification, activity_code_id, activity_description,
-						activity_service, us_source_income, joint_ownership,
+						us_source_income, joint_ownership,
 						incorporation_date, irs_email, legal_status`,
-					)
-					.eq('id', companyId)
-					.maybeSingle()
+				)
+				.eq('id', companyId)
+				.maybeSingle()
 			: Promise.resolve({ data: null, error: null }),
 		listCompanyAddresses(supabase, empresaId, companyId),
 		companyId ? listCompanyMembers(supabase, companyId) : [],

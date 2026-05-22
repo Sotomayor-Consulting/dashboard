@@ -74,9 +74,9 @@ export default function AddressCreateDialog({
 						/>
 					</Field>
 					<Field className="md:col-span-2">
-						<FieldLabel htmlFor="new_address_line1">Linea 1</FieldLabel>
+						<FieldLabel htmlFor="line1">Linea 1</FieldLabel>
 						<Input
-							id="new_address_line1"
+							id="line1"
 							value={newAddress.line1}
 							onChange={handleNewAddressChange('line1')}
 						/>
