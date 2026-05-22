@@ -129,7 +129,6 @@ export interface CompanyMemberAddressItem {
 
 export interface CompanyAddressItem {
 	id: number;
-	incorporation_id: string;
 	company_id: string | null;
 	type: string;
 	line1: string;
@@ -147,6 +146,7 @@ export interface CompanyAddressItem {
 export interface CompanyMemberItem {
 	id: number;
 	company_id: string;
+	member_id: string | null;
 	full_name: string | null;
 	email: string | null;
 	member_type: string | null;
@@ -158,6 +158,7 @@ export interface CompanyMemberItem {
 	itin: string | null;
 	is_member: boolean | null;
 	is_manager: boolean | null;
+	status?: 'draft' | 'registered' | 'active' | 'inactive' | null;
 	percentage: number | null;
 	is_active: boolean | null;
 	deleted_at: string | null;

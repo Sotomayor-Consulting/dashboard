@@ -1,15 +1,16 @@
 import type { APIRoute } from 'astro';
-import { json, requireCompanyDataManager } from '@shared/api/company-data';
-import { getCompanyIdForIncorporation } from '@domains/companies/company-records';
 import { createCompanyAddress } from '@domains/companies/addresses';
+import { json, requireCompanyDataManager } from '@shared/api/company-data';
 import { companyAddressSchema } from '@modules/companies/schemas/company-address.schema';
 
 export const prerender = false;
 
+const parseCompanyId = (raw: string | undefined) => raw?.trim() || null;
+
 export const POST: APIRoute = async ({ request, cookies, params }) => {
-	const incorporationId = params.incorporationId?.trim();
-	if (!incorporationId) {
-		return json(400, { ok: false, error: 'MISSING_INCORPORATION_ID' });
+	const companyId = parseCompanyId(params.companyId);
+	if (!companyId) {
+		return json(400, { ok: false, error: 'MISSING_COMPANY_ID' });
 	}
 
 	const context = await requireCompanyDataManager(request, cookies);
@@ -31,14 +32,6 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 	};
 
 	try {
-		const companyId = await getCompanyIdForIncorporation(
-			context.supabase,
-			incorporationId,
-		);
-		if (!companyId) {
-			return json(409, { ok: false, error: 'COMPANY_NOT_CREATED' });
-		}
-
 		const address = await createCompanyAddress(
 			context.supabase,
 			companyId,
@@ -48,9 +41,15 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		return json(200, { ok: true, data: address });
 	} catch (error) {
 		console.error('[company_addresses:create]', error);
-		return json(500, {
-			ok: false,
-			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',
-		});
+		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
+		const status =
+			message === 'COMPANY_NOT_FOUND'
+				? 404
+				: message === 'FORBIDDEN'
+					? 403
+					: message === 'INVALID_BODY'
+						? 400
+						: 500;
+		return json(status, { ok: false, error: message });
 	}
 };

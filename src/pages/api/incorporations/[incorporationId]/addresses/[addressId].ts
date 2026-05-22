@@ -4,8 +4,11 @@ import { getCompanyIdForIncorporation } from '@domains/companies/company-records
 import {
 	softDeleteCompanyAddress,
 	updateCompanyAddress,
-	type CompanyAddressInput,
 } from '@domains/companies/addresses';
+import {
+	companyAddressDeleteSchema,
+	companyAddressSchema,
+} from '@modules/companies/schemas/company-address.schema';
 
 export const prerender = false;
 
@@ -50,19 +53,26 @@ export const PATCH: APIRoute = async (context) => {
 		const resolved = await resolveContext(context);
 		if ('error' in resolved) return resolved.error;
 
-		const body = (await context.request.json().catch(() => null)) as
-			| CompanyAddressInput
-			| null;
-		if (!body) {
+		const body = await context.request.json().catch(() => null);
+		const parsed = companyAddressSchema.safeParse(body);
+		if (!parsed.success) {
 			return json(400, { ok: false, error: 'INVALID_BODY' });
 		}
 
+		const input = {
+			...parsed.data,
+			line2: parsed.data.line2 ?? null,
+			county: parsed.data.county ?? null,
+			zip: parsed.data.zip ?? null,
+			state_id: parsed.data.state_id ?? null,
+			country_id: parsed.data.country_id ?? null,
+		};
+
 		const address = await updateCompanyAddress(
 			resolved.supabase,
-			resolved.incorporationId,
 			resolved.companyId,
 			resolved.addressId,
-			body,
+			input,
 			resolved.user.id,
 		);
 
@@ -81,16 +91,18 @@ export const DELETE: APIRoute = async (context) => {
 		const resolved = await resolveContext(context);
 		if ('error' in resolved) return resolved.error;
 
-		const body = (await context.request.json().catch(() => null)) as
-			| { reason?: string }
-			| null;
+		const body = await context.request.json().catch(() => null);
+		const parsed = companyAddressDeleteSchema.safeParse(body ?? {});
+		if (!parsed.success) {
+			return json(400, { ok: false, error: 'INVALID_BODY' });
+		}
+
 		const address = await softDeleteCompanyAddress(
 			resolved.supabase,
-			resolved.incorporationId,
 			resolved.companyId,
 			resolved.addressId,
 			resolved.user.id,
-			body?.reason ?? null,
+			parsed.data.reason ?? null,
 		);
 
 		return json(200, { ok: true, data: address });

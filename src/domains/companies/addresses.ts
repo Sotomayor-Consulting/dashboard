@@ -125,11 +125,42 @@ export async function softDeleteCompanyAddress(supabase: SupabaseClient, company
 	if (!before) throw new Error('COMPANY_ADDRESS_NOT_FOUND');
 
 	const deletedAt = new Date().toISOString();
-	const { data, error } = await supabase.from('company_addresses').update({ deleted_at: deletedAt, deleted_by: actorUserId, delete_reason: cleanText(reason) ?? 'Deleted from company details', updated_at: deletedAt, updated_by: actorUserId }).eq('id', addressId).eq('company_id', companyId).is('deleted_at', null).select('*').single<CompanyAddressRow>();
+	const { error } = await supabase
+		.from('company_addresses')
+		.update({
+			deleted_at: deletedAt,
+			deleted_by: actorUserId,
+			delete_reason: cleanText(reason) ?? 'Deleted from company details',
+			updated_at: deletedAt,
+			updated_by: actorUserId,
+		})
+		.eq('id', addressId)
+		.eq('company_id', companyId)
+		.is('deleted_at', null);
 	if (error) throw error;
 
-	await recordAuditEvent({ entityType: 'company_address', entityId: String(addressId), parentType: 'company', parentId: companyId, action: 'soft_delete', changedBy: actorUserId, beforeData: before, afterData: data });
-	return data;
+	const afterData: Partial<CompanyAddressRow> = {
+		id: addressId,
+		company_id: companyId,
+		deleted_at: deletedAt,
+		deleted_by: actorUserId,
+		delete_reason: cleanText(reason) ?? 'Deleted from company details',
+		updated_at: deletedAt,
+		updated_by: actorUserId,
+	};
+
+	await recordAuditEvent({
+		entityType: 'company_address',
+		entityId: String(addressId),
+		parentType: 'company',
+		parentId: companyId,
+		action: 'soft_delete',
+		changedBy: actorUserId,
+		beforeData: before,
+		afterData,
+	});
+
+	return afterData;
 }
 
 async function getActiveCompanyAddress(supabase: SupabaseClient, companyId: string, addressId: number) {

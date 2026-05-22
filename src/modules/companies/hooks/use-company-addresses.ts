@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { toast } from 'sonner';
+import { companyAddressSchema } from '../schemas/company-address.schema';
 import type { CompanyAddressItem } from '../types';
 
 export type AddressItem = CompanyAddressItem;
@@ -36,6 +38,7 @@ const toDraft = (address: AddressItem): AddressDraft => ({
 const requestJson = async <T>(url: string, init: RequestInit): Promise<T> => {
 	const response = await fetch(url, {
 		...init,
+		credentials: 'include',
 		headers: {
 			'Content-Type': 'application/json',
 			...(init.headers ?? {}),
@@ -50,7 +53,7 @@ const requestJson = async <T>(url: string, init: RequestInit): Promise<T> => {
 
 export function useCompanyAddresses(
 	initialAddresses: CompanyAddressItem[],
-	incorporationId: string,
+	companyId: string | null,
 ) {
 	const [addresses, setAddresses] =
 		React.useState<AddressItem[]>(initialAddresses);
@@ -94,33 +97,59 @@ export function useCompanyAddresses(
 		};
 
 	const handleAddAddress = async () => {
+		if (!companyId) {
+			toast.error('Primero debes crear la empresa para agregar direcciones.');
+			return;
+		}
+
+		const parsed = companyAddressSchema.safeParse(draft);
+		if (!parsed.success) {
+			const firstError = parsed.error.issues[0]?.message ?? 'Datos inválidos';
+			toast.error(firstError);
+			return;
+		}
+
 		setIsSaving(true);
+		const loadingToastId = toast.loading('Agregando direccion...');
 		try {
 			const created = await requestJson<AddressItem>(
-				`/api/incorporations/${incorporationId}/addresses`,
+				`/api/companies/${companyId}/addresses`,
 				{
 					method: 'POST',
-					body: JSON.stringify(draft),
+					body: JSON.stringify(parsed.data),
 				},
 			);
 			setAddresses((prev) => [...prev, created]);
 			setIsAddModalOpen(false);
+			toast.success('Direccion agregada', { id: loadingToastId });
 		} catch (error) {
-			window.alert(error instanceof Error ? error.message : 'Error inesperado');
+			toast.error(
+				error instanceof Error ? error.message : 'Error inesperado',
+				{ id: loadingToastId },
+			);
 		} finally {
 			setIsSaving(false);
 		}
 	};
 
 	const handleSaveAddress = async () => {
-		if (!selectedAddress) return;
+		if (!selectedAddress || !companyId) return;
+
+		const parsed = companyAddressSchema.safeParse(draft);
+		if (!parsed.success) {
+			const firstError = parsed.error.issues[0]?.message ?? 'Datos inválidos';
+			toast.error(firstError);
+			return;
+		}
+
 		setIsSaving(true);
+		const loadingToastId = toast.loading('Guardando direccion...');
 		try {
 			const updated = await requestJson<AddressItem>(
-				`/api/incorporations/${incorporationId}/addresses/${selectedAddress.id}`,
+				`/api/companies/${companyId}/addresses/${selectedAddress.id}`,
 				{
 					method: 'PATCH',
-					body: JSON.stringify(draft),
+					body: JSON.stringify(parsed.data),
 				},
 			);
 			setAddresses((prev) =>
@@ -129,19 +158,24 @@ export function useCompanyAddresses(
 				),
 			);
 			setIsDetailModalOpen(false);
+			toast.success('Direccion actualizada', { id: loadingToastId });
 		} catch (error) {
-			window.alert(error instanceof Error ? error.message : 'Error inesperado');
+			toast.error(
+				error instanceof Error ? error.message : 'Error inesperado',
+				{ id: loadingToastId },
+			);
 		} finally {
 			setIsSaving(false);
 		}
 	};
 
 	const handleDeleteAddress = async () => {
-		if (!selectedAddress) return;
+		if (!selectedAddress || !companyId) return;
 		setIsSaving(true);
+		const loadingToastId = toast.loading('Eliminando direccion...');
 		try {
 			await requestJson<AddressItem>(
-				`/api/incorporations/${incorporationId}/addresses/${selectedAddress.id}`,
+				`/api/companies/${companyId}/addresses/${selectedAddress.id}`,
 				{
 					method: 'DELETE',
 					body: JSON.stringify({ reason: 'Eliminada desde Editar Datos' }),
@@ -151,8 +185,12 @@ export function useCompanyAddresses(
 				prev.filter((address) => address.id !== selectedAddress.id),
 			);
 			setIsDetailModalOpen(false);
+			toast.success('Direccion eliminada', { id: loadingToastId });
 		} catch (error) {
-			window.alert(error instanceof Error ? error.message : 'Error inesperado');
+			toast.error(
+				error instanceof Error ? error.message : 'Error inesperado',
+				{ id: loadingToastId },
+			);
 		} finally {
 			setIsSaving(false);
 		}

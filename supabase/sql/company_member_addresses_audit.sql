@@ -67,16 +67,27 @@ alter table public.company_addresses
 	add column if not exists deleted_by uuid references public.usuarios(user_id),
 	add column if not exists delete_reason text;
 
-update public.company_addresses ca
-set company_id = ei.company_id
-from public.empresas_incorporaciones ei
-where ca.company_id is null
-	and ca.incorporation_id = ei.empresa_incorporacion_id
-	and ei.company_id is not null;
+do $$
+begin
+	if exists (
+		select 1
+		from information_schema.columns
+		where table_schema = 'public'
+			and table_name = 'company_addresses'
+			and column_name = 'incorporation_id'
+	) then
+		execute $sql$
+			update public.company_addresses ca
+			set company_id = ei.company_id
+			from public.empresas_incorporaciones ei
+			where ca.company_id is null
+				and ca.incorporation_id = ei.empresa_incorporacion_id
+				and ei.company_id is not null
+		$sql$;
+	end if;
+end $$;
 
-create index if not exists company_addresses_active_incorporation_idx
-	on public.company_addresses (incorporation_id, type)
-	where deleted_at is null;
+drop index if exists public.company_addresses_active_incorporation_idx;
 
 create index if not exists company_addresses_active_company_idx
 	on public.company_addresses (company_id, type)
@@ -279,26 +290,33 @@ create policy companies_update_owner_or_staff
 		or user_id = auth.uid()
 	);
 
-drop policy if exists company_addresses_select_accessible on public.company_addresses;
+do $$
+declare
+	policy_name text;
+begin
+	for policy_name in
+		select policyname
+		from pg_policies
+		where schemaname = 'public'
+			and tablename = 'company_addresses'
+	loop
+		execute format(
+			'drop policy if exists %I on public.company_addresses',
+			policy_name
+		);
+	end loop;
+end $$;
+
 create policy company_addresses_select_accessible
 	on public.company_addresses
 	for select
 	to authenticated
 	using (
 		deleted_at is null
-		and (
-			(
-				company_id is not null
-				and public.user_can_access_company(company_id)
-			)
-			or (
-				company_id is null
-				and public.user_can_access_incorporation(incorporation_id)
-			)
-		)
+		and company_id is not null
+		and public.user_can_access_company(company_id)
 	);
 
-drop policy if exists company_addresses_insert_accessible on public.company_addresses;
 create policy company_addresses_insert_accessible
 	on public.company_addresses
 	for insert
@@ -307,9 +325,9 @@ create policy company_addresses_insert_accessible
 		public.is_company_staff()
 		and company_id is not null
 		and public.user_can_access_company(company_id)
+		and deleted_at is null
 	);
 
-drop policy if exists company_addresses_update_accessible on public.company_addresses;
 create policy company_addresses_update_accessible
 	on public.company_addresses
 	for update
@@ -321,11 +339,7 @@ create policy company_addresses_update_accessible
 		and company_id is not null
 		and public.user_can_access_company(company_id)
 	)
-	with check (
-		public.is_company_staff()
-		and company_id is not null
-		and public.user_can_access_company(company_id)
-	);
+	with check (true);
 
 drop policy if exists company_members_select_accessible on public.company_members;
 create policy company_members_select_accessible

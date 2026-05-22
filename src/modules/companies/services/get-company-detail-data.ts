@@ -1,6 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getEmpresaById } from '@domains/companies/companies';
-import { getSociosByEmpresa } from '@domains/companies/members';
 import { getManagerByEmpresa } from '@domains/companies/managers';
 import { listCompanyAddresses } from '@domains/companies/addresses';
 import { listCompanyMembers } from '@domains/companies/company-members';
@@ -13,10 +12,9 @@ export const getCompanyDetailData = async (
 	supabase: SupabaseClient,
 	empresaId: string,
 ): Promise<CompanyDetailData | null> => {
-	const [empresa, socios, managers, actividades, paises, estados] =
+	const [empresa, managers, actividades, paises, estados] =
 		await Promise.all([
 			getEmpresaById(supabase, empresaId),
-			getSociosByEmpresa(supabase, empresaId),
 			getManagerByEmpresa(supabase, empresaId),
 			actividadesGeneral(supabase),
 			PaisesGeneral(supabase),
@@ -40,7 +38,7 @@ export const getCompanyDetailData = async (
 				.eq('id', companyId)
 				.maybeSingle()
 			: Promise.resolve({ data: null, error: null }),
-		listCompanyAddresses(supabase, empresaId, companyId),
+		listCompanyAddresses(supabase, companyId),
 		companyId ? listCompanyMembers(supabase, companyId) : [],
 	]);
 
@@ -53,7 +51,7 @@ export const getCompanyDetailData = async (
 	return {
 		empresa: empresa as CompanyDetailData['empresa'],
 		company: (companyData as CompanyDetailData['company']) ?? null,
-		socios: (socios ?? []) as CompanyDetailData['socios'],
+		socios: [],
 		addresses: (addresses ?? []) as unknown as CompanyDetailData['addresses'],
 		companyMembers:
 			(companyMembers ?? []) as unknown as CompanyDetailData['companyMembers'],

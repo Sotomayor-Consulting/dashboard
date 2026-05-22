@@ -69,10 +69,7 @@ export default function CompanyDetailsForm({
 		React.useState(false);
 
 	const hasCompany = Boolean(companyId);
-	const addressesState = useCompanyAddresses(
-		addresses,
-		empresa.empresa_incorporacion_id,
-	);
+	const addressesState = useCompanyAddresses(addresses, companyId);
 
 	const memberRows = companyMembers;
 	const managerMemberRows = companyMembers.filter(

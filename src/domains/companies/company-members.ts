@@ -16,6 +16,7 @@ export interface CompanyMemberAddressInput {
 }
 
 export interface CompanyMemberInput {
+	member_id?: string | null;
 	full_name?: string | null;
 	email?: string | null;
 	member_type?: string | null;
@@ -25,6 +26,7 @@ export interface CompanyMemberInput {
 	passport_number?: string | null;
 	ssn?: string | null;
 	itin?: string | null;
+	status?: 'draft' | 'registered' | 'active' | 'inactive' | null;
 	percentage?: number | null;
 	is_member?: boolean;
 	is_manager?: boolean;
@@ -55,6 +57,7 @@ export interface CompanyMemberAddressRow {
 export interface CompanyMemberRow {
 	id: number;
 	company_id: string;
+	member_id: string | null;
 	full_name: string | null;
 	email: string | null;
 	member_type: string | null;
@@ -64,6 +67,7 @@ export interface CompanyMemberRow {
 	passport_number: string | null;
 	ssn: string | null;
 	itin: string | null;
+	status?: 'draft' | 'registered' | 'active' | 'inactive' | null;
 	is_member: boolean | null;
 	is_manager: boolean | null;
 	percentage: number | null;
@@ -295,6 +299,7 @@ export async function createCompanyMember(
 	const payload = {
 		...memberPayload(input),
 		company_id: companyId,
+		member_id: cleanText(input.member_id),
 		created_by: actorUserId,
 		updated_by: actorUserId,
 		created_at: now,
