@@ -25,7 +25,6 @@ import type {
 	ManagerItem,
 	State,
 } from '../types';
-import { mockCompanyMembers } from '../mock-company-members';
 import { mockCompanyManagers } from '../mocks/managers.mock';
 import CompanyCanonicalInfoSection from './company-details/sections/CompanyCanonicalInfoSection';
 import IncorporationRegistrationSection from './company-details/sections/IncorporationRegistrationSection';
@@ -107,9 +106,7 @@ export default function CompanyDetailsForm({
 		addresses,
 		empresa.empresa_incorporacion_id,
 	);
-	const membersToRender = hasCanonicalCompany
-		? companyMembers
-		: mockMembersFallback;
+	const membersToRender = hasCanonicalCompany ? companyMembers : [];
 	const memberRows = membersToRender.filter((member) =>
 		Boolean(member.is_member),
 	);
