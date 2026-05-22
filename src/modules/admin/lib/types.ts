@@ -5,7 +5,12 @@
  * (`usuarios`, `user_roles`, `roles`, `empresas_incorporaciones`).
  */
 
-export const USER_ROLES = ['admin', 'operaciones', 'cliente'] as const;
+export const USER_ROLES = [
+	'admin',
+	'operaciones',
+	'cliente',
+	'partner',
+] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
 export const ALL_ROLE_NAMES = [
@@ -20,8 +25,15 @@ export const ALL_ROLE_NAMES = [
 ] as const;
 export type AnyRoleName = (typeof ALL_ROLE_NAMES)[number];
 
-/** Filtro pill de la tabla de clientes (spec del handoff). */
-export const USER_FILTERS = ['todos', 'cliente', 'ops', 'admin', 'sin'] as const;
+/** Filtro pill de la tabla de clientes. */
+export const USER_FILTERS = [
+	'todos',
+	'cliente',
+	'ops',
+	'admin',
+	'partner',
+	'sin',
+] as const;
 export type UserFilter = (typeof USER_FILTERS)[number];
 
 export interface AdminUser {

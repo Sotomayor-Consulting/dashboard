@@ -4,9 +4,10 @@ import { cn } from '@components/utils';
 import type { AnyRoleName } from '@modules/admin/lib/types';
 
 /**
- * Variants por rol (spec del handoff):
+ * Variants por rol:
  *   admin       → danger (rojo)
  *   operaciones → info   (índigo/azul)
+ *   partner     → warning (ámbar)
  *   cliente     → subtle (neutral con borde)
  *   otros       → neutral
  */
@@ -17,6 +18,8 @@ const ROLE_CLASS: Record<string, string> = {
 		'border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-300',
 	operations:
 		'border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-300',
+	partner:
+		'border border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-400',
 	cliente:
 		'border border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-700 dark:bg-neutral-900 dark:text-gray-300',
 	client:

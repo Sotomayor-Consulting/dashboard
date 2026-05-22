@@ -80,7 +80,11 @@ const showBannerPartner = missingPartnerFields.length > 0;
 ---
 
 <LayoutCommon>
-	<NavBarSidebar usuario={usuario} notificationsData={notificationsData} />
+	<NavBarSidebar
+		usuario={usuario}
+		notificationsData={notificationsData}
+		empresas={empresasSwitcher}
+	/>
 
 	<SideBar empresas={empresasSwitcher} activeCompany={selectedCompany} />
 

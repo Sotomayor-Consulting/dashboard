@@ -31,11 +31,11 @@ const dynamicItems: MenuItem[] = [];
 if (isClientOrPartner && activeCompany) {
 	dynamicItems.push({
 		id: 'company-details',
-		label: 'Detalles',
+		label: 'Mi Empresa',
 		href: `/my-companies/${activeCompany.id}/dashboard`,
-		tooltip: 'Detalles de la empresa activa',
+		tooltip: 'Ver detalles de mi empresa',
 		roles: ['cliente', 'partner'],
-		svgname: 'ri:hand-coin-line',
+		svgname: 'ri:building-line',
 		sequence: 20,
 		group: 'Company',
 		colors: 'text-cyan-700',

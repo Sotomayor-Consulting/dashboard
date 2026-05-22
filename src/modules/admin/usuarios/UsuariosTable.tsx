@@ -4,11 +4,22 @@ import { cn } from '@components/utils';
 
 import { isoToFlag } from '@modules/admin/lib/country-flag';
 import type { AdminUser } from '@modules/admin/lib/types';
+import { EmptyState } from './cells/EmptyState';
 import { RoleBadges } from './cells/RoleBadges';
 import { StatusBadge } from './cells/StatusBadge';
 import { UserCell } from './cells/UserCell';
 import { UserRowActions } from './cells/UserRowActions';
 import type { ColumnId } from './UsuariosToolbar';
+
+export type UsuariosSortKey =
+	| 'name'
+	| 'email'
+	| 'lastSignIn'
+	| 'created'
+	| 'organization'
+	| 'country'
+	| 'status';
+export type UsuariosSortDir = 'asc' | 'desc';
 
 interface Props {
 	users: AdminUser[];
@@ -17,6 +28,44 @@ interface Props {
 	onEdit: (id: string) => void;
 	canEdit: boolean;
 	visibleColumns: Record<ColumnId, boolean>;
+	sortKey: UsuariosSortKey;
+	sortDir: UsuariosSortDir;
+	onSort: (key: UsuariosSortKey) => void;
+}
+
+/** Botón header con indicador ↑/↓ cuando es la columna activa. */
+function SortableTh({
+	label,
+	keyId,
+	active,
+	dir,
+	onClick,
+	className,
+}: {
+	label: string;
+	keyId: UsuariosSortKey;
+	active: boolean;
+	dir: UsuariosSortDir;
+	onClick: (k: UsuariosSortKey) => void;
+	className?: string;
+}) {
+	return (
+		<th className={className}>
+			<button
+				type="button"
+				onClick={() => onClick(keyId)}
+				className="inline-flex items-center gap-1 uppercase tracking-wider hover:text-gray-900 dark:hover:text-gray-100"
+			>
+				{label}
+				{active && (
+					<Icon
+						icon={dir === 'asc' ? 'ri:arrow-up-s-line' : 'ri:arrow-down-s-line'}
+						className="h-3.5 w-3.5"
+					/>
+				)}
+			</button>
+		</th>
+	);
 }
 
 /**
@@ -30,21 +79,16 @@ export function UsuariosTable({
 	onEdit,
 	canEdit,
 	visibleColumns,
+	sortKey,
+	sortDir,
+	onSort,
 }: Props) {
 	if (users.length === 0) {
 		return (
-			<div className="flex flex-col items-center justify-center py-20 text-center">
-				<Icon
-					icon="ri:user-search-line"
-					className="mb-3 h-10 w-10 text-gray-300 dark:text-gray-600"
-				/>
-				<p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-					Sin resultados
-				</p>
-				<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-					Ajusta los filtros o la búsqueda para encontrar usuarios.
-				</p>
-			</div>
+			<EmptyState
+				title="Sin resultados"
+				description="Ajusta los filtros o la búsqueda para encontrar usuarios."
+			/>
 		);
 	}
 
@@ -53,18 +97,48 @@ export function UsuariosTable({
 			<table className="w-full text-sm">
 				<thead className="border-b border-gray-200 text-[10.5px] font-medium tracking-wider text-gray-500 uppercase dark:border-gray-800 dark:text-gray-400">
 					<tr>
-						<th className="px-7 py-3 text-left">Usuario</th>
+						<SortableTh
+							label="Usuario"
+							keyId="name"
+							active={sortKey === 'name'}
+							dir={sortDir}
+							onClick={onSort}
+							className="px-7 py-3 text-left"
+						/>
 						{visibleColumns.organization && (
-							<th className="py-3 pr-4 text-left">Compañía / Cargo</th>
+							<SortableTh
+								label="Compañía / Cargo"
+								keyId="organization"
+								active={sortKey === 'organization'}
+								dir={sortDir}
+								onClick={onSort}
+								className="py-3 pr-4 text-left"
+							/>
 						)}
 						{visibleColumns.country && (
-							<th className="py-3 pr-4 text-left">País</th>
+							<SortableTh
+								label="País"
+								keyId="country"
+								active={sortKey === 'country'}
+								dir={sortDir}
+								onClick={onSort}
+								className="py-3 pr-4 text-left"
+							/>
 						)}
 						{visibleColumns.status && (
-							<th className="py-3 pr-4 text-left">Estado</th>
+							<SortableTh
+								label="Estado"
+								keyId="status"
+								active={sortKey === 'status'}
+								dir={sortDir}
+								onClick={onSort}
+								className="py-3 pr-4 text-left"
+							/>
 						)}
 						{visibleColumns.roles && (
-							<th className="py-3 pr-4 text-left">Roles</th>
+							<th className="py-3 pr-4 text-left">
+								<span className="uppercase tracking-wider">Roles</span>
+							</th>
 						)}
 						{visibleColumns.actions && (
 							<th className="w-12 py-3 pr-7 text-right">
@@ -124,7 +198,7 @@ export function UsuariosTable({
 								)}
 								{visibleColumns.status && (
 									<td className="pr-4">
-										<StatusBadge status={u.status} />
+										<StatusBadge user={u} />
 									</td>
 								)}
 								{visibleColumns.roles && (

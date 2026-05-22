@@ -7,12 +7,22 @@ import NotificationsPopover from '@components/navigation/islands/NotificationsPo
 import { menuItems } from '@components/navigation/items';
 
 // Datos recibidos desde LayoutSidebar (ya consultados en paralelo)
-const { notificationsData: notifProp } = Astro.props;
+const {
+	notificationsData: notifProp,
+	empresas: empresasProp = [],
+} = Astro.props;
 
 const { notifications, totalUnread } = notifProp ?? {
 	notifications: [],
 	totalUnread: 0,
 };
+
+const empresasMap = new Map<string, string>(
+	(empresasProp as Array<{ id: string; nombre: string | null }>).map((e) => [
+		e.id,
+		e.nombre ?? 'Sin nombre',
+	]),
+);
 
 const pathname = Astro.url.pathname;
 
@@ -29,26 +39,103 @@ const isUuid = (value: string) =>
 
 const segments = pathname.split('/').filter(Boolean);
 
-const sectionLabel = (() => {
-	const exactMatch = menuItems.find((item) => item.href === pathname);
-	if (exactMatch) return exactMatch.label;
+/**
+ * Resuelve un segmento a un label amigable.
+ * - UUID → nombre de empresa si lo tenemos cargado (sino "Detalle")
+ * - Match con menuItems → su label
+ * - Fallback: humanize(segment)
+ */
+function labelForSegment(segment: string, fullPath: string): string {
+	if (isUuid(segment)) {
+		return empresasMap.get(segment) ?? 'Detalle';
+	}
+	const match = menuItems.find(
+		(item) => item.href === fullPath || item.href === `${fullPath}/`,
+	);
+	if (match) return match.label;
+	return humanize(segment);
+}
 
-	const prefixMatch = menuItems.find(
+/**
+ * Construye breadcrumb max 2 niveles:
+ *  - Solo el path: 1 crumb (label del módulo)
+ *  - Path + sub-páginas: 2 crumbs (módulo + última)
+ *  - Si el path es solo home: 'Inicio'
+ */
+/**
+ * Path aliases: paths legacy o de detalle que apuntan a un módulo del
+ * sidebar diferente. Ej: `/incorporations/[id]` sigue activo como vista
+ * de detalle, pero el módulo en el breadcrumb es "Empresas" (la tabla
+ * nueva en `/admin/empresas`).
+ */
+const PATH_ALIASES: Array<{
+	pathPrefix: string;
+	moduleLabel: string;
+	moduleHref: string;
+}> = [
+	{
+		pathPrefix: '/incorporations/',
+		moduleLabel: 'Incorporaciones',
+		moduleHref: '/admin/incorporaciones',
+	},
+];
+
+const breadcrumbItems = (() => {
+	if (segments.length === 0) {
+		return [{ label: 'Inicio', href: '/' }];
+	}
+
+	// 0) Path alias para rutas legacy/detalle que no aparecen en el sidebar.
+	const alias = PATH_ALIASES.find((a) => pathname.startsWith(a.pathPrefix));
+
+	// 1) Módulo raíz: buscamos el menuItem cuyo href matchee el inicio
+	//    del pathname actual (más específico primero). Esto resuelve casos
+	//    como `/admin/usuarios` → label "Usuarios" (item entero) en lugar
+	//    de pasar por "/admin/" → label "Admin".
+	const firstSegment = segments[0]!;
+	const moduleHref = `/${firstSegment}/`;
+	const sortedItems = [...menuItems].sort(
+		(a, b) => b.href.length - a.href.length,
+	);
+	const matchedItem = sortedItems.find(
 		(item) => item.href !== '/' && pathname.startsWith(item.href),
 	);
-	if (prefixMatch) return prefixMatch.label;
+	const moduleLabel =
+		alias?.moduleLabel ?? matchedItem?.label ?? humanize(firstSegment);
+	const moduleAnchorHref =
+		alias?.moduleHref ?? matchedItem?.href ?? moduleHref;
 
-	if (segments.length === 0) return 'Inicio';
-	return humanize(segments[0] ?? 'Inicio');
+	// Si el item del sidebar matchea el path COMPLETO (ej. estamos en
+	// `/admin/usuarios` y el item es `/admin/usuarios`), un solo crumb.
+	const matchedItemHrefNoSlash = (matchedItem?.href ?? '').replace(/\/$/, '');
+	const pathnameNoSlash = pathname.replace(/\/$/, '');
+	if (matchedItem && matchedItemHrefNoSlash === pathnameNoSlash) {
+		return [{ label: moduleLabel, href: moduleAnchorHref }];
+	}
+
+	if (segments.length === 1) {
+		return [{ label: moduleLabel, href: moduleAnchorHref }];
+	}
+
+	// 2) Último segmento como página actual. Resolvemos UUIDs a nombre
+	//    real de empresa cuando aplica.
+	const last = segments[segments.length - 1]!;
+	const lastFullPath = `/${segments.join('/')}/`;
+	const lastLabel = labelForSegment(last, lastFullPath);
+
+	// Deduplicar: si el último label ya equivale al label del módulo,
+	// solo devolvemos un crumb.
+	if (
+		lastLabel.toLowerCase().trim() === moduleLabel.toLowerCase().trim()
+	) {
+		return [{ label: moduleLabel, href: moduleAnchorHref }];
+	}
+
+	return [
+		{ label: moduleLabel, href: moduleAnchorHref },
+		{ label: lastLabel, href: lastFullPath },
+	];
 })();
-
-const breadcrumbItems = [
-	{ label: 'Inicio', href: '/' },
-	...segments.map((segment, index) => ({
-		label: isUuid(segment) ? 'Detalle' : humanize(segment),
-		href: `/${segments.slice(0, index + 1).join('/')}/`,
-	})),
-];
 
 const quickActions = [
 	{
@@ -136,26 +223,25 @@ const quickActions = [
 					</a>
 				</div>
 
-				<div class="hidden min-w-0 flex-col justify-center pl-4 lg:flex">
-					<p
-						class="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400"
-					>
-						{sectionLabel}
-					</p>
+				<div class="hidden min-w-0 items-center pl-4 lg:flex">
 					<nav
 						aria-label="Breadcrumb"
-						class="mt-0.5 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"
+						class="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
 					>
 						{
 							breadcrumbItems.map((crumb, idx) => (
 								<>
 									{idx > 0 && (
-										<Icon name="ri:arrow-right-s-line" class="h-3 w-3" />
+										<Icon
+											name="ri:arrow-right-s-line"
+											class="h-3.5 w-3.5 shrink-0 text-gray-400"
+										/>
 									)}
 									<a
 										href={crumb.href}
 										class:list={{
-											'transition-colors hover:text-gray-700 dark:hover:text-gray-200': true,
+											'truncate transition-colors hover:text-gray-700 dark:hover:text-gray-200':
+												true,
 											'font-semibold text-gray-900 dark:text-white':
 												idx === breadcrumbItems.length - 1,
 										}}

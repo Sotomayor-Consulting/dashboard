@@ -1,11 +1,36 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import type {
 	AdminUser,
 	AdminUserDetail,
 	AnyRoleName,
 	LinkedCompany,
 } from '@modules/admin/lib/types';
+
+/**
+ * Trae `last_sign_in_at` para todos los usuarios desde Supabase Auth.
+ * Usa el cliente admin (service_role) — solo seguro server-side.
+ *
+ * Auth devuelve hasta 50 usuarios por página por defecto; ajustamos a 1000
+ * para cubrir el caso típico de admin sin paginación adicional.
+ */
+async function getLastSignInMap(): Promise<Map<string, string | null>> {
+	const map = new Map<string, string | null>();
+	try {
+		const { data, error } = await supabaseAdmin.auth.admin.listUsers({
+			page: 1,
+			perPage: 1000,
+		});
+		if (error) return map;
+		for (const u of data.users) {
+			map.set(u.id, u.last_sign_in_at ?? null);
+		}
+	} catch {
+		// Si falla la llamada admin, el resto sigue funcionando con null.
+	}
+	return map;
+}
 
 interface RawUserRow {
 	user_id: string;
@@ -101,8 +126,14 @@ export async function listAdminUsers(
 		countByUser.set(id, (countByUser.get(id) ?? 0) + 1);
 	}
 
+	const lastSignInMap = await getLastSignInMap();
+
 	return (users as unknown as RawUserRow[]).map((u) =>
-		toAdminUser(u, countByUser.get(u.user_id) ?? 0, null),
+		toAdminUser(
+			u,
+			countByUser.get(u.user_id) ?? 0,
+			lastSignInMap.get(u.user_id) ?? null,
+		),
 	);
 }
 
@@ -154,10 +185,20 @@ export async function getAdminUserDetail(
 		};
 	});
 
+	// Trae last_sign_in_at solo para este usuario (más eficiente que listar todos).
+	let lastSignInAt: string | null = null;
+	try {
+		const { data: authUser } =
+			await supabaseAdmin.auth.admin.getUserById(userId);
+		lastSignInAt = authUser?.user?.last_sign_in_at ?? null;
+	} catch {
+		// fallback null
+	}
+
 	const base = toAdminUser(
 		user as unknown as RawUserRow,
 		companies.length,
-		null,
+		lastSignInAt,
 	);
 	return { ...base, companies };
 }
