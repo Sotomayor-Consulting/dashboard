@@ -164,6 +164,16 @@ export interface CompanyMemberItem {
 	tax_address?: CompanyMemberAddressItem | null;
 }
 
+export interface CanonicalCompanyItem {
+	id: string;
+	legal_name: string | null;
+	identification_number: string | null;
+	entity_type: string | null;
+	management_type: string | null;
+	tax_clasification: string | null;
+	activity_description: string | null;
+}
+
 export interface ManagerItem {
 	id: string;
 	empresa_incorporacion_id: string;
@@ -239,6 +249,7 @@ export interface Documento {
 
 export interface CompanyDetailData {
 	empresa: EmpresaDetail;
+	canonicalCompany: CanonicalCompanyItem | null;
 	socios: SocioItem[];
 	addresses: CompanyAddressItem[];
 	companyMembers: CompanyMemberItem[];

@@ -2,21 +2,19 @@
 import CompanyDetailsForm from '../islands/CompanyDetailsForm';
 import type {
 	EmpresaDetail,
+	CanonicalCompanyItem,
 	CompanyAddressItem,
 	CompanyMemberItem,
-	SocioItem,
 	ManagerItem,
-	ActividadItem,
 	State,
 } from '../types';
 
 interface Props {
 	empresa: EmpresaDetail;
-	socios: SocioItem[];
+	canonicalCompany: CanonicalCompanyItem | null;
 	addresses: CompanyAddressItem[];
 	companyMembers: CompanyMemberItem[];
 	managers: ManagerItem[];
-	actividades: ActividadItem[];
 	canEditDetails: boolean;
 	backPath: string;
 	states: State[];
@@ -24,11 +22,10 @@ interface Props {
 
 const {
 	empresa,
-	socios,
+	canonicalCompany,
 	addresses,
 	companyMembers,
 	managers,
-	actividades,
 	canEditDetails,
 	backPath,
 	states,
@@ -38,11 +35,10 @@ const {
 <CompanyDetailsForm
 	client:load
 	empresa={empresa}
-	socios={socios}
+	canonicalCompany={canonicalCompany}
 	addresses={addresses}
 	companyMembers={companyMembers}
 	managers={managers}
-	actividades={actividades}
 	canEditDetails={canEditDetails}
 	backPath={backPath}
 	states={states}

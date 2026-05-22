@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { format } from 'date-fns';
 import { Icon } from '@iconify/react';
 
 import '@shared/iconify-ri'; // Registra el set `ri` de Remix Icons (side-effect).
@@ -19,18 +18,17 @@ import CompanyMembersCrudSection from '../components/CompanyMembersCrudSection';
 import CompanyManagersCrudSection from '../components/CompanyManagersCrudSection';
 import { useCompanyAddresses } from '../hooks/use-company-addresses';
 import type {
-	ActividadItem,
+	CanonicalCompanyItem,
 	CompanyAddressItem,
 	CompanyMemberItem,
 	EmpresaDetail,
 	ManagerItem,
-	SocioItem,
 	State,
 } from '../types';
+import { mockCompanyMembers } from '../mock-company-members';
 import { mockCompanyManagers } from '../mocks/managers.mock';
-import CompanyAccountingSection from './company-details/sections/CompanyAccountingSection';
-import CompanyGeneralSection from './company-details/sections/CompanyGeneralSection';
-import CompanyStructureSection from './company-details/sections/CompanyStructureSection';
+import CompanyCanonicalInfoSection from './company-details/sections/CompanyCanonicalInfoSection';
+import IncorporationRegistrationSection from './company-details/sections/IncorporationRegistrationSection';
 
 // Estilo inline-vertical para tabs: sin contenedor, sólo el borde
 // izquierdo en la pestaña activa marcando la posición.
@@ -81,11 +79,10 @@ const mockMembersFallback: CompanyMemberItem[] = mockCompanyMembers.map(
 
 interface Props {
 	empresa: EmpresaDetail;
-	socios: SocioItem[];
+	canonicalCompany: CanonicalCompanyItem | null;
 	addresses: CompanyAddressItem[];
 	companyMembers: CompanyMemberItem[];
 	managers: ManagerItem[];
-	actividades: ActividadItem[];
 	canEditDetails: boolean;
 	backPath: string;
 	states: State[];
@@ -93,69 +90,39 @@ interface Props {
 
 export default function CompanyDetailsForm({
 	empresa,
+	canonicalCompany,
 	addresses,
 	companyMembers,
 	managers,
-	actividades,
 	canEditDetails,
 	backPath,
 	states,
 }: Props) {
-	const [stateId, setStateId] = React.useState(
-		empresa.state_id !== null && empresa.state_id !== undefined
-			? String(empresa.state_id)
-			: '',
-	);
 	const [companyId, setCompanyId] = React.useState(empresa.company_id ?? null);
 	const [isCreateCompanyOpen, setIsCreateCompanyOpen] = React.useState(false);
 	const [isCreatingCompany, setIsCreatingCompany] = React.useState(false);
 
 	const hasCanonicalCompany = Boolean(companyId);
-	const hasUsIncome = Boolean(empresa.Obtendra_ingresos_desde_eeuu);
 	const addressesState = useCompanyAddresses(
 		addresses,
 		empresa.empresa_incorporacion_id,
 	);
-	const membersToRender = hasCanonicalCompany ? companyMembers : [];
+	const membersToRender = hasCanonicalCompany
+		? companyMembers
+		: mockMembersFallback;
+	const memberRows = membersToRender.filter((member) =>
+		Boolean(member.is_member),
+	);
+	const managerMemberRows = membersToRender.filter((member) =>
+		Boolean(member.is_manager),
+	);
 	const managersToRender = hasCanonicalCompany
 		? managers
 		: managers.length > 0
 			? managers
 			: mockCompanyManagers;
-	const isManagerManaged = empresa.forma_administracion === 'Manager-Managed';
-	const showManagersTab = empresa.forma_administracion === 'manager-managed';
-
-	const initialStateRegistrationDate = React.useMemo(() => {
-		const value =
-			(
-				empresa as EmpresaDetail & {
-					state_registration_date?: string | null;
-					incorporation_date?: string | null;
-				}
-			).state_registration_date ??
-			(
-				empresa as EmpresaDetail & {
-					state_registration_date?: string | null;
-					incorporation_date?: string | null;
-				}
-			).incorporation_date ??
-			null;
-
-		if (!value) return undefined;
-		const parsed = new Date(value);
-		return Number.isNaN(parsed.getTime()) ? undefined : parsed;
-	}, [empresa]);
-
-	const [open, setOpen] = React.useState(false);
-	const [date, setDate] = React.useState<Date | undefined>(
-		initialStateRegistrationDate,
-	);
-
-	const handleSelectDate = (selectedDate: Date | undefined) => {
-		if (!selectedDate) return;
-		setDate(selectedDate);
-		setOpen(false);
-	};
+	const showManagersTab =
+		canonicalCompany?.management_type === 'manager-managed';
 
 	const createCanonicalCompany = async () => {
 		setIsCreatingCompany(true);
@@ -193,197 +160,208 @@ export default function CompanyDetailsForm({
 					</div>
 				)}
 
-				<form
-					action={`/api/incorporations/update-details?empresa=${encodeURIComponent(empresa.empresa_incorporacion_id)}&back=${encodeURIComponent(backPath)}`}
-					method="post"
-					className="flex flex-col gap-4"
+				<Tabs
+					defaultValue="incorporacion-informacion"
+					orientation="vertical"
+					className="grid w-full grid-cols-1 gap-6 lg:grid-cols-[160px_minmax(0,1fr)]"
 				>
-					<input
-						type="hidden"
-						name="state_registration_date"
-						value={date ? format(date, 'yyyy-MM-dd') : ''}
-					/>
-					<input
-						type="hidden"
-						name="empresa_incorporacion_id"
-						value={empresa.empresa_incorporacion_id}
-					/>
+					<TabsList className="!h-auto !w-full !flex-col !items-stretch !gap-0 !border-0 !bg-transparent !p-0 !shadow-none">
+						<div className="px-3 py-2 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
+							Registro de incorporación
+						</div>
+						<TabsTrigger
+							value="incorporacion-informacion"
+							className={verticalTabTriggerClass}
+						>
+							<Icon icon="ri:building-2-line" data-icon="inline-start" />
+							Información
+						</TabsTrigger>
 
-					<Tabs
-						defaultValue="informacion"
-						orientation="vertical"
-						className="grid w-full grid-cols-1 gap-6 lg:grid-cols-[160px_minmax(0,1fr)]"
-					>
-						<TabsList className="!h-auto !w-full !flex-col !items-stretch !gap-0 !border-0 !bg-transparent !p-0 !shadow-none">
+						<div className="mt-3 px-3 py-2 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
+							Empresa
+						</div>
+						<TabsTrigger
+							value="empresa-informacion"
+							className={verticalTabTriggerClass}
+						>
+							<Icon icon="ri:file-edit-line" data-icon="inline-start" />
+							Información
+						</TabsTrigger>
+						<TabsTrigger
+							value="empresa-direcciones"
+							className={verticalTabTriggerClass}
+						>
+							<Icon icon="ri:map-pin-line" data-icon="inline-start" />
+							Direcciones
+						</TabsTrigger>
+						<TabsTrigger
+							value="empresa-miembros"
+							className={verticalTabTriggerClass}
+						>
+							<Icon icon="ri:group-line" data-icon="inline-start" />
+							Miembros
+						</TabsTrigger>
+						{showManagersTab && (
 							<TabsTrigger
-								value="informacion"
+								value="empresa-managers"
 								className={verticalTabTriggerClass}
 							>
-								<Icon icon="ri:building-2-line" data-icon="inline-start" />
-								Informacion
+								<Icon icon="ri:user-settings-line" data-icon="inline-start" />
+								Managers
 							</TabsTrigger>
-							<TabsTrigger
-								value="direcciones"
-								className={verticalTabTriggerClass}
+						)}
+					</TabsList>
+
+					<div className="min-w-0">
+						<TabsContent
+							value="incorporacion-informacion"
+							className="gap-4 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+						>
+							<form
+								action={`/api/incorporations/update-details?empresa=${encodeURIComponent(empresa.empresa_incorporacion_id)}&back=${encodeURIComponent(backPath)}`}
+								method="post"
+								className="flex flex-col gap-4"
 							>
-								<Icon icon="ri:map-pin-line" data-icon="inline-start" />
-								Direcciones
-							</TabsTrigger>
-							<TabsTrigger value="socios" className={verticalTabTriggerClass}>
-								<Icon icon="ri:group-line" data-icon="inline-start" />
-								Socios
-							</TabsTrigger>
-							{showManagersTab && (
-								<TabsTrigger
-									value="managers"
-									className={verticalTabTriggerClass}
-								>
-									<Icon icon="ri:user-settings-line" data-icon="inline-start" />
-									Managers
-								</TabsTrigger>
-							)}
-						</TabsList>
-
-						<div className="min-w-0">
-							<TabsContent
-								value="informacion"
-								className="gap-4 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
-							>
-								<CompanyGeneralSection
-									empresa={empresa}
-									hasCanonicalCompany={hasCanonicalCompany}
-									canEditDetails={canEditDetails}
-									states={states}
-									actividades={actividades}
-									stateId={stateId}
-									setStateId={setStateId}
-									open={open}
-									setOpen={setOpen}
-									date={date}
-									handleSelectDate={handleSelectDate}
+								<input
+									type="hidden"
+									name="empresa_incorporacion_id"
+									value={empresa.empresa_incorporacion_id}
 								/>
-
-								<CompanyAccountingSection
+								<IncorporationRegistrationSection
 									empresa={empresa}
 									canEditDetails={canEditDetails}
-									hasUsIncome={hasUsIncome}
+									states_us={states}
 								/>
-
-								<CompanyStructureSection
-									empresa={empresa}
-									canEditDetails={canEditDetails}
-									isManagerManaged={isManagerManaged}
-								/>
-
-								{!hasCanonicalCompany && canEditDetails && (
-									<section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-100">
-										<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-											<p>
-												Esta incorporación todavía no tiene empresa canónica.
-												Crea la empresa para habilitar direcciones y socios.
-											</p>
-											<Button
-												type="button"
-												variant="outline"
-												onClick={openCreateCompanyDialog}
-											>
-												Crear empresa
-											</Button>
-										</div>
-									</section>
-								)}
-
 								<section className="flex justify-end border-gray-200 pt-5 dark:border-gray-700">
 									<Button type="submit" disabled={!canEditDetails}>
 										Guardar cambios
 									</Button>
 								</section>
-							</TabsContent>
+							</form>
 
-							<TabsContent
-								value="direcciones"
-								className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
-							>
-								{hasCanonicalCompany ? (
-									<CompanyAddressesSection
-										canEditDetails={canEditDetails}
-										addresses={addressesState.addresses}
-										selectedAddress={addressesState.selectedAddress}
-										isDetailModalOpen={addressesState.isDetailModalOpen}
-										setIsDetailModalOpen={addressesState.setIsDetailModalOpen}
-										isAddModalOpen={addressesState.isAddModalOpen}
-										setIsAddModalOpen={addressesState.setIsAddModalOpen}
-										newAddress={addressesState.newAddress}
-										handleNewAddressChange={
-											addressesState.handleNewAddressChange
-										}
-										handleAddAddress={addressesState.handleAddAddress}
-										handleSaveAddress={addressesState.handleSaveAddress}
-										handleDeleteAddress={addressesState.handleDeleteAddress}
-										openAddressDetail={addressesState.openAddressDetail}
-										openCreateAddress={addressesState.openCreateAddress}
-										isSaving={addressesState.isSaving}
-										addressCardHeightClass={
-											addressesState.addressCardHeightClass
-										}
-									/>
-								) : (
-									<CanonicalCompanyEmptyState
-										title="No hay empresa creada"
-										description="Para gestionar direcciones debes crear la empresa canónica de esta incorporación."
-										canEditDetails={canEditDetails}
-										onCreateCompany={openCreateCompanyDialog}
-									/>
-								)}
-							</TabsContent>
-
-							<TabsContent
-								value="socios"
-								className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
-							>
-								{hasCanonicalCompany ? (
-									<CompanyMembersCrudSection
-										initialMembers={membersToRender}
-										incorporationId={empresa.empresa_incorporacion_id}
-										canEditDetails={canEditDetails}
-									/>
-								) : (
-									<CanonicalCompanyEmptyState
-										title="No hay empresa creada"
-										description="Para gestionar socios debes crear la empresa canónica de esta incorporación."
-										canEditDetails={canEditDetails}
-										onCreateCompany={openCreateCompanyDialog}
-									/>
-								)}
-							</TabsContent>
-
-							{showManagersTab && (
-								<TabsContent
-									value="managers"
-									className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
-								>
-									{hasCanonicalCompany ? (
-										<CompanyManagersCrudSection
-											initialManagers={managersToRender}
-											members={membersToRender}
-											companyId={
-												empresa.company_id ?? empresa.empresa_incorporacion_id
-											}
-											canEditDetails={canEditDetails}
-										/>
-									) : (
-										<CanonicalCompanyEmptyState
-											title="No hay empresa creada"
-											description="Para gestionar managers debes crear la empresa canónica de esta incorporación."
-											canEditDetails={canEditDetails}
-											onCreateCompany={openCreateCompanyDialog}
-										/>
-									)}
-								</TabsContent>
+							{!hasCanonicalCompany && canEditDetails && (
+								<section className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-100">
+									<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+										<p>
+											Esta incorporación todavía no tiene empresa canónica. Crea
+											la empresa para habilitar direcciones y socios.
+										</p>
+										<Button
+											type="button"
+											variant="outline"
+											onClick={openCreateCompanyDialog}
+										>
+											Crear empresa
+										</Button>
+									</div>
+								</section>
 							)}
-						</div>
-					</Tabs>
-				</form>
+
+							<section className="flex justify-end border-gray-200 pt-5 dark:border-gray-700">
+								<Button type="submit" disabled={!canEditDetails}>
+									Guardar cambios
+								</Button>
+							</section>
+						</TabsContent>
+
+						<TabsContent
+							value="empresa-informacion"
+							className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+						>
+							{hasCanonicalCompany ? (
+								<CompanyCanonicalInfoSection
+									company={canonicalCompany}
+									canEditDetails={canEditDetails}
+								/>
+							) : (
+								<CanonicalCompanyEmptyState
+									title="No hay empresa creada"
+									description="Para editar los datos de empresa debes crear la empresa canónica de esta incorporación."
+									canEditDetails={canEditDetails}
+									onCreateCompany={openCreateCompanyDialog}
+								/>
+							)}
+						</TabsContent>
+
+						<TabsContent
+							value="empresa-direcciones"
+							className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+						>
+							{hasCanonicalCompany ? (
+								<CompanyAddressesSection
+									canEditDetails={canEditDetails}
+									addresses={addressesState.addresses}
+									selectedAddress={addressesState.selectedAddress}
+									isDetailModalOpen={addressesState.isDetailModalOpen}
+									setIsDetailModalOpen={addressesState.setIsDetailModalOpen}
+									isAddModalOpen={addressesState.isAddModalOpen}
+									setIsAddModalOpen={addressesState.setIsAddModalOpen}
+									newAddress={addressesState.newAddress}
+									handleNewAddressChange={addressesState.handleNewAddressChange}
+									handleAddAddress={addressesState.handleAddAddress}
+									handleSaveAddress={addressesState.handleSaveAddress}
+									handleDeleteAddress={addressesState.handleDeleteAddress}
+									openAddressDetail={addressesState.openAddressDetail}
+									openCreateAddress={addressesState.openCreateAddress}
+									isSaving={addressesState.isSaving}
+									addressCardHeightClass={addressesState.addressCardHeightClass}
+								/>
+							) : (
+								<CanonicalCompanyEmptyState
+									title="No hay empresa creada"
+									description="Para gestionar direcciones debes crear la empresa canónica de esta incorporación."
+									canEditDetails={canEditDetails}
+									onCreateCompany={openCreateCompanyDialog}
+								/>
+							)}
+						</TabsContent>
+
+						<TabsContent
+							value="empresa-miembros"
+							className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+						>
+							{hasCanonicalCompany ? (
+								<CompanyMembersCrudSection
+									initialMembers={memberRows}
+									incorporationId={empresa.empresa_incorporacion_id}
+									canEditDetails={canEditDetails}
+								/>
+							) : (
+								<CanonicalCompanyEmptyState
+									title="No hay empresa creada"
+									description="Para gestionar socios debes crear la empresa canónica de esta incorporación."
+									canEditDetails={canEditDetails}
+									onCreateCompany={openCreateCompanyDialog}
+								/>
+							)}
+						</TabsContent>
+
+						{showManagersTab && (
+							<TabsContent
+								value="empresa-managers"
+								className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+							>
+								{hasCanonicalCompany ? (
+									<CompanyManagersCrudSection
+										initialManagers={managersToRender}
+										members={managerMemberRows}
+										companyId={
+											empresa.company_id ?? empresa.empresa_incorporacion_id
+										}
+										canEditDetails={canEditDetails}
+									/>
+								) : (
+									<CanonicalCompanyEmptyState
+										title="No hay empresa creada"
+										description="Para gestionar managers debes crear la empresa canónica de esta incorporación."
+										canEditDetails={canEditDetails}
+										onCreateCompany={openCreateCompanyDialog}
+									/>
+								)}
+							</TabsContent>
+						)}
+					</div>
+				</Tabs>
 
 				<Dialog
 					open={isCreateCompanyOpen}

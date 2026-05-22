@@ -29,7 +29,6 @@ import type { ActividadItem, EmpresaDetail, State } from '../../../types';
 
 interface Props {
 	empresa: EmpresaDetail;
-	hasCanonicalCompany: boolean;
 	canEditDetails: boolean;
 	states: State[];
 	actividades: ActividadItem[];
@@ -43,7 +42,6 @@ interface Props {
 
 export default function CompanyGeneralSection({
 	empresa,
-	hasCanonicalCompany,
 	canEditDetails,
 	states,
 	actividades,
@@ -98,34 +96,6 @@ export default function CompanyGeneralSection({
 				</div>
 
 				<div className="grid gap-4 xl:grid-cols-2">
-					{hasCanonicalCompany && (
-						<>
-							<Field data-disabled={!canEditDetails}>
-								<FieldLabel htmlFor="legal_name">Nombre legal</FieldLabel>
-								<Input
-									id="legal_name"
-									name="legal_name"
-									defaultValue={
-										(empresa as { legal_name?: string | null }).legal_name ?? ''
-									}
-									disabled={!canEditDetails}
-								/>
-							</Field>
-							<Field data-disabled={!canEditDetails}>
-								<FieldLabel htmlFor="filing_number">Filing Number</FieldLabel>
-								<Input
-									id="filing_number"
-									name="filing_number"
-									defaultValue={
-										(empresa as { filing_number?: string | null }).filing_number ??
-										''
-									}
-									disabled={!canEditDetails}
-								/>
-							</Field>
-						</>
-					)}
-
 					<Field data-disabled={!canEditDetails}>
 						<FieldLabel htmlFor="state_id">Jurisdicción</FieldLabel>
 						<Select
