@@ -23,10 +23,7 @@ import type {
 	CompanyMemberItem,
 	EmpresaDetail,
 	ManagerItem,
-	State,
 } from '../types';
-import { mockCompanyMembers } from '../mock-company-members';
-import { mockCompanyManagers } from '../mocks/managers.mock';
 import CompanyCanonicalInfoSection from './company-details/sections/CompanyCanonicalInfoSection';
 import IncorporationRegistrationSection from './company-details/sections/IncorporationRegistrationSection';
 
@@ -34,48 +31,6 @@ import IncorporationRegistrationSection from './company-details/sections/Incorpo
 // izquierdo en la pestaña activa marcando la posición.
 const verticalTabTriggerClass =
 	'!w-full !justify-start !rounded-l-none !rounded-r-md border-l-2 border-transparent !bg-transparent !px-3 !py-2 !shadow-none hover:!bg-gray-50 hover:!text-gray-900 data-active:border-gray-900 data-active:!bg-gray-100 data-active:!text-gray-900 data-active:!shadow-none dark:hover:!bg-white/5 dark:hover:!text-white dark:data-active:border-white dark:data-active:!bg-white/10 dark:data-active:!text-white';
-
-// const mockMembersFallback: CompanyMemberItem[] = mockCompanyManagers.map(
-// 	(member, index) => ({
-// 		id: index + 1,
-// 		company_id: member.id_empresa,
-// 		full_name: member.nombre_de_socio,
-// 		email: member.correo,
-// 		member_type: member.tipo_de_socio,
-// 		country_nationality_id: null,
-// 		marital_status: member.estado_civil,
-// 		is_us_tax_resident:
-// 			member.residente_fiscal === null
-// 				? null
-// 				: member.residente_fiscal.toLowerCase() === 'si',
-// 		passport_number: member.numero_de_pasaporte,
-// 		ssn: member.numero_de_seguro_social,
-// 		itin: member.numero_itin,
-// 		is_member: true,
-// 		is_manager: member.roles?.some((role) =>
-// 			role.toLowerCase().includes('manager'),
-// 		)
-// 			? true
-// 			: false,
-// 		percentage: member.porcentaje,
-// 		is_active: true,
-// 		deleted_at: null,
-// 		tax_address: {
-// 			id: index + 1,
-// 			company_member_id: index + 1,
-// 			type: 'tax',
-// 			line1: member.direccion_planilla ?? '',
-// 			line2: null,
-// 			city: null,
-// 			state_id: null,
-// 			state: null,
-// 			country_id: null,
-// 			zip: null,
-// 			is_primary: true,
-// 			deleted_at: null,
-// 		},
-// 	}),
-// );
 
 interface Props {
 	empresa: EmpresaDetail;
@@ -85,7 +40,6 @@ interface Props {
 	managers: ManagerItem[];
 	canEditDetails: boolean;
 	backPath: string;
-	states: State[];
 }
 
 export default function CompanyDetailsForm({
@@ -96,7 +50,6 @@ export default function CompanyDetailsForm({
 	managers,
 	canEditDetails,
 	backPath,
-	states,
 }: Props) {
 	const [companyId, setCompanyId] = React.useState(empresa.company_id ?? null);
 	const [isCreateCompanyOpen, setIsCreateCompanyOpen] = React.useState(false);
@@ -107,20 +60,14 @@ export default function CompanyDetailsForm({
 		addresses,
 		empresa.empresa_incorporacion_id,
 	);
-	const membersToRender = hasCanonicalCompany
-		? companyMembers
-		: mockMembersFallback;
+	const membersToRender = companyMembers;
 	const memberRows = membersToRender.filter((member) =>
 		Boolean(member.is_member),
 	);
 	const managerMemberRows = membersToRender.filter((member) =>
 		Boolean(member.is_manager),
 	);
-	const managersToRender = hasCanonicalCompany
-		? managers
-		: managers.length > 0
-			? managers
-			: mockCompanyManagers;
+	const managersToRender = managers;
 	const showManagersTab =
 		canonicalCompany?.management_type === 'manager-managed';
 
@@ -227,11 +174,10 @@ export default function CompanyDetailsForm({
 									name="empresa_incorporacion_id"
 									value={empresa.empresa_incorporacion_id}
 								/>
-								<IncorporationRegistrationSection
-									empresa={empresa}
-									canEditDetails={canEditDetails}
-									states_us={states}
-								/>
+							<IncorporationRegistrationSection
+								empresa={empresa}
+								canEditDetails={canEditDetails}
+							/>
 								<section className="flex justify-end border-gray-200 pt-5 dark:border-gray-700">
 									<Button type="submit" disabled={!canEditDetails}>
 										Guardar cambios

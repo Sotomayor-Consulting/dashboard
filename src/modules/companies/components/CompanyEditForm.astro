@@ -6,7 +6,6 @@ import type {
 	CompanyAddressItem,
 	CompanyMemberItem,
 	ManagerItem,
-	State,
 } from '../types';
 
 interface Props {
@@ -17,7 +16,6 @@ interface Props {
 	managers: ManagerItem[];
 	canEditDetails: boolean;
 	backPath: string;
-	states: State[];
 }
 
 const {
@@ -28,7 +26,6 @@ const {
 	managers,
 	canEditDetails,
 	backPath,
-	states,
 } = Astro.props;
 ---
 
@@ -41,5 +38,4 @@ const {
 	managers={managers}
 	canEditDetails={canEditDetails}
 	backPath={backPath}
-	states={states}
 />
