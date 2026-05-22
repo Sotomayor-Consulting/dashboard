@@ -16,7 +16,6 @@ interface Props {
 	companyMembers: CompanyMemberItem[];
 	managers: ManagerItem[];
 	canEditDetails: boolean;
-	backPath: string;
 	states: State[];
 }
 
@@ -27,7 +26,6 @@ const {
 	companyMembers,
 	managers,
 	canEditDetails,
-	backPath,
 	states,
 } = Astro.props;
 ---
@@ -40,6 +38,5 @@ const {
 	companyMembers={companyMembers}
 	managers={managers}
 	canEditDetails={canEditDetails}
-	backPath={backPath}
 	states={states}
 />

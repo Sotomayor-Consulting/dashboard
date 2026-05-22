@@ -12,6 +12,9 @@ import {
 	DialogTitle,
 } from '@components/ui/Dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/Tabs';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import CompanyEmptyState from '../components/CompanyEmptyState';
 import CompanyAddressesSection from '../components/CompanyAddressesSection';
 import CompanyMembersCrudSection from '../components/CompanyMembersCrudSection';
@@ -28,6 +31,12 @@ import type {
 
 import CompanyInfoSection from './company-details/sections/CompanyInfoSection';
 import IncorporationRegistrationSection from './company-details/sections/IncorporationRegistrationSection';
+import { mapIncorporationFormToUpdateRequest } from './company-details/mappers/incorporation-registration.mapper';
+import {
+	type IncorporationRegistrationFormValues,
+	type IncorporationRegistrationInput,
+	incorporationRegistrationSchema,
+} from './company-details/schemas/incorporation-registration.schema';
 
 // Estilo inline-vertical para tabs: sin contenedor, sólo el borde
 // izquierdo en la pestaña activa marcando la posición.
@@ -41,7 +50,6 @@ interface Props {
 	companyMembers: CompanyMemberItem[];
 	managers: ManagerItem[];
 	canEditDetails: boolean;
-	backPath: string;
 	states: State[];
 }
 
@@ -52,12 +60,13 @@ export default function CompanyDetailsForm({
 	companyMembers,
 	managers,
 	canEditDetails,
-	backPath,
 	states,
 }: Props) {
 	const [companyId, setCompanyId] = React.useState(empresa.company_id ?? null);
 	const [isCreateCompanyOpen, setIsCreateCompanyOpen] = React.useState(false);
 	const [isCreatingCompany, setIsCreatingCompany] = React.useState(false);
+	const [isSavingIncorporation, setIsSavingIncorporation] =
+		React.useState(false);
 
 	const hasCompany = Boolean(companyId);
 	const addressesState = useCompanyAddresses(
@@ -66,9 +75,27 @@ export default function CompanyDetailsForm({
 	);
 
 	const memberRows = companyMembers;
-	const managerMemberRows = companyMembers.filter((member) => member.is_manager);
+	const managerMemberRows = companyMembers.filter(
+		(member) => member.is_manager,
+	);
 	const managersToRender = managers;
 	const showManagersTab = company?.management_type === 'manager-managed';
+
+	const incorporationForm = useForm<
+		IncorporationRegistrationFormValues,
+		unknown,
+		IncorporationRegistrationInput
+	>({
+		resolver: zodResolver(incorporationRegistrationSchema),
+		defaultValues: {
+			nameOption1: empresa.nombre_1,
+			nameOption2: empresa.nombre_2,
+			nameOption3: empresa.nombre_3,
+			businessType: empresa.tipo_de_negocio,
+			stateId: empresa.state_id ?? null,
+		},
+		mode: 'onSubmit',
+	});
 
 	const createCompany = async () => {
 		setIsCreatingCompany(true);
@@ -95,6 +122,46 @@ export default function CompanyDetailsForm({
 	const openCreateCompanyDialog = () => {
 		if (!canEditDetails) return;
 		setIsCreateCompanyOpen(true);
+	};
+
+	const handleSaveIncorporation = async (values: IncorporationRegistrationInput) => {
+		if (!canEditDetails || isSavingIncorporation) return;
+
+		setIsSavingIncorporation(true);
+		const loadingToastId = toast.loading('Guardando datos...');
+
+		const requestPayload = mapIncorporationFormToUpdateRequest(
+			empresa.empresa_incorporacion_id,
+			values,
+		);
+
+		try {
+			const response = await fetch('/api/incorporations/update-details', {
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestPayload),
+				credentials: 'include',
+			});
+
+			const payload = (await response.json().catch(() => null)) as {
+				ok?: boolean;
+				message?: string;
+				error?: string;
+			} | null;
+
+			if (!response.ok || !payload?.ok) {
+				throw new Error(payload?.error ?? 'Error al guardar');
+			}
+
+			toast.success('Datos guardados', { id: loadingToastId });
+		} catch {
+			toast.error('Error al guardar', { id: loadingToastId });
+		} finally {
+			setIsSavingIncorporation(false);
+		}
 	};
 
 	return (
@@ -164,22 +231,21 @@ export default function CompanyDetailsForm({
 							className="gap-4 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
 						>
 							<form
-								action={`/api/incorporations/update-details?empresa=${encodeURIComponent(empresa.empresa_incorporacion_id)}&back=${encodeURIComponent(backPath)}`}
-								method="post"
+								onSubmit={incorporationForm.handleSubmit(
+									handleSaveIncorporation,
+								)}
 								className="flex flex-col gap-4"
 							>
-								<input
-									type="hidden"
-									name="empresa_incorporacion_id"
-									value={empresa.empresa_incorporacion_id}
-								/>
 								<IncorporationRegistrationSection
-									empresa={empresa}
 									canEditDetails={canEditDetails}
 									states_us={states}
+									form={incorporationForm}
 								/>
 								<section className="flex justify-end border-gray-200 pt-5 dark:border-gray-700">
-									<Button type="submit" disabled={!canEditDetails}>
+									<Button
+										type="submit"
+										disabled={!canEditDetails || isSavingIncorporation}
+									>
 										Guardar cambios
 									</Button>
 								</section>
@@ -189,8 +255,8 @@ export default function CompanyDetailsForm({
 								<section className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-100">
 									<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 										<p>
-											Esta incorporación todavía no tiene empresa. Crea
-											la empresa para habilitar direcciones y socios.
+											Esta incorporación todavía no tiene empresa. Crea la
+											empresa para habilitar direcciones y socios.
 										</p>
 										<Button
 											type="button"
@@ -202,7 +268,6 @@ export default function CompanyDetailsForm({
 									</div>
 								</section>
 							)}
-
 						</TabsContent>
 
 						<TabsContent
