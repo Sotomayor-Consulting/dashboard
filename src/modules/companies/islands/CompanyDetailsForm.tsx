@@ -12,23 +12,21 @@ import {
 	DialogTitle,
 } from '@components/ui/Dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/Tabs';
-import CanonicalCompanyEmptyState from '../components/CanonicalCompanyEmptyState';
+import CompanyEmptyState from '../components/CompanyEmptyState';
 import CompanyAddressesSection from '../components/CompanyAddressesSection';
 import CompanyMembersCrudSection from '../components/CompanyMembersCrudSection';
 import CompanyManagersCrudSection from '../components/CompanyManagersCrudSection';
 import { useCompanyAddresses } from '../hooks/use-company-addresses';
 import type {
-	CanonicalCompanyItem,
 	CompanyAddressItem,
+	CompanyItem,
 	CompanyMemberItem,
 	EmpresaDetail,
 	ManagerItem,
+	State,
 } from '../types';
-<<<<<<< HEAD
-=======
-import { mockCompanyManagers } from '../mocks/managers.mock';
->>>>>>> cd79af4bcabea15d858a8cfbd03d9c26ee303f4d
-import CompanyCanonicalInfoSection from './company-details/sections/CompanyCanonicalInfoSection';
+
+import CompanyInfoSection from './company-details/sections/CompanyInfoSection';
 import IncorporationRegistrationSection from './company-details/sections/IncorporationRegistrationSection';
 
 // Estilo inline-vertical para tabs: sin contenedor, sólo el borde
@@ -38,48 +36,41 @@ const verticalTabTriggerClass =
 
 interface Props {
 	empresa: EmpresaDetail;
-	canonicalCompany: CanonicalCompanyItem | null;
+	company: CompanyItem | null;
 	addresses: CompanyAddressItem[];
 	companyMembers: CompanyMemberItem[];
 	managers: ManagerItem[];
 	canEditDetails: boolean;
 	backPath: string;
+	states: State[];
 }
 
 export default function CompanyDetailsForm({
 	empresa,
-	canonicalCompany,
+	company,
 	addresses,
 	companyMembers,
 	managers,
 	canEditDetails,
 	backPath,
+	states,
 }: Props) {
 	const [companyId, setCompanyId] = React.useState(empresa.company_id ?? null);
 	const [isCreateCompanyOpen, setIsCreateCompanyOpen] = React.useState(false);
 	const [isCreatingCompany, setIsCreatingCompany] = React.useState(false);
 
-	const hasCanonicalCompany = Boolean(companyId);
+	const hasCompany = Boolean(companyId);
 	const addressesState = useCompanyAddresses(
 		addresses,
 		empresa.empresa_incorporacion_id,
 	);
-<<<<<<< HEAD
-	const membersToRender = companyMembers;
-=======
-	const membersToRender = hasCanonicalCompany ? companyMembers : [];
->>>>>>> cd79af4bcabea15d858a8cfbd03d9c26ee303f4d
-	const memberRows = membersToRender.filter((member) =>
-		Boolean(member.is_member),
-	);
-	const managerMemberRows = membersToRender.filter((member) =>
-		Boolean(member.is_manager),
-	);
-	const managersToRender = managers;
-	const showManagersTab =
-		canonicalCompany?.management_type === 'manager-managed';
 
-	const createCanonicalCompany = async () => {
+	const memberRows = companyMembers;
+	const managerMemberRows = companyMembers.filter((member) => member.is_manager);
+	const managersToRender = managers;
+	const showManagersTab = company?.management_type === 'manager-managed';
+
+	const createCompany = async () => {
 		setIsCreatingCompany(true);
 		try {
 			const response = await fetch(
@@ -111,7 +102,7 @@ export default function CompanyDetailsForm({
 			<CardContent className="p-0">
 				{!canEditDetails && (
 					<div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-100">
-						Solo admin/gerencia puede editar en esta fase.
+						Solo admin, gerencia u operaciones puede editar en esta fase.
 					</div>
 				)}
 
@@ -182,10 +173,11 @@ export default function CompanyDetailsForm({
 									name="empresa_incorporacion_id"
 									value={empresa.empresa_incorporacion_id}
 								/>
-							<IncorporationRegistrationSection
-								empresa={empresa}
-								canEditDetails={canEditDetails}
-							/>
+								<IncorporationRegistrationSection
+									empresa={empresa}
+									canEditDetails={canEditDetails}
+									states_us={states}
+								/>
 								<section className="flex justify-end border-gray-200 pt-5 dark:border-gray-700">
 									<Button type="submit" disabled={!canEditDetails}>
 										Guardar cambios
@@ -193,11 +185,11 @@ export default function CompanyDetailsForm({
 								</section>
 							</form>
 
-							{!hasCanonicalCompany && canEditDetails && (
+							{!hasCompany && canEditDetails && (
 								<section className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-100">
 									<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 										<p>
-											Esta incorporación todavía no tiene empresa canónica. Crea
+											Esta incorporación todavía no tiene empresa. Crea
 											la empresa para habilitar direcciones y socios.
 										</p>
 										<Button
@@ -211,26 +203,21 @@ export default function CompanyDetailsForm({
 								</section>
 							)}
 
-							<section className="flex justify-end border-gray-200 pt-5 dark:border-gray-700">
-								<Button type="submit" disabled={!canEditDetails}>
-									Guardar cambios
-								</Button>
-							</section>
 						</TabsContent>
 
 						<TabsContent
 							value="empresa-informacion"
 							className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
 						>
-							{hasCanonicalCompany ? (
-								<CompanyCanonicalInfoSection
-									company={canonicalCompany}
+							{hasCompany ? (
+								<CompanyInfoSection
+									company={company}
 									canEditDetails={canEditDetails}
 								/>
 							) : (
-								<CanonicalCompanyEmptyState
+								<CompanyEmptyState
 									title="No hay empresa creada"
-									description="Para editar los datos de empresa debes crear la empresa canónica de esta incorporación."
+									description="Para editar los datos de empresa debes crear la empresa de esta incorporación."
 									canEditDetails={canEditDetails}
 									onCreateCompany={openCreateCompanyDialog}
 								/>
@@ -241,7 +228,7 @@ export default function CompanyDetailsForm({
 							value="empresa-direcciones"
 							className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
 						>
-							{hasCanonicalCompany ? (
+							{hasCompany ? (
 								<CompanyAddressesSection
 									canEditDetails={canEditDetails}
 									addresses={addressesState.addresses}
@@ -261,9 +248,9 @@ export default function CompanyDetailsForm({
 									addressCardHeightClass={addressesState.addressCardHeightClass}
 								/>
 							) : (
-								<CanonicalCompanyEmptyState
+								<CompanyEmptyState
 									title="No hay empresa creada"
-									description="Para gestionar direcciones debes crear la empresa canónica de esta incorporación."
+									description="Para gestionar direcciones debes crear la empresa de esta incorporación."
 									canEditDetails={canEditDetails}
 									onCreateCompany={openCreateCompanyDialog}
 								/>
@@ -274,16 +261,16 @@ export default function CompanyDetailsForm({
 							value="empresa-miembros"
 							className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
 						>
-							{hasCanonicalCompany ? (
+							{hasCompany ? (
 								<CompanyMembersCrudSection
 									initialMembers={memberRows}
 									incorporationId={empresa.empresa_incorporacion_id}
 									canEditDetails={canEditDetails}
 								/>
 							) : (
-								<CanonicalCompanyEmptyState
+								<CompanyEmptyState
 									title="No hay empresa creada"
-									description="Para gestionar socios debes crear la empresa canónica de esta incorporación."
+									description="Para gestionar socios debes crear la empresa de esta incorporación."
 									canEditDetails={canEditDetails}
 									onCreateCompany={openCreateCompanyDialog}
 								/>
@@ -295,7 +282,7 @@ export default function CompanyDetailsForm({
 								value="empresa-managers"
 								className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
 							>
-								{hasCanonicalCompany ? (
+								{hasCompany ? (
 									<CompanyManagersCrudSection
 										initialManagers={managersToRender}
 										members={managerMemberRows}
@@ -305,9 +292,9 @@ export default function CompanyDetailsForm({
 										canEditDetails={canEditDetails}
 									/>
 								) : (
-									<CanonicalCompanyEmptyState
+									<CompanyEmptyState
 										title="No hay empresa creada"
-										description="Para gestionar managers debes crear la empresa canónica de esta incorporación."
+										description="Para gestionar managers debes crear la empresa de esta incorporación."
 										canEditDetails={canEditDetails}
 										onCreateCompany={openCreateCompanyDialog}
 									/>
@@ -323,7 +310,7 @@ export default function CompanyDetailsForm({
 				>
 					<DialogContent>
 						<DialogHeader>
-							<DialogTitle>Crear empresa canónica</DialogTitle>
+							<DialogTitle>Crear empresa</DialogTitle>
 						</DialogHeader>
 						<p className="text-muted-foreground text-sm">
 							Se creará una empresa en estado borrador usando los datos actuales
@@ -333,7 +320,7 @@ export default function CompanyDetailsForm({
 						<DialogFooter>
 							<Button
 								type="button"
-								onClick={createCanonicalCompany}
+								onClick={createCompany}
 								disabled={isCreatingCompany}
 							>
 								{isCreatingCompany ? 'Creando...' : 'Crear empresa'}

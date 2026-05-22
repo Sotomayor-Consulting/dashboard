@@ -164,14 +164,23 @@ export interface CompanyMemberItem {
 	tax_address?: CompanyMemberAddressItem | null;
 }
 
-export interface CanonicalCompanyItem {
+export interface CompanyItem {
 	id: string;
 	legal_name: string | null;
 	identification_number: string | null;
 	entity_type: string | null;
+	formation_state_id?: number | null;
+	formation_country_id?: number | null;
 	management_type: string | null;
 	tax_clasification: string | null;
+	activity_code_id?: number | null;
 	activity_description: string | null;
+	activity_service?: string | null;
+	us_source_income?: boolean | null;
+	joint_ownership?: boolean | null;
+	incorporation_date?: string | null;
+	irs_email?: string | null;
+	legal_status?: string | null;
 }
 
 export interface ManagerItem {
@@ -249,7 +258,7 @@ export interface Documento {
 
 export interface CompanyDetailData {
 	empresa: EmpresaDetail;
-	canonicalCompany: CanonicalCompanyItem | null;
+	company: CompanyItem | null;
 	socios: SocioItem[];
 	addresses: CompanyAddressItem[];
 	companyMembers: CompanyMemberItem[];

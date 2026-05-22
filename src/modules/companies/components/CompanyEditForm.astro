@@ -2,40 +2,44 @@
 import CompanyDetailsForm from '../islands/CompanyDetailsForm';
 import type {
 	EmpresaDetail,
-	CanonicalCompanyItem,
+	CompanyItem,
 	CompanyAddressItem,
 	CompanyMemberItem,
 	ManagerItem,
+	State,
 } from '../types';
 
 interface Props {
 	empresa: EmpresaDetail;
-	canonicalCompany: CanonicalCompanyItem | null;
+	company: CompanyItem | null;
 	addresses: CompanyAddressItem[];
 	companyMembers: CompanyMemberItem[];
 	managers: ManagerItem[];
 	canEditDetails: boolean;
 	backPath: string;
+	states: State[];
 }
 
 const {
 	empresa,
-	canonicalCompany,
+	company,
 	addresses,
 	companyMembers,
 	managers,
 	canEditDetails,
 	backPath,
+	states,
 } = Astro.props;
 ---
 
 <CompanyDetailsForm
 	client:load
 	empresa={empresa}
-	canonicalCompany={canonicalCompany}
+	company={company}
 	addresses={addresses}
 	companyMembers={companyMembers}
 	managers={managers}
 	canEditDetails={canEditDetails}
 	backPath={backPath}
+	states={states}
 />

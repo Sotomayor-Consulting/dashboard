@@ -26,12 +26,16 @@ export const getCompanyDetailData = async (
 	if (!empresa) return null;
 
 	const companyId = (empresa as { company_id?: string | null }).company_id;
-	const [canonicalCompany, addresses, companyMembers] = await Promise.all([
+	const [company, addresses, companyMembers] = await Promise.all([
 		companyId
 			? supabase
 					.from('companies')
 					.select(
-						'id, legal_name, identification_number, entity_type, management_type, tax_clasification, activity_description',
+						`id, legal_name, identification_number, entity_type,
+						formation_state_id, formation_country_id, management_type,
+						tax_clasification, activity_code_id, activity_description,
+						activity_service, us_source_income, joint_ownership,
+						incorporation_date, irs_email, legal_status`,
 					)
 					.eq('id', companyId)
 					.maybeSingle()
@@ -40,19 +44,15 @@ export const getCompanyDetailData = async (
 		companyId ? listCompanyMembers(supabase, companyId) : [],
 	]);
 
-	if (canonicalCompany && 'error' in canonicalCompany && canonicalCompany.error) {
-		throw canonicalCompany.error;
+	if (company && 'error' in company && company.error) {
+		throw company.error;
 	}
 
-	const canonicalCompanyData =
-		canonicalCompany && 'data' in canonicalCompany
-			? canonicalCompany.data
-			: null;
+	const companyData = company && 'data' in company ? company.data : null;
 
 	return {
 		empresa: empresa as CompanyDetailData['empresa'],
-		canonicalCompany:
-			(canonicalCompanyData as CompanyDetailData['canonicalCompany']) ?? null,
+		company: (companyData as CompanyDetailData['company']) ?? null,
 		socios: (socios ?? []) as CompanyDetailData['socios'],
 		addresses: (addresses ?? []) as unknown as CompanyDetailData['addresses'],
 		companyMembers:

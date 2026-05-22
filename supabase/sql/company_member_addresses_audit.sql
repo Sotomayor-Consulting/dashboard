@@ -1,4 +1,4 @@
--- Canonical member addresses and reusable audit events.
+-- Company member addresses and reusable audit events.
 -- This migration is intentionally additive: legacy tables remain untouched.
 
 create extension if not exists pgcrypto;
@@ -30,6 +30,10 @@ alter table public.empresas_incorporaciones
 	add column if not exists company_id uuid references public.companies(id);
 
 create index if not exists empresas_incorporaciones_company_id_idx
+	on public.empresas_incorporaciones (company_id)
+	where company_id is not null;
+
+create unique index if not exists empresas_incorporaciones_company_id_unique_idx
 	on public.empresas_incorporaciones (company_id)
 	where company_id is not null;
 
