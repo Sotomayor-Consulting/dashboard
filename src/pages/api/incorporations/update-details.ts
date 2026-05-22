@@ -38,8 +38,26 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	}
 
 	const payload: Record<string, string | number | boolean | null> = {
-		nombre_1: form.get('nombre_1')?.toString().trim() || null,
-		tipo_de_negocio: form.get('tipo_de_negocio')?.toString().trim() || null,
+		nombre_1:
+			form.get('name_option_1')?.toString().trim() ||
+			form.get('nombre_1')?.toString().trim() ||
+			null,
+		nombre_2:
+			form.get('name_option_2')?.toString().trim() ||
+			form.get('nombre_2')?.toString().trim() ||
+			null,
+		nombre_3:
+			form.get('name_option_3')?.toString().trim() ||
+			form.get('nombre_3')?.toString().trim() ||
+			null,
+		tipo_de_negocio:
+			form.get('business_type')?.toString().trim() ||
+			form.get('tipo_de_negocio')?.toString().trim() ||
+			null,
+		estado:
+			form.get('incorporation_status')?.toString().trim() ||
+			form.get('estado')?.toString().trim() ||
+			null,
 		descripcion_empresa:
 			form.get('activity_description')?.toString().trim() || null,
 		activity_description:
