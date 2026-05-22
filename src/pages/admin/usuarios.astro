@@ -18,5 +18,5 @@ const viewerRoles = userRoles.filter((r): r is UserRole =>
 ---
 
 <LayoutSidebar>
-	<UsuariosPage viewerRoles={viewerRoles} client:only="react" />
+	<UsuariosPage viewerRoles={viewerRoles} client:load />
 </LayoutSidebar>

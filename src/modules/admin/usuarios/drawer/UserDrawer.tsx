@@ -1,6 +1,7 @@
 import { Icon } from '@iconify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@components/ui/Button';
 import { Sheet, SheetContent } from '@components/ui/Sheet';
@@ -110,7 +111,16 @@ export function UserDrawer({ userId, viewerRoles, onClose }: Props) {
 								render={<a href={`mailto:${data.email}`}>Enviar email</a>}
 							/>
 							{canEdit && (
-								<Button size="sm" className="ml-auto gap-1.5">
+								<Button
+									size="sm"
+									className="ml-auto gap-1.5"
+									onClick={() =>
+										toast.info('Suplantación en desarrollo', {
+											description:
+												'Esta función estará disponible próximamente. Requiere setup de sesión sombra para volver a tu cuenta.',
+										})
+									}
+								>
 									<Icon icon="ri:user-line" className="h-4 w-4" />
 									Suplantar
 								</Button>

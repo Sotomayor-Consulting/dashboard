@@ -10,7 +10,7 @@ import type { AdminUserDetail } from '@modules/admin/lib/types';
 export function UserDrawerHeader({ user }: { user: AdminUserDetail }) {
 	return (
 		<div className="border-b border-gray-200 px-5 py-5 dark:border-gray-800">
-			<StatusBadge status={user.status} />
+			<StatusBadge user={user} />
 			<div className="mt-3 flex items-center gap-3">
 				{user.avatarUrl ? (
 					<img

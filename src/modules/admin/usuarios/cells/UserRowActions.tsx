@@ -67,11 +67,11 @@ export function UserRowActions({ user, canEdit, onEdit }: Props) {
 						onClick={(e) => e.stopPropagation()}
 						className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-neutral-800 dark:hover:text-gray-200"
 						aria-label="Acciones"
-					>
-						<Icon icon="ri:more-2-fill" className="h-4 w-4" />
-					</button>
+					/>
 				}
-			/>
+			>
+				<Icon icon="ri:more-line" className="h-4 w-4" />
+			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-40">
 				<DropdownMenuItem
 					onClick={(e) => {

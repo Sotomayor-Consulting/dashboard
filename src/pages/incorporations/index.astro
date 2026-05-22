@@ -1,10 +1,5 @@
 ---
-import LayoutSidebar from '@layouts/LayoutSidebar.astro';
-import CompanyList from '@modules/companies/Companies.astro';
-import Alerta from '@components/feedback/Alert.astro';
+// La tabla de incorporaciones se migró a /admin/incorporaciones (rediseño).
+// Mantenemos /incorporations/[id] como vista de detalle del proceso.
+return Astro.redirect('/admin/incorporaciones', 301);
 ---
-
-<LayoutSidebar>
-	<Alerta />
-	<CompanyList />
-</LayoutSidebar>

@@ -19,6 +19,7 @@ const ROLE_DESC: Record<UserRole, string> = {
 	admin: 'Acceso total al sistema',
 	operaciones: 'Gestiona empresas y tareas',
 	cliente: 'Ve sus propias empresas',
+	partner: 'Refiere clientes y gana comisiones',
 };
 
 const ROLE_PILL: Record<UserRole, string> = {
@@ -28,6 +29,8 @@ const ROLE_PILL: Record<UserRole, string> = {
 		'border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-300',
 	cliente:
 		'border border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-700 dark:bg-neutral-900 dark:text-gray-300',
+	partner:
+		'border border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-400',
 };
 
 interface Props {

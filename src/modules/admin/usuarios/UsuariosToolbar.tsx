@@ -46,6 +46,11 @@ const FILTERS: FilterDef[] = [
 		match: (u) => u.roles.some((r) => r === 'operaciones' || r === 'operations'),
 	},
 	{ id: 'admin', label: 'Admin', match: (u) => u.roles.includes('admin') },
+	{
+		id: 'partner',
+		label: 'Partner',
+		match: (u) => u.roles.includes('partner'),
+	},
 	{ id: 'sin', label: 'Sin actividad', match: (u) => u.lastSignInAt === null },
 ];
 
@@ -121,12 +126,12 @@ export function UsuariosToolbar({
 					<DropdownMenu>
 						<DropdownMenuTrigger
 							render={
-								<Button variant="outline" size="sm" className="gap-1.5">
-									<Icon icon="ri:layout-column-line" className="h-4 w-4" />
-									Columnas
-								</Button>
+								<Button variant="outline" size="sm" className="gap-1.5" />
 							}
-						/>
+						>
+							<Icon icon="ri:layout-column-line" className="h-4 w-4" />
+							Columnas
+						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-48">
 							{(Object.keys(COLUMN_LABELS) as ColumnId[]).map((id) => (
 								<DropdownMenuCheckboxItem
