@@ -1,48 +1,169 @@
 ---
 import { Icon } from 'astro-icon/components';
 
-interface Props {
-	buttons: {
-		label: string;
-		icon: string;
-		active: boolean;
-		link: string;
-	}[];
+export interface TabButton {
+	/** Texto visible. */
+	label: string;
+	/** Nombre de icono iconify (ej: 'ri:layout-grid-line'). */
+	icon: string;
+	/** Si esta tab es la activa actualmente. */
+	active: boolean;
+	/**
+	 * Tipo de tab:
+	 * - `link` (default): renderiza `<a href>` y navega a otra ruta.
+	 * - `panel`: renderiza `<button data-tab-btn>` que togglea el panel
+	 *   correspondiente (un `<div data-tab-panel="…">`) en la misma página.
+	 *   El binding del toggle lo maneja el script al final de este archivo.
+	 */
+	kind?: 'link' | 'panel';
+	/** Requerido si `kind === 'link'`. */
+	link?: string;
+	/** Requerido si `kind === 'panel'`. Coincide con `data-tab-panel`. */
+	id?: string;
 }
 
-const { buttons } = Astro.props;
+interface Props {
+	buttons: TabButton[];
+	/**
+	 * Si es `true` (default), sincroniza la tab activa con el query param `?tab=`.
+	 * El primer botón (índice 0) se considera "default" y limpia el param.
+	 */
+	syncUrl?: boolean;
+}
+
+const { buttons, syncUrl = true } = Astro.props;
+const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 ---
 
 <ul
-	class="mt-4 flex w-fit items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium shadow-sm shadow-gray-200/70 md:w-auto xl:inline-flex xl:text-sm dark:border-gray-700 dark:bg-transparent dark:shadow-none"
+	class="mt-4 inline-flex w-fit items-center gap-1 rounded-lg border border-gray-200 bg-gray-100 p-1 text-xs font-semibold md:w-auto xl:text-sm dark:border-gray-700 dark:bg-neutral-950"
+	data-tab-strip
+	data-default-panel={defaultPanelId}
+	data-sync-url={syncUrl ? '1' : '0'}
 >
 	{
-		buttons.map((li, idx) => (
-			<>
-				{idx > 0 && (
-					<li
-						aria-hidden="true"
-						class="mx-1 hidden h-6 w-px self-center bg-gray-300/90 md:block dark:bg-gray-600/80"
-					/>
-				)}
+		buttons.map((b) => {
+			const kind = b.kind ?? 'link';
+			const baseClass =
+				'link-moderate inline-flex w-full items-center gap-2 rounded-md px-4 py-2 transition-colors md:w-auto';
+			const activeClass =
+				'bg-white text-gray-900 shadow-sm dark:bg-neutral-800 dark:text-white';
+			const inactiveClass =
+				'text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200';
+
+			return (
 				<li class="m-0">
-					<a
-						href={li.link}
-						data-astro-prefetch="viewport"
-						class:list={{
-							'link-moderate inline-flex w-full items-center gap-2 rounded-md px-3 py-2 transition-colors md:w-auto': true,
-							'bg-gray-100 text-gray-900 shadow-sm dark:bg-neutral-900 dark:text-white':
-								li.active === true,
-							'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-neutral-950 dark:hover:text-white':
-								li.active === false,
-						}}
-						aria-current={li.active ? 'page' : undefined}
-					>
-						<Icon name={li.icon} class="h-4 w-4" />
-						{li.label}
-					</a>
+					{kind === 'link' ? (
+						<a
+							href={b.link}
+							data-astro-prefetch="viewport"
+							class:list={{
+								[baseClass]: true,
+								[activeClass]: b.active,
+								[inactiveClass]: !b.active,
+							}}
+							aria-current={b.active ? 'page' : undefined}
+						>
+							<Icon name={b.icon} class="h-4 w-4" />
+							{b.label}
+						</a>
+					) : (
+						<button
+							type="button"
+							data-tab-btn={b.id}
+							class:list={{
+								[baseClass]: true,
+								[activeClass]: b.active,
+								[inactiveClass]: !b.active,
+							}}
+							aria-current={b.active ? 'page' : undefined}
+						>
+							<Icon name={b.icon} class="h-4 w-4" />
+							{b.label}
+						</button>
+					)}
 				</li>
-			</>
-		))
+			);
+		})
 	}
 </ul>
+
+<script>
+	/**
+	 * Comportamiento self-contained del TabBar:
+	 *   - Toggle de paneles `[data-tab-panel="<id>"]` cuando se hace click
+	 *     en un botón `[data-tab-btn="<id>"]`.
+	 *   - Sincroniza el query param `?tab=` (omitible vía `data-sync-url="0"`).
+	 *   - Emite un evento custom `tabbar:change` con `{ id }` para que
+	 *     páginas interesadas puedan reaccionar (ej: re-renderizar un mapa).
+	 *
+	 * Re-engancha listeners tras Astro View Transitions (`astro:page-load`)
+	 * y evita doble-bind con `data-tab-bound`.
+	 */
+	const ACTIVE_CLASSES = [
+		'bg-white',
+		'text-gray-900',
+		'shadow-sm',
+		'dark:bg-neutral-800',
+		'dark:text-white',
+	];
+	const INACTIVE_CLASSES = [
+		'text-gray-400',
+		'hover:text-gray-700',
+		'dark:text-gray-500',
+		'dark:hover:text-gray-200',
+	];
+
+	function initTabBar() {
+		const strip = document.querySelector<HTMLElement>('[data-tab-strip]');
+		if (!strip) return;
+
+		const buttons = strip.querySelectorAll<HTMLButtonElement>('[data-tab-btn]');
+		if (buttons.length === 0) return;
+
+		const panels = document.querySelectorAll<HTMLElement>('[data-tab-panel]');
+		const defaultPanel = strip.dataset['defaultPanel'] ?? '';
+		const syncUrl = strip.dataset['syncUrl'] !== '0';
+
+		function setTab(id: string) {
+			panels.forEach((p) => {
+				p.hidden = p.dataset['tabPanel'] !== id;
+			});
+			buttons.forEach((b) => {
+				const isActive = b.dataset['tabBtn'] === id;
+				if (isActive) {
+					b.classList.add(...ACTIVE_CLASSES);
+					b.classList.remove(...INACTIVE_CLASSES);
+					b.setAttribute('aria-current', 'page');
+				} else {
+					b.classList.remove(...ACTIVE_CLASSES);
+					b.classList.add(...INACTIVE_CLASSES);
+					b.removeAttribute('aria-current');
+				}
+			});
+
+			if (syncUrl) {
+				const url = new URL(window.location.href);
+				if (id === defaultPanel) url.searchParams.delete('tab');
+				else url.searchParams.set('tab', id);
+				window.history.replaceState({}, '', url.toString());
+			}
+
+			document.dispatchEvent(
+				new CustomEvent('tabbar:change', { detail: { id } }),
+			);
+		}
+
+		buttons.forEach((b) => {
+			if (b.dataset['tabBound']) return;
+			b.dataset['tabBound'] = '1';
+			b.addEventListener('click', () => {
+				const id = b.dataset['tabBtn'];
+				if (id) setTab(id);
+			});
+		});
+	}
+
+	initTabBar();
+	document.addEventListener('astro:page-load', initTabBar);
+</script>

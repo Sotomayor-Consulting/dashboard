@@ -15,7 +15,10 @@ interface TabsIconsProps {
 export default function TabsIcons({ data }: TabsIconsProps) {
 	return (
 		<Tabs defaultValue="pagos-realizados" className="w-full p-4 shadow-xs">
-			<TabsList className="w-fit justify-start" variant="line">
+			<TabsList
+				className="mb-4 flex w-fit items-center justify-start gap-1 rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium shadow-sm shadow-gray-200/70 xl:inline-flex xl:text-sm dark:border-gray-700 dark:bg-transparent dark:shadow-none"
+				variant="line"
+			>
 				<TabsTrigger value="pagos-realizados" className="flex-none">
 					<CircleDollarSign />
 					Pagos realizados
