@@ -28,9 +28,19 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		return json(200, { ok: true, data: { company_id: companyId } });
 	} catch (error) {
 		console.error('[companies:create-from-incorporation]', error);
-		return json(500, {
+		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
+		const status =
+			message === 'INCORPORATION_NOT_FOUND'
+				? 404
+				: message === 'FORBIDDEN'
+					? 403
+					: message === 'COMPANY_NOT_CREATED'
+						? 409
+						: 500;
+
+		return json(status, {
 			ok: false,
-			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',
+			error: message,
 		});
 	}
 };
