@@ -24,6 +24,10 @@ import type {
 	EmpresaDetail,
 	ManagerItem,
 } from '../types';
+<<<<<<< HEAD
+=======
+import { mockCompanyManagers } from '../mocks/managers.mock';
+>>>>>>> cd79af4bcabea15d858a8cfbd03d9c26ee303f4d
 import CompanyCanonicalInfoSection from './company-details/sections/CompanyCanonicalInfoSection';
 import IncorporationRegistrationSection from './company-details/sections/IncorporationRegistrationSection';
 
@@ -60,7 +64,11 @@ export default function CompanyDetailsForm({
 		addresses,
 		empresa.empresa_incorporacion_id,
 	);
+<<<<<<< HEAD
 	const membersToRender = companyMembers;
+=======
+	const membersToRender = hasCanonicalCompany ? companyMembers : [];
+>>>>>>> cd79af4bcabea15d858a8cfbd03d9c26ee303f4d
 	const memberRows = membersToRender.filter((member) =>
 		Boolean(member.is_member),
 	);

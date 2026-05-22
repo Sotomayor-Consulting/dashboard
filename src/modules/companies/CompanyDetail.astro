@@ -55,11 +55,11 @@ if (empresaId) {
 
 const empresa = data?.empresa ?? null;
 const canonicalCompany = data?.canonicalCompany ?? null;
-
 const addresses = data?.addresses ?? [];
 const companyMembers = data?.companyMembers ?? [];
 const managers = data?.managers ?? [];
 const paises = data?.paises ?? [];
+const states = data?.state ?? [];
 const empresaSafe = empresa as CompanyDetailData['empresa'];
 const errorMessage = !empresaId
 	? 'ID de empresa no valido'
@@ -126,6 +126,7 @@ const operationsTabs = [
 						managers={managers}
 						canEditDetails={canEditDetails}
 						backPath={backPath}
+						states={states}
 					/>
 				</div>
 				<div data-tab-panel="requests" class="my-4" hidden>
