@@ -164,6 +164,127 @@ export async function listCompanyMembers(
 	}));
 }
 
+export async function listCompanyMemberAddresses(
+	supabase: SupabaseClient,
+	companyId: string,
+	memberId: number,
+): Promise<CompanyMemberAddressRow[]> {
+	await assertCompanyMemberExists(supabase, companyId, memberId);
+
+	const { data, error } = await supabase
+		.from('company_member_addresses')
+		.select('*')
+		.eq('company_member_id', memberId)
+		.is('deleted_at', null)
+		.order('created_at', { ascending: true });
+
+	if (error) throw error;
+	return (data ?? []) as CompanyMemberAddressRow[];
+}
+
+export async function createCompanyMemberAddress(
+	supabase: SupabaseClient,
+	companyId: string,
+	memberId: number,
+	input: CompanyMemberAddressInput,
+	actorUserId: string,
+) {
+	await assertCompanyMemberExists(supabase, companyId, memberId);
+	const payload = addressPayload(input, memberId, actorUserId);
+	if (!payload.line1) throw new Error('ADDRESS_LINE1_REQUIRED');
+
+	const { data, error } = await supabase
+		.from('company_member_addresses')
+		.insert({
+			...payload,
+			created_by: actorUserId,
+		})
+		.select('*')
+		.single<CompanyMemberAddressRow>();
+
+	if (error) throw error;
+
+	await recordAuditEvent({
+		entityType: 'company_member_address',
+		entityId: String(data.id),
+		parentType: 'company_member',
+		parentId: String(memberId),
+		action: 'create',
+		changedBy: actorUserId,
+		afterData: data,
+	});
+
+	return data;
+}
+
+export async function updateCompanyMemberAddress(
+	supabase: SupabaseClient,
+	companyId: string,
+	memberId: number,
+	addressId: number,
+	input: CompanyMemberAddressInput,
+	actorUserId: string,
+) {
+	const before = await getActiveCompanyMemberAddress(
+		supabase,
+		companyId,
+		memberId,
+		addressId,
+	);
+	if (!before) throw new Error('COMPANY_MEMBER_ADDRESS_NOT_FOUND');
+
+	const payload = addressPayload(input, memberId, actorUserId);
+	if (!payload.line1) throw new Error('ADDRESS_LINE1_REQUIRED');
+
+	const { data, error } = await supabase
+		.from('company_member_addresses')
+		.update(payload)
+		.eq('id', addressId)
+		.eq('company_member_id', memberId)
+		.is('deleted_at', null)
+		.select('*')
+		.single<CompanyMemberAddressRow>();
+
+	if (error) throw error;
+
+	await recordAuditEvent({
+		entityType: 'company_member_address',
+		entityId: String(addressId),
+		parentType: 'company_member',
+		parentId: String(memberId),
+		action: 'update',
+		changedBy: actorUserId,
+		beforeData: before,
+		afterData: data,
+	});
+
+	return data;
+}
+
+export async function softDeleteCompanyMemberAddress(
+	supabase: SupabaseClient,
+	companyId: string,
+	memberId: number,
+	addressId: number,
+	actorUserId: string,
+	reason: string | null,
+) {
+	const before = await getActiveCompanyMemberAddress(
+		supabase,
+		companyId,
+		memberId,
+		addressId,
+	);
+	if (!before) throw new Error('COMPANY_MEMBER_ADDRESS_NOT_FOUND');
+
+	return softDeleteCompanyMemberAddressById(
+		supabase,
+		addressId,
+		actorUserId,
+		cleanText(reason) ?? 'Deleted from member details',
+	);
+}
+
 export async function createCompanyMember(
 	supabase: SupabaseClient,
 	companyId: string,
@@ -262,7 +383,7 @@ export async function updateCompanyMember(
 			actorUserId,
 		);
 	} else if (before.tax_address) {
-		await softDeleteCompanyMemberAddress(
+		await softDeleteCompanyMemberAddressById(
 			supabase,
 			before.tax_address.id,
 			actorUserId,
@@ -383,6 +504,43 @@ async function getCompanyMemberWithTaxAddress(
 	};
 }
 
+async function assertCompanyMemberExists(
+	supabase: SupabaseClient,
+	companyId: string,
+	memberId: number,
+) {
+	const { data, error } = await supabase
+		.from('company_members')
+		.select('id')
+		.eq('id', memberId)
+		.eq('company_id', companyId)
+		.is('deleted_at', null)
+		.maybeSingle();
+
+	if (error) throw error;
+	if (!data) throw new Error('COMPANY_MEMBER_NOT_FOUND');
+}
+
+async function getActiveCompanyMemberAddress(
+	supabase: SupabaseClient,
+	companyId: string,
+	memberId: number,
+	addressId: number,
+) {
+	await assertCompanyMemberExists(supabase, companyId, memberId);
+
+	const { data, error } = await supabase
+		.from('company_member_addresses')
+		.select('*')
+		.eq('id', addressId)
+		.eq('company_member_id', memberId)
+		.is('deleted_at', null)
+		.maybeSingle<CompanyMemberAddressRow>();
+
+	if (error) throw error;
+	return data ?? null;
+}
+
 async function upsertPrimaryTaxAddress(
 	supabase: SupabaseClient,
 	memberId: number,
@@ -445,12 +603,12 @@ async function upsertPrimaryTaxAddress(
 	return data;
 }
 
-async function softDeleteCompanyMemberAddress(
+async function softDeleteCompanyMemberAddressById(
 	supabase: SupabaseClient,
 	addressId: number,
 	actorUserId: string,
 	reason: string,
-) {
+): Promise<CompanyMemberAddressRow | null> {
 	const { data: before, error: beforeError } = await supabase
 		.from('company_member_addresses')
 		.select('*')
@@ -459,7 +617,7 @@ async function softDeleteCompanyMemberAddress(
 		.maybeSingle<CompanyMemberAddressRow>();
 
 	if (beforeError) throw beforeError;
-	if (!before) return;
+	if (!before) return null;
 
 	const { data: after, error } = await supabase
 		.from('company_member_addresses')
@@ -486,4 +644,6 @@ async function softDeleteCompanyMemberAddress(
 		beforeData: before,
 		afterData: after,
 	});
+
+	return after;
 }

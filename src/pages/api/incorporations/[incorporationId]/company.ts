@@ -1,16 +1,12 @@
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@infrastructure/supabase';
-import { SECURITY_HEADERS } from '@infrastructure/security/headers';
-import { canManageCompanyData, extractTokenRoleNames } from '@shared/roles';
-import { createCanonicalCompanyFromIncorporation } from '@domains/companies/canonical-company';
+import { json, requireCompanyDataManager } from '@shared/api/company-data';
+import {
+	createCompanyFromIncorporation,
+	updateCompanyForIncorporation,
+	type CompanyUpdateInput,
+} from '@domains/companies/company-records';
 
 export const prerender = false;
-
-const json = (status: number, payload: unknown) =>
-	new Response(JSON.stringify(payload), {
-		status,
-		headers: SECURITY_HEADERS,
-	});
 
 export const POST: APIRoute = async ({ request, cookies, params }) => {
 	const incorporationId = params.incorporationId?.trim();
@@ -18,30 +14,14 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		return json(400, { ok: false, error: 'MISSING_INCORPORATION_ID' });
 	}
 
-	const supabase = createSupabaseServerClient({
-		headers: request.headers,
-		cookies,
-	});
-
-	const {
-		data: { user },
-		error: authError,
-	} = await supabase.auth.getUser();
-	const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
-
-	if (authError || claimsError || !user || !claimsData?.claims) {
-		return json(401, { ok: false, error: 'NO_AUTH_USER' });
-	}
-
-	if (!canManageCompanyData(extractTokenRoleNames(claimsData.claims))) {
-		return json(403, { ok: false, error: 'FORBIDDEN' });
-	}
+	const context = await requireCompanyDataManager(request, cookies);
+	if ('error' in context) return context.error;
 
 	try {
-		const companyId = await createCanonicalCompanyFromIncorporation(
-			supabase,
+		const companyId = await createCompanyFromIncorporation(
+			context.supabase,
 			incorporationId,
-			user.id,
+			context.user.id,
 			'draft',
 		);
 
@@ -52,5 +32,38 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 			ok: false,
 			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',
 		});
+	}
+};
+
+export const PATCH: APIRoute = async ({ request, cookies, params }) => {
+	const incorporationId = params.incorporationId?.trim();
+	if (!incorporationId) {
+		return json(400, { ok: false, error: 'MISSING_INCORPORATION_ID' });
+	}
+
+	const context = await requireCompanyDataManager(request, cookies);
+	if ('error' in context) return context.error;
+
+	const body = (await request.json().catch(() => null)) as
+		| CompanyUpdateInput
+		| null;
+	if (!body) {
+		return json(400, { ok: false, error: 'INVALID_BODY' });
+	}
+
+	try {
+		const company = await updateCompanyForIncorporation(
+			context.supabase,
+			incorporationId,
+			body,
+			context.user.id,
+		);
+
+		return json(200, { ok: true, data: company });
+	} catch (error) {
+		console.error('[companies:update]', error);
+		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
+		const status = message === 'COMPANY_NOT_CREATED' ? 409 : 500;
+		return json(status, { ok: false, error: message });
 	}
 };

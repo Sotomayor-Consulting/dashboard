@@ -1,9 +1,7 @@
 import type { APIRoute } from 'astro';
 import type { AstroCookies } from 'astro';
-import { createSupabaseServerClient } from '@infrastructure/supabase';
-import { SECURITY_HEADERS } from '@infrastructure/security/headers';
-import { canManageCompanyData, extractTokenRoleNames } from '@shared/roles';
-import { getCanonicalCompanyIdForIncorporation } from '@domains/companies/canonical-company';
+import { json, requireCompanyDataManager } from '@shared/api/company-data';
+import { getCompanyIdForIncorporation } from '@domains/companies/company-records';
 import {
 	softDeleteCompanyMember,
 	updateCompanyMember,
@@ -11,12 +9,6 @@ import {
 } from '@domains/companies/company-members';
 
 export const prerender = false;
-
-const json = (status: number, payload: unknown) =>
-	new Response(JSON.stringify(payload), {
-		status,
-		headers: SECURITY_HEADERS,
-	});
 
 const parseMemberId = (raw: string | undefined) => {
 	const parsed = Number(raw);
@@ -37,34 +29,23 @@ async function resolveRequestContext(
 		return { error: json(400, { ok: false, error: 'INVALID_MEMBER_ID' }) };
 	}
 
-	const supabase = createSupabaseServerClient({
-		headers: request.headers,
-		cookies,
-	});
+	const context = await requireCompanyDataManager(request, cookies);
+	if ('error' in context) return { error: context.error };
 
-	const {
-		data: { user },
-		error: authError,
-	} = await supabase.auth.getUser();
-	const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
-
-	if (authError || claimsError || !user || !claimsData?.claims) {
-		return { error: json(401, { ok: false, error: 'NO_AUTH_USER' }) };
-	}
-
-	if (!canManageCompanyData(extractTokenRoleNames(claimsData.claims))) {
-		return { error: json(403, { ok: false, error: 'FORBIDDEN' }) };
-	}
-
-	const companyId = await getCanonicalCompanyIdForIncorporation(
-		supabase,
+	const companyId = await getCompanyIdForIncorporation(
+		context.supabase,
 		incorporationId,
 	);
 	if (!companyId) {
 		return { error: json(409, { ok: false, error: 'COMPANY_NOT_CREATED' }) };
 	}
 
-	return { supabase, user, companyId, memberId };
+	return {
+		supabase: context.supabase,
+		user: context.user,
+		companyId,
+		memberId,
+	};
 }
 
 export const PATCH: APIRoute = async ({

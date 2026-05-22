@@ -2,24 +2,32 @@ import type { APIRoute } from 'astro';
 import { json, requireCompanyDataManager } from '@shared/api/company-data';
 import { getCompanyIdForIncorporation } from '@domains/companies/company-records';
 import {
-	softDeleteCompanyAddress,
-	updateCompanyAddress,
-	type CompanyAddressInput,
-} from '@domains/companies/addresses';
+	softDeleteCompanyMemberAddress,
+	updateCompanyMemberAddress,
+	type CompanyMemberAddressInput,
+} from '@domains/companies/company-members';
 
 export const prerender = false;
 
-const parseAddressId = (raw: string | undefined) => {
+const parsePositiveInt = (raw: string | undefined) => {
 	const parsed = Number(raw);
 	return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 };
 
-async function resolveContext({ request, cookies, params }: Parameters<APIRoute>[0]) {
+async function resolveContext({
+	request,
+	cookies,
+	params,
+}: Parameters<APIRoute>[0]) {
 	const incorporationId = params.incorporationId?.trim();
-	const addressId = parseAddressId(params.addressId);
+	const memberId = parsePositiveInt(params.memberId);
+	const addressId = parsePositiveInt(params.addressId);
 
 	if (!incorporationId) {
 		return { error: json(400, { ok: false, error: 'MISSING_INCORPORATION_ID' }) };
+	}
+	if (!memberId) {
+		return { error: json(400, { ok: false, error: 'INVALID_MEMBER_ID' }) };
 	}
 	if (!addressId) {
 		return { error: json(400, { ok: false, error: 'INVALID_ADDRESS_ID' }) };
@@ -39,8 +47,8 @@ async function resolveContext({ request, cookies, params }: Parameters<APIRoute>
 	return {
 		supabase: context.supabase,
 		user: context.user,
-		incorporationId,
 		companyId,
+		memberId,
 		addressId,
 	};
 }
@@ -51,16 +59,16 @@ export const PATCH: APIRoute = async (context) => {
 		if ('error' in resolved) return resolved.error;
 
 		const body = (await context.request.json().catch(() => null)) as
-			| CompanyAddressInput
+			| CompanyMemberAddressInput
 			| null;
 		if (!body) {
 			return json(400, { ok: false, error: 'INVALID_BODY' });
 		}
 
-		const address = await updateCompanyAddress(
+		const address = await updateCompanyMemberAddress(
 			resolved.supabase,
-			resolved.incorporationId,
 			resolved.companyId,
+			resolved.memberId,
 			resolved.addressId,
 			body,
 			resolved.user.id,
@@ -68,11 +76,10 @@ export const PATCH: APIRoute = async (context) => {
 
 		return json(200, { ok: true, data: address });
 	} catch (error) {
-		console.error('[company_addresses:update]', error);
-		return json(500, {
-			ok: false,
-			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',
-		});
+		console.error('[company_member_addresses:update]', error);
+		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
+		const status = message.includes('NOT_FOUND') ? 404 : 500;
+		return json(status, { ok: false, error: message });
 	}
 };
 
@@ -84,10 +91,10 @@ export const DELETE: APIRoute = async (context) => {
 		const body = (await context.request.json().catch(() => null)) as
 			| { reason?: string }
 			| null;
-		const address = await softDeleteCompanyAddress(
+		const address = await softDeleteCompanyMemberAddress(
 			resolved.supabase,
-			resolved.incorporationId,
 			resolved.companyId,
+			resolved.memberId,
 			resolved.addressId,
 			resolved.user.id,
 			body?.reason ?? null,
@@ -95,10 +102,9 @@ export const DELETE: APIRoute = async (context) => {
 
 		return json(200, { ok: true, data: address });
 	} catch (error) {
-		console.error('[company_addresses:delete]', error);
-		return json(500, {
-			ok: false,
-			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',
-		});
+		console.error('[company_member_addresses:delete]', error);
+		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
+		const status = message.includes('NOT_FOUND') ? 404 : 500;
+		return json(status, { ok: false, error: message });
 	}
 };
