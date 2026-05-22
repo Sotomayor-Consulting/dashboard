@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { recordAuditEvent } from '@domains/audit/audit-events';
 
 type ManagementType = 'member-managed' | 'manager-managed';
-type CompanyStatus = 'draft' | 'pending_validation';
+type CompanyStatus = 'draft' | 'pending_validation' | 'pending' | 'active' | 'inactive' | 'suspended' | 'dissolved';
 
 export interface CompanyUpdateInput {
 	legal_name?: string | null;
@@ -92,8 +92,7 @@ export async function createCompanyFromIncorporation(
 		.from('empresas_incorporaciones')
 		.select(
 			`empresa_incorporacion_id, company_id, user_id, nombre_1,
-			tipo_de_negocio, state_id, activity_id, activity_description,
-			descripcion_empresa, forma_administracion, forma_tributacion,
+			tipo_de_negocio, state_id, activity_id, activity_description, forma_administracion, forma_tributacion,
 			Obtendra_ingresos_desde_eeuu`,
 		)
 		.eq('empresa_incorporacion_id', incorporationId)
