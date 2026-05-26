@@ -1,5 +1,19 @@
 import * as React from 'react';
+import { Icon } from '@iconify/react';
 import { Button } from '@components/ui/Button';
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from '@components/ui/Command';
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@components/ui/Popover';
 import {
 	Dialog,
 	DialogContent,
@@ -8,19 +22,19 @@ import {
 	DialogTitle,
 } from '@components/ui/Dialog';
 import {
+	Sheet,
+	SheetContent,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+} from '@components/ui/Sheet';
+import {
 	Field,
 	FieldDescription,
 	FieldGroup,
 	FieldLabel,
 } from '@components/ui/Field';
 import { Input } from '@components/ui/Input';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@components/ui/DropdownMenu';
 import {
 	Select,
 	SelectContent,
@@ -29,30 +43,28 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@components/ui/Select';
+import { Switch } from '@components/ui/Switch';
+import { cn } from '@components/utils';
+import { PencilIcon, PlusIcon, UserPlusIcon } from 'lucide-react';
+
+import type { CompanyMemberItem, MemberItem } from '../types';
 import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-	TableFooter,
-} from '@components/ui/Table';
-import { ScrollArea, ScrollBar } from '@components/ui/ScrollArea';
-import {
-	DropzoneDescription,
-	DropzoneError,
-	DropzoneField,
-	DropzoneFileList,
-	DropzoneHint,
-	DropzoneIcon,
-	DropzoneTitle,
-	DropzoneTrigger,
-} from '@components/ui/DropzoneField';
-import { EllipsisVerticalIcon, PencilIcon, Trash2Icon } from 'lucide-react';
-import type { CompanyMemberItem } from '../types';
-import { useCompanyMembersCrud } from '../hooks/use-company-members-crud';
+	type CompanyMemberRelationDraft,
+	type MemberDraft,
+	useCompanyMembersCrud,
+} from '../hooks/use-company-members-crud';
+import { useMembersSearch } from '../hooks/use-members-search';
 import CrudFormSheet from './shared/CrudFormSheet';
+import MemberAddressesPanel from './MemberAddressesPanel';
+import { MemberCell } from './cells/MemberCell';
+import { MemberEmptyState } from './cells/MemberEmptyState';
+import { MemberRoleBadges } from './cells/MemberRoleBadges';
+import { MemberRowActions } from './cells/MemberRowActions';
+import { MemberTypeBadge } from './cells/MemberTypeBadge';
+import {
+	memberDisplayName,
+	memberIdentification,
+} from './cells/member-display';
 
 interface Props {
 	initialMembers: CompanyMemberItem[];
@@ -65,186 +77,380 @@ export default function CompanyMembersCrudSection({
 	incorporationId,
 	canEditDetails,
 }: Props) {
-	const {
-		members,
-		activeMember,
-		draft,
-		isCreateOpen,
-		setIsCreateOpen,
-		isEditOpen,
-		setIsEditOpen,
-		isDeleteOpen,
-		setIsDeleteOpen,
-		openCreate,
-		openEdit,
-		openDelete,
-		updateDraft,
-		updateTaxAddress,
-		createMember,
-		saveMember,
-		removeMember,
-		isSaving,
-	} = useCompanyMembersCrud(initialMembers, incorporationId);
+	const crud = useCompanyMembersCrud({
+		initialRows: initialMembers,
+		incorporationId,
+	});
 
-	const totalPercentage = members.reduce(
-		(acc, member) => acc + (member.percentage ?? 0),
+	const totalPercentage = crud.rows.reduce(
+		(acc, row) => acc + (row.percentage ?? 0),
 		0,
 	);
+	const overAllocated = totalPercentage > 100;
+
+	const [deleteReason, setDeleteReason] = React.useState('');
+	React.useEffect(() => {
+		if (!crud.isDeleteOpen) setDeleteReason('');
+	}, [crud.isDeleteOpen]);
+
+	// Búsqueda local + sort en tabla (estilo UsuariosTable)
+	const [search, setSearch] = React.useState('');
+	const [sortKey, setSortKey] = React.useState<MembersSortKey>('name');
+	const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('asc');
+
+	const filteredSortedRows = React.useMemo(() => {
+		const q = search.trim().toLowerCase();
+		const base = q
+			? crud.rows.filter((row) => {
+					const name = memberDisplayName(row.member).toLowerCase();
+					const id = (
+						row.member?.identification_number ?? ''
+					).toLowerCase();
+					return name.includes(q) || id.includes(q);
+				})
+			: crud.rows;
+		const arr = [...base];
+		arr.sort((a, b) => {
+			const cmp = compareMembers(a, b, sortKey);
+			return sortDir === 'asc' ? cmp : -cmp;
+		});
+		return arr;
+	}, [crud.rows, search, sortKey, sortDir]);
+
+	const toggleSort = (key: MembersSortKey) => {
+		if (sortKey === key) {
+			setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+		} else {
+			setSortKey(key);
+			setSortDir('asc');
+		}
+	};
 
 	return (
-		<section className="flex flex-col gap-4 border-gray-200 dark:border-gray-700">
+		<section className="flex flex-col gap-4">
 			<header className="flex flex-col gap-1">
-				<h3 className="text-lg font-semibold">Socios</h3>
+				<h3 className="text-lg font-semibold">Miembros</h3>
 				<p className="text-muted-foreground text-sm">
-					Revisa o edita la información de los miembros de la empresa.
+					Gestiona los socios y/o managers de la LLC. Los datos personales se
+					guardan en el registro de personas; aquí defines el rol, porcentaje y
+					fecha de inicio para esta empresa.
 				</p>
 			</header>
-			<div className="flex items-center justify-between">
-				<h3 className="text-sm font-semibold">Socios</h3>
-				<Button
-					type="button"
-					variant="outline"
-					onClick={openCreate}
-					disabled={!canEditDetails}
-				>
-					Agregar socio
-				</Button>
+
+			{/* Toolbar: búsqueda + contador + acción */}
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<div className="relative w-full sm:max-w-xs">
+					<Icon
+						icon="ri:search-line"
+						className="absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-gray-400"
+					/>
+					<input
+						type="text"
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						placeholder="Buscar por nombre o identificación..."
+						className="w-full rounded-md border border-gray-200 bg-white py-1.5 pr-3 pl-8 text-[12.5px] placeholder:text-gray-400 focus:border-gray-300 focus:outline-none dark:border-gray-700 dark:bg-neutral-900 dark:placeholder:text-gray-500"
+					/>
+				</div>
+				<div className="flex items-center gap-3">
+					<p className="text-[11.5px] text-gray-500 dark:text-gray-400">
+						{filteredSortedRows.length} de {crud.rows.length} ·{' '}
+						<span
+							className={cn(
+								'font-medium',
+								overAllocated
+									? 'text-amber-600 dark:text-amber-400'
+									: 'text-gray-700 dark:text-gray-300',
+							)}
+						>
+							{totalPercentage}% asignado
+						</span>
+						{overAllocated ? ' (excede 100%)' : ''}
+					</p>
+					<Button
+						type="button"
+						onClick={crud.openCreate}
+						disabled={!canEditDetails}
+					>
+						<UserPlusIcon className="size-4" />
+						Agregar miembro
+					</Button>
+				</div>
 			</div>
 
-			<ScrollArea className="w-full rounded-lg border border-gray-200 dark:border-gray-700">
-				<Table className="min-w-[980px]">
-					<TableHeader>
-						<TableRow>
-							<TableHead>Nombre</TableHead>
-							<TableHead>Correo</TableHead>
-							<TableHead>Tipo</TableHead>
-							<TableHead>Porcentaje</TableHead>
-							<TableHead>Rol</TableHead>
-							<TableHead>Dirección fiscal</TableHead>
-							<TableHead className="text-right">Acciones</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{members.length ? (
-							members.map((member) => (
-								<TableRow key={member.id}>
-									<TableCell>{member.full_name ?? 'Sin nombre'}</TableCell>
-									<TableCell>{member.email ?? '-'}</TableCell>
-									<TableCell>{member.member_type ?? '-'}</TableCell>
-									<TableCell>{member.percentage ?? '-'}</TableCell>
-									<TableCell>{formatRoles(member)}</TableCell>
-									<TableCell>{member.tax_address?.line1 ?? '-'}</TableCell>
-									<TableCell className="text-right">
-										<DropdownMenu>
-											<DropdownMenuTrigger
-												render={
-													<Button
-														type="button"
-														variant="outline"
-														size="icon-sm"
-														disabled={!canEditDetails}
-														aria-label={`Acciones para ${member.full_name ?? 'socio'}`}
-													/>
-												}
-											>
-												<EllipsisVerticalIcon />
-											</DropdownMenuTrigger>
-											<DropdownMenuContent
-												align="end"
-												className="w-auto min-w-36"
-											>
-												<DropdownMenuGroup>
-													<DropdownMenuItem onClick={() => openEdit(member)}>
-														<PencilIcon />
-														Editar
-													</DropdownMenuItem>
-													<DropdownMenuItem
-														variant="destructive"
-														onClick={() => openDelete(member)}
-													>
-														<Trash2Icon />
-														Eliminar
-													</DropdownMenuItem>
-												</DropdownMenuGroup>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</TableCell>
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={7} className="h-20 text-center">
-									No hay socios o managers registrados en company_members.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-					<TableFooter>
-						<TableRow>
-							<TableCell colSpan={3} className="font-medium">
-								({members.length} registros)
-							</TableCell>
-							<TableCell className="font-medium">{totalPercentage}%</TableCell>
-							<TableCell
-								colSpan={4}
-								className="text-right font-medium"
-							></TableCell>
-						</TableRow>
-					</TableFooter>
-				</Table>
-				<ScrollBar orientation="horizontal" />
-			</ScrollArea>
+			{/* Tabla estilo Usuarios */}
+			<div className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-transparent">
+				{filteredSortedRows.length === 0 ? (
+					<MemberEmptyState
+						title={
+							search
+								? 'Sin resultados'
+								: 'Aún no hay miembros'
+						}
+						description={
+							search
+								? 'Ajusta la búsqueda para encontrar miembros.'
+								: 'Agrega socios o managers para empezar a gestionar esta LLC.'
+						}
+					/>
+				) : (
+					<div className="w-full overflow-x-auto">
+						<table className="w-full text-sm">
+							<thead className="border-b border-gray-200 text-[10.5px] font-medium tracking-wider text-gray-500 uppercase dark:border-gray-800 dark:text-gray-400">
+								<tr>
+									<SortableTh
+										label="Miembro"
+										keyId="name"
+										active={sortKey === 'name'}
+										dir={sortDir}
+										onClick={toggleSort}
+										className="px-7 py-3 text-left"
+									/>
+									<SortableTh
+										label="Tipo"
+										keyId="type"
+										active={sortKey === 'type'}
+										dir={sortDir}
+										onClick={toggleSort}
+										className="py-3 pr-4 text-left"
+									/>
+									<SortableTh
+										label="Porcentaje"
+										keyId="percentage"
+										active={sortKey === 'percentage'}
+										dir={sortDir}
+										onClick={toggleSort}
+										className="py-3 pr-4 text-left"
+									/>
+									<SortableTh
+										label="Fecha inicio"
+										keyId="start_date"
+										active={sortKey === 'start_date'}
+										dir={sortDir}
+										onClick={toggleSort}
+										className="py-3 pr-4 text-left"
+									/>
+									<th className="py-3 pr-4 text-left">
+										<span className="uppercase tracking-wider">Rol</span>
+									</th>
+									<th className="w-12 py-3 pr-7 text-right">
+										<span className="sr-only">Acciones</span>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								{filteredSortedRows.map((row) => (
+									<tr
+										key={row.id}
+										onClick={() => canEditDetails && crud.openEdit(row)}
+										className={cn(
+											'h-[52px] border-b border-gray-100 transition-colors dark:border-gray-800/60',
+											canEditDetails
+												? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-900/60'
+												: '',
+										)}
+									>
+										<td className="px-7">
+											<MemberCell member={row.member} />
+										</td>
+										<td className="pr-4">
+											<MemberTypeBadge type={row.member?.person_type ?? null} />
+										</td>
+										<td className="pr-4">
+											<span className="text-[12.5px] text-gray-700 dark:text-gray-300">
+												{formatPercentage(row.percentage)}
+											</span>
+										</td>
+										<td className="pr-4">
+											<span className="text-[12.5px] text-gray-700 dark:text-gray-300">
+												{formatDate(row.start_date)}
+											</span>
+										</td>
+										<td className="pr-4">
+											<MemberRoleBadges row={row} />
+										</td>
+										<td className="pr-7 text-right">
+											<MemberRowActions
+												row={row}
+												canEdit={canEditDetails}
+												onEdit={crud.openEdit}
+												onDelete={crud.openDelete}
+											/>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				)}
+			</div>
 
+			{/* Crear miembro */}
 			<CrudFormSheet
-				open={isCreateOpen}
-				onOpenChange={setIsCreateOpen}
-				title="Agregar socio"
-				submitLabel="Agregar"
-				onSubmit={createMember}
+				open={crud.isCreateOpen}
+				onOpenChange={crud.setIsCreateOpen}
+				title="Agregar miembro a la empresa"
+				description="Busca una persona ya registrada o crea una nueva, y define su rol en esta LLC."
+				submitLabel={crud.isSaving ? 'Guardando...' : 'Agregar miembro'}
+				onSubmit={crud.createMember}
+				submitDisabled={
+					crud.isSaving ||
+					!canEditDetails ||
+					(!crud.isCreatingNewPerson && !crud.selectedMember) ||
+					(crud.isCreatingNewPerson && !crud.hasMemberName) ||
+					(!crud.relationDraft.is_member && !crud.relationDraft.is_manager)
+				}
 			>
-				<MemberForm
-					draft={draft}
-					updateDraft={updateDraft}
-					updateTaxAddress={updateTaxAddress}
-				/>
+				<div className="space-y-6 px-4">
+					<MemberPicker
+						selectedMember={crud.selectedMember}
+						isCreatingNewPerson={crud.isCreatingNewPerson}
+						onPickExisting={crud.pickExistingMember}
+						onSwitchToNew={crud.switchToNewPerson}
+					/>
+
+					{crud.isCreatingNewPerson && (
+						<MemberPiiForm
+							draft={crud.memberDraft}
+							updateDraft={crud.updateMemberDraft}
+						/>
+					)}
+
+					{(crud.selectedMember || crud.isCreatingNewPerson) && (
+						<RelationForm
+							draft={crud.relationDraft}
+							updateDraft={crud.updateRelationDraft}
+						/>
+					)}
+				</div>
 			</CrudFormSheet>
 
+			{/* Editar relación */}
 			<CrudFormSheet
-				open={isEditOpen}
-				onOpenChange={setIsEditOpen}
-				title="Editar socio"
-				submitLabel="Guardar"
-				onSubmit={saveMember}
+				open={crud.isEditOpen}
+				onOpenChange={crud.setIsEditOpen}
+				title="Editar miembro"
+				description="Cambia el rol, porcentaje o fecha de inicio. Para editar los datos personales, usa el botón al pie."
+				submitLabel={crud.isSaving ? 'Guardando...' : 'Guardar cambios'}
+				onSubmit={crud.saveRelation}
+				submitDisabled={
+					crud.isSaving ||
+					!canEditDetails ||
+					(!crud.relationDraft.is_member && !crud.relationDraft.is_manager)
+				}
 			>
-				<MemberForm
-					draft={draft}
-					updateDraft={updateDraft}
-					updateTaxAddress={updateTaxAddress}
-				/>
+				<div className="space-y-6 px-4">
+					{crud.selectedMember ? (
+						<div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+							<div className="flex items-center justify-between gap-3">
+								<div>
+									<p className="text-sm font-semibold">
+										{displayName(crud.selectedMember)}
+									</p>
+									<p className="text-muted-foreground text-xs">
+										{formatIdentification(crud.selectedMember)}
+									</p>
+								</div>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={crud.openEditPerson}
+								>
+									<PencilIcon className="size-4" />
+									Editar datos personales
+								</Button>
+							</div>
+						</div>
+					) : null}
+
+					<RelationForm
+						draft={crud.relationDraft}
+						updateDraft={crud.updateRelationDraft}
+					/>
+				</div>
 			</CrudFormSheet>
 
-			<Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Eliminar socio</DialogTitle>
-					</DialogHeader>
-					<p className="text-muted-foreground text-sm">
-						Se marcara a {activeMember?.full_name ?? 'este socio'} como
-						eliminado. El registro no se borrara fisicamente.
-					</p>
-					<DialogFooter>
+			{/* Editar persona */}
+			<Sheet open={crud.isEditPersonOpen} onOpenChange={crud.setIsEditPersonOpen}>
+				<SheetContent
+					side="right"
+					className="max-h-dvh w-full max-w-[600px] overflow-y-auto sm:max-w-3xl"
+				>
+					<SheetHeader className="pb-3">
+						<SheetTitle>Editar datos personales</SheetTitle>
+						<p className="text-muted-foreground text-sm">
+							Estos datos se comparten con todas las empresas a las que pertenezca
+							esta persona.
+						</p>
+					</SheetHeader>
+					<div className="flex flex-col gap-6 px-4 pb-4">
+						<MemberPiiForm
+							draft={crud.memberDraft}
+							updateDraft={crud.updateMemberDraft}
+						/>
+						<div className="border-t border-gray-200 pt-5 dark:border-gray-700">
+							<MemberAddressesPanel
+								memberId={crud.selectedMember?.id ?? null}
+								canEdit={canEditDetails}
+							/>
+						</div>
+					</div>
+					<SheetFooter>
 						<Button
 							type="button"
-							variant="destructive"
-							onClick={removeMember}
-							disabled={isSaving}
+							onClick={crud.savePerson}
+							disabled={crud.isSaving || !crud.hasMemberName}
 						>
-							Eliminar
+							{crud.isSaving ? 'Guardando...' : 'Guardar persona'}
 						</Button>
 						<Button
 							type="button"
 							variant="outline"
-							onClick={() => setIsDeleteOpen(false)}
+							onClick={() => crud.setIsEditPersonOpen(false)}
+						>
+							Cancelar
+						</Button>
+					</SheetFooter>
+				</SheetContent>
+			</Sheet>
+
+			{/* Eliminar (soft delete) */}
+			<Dialog open={crud.isDeleteOpen} onOpenChange={crud.setIsDeleteOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Eliminar miembro de la empresa</DialogTitle>
+					</DialogHeader>
+					<p className="text-muted-foreground text-sm">
+						Se marcará como eliminada la relación de{' '}
+						<strong>
+							{crud.activeRow?.member?.full_name ?? 'esta persona'}
+						</strong>{' '}
+						con la empresa. La persona seguirá disponible en el registro
+						maestro.
+					</p>
+					<Field>
+						<FieldLabel htmlFor="delete_reason">Motivo (opcional)</FieldLabel>
+						<Input
+							id="delete_reason"
+							value={deleteReason}
+							onChange={(e) => setDeleteReason(e.target.value)}
+							placeholder="Ej: ya no es socio"
+						/>
+					</Field>
+					<DialogFooter>
+						<Button
+							type="button"
+							variant="destructive"
+							onClick={() => crud.removeMember(deleteReason || null)}
+							disabled={crud.isSaving}
+						>
+							{crud.isSaving ? 'Eliminando...' : 'Eliminar'}
+						</Button>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => crud.setIsDeleteOpen(false)}
 						>
 							Cancelar
 						</Button>
@@ -255,192 +461,463 @@ export default function CompanyMembersCrudSection({
 	);
 }
 
-function formatRoles(member: CompanyMemberItem) {
-	const roles = [];
-	if (member.is_member) roles.push('Socio');
-	if (member.is_manager) roles.push('Manager');
-	return roles.length ? roles.join(' / ') : '-';
+// ────────────────────────────────────────────────────────────────
+// Sub-componentes
+// ────────────────────────────────────────────────────────────────
+
+function MemberPicker({
+	selectedMember,
+	isCreatingNewPerson,
+	onPickExisting,
+	onSwitchToNew,
+}: {
+	selectedMember: MemberItem | null;
+	isCreatingNewPerson: boolean;
+	onPickExisting: (member: MemberItem) => void;
+	onSwitchToNew: (initialName?: string) => void;
+}) {
+	const { query, setQuery, results, isLoading } = useMembersSearch();
+	const [open, setOpen] = React.useState(false);
+
+	const handleSelect = (memberId: string) => {
+		const member = results.find((m) => m.id === memberId);
+		if (member) {
+			onPickExisting(member);
+			setOpen(false);
+		}
+	};
+
+	return (
+		<Field>
+			<FieldLabel htmlFor="member_picker">Persona</FieldLabel>
+
+			{selectedMember && !isCreatingNewPerson ? (
+				<div className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+					<div>
+						<p className="text-sm font-semibold">{displayName(selectedMember)}</p>
+						<p className="text-muted-foreground text-xs">
+							{formatIdentification(selectedMember)}
+						</p>
+					</div>
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						onClick={() => onSwitchToNew()}
+					>
+						Cambiar
+					</Button>
+				</div>
+			) : (
+				<Popover open={open} onOpenChange={setOpen}>
+					<PopoverTrigger
+						render={
+							<Button
+								id="member_picker"
+								type="button"
+								variant="outline"
+								aria-expanded={open}
+								className="w-full justify-between font-normal"
+							>
+								<span className="text-muted-foreground truncate">
+									Buscar persona por nombre o identificación...
+								</span>
+								<PlusIcon className="ml-2 size-4 shrink-0 opacity-50" />
+							</Button>
+						}
+					/>
+					<PopoverContent
+						className="w-[var(--anchor-width)] p-0"
+						align="start"
+					>
+						<Command shouldFilter={false}>
+							<CommandInput
+								placeholder="Escribe para buscar..."
+								value={query}
+								onValueChange={setQuery}
+							/>
+							<CommandList>
+								<CommandEmpty>
+									{isLoading
+										? 'Buscando...'
+										: query.trim()
+											? 'No hay coincidencias.'
+											: 'Escribe para buscar personas.'}
+								</CommandEmpty>
+								{results.length > 0 ? (
+									<CommandGroup heading="Personas">
+										{results.map((member) => (
+											<CommandItem
+												key={member.id}
+												value={member.id}
+												onSelect={() => handleSelect(member.id)}
+											>
+												<div className="flex flex-col">
+													<span className="text-sm">{displayName(member)}</span>
+													<span className="text-muted-foreground text-xs">
+														{formatIdentification(member)}
+													</span>
+												</div>
+											</CommandItem>
+										))}
+									</CommandGroup>
+								) : null}
+							</CommandList>
+						</Command>
+					</PopoverContent>
+				</Popover>
+			)}
+
+			<FieldDescription>
+				¿No está en la lista?{' '}
+				<button
+					type="button"
+					className="text-primary-600 hover:underline"
+					onClick={() => {
+						setOpen(false);
+						onSwitchToNew(query);
+					}}
+				>
+					<PlusIcon className="inline size-3" /> Crear nueva persona
+				</button>
+			</FieldDescription>
+		</Field>
+	);
 }
 
-function MemberForm({
+function MemberPiiForm({
 	draft,
 	updateDraft,
-	updateTaxAddress,
 }: {
-	draft: any;
-	updateDraft: any;
-	updateTaxAddress: any;
+	draft: MemberDraft;
+	updateDraft: <K extends keyof MemberDraft>(
+		field: K,
+	) => (value: MemberDraft[K]) => void;
+}) {
+	const isEntity = draft.person_type === 'juridical_person';
+	return (
+		<FieldGroup className="grid gap-4 md:grid-cols-2">
+			<Field className="md:col-span-2">
+				<FieldLabel htmlFor="member_person_type">Tipo de persona *</FieldLabel>
+				<Select
+					value={draft.person_type}
+					onValueChange={(value) => {
+						updateDraft('person_type')(value as MemberDraft['person_type']);
+						if (value === 'juridical_person') {
+							updateDraft('identification_type')('ein');
+						} else {
+							updateDraft('identification_type')('passport');
+						}
+					}}
+				>
+					<SelectTrigger id="member_person_type" className="w-full">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectGroup>
+							<SelectItem value="natural_person">Persona natural</SelectItem>
+							<SelectItem value="juridical_person">Persona jurídica</SelectItem>
+						</SelectGroup>
+					</SelectContent>
+				</Select>
+			</Field>
+
+			{isEntity ? (
+				<Field className="md:col-span-2">
+					<FieldLabel htmlFor="member_entity_name">Razón social *</FieldLabel>
+					<Input
+						id="member_entity_name"
+						value={draft.name}
+						onChange={(e) => updateDraft('name')(e.target.value)}
+					/>
+				</Field>
+			) : (
+				<>
+					<Field>
+						<FieldLabel htmlFor="member_first_name">Nombres *</FieldLabel>
+						<Input
+							id="member_first_name"
+							value={draft.first_name}
+							onChange={(e) => updateDraft('first_name')(e.target.value)}
+						/>
+					</Field>
+					<Field>
+						<FieldLabel htmlFor="member_last_name">Apellidos *</FieldLabel>
+						<Input
+							id="member_last_name"
+							value={draft.last_name}
+							onChange={(e) => updateDraft('last_name')(e.target.value)}
+						/>
+					</Field>
+				</>
+			)}
+
+			<Field>
+				<FieldLabel htmlFor="member_id_type">Tipo de identificación</FieldLabel>
+				<Select
+					value={draft.identification_type}
+					onValueChange={(value) =>
+						updateDraft('identification_type')(
+							value as MemberDraft['identification_type'],
+						)
+					}
+				>
+					<SelectTrigger id="member_id_type" className="w-full">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectGroup>
+							<SelectItem value="passport">Pasaporte</SelectItem>
+							<SelectItem value="national_id">Cédula / ID Nacional</SelectItem>
+							<SelectItem value="driver_licence">Licencia de conducir</SelectItem>
+							<SelectItem value="ein">EIN</SelectItem>
+						</SelectGroup>
+					</SelectContent>
+				</Select>
+			</Field>
+			<Field>
+				<FieldLabel htmlFor="member_id_number">Número de identificación</FieldLabel>
+				<Input
+					id="member_id_number"
+					value={draft.identification_number}
+					onChange={(e) => updateDraft('identification_number')(e.target.value)}
+				/>
+			</Field>
+
+			{!isEntity && (
+				<>
+					<Field>
+						<FieldLabel htmlFor="member_birth_date">Fecha de nacimiento</FieldLabel>
+						<Input
+							id="member_birth_date"
+							type="date"
+							value={draft.birth_date}
+							onChange={(e) => updateDraft('birth_date')(e.target.value)}
+						/>
+					</Field>
+					<Field>
+						<FieldLabel htmlFor="member_marital">Estado civil</FieldLabel>
+						<Select
+							value={draft.marital_status || ''}
+							onValueChange={(value) =>
+								updateDraft('marital_status')(value as MemberDraft['marital_status'])
+							}
+						>
+							<SelectTrigger id="member_marital" className="w-full">
+								<SelectValue placeholder="Seleccione" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectGroup>
+									<SelectItem value="single">Soltero/a</SelectItem>
+									<SelectItem value="married">Casado/a</SelectItem>
+									<SelectItem value="widowed">Viudo/a</SelectItem>
+									<SelectItem value="divorced">Divorciado/a</SelectItem>
+									<SelectItem value="legally_separated">Separación legal</SelectItem>
+									<SelectItem value="civil_union">Unión civil</SelectItem>
+									<SelectItem value="annulled">Anulado</SelectItem>
+								</SelectGroup>
+							</SelectContent>
+						</Select>
+					</Field>
+					<Field>
+						<FieldLabel htmlFor="member_ssn">SSN</FieldLabel>
+						<Input
+							id="member_ssn"
+							value={draft.ssn}
+							onChange={(e) => updateDraft('ssn')(e.target.value)}
+						/>
+					</Field>
+					<Field>
+						<FieldLabel htmlFor="member_itin">ITIN</FieldLabel>
+						<Input
+							id="member_itin"
+							value={draft.itin}
+							onChange={(e) => updateDraft('itin')(e.target.value)}
+						/>
+					</Field>
+				</>
+			)}
+
+			{isEntity && (
+				<Field>
+					<FieldLabel htmlFor="member_incorporation_date">
+						Fecha de constitución
+					</FieldLabel>
+					<Input
+						id="member_incorporation_date"
+						type="date"
+						value={draft.incorporation_date}
+						onChange={(e) => updateDraft('incorporation_date')(e.target.value)}
+					/>
+				</Field>
+			)}
+		</FieldGroup>
+	);
+}
+
+function RelationForm({
+	draft,
+	updateDraft,
+}: {
+	draft: CompanyMemberRelationDraft;
+	updateDraft: <K extends keyof CompanyMemberRelationDraft>(
+		field: K,
+	) => (value: CompanyMemberRelationDraft[K]) => void;
+}) {
+	const roleError = !draft.is_member && !draft.is_manager;
+	return (
+		<FieldGroup className="grid gap-4 md:grid-cols-2">
+			<Field>
+				<FieldLabel htmlFor="relation_percentage">Porcentaje (%)</FieldLabel>
+				<Input
+					id="relation_percentage"
+					type="number"
+					min={0}
+					max={100}
+					step="0.01"
+					value={draft.percentage ?? ''}
+					onChange={(e) =>
+						updateDraft('percentage')(
+							e.target.value === '' ? null : Number(e.target.value),
+						)
+					}
+				/>
+			</Field>
+			<Field>
+				<FieldLabel htmlFor="relation_start_date">Fecha de inicio</FieldLabel>
+				<Input
+					id="relation_start_date"
+					type="date"
+					value={draft.start_date}
+					onChange={(e) => updateDraft('start_date')(e.target.value)}
+				/>
+				<FieldDescription>
+					Cuando esta persona se sumó como miembro de la empresa.
+				</FieldDescription>
+			</Field>
+			<Field className="md:col-span-2">
+				<FieldLabel>Rol en la empresa *</FieldLabel>
+				<div className="flex flex-col gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+					<label className="flex items-center justify-between gap-3 text-sm">
+						<div>
+							<p className="font-medium">Socio</p>
+							<p className="text-muted-foreground text-xs">
+								Tiene participación accionaria en la LLC.
+							</p>
+						</div>
+						<Switch
+							checked={draft.is_member}
+							onCheckedChange={(value) => updateDraft('is_member')(value)}
+						/>
+					</label>
+					<label className="flex items-center justify-between gap-3 text-sm">
+						<div>
+							<p className="font-medium">Manager</p>
+							<p className="text-muted-foreground text-xs">
+								Administra la operación de la LLC.
+							</p>
+						</div>
+						<Switch
+							checked={draft.is_manager}
+							onCheckedChange={(value) => updateDraft('is_manager')(value)}
+						/>
+					</label>
+				</div>
+				{roleError ? (
+					<FieldDescription className="text-destructive">
+						Debe ser socio, manager o ambos.
+					</FieldDescription>
+				) : null}
+			</Field>
+		</FieldGroup>
+	);
+}
+
+// ────────────────────────────────────────────────────────────────
+// Sort + helpers
+// ────────────────────────────────────────────────────────────────
+
+type MembersSortKey = 'name' | 'type' | 'percentage' | 'start_date';
+
+function SortableTh({
+	label,
+	keyId,
+	active,
+	dir,
+	onClick,
+	className,
+}: {
+	label: string;
+	keyId: MembersSortKey;
+	active: boolean;
+	dir: 'asc' | 'desc';
+	onClick: (key: MembersSortKey) => void;
+	className?: string;
 }) {
 	return (
-		<div className="grid flex-1 auto-rows-min gap-6 px-4">
-			<FieldGroup className="grid gap-4 md:grid-cols-2">
-				<Field>
-					<FieldLabel htmlFor="member_nombre">Nombre</FieldLabel>
-					<Input
-						id="member_nombre"
-						value={draft.full_name ?? ''}
-						onChange={(e) => updateDraft('full_name')(e.target.value)}
+		<th className={className}>
+			<button
+				type="button"
+				onClick={() => onClick(keyId)}
+				className="inline-flex items-center gap-1 uppercase tracking-wider hover:text-gray-900 dark:hover:text-gray-100"
+			>
+				{label}
+				{active && (
+					<Icon
+						icon={dir === 'asc' ? 'ri:arrow-up-s-line' : 'ri:arrow-down-s-line'}
+						className="h-3.5 w-3.5"
 					/>
-				</Field>
-				<Field>
-					<FieldLabel htmlFor="member_correo">Correo</FieldLabel>
-					<Input
-						id="member_correo"
-						type="email"
-						value={draft.email ?? ''}
-						onChange={(e) => updateDraft('email')(e.target.value)}
-					/>
-				</Field>
-				<Field>
-					<FieldLabel htmlFor="member_tipo">Tipo</FieldLabel>
-					<Input
-						id="member_tipo"
-						value={draft.member_type ?? ''}
-						onChange={(e) => updateDraft('member_type')(e.target.value)}
-					/>
-				</Field>
-				<Field>
-					<FieldLabel htmlFor="member_porcentaje">Porcentaje</FieldLabel>
-					<Input
-						id="member_porcentaje"
-						type="number"
-						value={draft.percentage ?? ''}
-						onChange={(e) =>
-							updateDraft('percentage')(
-								e.target.value === '' ? null : Number(e.target.value),
-							)
-						}
-					/>
-				</Field>
-				<Field>
-					<FieldLabel htmlFor="member_residente">Residente fiscal</FieldLabel>
-					<Select
-						value={
-							draft.is_us_tax_resident === null
-								? ''
-								: draft.is_us_tax_resident
-									? 'Si'
-									: 'No'
-						}
-						onValueChange={(value) =>
-							updateDraft('is_us_tax_resident')(value === 'Si')
-						}
-					>
-						<SelectTrigger id="member_residente" className="w-full">
-							<SelectValue placeholder="Seleccione" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectGroup>
-								<SelectItem value="Si">Si</SelectItem>
-								<SelectItem value="No">No</SelectItem>
-							</SelectGroup>
-						</SelectContent>
-					</Select>
-				</Field>
-				<Field>
-					<FieldLabel htmlFor="member_pasaporte">Pasaporte</FieldLabel>
-					<Input
-						id="member_pasaporte"
-						value={draft.passport_number ?? ''}
-						onChange={(e) => updateDraft('passport_number')(e.target.value)}
-					/>
-				</Field>
-				<Field className="md:col-span-2">
-					<FieldLabel htmlFor="member_direccion_planilla">
-						Direccion fiscal
-					</FieldLabel>
-					<Input
-						id="member_direccion_planilla"
-						value={draft.tax_address.line1}
-						onChange={(e) => updateTaxAddress('line1')(e.target.value)}
-					/>
-				</Field>
-				<Field>
-					<FieldLabel htmlFor="member_address_city">Ciudad</FieldLabel>
-					<Input
-						id="member_address_city"
-						value={draft.tax_address.city}
-						onChange={(e) => updateTaxAddress('city')(e.target.value)}
-					/>
-				</Field>
-				<Field>
-					<FieldLabel htmlFor="member_address_state">
-						Estado/Provincia
-					</FieldLabel>
-					<Input
-						id="member_address_state"
-						value={draft.tax_address.state}
-						onChange={(e) => updateTaxAddress('state')(e.target.value)}
-					/>
-				</Field>
-				<Field>
-					<FieldLabel htmlFor="member_address_zip">ZIP</FieldLabel>
-					<Input
-						id="member_address_zip"
-						value={draft.tax_address.zip}
-						onChange={(e) => updateTaxAddress('zip')(e.target.value)}
-					/>
-				</Field>
-			</FieldGroup>
-			<FieldGroup className="grid gap-4 md:grid-cols-2">
-				<Field>
-					<FieldLabel htmlFor="member_passport_file">Pasaporte</FieldLabel>
-					<FieldDescription>
-						Opcional. Sube un PDF o imagen del pasaporte.
-					</FieldDescription>
-					<DropzoneField
-						name="passport_file"
-						id="member_passport_file"
-						maxFileSizeMb={15}
-						maxFiles={1}
-						multipleFiles={false}
-						hideTriggerWhenSingleFileSelected
-						size="sm"
-						helperText="PDF, DOC, XLS o imagen. Maximo 15 MB."
-					>
-						<DropzoneTrigger>
-							<DropzoneIcon />
-							<DropzoneTitle>Adjunta el pasaporte</DropzoneTitle>
-							<DropzoneDescription>
-								Arrastra o haz clic para seleccionar.
-							</DropzoneDescription>
-							<DropzoneHint />
-						</DropzoneTrigger>
-						<DropzoneFileList />
-						<DropzoneError />
-					</DropzoneField>
-				</Field>
-
-				<Field>
-					<FieldLabel htmlFor="member_service_sheet_file">
-						Planilla de servicio
-					</FieldLabel>
-					<FieldDescription>
-						Opcional. Adjunta la planilla del socio.
-					</FieldDescription>
-					<DropzoneField
-						name="service_sheet_file"
-						id="member_service_sheet_file"
-						maxFileSizeMb={15}
-						maxFiles={1}
-						multipleFiles={false}
-						hideTriggerWhenSingleFileSelected
-						size="sm"
-						helperText="PDF, DOC, XLS o imagen. Maximo 15 MB."
-					>
-						<DropzoneTrigger>
-							<DropzoneIcon />
-							<DropzoneTitle>Adjunta la planilla</DropzoneTitle>
-							<DropzoneDescription>
-								Arrastra o haz clic para seleccionar.
-							</DropzoneDescription>
-							<DropzoneHint />
-						</DropzoneTrigger>
-						<DropzoneFileList />
-						<DropzoneError />
-					</DropzoneField>
-				</Field>
-			</FieldGroup>
-		</div>
+				)}
+			</button>
+		</th>
 	);
+}
+
+function compareMembers(
+	a: CompanyMemberItem,
+	b: CompanyMemberItem,
+	key: MembersSortKey,
+): number {
+	switch (key) {
+		case 'name':
+			return memberDisplayName(a.member).localeCompare(
+				memberDisplayName(b.member),
+			);
+		case 'type': {
+			const av = a.member?.person_type ?? '';
+			const bv = b.member?.person_type ?? '';
+			return av.localeCompare(bv);
+		}
+		case 'percentage':
+			return (a.percentage ?? 0) - (b.percentage ?? 0);
+		case 'start_date': {
+			const av = a.start_date ? new Date(a.start_date).getTime() : 0;
+			const bv = b.start_date ? new Date(b.start_date).getTime() : 0;
+			return av - bv;
+		}
+		default:
+			return 0;
+	}
+}
+
+function formatDate(value: string | null) {
+	if (!value) return '-';
+	const parsed = new Date(value);
+	if (Number.isNaN(parsed.getTime())) return '-';
+	return parsed.toLocaleDateString('es-ES');
+}
+
+function formatPercentage(value: number | null) {
+	if (value === null || Number.isNaN(value)) return '-';
+	return `${value}%`;
+}
+
+// Re-export helpers locales para que el resto del archivo (MemberPicker, dialog
+// "Editar persona") siga funcionando sin importar dos veces.
+function displayName(member: MemberItem | null) {
+	return memberDisplayName(member);
+}
+
+function formatIdentification(member: MemberItem | null) {
+	return memberIdentification(member);
 }

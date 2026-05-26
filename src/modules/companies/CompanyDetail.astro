@@ -5,7 +5,6 @@ import TabBar from '@components/navigation/TabBar.astro';
 import CompanyEditForm from './components/CompanyEditForm.astro';
 import CompanyOperationsPanel from '@modules/company-operations/OperationsPanel.astro';
 import ActivityModal from './components/ActivityModal.astro';
-import ManagerModal from './components/ManagerModal.astro';
 import type { CompanyDetailData } from './types';
 import {
 	type DocumentDashboardRow,
@@ -59,8 +58,8 @@ const empresa = data?.empresa ?? null;
 const company = data?.company ?? null;
 const addresses = data?.addresses ?? [];
 const companyMembers = data?.companyMembers ?? [];
-const managers = data?.managers ?? [];
-const paises = data?.paises ?? [];
+const managementTypeHealth = data?.managementTypeHealth ?? null;
+const actividades = data?.actividades ?? [];
 const empresaSafe = empresa as CompanyDetailData['empresa'];
 const errorMessage = !empresaId
 	? 'ID de empresa no valido'
@@ -124,7 +123,8 @@ const operationsTabs = [
 						company={company}
 						addresses={addresses}
 						companyMembers={companyMembers}
-						managers={managers}
+						managementTypeHealth={managementTypeHealth}
+						actividades={actividades}
 						canEditDetails={canEditDetails}
 						states={states_us}
 					/>
@@ -151,7 +151,6 @@ const operationsTabs = [
 				</div>
 			</div>
 			<ActivityModal />
-			<ManagerModal empresaId={empresaId} paises={paises} />
 		</>
 	)
 }

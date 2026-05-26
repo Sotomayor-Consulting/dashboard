@@ -18,14 +18,14 @@ import { toast } from 'sonner';
 import CompanyEmptyState from '../components/CompanyEmptyState';
 import CompanyAddressesSection from '../components/CompanyAddressesSection';
 import CompanyMembersCrudSection from '../components/CompanyMembersCrudSection';
-import CompanyManagersCrudSection from '../components/CompanyManagersCrudSection';
 import { useCompanyAddresses } from '../hooks/use-company-addresses';
 import type {
+	ActividadItem,
 	CompanyAddressItem,
 	CompanyItem,
+	CompanyManagementTypeHealth,
 	CompanyMemberItem,
 	EmpresaDetail,
-	ManagerItem,
 	State,
 } from '../types';
 
@@ -48,7 +48,8 @@ interface Props {
 	company: CompanyItem | null;
 	addresses: CompanyAddressItem[];
 	companyMembers: CompanyMemberItem[];
-	managers: ManagerItem[];
+	managementTypeHealth: CompanyManagementTypeHealth | null;
+	actividades: ActividadItem[];
 	canEditDetails: boolean;
 	states: State[];
 }
@@ -58,7 +59,8 @@ export default function CompanyDetailsForm({
 	company,
 	addresses,
 	companyMembers,
-	managers,
+	managementTypeHealth,
+	actividades,
 	canEditDetails,
 	states,
 }: Props) {
@@ -72,11 +74,6 @@ export default function CompanyDetailsForm({
 	const addressesState = useCompanyAddresses(addresses, companyId);
 
 	const memberRows = companyMembers;
-	const managerMemberRows = companyMembers.filter(
-		(member) => member.is_manager,
-	);
-	const managersToRender = managers;
-	const showManagersTab = company?.management_type === 'manager-managed';
 
 	const incorporationForm = useForm<
 		IncorporationRegistrationFormValues,
@@ -232,15 +229,6 @@ export default function CompanyDetailsForm({
 							<Icon icon="ri:group-line" data-icon="inline-start" />
 							Miembros
 						</TabsTrigger>
-						{showManagersTab && (
-							<TabsTrigger
-								value="empresa-managers"
-								className={verticalTabTriggerClass}
-							>
-								<Icon icon="ri:user-settings-line" data-icon="inline-start" />
-								Managers
-							</TabsTrigger>
-						)}
 					</TabsList>
 
 					<div className="min-w-0">
@@ -293,10 +281,13 @@ export default function CompanyDetailsForm({
 							className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
 						>
 							{hasCompany ? (
-								<CompanyInfoSection
-									company={company}
-									canEditDetails={canEditDetails}
-								/>
+							<CompanyInfoSection
+								company={company}
+								managementTypeHealth={managementTypeHealth}
+								states={states}
+								actividades={actividades}
+								canEditDetails={canEditDetails}
+							/>
 							) : (
 								<CompanyEmptyState
 									title="No hay empresa creada"
@@ -360,30 +351,6 @@ export default function CompanyDetailsForm({
 							)}
 						</TabsContent>
 
-						{showManagersTab && (
-							<TabsContent
-								value="empresa-managers"
-								className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
-							>
-								{hasCompany ? (
-									<CompanyManagersCrudSection
-										initialManagers={managersToRender}
-										members={managerMemberRows}
-										companyId={
-											empresa.company_id ?? empresa.empresa_incorporacion_id
-										}
-										canEditDetails={canEditDetails}
-									/>
-								) : (
-									<CompanyEmptyState
-										title="No hay empresa creada"
-										description="Para gestionar managers debes crear la empresa de esta incorporación."
-										canEditDetails={canEditDetails}
-										onCreateCompany={openCreateCompanyDialog}
-									/>
-								)}
-							</TabsContent>
-						)}
 					</div>
 				</Tabs>
 

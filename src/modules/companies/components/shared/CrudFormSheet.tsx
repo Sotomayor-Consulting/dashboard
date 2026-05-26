@@ -15,6 +15,8 @@ interface Props {
 	submitLabel: string;
 	onSubmit: () => void;
 	children: React.ReactNode;
+	submitDisabled?: boolean;
+	description?: string;
 }
 
 export default function CrudFormSheet({
@@ -24,6 +26,8 @@ export default function CrudFormSheet({
 	submitLabel,
 	onSubmit,
 	children,
+	submitDisabled,
+	description,
 }: Props) {
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
@@ -33,10 +37,17 @@ export default function CrudFormSheet({
 			>
 				<SheetHeader className="pb-3">
 					<SheetTitle>{title}</SheetTitle>
+					{description ? (
+						<p className="text-muted-foreground text-sm">{description}</p>
+					) : null}
 				</SheetHeader>
 				<div className="flex flex-col gap-4 pb-4">{children}</div>
 				<SheetFooter>
-					<Button type="button" onClick={onSubmit}>
+					<Button
+						type="button"
+						onClick={onSubmit}
+						disabled={submitDisabled}
+					>
 						{submitLabel}
 					</Button>
 					<Button

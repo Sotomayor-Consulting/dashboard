@@ -1,7 +1,7 @@
 // ── Enums / unions ──────────────────────────────────────────────
 export type TaxClasification = 'disregarded_entity' | 'corporation';
 export type Managmentype = 'member-managed' | 'manager-managed';
-export type EntityType = 'llc';
+export type EntityType = 'llc' | 'lp' | 'c-corp';
 export type LegalStatus =
 	| 'draft'
 	| 'pending_validation'
@@ -19,7 +19,7 @@ export interface Company {
 	entity_type: string;
 	formation_state_id: number;
 	formation_country_id: number;
-	tax_clasification: TaxClasification;
+	tax_clasification: TaxClasification | null;
 	management_type: Managmentype;
 	activity_code_id: number;
 	activity_description: string;
@@ -143,26 +143,61 @@ export interface CompanyAddressItem {
 	deleted_at: string | null;
 }
 
+// ── members (master data) ───────────────────────────────────────
+export type MemberPersonType = 'natural_person' | 'juridical_person';
+
+export type MemberIdentificationType =
+	| 'passport'
+	| 'national_id'
+	| 'driver_licence'
+	| 'ein';
+
+export type MemberMaritalStatus =
+	| 'single'
+	| 'married'
+	| 'widowed'
+	| 'divorced'
+	| 'legally_separated'
+	| 'civil_union'
+	| 'annulled';
+
+export interface MemberItem {
+	id: string;
+	first_name: string | null;
+	last_name: string | null;
+	full_name: string | null;
+	name: string | null;
+	birth_date: string | null;
+	incorporation_date: string | null;
+	person_type: MemberPersonType;
+	is_entity: boolean | null;
+	identification_number: string | null;
+	identification_type: MemberIdentificationType;
+	country_nationality_id: number | null;
+	country_residence_id: number | null;
+	country_id: number | null;
+	marital_status: MemberMaritalStatus | null;
+	ssn: string | null;
+	itin: string | null;
+	user_id: string | null;
+	is_member: boolean | null;
+	is_manager: boolean | null;
+}
+
+// ── company_members (join table: member ↔ company con atributos de relacion) ──
 export interface CompanyMemberItem {
 	id: number;
 	company_id: string;
-	member_id: string | null;
-	full_name: string | null;
-	email: string | null;
-	member_type: string | null;
-	country_nationality_id: number | null;
-	marital_status: string | null;
-	is_us_tax_resident: boolean | null;
-	passport_number: string | null;
-	ssn: string | null;
-	itin: string | null;
-	is_member: boolean | null;
-	is_manager: boolean | null;
-	status?: 'draft' | 'registered' | 'active' | 'inactive' | null;
+	member_id: string;
 	percentage: number | null;
+	start_date: string | null;
+	end_date?: string | null;
+	is_member: boolean;
+	is_manager: boolean;
 	is_active: boolean | null;
+	created_at?: string;
 	deleted_at: string | null;
-	tax_address?: CompanyMemberAddressItem | null;
+	member: MemberItem | null;
 }
 
 export interface CompanyItem {
@@ -173,7 +208,7 @@ export interface CompanyItem {
 	entity_type: EntityType;
 	formation_state_id: number | null;
 	formation_country_id: number | null;
-	tax_clasification: TaxClasification;
+	tax_clasification: TaxClasification | null;
 	management_type: Managmentype;
 	activity_code_id: number | null;
 	activity_description: string | null;
@@ -182,20 +217,6 @@ export interface CompanyItem {
 	incorporation_date?: string | null;
 	irs_email?: string | null;
 	legal_status: LegalStatus;
-}
-
-export interface ManagerItem {
-	id: string;
-	empresa_incorporacion_id: string;
-	Nombres_manager: string | null;
-	Correo_electronico_manager: string | null;
-	Pais_de_nacionalidad_manager: string | null;
-	residente_fiscal_en_EE_UU_manager: boolean | null;
-	manager_misma_direccion_empresa: boolean | null;
-	Numero_de_pasaporte_manager: string | null;
-	Numero_de_seguro_social_manager: string | null;
-	Numero_de_ITIN_manager: string | null;
-	Direccion_de_planilla_manager: string | null;
 }
 
 export interface ActividadItem {
@@ -263,10 +284,17 @@ export interface CompanyDetailData {
 	socios: SocioItem[];
 	addresses: CompanyAddressItem[];
 	companyMembers: CompanyMemberItem[];
-	managers: ManagerItem[];
+	managementTypeHealth: CompanyManagementTypeHealth | null;
 	actividades: ActividadItem[];
 	paises: PaisItem[];
 	state: State[];
+}
+
+export interface CompanyManagementTypeHealth {
+	ok: boolean;
+	managementType: Managmentype | null;
+	managers: number;
+	reason?: string;
 }
 
 export interface State {
