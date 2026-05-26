@@ -5,6 +5,7 @@ import {
 	createCompanyMember,
 	type CompanyMemberInput,
 } from '@domains/companies/company-members';
+import { BusinessRuleError } from '@domains/companies/rules/errors';
 
 export const prerender = false;
 
@@ -43,6 +44,9 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		return json(200, { ok: true, data: member });
 	} catch (error) {
 		console.error('[company_members:create]', error);
+		if (error instanceof BusinessRuleError) {
+			return json(422, { ok: false, error: error.message, code: error.code });
+		}
 		return json(500, {
 			ok: false,
 			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',
