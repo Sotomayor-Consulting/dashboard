@@ -96,6 +96,10 @@ export function useCompanyAddresses(
 			}));
 		};
 
+	const handleAddressTypeChange = (value: string) => {
+		setDraft((prev) => ({ ...prev, type: value }));
+	};
+
 	const handleAddAddress = async () => {
 		if (!companyId) {
 			toast.error('Primero debes crear la empresa para agregar direcciones.');
@@ -206,6 +210,7 @@ export function useCompanyAddresses(
 		setIsAddModalOpen,
 		newAddress: draft,
 		handleNewAddressChange: handleDraftChange,
+		handleAddressTypeChange,
 		handleAddAddress,
 		handleSaveAddress,
 		handleDeleteAddress,

@@ -1,8 +1,10 @@
-import type { AddressDraft, AddressItem } from '../hooks/use-company-addresses';
+import type {
+	AddressDraft,
+	AddressItem,
+} from '../hooks/use-company-addresses';
 import AddressCard from './company-addresses/AddressCard';
 import AddressCreateCard from './company-addresses/AddressCreateCard';
-import AddressCreateDialog from './company-addresses/AddressCreateDialog';
-import AddressDetailDialog from './company-addresses/AddressDetailDialog';
+import AddressFormSheet from './company-addresses/AddressFormSheet';
 
 interface Props {
 	canEditDetails: boolean;
@@ -16,6 +18,7 @@ interface Props {
 	handleNewAddressChange: (
 		field: keyof AddressDraft,
 	) => (event: React.ChangeEvent<HTMLInputElement>) => void;
+	handleAddressTypeChange: (value: string) => void;
 	handleAddAddress: () => void;
 	handleSaveAddress: () => void;
 	handleDeleteAddress: () => void;
@@ -35,57 +38,66 @@ export default function CompanyAddressesSection({
 	setIsAddModalOpen,
 	newAddress,
 	handleNewAddressChange,
+	handleAddressTypeChange,
 	handleAddAddress,
 	handleSaveAddress,
 	handleDeleteAddress,
 	openAddressDetail,
 	openCreateAddress,
 	isSaving,
-	addressCardHeightClass,
 }: Props) {
 	return (
 		<section className="flex flex-col gap-5">
-			<header className="flex flex-col gap-1">
-				<h3 className="text-lg font-semibold">Direcciones</h3>
-				<p className="text-muted-foreground text-sm">
-					Gestiona las direcciones operativas y de correspondencia de la
-					empresa.
+			<header className="flex items-end justify-between gap-3">
+				<div className="flex flex-col gap-1">
+					<h3 className="text-lg font-semibold">Direcciones</h3>
+					<p className="text-muted-foreground text-sm">
+						Gestiona las direcciones operativas, legales y fiscales de la
+						empresa.
+					</p>
+				</div>
+				<p className="text-muted-foreground text-[11.5px]">
+					{addresses.length} registrada{addresses.length === 1 ? '' : 's'}
 				</p>
 			</header>
 
-			<div className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+			<div className="grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
 				{addresses.map((address) => (
 					<AddressCard
 						key={address.id}
 						address={address}
-						addressCardHeightClass={addressCardHeightClass}
 						onOpenDetail={openAddressDetail}
 					/>
 				))}
 				<AddressCreateCard
 					canEditDetails={canEditDetails}
-					addressCardHeightClass={addressCardHeightClass}
 					onClick={openCreateAddress}
 				/>
 			</div>
 
-			<AddressDetailDialog
+			{/* Sheet de edición */}
+			<AddressFormSheet
 				open={isDetailModalOpen}
 				onOpenChange={setIsDetailModalOpen}
-				selectedAddress={selectedAddress}
+				mode="edit"
 				draft={newAddress}
 				handleDraftChange={handleNewAddressChange}
-				handleSaveAddress={handleSaveAddress}
-				handleDeleteAddress={handleDeleteAddress}
+				handleTypeChange={handleAddressTypeChange}
+				selectedAddress={selectedAddress}
+				onSubmit={handleSaveAddress}
+				onDelete={handleDeleteAddress}
 				isSaving={isSaving}
 			/>
 
-			<AddressCreateDialog
+			{/* Sheet de creación */}
+			<AddressFormSheet
 				open={isAddModalOpen}
 				onOpenChange={setIsAddModalOpen}
-				newAddress={newAddress}
-				handleNewAddressChange={handleNewAddressChange}
-				handleAddAddress={handleAddAddress}
+				mode="create"
+				draft={newAddress}
+				handleDraftChange={handleNewAddressChange}
+				handleTypeChange={handleAddressTypeChange}
+				onSubmit={handleAddAddress}
 				isSaving={isSaving}
 			/>
 		</section>

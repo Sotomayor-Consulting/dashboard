@@ -313,6 +313,7 @@ export default function CompanyDetailsForm({
 									setIsAddModalOpen={addressesState.setIsAddModalOpen}
 									newAddress={addressesState.newAddress}
 									handleNewAddressChange={addressesState.handleNewAddressChange}
+									handleAddressTypeChange={addressesState.handleAddressTypeChange}
 									handleAddAddress={addressesState.handleAddAddress}
 									handleSaveAddress={addressesState.handleSaveAddress}
 									handleDeleteAddress={addressesState.handleDeleteAddress}
