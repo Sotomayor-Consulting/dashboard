@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
 import { json, requireCompanyDataManager } from '@shared/api/company-data';
-import { getCompanyIdForIncorporation } from '@domains/companies/company-records';
 import {
 	createCompanyMember,
 	createCompanyMemberWithNewPerson,
@@ -11,6 +10,22 @@ import { BusinessRuleError } from '@domains/companies/rules/errors';
 
 export const prerender = false;
 
+const UUID_RE =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const parseCompanyId = (raw: string | undefined) => {
+	const trimmed = raw?.trim();
+	if (!trimmed) return null;
+	return UUID_RE.test(trimmed) ? trimmed : null;
+};
+
+/**
+ * Body válidos:
+ *  - `{ member_id, percentage, start_date, is_member, is_manager }` (vincular persona existente).
+ *  - `{ new_person: MemberInput, percentage, start_date, is_member, is_manager }` (crear persona + vincular atómicamente).
+ *
+ * Rechaza si llegan ambos o ninguno.
+ */
 type AttachExistingBody = CompanyMemberInput & { new_person?: never };
 type CreateAndAttachBody = Omit<CompanyMemberInput, 'member_id'> & {
 	member_id?: never;
@@ -21,16 +36,10 @@ type CreateMemberBody = AttachExistingBody | CreateAndAttachBody;
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null && !Array.isArray(value);
 
-/**
- * Endpoint legacy en el ámbito de incorporación. Resuelve `companyId` desde
- * `empresas_incorporaciones.company_id` y delega en las domain functions
- * company-scoped. Acepta el mismo payload combinado que
- * `/api/companies/[companyId]/members`.
- */
 export const POST: APIRoute = async ({ request, cookies, params }) => {
-	const incorporationId = params.incorporationId?.trim();
-	if (!incorporationId) {
-		return json(400, { ok: false, error: 'MISSING_INCORPORATION_ID' });
+	const companyId = parseCompanyId(params.companyId);
+	if (!companyId) {
+		return json(400, { ok: false, error: 'INVALID_COMPANY_ID' });
 	}
 
 	const context = await requireCompanyDataManager(request, cookies);
@@ -65,14 +74,6 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 	};
 
 	try {
-		const companyId = await getCompanyIdForIncorporation(
-			context.supabase,
-			incorporationId,
-		);
-		if (!companyId) {
-			return json(409, { ok: false, error: 'COMPANY_NOT_CREATED' });
-		}
-
 		const member = hasNewPerson
 			? await createCompanyMemberWithNewPerson(
 					context.supabase,
@@ -87,7 +88,6 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 					body as CompanyMemberInput,
 					context.user.id,
 				);
-
 		return json(200, { ok: true, data: member });
 	} catch (error) {
 		console.error('[company_members:create]', error);

@@ -1,13 +1,18 @@
 import type { APIRoute } from 'astro';
 import { json, requireCompanyDataManager } from '@shared/api/company-data';
-import {
-	createMember,
-	searchMembers,
-	type MemberInput,
-} from '@domains/members/people';
+import { searchMembers } from '@domains/members/people';
 
 export const prerender = false;
 
+/**
+ * `GET /api/members?q=...` — búsqueda de personas para el combobox
+ * "Persona" del flujo de agregar miembro. Devuelve hasta 20 resultados.
+ *
+ * NOTA: la creación de personas (`POST`) fue eliminada deliberadamente. Por
+ * regla de producto una persona no puede existir sin estar vinculada al
+ * menos a una empresa, así que el alta se hace siempre vía
+ * `POST /api/companies/[companyId]/members` con `{ new_person: {...} }`.
+ */
 export const GET: APIRoute = async ({ request, cookies, url }) => {
 	const context = await requireCompanyDataManager(request, cookies);
 	if ('error' in context) return context.error;
@@ -28,25 +33,5 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 			ok: false,
 			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',
 		});
-	}
-};
-
-export const POST: APIRoute = async ({ request, cookies }) => {
-	const context = await requireCompanyDataManager(request, cookies);
-	if ('error' in context) return context.error;
-
-	const body = (await request.json().catch(() => null)) as MemberInput | null;
-	if (!body) {
-		return json(400, { ok: false, error: 'INVALID_BODY' });
-	}
-
-	try {
-		const member = await createMember(context.supabase, body, context.user.id);
-		return json(200, { ok: true, data: member });
-	} catch (error) {
-		console.error('[members:create]', error);
-		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
-		const status = message === 'MEMBER_FULL_NAME_REQUIRED' ? 400 : 500;
-		return json(status, { ok: false, error: message });
 	}
 };
