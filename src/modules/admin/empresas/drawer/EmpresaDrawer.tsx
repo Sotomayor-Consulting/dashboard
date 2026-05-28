@@ -213,27 +213,23 @@ export function EmpresaDrawer({ empresaId, onClose }: Props) {
 									size="sm"
 									className="gap-1.5"
 									render={
-										<a
-											href={`/admin/incorporaciones?empresa=${data.incorporationId}`}
-										>
+										<a href={`/incorporations/${data.incorporationId}`}>
 											<Icon icon="ri:file-list-3-line" className="h-4 w-4" />
 											Ver proceso
 										</a>
 									}
 								/>
 							)}
-							{data.incorporationId && (
-								<Button
-									size="sm"
-									className="ml-auto gap-1.5"
-									render={
-										<a href={`/incorporations/${data.incorporationId}`}>
-											Ir al detalle
-											<Icon icon="ri:arrow-right-line" className="h-4 w-4" />
-										</a>
-									}
-								/>
-							)}
+							<Button
+								size="sm"
+								className="ml-auto gap-1.5"
+								render={
+									<a href={`/companies/${data.id}`}>
+										Ir al detalle
+										<Icon icon="ri:arrow-right-line" className="h-4 w-4" />
+									</a>
+								}
+							/>
 						</div>
 					</>
 				)}
