@@ -4,6 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Icon } from '@iconify/react';
 
+import { US_COUNTRY_ID } from '@domains/locations/constants';
+import { useLocations } from '../../../hooks/use-locations';
+
 import { Button } from '@components/ui/Button';
 import {
 	Field,
@@ -22,7 +25,6 @@ import type {
 	ActividadItem,
 	CompanyItem,
 	CompanyManagementTypeHealth,
-	State,
 } from '../../../types';
 import {
 	companyInfoSchema,
@@ -35,7 +37,6 @@ import { ComboboxField } from '../components/ComboboxField';
 interface Props {
 	company: CompanyItem | null;
 	managementTypeHealth: CompanyManagementTypeHealth | null;
-	states: State[];
 	actividades: ActividadItem[];
 	canEditDetails: boolean;
 }
@@ -119,7 +120,6 @@ function SectionHeader({
 export default function CompanyInfoSection({
 	company,
 	managementTypeHealth,
-	states,
 	actividades,
 	canEditDetails,
 }: Props) {
@@ -185,11 +185,14 @@ export default function CompanyInfoSection({
 		);
 	}
 
-	// Opciones de jurisdicción para el ComboboxField
-	const stateOptions = states.map((s) => ({
+	// La jurisdicción de incorporación siempre es US (id=75). Usamos el caché
+	// global de `useLocations` para no consultar a Supabase cada vez.
+	const { states: usStates, isLoadingStates } = useLocations(US_COUNTRY_ID);
+
+	const stateOptions = usStates.map((s) => ({
 		value: String(s.id),
-		label: String(s.name),
-		searchText: String(s.code),
+		label: s.name ?? `Estado ${s.id}`,
+		searchText: s.code ?? '',
 	}));
 
 	return (
@@ -282,14 +285,18 @@ export default function CompanyInfoSection({
 									onChange={(value) =>
 										field.onChange(value === null ? null : Number(value))
 									}
-									placeholder="Seleccione la jurisdicción"
+									placeholder={
+										isLoadingStates
+											? 'Cargando estados…'
+											: 'Seleccione la jurisdicción'
+									}
 									allowClear
-									disabled={!canEditDetails}
+									disabled={!canEditDetails || isLoadingStates}
 								/>
 							)}
 						/>
 						<FieldDescription>
-							Estado donde se incorpora la empresa.
+							Estado donde se incorpora la LLC (siempre dentro de EE.UU.).
 						</FieldDescription>
 					</Field>
 

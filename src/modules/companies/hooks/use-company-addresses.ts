@@ -7,7 +7,8 @@ export type AddressItem = CompanyAddressItem;
 
 export type AddressDraft = {
 	type: string;
-	country: string;
+	country_id: number | null;
+	state_id: number | null;
 	city: string;
 	line1: string;
 	line2: string;
@@ -17,7 +18,8 @@ export type AddressDraft = {
 
 const emptyDraft: AddressDraft = {
 	type: '',
-	country: '',
+	country_id: null,
+	state_id: null,
 	city: '',
 	line1: '',
 	line2: '',
@@ -27,7 +29,8 @@ const emptyDraft: AddressDraft = {
 
 const toDraft = (address: AddressItem): AddressDraft => ({
 	type: address.type ?? '',
-	country: address.country ?? '',
+	country_id: address.country_id ?? null,
+	state_id: address.state_id ?? null,
 	city: address.city ?? '',
 	line1: address.line1 ?? '',
 	line2: address.line2 ?? '',
@@ -98,6 +101,15 @@ export function useCompanyAddresses(
 
 	const handleAddressTypeChange = (value: string) => {
 		setDraft((prev) => ({ ...prev, type: value }));
+	};
+
+	const handleAddressCountryChange = (countryId: number | null) => {
+		// Al cambiar país, reset state (cascada).
+		setDraft((prev) => ({ ...prev, country_id: countryId, state_id: null }));
+	};
+
+	const handleAddressStateChange = (stateId: number | null) => {
+		setDraft((prev) => ({ ...prev, state_id: stateId }));
 	};
 
 	const handleAddAddress = async () => {
@@ -211,6 +223,8 @@ export function useCompanyAddresses(
 		newAddress: draft,
 		handleNewAddressChange: handleDraftChange,
 		handleAddressTypeChange,
+		handleAddressCountryChange,
+		handleAddressStateChange,
 		handleAddAddress,
 		handleSaveAddress,
 		handleDeleteAddress,

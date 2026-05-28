@@ -101,15 +101,25 @@ const requestJson = async <T>(
 	return payload.data as T;
 };
 
+export type MembersCrudScope =
+	| { kind: 'incorporation'; id: string }
+	| { kind: 'company'; id: string };
+
 interface UseCompanyMembersCrudParams {
 	initialRows: CompanyMemberItem[];
-	incorporationId: string;
+	scope: MembersCrudScope;
 }
+
+const buildMembersBasePath = (scope: MembersCrudScope) =>
+	scope.kind === 'incorporation'
+		? `/api/incorporations/${scope.id}/members`
+		: `/api/companies/${scope.id}/members`;
 
 export function useCompanyMembersCrud({
 	initialRows,
-	incorporationId,
+	scope,
 }: UseCompanyMembersCrudParams) {
+	const basePath = buildMembersBasePath(scope);
 	const [rows, setRows] = React.useState<CompanyMemberItem[]>(initialRows);
 	const [activeRow, setActiveRow] = React.useState<CompanyMemberItem | null>(
 		null,
@@ -200,13 +210,6 @@ export function useCompanyMembersCrud({
 		setIsCreatingNewPerson(true);
 	};
 
-	const createMemberRecord = async (): Promise<MemberItem> => {
-		return requestJson<MemberItem>('/api/members', {
-			method: 'POST',
-			body: JSON.stringify(memberDraft),
-		});
-	};
-
 	const updateMemberRecord = async (
 		memberId: string,
 	): Promise<MemberItem> => {
@@ -214,20 +217,6 @@ export function useCompanyMembersCrud({
 			method: 'PATCH',
 			body: JSON.stringify(memberDraft),
 		});
-	};
-
-	const createRelation = async (memberId: string) => {
-		const body = {
-			member_id: memberId,
-			percentage: relationDraft.percentage,
-			start_date: relationDraft.start_date || null,
-			is_member: relationDraft.is_member,
-			is_manager: relationDraft.is_manager,
-		};
-		return requestJson<CompanyMemberItem>(
-			`/api/incorporations/${incorporationId}/members`,
-			{ method: 'POST', body: JSON.stringify(body) },
-		);
 	};
 
 	const updateRelation = async (companyMemberId: number) => {
@@ -239,7 +228,7 @@ export function useCompanyMembersCrud({
 			is_manager: relationDraft.is_manager,
 		};
 		return requestJson<CompanyMemberItem>(
-			`/api/incorporations/${incorporationId}/members/${companyMemberId}`,
+			`${basePath}/${companyMemberId}`,
 			{ method: 'PATCH', body: JSON.stringify(body) },
 		);
 	};
@@ -248,13 +237,24 @@ export function useCompanyMembersCrud({
 		setIsSaving(true);
 		const toastId = toast.loading('Guardando miembro...');
 		try {
-			let memberId = selectedMember?.id ?? null;
-			if (isCreatingNewPerson || !memberId) {
-				const created = await createMemberRecord();
-				memberId = created.id;
-				setSelectedMember(created);
-			}
-			const row = await createRelation(memberId);
+			// Una sola llamada atómica: o vinculamos persona existente, o creamos
+			// persona + relación en el backend (con rollback si la relación falla).
+			const baseBody = {
+				percentage: relationDraft.percentage,
+				start_date: relationDraft.start_date || null,
+				is_member: relationDraft.is_member,
+				is_manager: relationDraft.is_manager,
+			};
+
+			const body =
+				isCreatingNewPerson || !selectedMember?.id
+					? { ...baseBody, new_person: memberDraft }
+					: { ...baseBody, member_id: selectedMember.id };
+
+			const row = await requestJson<CompanyMemberItem>(basePath, {
+				method: 'POST',
+				body: JSON.stringify(body),
+			});
 			setRows((prev) => [row, ...prev]);
 			toast.success('Miembro agregado a la empresa', { id: toastId });
 			setIsCreateOpen(false);
@@ -314,13 +314,10 @@ export function useCompanyMembersCrud({
 		setIsSaving(true);
 		const toastId = toast.loading('Eliminando miembro...');
 		try {
-			await requestJson(
-				`/api/incorporations/${incorporationId}/members/${activeRow.id}`,
-				{
-					method: 'DELETE',
-					body: JSON.stringify({ reason }),
-				},
-			);
+			await requestJson(`${basePath}/${activeRow.id}`, {
+				method: 'DELETE',
+				body: JSON.stringify({ reason }),
+			});
 			setRows((prev) => prev.filter((row) => row.id !== activeRow.id));
 			toast.success('Miembro eliminado de la empresa', { id: toastId });
 			setIsDeleteOpen(false);
@@ -378,13 +375,17 @@ function friendlyError(message: string) {
 		case 'PERCENTAGE_OUT_OF_RANGE':
 			return 'El porcentaje debe estar entre 0 y 100';
 		case 'MEMBER_FULL_NAME_REQUIRED':
-			return 'El nombre de la persona es obligatorio';
+			return 'El nombre del miembro es obligatorio';
 		case 'MEMBER_ID_REQUIRED':
-			return 'Selecciona o crea una persona';
+			return 'Selecciona un miembro existente o completa los datos para crear uno nuevo';
+		case 'MEMBER_OR_NEW_PERSON_REQUIRED':
+			return 'Selecciona un miembro existente o completa los datos para crear uno nuevo';
+		case 'MEMBER_AND_NEW_PERSON_BOTH_PROVIDED':
+			return 'Elige un miembro existente o crea uno nuevo, no ambos';
 		case 'COMPANY_MEMBER_NOT_FOUND':
 			return 'No se encontró el miembro de la empresa';
 		case 'MEMBER_NOT_FOUND':
-			return 'No se encontró la persona';
+			return 'No se encontró el miembro';
 		case 'COMPANY_NOT_CREATED':
 			return 'Primero crea la empresa para poder agregar miembros';
 		case 'FORBIDDEN':

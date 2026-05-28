@@ -290,6 +290,22 @@ export interface CompanyDetailData {
 	state: State[];
 }
 
+/**
+ * Datos consumidos por la página `/companies/[companyId]`. A diferencia de
+ * `CompanyDetailData`, no incluye `empresa` (caso de incorporación) — la
+ * empresa real es la entidad principal.
+ */
+export interface CompanyPageData {
+	company: CompanyItem;
+	addresses: CompanyAddressItem[];
+	companyMembers: CompanyMemberItem[];
+	managementTypeHealth: CompanyManagementTypeHealth | null;
+	actividades: ActividadItem[];
+	states: State[];
+	/** UUID del caso de incorporación si esta empresa nació de un proceso. */
+	incorporationId: string | null;
+}
+
 export interface CompanyManagementTypeHealth {
 	ok: boolean;
 	managementType: Managmentype | null;
