@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Icon } from '@iconify/react';
+import { useLocalStorageState } from '@modules/admin/lib/use-local-storage-state';
 import { Button } from '@components/ui/Button';
 import {
 	Command,
@@ -51,6 +52,7 @@ import type { CompanyMemberItem, MemberItem } from '../types';
 import {
 	type CompanyMemberRelationDraft,
 	type MemberDraft,
+	type MembersCrudScope,
 	useCompanyMembersCrud,
 } from '../hooks/use-company-members-crud';
 import { useMembersSearch } from '../hooks/use-members-search';
@@ -65,21 +67,35 @@ import {
 	memberDisplayName,
 	memberIdentification,
 } from './cells/member-display';
+import {
+	matchMembersFilter,
+	MembersToolbar,
+	type MembersColumnId,
+	type MembersFilter,
+} from './MembersToolbar';
+
+const DEFAULT_VISIBLE_COLUMNS: Record<MembersColumnId, boolean> = {
+	type: true,
+	percentage: true,
+	start_date: true,
+	role: true,
+	actions: true,
+};
 
 interface Props {
 	initialMembers: CompanyMemberItem[];
-	incorporationId: string;
+	scope: MembersCrudScope;
 	canEditDetails: boolean;
 }
 
 export default function CompanyMembersCrudSection({
 	initialMembers,
-	incorporationId,
+	scope,
 	canEditDetails,
 }: Props) {
 	const crud = useCompanyMembersCrud({
 		initialRows: initialMembers,
-		incorporationId,
+		scope,
 	});
 
 	const totalPercentage = crud.rows.reduce(
@@ -97,25 +113,29 @@ export default function CompanyMembersCrudSection({
 	const [search, setSearch] = React.useState('');
 	const [sortKey, setSortKey] = React.useState<MembersSortKey>('name');
 	const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('asc');
+	const [filter, setFilter] = React.useState<MembersFilter>('todos');
+	const [visibleColumns, setVisibleColumns] = useLocalStorageState<
+		Record<MembersColumnId, boolean>
+	>('company:members:columns', DEFAULT_VISIBLE_COLUMNS);
+	const toggleColumn = (id: MembersColumnId) =>
+		setVisibleColumns((prev) => ({ ...prev, [id]: !prev[id] }));
 
 	const filteredSortedRows = React.useMemo(() => {
 		const q = search.trim().toLowerCase();
-		const base = q
-			? crud.rows.filter((row) => {
-					const name = memberDisplayName(row.member).toLowerCase();
-					const id = (
-						row.member?.identification_number ?? ''
-					).toLowerCase();
-					return name.includes(q) || id.includes(q);
-				})
-			: crud.rows;
+		const base = crud.rows.filter((row) => {
+			if (!matchMembersFilter(row, filter)) return false;
+			if (!q) return true;
+			const name = memberDisplayName(row.member).toLowerCase();
+			const id = (row.member?.identification_number ?? '').toLowerCase();
+			return name.includes(q) || id.includes(q);
+		});
 		const arr = [...base];
 		arr.sort((a, b) => {
 			const cmp = compareMembers(a, b, sortKey);
 			return sortDir === 'asc' ? cmp : -cmp;
 		});
 		return arr;
-	}, [crud.rows, search, sortKey, sortDir]);
+	}, [crud.rows, search, filter, sortKey, sortDir]);
 
 	const toggleSort = (key: MembersSortKey) => {
 		if (sortKey === key) {
@@ -127,34 +147,18 @@ export default function CompanyMembersCrudSection({
 	};
 
 	return (
-		<section className="flex flex-col gap-4">
-			<header className="flex flex-col gap-1">
-				<h3 className="text-lg font-semibold">Miembros</h3>
-				<p className="text-muted-foreground text-sm">
-					Gestiona los socios y/o managers de la LLC. Los datos personales se
-					guardan en el registro de personas; aquí defines el rol, porcentaje y
-					fecha de inicio para esta empresa.
-				</p>
-			</header>
-
-			{/* Toolbar: búsqueda + contador + acción */}
-			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-				<div className="relative w-full sm:max-w-xs">
-					<Icon
-						icon="ri:search-line"
-						className="absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-gray-400"
-					/>
-					<input
-						type="text"
-						value={search}
-						onChange={(e) => setSearch(e.target.value)}
-						placeholder="Buscar por nombre o identificación..."
-						className="w-full rounded-md border border-gray-200 bg-white py-1.5 pr-3 pl-8 text-[12.5px] placeholder:text-gray-400 focus:border-gray-300 focus:outline-none dark:border-gray-700 dark:bg-neutral-900 dark:placeholder:text-gray-500"
-					/>
-				</div>
-				<div className="flex items-center gap-3">
-					<p className="text-[11.5px] text-gray-500 dark:text-gray-400">
-						{filteredSortedRows.length} de {crud.rows.length} ·{' '}
+		<section className="-mx-5 -my-5 flex flex-col">
+			{/* Header estilo /admin/usuarios */}
+			<header className="flex items-end justify-between gap-4 border-b border-gray-200 px-7 pt-6 pb-4 dark:border-gray-800">
+				<div>
+					<p className="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
+						Miembros
+					</p>
+					<h3 className="mt-1 text-[22px] font-semibold text-gray-900 dark:text-gray-100">
+						Socios y managers
+					</h3>
+					<p className="mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">
+						{crud.rows.length} miembros ·{' '}
 						<span
 							className={cn(
 								'font-medium',
@@ -167,45 +171,56 @@ export default function CompanyMembersCrudSection({
 						</span>
 						{overAllocated ? ' (excede 100%)' : ''}
 					</p>
-					<Button
-						type="button"
-						onClick={crud.openCreate}
-						disabled={!canEditDetails}
-					>
-						<UserPlusIcon className="size-4" />
-						Agregar miembro
-					</Button>
 				</div>
-			</div>
+				<Button
+					type="button"
+					size="sm"
+					className="gap-1.5"
+					onClick={crud.openCreate}
+					disabled={!canEditDetails}
+				>
+					<UserPlusIcon className="size-4" />
+					Agregar miembro
+				</Button>
+			</header>
 
-			{/* Tabla estilo Usuarios */}
-			<div className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-transparent">
-				{filteredSortedRows.length === 0 ? (
-					<MemberEmptyState
-						title={
-							search
-								? 'Sin resultados'
-								: 'Aún no hay miembros'
-						}
-						description={
-							search
-								? 'Ajusta la búsqueda para encontrar miembros.'
-								: 'Agrega socios o managers para empezar a gestionar esta LLC.'
-						}
-					/>
-				) : (
-					<div className="w-full overflow-x-auto">
-						<table className="w-full text-sm">
-							<thead className="border-b border-gray-200 text-[10.5px] font-medium tracking-wider text-gray-500 uppercase dark:border-gray-800 dark:text-gray-400">
-								<tr>
-									<SortableTh
-										label="Miembro"
-										keyId="name"
-										active={sortKey === 'name'}
-										dir={sortDir}
-										onClick={toggleSort}
-										className="px-7 py-3 text-left"
-									/>
+			<MembersToolbar
+				rows={crud.rows}
+				activeFilter={filter}
+				onFilterChange={setFilter}
+				search={search}
+				onSearchChange={setSearch}
+				visibleColumns={visibleColumns}
+				onToggleColumn={toggleColumn}
+			/>
+
+			{filteredSortedRows.length === 0 ? (
+				<MemberEmptyState
+					title={
+						search || filter !== 'todos'
+							? 'Sin resultados'
+							: 'Aún no hay miembros'
+					}
+					description={
+						search || filter !== 'todos'
+							? 'Ajusta los filtros o la búsqueda para encontrar miembros.'
+							: 'Agrega socios o managers para empezar a gestionar esta LLC.'
+					}
+				/>
+			) : (
+				<div className="w-full overflow-x-auto">
+					<table className="w-full text-sm">
+						<thead className="border-b border-gray-200 text-[10.5px] font-medium tracking-wider text-gray-500 uppercase dark:border-gray-800 dark:text-gray-400">
+							<tr>
+								<SortableTh
+									label="Miembro"
+									keyId="name"
+									active={sortKey === 'name'}
+									dir={sortDir}
+									onClick={toggleSort}
+									className="px-7 py-3 text-left"
+								/>
+								{visibleColumns.type && (
 									<SortableTh
 										label="Tipo"
 										keyId="type"
@@ -214,6 +229,8 @@ export default function CompanyMembersCrudSection({
 										onClick={toggleSort}
 										className="py-3 pr-4 text-left"
 									/>
+								)}
+								{visibleColumns.percentage && (
 									<SortableTh
 										label="Porcentaje"
 										keyId="percentage"
@@ -222,6 +239,8 @@ export default function CompanyMembersCrudSection({
 										onClick={toggleSort}
 										className="py-3 pr-4 text-left"
 									/>
+								)}
+								{visibleColumns.start_date && (
 									<SortableTh
 										label="Fecha inicio"
 										keyId="start_date"
@@ -230,45 +249,61 @@ export default function CompanyMembersCrudSection({
 										onClick={toggleSort}
 										className="py-3 pr-4 text-left"
 									/>
+								)}
+								{visibleColumns.role && (
 									<th className="py-3 pr-4 text-left">
 										<span className="uppercase tracking-wider">Rol</span>
 									</th>
+								)}
+								{visibleColumns.actions && (
 									<th className="w-12 py-3 pr-7 text-right">
 										<span className="sr-only">Acciones</span>
 									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{filteredSortedRows.map((row) => (
-									<tr
-										key={row.id}
-										onClick={() => canEditDetails && crud.openEdit(row)}
-										className={cn(
-											'h-[52px] border-b border-gray-100 transition-colors dark:border-gray-800/60',
-											canEditDetails
-												? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-900/60'
-												: '',
-										)}
-									>
-										<td className="px-7">
-											<MemberCell member={row.member} />
-										</td>
+								)}
+							</tr>
+						</thead>
+						<tbody>
+							{filteredSortedRows.map((row) => (
+								<tr
+									key={row.id}
+									onClick={() => canEditDetails && crud.openEdit(row)}
+									className={cn(
+										'h-[52px] border-b border-gray-100 transition-colors dark:border-gray-800/60',
+										canEditDetails
+											? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-900/60'
+											: '',
+									)}
+								>
+									<td className="px-7">
+										<MemberCell member={row.member} />
+									</td>
+									{visibleColumns.type && (
 										<td className="pr-4">
-											<MemberTypeBadge type={row.member?.person_type ?? null} />
+											<MemberTypeBadge
+												type={row.member?.person_type ?? null}
+											/>
 										</td>
+									)}
+									{visibleColumns.percentage && (
 										<td className="pr-4">
 											<span className="text-[12.5px] text-gray-700 dark:text-gray-300">
 												{formatPercentage(row.percentage)}
 											</span>
 										</td>
+									)}
+									{visibleColumns.start_date && (
 										<td className="pr-4">
 											<span className="text-[12.5px] text-gray-700 dark:text-gray-300">
 												{formatDate(row.start_date)}
 											</span>
 										</td>
+									)}
+									{visibleColumns.role && (
 										<td className="pr-4">
 											<MemberRoleBadges row={row} />
 										</td>
+									)}
+									{visibleColumns.actions && (
 										<td className="pr-7 text-right">
 											<MemberRowActions
 												row={row}
@@ -277,20 +312,20 @@ export default function CompanyMembersCrudSection({
 												onDelete={crud.openDelete}
 											/>
 										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-				)}
-			</div>
+									)}
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			)}
 
 			{/* Crear miembro */}
 			<CrudFormSheet
 				open={crud.isCreateOpen}
 				onOpenChange={crud.setIsCreateOpen}
 				title="Agregar miembro a la empresa"
-				description="Busca una persona ya registrada o crea una nueva, y define su rol en esta LLC."
+				description="Busca un miembro ya registrado o crea uno nuevo, y define su rol en esta LLC."
 				submitLabel={crud.isSaving ? 'Guardando...' : 'Agregar miembro'}
 				onSubmit={crud.createMember}
 				submitDisabled={
@@ -578,7 +613,7 @@ function MemberPicker({
 						onSwitchToNew(query);
 					}}
 				>
-					<PlusIcon className="inline size-3" /> Crear nueva persona
+					<PlusIcon className="inline size-3" /> Crear nuevo miembro
 				</button>
 			</FieldDescription>
 		</Field>
@@ -611,7 +646,7 @@ function MemberPiiForm({
 					}}
 				>
 					<SelectTrigger id="member_person_type" className="w-full">
-						<SelectValue />
+						<SelectValue placeholder="Selecciona el tipo de persona" />
 					</SelectTrigger>
 					<SelectContent>
 						<SelectGroup>
@@ -663,7 +698,7 @@ function MemberPiiForm({
 					}
 				>
 					<SelectTrigger id="member_id_type" className="w-full">
-						<SelectValue />
+						<SelectValue placeholder="Tipo de identificación" />
 					</SelectTrigger>
 					<SelectContent>
 						<SelectGroup>
