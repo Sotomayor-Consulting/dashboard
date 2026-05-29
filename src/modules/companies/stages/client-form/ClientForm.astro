@@ -9,11 +9,16 @@ interface Props {
 const { empresaId } = Astro.props;
 const supabase = Astro.locals.supabase;
 
-const { activities } = await getClientFormBootstrapData(supabase);
+const { activities, identity, estados } = await getClientFormBootstrapData(
+	supabase,
+	empresaId,
+);
 ---
 
 <ClientFormWizard
 	client:only="react"
 	activities={activities}
 	empresaId={empresaId}
+	identity={identity}
+	estados={estados}
 />

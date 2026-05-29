@@ -52,65 +52,128 @@ export function FileUploadField({
 
 	return (
 		<div>
-			<Label htmlFor={id} className="text-sm font-medium">
+			<Label
+				htmlFor={id}
+				className="text-[13px] font-medium"
+				style={{ color: 'var(--cf-ink)' }}
+			>
 				{label}
 			</Label>
 			{description && (
-				<p className="text-muted-foreground mt-0.5 mb-2 text-xs">
+				<p
+					className="mt-0.5 mb-2 text-[12px]"
+					style={{ color: 'var(--cf-ink-soft)' }}
+				>
 					{description}
 				</p>
 			)}
-			<div
-				className={cn(
-					'mt-2 cursor-pointer rounded-lg border-2 border-dashed p-4 text-center transition-colors',
-					file
-						? 'border-accent bg-accent/5'
-						: 'border-border hover:border-accent/50',
-					error && 'border-destructive',
-				)}
-				onClick={() => inputRef.current?.click()}
-			>
-				<input
-					ref={inputRef}
-					type="file"
-					id={id}
-					accept={accept}
-					onChange={handleChange}
-					className="hidden"
-				/>
-				{file ? (
-					<div className="flex items-center justify-center gap-2 text-sm">
-						<Icon icon="ri:check-line" className="text-accent h-4 w-4" />
-						<span className="text-foreground max-w-[200px] truncate">
-							{file.name}
-						</span>
-						<button
-							type="button"
-							onClick={(e) => {
-								e.stopPropagation();
-								onFileChange(null);
-							}}
-							className="text-muted-foreground hover:text-destructive ml-2"
+
+			<input
+				ref={inputRef}
+				type="file"
+				id={id}
+				accept={accept}
+				onChange={handleChange}
+				className="hidden"
+			/>
+
+			{file ? (
+				/* ── Estado cargado: card con ícono, nombre, meta y badge ── */
+				<div
+					className="mt-2 flex items-center gap-3 rounded-[12px] border p-3"
+					style={{
+						background: 'var(--cf-bg-card)',
+						borderColor: error ? 'var(--cf-danger-border)' : 'var(--cf-line)',
+					}}
+				>
+					<div
+						className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px]"
+						style={{
+							background: 'var(--cf-bg-subtle)',
+							color: 'var(--cf-ink-mute)',
+						}}
+					>
+						<Icon icon="ri:file-text-line" className="h-5 w-5" />
+					</div>
+					<div className="min-w-0 flex-1">
+						<div
+							className="truncate text-[13.5px] font-semibold tracking-[-0.005em]"
+							style={{ color: 'var(--cf-ink)' }}
 						>
-							<Icon icon="ri:delete-bin-line" className="h-4 w-4" />
-						</button>
+							{file.name}
+						</div>
+						<div
+							className="mt-0.5 text-[11.5px]"
+							style={{ color: 'var(--cf-ink-soft)' }}
+						>
+							{formatFileSize(file.size)}
+						</div>
 					</div>
-				) : (
-					<div className="flex flex-col items-center gap-1">
-						<Icon
-							icon="ri:upload-cloud-2-line"
-							className="text-muted-foreground h-6 w-6"
-						/>
-						<span className="text-muted-foreground text-sm">
-							Haz clic para subir
-						</span>
-						<span className="text-muted-foreground text-xs">
-							Máx. {maxSizeLabel}
-						</span>
-					</div>
-				)}
-			</div>
-			{error && <p className="text-destructive mt-1 text-xs">{error}</p>}
+					<span
+						className="inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+						style={{
+							background: 'var(--cf-accent-soft)',
+							color: 'var(--cf-accent-ink)',
+						}}
+					>
+						<Icon icon="ri:check-line" className="h-3 w-3" />
+						Cargado
+					</span>
+					<button
+						type="button"
+						onClick={() => onFileChange(null)}
+						aria-label="Eliminar archivo"
+						className="ml-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--cf-ink-soft)] transition-colors hover:bg-red-50 hover:text-[var(--cf-danger)] dark:hover:bg-red-950/30"
+					>
+						<Icon icon="ri:delete-bin-line" className="h-4 w-4" />
+					</button>
+				</div>
+			) : (
+				/* ── Estado vacío: dropzone dashed ── */
+				<div
+					className={cn(
+						'mt-2 flex cursor-pointer flex-col items-center gap-1 rounded-[12px] border-2 border-dashed p-5 text-center transition-colors',
+					)}
+					style={{
+						borderColor: error
+							? 'var(--cf-danger-border)'
+							: 'var(--cf-line-strong)',
+						background: 'var(--cf-bg-card)',
+					}}
+					onClick={() => inputRef.current?.click()}
+				>
+					<Icon
+						icon="ri:upload-cloud-2-line"
+						className="h-6 w-6"
+						style={{ color: 'var(--cf-ink-soft)' }}
+					/>
+					<span
+						className="text-[13px] font-medium"
+						style={{ color: 'var(--cf-ink-mute)' }}
+					>
+						Haz clic para subir
+					</span>
+					<span
+						className="text-[11.5px]"
+						style={{ color: 'var(--cf-ink-soft)' }}
+					>
+						Máx. {maxSizeLabel}
+					</span>
+				</div>
+			)}
+
+			{error && (
+				<p className="mt-1 text-[12px]" style={{ color: 'var(--cf-danger)' }}>
+					{error}
+				</p>
+			)}
 		</div>
 	);
+}
+
+/** Formatea bytes a una etiqueta legible (KB / MB). */
+function formatFileSize(bytes: number): string {
+	if (bytes < 1024) return `${bytes} B`;
+	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }

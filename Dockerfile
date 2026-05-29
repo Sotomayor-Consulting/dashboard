@@ -56,6 +56,7 @@ RUN npm install --omit=dev && npm cache clean --force
 # Artefactos SSR
 COPY --from=builder --chown=astro:nodejs /app/dist ./dist
 COPY --from=builder --chown=astro:nodejs /app/server.mjs ./server.mjs
+COPY --from=builder --chown=astro:nodejs /app/server-wrapper.mjs ./server-wrapper.mjs
 
 # Templates usados en runtime (carbone, emails)
 COPY --from=builder --chown=astro:nodejs /app/src/domains/documents/templates ./src/domains/documents/templates
@@ -69,4 +70,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 
 # dumb-init maneja señales correctamente (SIGTERM, etc.)
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "server.mjs"]
+CMD ["node", "server-wrapper.mjs"]

@@ -5,9 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import '../icons'; // Registra el set `ri` de iconify offline (side-effect).
 
-import { WizardHeader } from '../components/WizardHeader';
-import { WizardNavigation } from '../components/WizardNavigation';
-import { WizardProgress } from '../components/WizardProgress';
 import { StepActivity } from '../components/steps/StepActivity';
 import { StepConfirmation } from '../components/steps/StepConfirmation';
 import { StepManager } from '../components/steps/StepManager';
@@ -15,21 +12,44 @@ import { StepMembers } from '../components/steps/StepMembers';
 import { StepWelcome } from '../components/steps/StepWelcome';
 import type { Activity } from '../data/activities';
 import { createInitialFormData } from '../data/defaults';
+import { STEPS } from '../data/steps';
 import { useLocalStorageDraft } from '../hooks/use-local-storage-draft';
 import { useStepNavigation } from '../hooks/use-step-navigation';
 import {
 	type ClientFormInput,
 	clientFormSchema,
 } from '../schemas/client-form.schema';
+import { getIncorporationRules } from '../data/incorporation-rules';
+import { IncorporationRulesProvider } from '../data/incorporation-rules-context';
+import type {
+	EstadoOption,
+	IncorporationIdentity,
+} from '../services/get-client-form-data';
 import { submitClientForm } from '../services/submit-client-form';
+import { FormShell, type SideSummaryItem } from '../shell';
 import type { ClientFormData } from '../types';
+import { MembersAllocationBar } from '../components/steps/StepMembers/MembersAllocationBar';
 
 interface Props {
 	activities: Activity[];
 	empresaId: string;
+	/** Identidad pre-cargada (3 nombres + estado) de la solicitud. */
+	identity: IncorporationIdentity;
+	/** Lista de estados disponibles para la Identity Card. */
+	estados: EstadoOption[];
 }
 
-export default function ClientFormWizard({ activities, empresaId }: Props) {
+export default function ClientFormWizard({
+	activities,
+	empresaId,
+	identity,
+	estados,
+}: Props) {
+	// El estado de incorporación es editable desde la Identity Card (pantalla 1),
+	// así que lo mantenemos en estado local para re-evaluar las reglas en vivo.
+	const [estadoIncorporacion, setEstadoIncorporacion] = useState<string | null>(
+		identity.estadoIncorporacion,
+	);
 	const { loadDraft, saveDraft, clearDraft } = useLocalStorageDraft({
 		key: `sotomayor:client-incorporation-form:draft:${empresaId}`,
 	});
@@ -62,6 +82,14 @@ export default function ClientFormWizard({ activities, empresaId }: Props) {
 		if (!hydrated) return;
 		saveDraft(watched);
 	}, [watched, hydrated, saveDraft]);
+
+	// Reglas de negocio según el estado de incorporación Y la forma de
+	// administración (la divulgación pública depende de ambos).
+	const rules = useMemo(
+		() =>
+			getIncorporationRules(estadoIncorporacion, watched?.formaAdministracion),
+		[estadoIncorporacion, watched?.formaAdministracion],
+	);
 
 	// Navegación de steps.
 	const { currentStep, goNext, goPrev, goTo } = useStepNavigation(1);
@@ -115,18 +143,160 @@ export default function ClientFormWizard({ activities, empresaId }: Props) {
 		})();
 	}, [handleSubmit, onSubmit]);
 
+	// Metadata del paso actual para el shell
+	const currentMeta = STEPS.find((s) => s.id === currentStep);
+	const stepEyebrow = (() => {
+		if (currentStep === 1) return 'Empecemos';
+		return currentMeta
+			? `PASO ${String(currentMeta.id).padStart(2, '0')} · ${currentMeta.title.toUpperCase()}`
+			: undefined;
+	})();
+	const stepTitle = (() => {
+		if (currentStep === 1)
+			return 'Está a un paso de incorporar su empresa en EE. UU.';
+		if (currentStep === 2) return 'Información general';
+		if (currentStep === 3) return 'Miembros de la LLC';
+		if (currentStep === 4) return 'Designación de manager';
+		return 'Confirmación y firma';
+	})();
+
+	// ── Resumen acumulado en el rail (solo desde paso 2) ──────────
+	const summary: SideSummaryItem[] = useMemo(() => {
+		if (currentStep < 2) return [];
+		const items: SideSummaryItem[] = [];
+		items.push({ label: 'Tipo de entidad', value: 'LLC · Estados Unidos' });
+		if (currentStep >= 3 && watched?.formaAdministracion) {
+			items.push({
+				label: 'Operación',
+				value:
+					watched.formaAdministracion === 'manager-managed'
+						? 'Manager-Managed'
+						: 'Member-Managed',
+			});
+		}
+		if (currentStep >= 4 && watched?.formaTributacion) {
+			items.push({
+				label: 'Tributación',
+				value:
+					watched.formaTributacion === 'pass-through'
+						? 'Pass-Through'
+						: watched.formaTributacion === 'corporation'
+							? 'Corporación'
+							: '—',
+			});
+		}
+		if (currentStep >= 4 && (watched?.miembros?.length ?? 0) > 0) {
+			items.push({
+				label: 'Socios',
+				value: `${watched.miembros.length} socio${watched.miembros.length === 1 ? '' : 's'} · ${totalPercentage}%`,
+			});
+		}
+		if (currentStep === 5) {
+			items.push({ label: 'Estado', value: 'Listo para enviar' });
+		}
+		return items;
+	}, [currentStep, watched, totalPercentage]);
+
+	const isLastStep = currentStep === 5;
+
+	// Footer especial para Step 3 (Miembros) con barra de % asignado.
+	const memberSegments = (watched?.miembros ?? []).map(
+		(m) => m?.porcentaje ?? 0,
+	);
+	const membersFooter =
+		currentStep === 3 ? (
+			<div
+				className="sticky bottom-0 flex items-center justify-between gap-3 border-t px-10 py-[18px]"
+				style={{
+					background: 'var(--cf-bg-card)',
+					borderColor: 'var(--cf-line)',
+				}}
+			>
+				<button
+					type="button"
+					onClick={goPrev}
+					className="inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-[14px] font-medium transition-all hover:opacity-90"
+					style={{
+						background: 'var(--cf-bg-card)',
+						borderColor: 'var(--cf-line)',
+						color: 'var(--cf-ink)',
+					}}
+				>
+					<svg
+						width="14"
+						height="14"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="1.5"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
+						<path d="M19 12H5M12 19l-7-7 7-7" />
+					</svg>
+					Anterior
+				</button>
+
+				<MembersAllocationBar
+					total={totalPercentage}
+					segments={memberSegments}
+				/>
+
+				<div className="flex items-center gap-3.5">
+					<span
+						className="cf-mono text-[12px]"
+						style={{ color: 'var(--cf-ink-soft)' }}
+					>
+						03 <span style={{ color: 'var(--cf-ink-faint)' }}>/</span> 05
+					</span>
+					<button
+						type="button"
+						onClick={goNext}
+						disabled={!canGoNext}
+						className="inline-flex h-10 items-center gap-2 rounded-lg px-[18px] text-[14px] font-medium transition-all"
+						style={{
+							background: canGoNext ? 'var(--cf-ink)' : 'var(--cf-bg-subtle)',
+							color: canGoNext ? 'var(--cf-bg-card)' : 'var(--cf-ink-faint)',
+							cursor: canGoNext ? 'pointer' : 'default',
+						}}
+					>
+						Siguiente
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
+							<path d="M5 12h14M13 5l7 7-7 7" />
+						</svg>
+					</button>
+				</div>
+			</div>
+		) : undefined;
+
 	return (
 		<FormProvider {...methods}>
-			<form
-				onSubmit={(e) => e.preventDefault()}
-				className="bg-background min-h-screen"
-			>
-				<WizardHeader />
-
-				<main className="mx-auto max-w-4xl px-4 py-8">
-					<WizardProgress currentStep={currentStep} onStepClick={goTo} />
-
-					<div className="bg-card border-border overflow-hidden rounded-2xl border shadow-sm">
+			<IncorporationRulesProvider value={rules}>
+				<form onSubmit={(e) => e.preventDefault()}>
+					<FormShell
+						currentStep={currentStep}
+						eyebrow={stepEyebrow}
+						title={stepTitle}
+						summary={summary}
+						footer={membersFooter}
+						onPrev={goPrev}
+						onNext={isLastStep ? triggerSubmit : goNext}
+						onStepClick={goTo}
+						canGoNext={canGoNext}
+						canSubmit={canSubmit}
+						isSubmitting={isSubmitting}
+						hidePrev={currentStep === 1}
+						nextLabel={currentStep === 1 ? 'Comenzar formulario' : undefined}
+					>
 						<AnimatePresence mode="wait">
 							<motion.div
 								key={currentStep}
@@ -134,48 +304,40 @@ export default function ClientFormWizard({ activities, empresaId }: Props) {
 								animate={{ opacity: 1, y: 0 }}
 								exit={{ opacity: 0, y: -10 }}
 								transition={{ duration: 0.25 }}
-								className="p-6 md:p-8"
 							>
-								{currentStep === 1 && <StepWelcome />}
+								{currentStep === 1 && (
+									<StepWelcome
+										empresaId={empresaId}
+										nameOptions={identity.nameOptions}
+										estado={estadoIncorporacion}
+										estados={estados}
+										onEstadoChange={setEstadoIncorporacion}
+									/>
+								)}
 								{currentStep === 2 && <StepActivity activities={activities} />}
 								{currentStep === 3 && <StepMembers />}
 								{currentStep === 4 && <StepManager />}
 								{currentStep === 5 && (
-									<StepConfirmation activities={activities} />
+									<StepConfirmation activities={activities} onEditStep={goTo} />
 								)}
 							</motion.div>
 						</AnimatePresence>
 
-						<WizardNavigation
-							currentStep={currentStep}
-							canGoNext={canGoNext}
-							canSubmit={canSubmit}
-							isSubmitting={isSubmitting}
-							onPrev={goPrev}
-							onNext={goNext}
-							onSubmit={triggerSubmit}
-						/>
-					</div>
-
-					{submitError && (
-						<div className="bg-destructive/10 border-destructive/30 text-destructive mt-4 rounded-lg border p-3 text-sm">
-							{submitError}
-						</div>
-					)}
-
-					<div className="mt-6 text-center">
-						<p className="text-muted-foreground text-sm">
-							¿Necesitas ayuda?{' '}
-							<a
-								href="mailto:info@sotomayorconsulting.com"
-								className="text-accent font-medium text-black underline-offset-4 hover:underline dark:text-white"
+						{submitError && (
+							<div
+								className="mt-4 rounded-lg border p-3 text-sm"
+								style={{
+									background: 'var(--cf-danger-soft)',
+									borderColor: 'var(--cf-danger-border)',
+									color: 'var(--cf-danger)',
+								}}
 							>
-								Contáctanos
-							</a>
-						</p>
-					</div>
-				</main>
-			</form>
+								{submitError}
+							</div>
+						)}
+					</FormShell>
+				</form>
+			</IncorporationRulesProvider>
 		</FormProvider>
 	);
 }

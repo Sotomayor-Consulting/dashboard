@@ -3,6 +3,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 
 @custom-variant dark (&:is(.dark *));
 @plugin "flowbite/plugin";
@@ -418,4 +419,140 @@
   html {
     @apply font-sans;
   }
+}
+
+/* ============================================================
+   Client Form (Incorporation) — Design tokens
+   Scoped a `.client-form-shell` para no afectar el resto de la app.
+   Aplica el sistema visual del handoff:
+     · Geist + Geist Mono
+     · Paleta cálida (#FAFAF9, #EAE8E4)
+     · Acento verde calibrado (oklch 0.58 / 0.13 / 155)
+   ============================================================ */
+.client-form-shell {
+  /* Surfaces — warm neutrals */
+  --cf-bg-page: #fafaf9;
+  --cf-bg-card: #ffffff;
+  --cf-bg-subtle: #f5f5f4;
+  --cf-bg-rail: #fbfaf8;
+  --cf-bg-hover: #f5f5f4;
+
+  /* Lines */
+  --cf-line: #eae8e4;
+  --cf-line-soft: #f1efeb;
+  --cf-line-strong: #d6d3d1;
+
+  /* Text */
+  --cf-ink: #0c0a09;
+  --cf-ink-mute: #57534e;
+  --cf-ink-soft: #8b867f;
+  --cf-ink-faint: #b8b3ab;
+
+  /* Accent — green */
+  --cf-accent: oklch(0.58 0.13 155);
+  --cf-accent-soft: oklch(0.96 0.025 155);
+  --cf-accent-border: oklch(0.88 0.06 155);
+  --cf-accent-ink: oklch(0.4 0.11 155);
+
+  /* Status */
+  --cf-danger: #b91c1c;
+  --cf-danger-soft: #fef2f2;
+  --cf-danger-border: #fecaca;
+  --cf-warn: #92400e;
+  --cf-warn-soft: #fef7e6;
+
+  /* Radii */
+  --cf-r1: 6px;
+  --cf-r2: 10px;
+  --cf-r3: 14px;
+
+  /* Shadows */
+  --cf-shadow:
+    0 1px 0 rgba(15, 15, 15, 0.02),
+    0 1px 2px rgba(15, 15, 15, 0.04);
+  --cf-shadow-lg:
+    0 1px 0 rgba(15, 15, 15, 0.02),
+    0 8px 24px rgba(15, 15, 15, 0.06);
+  --cf-shadow-cta:
+    0 1px 0 rgba(0, 0, 0, 0.05),
+    0 4px 12px oklch(0.58 0.13 155 / 0.25);
+  --cf-shadow-active-card:
+    0 1px 0 rgba(0, 0, 0, 0.04),
+    0 4px 14px rgba(0, 0, 0, 0.04);
+
+  /* Fonts — Inter como estándar formal/corporativo para formularios */
+  --cf-font-sans:
+    'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+  --cf-font-mono: var(--cf-font-sans);
+
+  /* Aplicamos a la raíz del shell para que herede */
+  font-family: var(--cf-font-sans);
+  color: var(--cf-ink);
+  background: var(--cf-bg-page);
+}
+
+/* Dark mode counterpart — sigue el toggle global `.dark` */
+.dark .client-form-shell {
+  --cf-bg-page: #0c0a09;
+  --cf-bg-card: #161412;
+  --cf-bg-subtle: #1f1c19;
+  --cf-bg-rail: #1a1816;
+  --cf-bg-hover: #1f1c19;
+
+  --cf-line: #2a2622;
+  --cf-line-soft: #211e1b;
+  --cf-line-strong: #3a3530;
+
+  --cf-ink: #fafaf9;
+  --cf-ink-mute: #a8a29e;
+  --cf-ink-soft: #78716c;
+  --cf-ink-faint: #57534e;
+
+  /* Acento se mantiene — funciona en ambos modos */
+  --cf-accent-soft: oklch(0.32 0.06 155);
+  --cf-accent-border: oklch(0.42 0.09 155);
+  --cf-accent-ink: oklch(0.85 0.15 155);
+
+  --cf-danger-soft: oklch(0.25 0.08 25);
+  --cf-danger-border: oklch(0.4 0.12 25);
+  --cf-warn-soft: oklch(0.28 0.05 65);
+}
+
+/* Utilidades font-family que pueden aplicarse con clases tailwind.
+   Se usa la fuente sans (Geist) para un look formal/corporativo:
+   los kickers y labels conservan tracking/uppercase pero sin monospace. */
+.client-form-shell .cf-mono {
+  font-family: var(--cf-font-sans);
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ── Scroll minimalista del panel del formulario ──────────────
+   Barra delgada, sin flechas, con padding interno (scrollbar-gutter)
+   para que el contenido no salte al aparecer/desaparecer la barra.
+   El thumb es sutil y se intensifica al hacer hover. */
+.client-form-shell .cf-scroll {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--cf-line-strong) transparent; /* Firefox */
+}
+.client-form-shell .cf-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.client-form-shell .cf-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.client-form-shell .cf-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--cf-line-strong);
+  border-radius: 9999px;
+  border: 3px solid transparent; /* crea el “padding” alrededor del thumb */
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+.client-form-shell .cf-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--cf-ink-faint);
+}
+.client-form-shell .cf-scroll::-webkit-scrollbar-thumb:active {
+  background-color: var(--cf-ink-soft);
 }

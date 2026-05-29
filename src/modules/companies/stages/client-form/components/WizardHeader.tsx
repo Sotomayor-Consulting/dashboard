@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import LogoDark from '../../../../../icons/logo-sotomayor-consulting-black.svg';
+import LogoDark from '../../../../../icons/logo-sotomayor-consulting.svg';
 import LogoLight from '../../../../../icons/logo-sotomayor-consulting.svg';
 
 export function WizardHeader() {
@@ -29,7 +29,7 @@ export function WizardHeader() {
 					<img
 						src={isDark ? LogoDark.src : LogoLight.src}
 						alt="Logo"
-						className="h-12 w-auto object-contain"
+						className="w-aut h-auto"
 					/>
 					<span className="text-muted-foreground text-lg">—</span>
 					<div>
