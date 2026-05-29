@@ -2,6 +2,7 @@ import { Icon } from '@iconify/react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+import { SelectionCheckbox } from '@components/ui/SelectionCheckbox';
 import { cn } from '@components/utils';
 
 import type { AdminEmpresa } from '@modules/admin/lib/empresa-types';
@@ -13,13 +14,25 @@ interface Props {
 	empresas: AdminEmpresa[];
 	selectedId: string | null;
 	onSelect: (id: string) => void;
+	selectionMode: 'none' | 'some' | 'all';
+	onToggleAll: () => void;
+	isSelected: (id: string) => boolean;
+	onToggleRow: (id: string) => void;
 }
 
 /**
  * Tabla de empresas legales (entidades constituidas).
  * Columnas: Razón social, Tipo, Estado USA, EIN, Filing #, Fecha, Status, Owner.
  */
-export function EmpresasTable({ empresas, selectedId, onSelect }: Props) {
+export function EmpresasTable({
+	empresas,
+	selectedId,
+	onSelect,
+	selectionMode,
+	onToggleAll,
+	isSelected,
+	onToggleRow,
+}: Props) {
 	if (empresas.length === 0) {
 		return (
 			<EmptyState
@@ -35,7 +48,14 @@ export function EmpresasTable({ empresas, selectedId, onSelect }: Props) {
 			<table className="w-full text-sm">
 				<thead className="border-b border-gray-200 text-[10.5px] font-medium tracking-wider text-gray-500 uppercase dark:border-gray-800 dark:text-gray-400">
 					<tr>
-						<th className="px-7 py-3 text-left">Razón social</th>
+						<th className="w-10 px-7 py-3 text-left">
+							<SelectionCheckbox
+								mode="header"
+								selectionMode={selectionMode}
+								onToggle={onToggleAll}
+							/>
+						</th>
+						<th className="py-3 pr-4 text-left">Razón social</th>
 						<th className="py-3 pr-4 text-left">Tipo</th>
 						<th className="py-3 pr-4 text-left">Estado USA</th>
 						<th className="py-3 pr-4 text-left">EIN</th>
@@ -47,19 +67,27 @@ export function EmpresasTable({ empresas, selectedId, onSelect }: Props) {
 				</thead>
 				<tbody>
 					{empresas.map((e) => {
-						const isSelected = selectedId === e.id;
+						const isOpen = selectedId === e.id;
+						const rowSelected = isSelected(e.id);
 						return (
 							<tr
 								key={e.id}
 								onClick={() => onSelect(e.id)}
 								className={cn(
 									'group/row h-14 cursor-pointer border-b border-gray-100 transition-colors dark:border-gray-800/60',
-									isSelected
+									isOpen || rowSelected
 										? 'bg-gray-100 dark:bg-neutral-900'
 										: 'hover:bg-gray-50 dark:hover:bg-neutral-900/60',
 								)}
 							>
-								<td className="px-7">
+								<td className="px-7" onClick={(ev) => ev.stopPropagation()}>
+									<SelectionCheckbox
+										mode="row"
+										checked={rowSelected}
+										onToggle={() => onToggleRow(e.id)}
+									/>
+								</td>
+								<td className="pr-4">
 									<div className="flex items-center gap-2.5">
 										<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gray-100 dark:bg-neutral-800">
 											<Icon

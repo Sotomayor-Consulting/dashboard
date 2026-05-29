@@ -73,6 +73,17 @@ function EmpresasPageInner() {
 		setQueryParam('empresa', id);
 	};
 
+	// Selección por checkbox
+	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+	const isSelected = (id: string) => selectedIds.has(id);
+	const toggleRow = (id: string) =>
+		setSelectedIds((prev) => {
+			const next = new Set(prev);
+			if (next.has(id)) next.delete(id);
+			else next.add(id);
+			return next;
+		});
+
 	const { data: empresas, isLoading } = useQuery({
 		queryKey: ['admin', 'empresas-legal'],
 		queryFn: fetchEmpresas,
@@ -100,12 +111,29 @@ function EmpresasPageInner() {
 	const [pageSize, setPageSize] = useState(20);
 	useEffect(() => {
 		setPage(1);
+		setSelectedIds(new Set());
 	}, [filter, debouncedSearch, pageSize]);
 
 	const paginated = useMemo(() => {
 		const start = (page - 1) * pageSize;
 		return filtered.slice(start, start + pageSize);
 	}, [filtered, page, pageSize]);
+
+	const visibleIds = useMemo(() => paginated.map((e) => e.id), [paginated]);
+	const selectionMode: 'none' | 'some' | 'all' = useMemo(() => {
+		if (visibleIds.length === 0) return 'none';
+		const count = visibleIds.filter((id) => selectedIds.has(id)).length;
+		if (count === 0) return 'none';
+		return count === visibleIds.length ? 'all' : 'some';
+	}, [visibleIds, selectedIds]);
+	const toggleAll = () =>
+		setSelectedIds((prev) => {
+			const allSelected = visibleIds.length > 0 && visibleIds.every((id) => prev.has(id));
+			const next = new Set(prev);
+			if (allSelected) visibleIds.forEach((id) => next.delete(id));
+			else visibleIds.forEach((id) => next.add(id));
+			return next;
+		});
 
 	const counts = useMemo(() => {
 		if (!empresas) return { total: 0, active: 0, draft: 0 };
@@ -186,6 +214,10 @@ function EmpresasPageInner() {
 					empresas={paginated}
 					selectedId={selectedId}
 					onSelect={setSelectedId}
+					selectionMode={selectionMode}
+					onToggleAll={toggleAll}
+					isSelected={isSelected}
+					onToggleRow={toggleRow}
 				/>
 			)}
 
