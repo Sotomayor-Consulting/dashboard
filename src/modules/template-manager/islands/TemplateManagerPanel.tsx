@@ -1,27 +1,10 @@
-import * as React from 'react';
-import { toast } from 'sonner';
-import { Icon } from '@iconify/react';
+import '@shared/iconify-ri'; // Registra el set `ri` (Remix Icons) para esta isla.
 
-import { Badge } from '@components/ui/Badge';
+import * as React from 'react';
+import { Icon } from '@iconify/react';
+import { toast } from 'sonner';
+
 import { Button } from '@components/ui/Button';
-import { Input } from '@components/ui/Input';
-import { Field, FieldGroup, FieldLabel } from '@components/ui/Field';
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@components/ui/Select';
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@components/ui/Table';
 import {
 	Dialog,
 	DialogContent,
@@ -29,177 +12,189 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@components/ui/Dialog';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@components/ui/Tooltip';
 
-import type { TemplateWithDocument, TemplateType } from '@domains/templates/types';
+import type { TemplateWithDocument } from '@domains/templates/types';
+import { getEntityLabel, type EntityType } from '@domains/templates/entity-registry';
+
+import { CreateTemplateDialog } from '../CreateTemplateDialog';
+import { EditTemplateDialog } from '../EditTemplateDialog';
+import { TablePagination } from '../TablePagination';
+import { TemplateDetailSheet } from '../TemplateDetailSheet';
 import {
-	getAllEntityTypes,
-	getEntityLabel,
-	type EntityType,
-} from '@domains/templates/entity-registry';
-
+	TemplatesTable,
+	type TemplatesSortDir,
+	type TemplatesSortKey,
+} from '../TemplatesTable';
+import {
+	FILTERS,
+	TemplatesToolbar,
+	type ColumnId,
+	type TemplateFilter,
+} from '../TemplatesToolbar';
+import { UploadTemplateDialog } from '../UploadTemplateDialog';
 import TemplateMappingEditor from './TemplateMappingEditor';
 
 interface Props {
 	data: TemplateWithDocument[];
 }
 
-const PAGE_SIZE = 10;
+const DEFAULT_VISIBLE: Record<ColumnId, boolean> = {
+	category: true,
+	entity: true,
+	file: true,
+	status: true,
+	actions: true,
+};
 
-const CATEGORY_OPTIONS = [
-	{ value: 'incorporation', label: 'Incorporación' },
-	{ value: 'contract', label: 'Contrato' },
-	{ value: 'tax', label: 'Impuestos' },
-	{ value: 'general', label: 'General' },
-] as const;
+const PAGE_SIZE = 20;
 
-function fmtBytes(bytes?: number | null) {
-	if (!bytes || bytes <= 0) return '—';
-	const units = ['B', 'KB', 'MB'];
-	let i = 0;
-	let size = bytes;
-	while (size >= 1024 && i < units.length - 1) {
-		size /= 1024;
-		i++;
-	}
-	return `${size.toFixed(1)} ${units[i]}`;
+function matchSearch(t: TemplateWithDocument, q: string): boolean {
+	if (!q) return true;
+	const haystack = [
+		t.name,
+		t.description ?? '',
+		t.category ?? '',
+		t.related_to_type ?? '',
+		t.related_to_type ? getEntityLabel(t.related_to_type as EntityType) : '',
+		t.template_type,
+	]
+		.join(' ')
+		.toLowerCase();
+	return haystack.includes(q);
 }
-
-const typeBadgeClass: Record<string, string> = {
-	word: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-	pdf: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-};
-
-const catBadgeClass: Record<string, string> = {
-	incorporation: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-	contract: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-	tax: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-	general: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
-};
-
-interface CreateDraft {
-	name: string;
-	description: string;
-	template_type: TemplateType;
-	category: string;
-	related_to_type: string;
-	source_url: string;
-}
-
-const EMPTY_DRAFT: CreateDraft = {
-	name: '',
-	description: '',
-	template_type: 'pdf',
-	category: '',
-	related_to_type: '',
-	source_url: '',
-};
 
 export default function TemplateManagerPanel({ data }: Props) {
-	const [query, setQuery] = React.useState('');
-	const [page, setPage] = React.useState(1);
 	const [templates, setTemplates] = React.useState(data);
-	const [openCreate, setOpenCreate] = React.useState(false);
-	const [openUpload, setOpenUpload] = React.useState<{ id: string; name: string; type: TemplateType } | null>(null);
-	const [openDelete, setOpenDelete] = React.useState<{ id: string; name: string } | null>(null);
-	const [openMapping, setOpenMapping] = React.useState<TemplateWithDocument | null>(null);
-	const [draft, setDraft] = React.useState<CreateDraft>(EMPTY_DRAFT);
-	const [uploadFile, setUploadFile] = React.useState<File | null>(null);
-	const [submitting, setSubmitting] = React.useState(false);
+	const [filter, setFilter] = React.useState<TemplateFilter>('todas');
+	const [search, setSearch] = React.useState('');
+	const [visibleColumns, setVisibleColumns] = React.useState(DEFAULT_VISIBLE);
+	const toggleColumn = (id: ColumnId) =>
+		setVisibleColumns((prev) => ({ ...prev, [id]: !prev[id] }));
 
-	const filtered = React.useMemo(() => {
-		const q = query.trim().toLowerCase();
-		if (!q) return templates;
-		return templates.filter((t) =>
-			[t.name, t.category, t.template_type, t.related_to_type, t.description]
-				.filter(Boolean)
-				.some((v) => String(v).toLowerCase().includes(q)),
+	const [sort, setSort] = React.useState<{ key: TemplatesSortKey; dir: TemplatesSortDir }>({
+		key: 'name',
+		dir: 'asc',
+	});
+	const onSort = (key: TemplatesSortKey) => {
+		setSort((prev) =>
+			prev.key === key
+				? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+				: { key, dir: 'asc' },
 		);
-	}, [templates, query]);
+	};
 
-	const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-	const currentPage = Math.min(page, totalPages);
-	const start = (currentPage - 1) * PAGE_SIZE;
-	const rows = filtered.slice(start, start + PAGE_SIZE);
-
+	const [page, setPage] = React.useState(1);
+	const [pageSize, setPageSize] = React.useState(PAGE_SIZE);
 	React.useEffect(() => {
 		setPage(1);
-	}, [query]);
+		setSelectedIds(new Set());
+	}, [filter, search, pageSize]);
 
-	React.useEffect(() => {
-		if (!openUpload) setUploadFile(null);
-	}, [openUpload]);
+	const [openCreate, setOpenCreate] = React.useState(false);
+	const [openDetail, setOpenDetail] = React.useState<TemplateWithDocument | null>(null);
+	const [openEdit, setOpenEdit] = React.useState<TemplateWithDocument | null>(null);
+	const [openUpload, setOpenUpload] = React.useState<TemplateWithDocument | null>(null);
+	const [openMapping, setOpenMapping] = React.useState<TemplateWithDocument | null>(null);
+	const [openConfirm, setOpenConfirm] = React.useState<{
+		template: TemplateWithDocument;
+		mode: 'soft' | 'hard';
+	} | null>(null);
 
-	const updateDraft = <K extends keyof CreateDraft>(key: K, value: CreateDraft[K]) =>
-		setDraft((prev) => ({ ...prev, [key]: value }));
+	/** Actualiza la lista y, si el detalle abierto es la misma plantilla, lo sincroniza. */
+	const applyUpdate = (updated: TemplateWithDocument) => {
+		setTemplates((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+		setOpenDetail((prev) => (prev && prev.id === updated.id ? updated : prev));
+	};
 
-	async function handleCreate(event: React.FormEvent<HTMLFormElement>) {
-		event.preventDefault();
-		if (!draft.name.trim()) {
-			toast.error('El nombre es obligatorio');
-			return;
-		}
+	// Selección por checkbox
+	const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+	const isSelected = (id: string) => selectedIds.has(id);
+	const toggleRow = (id: string) =>
+		setSelectedIds((prev) => {
+			const next = new Set(prev);
+			if (next.has(id)) next.delete(id);
+			else next.add(id);
+			return next;
+		});
 
-		const body: Record<string, unknown> = {
-			name: draft.name.trim(),
-			template_type: draft.template_type,
-		};
-		if (draft.description) body.description = draft.description;
-		if (draft.category) body.category = draft.category;
-		if (draft.related_to_type) body.related_to_type = draft.related_to_type;
-		if (draft.source_url) body.source_url = draft.source_url;
+	const filtered = React.useMemo(() => {
+		const def = FILTERS.find((f) => f.id === filter);
+		const q = search.trim().toLowerCase();
+		return templates.filter((t) => (def?.match(t) ?? true) && matchSearch(t, q));
+	}, [templates, filter, search]);
 
-		setSubmitting(true);
-		const toastId = toast.loading('Creando plantilla...');
-		try {
-			const res = await fetch('/api/templates', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(body),
-			});
-			const json = await res.json();
-			if (!res.ok) throw new Error(json.error ?? 'Error al crear');
-			setTemplates((prev) => [json.data, ...prev]);
-			toast.success('Plantilla creada', { id: toastId });
-			setOpenCreate(false);
-			setDraft(EMPTY_DRAFT);
-		} catch (err) {
-			toast.error(err instanceof Error ? err.message : 'Error inesperado', { id: toastId });
-		} finally {
-			setSubmitting(false);
-		}
-	}
-
-	async function handleUpload() {
-		if (!openUpload) return;
-		if (!uploadFile) {
-			toast.error('Selecciona un archivo');
-			return;
-		}
-
-		setSubmitting(true);
-		const toastId = toast.loading('Subiendo archivo...');
-		try {
-			const fd = new FormData();
-			fd.append('file', uploadFile);
-			const res = await fetch(`/api/templates/${openUpload.id}/upload`, { method: 'POST', body: fd });
-			const json = await res.json();
-			if (!res.ok) throw new Error(json.error ?? 'Error al subir');
-			toast.success('Archivo subido', { id: toastId });
-			if (json.data) {
-				setTemplates((prev) => prev.map((t) => (t.id === openUpload.id ? json.data : t)));
+	const sorted = React.useMemo(() => {
+		const list = [...filtered];
+		const cmp = (a: TemplateWithDocument, b: TemplateWithDocument): number => {
+			let av: string | number = '';
+			let bv: string | number = '';
+			switch (sort.key) {
+				case 'name':
+					av = a.name.toLowerCase();
+					bv = b.name.toLowerCase();
+					break;
+				case 'type':
+					av = a.template_type;
+					bv = b.template_type;
+					break;
+				case 'category':
+					av = (a.category ?? '').toLowerCase();
+					bv = (b.category ?? '').toLowerCase();
+					break;
+				case 'entity':
+					av = (a.related_to_type ?? '').toLowerCase();
+					bv = (b.related_to_type ?? '').toLowerCase();
+					break;
+				case 'status':
+					av = a.deleted_at ? 2 : a.is_active ? 0 : 1;
+					bv = b.deleted_at ? 2 : b.is_active ? 0 : 1;
+					break;
+				case 'created':
+					av = Date.parse(a.created_at);
+					bv = Date.parse(b.created_at);
+					break;
 			}
-			setOpenUpload(null);
-		} catch (err) {
-			toast.error(err instanceof Error ? err.message : 'Error inesperado', { id: toastId });
-		} finally {
-			setSubmitting(false);
-		}
-	}
+			if (av < bv) return sort.dir === 'asc' ? -1 : 1;
+			if (av > bv) return sort.dir === 'asc' ? 1 : -1;
+			return 0;
+		};
+		return list.sort(cmp);
+	}, [filtered, sort]);
 
-	async function handleSoftDelete(id: string) {
+	const paginated = React.useMemo(() => {
+		const start = (page - 1) * pageSize;
+		return sorted.slice(start, start + pageSize);
+	}, [sorted, page, pageSize]);
+
+	const visibleIds = React.useMemo(() => paginated.map((t) => t.id), [paginated]);
+	const selectionMode: 'none' | 'some' | 'all' = React.useMemo(() => {
+		if (visibleIds.length === 0) return 'none';
+		const count = visibleIds.filter((id) => selectedIds.has(id)).length;
+		if (count === 0) return 'none';
+		return count === visibleIds.length ? 'all' : 'some';
+	}, [visibleIds, selectedIds]);
+	const toggleAll = () =>
+		setSelectedIds((prev) => {
+			const allSelected = visibleIds.length > 0 && visibleIds.every((id) => prev.has(id));
+			const next = new Set(prev);
+			if (allSelected) visibleIds.forEach((id) => next.delete(id));
+			else visibleIds.forEach((id) => next.add(id));
+			return next;
+		});
+
+	const totals = React.useMemo(
+		() => ({
+			total: templates.filter((t) => !t.deleted_at).length,
+			pdf: templates.filter((t) => !t.deleted_at && t.template_type === 'pdf').length,
+			word: templates.filter((t) => !t.deleted_at && t.template_type === 'word').length,
+			deleted: templates.filter((t) => !!t.deleted_at).length,
+		}),
+		[templates],
+	);
+
+	// ── Mutations ───────────────────────────────────────────────────────────
+	const handleSoftDelete = async (id: string) => {
 		const toastId = toast.loading('Eliminando...');
 		try {
 			const res = await fetch(`/api/templates/${id}`, { method: 'DELETE' });
@@ -210,435 +205,285 @@ export default function TemplateManagerPanel({ data }: Props) {
 					t.id === id ? { ...t, is_active: false, deleted_at: new Date().toISOString() } : t,
 				),
 			);
+			setOpenDetail((prev) =>
+				prev && prev.id === id
+					? { ...prev, is_active: false, deleted_at: new Date().toISOString() }
+					: prev,
+			);
 			toast.success('Plantilla enviada a papelera', { id: toastId });
-			setOpenDelete(null);
+			setOpenConfirm(null);
 		} catch (err) {
 			toast.error(err instanceof Error ? err.message : 'Error', { id: toastId });
 		}
-	}
+	};
 
-	async function handlePermanentDelete(id: string) {
+	const handleHardDelete = async (id: string) => {
 		const toastId = toast.loading('Eliminando permanentemente...');
 		try {
 			const res = await fetch(`/api/templates/${id}?permanent=true`, { method: 'DELETE' });
 			const json = await res.json();
 			if (!res.ok) throw new Error(json.error ?? 'Error');
 			setTemplates((prev) => prev.filter((t) => t.id !== id));
+			setOpenDetail((prev) => (prev && prev.id === id ? null : prev));
 			toast.success('Plantilla eliminada permanentemente', { id: toastId });
-			setOpenDelete(null);
+			setOpenConfirm(null);
 		} catch (err) {
 			toast.error(err instanceof Error ? err.message : 'Error', { id: toastId });
 		}
-	}
+	};
 
-	async function handleRestore(id: string) {
+	const handleRestore = async (t: TemplateWithDocument) => {
 		const toastId = toast.loading('Restaurando...');
 		try {
-			const res = await fetch(`/api/templates/${id}/restore`, { method: 'POST' });
+			const res = await fetch(`/api/templates/${t.id}/restore`, { method: 'POST' });
 			const json = await res.json();
 			if (!res.ok) throw new Error(json.error ?? 'Error');
 			setTemplates((prev) =>
-				prev.map((t) => (t.id === id ? { ...t, is_active: true, deleted_at: null } : t)),
+				prev.map((it) => (it.id === t.id ? { ...it, is_active: true, deleted_at: null } : it)),
+			);
+			setOpenDetail((prev) =>
+				prev && prev.id === t.id ? { ...prev, is_active: true, deleted_at: null } : prev,
 			);
 			toast.success('Plantilla restaurada', { id: toastId });
 		} catch (err) {
 			toast.error(err instanceof Error ? err.message : 'Error', { id: toastId });
 		}
-	}
+	};
+
+	const handleDownload = async (t: TemplateWithDocument) => {
+		const toastId = toast.loading('Preparando descarga...');
+		try {
+			const res = await fetch(`/api/templates/${t.id}/download`);
+			const json = await res.json();
+			if (!res.ok || !json.url) throw new Error(json.error ?? 'No se pudo descargar');
+			toast.dismiss(toastId);
+			window.open(json.url as string, '_blank', 'noopener');
+		} catch (err) {
+			toast.error(err instanceof Error ? err.message : 'Error', { id: toastId });
+		}
+	};
+
+	const handleDuplicate = async (t: TemplateWithDocument) => {
+		const toastId = toast.loading('Duplicando...');
+		try {
+			const body: Record<string, unknown> = {
+				name: `${t.name} (copia)`,
+				template_type: t.template_type,
+			};
+			if (t.description) body.description = t.description;
+			if (t.category) body.category = t.category;
+			if (t.related_to_type) body.related_to_type = t.related_to_type;
+			if (t.transformer_id) body.transformer_id = t.transformer_id;
+			if (t.source_url) body.source_url = t.source_url;
+			if (t.field_mapping && Object.keys(t.field_mapping).length > 0) {
+				body.field_mapping = t.field_mapping;
+			}
+			if (t.field_definitions && t.field_definitions.length > 0) {
+				body.field_definitions = t.field_definitions;
+			}
+
+			const res = await fetch('/api/templates', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body),
+			});
+			const json = await res.json();
+			if (!res.ok) throw new Error(json.error ?? 'Error al duplicar');
+			setTemplates((prev) => [json.data as TemplateWithDocument, ...prev]);
+			toast.success('Plantilla duplicada (sin archivo, súbelo aparte)', { id: toastId });
+		} catch (err) {
+			toast.error(err instanceof Error ? err.message : 'Error', { id: toastId });
+		}
+	};
+
+	const handleCopyId = (t: TemplateWithDocument) => {
+		if (typeof navigator !== 'undefined' && navigator.clipboard) {
+			void navigator.clipboard.writeText(t.id);
+			toast.success('ID copiado al portapapeles');
+		}
+	};
+
+	// Click en la fila → abre la vista dedicada de la plantilla.
+	const handleRowClick = (t: TemplateWithDocument) => setOpenDetail(t);
 
 	return (
-		<TooltipProvider>
-			<div className="space-y-6 p-4 lg:p-6">
-				<header className="flex flex-wrap items-start justify-between gap-4">
-					<div>
-						<h1 className="text-2xl font-semibold tracking-tight">Plantillas</h1>
-						<p className="text-muted-foreground text-sm">
-							Gestiona las plantillas de documentos PDF y Word para generar entregables.
-						</p>
-					</div>
-					<Dialog open={openCreate} onOpenChange={setOpenCreate}>
-						<DialogTrigger
-							render={
-								<Button>
-									<Icon icon="ri:add-line" className="h-4 w-4" />
-									Nueva plantilla
-								</Button>
-							}
-						/>
-						<DialogContent className="sm:max-w-lg">
-							<form onSubmit={handleCreate}>
-								<DialogHeader>
-									<DialogTitle>Nueva plantilla</DialogTitle>
-									<DialogDescription>
-										Crea la metadata de la plantilla. El archivo se sube en un segundo paso.
-									</DialogDescription>
-								</DialogHeader>
-								<FieldGroup className="grid gap-4 py-4 sm:grid-cols-2">
-									<Field className="sm:col-span-2">
-										<FieldLabel htmlFor="tpl-name">Nombre *</FieldLabel>
-										<Input
-											id="tpl-name"
-											value={draft.name}
-											onChange={(e) => updateDraft('name', e.target.value)}
-											required
-											placeholder="ej. Operating Agreement"
-										/>
-									</Field>
-
-									<Field>
-										<FieldLabel htmlFor="tpl-type">Tipo *</FieldLabel>
-										<Select
-											value={draft.template_type}
-											onValueChange={(v) => updateDraft('template_type', (v ?? 'pdf') as TemplateType)}
-										>
-											<SelectTrigger id="tpl-type" className="w-full">
-												<SelectValue placeholder="Selecciona el tipo" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectGroup>
-													<SelectItem value="pdf">PDF (AcroForm)</SelectItem>
-													<SelectItem value="word">Word (Carbone)</SelectItem>
-												</SelectGroup>
-											</SelectContent>
-										</Select>
-									</Field>
-
-									<Field>
-										<FieldLabel htmlFor="tpl-cat">Categoría</FieldLabel>
-										<Select
-											value={draft.category || undefined}
-											onValueChange={(v) => updateDraft('category', v ?? '')}
-										>
-											<SelectTrigger id="tpl-cat" className="w-full">
-												<SelectValue placeholder="— (ninguna)" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectGroup>
-													{CATEGORY_OPTIONS.map((opt) => (
-														<SelectItem key={opt.value} value={opt.value}>
-															{opt.label}
-														</SelectItem>
-													))}
-												</SelectGroup>
-											</SelectContent>
-										</Select>
-									</Field>
-
-									<Field className="sm:col-span-2">
-										<FieldLabel htmlFor="tpl-desc">Descripción</FieldLabel>
-										<Input
-											id="tpl-desc"
-											value={draft.description}
-											onChange={(e) => updateDraft('description', e.target.value)}
-											placeholder="Descripción opcional"
-										/>
-									</Field>
-
-									<Field>
-										<FieldLabel htmlFor="tpl-entity">Entidad asociada</FieldLabel>
-										<Select
-											value={draft.related_to_type || undefined}
-											onValueChange={(v) => updateDraft('related_to_type', v ?? '')}
-										>
-											<SelectTrigger id="tpl-entity" className="w-full">
-												<SelectValue placeholder="— (ninguna)" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectGroup>
-													{getAllEntityTypes().map((et) => (
-														<SelectItem key={et} value={et}>
-															{getEntityLabel(et)}
-														</SelectItem>
-													))}
-												</SelectGroup>
-											</SelectContent>
-										</Select>
-									</Field>
-
-									<Field>
-										<FieldLabel htmlFor="tpl-url">URL externa</FieldLabel>
-										<Input
-											id="tpl-url"
-											value={draft.source_url}
-											onChange={(e) => updateDraft('source_url', e.target.value)}
-											placeholder="https://irs.gov/ss-4.pdf"
-										/>
-									</Field>
-								</FieldGroup>
-								<DialogFooter showCloseButton>
-									<Button type="submit" disabled={submitting}>
-										{submitting ? 'Creando…' : 'Crear plantilla'}
-									</Button>
-								</DialogFooter>
-							</form>
-						</DialogContent>
-					</Dialog>
-				</header>
-
-				<div className="relative w-full max-w-sm">
-					<Icon
-						icon="ri:search-line"
-						className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
-					/>
-					<Input
-						placeholder="Buscar plantilla..."
-						value={query}
-						onChange={(e) => setQuery(e.target.value)}
-						className="pl-9"
-					/>
+		<div className="flex min-h-full flex-col">
+			{/* Header */}
+			<header className="flex items-end justify-between gap-4 border-b border-gray-200 px-7 pt-6 pb-4 dark:border-gray-800">
+				<div>
+					<p className="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
+						Ajustes
+					</p>
+					<h1 className="mt-1 text-[22px] font-semibold text-gray-900 dark:text-gray-100">
+						Plantillas
+					</h1>
+					<p className="mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">
+						{totals.total} plantillas activas · {totals.pdf} PDF · {totals.word} Word · {totals.deleted} en papelera
+					</p>
 				</div>
+				<Button size="sm" className="gap-1.5" onClick={() => setOpenCreate(true)}>
+					<Icon icon="ri:add-line" className="h-4 w-4" />
+					Nueva plantilla
+				</Button>
+			</header>
 
-				<div className="overflow-hidden rounded-xl border">
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>Nombre</TableHead>
-								<TableHead>Tipo</TableHead>
-								<TableHead>Categoría</TableHead>
-								<TableHead>Entidad</TableHead>
-								<TableHead>Archivo</TableHead>
-								<TableHead>Estado</TableHead>
-								<TableHead className="text-right">Acciones</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{rows.length === 0 && (
-								<TableRow>
-									<TableCell colSpan={7} className="text-muted-foreground py-8 text-center">
-										{query ? 'Sin resultados' : 'No hay plantillas. Crea la primera.'}
-									</TableCell>
-								</TableRow>
-							)}
-							{rows.map((t) => {
-								const isDeleted = !!t.deleted_at;
-								const isInactive = !t.is_active && !isDeleted;
-								const canMap = !!(t.document || t.source_url);
-								return (
-									<TableRow key={t.id} className={isDeleted ? 'opacity-50' : ''}>
-										<TableCell className="font-medium">{t.name}</TableCell>
-										<TableCell>
-											<Badge className={typeBadgeClass[t.template_type]}>
-												{t.template_type}
-											</Badge>
-										</TableCell>
-										<TableCell>
-											{t.category ? (
-												<Badge className={catBadgeClass[t.category] ?? ''}>{t.category}</Badge>
-											) : (
-												<span className="text-muted-foreground">—</span>
-											)}
-										</TableCell>
-										<TableCell className="text-muted-foreground text-xs">
-											{t.related_to_type ? getEntityLabel(t.related_to_type as EntityType) : '—'}
-										</TableCell>
-										<TableCell className="text-muted-foreground text-xs">
-											{t.document ? (
-												<span title={t.document.file_name}>
-													{fmtBytes(t.document.file_size_bytes)}
-												</span>
-											) : t.source_url ? (
-												<Badge variant="outline" className="gap-1">
-													<Icon icon="ri:link" className="h-3 w-3" />
-													URL
-												</Badge>
-											) : (
-												<span className="text-muted-foreground">—</span>
-											)}
-										</TableCell>
-										<TableCell>
-											{isDeleted ? (
-												<Badge variant="destructive">Eliminada</Badge>
-											) : isInactive ? (
-												<Badge variant="secondary">Inactiva</Badge>
-											) : (
-												<Badge variant="default">Activa</Badge>
-											)}
-										</TableCell>
-										<TableCell className="text-right">
-											<div className="flex items-center justify-end gap-1">
-												{isDeleted ? (
-													<>
-														<Button
-															size="sm"
-															variant="outline"
-															onClick={() => handleRestore(t.id)}
-														>
-															<Icon icon="ri:arrow-go-back-line" className="h-4 w-4" />
-															Restaurar
-														</Button>
-														<Button
-															size="sm"
-															variant="destructive"
-															onClick={() => setOpenDelete({ id: t.id, name: t.name })}
-														>
-															<Icon icon="ri:delete-bin-line" className="h-4 w-4" />
-															Eliminar
-														</Button>
-													</>
-												) : (
-													<>
-														<Button
-															size="sm"
-															variant="outline"
-															onClick={() => setOpenUpload({ id: t.id, name: t.name, type: t.template_type })}
-														>
-															<Icon icon="ri:upload-2-line" className="h-4 w-4" />
-															Subir
-														</Button>
-														{t.template_type === 'pdf' && (
-															<Tooltip>
-																<TooltipTrigger
-																	render={
-																		<Button
-																			size="sm"
-																			variant="outline"
-																			disabled={!canMap}
-																			onClick={() => canMap && setOpenMapping(t)}
-																		>
-																			<Icon icon="ri:links-line" className="h-4 w-4" />
-																			Mapear
-																		</Button>
-																	}
-																/>
-																<TooltipContent>
-																	{canMap
-																		? 'Mapear campos del PDF a datos'
-																		: 'Sube primero el PDF para mapear campos'}
-																</TooltipContent>
-															</Tooltip>
-														)}
-														<Button
-															size="sm"
-															variant="outline"
-															onClick={() => setOpenDelete({ id: t.id, name: t.name })}
-														>
-															<Icon icon="ri:delete-bin-line" className="h-4 w-4" />
-															Desactivar
-														</Button>
-													</>
-												)}
-											</div>
-										</TableCell>
-									</TableRow>
-								);
-							})}
-						</TableBody>
-					</Table>
-				</div>
+			<TemplatesToolbar
+				templates={templates}
+				activeFilter={filter}
+				onFilterChange={setFilter}
+				search={search}
+				onSearchChange={setSearch}
+				visibleColumns={visibleColumns}
+				onToggleColumn={toggleColumn}
+			/>
 
-				{totalPages > 1 && (
-					<div className="flex items-center justify-center gap-2">
-						<Button
-							size="sm"
-							variant="outline"
-							disabled={currentPage <= 1}
-							onClick={() => setPage((p) => p - 1)}
-						>
-							<Icon icon="ri:arrow-left-s-line" className="h-4 w-4" />
-							Anterior
-						</Button>
-						<span className="text-muted-foreground text-sm">
-							{currentPage} / {totalPages}
-						</span>
-						<Button
-							size="sm"
-							variant="outline"
-							disabled={currentPage >= totalPages}
-							onClick={() => setPage((p) => p + 1)}
-						>
-							Siguiente
-							<Icon icon="ri:arrow-right-s-line" className="h-4 w-4" />
-						</Button>
-					</div>
-				)}
+			<TemplatesTable
+				templates={paginated}
+				visibleColumns={visibleColumns}
+				sortKey={sort.key}
+				sortDir={sort.dir}
+				onSort={onSort}
+				onRowClick={handleRowClick}
+				onView={(t) => setOpenDetail(t)}
+				onEdit={(t) => setOpenEdit(t)}
+				onUpload={(t) => setOpenUpload(t)}
+				onMap={(t) => setOpenMapping(t)}
+				onDownload={handleDownload}
+				onDuplicate={handleDuplicate}
+				onCopyId={handleCopyId}
+				onSoftDelete={(t) => setOpenConfirm({ template: t, mode: 'soft' })}
+				onRestore={handleRestore}
+				onHardDelete={(t) => setOpenConfirm({ template: t, mode: 'hard' })}
+				selectionMode={selectionMode}
+				onToggleAll={toggleAll}
+				isSelected={isSelected}
+				onToggleRow={toggleRow}
+				emptyTitle={search || filter !== 'todas' ? 'Sin resultados' : 'No hay plantillas'}
+				emptyDescription={
+					search || filter !== 'todas'
+						? 'Ajusta los filtros o la búsqueda para encontrar plantillas.'
+						: 'Crea la primera plantilla para empezar a generar documentos.'
+				}
+				{...(!search && filter === 'todas'
+					? {
+							emptyAction: {
+								label: 'Nueva plantilla',
+								icon: 'ri:add-line',
+								onClick: () => setOpenCreate(true),
+							},
+						}
+					: {})}
+			/>
 
-				{/* Upload dialog */}
-				<Dialog
-					open={!!openUpload}
+			{sorted.length > 0 && (
+				<TablePagination
+					totalItems={sorted.length}
+					page={page}
+					pageSize={pageSize}
+					onPageChange={setPage}
+					onPageSizeChange={setPageSize}
+				/>
+			)}
+
+			{/* Dialogs */}
+			<CreateTemplateDialog
+				open={openCreate}
+				onOpenChange={setOpenCreate}
+				onCreated={(t) => setTemplates((prev) => [t, ...prev])}
+			/>
+
+			<EditTemplateDialog
+				template={openEdit}
+				onOpenChange={(o) => {
+					if (!o) setOpenEdit(null);
+				}}
+				onSaved={(updated) => {
+					applyUpdate(updated);
+					setOpenEdit(null);
+				}}
+			/>
+
+			<UploadTemplateDialog
+				template={openUpload}
+				onOpenChange={(o) => {
+					if (!o) setOpenUpload(null);
+				}}
+				onUploaded={(updated) => applyUpdate(updated)}
+			/>
+
+			{openMapping && (
+				<TemplateMappingEditor
+					template={openMapping}
+					open={!!openMapping}
 					onOpenChange={(o) => {
-						if (!o) setOpenUpload(null);
+						if (!o) setOpenMapping(null);
 					}}
-				>
-					<DialogContent className="sm:max-w-md">
-						<DialogHeader>
-							<DialogTitle>Subir archivo</DialogTitle>
-							<DialogDescription>
-								{openUpload ? `Selecciona el archivo para "${openUpload.name}".` : null}
-							</DialogDescription>
-						</DialogHeader>
-						<FieldGroup className="py-4">
-							<Field>
-								<FieldLabel htmlFor="upload-file">
-									Archivo {openUpload?.type === 'pdf' ? 'PDF' : 'Word (.docx)'}
-								</FieldLabel>
-								<Input
-									id="upload-file"
-									type="file"
-									accept={openUpload?.type === 'pdf' ? '.pdf' : '.docx'}
-									onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
-								/>
-							</Field>
-						</FieldGroup>
-						<DialogFooter showCloseButton>
-							<Button onClick={handleUpload} disabled={submitting || !uploadFile}>
-								{submitting ? 'Subiendo…' : 'Subir'}
-							</Button>
-						</DialogFooter>
-					</DialogContent>
-				</Dialog>
+					onSaved={(updated) => {
+						applyUpdate(updated);
+						setOpenMapping(null);
+					}}
+				/>
+			)}
 
-				{/* Delete confirmation dialog */}
-				<Dialog
-					open={!!openDelete}
-					onOpenChange={(o) => {
-						if (!o) setOpenDelete(null);
-					}}
-				>
-					<DialogContent className="sm:max-w-md">
-						<DialogHeader>
-							<DialogTitle>Confirmar eliminación</DialogTitle>
-							<DialogDescription>
-								{openDelete ? (
+			<TemplateDetailSheet
+				template={openDetail}
+				onOpenChange={(o) => {
+					if (!o) setOpenDetail(null);
+				}}
+				onEdit={(t) => setOpenEdit(t)}
+				onMap={(t) => setOpenMapping(t)}
+				onUpload={(t) => setOpenUpload(t)}
+				onDownload={handleDownload}
+				onArchive={(t) => setOpenConfirm({ template: t, mode: 'soft' })}
+				onRestore={handleRestore}
+			/>
+
+			{/* Confirm delete dialog */}
+			<Dialog
+				open={!!openConfirm}
+				onOpenChange={(o) => {
+					if (!o) setOpenConfirm(null);
+				}}
+			>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle>
+							{openConfirm?.mode === 'hard' ? 'Eliminar definitivamente' : 'Enviar a papelera'}
+						</DialogTitle>
+						<DialogDescription>
+							{openConfirm ? (
+								openConfirm.mode === 'hard' ? (
 									<>
-										¿Qué deseas hacer con <strong>{openDelete.name}</strong>?
+										¿Eliminar permanentemente <strong>{openConfirm.template.name}</strong>? Esta
+										acción no se puede deshacer y borrará también el archivo asociado.
 									</>
-								) : null}
-							</DialogDescription>
-						</DialogHeader>
-						<div className="flex flex-col gap-3 py-2">
-							<Button
-								variant="secondary"
-								onClick={() => openDelete && handleSoftDelete(openDelete.id)}
-							>
-								<Icon icon="ri:archive-line" className="h-4 w-4" />
-								Enviar a papelera
-							</Button>
-							<Button
-								variant="destructive"
-								onClick={() => openDelete && handlePermanentDelete(openDelete.id)}
-							>
-								<Icon icon="ri:delete-bin-line" className="h-4 w-4" />
-								Eliminar permanentemente
-							</Button>
-						</div>
-						<DialogFooter showCloseButton />
-					</DialogContent>
-				</Dialog>
-
-				{openMapping && (
-					<TemplateMappingEditor
-						template={openMapping}
-						open={!!openMapping}
-						onOpenChange={(o) => {
-							if (!o) setOpenMapping(null);
-						}}
-						onSaved={(updated) => {
-							setTemplates((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-							setOpenMapping(null);
-						}}
-					/>
-				)}
-			</div>
-		</TooltipProvider>
+								) : (
+									<>
+										¿Enviar <strong>{openConfirm.template.name}</strong> a la papelera? Podrás
+										restaurarla más adelante.
+									</>
+								)
+							) : null}
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter showCloseButton>
+						<Button
+							variant={openConfirm?.mode === 'hard' ? 'destructive' : 'secondary'}
+							onClick={() => {
+								if (!openConfirm) return;
+								if (openConfirm.mode === 'hard') handleHardDelete(openConfirm.template.id);
+								else handleSoftDelete(openConfirm.template.id);
+							}}
+						>
+							<Icon
+								icon={openConfirm?.mode === 'hard' ? 'ri:delete-bin-line' : 'ri:archive-line'}
+								className="h-4 w-4"
+							/>
+							{openConfirm?.mode === 'hard' ? 'Eliminar definitivamente' : 'Enviar a papelera'}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</div>
 	);
 }
