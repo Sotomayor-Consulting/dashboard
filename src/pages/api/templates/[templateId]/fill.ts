@@ -4,7 +4,8 @@ import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 import { extractTokenRoleNames, hasAnyRole, ROLES } from '@shared/roles';
 import { getTemplateById, getTemplateFileContent } from '@domains/templates/templates';
 import { fillPdfAcroForm } from '@domains/templates/fill-pdf';
-import { resolveFieldData } from '@domains/templates/schema-registry';
+import { resolveFieldData, fetchEntityRow } from '@domains/templates/schema-registry';
+import { getTransformer } from '@domains/templates/transformers';
 import type { ResolveContextIds } from '@domains/templates/schema-registry';
 import type { EntityType } from '@domains/templates/entity-registry';
 
@@ -44,11 +45,12 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 
 	let mergedValues: Record<string, string | boolean | string[]> = {};
 
-	if (template.field_mapping && Object.keys(template.field_mapping).length > 0) {
-		const relatedToType = body.relatedToType as EntityType | undefined;
-		const relatedToId = body.relatedToId as string | undefined;
-		const contextIds = (body.contextIds as ResolveContextIds | undefined) ?? undefined;
+	const relatedToType = body.relatedToType as EntityType | undefined;
+	const relatedToId = body.relatedToId as string | undefined;
+	const contextIds = (body.contextIds as ResolveContextIds | undefined) ?? undefined;
 
+	// Step 1: resolve field_mapping (direct entity → PDF mappings)
+	if (template.field_mapping && Object.keys(template.field_mapping).length > 0) {
 		if (relatedToType && relatedToId) {
 			try {
 				const resolved = await resolveFieldData(
@@ -65,6 +67,31 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 		}
 	}
 
+	// Step 2: run transformer if template has one (overrides field_mapping)
+	if (template.transformer_id) {
+		const transformer = getTransformer(template.transformer_id);
+		if (!transformer) {
+			return json(400, { error: `TRANSFORMER_NOT_FOUND: ${template.transformer_id}` });
+		}
+		if (transformer.entityType !== relatedToType) {
+			return json(400, {
+				error: 'TRANSFORMER_TYPE_MISMATCH',
+				detail: `Transformer "${template.transformer_id}" expects "${transformer.entityType}" but got "${relatedToType}"`,
+			});
+		}
+		if (relatedToType && relatedToId) {
+			try {
+				const row = await fetchEntityRow(transformer.entityType, relatedToId);
+				const transformed = transformer.evaluate(row);
+				Object.assign(mergedValues, transformed);
+			} catch (err) {
+				const detail = err instanceof Error ? err.message : 'unknown error';
+				return json(400, { error: 'TRANSFORMER_FAILED', detail });
+			}
+		}
+	}
+
+	// Step 3: user-supplied values override everything
 	const userValues = body.fieldValues as Record<string, string | boolean | string[]> | undefined;
 	if (userValues) {
 		Object.assign(mergedValues, userValues);
@@ -78,8 +105,19 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 		return json(500, { error: 'FILE_RETRIEVAL_FAILED', detail });
 	}
 
+	const now = new Date();
+	const dateStr = now.toLocaleDateString('en-US', {
+		month: '2-digit',
+		day: '2-digit',
+		year: 'numeric',
+	});
+
 	try {
-		const { pdf, warnings } = await fillPdfAcroForm(fileContent.content, mergedValues);
+		const { pdf, warnings } = await fillPdfAcroForm(fileContent.content, mergedValues, {
+			syntheticFields: [
+				{ name: '_fecha_generacion', value: dateStr, x: 350, y: 36, width: 82, fontSize: 7 },
+			],
+		});
 		const pdfBlob = new Blob([pdf as BlobPart], { type: 'application/pdf' });
 		const fileName = fileContent.fileName.replace(/\.docx?$/i, '.pdf');
 		const safeName = fileName.replace(/"/g, '');
@@ -96,6 +134,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 		});
 	} catch (err) {
 		const detail = err instanceof Error ? err.message : 'unknown error';
+		console.error('[fill] PDF_FILL_FAILED:', detail);
 		return json(500, { error: 'PDF_FILL_FAILED', detail });
 	}
 };
