@@ -5,8 +5,14 @@ import {
 	PDFRadioGroup,
 	PDFDropdown,
 	PDFOptionList,
+	StandardFonts,
 } from 'pdf-lib';
-import type { TemplateFieldDefinition } from './types';
+import type { SyntheticFieldDef, TemplateFieldDefinition } from './types';
+
+export interface FillPdfOptions {
+	flatten?: boolean;
+	syntheticFields?: SyntheticFieldDef[];
+}
 
 export interface FillPdfResult {
 	pdf: Uint8Array;
@@ -16,9 +22,11 @@ export interface FillPdfResult {
 export async function fillPdfAcroForm(
 	pdfBuffer: ArrayBuffer | Uint8Array,
 	fieldValues: Record<string, string | boolean | string[]>,
-	options?: { flatten?: boolean },
+	options?: FillPdfOptions,
 ): Promise<FillPdfResult> {
-	const pdfDoc = await PDFDocument.load(pdfBuffer);
+	const pdfDoc = await PDFDocument.load(
+		pdfBuffer instanceof ArrayBuffer ? new Uint8Array(pdfBuffer) : pdfBuffer,
+	);
 	const form = pdfDoc.getForm();
 	const fields = form.getFields();
 	const warnings: string[] = [];
@@ -42,6 +50,8 @@ export async function fillPdfAcroForm(
 			} else if (field instanceof PDFCheckBox) {
 				if (value === true || String(value).toLowerCase() === 'true') {
 					field.check();
+				} else {
+					field.uncheck();
 				}
 			} else if (field instanceof PDFRadioGroup) {
 				field.select(String(value));
@@ -56,11 +66,53 @@ export async function fillPdfAcroForm(
 		}
 	}
 
-	if (options?.flatten !== false) {
+	try {
+		addSyntheticFields(pdfDoc, options?.syntheticFields ?? []);
+	} catch (err) {
+		const detail = err instanceof Error ? err.message : 'unknown error';
+		console.error('[fill-pdf] addSyntheticFields failed:', detail);
+		throw new Error(`addSyntheticFields failed: ${detail}`);
+	}
+
+	if (options?.flatten === true) {
 		form.flatten();
 	}
 
-	return { pdf: await pdfDoc.save(), warnings };
+	let saved: Uint8Array;
+	try {
+		saved = await pdfDoc.save();
+	} catch (err) {
+		const detail = err instanceof Error ? err.message : 'unknown error';
+		console.error('[fill-pdf] pdfDoc.save failed:', detail);
+		throw new Error(`pdfDoc.save failed: ${detail}`);
+	}
+
+	return { pdf: saved, warnings };
+}
+
+export function addSyntheticFields(
+	pdfDoc: PDFDocument,
+	fields: SyntheticFieldDef[],
+): void {
+	const form = pdfDoc.getForm();
+	const pages = pdfDoc.getPages();
+	const font = pdfDoc.embedStandardFont(StandardFonts.Helvetica);
+	for (const sf of fields) {
+		const pageIdx = sf.pageIndex ?? 0;
+		const page = pages[pageIdx];
+		if (!page) continue;
+		const field = form.createTextField(sf.name);
+		field.acroField.setDefaultAppearance('/Helv 6 Tf 0 g');
+		field.setText(sf.value);
+		field.setFontSize(sf.fontSize ?? 6);
+		field.addToPage(page, {
+			x: sf.x,
+			y: sf.y,
+			width: sf.width ?? 110,
+			height: sf.height ?? 14,
+			font,
+		});
+	}
 }
 
 export async function detectPdfFormFields(

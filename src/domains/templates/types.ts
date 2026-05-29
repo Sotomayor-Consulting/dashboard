@@ -29,6 +29,7 @@ export interface TemplateRow {
 	template_type: TemplateType;
 	related_to_type: EntityType | null;
 	field_mapping: FieldMapping;
+	transformer_id: string | null;
 	source_url: string | null;
 	field_definitions: TemplateFieldDefinition[];
 	is_active: boolean;
@@ -61,6 +62,7 @@ export interface CreateTemplateInput {
 	template_type: TemplateType;
 	related_to_type?: EntityType | null;
 	field_mapping?: FieldMapping;
+	transformer_id?: string | null;
 	source_url?: string | null;
 	field_definitions?: TemplateFieldDefinition[];
 }
@@ -72,6 +74,7 @@ export interface UpdateTemplateInput {
 	template_type?: TemplateType;
 	related_to_type?: EntityType | null;
 	field_mapping?: FieldMapping;
+	transformer_id?: string | null;
 	source_url?: string | null;
 	field_definitions?: TemplateFieldDefinition[];
 	is_active?: boolean;
@@ -83,6 +86,17 @@ export interface ListTemplatesOptions {
 	relatedToType?: string;
 	includeInactive?: boolean;
 	includeDeleted?: boolean;
+}
+
+export interface SyntheticFieldDef {
+	name: string;
+	value: string;
+	pageIndex?: number;
+	x: number;
+	y: number;
+	width?: number;
+	height?: number;
+	fontSize?: number;
 }
 
 export interface TemplateFileContent {
