@@ -1,6 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { recordAuditEvent } from '@domains/audit/audit-events';
-import { MEMBER_COLUMNS, type MemberRow } from '@domains/members/people';
+import {
+	createMember,
+	MEMBER_COLUMNS,
+	type MemberInput,
+	type MemberRow,
+} from '@domains/members/people';
 import {
 	assertManagerInvariantOnRemoval,
 	assertMemberRoleAllowed,
@@ -288,4 +293,56 @@ export async function softDeleteCompanyMember(
 	});
 
 	return after;
+}
+
+/**
+ * Crea una persona nueva (`members`) y la vincula como miembro/manager de la
+ * empresa (`company_members`) en una sola operación. Si la creación de la
+ * relación falla, se elimina el `members` recién creado (rollback manual) para
+ * evitar dejar registros huérfanos — el modelo del producto exige que toda
+ * persona esté asociada a al menos una empresa.
+ *
+ * El registro de auditoría del `member.create` queda en `audit_events` aunque
+ * el rollback borre la fila — sirve como evidencia forense del intento.
+ */
+export async function createCompanyMemberWithNewPerson(
+	supabase: SupabaseClient,
+	companyId: string,
+	personInput: MemberInput,
+	relationInput: Omit<CompanyMemberInput, 'member_id'>,
+	actorUserId: string,
+): Promise<CompanyMemberRow> {
+	const person = await createMember(supabase, personInput, actorUserId);
+
+	try {
+		return await createCompanyMember(
+			supabase,
+			companyId,
+			{ ...relationInput, member_id: person.id },
+			actorUserId,
+		);
+	} catch (relationError) {
+		// Rollback manual: la persona se creó pero la relación falló, así que
+		// quitamos la persona para no dejarla huérfana.
+		try {
+			const { error: deleteError } = await supabase
+				.from('members')
+				.delete()
+				.eq('id', person.id);
+			if (deleteError) {
+				console.error(
+					'[createCompanyMemberWithNewPerson] rollback delete failed for member',
+					person.id,
+					deleteError,
+				);
+			}
+		} catch (rollbackError) {
+			console.error(
+				'[createCompanyMemberWithNewPerson] rollback threw for member',
+				person.id,
+				rollbackError,
+			);
+		}
+		throw relationError;
+	}
 }

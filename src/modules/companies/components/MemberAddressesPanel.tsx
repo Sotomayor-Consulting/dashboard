@@ -239,7 +239,7 @@ function AddressForm({
 					}
 				>
 					<SelectTrigger id="address_type" className="w-full">
-						<SelectValue />
+						<SelectValue placeholder="Selecciona el tipo de dirección" />
 					</SelectTrigger>
 					<SelectContent>
 						<SelectGroup>

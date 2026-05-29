@@ -19,6 +19,7 @@ import DocumentRequestManager from '@modules/documents/islands/DocumentRequestMa
 import CompanyDocumentsUploadManager from '@modules/documents/islands/CompanyDocumentsUploadManager';
 import { canManageCompanyData, hasAnyRole, ROLE_GROUPS } from '@shared/roles';
 import { getUsStates } from './services/get-us-states';
+import GenerateDocumentsTab from '@components/display/GenerateDocumentsTab';
 
 const empresaId = String(Astro.props.empresaId ?? '');
 const supabase = Astro.locals.supabase;
@@ -56,10 +57,6 @@ if (empresaId) {
 
 const empresa = data?.empresa ?? null;
 const company = data?.company ?? null;
-const addresses = data?.addresses ?? [];
-const companyMembers = data?.companyMembers ?? [];
-const managementTypeHealth = data?.managementTypeHealth ?? null;
-const actividades = data?.actividades ?? [];
 const empresaSafe = empresa as CompanyDetailData['empresa'];
 const errorMessage = !empresaId
 	? 'ID de empresa no valido'
@@ -86,6 +83,13 @@ const operationsTabs = [
 		id: 'requests',
 		label: 'Solicitar documentos',
 		icon: 'ri:file-list-3-line',
+		kind: 'panel' as const,
+		active: false,
+	},
+	{
+		id: 'generate',
+		label: 'Generar documentos',
+		icon: 'ri:file-add-line',
 		kind: 'panel' as const,
 		active: false,
 	},
@@ -121,10 +125,6 @@ const operationsTabs = [
 					<CompanyEditForm
 						empresa={empresaSafe}
 						company={company}
-						addresses={addresses}
-						companyMembers={companyMembers}
-						managementTypeHealth={managementTypeHealth}
-						actividades={actividades}
 						canEditDetails={canEditDetails}
 						states={states_us}
 					/>
@@ -136,6 +136,14 @@ const operationsTabs = [
 						backPath={backPath}
 						documentTypes={documentTypes}
 						requests={documentRequests}
+					/>
+				</div>
+				<div data-tab-panel="generate" class="my-4" hidden>
+					<GenerateDocumentsTab
+						client:load
+						entityType="incorporation_case"
+						entityId={empresaId}
+						{...(company?.id ? { companyId: company.id } : {})}
 					/>
 				</div>
 				<div data-tab-panel="upload" class="my-4" hidden>

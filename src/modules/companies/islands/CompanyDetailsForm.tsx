@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Icon } from '@iconify/react';
 
 import '@shared/iconify-ri'; // Registra el set `ri` de Remix Icons (side-effect).
 import { Button } from '@components/ui/Button';
@@ -11,25 +10,12 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@components/ui/Dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/Tabs';
+import { Icon } from '@iconify/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import CompanyEmptyState from '../components/CompanyEmptyState';
-import CompanyAddressesSection from '../components/CompanyAddressesSection';
-import CompanyMembersCrudSection from '../components/CompanyMembersCrudSection';
-import { useCompanyAddresses } from '../hooks/use-company-addresses';
-import type {
-	ActividadItem,
-	CompanyAddressItem,
-	CompanyItem,
-	CompanyManagementTypeHealth,
-	CompanyMemberItem,
-	EmpresaDetail,
-	State,
-} from '../types';
+import type { CompanyItem, EmpresaDetail, State } from '../types';
 
-import CompanyInfoSection from './company-details/sections/CompanyInfoSection';
 import IncorporationRegistrationSection from './company-details/sections/IncorporationRegistrationSection';
 import { mapIncorporationFormToUpdateRequest } from './company-details/mappers/incorporation-registration.mapper';
 import {
@@ -38,29 +24,21 @@ import {
 	incorporationRegistrationSchema,
 } from './company-details/schemas/incorporation-registration.schema';
 
-// Estilo inline-vertical para tabs: sin contenedor, sólo el borde
-// izquierdo en la pestaña activa marcando la posición.
-const verticalTabTriggerClass =
-	'!w-full !justify-start !rounded-l-none !rounded-r-md border-l-2 border-transparent !bg-transparent !px-3 !py-2 !shadow-none hover:!bg-gray-50 hover:!text-gray-900 data-active:border-gray-900 data-active:!bg-gray-100 data-active:!text-gray-900 data-active:!shadow-none dark:hover:!bg-white/5 dark:hover:!text-white dark:data-active:border-white dark:data-active:!bg-white/10 dark:data-active:!text-white';
-
 interface Props {
 	empresa: EmpresaDetail;
 	company: CompanyItem | null;
-	addresses: CompanyAddressItem[];
-	companyMembers: CompanyMemberItem[];
-	managementTypeHealth: CompanyManagementTypeHealth | null;
-	actividades: ActividadItem[];
 	canEditDetails: boolean;
 	states: State[];
 }
 
+/**
+ * Tab "Editar datos" dentro de /incorporations/[id]. Solo contiene el form de
+ * "Registro de incorporación" y un bloque de referencia read-only a la empresa
+ * (los datos editables de la empresa real viven en /companies/[companyId]).
+ */
 export default function CompanyDetailsForm({
 	empresa,
 	company,
-	addresses,
-	companyMembers,
-	managementTypeHealth,
-	actividades,
 	canEditDetails,
 	states,
 }: Props) {
@@ -71,9 +49,6 @@ export default function CompanyDetailsForm({
 		React.useState(false);
 
 	const hasCompany = Boolean(companyId);
-	const addressesState = useCompanyAddresses(addresses, companyId);
-
-	const memberRows = companyMembers;
 
 	const incorporationForm = useForm<
 		IncorporationRegistrationFormValues,
@@ -179,6 +154,10 @@ export default function CompanyDetailsForm({
 		}
 	};
 
+	const companyHref = companyId
+		? `/companies/${companyId}?from=incorporation/${empresa.empresa_incorporacion_id}`
+		: null;
+
 	return (
 		<section>
 			<CardContent className="p-0">
@@ -188,172 +167,89 @@ export default function CompanyDetailsForm({
 					</div>
 				)}
 
-				<Tabs
-					defaultValue="incorporacion-informacion"
-					orientation="vertical"
-					className="grid w-full grid-cols-1 gap-6 lg:grid-cols-[160px_minmax(0,1fr)]"
-				>
-					<TabsList className="!h-auto !w-full !flex-col !items-stretch !gap-0 !border-0 !bg-transparent !p-0 !shadow-none">
-						<div className="px-3 py-2 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
-							Registro de incorporación
-						</div>
-						<TabsTrigger
-							value="incorporacion-informacion"
-							className={verticalTabTriggerClass}
-						>
-							<Icon icon="ri:building-2-line" data-icon="inline-start" />
-							Formulario
-						</TabsTrigger>
+				<div className="flex flex-col gap-5">
+					<section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
+						<header className="mb-4">
+							<h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+								Registro de incorporación
+							</h3>
+							<p className="text-muted-foreground text-sm">
+								Datos capturados del proceso de incorporación.
+							</p>
+						</header>
 
-						<div className="mt-3 px-3 py-2 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
-							Empresa
-						</div>
-						<TabsTrigger
-							value="empresa-informacion"
-							className={verticalTabTriggerClass}
+						<form
+							onSubmit={incorporationForm.handleSubmit(handleSaveIncorporation)}
+							className="flex flex-col gap-4"
 						>
-							<Icon icon="ri:file-edit-line" data-icon="inline-start" />
-							Información
-						</TabsTrigger>
-						<TabsTrigger
-							value="empresa-direcciones"
-							className={verticalTabTriggerClass}
-						>
-							<Icon icon="ri:map-pin-line" data-icon="inline-start" />
-							Direcciones
-						</TabsTrigger>
-						<TabsTrigger
-							value="empresa-miembros"
-							className={verticalTabTriggerClass}
-						>
-							<Icon icon="ri:group-line" data-icon="inline-start" />
-							Miembros
-						</TabsTrigger>
-					</TabsList>
-
-					<div className="min-w-0">
-						<TabsContent
-							value="incorporacion-informacion"
-							className="gap-4 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
-						>
-							<form
-								onSubmit={incorporationForm.handleSubmit(
-									handleSaveIncorporation,
-								)}
-								className="flex flex-col gap-4"
-							>
-								<IncorporationRegistrationSection
-									canEditDetails={canEditDetails}
-									states_us={states}
-									form={incorporationForm}
-								/>
-								<section className="flex justify-end border-gray-200 pt-5 dark:border-gray-700">
-									<Button
-										type="submit"
-										disabled={!canEditDetails || isSavingIncorporation}
-									>
-										Guardar cambios
-									</Button>
-								</section>
-							</form>
-
-							{!hasCompany && canEditDetails && (
-								<section className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-100">
-									<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-										<p>
-											Esta incorporación todavía no tiene empresa. Crea la
-											empresa para habilitar direcciones y socios.
-										</p>
-										<Button
-											type="button"
-											variant="outline"
-											onClick={openCreateCompanyDialog}
-										>
-											Crear empresa
-										</Button>
-									</div>
-								</section>
-							)}
-						</TabsContent>
-
-						<TabsContent
-							value="empresa-informacion"
-							className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
-						>
-							{hasCompany ? (
-							<CompanyInfoSection
-								company={company}
-								managementTypeHealth={managementTypeHealth}
-								states={states}
-								actividades={actividades}
+							<IncorporationRegistrationSection
 								canEditDetails={canEditDetails}
+								states_us={states}
+								form={incorporationForm}
 							/>
-							) : (
-								<CompanyEmptyState
-									title="No hay empresa creada"
-									description="Para editar los datos de empresa debes crear la empresa de esta incorporación."
-									canEditDetails={canEditDetails}
-									onCreateCompany={openCreateCompanyDialog}
-								/>
-							)}
-						</TabsContent>
+							<section className="flex justify-end border-gray-200 pt-5 dark:border-gray-700">
+								<Button
+									type="submit"
+									disabled={!canEditDetails || isSavingIncorporation}
+								>
+									Guardar cambios
+								</Button>
+							</section>
+						</form>
+					</section>
 
-						<TabsContent
-							value="empresa-direcciones"
-							className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
-						>
-							{hasCompany ? (
-								<CompanyAddressesSection
-									canEditDetails={canEditDetails}
-									addresses={addressesState.addresses}
-									selectedAddress={addressesState.selectedAddress}
-									isDetailModalOpen={addressesState.isDetailModalOpen}
-									setIsDetailModalOpen={addressesState.setIsDetailModalOpen}
-									isAddModalOpen={addressesState.isAddModalOpen}
-									setIsAddModalOpen={addressesState.setIsAddModalOpen}
-									newAddress={addressesState.newAddress}
-									handleNewAddressChange={addressesState.handleNewAddressChange}
-									handleAddressTypeChange={addressesState.handleAddressTypeChange}
-									handleAddAddress={addressesState.handleAddAddress}
-									handleSaveAddress={addressesState.handleSaveAddress}
-									handleDeleteAddress={addressesState.handleDeleteAddress}
-									openAddressDetail={addressesState.openAddressDetail}
-									openCreateAddress={addressesState.openCreateAddress}
-									isSaving={addressesState.isSaving}
-									addressCardHeightClass={addressesState.addressCardHeightClass}
-								/>
-							) : (
-								<CompanyEmptyState
-									title="No hay empresa creada"
-									description="Para gestionar direcciones debes crear la empresa de esta incorporación."
-									canEditDetails={canEditDetails}
-									onCreateCompany={openCreateCompanyDialog}
-								/>
-							)}
-						</TabsContent>
-
-						<TabsContent
-							value="empresa-miembros"
-							className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
-						>
-							{hasCompany ? (
-								<CompanyMembersCrudSection
-									initialMembers={memberRows}
-									incorporationId={empresa.empresa_incorporacion_id}
-									canEditDetails={canEditDetails}
-								/>
-							) : (
-								<CompanyEmptyState
-									title="No hay empresa creada"
-									description="Para gestionar socios debes crear la empresa de esta incorporación."
-									canEditDetails={canEditDetails}
-									onCreateCompany={openCreateCompanyDialog}
-								/>
-							)}
-						</TabsContent>
-
-					</div>
-				</Tabs>
+					{hasCompany && companyHref ? (
+						<aside className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
+							<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+								<div className="min-w-0">
+									<p className="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
+										Empresa
+									</p>
+									<h4 className="mt-1 truncate text-base font-semibold text-gray-900 dark:text-gray-100">
+										{company?.legal_name ?? empresa.nombre_1 ?? 'Sin nombre'}
+									</h4>
+									<p className="mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">
+										{company?.entity_type
+											? company.entity_type.toUpperCase()
+											: 'LLC'}
+										{company?.legal_status
+											? ` · ${company.legal_status}`
+											: ''}
+										{company?.identification_number
+											? ` · EIN ${company.identification_number}`
+											: ''}
+									</p>
+								</div>
+								<a
+									href={companyHref}
+									className="inline-flex shrink-0 items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-transparent dark:text-gray-200 dark:hover:bg-white/5"
+								>
+									<Icon icon="ri:external-link-line" className="h-4 w-4" />
+									Ver/editar en Empresas
+								</a>
+							</div>
+						</aside>
+					) : (
+						canEditDetails && (
+							<aside className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-100">
+								<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+									<p>
+										Esta incorporación todavía no tiene empresa. Crea la empresa
+										para habilitar la edición de direcciones y socios desde
+										Empresas.
+									</p>
+									<Button
+										type="button"
+										variant="outline"
+										onClick={openCreateCompanyDialog}
+									>
+										Crear empresa
+									</Button>
+								</div>
+							</aside>
+						)
+					)}
+				</div>
 
 				<Dialog
 					open={isCreateCompanyOpen}

@@ -1,0 +1,32 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import TemplateManager from '@modules/template-manager/TemplateManager.astro';
+import TabBar from '@components/navigation/TabBar.astro';
+
+const userRoles = Astro.locals.userRoles ?? [];
+const allowedRoles = ['admin'];
+const canView = userRoles.some((r) => allowedRoles.includes(r));
+
+if (!canView) {
+	return Astro.redirect('/?status=error&msg=Acceso restringido');
+}
+
+const supabase = Astro.locals.supabase;
+
+const tabs = [
+	{
+		label: 'Plantillas',
+		icon: 'ri:file-text-line',
+		active: true,
+		link: '/admin/settings/templates',
+	},
+];
+---
+
+<LayoutSidebar>
+	<div class="space-y-6">
+		<h1 class="text-2xl font-semibold">Ajustes</h1>
+		<TabBar buttons={tabs} syncUrl={false} />
+		<TemplateManager supabase={supabase} />
+	</div>
+</LayoutSidebar>

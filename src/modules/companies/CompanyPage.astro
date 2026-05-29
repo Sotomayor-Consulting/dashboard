@@ -1,0 +1,67 @@
+---
+import { getCompanyPageData } from './services/get-company-page-data';
+import CompanyPageHeader from './components/CompanyPageHeader.astro';
+import CompanyPageContent from './islands/CompanyPageContent.tsx';
+import { canManageCompanyData } from '@shared/roles';
+
+interface Props {
+	companyId: string;
+}
+
+const UUID_RE =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const { companyId } = Astro.props as Props;
+const supabase = Astro.locals.supabase;
+const userRoles = Astro.locals.userRoles || [];
+const canEditDetails = canManageCompanyData(userRoles);
+
+const trimmedId = companyId?.trim() ?? '';
+const isValidId = UUID_RE.test(trimmedId);
+
+// El query param `from` se usa para construir el botón "volver". Solo aceptamos
+// el shape esperado para no abrir vector de open-redirect.
+const fromRaw = Astro.url.searchParams.get('from') ?? '';
+const incorporationMatch = /^incorporation\/([0-9a-f-]{36})$/i.exec(fromRaw);
+const backHref = incorporationMatch
+	? `/incorporations/${incorporationMatch[1]}`
+	: null;
+const backLabel = backHref ? 'Volver a la incorporación' : null;
+
+const data = isValidId ? await getCompanyPageData(supabase, trimmedId) : null;
+const errorMessage = !isValidId
+	? 'ID de empresa inválido'
+	: !data
+		? 'No se encontró esta empresa'
+		: '';
+---
+
+{
+	errorMessage ? (
+		<div class="mx-5 mt-5">
+			<div class="rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-600 dark:border-gray-700 dark:text-gray-300">
+				{errorMessage}
+			</div>
+		</div>
+	) : data ? (
+		<>
+			<CompanyPageHeader
+				company={data.company}
+				backHref={backHref}
+				backLabel={backLabel}
+			/>
+			<div class="mx-5 my-5">
+				<CompanyPageContent
+					client:load
+					companyId={trimmedId}
+					company={data.company}
+					addresses={data.addresses}
+					companyMembers={data.companyMembers}
+					managementTypeHealth={data.managementTypeHealth}
+					actividades={data.actividades}
+					canEditDetails={canEditDetails}
+				/>
+			</div>
+		</>
+	) : null
+}

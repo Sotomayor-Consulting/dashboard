@@ -33,6 +33,7 @@ export const companyInfoSchema = z.object({
 	filing_number: z.preprocess(emptyToNull, z.string().nullable()),
 	identification_number: z.preprocess(emptyToNull, z.string().nullable()),
 	entity_type: entityTypeSchema,
+	// formation_country_id se infiere en el backend (siempre US para LLC).
 	formation_state_id: nullableNumberSchema,
 	management_type: managementTypeSchema,
 	tax_clasification: z.preprocess(emptyToNull, taxClassificationSchema),

@@ -133,6 +133,17 @@ export const menuItems: MenuItem[] = [
 		colors: 'text-violet-500'
 	},
 	{
+		id: 'admin-settings',
+		label: 'Ajustes',
+		href: '/admin/settings/templates',
+		tooltip: 'Configuración del sistema',
+		roles: ['admin'],
+		svgname: 'ri:settings-3-line',
+		sequence: 160,
+		group: 'Admin',
+		colors: 'text-violet-500',
+	},
+	{
 		id: 'otros-servicios',
 		label: 'Otros servicios',
 		href: '/services/',
@@ -145,7 +156,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'partners-configuracion-perfil',
 		label: 'Perfil',
-		href: '/settings/',
+		href: '/profile/',
 		tooltip: 'Configure su perfil y datos',
 		roles: ['all'],
 		svgname: 'ri:account-circle-line',

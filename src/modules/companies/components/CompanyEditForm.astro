@@ -1,46 +1,21 @@
 ---
 import CompanyDetailsForm from '../islands/CompanyDetailsForm';
-import type {
-	EmpresaDetail,
-	ActividadItem,
-	CompanyItem,
-	CompanyAddressItem,
-	CompanyMemberItem,
-	CompanyManagementTypeHealth,
-	State,
-} from '../types';
+import type { CompanyItem, EmpresaDetail, State } from '../types';
 
 interface Props {
 	empresa: EmpresaDetail;
 	company: CompanyItem | null;
-	addresses: CompanyAddressItem[];
-	companyMembers: CompanyMemberItem[];
-	managementTypeHealth: CompanyManagementTypeHealth | null;
-	actividades: ActividadItem[];
 	canEditDetails: boolean;
 	states: State[];
 }
 
-const {
-	empresa,
-	company,
-	addresses,
-	companyMembers,
-	managementTypeHealth,
-	actividades,
-	canEditDetails,
-	states,
-} = Astro.props;
+const { empresa, company, canEditDetails, states } = Astro.props;
 ---
 
 <CompanyDetailsForm
 	client:load
 	empresa={empresa}
 	company={company}
-	addresses={addresses}
-	companyMembers={companyMembers}
-	managementTypeHealth={managementTypeHealth}
-	actividades={actividades}
 	canEditDetails={canEditDetails}
 	states={states}
 />

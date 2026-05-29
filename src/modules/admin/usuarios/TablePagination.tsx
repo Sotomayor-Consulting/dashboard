@@ -45,7 +45,7 @@ export function TablePagination({
 					onValueChange={(v) => onPageSizeChange(Number(v))}
 				>
 					<SelectTrigger className="!h-8 w-[72px] text-xs">
-						<SelectValue />
+						<SelectValue placeholder="—" />
 					</SelectTrigger>
 					<SelectContent>
 						{pageSizeOptions.map((opt) => (

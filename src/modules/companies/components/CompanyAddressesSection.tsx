@@ -19,6 +19,8 @@ interface Props {
 		field: keyof AddressDraft,
 	) => (event: React.ChangeEvent<HTMLInputElement>) => void;
 	handleAddressTypeChange: (value: string) => void;
+	handleAddressCountryChange: (countryId: number | null) => void;
+	handleAddressStateChange: (stateId: number | null) => void;
 	handleAddAddress: () => void;
 	handleSaveAddress: () => void;
 	handleDeleteAddress: () => void;
@@ -39,6 +41,8 @@ export default function CompanyAddressesSection({
 	newAddress,
 	handleNewAddressChange,
 	handleAddressTypeChange,
+	handleAddressCountryChange,
+	handleAddressStateChange,
 	handleAddAddress,
 	handleSaveAddress,
 	handleDeleteAddress,
@@ -83,6 +87,8 @@ export default function CompanyAddressesSection({
 				draft={newAddress}
 				handleDraftChange={handleNewAddressChange}
 				handleTypeChange={handleAddressTypeChange}
+				handleCountryChange={handleAddressCountryChange}
+				handleStateChange={handleAddressStateChange}
 				selectedAddress={selectedAddress}
 				onSubmit={handleSaveAddress}
 				onDelete={handleDeleteAddress}
@@ -97,6 +103,8 @@ export default function CompanyAddressesSection({
 				draft={newAddress}
 				handleDraftChange={handleNewAddressChange}
 				handleTypeChange={handleAddressTypeChange}
+				handleCountryChange={handleAddressCountryChange}
+				handleStateChange={handleAddressStateChange}
 				onSubmit={handleAddAddress}
 				isSaving={isSaving}
 			/>
