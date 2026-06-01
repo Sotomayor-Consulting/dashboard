@@ -4,13 +4,13 @@ import { supabaseAdmin } from '@infrastructure/supabase/admin';
 export type { EntityType, EntityFieldDescriptor } from './entity-registry';
 export { getEntityFields, getEntityLabel, getAllEntityTypes } from './entity-registry';
 
-const ENTITY_TABLES: Record<string, string> = {
+export const ENTITY_TABLES: Record<string, string> = {
 	company: 'empresa',
 	incorporation_case: 'empresas_incorporaciones',
 	member: 'members',
 };
 
-const ENTITY_PK: Record<string, string> = {
+export const ENTITY_PK: Record<string, string> = {
 	company: 'empresa_id',
 	incorporation_case: 'empresa_incorporacion_id',
 	member: 'id',
@@ -184,4 +184,28 @@ export async function resolveFieldData(
 	}
 
 	return result;
+}
+
+export async function fetchEntityRow(
+	entityType: string,
+	entityId: string,
+): Promise<Record<string, unknown>> {
+	const tableName = ENTITY_TABLES[entityType];
+	const pkColumn = ENTITY_PK[entityType];
+
+	if (!tableName || !pkColumn) {
+		throw new Error(`Unknown entity type: ${entityType}`);
+	}
+
+	const { data, error } = await supabaseAdmin
+		.from(tableName)
+		.select('*')
+		.eq(pkColumn, entityId)
+		.maybeSingle();
+
+	if (error) {
+		throw new Error(`Failed to fetch ${entityType}/${entityId}: ${error.message}`);
+	}
+
+	return (data ?? {}) as Record<string, unknown>;
 }

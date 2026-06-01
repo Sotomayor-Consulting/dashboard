@@ -2,6 +2,7 @@ import { Icon } from '@iconify/react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+import { SelectionCheckbox } from '@components/ui/SelectionCheckbox';
 import { cn } from '@components/utils';
 
 import type { AdminCompany } from '@modules/admin/lib/incorporation-types';
@@ -29,6 +30,10 @@ interface Props {
 	sortKey: IncorporacionesSortKey;
 	sortDir: IncorporacionesSortDir;
 	onSort: (key: IncorporacionesSortKey) => void;
+	selectionMode: 'none' | 'some' | 'all';
+	onToggleAll: () => void;
+	isSelected: (id: string) => boolean;
+	onToggleRow: (id: string) => void;
 }
 
 function SortableTh({
@@ -73,6 +78,10 @@ export function IncorporacionesTable({
 	sortKey,
 	sortDir,
 	onSort,
+	selectionMode,
+	onToggleAll,
+	isSelected,
+	onToggleRow,
 }: Props) {
 	if (companies.length === 0) {
 		return (
@@ -89,13 +98,20 @@ export function IncorporacionesTable({
 			<table className="w-full text-sm">
 				<thead className="border-b border-gray-200 text-[10.5px] font-medium tracking-wider text-gray-500 uppercase dark:border-gray-800 dark:text-gray-400">
 					<tr>
+						<th className="w-10 px-7 py-3 text-left">
+							<SelectionCheckbox
+								mode="header"
+								selectionMode={selectionMode}
+								onToggle={onToggleAll}
+							/>
+						</th>
 						<SortableTh
 							label="Empresa"
 							keyId="name"
 							active={sortKey === 'name'}
 							dir={sortDir}
 							onClick={onSort}
-							className="px-7 py-3 text-left"
+							className="py-3 pr-4 text-left"
 						/>
 						{visibleColumns.client && (
 							<SortableTh
@@ -146,19 +162,27 @@ export function IncorporacionesTable({
 				</thead>
 				<tbody>
 					{companies.map((c) => {
-						const isSelected = selectedId === c.id;
+						const isOpen = selectedId === c.id;
+						const rowSelected = isSelected(c.id);
 						return (
 							<tr
 								key={c.id}
 								onClick={() => onSelect(c.id)}
 								className={cn(
 									'h-14 cursor-pointer border-b border-gray-100 transition-colors dark:border-gray-800/60',
-									isSelected
+									isOpen || rowSelected
 										? 'bg-gray-100 dark:bg-neutral-900'
 										: 'hover:bg-gray-50 dark:hover:bg-neutral-900/60',
 								)}
 							>
-								<td className="px-7">
+								<td className="px-7" onClick={(ev) => ev.stopPropagation()}>
+									<SelectionCheckbox
+										mode="row"
+										checked={rowSelected}
+										onToggle={() => onToggleRow(c.id)}
+									/>
+								</td>
+								<td className="pr-4">
 									<CompanyCell company={c} />
 								</td>
 								{visibleColumns.client && (

@@ -82,6 +82,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		...(body.category != null && { category: String(body.category) }),
 		...(body.related_to_type != null && { related_to_type: String(body.related_to_type) as CreateTemplateInput['related_to_type'] }),
 		...(body.field_mapping != null && { field_mapping: body.field_mapping }),
+		...(body.transformer_id != null && { transformer_id: String(body.transformer_id) }),
 		...(body.source_url != null && { source_url: String(body.source_url) }),
 		...(body.field_definitions != null && { field_definitions: body.field_definitions }),
 	} as CreateTemplateInput;

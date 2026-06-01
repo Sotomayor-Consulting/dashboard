@@ -56,8 +56,8 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
 
 	const allowedFields = [
 		'name', 'description', 'category', 'template_type',
-		'related_to_type', 'field_mapping', 'source_url',
-		'field_definitions', 'is_active',
+		'related_to_type', 'field_mapping', 'transformer_id',
+		'source_url', 'field_definitions', 'is_active',
 	];
 
 	const updates: Record<string, unknown> = {};
