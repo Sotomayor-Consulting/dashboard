@@ -27,7 +27,7 @@ import type {
 } from '../services/get-client-form-data';
 import { submitClientForm } from '../services/submit-client-form';
 import { FormShell, type SideSummaryItem } from '../shell';
-import type { ClientFormData } from '../types';
+import type { ClientFormData, StepId } from '../types';
 import { MembersAllocationBar } from '../components/steps/StepMembers/MembersAllocationBar';
 
 interface Props {
@@ -37,6 +37,44 @@ interface Props {
 	identity: IncorporationIdentity;
 	/** Lista de estados disponibles para la Identity Card. */
 	estados: EstadoOption[];
+}
+
+/** Mapea un campo del form a su paso (para navegar al error en el submit). */
+const FIELD_STEP: Record<string, StepId> = {
+	ingresosEEUU: 2,
+	actividad: 2,
+	descripcionActividad: 2,
+	codigoActividad: 2,
+	formaAdministracion: 2,
+	formaTributacion: 2,
+	direccionOperativaEEUU: 2,
+	direccion: 2,
+	condado: 2,
+	ciudad: 2,
+	estado: 2,
+	codigoPostal: 2,
+	pais: 2,
+	direccionEmpresa: 2,
+	facturaServicioBasico: 2,
+	miembros: 3,
+	informacionMiembrosPublica: 3,
+	managerSCI: 4,
+	managerEsMiembro: 4,
+	seleccionManagers: 4,
+	managers: 4,
+	informacionManagersPublica: 4,
+	responsableIRS: 4,
+	firma: 5,
+	aceptaTerminos: 5,
+};
+
+/** Devuelve el menor paso que contiene algún campo con error. */
+function firstErrorStep(errorKeys: string[]): StepId | null {
+	const steps = errorKeys
+		.map((k) => FIELD_STEP[k])
+		.filter((s): s is StepId => s !== undefined);
+	if (steps.length === 0) return null;
+	return steps.sort((a, b) => a - b)[0] ?? null;
 }
 
 export default function ClientFormWizard({
@@ -137,11 +175,20 @@ export default function ClientFormWizard({
 	const triggerSubmit = useCallback(() => {
 		void handleSubmit(onSubmit, (errors) => {
 			console.warn('Errores de validación', errors);
-			setSubmitError(
-				'Hay datos pendientes o inválidos. Revisa los pasos marcados.',
-			);
+			// Mapea el primer campo con error a su paso y navega hasta él.
+			const errorStep = firstErrorStep(Object.keys(errors));
+			if (errorStep) {
+				goTo(errorStep);
+				setSubmitError(
+					`Faltan datos obligatorios en el paso ${String(errorStep).padStart(2, '0')}. Revisa los campos marcados en rojo.`,
+				);
+			} else {
+				setSubmitError(
+					'Hay datos pendientes o inválidos. Revisa los pasos del formulario.',
+				);
+			}
 		})();
-	}, [handleSubmit, onSubmit]);
+	}, [handleSubmit, onSubmit, goTo]);
 
 	// Metadata del paso actual para el shell
 	const currentMeta = STEPS.find((s) => s.id === currentStep);
@@ -200,13 +247,10 @@ export default function ClientFormWizard({
 	const isLastStep = currentStep === 5;
 
 	// Footer especial para Step 3 (Miembros) con barra de % asignado.
-	const memberSegments = (watched?.miembros ?? []).map(
-		(m) => m?.porcentaje ?? 0,
-	);
 	const membersFooter =
 		currentStep === 3 ? (
 			<div
-				className="sticky bottom-0 flex items-center justify-between gap-3 border-t px-10 py-[18px]"
+				className="sticky bottom-0 flex items-center justify-between gap-3 border-t px-5 py-3 sm:px-8 lg:px-10 lg:py-[18px]"
 				style={{
 					background: 'var(--cf-bg-card)',
 					borderColor: 'var(--cf-line)',
@@ -237,10 +281,9 @@ export default function ClientFormWizard({
 					Anterior
 				</button>
 
-				<MembersAllocationBar
-					total={totalPercentage}
-					segments={memberSegments}
-				/>
+				<div className="hidden flex-1 justify-center md:flex">
+					<MembersAllocationBar total={totalPercentage} />
+				</div>
 
 				<div className="flex items-center gap-3.5">
 					<span

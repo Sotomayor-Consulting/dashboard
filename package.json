@@ -38,8 +38,8 @@
 		"start": "astro dev"
 	},
 	"dependencies": {
-		"@astrojs/node": "10.1.0",
-		"@astrojs/react": "5.0.4",
+		"@astrojs/node": "10.1.2",
+		"@astrojs/react": "5.0.6",
 		"@astrojs/sitemap": "^3.7.3",
 		"@base-ui/react": "^1.5.0",
 		"@emotion/css": "^11.13.5",
@@ -62,7 +62,7 @@
 		"@types/react-dom": "^19.2.3",
 		"alpinejs": "^3.15.12",
 		"apexcharts": "^3.54.1",
-		"astro": "6.3.1",
+		"astro": "6.4.2",
 		"astro-icon": "^1.1.5",
 		"astro-pagefind": "^1.8.6",
 		"axios": "^1.16.1",

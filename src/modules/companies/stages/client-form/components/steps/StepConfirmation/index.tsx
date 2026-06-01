@@ -12,10 +12,8 @@ import { SummaryPanel } from './SummaryPanel';
 
 interface Props {
 	activities: Activity[];
-	/** Callback opcional para editar pasos previos desde las SummaryCards. */
 	onEditStep?: ((step: StepId) => void) | undefined;
 }
-
 /**
  * Pantalla 5 — Confirmación y firma.
  *
@@ -49,9 +47,7 @@ export function StepConfirmation({ activities, onEditStep }: Props) {
 				className="m-0 mb-6 max-w-[620px] text-[14px] leading-[1.55]"
 				style={{ color: 'var(--cf-ink-mute)' }}
 			>
-				Verifica que toda la información sea correcta. Después de enviar,
-				recibirás una copia firmada por correo y nuestro equipo se comunicará
-				en menos de 24 horas.
+				Verifica que toda la información sea correcta.
 			</p>
 
 			{/* Resumen — 3 cards */}
@@ -127,7 +123,6 @@ export function StepConfirmation({ activities, onEditStep }: Props) {
 					<FieldError message={errors.aceptaTerminos?.message as string} />
 				</div>
 			</div>
-
 			{!aceptaTerminos && (
 				<div
 					className="mt-3 flex items-center gap-3 rounded-lg border p-3"
@@ -141,10 +136,7 @@ export function StepConfirmation({ activities, onEditStep }: Props) {
 						className="h-4 w-4 shrink-0"
 						style={{ color: 'var(--cf-ink-mute)' }}
 					/>
-					<p
-						className="text-[12.5px]"
-						style={{ color: 'var(--cf-ink-mute)' }}
-					>
+					<p className="text-[12.5px]" style={{ color: 'var(--cf-ink-mute)' }}>
 						Debe aceptar los términos y condiciones para enviar la solicitud.
 					</p>
 				</div>
@@ -152,7 +144,6 @@ export function StepConfirmation({ activities, onEditStep }: Props) {
 		</>
 	);
 }
-
 /**
  * Genera un timestamp formateado cuando el usuario acepta los términos.
  * Se evalúa en cada render — al ser un valor derivado de "ahora" no es

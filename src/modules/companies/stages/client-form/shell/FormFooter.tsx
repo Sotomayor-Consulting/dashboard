@@ -53,7 +53,7 @@ export function FormFooter({
 
 	return (
 		<div
-			className="sticky bottom-0 flex items-center justify-between border-t px-10 py-5"
+			className="sticky bottom-0 flex items-center justify-between border-t px-5 py-4 sm:px-8 lg:px-10 lg:py-5"
 			style={{
 				background: 'var(--cf-bg-card)',
 				borderColor: 'var(--cf-line)',

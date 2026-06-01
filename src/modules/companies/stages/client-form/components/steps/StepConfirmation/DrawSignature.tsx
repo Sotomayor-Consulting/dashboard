@@ -32,8 +32,25 @@ export function DrawSignature({ initialDataUrl, onChange }: Props) {
 	}, []);
 
 	useEffect(() => {
-		const instance = padRef.current?.instance;
-		if (instance) instance.penColor = penColor;
+		const pad = padRef.current;
+		const instance = pad?.instance;
+		if (!pad || !instance) return;
+		instance.penColor = penColor;
+		// Si ya hay trazos dibujados, los redibujamos con el nuevo color
+		// (al cambiar tema claro ↔ oscuro la firma anterior debe seguir
+		// siendo legible sobre el nuevo fondo).
+		if (!pad.isEmpty()) {
+			try {
+				const data = pad.toData();
+				const updated = data.map((group: { penColor?: string }) => ({
+					...group,
+					penColor,
+				}));
+				pad.fromData(updated as Parameters<typeof pad.fromData>[0]);
+			} catch {
+				/* noop */
+			}
+		}
 	}, [penColor]);
 
 	const persist = useCallback(() => {

@@ -71,28 +71,14 @@ export function StepWelcome({
 }: Props) {
 	return (
 		<>
-			{/* Identity Card — datos pre-cargados editables */}
-			<IdentityCard
-				empresaId={empresaId}
-				initialNames={nameOptions}
-				estado={estado}
-				estados={estados}
-				onEstadoChange={onEstadoChange}
-			/>
-
 			{/* Hero copy */}
 			<p
 				className="m-0 mb-[14px] max-w-[620px] text-[16px] leading-[1.6]"
 				style={{ color: 'var(--cf-ink-mute)' }}
 			>
-				Para continuar con el proceso de incorporación de su LLC, complete los
-				pasos a continuación. Toma aproximadamente{' '}
-				<strong className="font-semibold" style={{ color: 'var(--cf-ink)' }}>
-					10–15 minutos
-				</strong>{' '}
-				y puede pausar en cualquier momento.
+				Para continuar con el proceso de incorporación de su LLC, es necesario
+				completar el siguiente formulario.
 			</p>
-
 			{/* Pills de metadata */}
 			<div className="mt-[22px] mb-9 flex flex-wrap gap-2.5">
 				<MetadataPill
@@ -101,17 +87,19 @@ export function StepWelcome({
 					10–15 min total
 				</MetadataPill>
 				<MetadataPill
-					icon={<Icon icon="ri:pause-circle-line" className="h-3.5 w-3.5" />}
-				>
-					Puedes pausar y continuar
-				</MetadataPill>
-				<MetadataPill
 					icon={<Icon icon="ri:lock-line" className="h-3.5 w-3.5" />}
 				>
 					Datos cifrados
 				</MetadataPill>
 			</div>
-
+			{/* Identity Card — datos pre-cargados editables */}
+			<IdentityCard
+				empresaId={empresaId}
+				initialNames={nameOptions}
+				estado={estado}
+				estados={estados}
+				onEstadoChange={onEstadoChange}
+			/>
 			{/* Checklist header */}
 			<div
 				className="mb-1 border-b pb-3.5"
@@ -140,15 +128,14 @@ export function StepWelcome({
 					tone="accent"
 					icon={
 						<Icon
-							icon="ri:sparkling-2-line"
-							className="dark:bg h-3.5 w-3.5 dark:text-green-400"
+							icon="ri:lightbulb-flash-line"
+							className="dark:bg h-auto w-auto dark:text-green-400"
 						/>
 					}
-					title="Le acompañamos en cada paso"
+					title="Información importante"
 				>
-					Una vez enviada la solicitud, nuestro equipo revisará la información y
-					se comunicará en menos de 24 horas para confirmar los siguientes
-					pasos.
+					Una vez enviada la solicitud, nuestro equipo revisará validara la
+					información y se pondrá en contacto para cualquier consulta adicional.
 				</Callout>
 			</div>
 		</>

@@ -47,8 +47,7 @@ type SubsectionKey = 'A' | 'B' | 'C' | 'D';
  * SSN/ITIN según residente fiscal, upload archivos, privacidad.
  */
 export function StepMembers() {
-	const { control, setValue, getFieldState } =
-		useFormContext<ClientFormData>();
+	const { control, setValue, getFieldState } = useFormContext<ClientFormData>();
 	const { fields, append, remove } = useFieldArray({
 		control,
 		name: 'miembros',
@@ -107,18 +106,15 @@ export function StepMembers() {
 					className="m-0 max-w-[540px] text-[14px] leading-[1.55]"
 					style={{ color: 'var(--cf-ink-mute)' }}
 				>
-					Agrega cada uno de los socios de la LLC. La suma de porcentajes
-					debe ser{' '}
-					<strong
-						className="font-semibold"
-						style={{ color: 'var(--cf-ink)' }}
-					>
+					Agrega cada uno de los socios de la LLC. La suma de porcentajes debe
+					ser{' '}
+					<strong className="font-semibold" style={{ color: 'var(--cf-ink)' }}>
 						exactamente 100%
 					</strong>
 					.
 				</p>
-				<div className="flex flex-col items-end gap-1.5">
-					<div className="flex items-center gap-1.5 self-end">
+				<div className="flex flex-col items-start gap-1.5 sm:items-end">
+					<div className="flex items-center gap-1.5 self-start sm:self-end">
 						<KickerLabel>Visibilidad</KickerLabel>
 						{hasReason && (
 							<Tooltip>
@@ -128,14 +124,10 @@ export function StepMembers() {
 											type="button"
 											className="inline-flex"
 											style={{ color: 'var(--cf-ink-soft)' }}
-											aria-label={
-												isLocked
-													? 'Por qué está bloqueado'
-													: 'Más información'
-											}
+											aria-label="Más información"
 										>
 											<Icon
-												icon={isLocked ? 'ri:lock-line' : 'ri:information-line'}
+												icon="ri:information-line"
 												className="h-3.5 w-3.5"
 											/>
 										</button>
@@ -151,22 +143,39 @@ export function StepMembers() {
 						control={control}
 						name="informacionMiembrosPublica"
 						render={({ field }) => (
-							<SegmentedControl
-								value={field.value ? 'publica' : 'privada'}
-								onChange={(v) => field.onChange(v === 'publica')}
-								disabled={isLocked}
-								options={[
-									{ value: 'publica', label: 'Pública' },
-									{ value: 'privada', label: 'Privada' },
-								]}
-							/>
+							<div className="flex items-center gap-2">
+								<Icon
+									icon={field.value ? 'ri:lock-unlock-line' : 'ri:lock-line'}
+									className="h-4 w-4 transition-colors"
+									style={{
+										color: field.value
+											? 'var(--cf-ink-soft)'
+											: 'var(--cf-accent-ink)',
+									}}
+								/>
+								<SegmentedControl
+									value={field.value ? 'publica' : 'privada'}
+									onChange={(v) => field.onChange(v === 'publica')}
+									disabled={isLocked}
+									options={[
+										{ value: 'publica', label: 'Pública' },
+										{ value: 'privada', label: 'Privada' },
+									]}
+								/>
+							</div>
 						)}
 					/>
 				</div>
 			</div>
 
-			{/* Pills + agregar */}
-			<div className="mb-6 flex flex-wrap items-stretch gap-2.5">
+			{/* Pills + agregar — flex (pocos) o grilla uniforme (muchos) */}
+			<div
+				className={
+					fields.length > 3
+						? 'mb-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
+						: 'mb-6 flex flex-wrap items-stretch gap-2.5'
+				}
+			>
 				{fields.map((field, idx) => {
 					const m = members[idx];
 					const { completed, total, status } = getMemberCompletion(m);
@@ -187,8 +196,15 @@ export function StepMembers() {
 					);
 				})}
 				<AddSocioButton
+					fill={fields.length > 3}
 					onClick={() => {
-						append(createEmptyMember());
+						// Asignamos automáticamente el % restante al nuevo socio.
+						const used = members.reduce(
+							(sum, m) => sum + (Number(m?.porcentaje) || 0),
+							0,
+						);
+						const remaining = Math.max(0, 100 - used);
+						append({ ...createEmptyMember(), porcentaje: remaining });
 						setActiveIdx(fields.length);
 						setOpenSection('A');
 					}}

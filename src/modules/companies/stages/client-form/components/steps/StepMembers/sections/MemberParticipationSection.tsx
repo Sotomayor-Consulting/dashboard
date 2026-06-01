@@ -1,7 +1,5 @@
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
-import { Input } from '@components/ui/Input';
-
 import { Field, RadioCard, SubsectionCard } from '../../../../atoms';
 import type { ClientFormData, Member } from '../../../../types';
 
@@ -13,13 +11,15 @@ interface Props {
 
 /**
  * B · Participación y estatus fiscal — 2 campos:
- *   - porcentaje de participación (con suffix %)
+ *   - porcentaje de participación (slider 0–100 con lectura del valor)
  *   - residente fiscal en EE. UU. (Sí/No)
+ *
+ * El % usa un slider en lugar de input numérico (más fácil de ajustar),
+ * pero mantiene el mismo campo `porcentaje` y su validación de suma 100%.
  */
 export function MemberParticipationSection({ index, open, onToggle }: Props) {
 	const {
 		control,
-		register,
 		formState: { errors },
 	} = useFormContext<ClientFormData>();
 
@@ -27,6 +27,17 @@ export function MemberParticipationSection({ index, open, onToggle }: Props) {
 		control,
 		name: `miembros.${index}`,
 	}) as Member | undefined;
+
+	// Suma de los demás socios → el % disponible (tope) para este socio.
+	const allMembers = useWatch<ClientFormData>({
+		control,
+		name: 'miembros',
+	}) as Member[] | undefined;
+	const sumOthers = (allMembers ?? []).reduce(
+		(sum, m, i) => (i === index ? sum : sum + (Number(m?.porcentaje) || 0)),
+		0,
+	);
+	const available = Math.max(0, 100 - sumOthers);
 
 	const path = `miembros.${index}` as const;
 	const memberErrors = errors.miembros?.[index];
@@ -43,31 +54,55 @@ export function MemberParticipationSection({ index, open, onToggle }: Props) {
 			onToggle={onToggle}
 		>
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-				<Field
-					label="Porcentaje de participación"
-					hint="Debe sumar 100% entre todos los socios."
-					required
-					htmlFor={`${path}.porcentaje`}
-					error={memberErrors?.porcentaje?.message as string | undefined}
-				>
-					<div className="relative">
-						<Input
-							id={`${path}.porcentaje`}
-							type="number"
-							min={1}
-							max={100}
-							{...register(`${path}.porcentaje`, { valueAsNumber: true })}
-							placeholder="50"
-							className="pr-9"
-						/>
-						<span
-							className="cf-mono pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[12px]"
-							style={{ color: 'var(--cf-ink-soft)' }}
-						>
-							%
-						</span>
-					</div>
-				</Field>
+				<Controller
+					control={control}
+					name={`${path}.porcentaje`}
+					render={({ field }) => {
+						const value = Math.min(Number(field.value ?? 0), available);
+						return (
+							<Field
+								label="Porcentaje de participación"
+								hint="Cada socio puede tomar como máximo el porcentaje que queda disponible. La suma debe ser 100%."
+								required
+								htmlFor={`${path}.porcentaje`}
+								error={memberErrors?.porcentaje?.message as string | undefined}
+							>
+								<div className="flex items-center gap-3 pt-1">
+									<input
+										id={`${path}.porcentaje`}
+										type="range"
+										min={0}
+										max={available}
+										step={1}
+										value={value}
+										onChange={(e) =>
+											field.onChange(
+												Math.min(Number(e.target.value), available),
+											)
+										}
+										className="h-1.5 flex-1 cursor-pointer accent-[var(--cf-accent)]"
+										style={{ accentColor: 'var(--cf-accent)' }}
+									/>
+									<span
+										className="w-12 shrink-0 text-right text-[15px] font-semibold tabular-nums"
+										style={{ color: 'var(--cf-ink)' }}
+									>
+										{value}%
+									</span>
+								</div>
+								<div
+									className="mt-1.5 text-[11.5px]"
+									style={{ color: 'var(--cf-ink-soft)' }}
+								>
+									Disponible para este socio:{' '}
+									<strong style={{ color: 'var(--cf-ink-mute)' }}>
+										{available}%
+									</strong>
+								</div>
+							</Field>
+						);
+					}}
+				/>
 
 				<Controller
 					control={control}

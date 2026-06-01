@@ -30,7 +30,7 @@ interface Props {
 export function FormRail({ currentStep, summary = [], onStepClick }: Props) {
 	return (
 		<aside
-			className="flex flex-col overflow-hidden border-r px-6 py-7"
+			className="hidden flex-col overflow-hidden border-r px-6 py-7 lg:flex"
 			style={{
 				background: 'var(--cf-bg-rail)',
 				borderColor: 'var(--cf-line)',

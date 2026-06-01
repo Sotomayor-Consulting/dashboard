@@ -116,13 +116,22 @@ export function SocioPill({
 
 /**
  * Botón con borde dashed para agregar un nuevo socio.
+ * `fill` → ocupa toda la celda (modo grilla con muchos socios).
  */
-export function AddSocioButton({ onClick }: { onClick: () => void }) {
+export function AddSocioButton({
+	onClick,
+	fill = false,
+}: {
+	onClick: () => void;
+	fill?: boolean;
+}) {
 	return (
 		<button
 			type="button"
 			onClick={onClick}
-			className="flex w-[140px] shrink-0 flex-col items-center justify-center gap-1.5 rounded-[12px] border-[1.5px] border-dashed p-[14px_14px] text-[13px] font-medium transition-colors hover:opacity-80"
+			className={`flex flex-col items-center justify-center gap-1.5 rounded-[12px] border-[1.5px] border-dashed p-[14px_14px] text-[13px] font-medium transition-colors hover:opacity-80 ${
+				fill ? 'h-full w-full' : 'w-[140px] shrink-0'
+			}`}
 			style={{
 				borderColor: 'var(--cf-line-strong)',
 				background: 'transparent',

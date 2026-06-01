@@ -56,11 +56,6 @@ export const activityRefinements: ReadonlyArray<{
 			path: ['descripcionActividad'],
 		},
 		{
-			check: (d) => !d.actividadNoEnLista || d.codigoActividad.trim().length > 0,
-			message: 'Ingresa el código IRS de la actividad',
-			path: ['codigoActividad'],
-		},
-		{
 			check: (d) =>
 				d.direccionOperativaEEUU !== 'si' ||
 				Boolean(d.direccion && d.ciudad && d.estado && d.codigoPostal),

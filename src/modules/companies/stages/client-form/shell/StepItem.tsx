@@ -43,9 +43,7 @@ export function StepItem({
 				<div
 					className={cn(
 						'absolute top-9 left-[17px] h-[calc(100%-24px)] w-[1.5px]',
-						isDone
-							? 'bg-[var(--cf-accent)]'
-							: 'bg-[var(--cf-line)]',
+						isDone ? 'bg-[var(--cf-accent)]' : 'bg-[var(--cf-line)]',
 					)}
 					aria-hidden="true"
 				/>
@@ -59,9 +57,9 @@ export function StepItem({
 				className={cn(
 					'relative z-10 grid h-9 w-9 shrink-0 place-items-center rounded-full border-[1.5px] transition-all',
 					isCurrent &&
-						'border-[var(--cf-ink)] bg-[var(--cf-ink)] text-[var(--cf-bg-card)]',
+						'border-[var(--cf-ink)] bg-[var(--cf-bg-card)] text-[var(--cf-ink)]',
 					isDone &&
-						'border-[var(--cf-accent)] bg-[var(--cf-accent)] text-white',
+						'border-green-600 bg-green-100 text-green-700 dark:border-green-500 dark:bg-green-950 dark:text-green-300',
 					!isCurrent &&
 						!isDone &&
 						'border-[var(--cf-line-strong)] bg-[var(--cf-bg-card)] text-[var(--cf-ink-soft)]',
@@ -69,10 +67,7 @@ export function StepItem({
 					!isClickable && 'cursor-default',
 				)}
 			>
-				<Icon
-					icon={isDone ? 'ri:check-line' : icon}
-					className="h-4 w-4"
-				/>
+				<Icon icon={isDone ? 'ri:check-line' : icon} className="h-4 w-4" />
 			</button>
 
 			<div className="min-w-0 flex-1 pt-1">

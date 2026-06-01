@@ -71,12 +71,12 @@ export function FormShell({
 
 	return (
 		<div
-			className="client-form-shell fixed inset-0 grid overflow-hidden"
+			className="client-form-shell fixed inset-0 grid grid-cols-1 overflow-hidden lg:grid-cols-[300px_1fr]"
 			style={{
-				gridTemplateColumns: '300px 1fr',
 				background: 'var(--cf-bg-page)',
 			}}
 		>
+			{/* Rail completo solo en desktop */}
 			<FormRail
 				currentStep={currentStep}
 				summary={summary}
@@ -86,23 +86,31 @@ export function FormShell({
 			<main className="flex min-w-0 flex-col overflow-hidden">
 				{/* Header sticky */}
 				<header
-					className="flex items-start justify-between border-b px-10 pt-6 pb-[22px]"
+					className="flex items-start justify-between gap-3 border-b px-5 pt-5 pb-4 sm:px-8 lg:px-10 lg:pt-6 lg:pb-[22px]"
 					style={{
 						background: 'var(--cf-bg-card)',
 						borderColor: 'var(--cf-line)',
 					}}
 				>
-					<div>
+					<div className="min-w-0">
+						{/* Indicador de paso compacto — solo móvil/tablet */}
+						<div
+							className="cf-mono mb-1 text-[10px] tracking-[0.14em] uppercase lg:hidden"
+							style={{ color: 'var(--cf-ink-soft)' }}
+						>
+							Paso {String(currentStep).padStart(2, '0')} de{' '}
+							{String(totalSteps).padStart(2, '0')}
+						</div>
 						{eyebrow && (
 							<div
-								className="cf-mono mb-1.5 text-[10px] tracking-[0.14em] uppercase"
+								className="cf-mono mb-1.5 hidden text-[10px] tracking-[0.14em] uppercase lg:block"
 								style={{ color: 'var(--cf-ink-soft)' }}
 							>
 								{eyebrow}
 							</div>
 						)}
 						<h1
-							className="text-[22px] font-semibold tracking-[-0.018em]"
+							className="text-[18px] font-semibold tracking-[-0.018em] sm:text-[20px] lg:text-[22px]"
 							style={{ color: 'var(--cf-ink)' }}
 						>
 							{title}
@@ -116,7 +124,7 @@ export function FormShell({
 					className="cf-scroll flex-1 overflow-auto"
 					style={{ background: 'var(--cf-bg-card)' }}
 				>
-					<div className="mx-auto max-w-[880px] px-10 pt-8 pb-10">
+					<div className="mx-auto max-w-[880px] px-5 pt-6 pb-10 sm:px-8 lg:px-10 lg:pt-8">
 						{children}
 					</div>
 				</div>

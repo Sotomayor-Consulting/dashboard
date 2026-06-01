@@ -154,7 +154,14 @@ export function StepManager() {
 						>
 							<Select value={field.value} onValueChange={field.onChange}>
 								<SelectTrigger className="w-full">
-									<SelectValue placeholder="Selecciona un socio" />
+									<SelectValue placeholder="Selecciona un socio">
+										{(value) => {
+											const m = eligibleMembers.find(
+												(x) => x.id === value,
+											);
+											return m?.nombreCompleto || 'Selecciona un socio';
+										}}
+									</SelectValue>
 								</SelectTrigger>
 								<SelectContent>
 									{eligibleMembers.length === 0 ? (

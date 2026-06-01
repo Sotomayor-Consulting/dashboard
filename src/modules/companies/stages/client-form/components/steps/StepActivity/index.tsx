@@ -1,17 +1,7 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
-import { Button } from '@components/ui/Button';
 import { Checkbox } from '@components/ui/Checkbox';
-import { Input } from '@components/ui/Input';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@components/ui/Select';
 import { Textarea } from '@components/ui/Textarea';
 
 import { Divider, Field, RadioCard, SectionHeader } from '../../../atoms';
@@ -62,7 +52,6 @@ export function StepActivity({ activities }: Props) {
 				title="Operación e industria"
 				desc="Ayúdanos a entender cómo va a operar tu empresa en EE. UU."
 			/>
-
 			<div className="flex flex-col gap-[22px]">
 				<Controller
 					control={control}
@@ -83,7 +72,7 @@ export function StepActivity({ activities }: Props) {
 								/>
 								<RadioCard
 									label="No"
-									sub="Solo opero fuera de EE. UU."
+									sub="Operaré fuera de EE. UU."
 									selected={field.value === false}
 									onClick={() => field.onChange(false)}
 								/>
@@ -91,7 +80,6 @@ export function StepActivity({ activities }: Props) {
 						</Field>
 					)}
 				/>
-
 				<Controller
 					control={control}
 					name="actividad"
@@ -111,13 +99,34 @@ export function StepActivity({ activities }: Props) {
 								}}
 								disabled={actividadNoEnLista}
 							/>
+							<label
+								htmlFor="actividadNoEnLista"
+								className="mt-2 inline-flex cursor-pointer items-center gap-1.5 text-[12px]"
+								style={{ color: 'var(--cf-ink-soft)' }}
+							>
+								<Controller
+									control={control}
+									name="actividadNoEnLista"
+									render={({ field: cb }) => (
+										<Checkbox
+											id="actividadNoEnLista"
+											checked={cb.value}
+											onCheckedChange={(checked) => {
+												cb.onChange(checked === true);
+												if (checked) setValue('actividad', '');
+											}}
+										/>
+									)}
+								/>
+								No encuentro mi actividad en la lista
+							</label>
 						</Field>
 					)}
 				/>
 
 				<Field
-					label="Describa su negocio"
-					hint="Una o dos oraciones. El IRS y los bancos lo usan para entender tu actividad."
+					label="Describa su giro de negocio"
+					hint="El IRS y los bancos lo usan para entender tu actividad. Sé claro y específico."
 					required
 					htmlFor="descripcionActividad"
 					error={errors.descripcionActividad?.message as string | undefined}
@@ -129,86 +138,21 @@ export function StepActivity({ activities }: Props) {
 						rows={3}
 						className="!border-[var(--cf-line)] !bg-[var(--cf-bg-card)]"
 					/>
-					<div
-						className="mt-1.5 flex items-center justify-between text-[11.5px]"
-						style={{ color: 'var(--cf-ink-soft)' }}
-					>
-						<label
-							htmlFor="actividadNoEnLista"
-							className="inline-flex cursor-pointer items-center gap-1.5"
-						>
-							<Controller
-								control={control}
-								name="actividadNoEnLista"
-								render={({ field }) => (
-									<Checkbox
-										id="actividadNoEnLista"
-										checked={field.value}
-										onCheckedChange={(checked) => {
-											field.onChange(checked === true);
-											if (checked) setValue('actividad', '');
-										}}
-									/>
-								)}
-							/>
-							Mi actividad no está en la lista
-						</label>
-					</div>
-				</Field>
-
-				{/* Código IRS — solo si "no está en lista" */}
-				<AnimatePresence>
 					{actividadNoEnLista && (
-						<motion.div
-							initial={{ opacity: 0, height: 0 }}
-							animate={{ opacity: 1, height: 'auto' }}
-							exit={{ opacity: 0, height: 0 }}
-							className="overflow-hidden"
+						<div
+							className="mt-1.5 flex items-start gap-1.5 text-[11.5px] leading-[1.5]"
+							style={{ color: 'var(--cf-accent-ink)' }}
 						>
-							<div
-								className="rounded-[10px] border p-4"
-								style={{
-									background: 'var(--cf-bg-subtle)',
-									borderColor: 'var(--cf-line-soft)',
-								}}
-							>
-								<Field
-									label="Código IRS de la actividad"
-									hint="Ingresa el código de la actividad según el IRS."
-									htmlFor="codigoActividad"
-									error={errors.codigoActividad?.message as string | undefined}
-								>
-									<div className="flex gap-2">
-										<Input
-											id="codigoActividad"
-											{...register('codigoActividad')}
-											placeholder="Ej: 541512"
-										/>
-										<Button
-											variant="outline"
-											size="sm"
-											className="shrink-0"
-											type="button"
-											render={
-												<a
-													href="https://www.irs.gov/pub/irs-soi/18pf_business_codes.pdf"
-													target="_blank"
-													rel="noopener noreferrer"
-												>
-													Ver códigos
-													<Icon
-														icon="ri:external-link-line"
-														className="ml-1 h-3.5 w-3.5"
-													/>
-												</a>
-											}
-										/>
-									</div>
-								</Field>
-							</div>
-						</motion.div>
+							<Icon
+								icon="ri:information-line"
+								className="mt-0.5 h-3.5 w-3.5 shrink-0"
+							/>
+							Como tu actividad no está en la lista, descríbela con el mayor
+							detalle posible: nuestro equipo asignará el código IRS
+							correspondiente.
+						</div>
 					)}
-				</AnimatePresence>
+				</Field>
 			</div>
 
 			<Divider />
@@ -259,27 +203,25 @@ export function StepActivity({ activities }: Props) {
 							htmlFor="formaTributacion"
 							error={errors.formaTributacion?.message as string | undefined}
 						>
-							<Select
-								value={field.value}
-								onValueChange={field.onChange}
-							>
-								<SelectTrigger className="w-full">
-									<SelectValue placeholder="Selecciona una opción" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="pass-through">
-										Entidad de paso (Pass-Through Entity)
-									</SelectItem>
-									<SelectItem value="corporation">
-										Corporación (Corporation)
-									</SelectItem>
-								</SelectContent>
-							</Select>
-							{formaTributacion && (
+							<div className="flex flex-col gap-2.5 sm:flex-row">
+								<RadioCard
+									label="Entidad de paso (Pass-Through)"
+									sub="Los ingresos se reportan en la declaración personal de cada socio. Clasificación por defecto de la LLC (disregarded o partnership)."
+									selected={field.value === 'pass-through'}
+									onClick={() => field.onChange('pass-through')}
+								/>
+								<RadioCard
+									label="Corporación (Corporation)"
+									sub="La LLC tributa como entidad propia. Útil para reinvertir utilidades o tener inversionistas externos."
+									selected={field.value === 'corporation'}
+									onClick={() => field.onChange('corporation')}
+								/>
+							</div>
+							{formaTributacion === 'corporation' && (
 								<div
-									className="mt-2 flex items-start gap-2 rounded-lg border p-2.5 text-[12px]"
+									className="mt-2.5 flex items-start gap-2 rounded-lg border p-3 text-[12px] leading-[1.5]"
 									style={{
-										background: 'var(--cf-bg-subtle)',
+										background: 'var(--cf-warn-soft)',
 										borderColor: 'var(--cf-line-soft)',
 										color: 'var(--cf-ink-mute)',
 									}}
@@ -287,12 +229,18 @@ export function StepActivity({ activities }: Props) {
 									<Icon
 										icon="ri:information-line"
 										className="mt-0.5 h-3.5 w-3.5 shrink-0"
-										style={{ color: 'var(--cf-ink-soft)' }}
+										style={{ color: 'var(--cf-warn)' }}
 									/>
 									<span>
-										{formaTributacion === 'pass-through'
-											? 'Apropiado cuando los ingresos se reportan en el formulario personal del socio. Común para LLCs de un solo miembro.'
-											: 'La empresa tributa como entidad propia (corp). Útil si planeas reinvertir utilidades o tener inversionistas externos.'}
+										Para tributar como corporación, la LLC debe presentar el{' '}
+										<strong style={{ color: 'var(--cf-ink)' }}>
+											Formulario 8832 (Entity Classification Election)
+										</strong>{' '}
+										ante el IRS y elegir expresamente ser tratada como
+										corporación; de lo contrario, por defecto tributa como
+										entidad de paso. Ten en cuenta que esta elección no puede
+										modificarse durante los 60 meses siguientes sin autorización
+										del IRS.
 									</span>
 								</div>
 							)}

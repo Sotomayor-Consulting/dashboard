@@ -16,13 +16,9 @@ const NAME_MAX = 100;
 
 interface Props {
 	empresaId: string;
-	/** 3 opciones de nombre en orden de preferencia. */
 	initialNames: [string, string, string];
-	/** Estado de incorporación actual (texto). */
 	estado: string | null;
-	/** Lista de estados disponibles. */
 	estados: EstadoOption[];
-	/** Notifica al wizard cuando cambia el estado (para re-evaluar reglas). */
 	onEstadoChange: (estado: string) => void;
 }
 
@@ -52,13 +48,7 @@ export function IdentityCard({
 	const [currentEstado, setCurrentEstado] = useState<string>(estado ?? '');
 	const [editing, setEditing] = useState<Set<EditKey>>(new Set());
 	const [dirty, setDirty] = useState(false);
-	const [saving, setSaving] = useState(false);
 
-	/**
-	 * Construye el payload canónico de nombres: el seleccionado se persiste
-	 * como `nombre_1` (preferencia), el resto en su orden de display. Así la
-	 * lista visual no se reordena pero la preferencia queda registrada.
-	 */
 	const buildNamesPayload = (arr: [string, string, string], sel: 0 | 1 | 2) => {
 		const rest = arr.filter((_, i) => i !== sel);
 		return {
@@ -67,8 +57,6 @@ export function IdentityCard({
 			nombre_3: rest[1] ?? '',
 		};
 	};
-
-	const allEditing = editing.size === 4;
 
 	const setEdit = (key: EditKey, on: boolean) =>
 		setEditing((prev) => {
@@ -80,7 +68,6 @@ export function IdentityCard({
 
 	const persist = useCallback(
 		async (payload: Record<string, string>) => {
-			setSaving(true);
 			try {
 				const res = await fetch('/api/incorporations/update-identity', {
 					method: 'POST',
@@ -93,32 +80,10 @@ export function IdentityCard({
 				if (res.ok) setDirty(false);
 			} catch (e) {
 				console.error('Error guardando identidad', e);
-			} finally {
-				setSaving(false);
 			}
 		},
 		[empresaId],
 	);
-
-	const codeFor = (nombre: string): string => {
-		const match = estados.find((e) => e.nombre === nombre);
-		if (match?.codigo) return match.codigo.toUpperCase();
-		return nombre.slice(0, 2).toUpperCase() || '—';
-	};
-
-	// ── Editar todo / Guardar todo ──────────────────────────────
-	const toggleEditAll = () => {
-		if (allEditing) {
-			// Guardar todos
-			void persist({
-				...buildNamesPayload(names, selectedIdx),
-				estado_de_incorporacion: currentEstado,
-			});
-			setEditing(new Set());
-		} else {
-			setEditing(new Set<EditKey>([0, 1, 2, 'estado']));
-		}
-	};
 
 	const commitName = (idx: 0 | 1 | 2) => {
 		setEdit(idx, false);
@@ -135,7 +100,8 @@ export function IdentityCard({
 		void persist(buildNamesPayload(names, idx));
 	};
 
-	const commitEstado = (value: string) => {
+	const commitEstado = (value: string | null) => {
+		if (!value) return;
 		setCurrentEstado(value);
 		setDirty(false);
 		onEstadoChange(value);
@@ -145,10 +111,10 @@ export function IdentityCard({
 
 	return (
 		<div
-			className="mb-8 rounded-[14px] border p-[22px]"
+			className="mb-8 border-y py-[22px]"
 			style={{
 				borderColor: 'var(--cf-line)',
-				background: 'var(--cf-bg-card)',
+				background: 'transparent',
 			}}
 		>
 			{/* Header */}
@@ -158,14 +124,14 @@ export function IdentityCard({
 						className="text-[11.5px] font-medium tracking-[0.06em] uppercase"
 						style={{ color: 'var(--cf-ink-soft)' }}
 					>
-						Datos pre-cargados de tu solicitud
+						Datos de tu solicitud
 					</div>
 					<div className="mt-0.5 flex items-center gap-2.5">
 						<h2
 							className="text-[16px] font-semibold tracking-[-0.01em]"
 							style={{ color: 'var(--cf-ink)' }}
 						>
-							Confirma la identidad de tu empresa
+							Confirma la información de tu empresa
 						</h2>
 						{dirty && (
 							<span
@@ -180,24 +146,6 @@ export function IdentityCard({
 						)}
 					</div>
 				</div>
-				<button
-					type="button"
-					onClick={toggleEditAll}
-					aria-expanded={allEditing}
-					disabled={saving}
-					className="inline-flex shrink-0 items-center gap-1.5 rounded-[7px] border px-3 py-[7px] text-[12.5px] font-medium transition-all hover:opacity-90"
-					style={{
-						borderColor: allEditing ? 'var(--cf-ink)' : 'var(--cf-line)',
-						background: allEditing ? 'var(--cf-ink)' : 'var(--cf-bg-card)',
-						color: allEditing ? 'var(--cf-bg-card)' : 'var(--cf-ink)',
-					}}
-				>
-					<Icon
-						icon={allEditing ? 'ri:check-line' : 'ri:pencil-line'}
-						className="h-3 w-3"
-					/>
-					{allEditing ? 'Guardar cambios' : 'Editar todo'}
-				</button>
 			</div>
 
 			{/* Layout vertical: nombres en fila, estado debajo */}
@@ -232,7 +180,7 @@ export function IdentityCard({
 								onCancel={() => {
 									setNames((prev) => {
 										const next = [...prev] as [string, string, string];
-										next[idx] = initialNames[idx];
+										next[idx] = initialNames[idx] ?? '';
 										return next;
 									});
 									setEdit(idx as EditKey, false);
@@ -251,66 +199,21 @@ export function IdentityCard({
 						Estado de incorporación
 					</div>
 
-					<div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
-						{/* Card / select del estado */}
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+						{/* Select del estado */}
 						<div className="w-full sm:w-[280px] sm:shrink-0">
-							{editing.has('estado') ? (
-								<Select value={currentEstado} onValueChange={commitEstado}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Selecciona un estado" />
-									</SelectTrigger>
-									<SelectContent>
-										{estados.map((e) => (
-											<SelectItem key={e.nombre} value={e.nombre}>
-												{e.codigo ? `${e.codigo} · ${e.nombre}` : e.nombre}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							) : (
-								<div
-									className="flex h-full items-center gap-3 rounded-[10px] border p-[14px]"
-									style={{
-										borderColor: 'var(--cf-line)',
-										background: 'var(--cf-bg-rail)',
-										minHeight: 86,
-									}}
-								>
-									<div
-										className="grid h-11 w-11 shrink-0 place-items-center rounded-[8px] border text-[14px] font-semibold tracking-[0.04em]"
-										style={{
-											background: 'var(--cf-bg-card)',
-											borderColor: 'var(--cf-line)',
-											color: 'var(--cf-ink)',
-										}}
-									>
-										{currentEstado ? codeFor(currentEstado) : '—'}
-									</div>
-									<div className="min-w-0 flex-1">
-										<div
-											className="truncate text-[14px] font-semibold tracking-[-0.005em]"
-											style={{ color: 'var(--cf-ink)' }}
-										>
-											{currentEstado || 'Sin estado'}
-										</div>
-										<div
-											className="mt-0.5 text-[11.5px]"
-											style={{ color: 'var(--cf-ink-soft)' }}
-										>
-											Estado seleccionado
-										</div>
-									</div>
-									<button
-										type="button"
-										onClick={() => setEdit('estado', true)}
-										aria-label="Editar estado de incorporación"
-										className="inline-flex shrink-0 p-1.5"
-										style={{ color: 'var(--cf-ink-mute)' }}
-									>
-										<Icon icon="ri:pencil-line" className="h-3.5 w-3.5" />
-									</button>
-								</div>
-							)}
+							<Select value={currentEstado} onValueChange={commitEstado}>
+								<SelectTrigger className="w-full">
+									<SelectValue placeholder="Selecciona un estado" />
+								</SelectTrigger>
+								<SelectContent>
+									{estados.map((e) => (
+										<SelectItem key={e.nombre} value={e.nombre}>
+											{e.codigo ? `${e.codigo} · ${e.nombre}` : e.nombre}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 
 						{/* Divider vertical */}
