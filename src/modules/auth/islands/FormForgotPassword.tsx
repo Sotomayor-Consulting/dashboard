@@ -5,6 +5,8 @@ import { Input } from '@components/ui/Input';
 import { Spinner } from '@components/ui/Spinner';
 import { Checkbox } from '@components/ui/Checkbox';
 import { cn } from '@components/utils';
+import LogoLight from '../../../icons/logo-sotomayor-consulting.svg';
+import LogoDark from '../../../icons/logo-sotomayor-consulting-black.svg';
 
 type FormState = { error: string | null };
 
@@ -33,12 +35,12 @@ export default function FormForgotPassword() {
 					className="mb-8 flex items-center justify-center text-2xl font-semibold lg:mb-10 dark:text-white"
 				>
 					<img
-						src="/src/icons/logo-sotomayor-consulting-white.svg"
+						src={LogoLight.src}
 						alt="Sotomayor Consulting"
 						className="mr-4 hidden h-10 dark:block"
 					/>
 					<img
-						src="/src/icons/logo-sotomayor-consulting-black.svg"
+						src={LogoDark.src}
 						alt="Sotomayor Consulting"
 						className="mr-4 block h-10 invert dark:hidden"
 					/>

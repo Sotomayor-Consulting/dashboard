@@ -2,6 +2,8 @@
 import FooterStacked from '../components/navigation/FooterStacked.astro';
 import LayoutCommon from './LayoutCommonForms.astro';
 import NavBarStacked from '../components/navigation/NavBarStacked.astro';
+import { Image } from 'astro:assets';
+import edificiosFondo from '@assets/backgrounds/edificios-fondo.avif';
 ---
 
 <LayoutCommon>
@@ -9,8 +11,8 @@ import NavBarStacked from '../components/navigation/NavBarStacked.astro';
 
 	<div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-black-800">
 		<div>
-			<img
-				src="/src/assets/edificios-fondo.avif"
+			<Image
+				src={edificiosFondo}
 				alt="Fondo edificios"
 				class="z-0 dark:opacity-10 opacity-50 absolute object-center h-full w-full object-cover"
 			/>

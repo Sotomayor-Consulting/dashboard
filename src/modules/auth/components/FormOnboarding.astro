@@ -3,9 +3,7 @@
 // Captura los datos faltantes de la empresa cuando el usuario llegó
 // vía invitación de Odoo: tipo de negocio, estado de incorporación
 // y hasta 3 opciones de nombre.
-import AstroLogo from '@assets/SC-INTER.webp';
-import AstroLogoNg from '@assets/SC-INTER-NG.webp';
-import { Image } from 'astro:assets';
+import { Icon } from 'astro-icon/components';
 
 interface Props {
 	empresaId: string;
@@ -38,17 +36,15 @@ const ESTADOS = [
 			href="/"
 			class="mt-4 flex items-center justify-center text-2xl font-semibold dark:text-white"
 		>
-			<Image
-				src={AstroLogo}
-				alt="Sotomayor Logo"
-				height={44}
-				class="hidden h-11 dark:block"
+			<Icon
+				name="logo-sotomayor-consulting-black"
+				class="hidden h-11 w-auto dark:block"
+				title="Sotomayor Logo"
 			/>
-			<Image
-				src={AstroLogoNg}
-				alt="Sotomayor Logo"
-				height={44}
-				class="block h-11 dark:hidden"
+			<Icon
+				name="logo-sotomayor-consulting"
+				class="block h-11 w-auto dark:hidden"
+				title="Sotomayor Logo"
 			/>
 		</a>
 

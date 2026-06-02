@@ -1,5 +1,6 @@
 ---
 import { asset } from '@shared/data.js';
+import { Icon } from 'astro-icon/components';
 ---
 
 <div
@@ -9,15 +10,15 @@ import { asset } from '@shared/data.js';
 		href="#"
 		class="flex items-center justify-center my-8 text-2xl font-semibold dark:text-white"
 	>
-		<img
-			src="/src/assets/SC-INTER.png"
-			alt="Sotomayor Logo"
-			class="mr-4 h-11 dark:block hidden"
+		<Icon
+			name="logo-sotomayor-consulting-black"
+			class="mr-4 hidden h-11 w-auto dark:block"
+			title="Sotomayor Logo"
 		/>
-		<img
-			src="/src/assets/SC-INTER-NG.png"
-			alt="Sotomayor Logo"
-			class="mr-4 h-11 dark:hidden block"
+		<Icon
+			name="logo-sotomayor-consulting"
+			class="mr-4 block h-11 w-auto dark:hidden"
+			title="Sotomayor Logo"
 		/>
 	</a>
 	<div
