@@ -7,9 +7,10 @@ export type PlanningMeetingSubstate =
 	| 'schedule_pending'
 	| 'meeting_scheduled'
 	| 'awaiting_doc'
-	| 'awaiting_approval'
-	| 'rejected'
-	| 'approved';
+	| 'delivered';
+// NOTA: los substates 'awaiting_approval' | 'rejected' | 'approved' se
+// retiraron al eliminar la aprobación del cliente. El informe ahora solo
+// se entrega ('delivered'), no se aprueba.
 
 export interface PlanningDesignDocument {
 	id: string;
@@ -134,23 +135,11 @@ const deriveSubstate = (input: {
 	document: PlanningDesignDocument | null;
 	latestApproval: PlanningMeetingApproval | null;
 }): PlanningMeetingSubstate => {
-	const { stageStatus, meeting, document, latestApproval } = input;
+	const { stageStatus, meeting, document } = input;
 
-	if (stageStatus === 'completed' || latestApproval?.decision === 'approved') {
-		return 'approved';
-	}
-
-	// Si ya hay un documento subido por ops, la fase de "reunión" se considera
-	// superada — sin importar si Zcal marcó la reunión como `completed` o no.
-	// El cliente debe ver el documento aunque la reunión siga en `scheduled`.
-	if (document) {
-		if (latestApproval?.decision === 'rejected') {
-			if (new Date(document.uploaded_at) > new Date(latestApproval.decided_at)) {
-				return 'awaiting_approval';
-			}
-			return 'rejected';
-		}
-		return 'awaiting_approval';
+	// La etapa completada o con el informe ya generado/subido → entregado.
+	if (stageStatus === 'completed' || document) {
+		return 'delivered';
 	}
 
 	if (!meeting || meeting.status === 'cancelled') {

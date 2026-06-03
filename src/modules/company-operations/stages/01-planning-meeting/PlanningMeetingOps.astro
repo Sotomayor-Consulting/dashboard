@@ -5,6 +5,7 @@ import {
 	resolvePlanningMeetingContext,
 	type PlanningMeetingSubstate,
 } from '@domains/workflow/stages/planning-meeting';
+import { getReportByIncorporation } from '@domains/workflow/stages/planning-design-report';
 import {
 	createDocumentSignedUrl,
 	resolveDocumentActor,
@@ -12,9 +13,9 @@ import {
 } from '@domains/documents';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import MeetingScheduledOps from './components/MeetingScheduledOps.astro';
-import UploadPlanningDoc from './components/UploadPlanningDoc.astro';
-import AwaitingApprovalCard from './components/AwaitingApprovalCard.astro';
-import RejectionFeedbackCard from './components/RejectionFeedbackCard.astro';
+import PlanningReportWizard, {
+	type InitialReport,
+} from './islands/PlanningReportWizard.tsx';
 
 const { currentStage, empresaId } = Astro.props as OpsStageProps;
 const supabase = Astro.locals.supabase;
@@ -52,6 +53,69 @@ if (context.document) {
 }
 
 const substate: PlanningMeetingSubstate = context.substate;
+
+// ─── Datos para el wizard (solo cuando Ops debe llenar el informe) ──────
+let wizardStates: { id: number; name: string }[] = [];
+let activityName: string | null = null;
+let wizardInitial: InitialReport | null = null;
+let hasSavedReport = false;
+
+const showWizard =
+	substate === 'awaiting_doc' || substate === 'meeting_scheduled';
+
+if (showWizard) {
+	const report = await getReportByIncorporation(supabase, empresaId);
+	hasSavedReport = !!report;
+
+	const [{ data: estados }, { data: empresa }] = await Promise.all([
+		supabaseAdmin
+			.from('estados')
+			.select('ListaDeEstados_Id, Estado')
+			.order('Estado', { ascending: true }),
+		supabaseAdmin
+			.from('empresas_incorporaciones')
+			.select('activity_id, estado_eeuu')
+			.eq('empresa_incorporacion_id', empresaId)
+			.maybeSingle(),
+	]);
+
+	wizardStates = (estados ?? []).map(
+		(e: { ListaDeEstados_Id: number; Estado: string }) => ({
+			id: e.ListaDeEstados_Id,
+			name: e.Estado,
+		}),
+	);
+
+	const activityId = report?.activity_id ?? empresa?.activity_id ?? null;
+	if (activityId) {
+		const { data: act } = await supabaseAdmin
+			.from('activity')
+			.select('name_es')
+			.eq('id', activityId)
+			.maybeSingle();
+		activityName = (act as { name_es?: string | null } | null)?.name_es ?? null;
+	}
+
+	// Prefill: estado por nombre si aún no hay state_id guardado
+	const prefillStateId =
+		report?.state_id ??
+		wizardStates.find((s) => s.name === empresa?.estado_eeuu)?.id ??
+		null;
+
+	wizardInitial = {
+		stateId: prefillStateId,
+		activityId,
+		confidentiality: report?.confidentiality ?? null,
+		administrationForm: report?.administration_form ?? null,
+		taxTributation: report?.tax_tributation ?? null,
+		accountingMethod: report?.accounting_method ?? null,
+		membersNumber: report?.members_number ?? null,
+		incomeUs: report?.income_us ?? null,
+		designatedManager: report?.designated_manager ?? null,
+		companyDescription: report?.company_description ?? null,
+		meetingResume: report?.meeting_resume ?? null,
+	};
+}
 ---
 
 <div class="space-y-3">
@@ -76,69 +140,65 @@ const substate: PlanningMeetingSubstate = context.substate;
 	}
 
 	{
-		substate === 'meeting_scheduled' && context.meeting && (
-			<MeetingScheduledOps
-				scheduledAt={context.meeting.scheduled_at}
-				durationMinutes={context.meeting.duration_minutes}
-				advisorName={advisorName}
-				isPast={false}
-			/>
-		)
-	}
-
-	{
-		substate === 'awaiting_doc' && context.meeting && (
+		showWizard && wizardInitial && (
 			<>
-				<MeetingScheduledOps
-					scheduledAt={context.meeting.scheduled_at}
-					durationMinutes={context.meeting.duration_minutes}
-					advisorName={advisorName}
-					isPast={true}
+				{context.meeting && (
+					<MeetingScheduledOps
+						scheduledAt={context.meeting.scheduled_at}
+						durationMinutes={context.meeting.duration_minutes}
+						advisorName={advisorName}
+						isPast={substate === 'awaiting_doc'}
+					/>
+				)}
+				<PlanningReportWizard
+					client:load
+					incorporationId={empresaId}
+					states={wizardStates}
+					activityName={activityName}
+					initial={wizardInitial}
+					hasSavedReport={hasSavedReport}
 				/>
-				<UploadPlanningDoc empresaId={empresaId} mode="new" />
 			</>
 		)
 	}
 
 	{
-		substate === 'awaiting_approval' && context.document && (
-			<AwaitingApprovalCard
-				document={context.document}
-				signedUrl={signedUrl}
-			/>
-		)
-	}
-
-	{
-		substate === 'rejected' && context.latestApproval && (
-			<>
-				<RejectionFeedbackCard rejection={context.latestApproval} />
-				<UploadPlanningDoc empresaId={empresaId} mode="replace" />
-			</>
-		)
-	}
-
-	{
-		substate === 'approved' && (
+		substate === 'delivered' && (
 			<div class="flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50/50 p-3 dark:border-emerald-900/40 dark:bg-emerald-900/10">
 				<Icon
 					name="ri:checkbox-circle-line"
 					class="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400"
 				/>
-				<div>
+				<div class="min-w-0">
 					<p class="text-sm font-semibold text-gray-900 dark:text-white">
-						Etapa completada
+						Informe enviado al cliente
 					</p>
 					<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-						El cliente aprobó la planificación. El workflow avanzó al siguiente
-						paso.
+						El informe de planificación y diseño se generó y está disponible para
+						el cliente. La etapa avanzó al siguiente paso.
 					</p>
+					{
+						signedUrl && (
+							<a
+								href={signedUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-300"
+							>
+								<Icon name="ri:external-link-line" class="h-3.5 w-3.5" />
+								Ver informe
+							</a>
+						)
+					}
 				</div>
 			</div>
 		)
 	}
 </div>
 
-<script>
-	import './planning-meeting-ops.client.ts';
-</script>
+{/*
+  NOTA: el flujo anterior incluía subir el PDF manualmente y la aprobación
+  del cliente (UploadPlanningDoc, AwaitingApprovalCard, RejectionFeedbackCard
+  + planning-meeting-ops.client.ts). Se retiró al pasar al wizard + generación
+  automática. Los componentes se conservan en el repo por si se reactivan.
+*/}
