@@ -1,4 +1,4 @@
-export type EntityType = 'company' | 'incorporation_case' | 'member';
+export type EntityType = 'company' | 'incorporation_case' | 'member' | 'planning_design_report';
 
 export interface EntityFieldDescriptor {
 	name: string;
@@ -37,6 +37,20 @@ const incorporationFields: EntityFieldDescriptor[] = [
 	{ name: 'created_at', label: 'Fecha de creación', type: 'date' },
 ];
 
+const planningDesignFields: EntityFieldDescriptor[] = [
+	{ name: 'pd_state_id', label: 'Estado (planning)', type: 'text', description: 'ID del estado seleccionado en planning' },
+	{ name: 'pd_activity_id', label: 'Actividad (planning)', type: 'text', description: 'ID de la actividad en planning' },
+	{ name: 'pd_confidentiality', label: 'Confidencialidad', type: 'boolean' },
+	{ name: 'pd_administration_form', label: 'Forma de administración', type: 'text', enumValues: ['member_managed', 'manager_managed'] },
+	{ name: 'pd_tax_tributation', label: 'Tributación', type: 'text', enumValues: ['pass_through', 'corporation'] },
+	{ name: 'pd_accounting_method', label: 'Método contable', type: 'text', enumValues: ['cash', 'accrual'] },
+	{ name: 'pd_members_number', label: 'Número de miembros', type: 'number' },
+	{ name: 'pd_income_us', label: 'Ingresos desde EEUU', type: 'boolean' },
+	{ name: 'pd_designated_manager', label: 'Manager designado', type: 'text' },
+	{ name: 'pd_company_description', label: 'Descripción de la empresa', type: 'text' },
+	{ name: 'pd_meeting_resume', label: 'Resumen de reunión', type: 'text' },
+];
+
 const memberFields: EntityFieldDescriptor[] = [
 	{ name: 'full_name', label: 'Nombre completo', type: 'text' },
 	{ name: 'first_name', label: 'Nombre', type: 'text' },
@@ -59,12 +73,14 @@ const ENTITY_FIELDS: Record<EntityType, EntityFieldDescriptor[]> = {
 	company: companyFields,
 	incorporation_case: incorporationFields,
 	member: memberFields,
+	planning_design_report: planningDesignFields,
 };
 
 const ENTITY_LABELS: Record<EntityType, string> = {
 	company: 'Empresa',
 	incorporation_case: 'Incorporación',
 	member: 'Miembro',
+	planning_design_report: 'Reporte de Planificación y Diseño',
 };
 
 export function getEntityFields(entityType: EntityType): EntityFieldDescriptor[] {

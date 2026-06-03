@@ -6,11 +6,12 @@ interface Props {
 	data: object | null | undefined;
 	templatePath?: string;
 	reportName?: string;
+	templateId?: string;
 }
 
 const supabase = Astro.locals.supabase;
 
-const { data, templatePath, reportName } = Astro.props;
+const { data, templatePath, reportName, templateId } = Astro.props;
 const btnId = `btn-imprimir-${Math.random().toString(36).slice(2, 9)}`;
 
 const user = Astro.locals.user;
@@ -47,7 +48,7 @@ if (isPartner && user) {
 }
 
 <script
-	define:vars={{ data, templatePath, reportName }}
+	define:vars={{ data, templatePath, reportName, templateId }}
 	data-btn-id={btnId}
 	is:inline
 >
@@ -59,37 +60,39 @@ if (isPartner && user) {
 		const originalText = btn.innerText;
 		btn.innerText = 'Generando contrato...';
 		btn.disabled = true;
+
+		const downloadName = `${reportName ?? 'documento'}.pdf`;
+
 		try {
-			const response = await fetch('../../api/pdf/generate', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					data,
-					templatePath,
-					reportName,
-				}),
-			});
+			let response;
+
+			if (templateId) {
+				response = await fetch(`../../api/templates/${templateId}/fill`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ fieldValues: data }),
+				});
+			} else {
+				response = await fetch('../../api/pdf/generate', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ data, templatePath, reportName }),
+				});
+			}
 
 			if (!response.ok) {
 				const errorText = await response.text();
 				throw new Error(errorText || 'Error en la generación');
 			}
 
-			// 4. Convertir respuesta a Blob
 			const blob = await response.blob();
-
-			// 5. Forzar descarga
-			const url = window.URL.createObjectURL(blob);
+			const objectUrl = window.URL.createObjectURL(blob);
 			const a = document.createElement('a');
-			a.href = url;
-			a.download = `${reportName}.pdf`;
+			a.href = objectUrl;
+			a.download = downloadName;
 			document.body.appendChild(a);
 			a.click();
-
-			// Limpieza del DOM
-			window.URL.revokeObjectURL(url);
+			window.URL.revokeObjectURL(objectUrl);
 			a.remove();
 		} catch (error) {
 			console.error('Error en el frontend:', error);

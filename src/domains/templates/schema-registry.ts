@@ -8,12 +8,14 @@ export const ENTITY_TABLES: Record<string, string> = {
 	company: 'empresa',
 	incorporation_case: 'empresas_incorporaciones',
 	member: 'members',
+	planning_design_report: 'workflow.planning_design_reports',
 };
 
 export const ENTITY_PK: Record<string, string> = {
 	company: 'empresa_id',
 	incorporation_case: 'empresa_incorporacion_id',
 	member: 'id',
+	planning_design_report: 'incorporation_id',
 };
 
 const ENTITY_QUERY_MAP: Record<string, Record<string, string>> = {
@@ -55,6 +57,19 @@ const ENTITY_QUERY_MAP: Record<string, Record<string, string>> = {
 		marital_status: 'marital_status',
 		is_manager: 'is_manager',
 		is_member: 'is_member',
+	},
+	planning_design_report: {
+		pd_state_id: 'state_id',
+		pd_activity_id: 'activity_id',
+		pd_confidentiality: 'confidentiality',
+		pd_administration_form: 'administration_form',
+		pd_tax_tributation: 'tax_tributation',
+		pd_accounting_method: 'accounting_method',
+		pd_members_number: 'members_number',
+		pd_income_us: 'income_us',
+		pd_designated_manager: 'designated_manager',
+		pd_company_description: 'company_description',
+		pd_meeting_resume: 'meeting_resume',
 	},
 };
 

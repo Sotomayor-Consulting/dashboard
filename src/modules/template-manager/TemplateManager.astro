@@ -1,6 +1,7 @@
 ---
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { listTemplates } from '@domains/templates/templates';
+import { listTransformers } from '@domains/templates/transformers';
 import TemplateManagerPanel from './islands/TemplateManagerPanel';
 
 interface Props {
@@ -9,6 +10,12 @@ interface Props {
 
 const { supabase } = Astro.props;
 const templates = await listTemplates(supabase, { includeDeleted: true });
+const transformers = listTransformers().map((t) => ({
+	id: t.id,
+	name: t.name,
+	description: t.description,
+	entityType: t.entityType,
+}));
 ---
 
-<TemplateManagerPanel data={templates} client:load />
+<TemplateManagerPanel data={templates} transformers={transformers} client:load />

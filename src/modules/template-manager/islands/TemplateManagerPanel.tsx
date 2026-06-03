@@ -35,8 +35,16 @@ import {
 import { UploadTemplateDialog } from '../UploadTemplateDialog';
 import TemplateMappingEditor from './TemplateMappingEditor';
 
+interface TransformerOption {
+	id: string;
+	name: string;
+	description: string;
+	entityType: string;
+}
+
 interface Props {
 	data: TemplateWithDocument[];
+	transformers: TransformerOption[];
 }
 
 const DEFAULT_VISIBLE: Record<ColumnId, boolean> = {
@@ -64,7 +72,11 @@ function matchSearch(t: TemplateWithDocument, q: string): boolean {
 	return haystack.includes(q);
 }
 
-export default function TemplateManagerPanel({ data }: Props) {
+export default function TemplateManagerPanel({ data, transformers }: Props) {
+	const transformerMap = React.useMemo(
+		() => Object.fromEntries(transformers.map((t) => [t.id, t])),
+		[transformers],
+	);
 	const [templates, setTemplates] = React.useState(data);
 	const [filter, setFilter] = React.useState<TemplateFilter>('todas');
 	const [search, setSearch] = React.useState('');
@@ -390,6 +402,7 @@ export default function TemplateManagerPanel({ data }: Props) {
 				open={openCreate}
 				onOpenChange={setOpenCreate}
 				onCreated={(t) => setTemplates((prev) => [t, ...prev])}
+				transformers={transformers}
 			/>
 
 			<EditTemplateDialog
@@ -401,6 +414,7 @@ export default function TemplateManagerPanel({ data }: Props) {
 					applyUpdate(updated);
 					setOpenEdit(null);
 				}}
+				transformers={transformers}
 			/>
 
 			<UploadTemplateDialog
@@ -436,6 +450,7 @@ export default function TemplateManagerPanel({ data }: Props) {
 				onDownload={handleDownload}
 				onArchive={(t) => setOpenConfirm({ template: t, mode: 'soft' })}
 				onRestore={handleRestore}
+				transformerMap={transformerMap}
 			/>
 
 			{/* Confirm delete dialog */}

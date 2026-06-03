@@ -24,12 +24,19 @@ import {
 
 import type { TemplateType, TemplateWithDocument } from '@domains/templates/types';
 import { getAllEntityTypes, getEntityLabel } from '@domains/templates/entity-registry';
-import { listTransformers } from '@domains/templates/transformers';
+
+interface TransformerOption {
+	id: string;
+	name: string;
+	description: string;
+	entityType: string;
+}
 
 interface Props {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onCreated: (template: TemplateWithDocument) => void;
+	transformers: TransformerOption[];
 }
 
 const CATEGORY_OPTIONS = [
@@ -59,7 +66,7 @@ const EMPTY: Draft = {
 	source_url: '',
 };
 
-export function CreateTemplateDialog({ open, onOpenChange, onCreated }: Props) {
+export function CreateTemplateDialog({ open, onOpenChange, onCreated, transformers }: Props) {
 	const [draft, setDraft] = React.useState<Draft>(EMPTY);
 	const [file, setFile] = React.useState<File | null>(null);
 	const [submitting, setSubmitting] = React.useState(false);
@@ -240,7 +247,7 @@ export function CreateTemplateDialog({ open, onOpenChange, onCreated }: Props) {
 								</SelectTrigger>
 								<SelectContent>
 									<SelectGroup>
-										{listTransformers().map((t) => (
+										{transformers.map((t) => (
 											<SelectItem key={t.id} value={t.id}>
 												{t.name}
 											</SelectItem>

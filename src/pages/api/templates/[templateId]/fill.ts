@@ -2,10 +2,12 @@ import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 import { extractTokenRoleNames, hasAnyRole, ROLES } from '@shared/roles';
-import { getTemplateById, getTemplateFileContent } from '@domains/templates/templates';
+import { getTemplateById, getTemplateFileContent, getTemplateFileUrl } from '@domains/templates/templates';
 import { fillPdfAcroForm } from '@domains/templates/fill-pdf';
+import { fillWordCarbone } from '@domains/templates/fill-word';
 import { resolveFieldData, fetchEntityRow } from '@domains/templates/schema-registry';
 import { getTransformer } from '@domains/templates/transformers';
+import type { FieldMapping } from '@domains/templates/types';
 import type { ResolveContextIds } from '@domains/templates/schema-registry';
 import type { EntityType } from '@domains/templates/entity-registry';
 
@@ -39,30 +41,51 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 	const template = await getTemplateById(supabase, templateId);
 	if (!template) return json(404, { error: 'TEMPLATE_NOT_FOUND' });
 
-	if (template.template_type !== 'pdf') {
-		return json(400, { error: 'ONLY_PDF_SUPPORTED', detail: 'Use Carbone for Word templates' });
-	}
-
 	let mergedValues: Record<string, string | boolean | string[]> = {};
 
 	const relatedToType = body.relatedToType as EntityType | undefined;
 	const relatedToId = body.relatedToId as string | undefined;
 	const contextIds = (body.contextIds as ResolveContextIds | undefined) ?? undefined;
 
-	// Step 1: resolve field_mapping (direct entity → PDF mappings)
+	// Step 1: resolve field_mapping — supports multiple source entity types
 	if (template.field_mapping && Object.keys(template.field_mapping).length > 0) {
-		if (relatedToType && relatedToId) {
+		const sources = new Map<string, FieldMapping>(
+			Object.entries(template.field_mapping).reduce((groups, [field, mapping]) => {
+				if (mapping.source === 'static') {
+					mergedValues[field] = mapping.static_value ?? '';
+					return groups;
+				}
+				if (!mapping.source) return groups;
+				const group = groups.find(([k]) => k === mapping.source);
+				if (group) {
+					group[1][field] = mapping;
+				} else {
+					groups.push([mapping.source, { [field]: mapping }]);
+				}
+				return groups;
+			}, [] as [string, FieldMapping][]),
+		);
+
+		for (const [sourceType, sourceMapping] of sources) {
+			let entityId: string | undefined;
+			if (sourceType === 'planning_design_report' && relatedToType === 'incorporation_case') {
+				entityId = relatedToId; // planning_design_reports.incorporation_id = empresa_incorporacion_id
+			} else if (sourceType === relatedToType) {
+				entityId = relatedToId;
+			}
+			if (!entityId) continue;
+
 			try {
 				const resolved = await resolveFieldData(
-					relatedToType,
-					relatedToId,
-					template.field_mapping,
+					sourceType,
+					entityId,
+					sourceMapping,
 					contextIds,
 				);
-				mergedValues = { ...resolved };
+				Object.assign(mergedValues, resolved);
 			} catch (err) {
 				const detail = err instanceof Error ? err.message : 'unknown error';
-				return json(400, { error: 'FIELD_RESOLUTION_FAILED', detail });
+				return json(400, { error: `FIELD_RESOLUTION_FAILED (${sourceType})`, detail });
 			}
 		}
 	}
@@ -82,7 +105,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 		if (relatedToType && relatedToId) {
 			try {
 				const row = await fetchEntityRow(transformer.entityType, relatedToId);
-				const transformed = transformer.evaluate(row);
+				const transformed = await transformer.evaluate(row);
 				Object.assign(mergedValues, transformed);
 			} catch (err) {
 				const detail = err instanceof Error ? err.message : 'unknown error';
@@ -95,6 +118,42 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 	const userValues = body.fieldValues as Record<string, string | boolean | string[]> | undefined;
 	if (userValues) {
 		Object.assign(mergedValues, userValues);
+	}
+
+	if (template.template_type === 'word') {
+		let templateUrl: string;
+		try {
+			templateUrl = await getTemplateFileUrl(template);
+		} catch (err) {
+			const detail = err instanceof Error ? err.message : 'unknown error';
+			return json(500, { error: 'FILE_URL_FAILED', detail });
+		}
+
+		const fileName = `${template.name}.pdf`.replace(/"/g, '');
+
+		try {
+			const { pdf, warnings } = await fillWordCarbone(
+				templateUrl,
+				mergedValues as Record<string, unknown>,
+				{ filename: fileName },
+			);
+			const pdfBlob = new Blob([pdf as BlobPart], { type: 'application/pdf' });
+
+			return new Response(pdfBlob, {
+				status: 200,
+				headers: {
+					'Content-Type': 'application/pdf',
+					'Content-Disposition': `attachment; filename="${fileName}"`,
+					'Content-Length': String(pdfBlob.size),
+					'X-Content-Type-Options': SECURITY_HEADERS['X-Content-Type-Options'] ?? 'nosniff',
+					'X-Template-Warnings': warnings.length > 0 ? encodeURIComponent(JSON.stringify(warnings)) : '',
+				},
+			});
+		} catch (err) {
+			const detail = err instanceof Error ? err.message : 'unknown error';
+			console.error('[fill] WORD_FILL_FAILED:', detail);
+			return json(500, { error: 'WORD_FILL_FAILED', detail });
+		}
 	}
 
 	let fileContent: Awaited<ReturnType<typeof getTemplateFileContent>>;

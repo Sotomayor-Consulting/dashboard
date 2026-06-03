@@ -10,8 +10,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@components/ui/Dialog';
-import { Field, FieldGroup, FieldLabel } from '@components/ui/Field';
-import { Input } from '@components/ui/Input';
+import { DropzoneField } from '@components/ui/DropzoneField';
 
 import type { TemplateWithDocument } from '@domains/templates/types';
 
@@ -21,13 +20,17 @@ interface Props {
 	onUploaded: (updated: TemplateWithDocument) => void;
 }
 
+const ACCEPT_MAP: Record<string, string> = {
+	pdf: '.pdf',
+	word: '.docx',
+};
+
 export function UploadTemplateDialog({ template, onOpenChange, onUploaded }: Props) {
 	const [file, setFile] = React.useState<File | null>(null);
 	const [submitting, setSubmitting] = React.useState(false);
 
-	React.useEffect(() => {
-		if (!template) setFile(null);
-	}, [template]);
+	const accept = template ? ACCEPT_MAP[template.template_type] ?? '.pdf,.docx' : '.pdf,.docx';
+	const title = template?.template_type === 'pdf' ? 'Archivo PDF' : 'Archivo Word (.docx)';
 
 	const handleUpload = async () => {
 		if (!template) return;
@@ -66,19 +69,18 @@ export function UploadTemplateDialog({ template, onOpenChange, onUploaded }: Pro
 						{template ? `Selecciona el archivo para "${template.name}".` : null}
 					</DialogDescription>
 				</DialogHeader>
-				<FieldGroup className="py-4">
-					<Field>
-						<FieldLabel htmlFor="upload-file">
-							Archivo {template?.template_type === 'pdf' ? 'PDF' : 'Word (.docx)'}
-						</FieldLabel>
-						<Input
-							id="upload-file"
-							type="file"
-							accept={template?.template_type === 'pdf' ? '.pdf' : '.docx'}
-							onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-						/>
-					</Field>
-				</FieldGroup>
+				<div className="py-4">
+					<DropzoneField
+						key={template?.id ?? 'none'}
+						accept={accept}
+						maxFileSizeMb={25}
+						title={title}
+						description="Arrastra y suelta o haz clic para seleccionar."
+						helperText={`Formatos: ${accept}. Tamaño máximo: 25 MB.`}
+						showFileList
+						onFilesChange={(files) => setFile(files[0] ?? null)}
+					/>
+				</div>
 				<DialogFooter showCloseButton>
 					<Button onClick={handleUpload} disabled={submitting || !file}>
 						{submitting ? 'Subiendo…' : 'Subir'}

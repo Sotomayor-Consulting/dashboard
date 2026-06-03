@@ -1,5 +1,6 @@
 import type { Transformer } from './types';
 import { ss4Transformer } from './ss4';
+import { incorporationFullTransformer } from './incorporation-full';
 
 const registry = new Map<string, Transformer>();
 
@@ -16,3 +17,4 @@ export function listTransformers(): Transformer[] {
 }
 
 registerTransformer(ss4Transformer);
+registerTransformer(incorporationFullTransformer);

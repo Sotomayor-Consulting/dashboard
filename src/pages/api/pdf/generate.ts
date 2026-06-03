@@ -7,6 +7,7 @@ type GenerateBody = {
 	data?: unknown;
 	templatePath?: string;
 	reportName?: string;
+	filename?: string;
 };
 
 export const POST: APIRoute = async ({ request, cookies }) => {
@@ -23,7 +24,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		const rawBody = await request.json().catch(() => ({}));
 		const body = (rawBody || {}) as GenerateBody;
 
-		const { data, templatePath, reportName } = body;
+		const { data, templatePath, reportName, filename } = body;
 
 		// Validación básica
 		if (!templatePath) {
@@ -36,19 +37,19 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			);
 		}
 
-		// 2. Llamar a tu servicio externo
+		const resolvedFilename = filename ?? reportName ?? 'report';
+
 		const pdfBuffer = await generatePdf({
-			reportName: reportName ?? 'report',
+			reportName: resolvedFilename,
 			templatePath,
 			data: (data ?? {}) as Record<string, unknown>,
 		});
 
-		// 3. Devolver el PDF
 		return new Response(pdfBuffer as BodyInit, {
 			status: 200,
 			headers: {
 				'Content-Type': 'application/pdf',
-				'Content-Disposition': `attachment; filename="${reportName ?? 'report'}.pdf"`,
+				'Content-Disposition': `attachment; filename="${resolvedFilename}.pdf"`,
 			},
 		});
 	} catch (error: unknown) {

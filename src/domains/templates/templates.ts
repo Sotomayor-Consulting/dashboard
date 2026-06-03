@@ -318,59 +318,81 @@ export async function uploadTemplateFile(
 	userId: string,
 	fileName?: string,
 ): Promise<{ documentId: string }> {
-	const documentId = crypto.randomUUID();
 	const resolvedName = fileName || 'template';
 	const filePath = `templates/${safeFilename(`${templateId}-${resolvedName}`)}`;
 	const bucket = 'templates';
+	const bucketForFile = supabaseAdmin.storage.from(bucket);
 
 	const arrayBuf = await file.arrayBuffer();
 
-	const { error: uploadError } = await supabaseAdmin.storage
-		.from(bucket)
-		.upload(filePath, arrayBuf, {
-			upsert: true,
-			contentType: file.type || 'application/octet-stream',
-		});
+	// ── Subir/sobrescribir archivo en storage ──
+	const { error: uploadError } = await bucketForFile.upload(filePath, arrayBuf, {
+		upsert: true,
+		contentType: file.type || 'application/octet-stream',
+	});
 
 	if (uploadError) throw uploadError;
 
 	const timestamp = now();
+
+	// ── Reutilizar documento existente o crear nuevo ──
+	const oldLink = await getDocumentLink(templateId);
 	const documentTypeId = await getOtherDocumentTypeId();
 
-	const { error: insertError } = await db.from('documents').insert({
-		id: documentId,
-		document_type_id: documentTypeId,
-		case_id: null,
-		file_name: resolvedName,
-		bucket_storage: bucket,
-		bucket_path: filePath,
-		file_size_bytes: file.size,
-		mime_type: file.type || null,
-		status: 'uploaded',
-		visibility: 'internal_only',
-		is_sensitive: false,
-		version: 1,
-		uploaded_by: userId,
-		uploaded_at: timestamp,
-		created_by: userId,
-		created_at: timestamp,
-		updated_by: userId,
-		updated_at: timestamp,
-	});
+	let documentId: string;
+	if (oldLink) {
+		documentId = String(oldLink.document_id);
+		const { error: updateError } = await db
+			.from('documents')
+			.update({
+				file_name: resolvedName,
+				bucket_storage: bucket,
+				bucket_path: filePath,
+				file_size_bytes: file.size,
+				mime_type: file.type || null,
+				updated_by: userId,
+				updated_at: timestamp,
+			})
+			.eq('id', documentId);
+		if (updateError) throw updateError;
+	} else {
+		documentId = crypto.randomUUID();
+		const { error: insertError } = await db.from('documents').insert({
+			id: documentId,
+			document_type_id: documentTypeId,
+			case_id: null,
+			file_name: resolvedName,
+			bucket_storage: bucket,
+			bucket_path: filePath,
+			file_size_bytes: file.size,
+			mime_type: file.type || null,
+			status: 'uploaded',
+			visibility: 'internal_only',
+			is_sensitive: false,
+			version: 1,
+			uploaded_by: userId,
+			uploaded_at: timestamp,
+			created_by: userId,
+			created_at: timestamp,
+			updated_by: userId,
+			updated_at: timestamp,
+		});
+		if (insertError) throw insertError;
+	}
 
-	if (insertError) throw insertError;
-
-	const { error: linkError } = await db.from('document_links').insert({
-		document_id: documentId,
-		related_to_type: 'template',
-		related_to_id: templateId,
-		relation_purpose: 'owner',
-		is_primary: true,
-		created_by: userId,
-		created_at: timestamp,
-	});
-
-	if (linkError) throw linkError;
+	// ── Vincular documento a plantilla (solo si nuevo) ──
+	if (!oldLink) {
+		const { error: linkError } = await db.from('document_links').insert({
+			document_id: documentId,
+			related_to_type: 'template',
+			related_to_id: templateId,
+			relation_purpose: 'owner',
+			is_primary: true,
+			created_by: userId,
+			created_at: timestamp,
+		});
+		if (linkError) throw linkError;
+	}
 
 	return { documentId };
 }
@@ -409,6 +431,24 @@ export async function deleteTemplateFile(
 		.eq('document_id', documentId)
 		.eq('related_to_type', 'template')
 		.eq('related_to_id', templateId);
+}
+
+export async function getTemplateFileUrl(
+	template: TemplateWithDocument,
+): Promise<string> {
+	if (template.source_url) return template.source_url;
+
+	if (!template.document) {
+		throw new Error('Template has no associated file or source URL');
+	}
+
+	const { data, error } = await supabaseAdmin.storage
+		.from(template.document.bucket_storage)
+		.createSignedUrl(template.document.bucket_path, 3600);
+
+	if (error || !data) throw new Error('Error creating signed URL for template');
+
+	return data.signedUrl;
 }
 
 export async function getTemplateFileContent(

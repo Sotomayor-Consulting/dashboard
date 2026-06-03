@@ -5,5 +5,5 @@ export interface Transformer {
   name: string;
   description: string;
   entityType: EntityType;
-  evaluate(row: Record<string, unknown>): Record<string, string | boolean | string[]>;
+  evaluate(row: Record<string, unknown>): Record<string, string | boolean | string[]> | Promise<Record<string, string | boolean | string[]>>;
 }

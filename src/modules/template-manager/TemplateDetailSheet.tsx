@@ -8,7 +8,6 @@ import { Sheet, SheetContent } from '@components/ui/Sheet';
 
 import type { TemplateWithDocument } from '@domains/templates/types';
 import { getEntityLabel, type EntityType } from '@domains/templates/entity-registry';
-import { getTransformer } from '@domains/templates/transformers';
 
 import { TemplateStatusBadge } from './cells/TemplateStatusBadge';
 import { TemplateTypeBadge } from './cells/TemplateTypeBadge';
@@ -22,6 +21,7 @@ interface Props {
 	onDownload: (t: TemplateWithDocument) => void;
 	onArchive: (t: TemplateWithDocument) => void;
 	onRestore: (t: TemplateWithDocument) => void;
+	transformerMap: Record<string, { name: string }>;
 }
 
 function fmtBytes(bytes?: number | null) {
@@ -78,13 +78,14 @@ export function TemplateDetailSheet({
 	onDownload,
 	onArchive,
 	onRestore,
+	transformerMap,
 }: Props) {
 	const open = template !== null;
 	const t = template;
 
 	const mappedCount = t ? Object.keys(t.field_mapping ?? {}).length : 0;
 	const detectedCount = t ? (t.field_definitions ?? []).length : 0;
-	const transformer = t?.transformer_id ? getTransformer(t.transformer_id) : undefined;
+	const transformerName = t?.transformer_id ? transformerMap[t.transformer_id]?.name : undefined;
 	const hasFile = !!(t?.document || t?.source_url);
 	const canMap = !!t && t.template_type === 'pdf' && hasFile;
 	const isDeleted = !!t?.deleted_at;
@@ -143,7 +144,7 @@ export function TemplateDetailSheet({
 									label="Entidad asociada"
 									value={t.related_to_type ? getEntityLabel(t.related_to_type as EntityType) : null}
 								/>
-								<KV label="Transformer" value={transformer?.name ?? t.transformer_id} />
+								<KV label="Transformer" value={transformerName ?? t.transformer_id} />
 								<KV label="Versión" value={`v${t.version}`} mono />
 								<KV
 									label="Generación"
@@ -168,15 +169,26 @@ export function TemplateDetailSheet({
 											{fmtBytes(t.document.file_size_bytes)} · {t.document.mime_type ?? '—'}
 										</p>
 									</div>
-									<Button
-										size="sm"
-										variant="outline"
-										className="h-8 gap-1.5"
-										onClick={() => onDownload(t)}
-									>
-										<Icon icon="ri:download-2-line" className="h-4 w-4" />
-										Descargar
-									</Button>
+									<div className="flex gap-2">
+										<Button
+											size="sm"
+											variant="outline"
+											className="h-8 gap-1.5"
+											onClick={() => onDownload(t)}
+										>
+											<Icon icon="ri:download-2-line" className="h-4 w-4" />
+											Descargar
+										</Button>
+										<Button
+											size="sm"
+											variant="outline"
+											className="h-8 gap-1.5"
+											onClick={() => onUpload(t)}
+										>
+											<Icon icon="ri:upload-2-line" className="h-4 w-4" />
+											Reemplazar
+										</Button>
+									</div>
 								</div>
 							) : t.source_url ? (
 								<div className="flex items-center gap-3 rounded-md border border-gray-200 px-3 py-2.5 dark:border-gray-800">
