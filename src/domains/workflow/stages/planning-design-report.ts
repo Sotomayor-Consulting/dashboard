@@ -1,0 +1,248 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import {
+	DocumentsError,
+	type DocumentActor,
+} from '@domains/documents';
+import { generatePdf } from '@integrations/carbone';
+import {
+	uploadPlanningDocument,
+	type UploadPlanningDocumentResult,
+} from './planning-meeting-upload';
+
+/** Plantilla Carbone del informe de planificación y diseño. */
+export const PLANNING_REPORT_TEMPLATE = 'planning-design.docx';
+
+export type AdministrationForm = 'member_managed' | 'manager_managed';
+export type TaxTributation = 'pass_through' | 'corporation';
+export type AccountingMethod = 'cash' | 'accrual';
+
+export interface PlanningDesignReport {
+	id: string;
+	incorporation_id: string;
+	task_id: string | null;
+	state_id: number | null;
+	activity_id: number | null;
+	confidentiality: boolean | null;
+	administration_form: AdministrationForm | null;
+	tax_tributation: TaxTributation | null;
+	accounting_method: AccountingMethod | null;
+	members_number: number | null;
+	income_us: boolean | null;
+	designated_manager: string | null;
+	company_description: string | null;
+	meeting_resume: string | null;
+	created_by: string | null;
+	created_at: string;
+	updated_at: string;
+}
+
+export interface PlanningReportInput {
+	incorporationId: string;
+	taskId?: string | null;
+	stateId?: number | null;
+	activityId?: number | null;
+	confidentiality?: boolean | null;
+	administrationForm?: AdministrationForm | null;
+	taxTributation?: TaxTributation | null;
+	accountingMethod?: AccountingMethod | null;
+	membersNumber?: number | null;
+	incomeUs?: boolean | null;
+	designatedManager?: string | null;
+	companyDescription?: string | null;
+	meetingResume?: string | null;
+}
+
+const wfAdmin = supabaseAdmin.schema('workflow' as never);
+
+const REPORT_COLUMNS = `id, incorporation_id, task_id, state_id, activity_id,
+	confidentiality, administration_form, tax_tributation, accounting_method,
+	members_number, income_us, designated_manager, company_description,
+	meeting_resume, created_by, created_at, updated_at`;
+
+/** Lee el informe (1:1) de una incorporación con el cliente dado (respeta RLS). */
+export const getReportByIncorporation = async (
+	supabase: SupabaseClient,
+	incorporationId: string,
+): Promise<PlanningDesignReport | null> => {
+	const { data, error } = await supabase
+		.schema('workflow' as never)
+		.from('planning_design_reports')
+		.select(REPORT_COLUMNS)
+		.eq('incorporation_id', incorporationId)
+		.maybeSingle();
+	if (error) {
+		console.error('getReportByIncorporation:', error);
+		return null;
+	}
+	return (data as PlanningDesignReport | null) ?? null;
+};
+
+/**
+ * Crea o actualiza (upsert por incorporation_id) los datos del informe que
+ * Operaciones captura en el wizard. Escribe con service role.
+ */
+export const upsertReport = async (
+	input: PlanningReportInput,
+	userId: string | null,
+): Promise<PlanningDesignReport> => {
+	const payload = {
+		incorporation_id: input.incorporationId,
+		task_id: input.taskId ?? null,
+		state_id: input.stateId ?? null,
+		activity_id: input.activityId ?? null,
+		confidentiality: input.confidentiality ?? null,
+		administration_form: input.administrationForm ?? null,
+		tax_tributation: input.taxTributation ?? null,
+		accounting_method: input.accountingMethod ?? null,
+		members_number: input.membersNumber ?? null,
+		income_us: input.incomeUs ?? null,
+		designated_manager: input.designatedManager ?? null,
+		company_description: input.companyDescription ?? null,
+		meeting_resume: input.meetingResume ?? null,
+		created_by: userId,
+	};
+
+	const { data, error } = await wfAdmin
+		.from('planning_design_reports')
+		.upsert(payload, { onConflict: 'incorporation_id' })
+		.select(REPORT_COLUMNS)
+		.single();
+
+	if (error) {
+		console.error('upsertReport:', error);
+		throw new DocumentsError(500, 'Error guardando los datos del informe');
+	}
+	return data as PlanningDesignReport;
+};
+
+/** Títulos canónicos de las tareas operativas de la etapa planning_meeting. */
+export const PLANNING_TASK_SCHEDULE = 'Agendar reunión';
+export const PLANNING_TASK_FILL = 'Llenar informe de planificación';
+export const PLANNING_TASK_SEND = 'Enviar informe';
+
+/**
+ * Resuelve y completa (RPC workflow_complete_task) la tarea pendiente de la
+ * etapa de planificación con el título dado. Devuelve el task_id o null.
+ */
+export const completePlanningTaskByTitle = async (
+	incorporationId: string,
+	title: string,
+	userId: string,
+): Promise<string | null> => {
+	const { data } = await wfAdmin
+		.from('incorporation_tasks')
+		.select('id')
+		.eq('incorporation_id', incorporationId)
+		.eq('title', title)
+		.in('status', ['pending', 'in_progress'])
+		.order('created_at', { ascending: true })
+		.limit(1)
+		.maybeSingle();
+
+	const taskId = (data as { id?: string } | null)?.id ?? null;
+	if (!taskId) return null;
+
+	const { error } = await supabaseAdmin.rpc('workflow_complete_task', {
+		p_task_id: taskId,
+		p_user_id: userId,
+	});
+	if (error) {
+		console.error('completePlanningTaskByTitle:', error);
+		return null;
+	}
+	return taskId;
+};
+
+const ADMIN_FORM_LABEL: Record<AdministrationForm, string> = {
+	member_managed: 'Administrada por los miembros',
+	manager_managed: 'Administrada por un gerente',
+};
+const TAX_LABEL: Record<TaxTributation, string> = {
+	pass_through: 'Entidad de paso',
+	corporation: 'Corporación',
+};
+const ACCOUNTING_LABEL: Record<AccountingMethod, string> = {
+	cash: 'Efectivo (cash)',
+	accrual: 'Devengado (accrual)',
+};
+
+/**
+ * Construye el payload plano para la plantilla Carbone. La plantilla `.docx`
+ * se entrega al final; estos campos son los marcadores `{d.*}` esperados.
+ */
+export const buildTemplateData = (
+	report: PlanningDesignReport,
+	extras: { companyName?: string | null; stateName?: string | null; activityName?: string | null } = {},
+): Record<string, unknown> => ({
+	company_name: extras.companyName ?? '',
+	state: extras.stateName ?? '',
+	activity: extras.activityName ?? '',
+	confidentiality: report.confidentiality ? 'Sí' : 'No',
+	administration_form: report.administration_form
+		? ADMIN_FORM_LABEL[report.administration_form]
+		: '',
+	tax_tributation: report.tax_tributation ? TAX_LABEL[report.tax_tributation] : '',
+	accounting_method: report.accounting_method
+		? ACCOUNTING_LABEL[report.accounting_method]
+		: '',
+	members_number: report.members_number ?? '',
+	income_us: report.income_us ? 'Sí' : 'No',
+	designated_manager: report.designated_manager ?? '',
+	company_description: report.company_description ?? '',
+	meeting_resume: report.meeting_resume ?? '',
+	generated_at: new Date().toLocaleDateString('es-EC'),
+});
+
+/**
+ * Genera el PDF del informe desde la plantilla con los datos guardados y lo
+ * sube como documento `client_visible` (sin aprobación). Reutiliza el
+ * versionado de `uploadPlanningDocument`.
+ */
+export const generateAndUploadReport = async (
+	actor: DocumentActor,
+	incorporationId: string,
+): Promise<UploadPlanningDocumentResult> => {
+	if (!actor.isStaff) {
+		throw new DocumentsError(403, 'Solo operaciones puede generar este informe');
+	}
+
+	const report = await getReportByIncorporation(supabaseAdmin as never, incorporationId);
+	if (!report) {
+		throw new DocumentsError(400, 'No hay datos del informe para generar el PDF');
+	}
+
+	const { data: empresa } = await supabaseAdmin
+		.from('empresas_incorporaciones')
+		.select('nombre_1, estado_eeuu')
+		.eq('empresa_incorporacion_id', incorporationId)
+		.maybeSingle();
+
+	const companyName =
+		(empresa as { nombre_1?: string | null } | null)?.nombre_1 ?? 'Empresa';
+
+	const data = buildTemplateData(report, {
+		companyName,
+		stateName:
+			(empresa as { estado_eeuu?: string | null } | null)?.estado_eeuu ?? null,
+	});
+
+	const safeName = companyName.replace(/[^\w\d-]+/g, '_').slice(0, 60);
+	const reportName = `Planificacion-${safeName}`;
+
+	const pdfBuffer = await generatePdf({
+		templatePath: PLANNING_REPORT_TEMPLATE,
+		reportName,
+		data,
+	});
+
+	const file = new File([new Uint8Array(pdfBuffer)], `${reportName}.pdf`, {
+		type: 'application/pdf',
+	});
+
+	return uploadPlanningDocument(actor, {
+		caseId: incorporationId,
+		file,
+		notes: 'Informe de planificación y diseño generado automáticamente.',
+	});
+};

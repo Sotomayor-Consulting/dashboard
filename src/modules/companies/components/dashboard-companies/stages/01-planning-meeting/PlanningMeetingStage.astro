@@ -13,9 +13,9 @@ import BookingButton from './components/BookingButton.astro';
 import MeetingStatusBadge from './components/MeetingStatusBadge.astro';
 import MeetingDetailsPanel from './components/MeetingDetailsPanel.astro';
 import AwaitingDocBanner from './components/AwaitingDocBanner.astro';
-import PlanningDocReview from './components/PlanningDocReview.astro';
-import RejectedAwaitingNewVersion from './components/RejectedAwaitingNewVersion.astro';
 import ApprovedDocSummary from './components/ApprovedDocSummary.astro';
+// NOTA: la aprobación/rechazo del cliente se retiró del flujo.
+// PlanningDocReview y RejectedAwaitingNewVersion quedan en el repo sin uso.
 
 const { stage, empresaId, userId, meeting } = Astro.props as StageProps;
 
@@ -51,10 +51,7 @@ if (context.document) {
 }
 
 const showAwaitingDoc = context.substate === 'awaiting_doc';
-const showDocReview = context.substate === 'awaiting_approval' && context.document;
-const showRejected =
-	context.substate === 'rejected' && context.latestApproval;
-const showApproved = context.substate === 'approved' && context.document;
+const showDelivered = context.substate === 'delivered' && context.document;
 ---
 
 <StageShell
@@ -87,21 +84,7 @@ const showApproved = context.substate === 'approved' && context.document;
 
 	{showAwaitingDoc && <AwaitingDocBanner />}
 	{
-		showDocReview && context.document && (
-			<PlanningDocReview
-				document={context.document}
-				signedUrl={signedUrl}
-				stageId={stage.id}
-			/>
-		)
-	}
-	{
-		showRejected && context.latestApproval && (
-			<RejectedAwaitingNewVersion rejection={context.latestApproval} />
-		)
-	}
-	{
-		showApproved && context.document && (
+		showDelivered && context.document && (
 			<ApprovedDocSummary document={context.document} signedUrl={signedUrl} />
 		)
 	}

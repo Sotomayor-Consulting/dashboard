@@ -1,6 +1,23 @@
 export const prerender = false;
 
+// ─────────────────────────────────────────────────────────────────────
+// DESACTIVADO — La aprobación/rechazo del informe por el cliente se eliminó
+// del flujo de la etapa planning_meeting (el informe ahora solo se entrega,
+// no se aprueba). Se conserva el handler comentado por si se reactiva.
+// El endpoint responde 410 Gone.
+// ─────────────────────────────────────────────────────────────────────
+
 import type { APIRoute } from 'astro';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+
+export const POST: APIRoute = async () =>
+	new Response(
+		JSON.stringify({ ok: false, error: 'APPROVAL_FLOW_DISABLED' }),
+		{ status: 410, headers: SECURITY_HEADERS },
+	);
+
+/* eslint-disable */
+/* ── Lógica original (preservada) ──────────────────────────────────────
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { recordApproval, type ApprovalDecision } from '@domains/workflow';
@@ -121,3 +138,4 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 	return json(200, { ok: true, result });
 };
+──────────────────────────────────────────────────────────────────────── */
