@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { toast } from 'sonner';
-import { Icon } from '@iconify/react';
 
 import { Button } from '@components/ui/Button';
 import {
@@ -11,8 +10,10 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@components/ui/Dialog';
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@components/ui/Field';
+import { Field, FieldGroup, FieldLabel } from '@components/ui/Field';
 import { Input } from '@components/ui/Input';
+import { Switch } from '@components/ui/Switch';
+import { DropzoneField } from '@components/ui/DropzoneField';
 import {
 	Select,
 	SelectContent,
@@ -69,12 +70,14 @@ const EMPTY: Draft = {
 export function CreateTemplateDialog({ open, onOpenChange, onCreated, transformers }: Props) {
 	const [draft, setDraft] = React.useState<Draft>(EMPTY);
 	const [file, setFile] = React.useState<File | null>(null);
+	const [uploadMode, setUploadMode] = React.useState<'file' | 'url'>('file');
 	const [submitting, setSubmitting] = React.useState(false);
 
 	React.useEffect(() => {
 		if (!open) {
 			setDraft(EMPTY);
 			setFile(null);
+			setUploadMode('file');
 		}
 	}, [open]);
 
@@ -148,7 +151,7 @@ export function CreateTemplateDialog({ open, onOpenChange, onCreated, transforme
 					<DialogHeader>
 						<DialogTitle>Nueva plantilla</DialogTitle>
 						<DialogDescription>
-							Define la metadata y, opcionalmente, sube el archivo ahora mismo.
+							Define la metadata y selecciona el archivo o la URL de la plantilla.
 						</DialogDescription>
 					</DialogHeader>
 					<FieldGroup className="grid gap-4 py-4 sm:grid-cols-2">
@@ -170,6 +173,7 @@ export function CreateTemplateDialog({ open, onOpenChange, onCreated, transforme
 								onValueChange={(v) => {
 									update('template_type', (v ?? 'pdf') as TemplateType);
 									setFile(null);
+									setUploadMode('file');
 								}}
 							>
 								<SelectTrigger id="tpl-type" className="w-full">
@@ -257,37 +261,48 @@ export function CreateTemplateDialog({ open, onOpenChange, onCreated, transforme
 							</Select>
 						</Field>
 
-						<Field className="sm:col-span-2">
-							<FieldLabel htmlFor="tpl-url">URL externa</FieldLabel>
-							<Input
-								id="tpl-url"
-								value={draft.source_url}
-								onChange={(e) => update('source_url', e.target.value)}
-								placeholder="https://irs.gov/ss-4.pdf"
+						<Field
+							orientation="horizontal"
+							className="sm:col-span-2 rounded-lg border px-3 py-2.5"
+						>
+							<Switch
+								id="tpl-upload-mode"
+								checked={uploadMode === 'url'}
+								onCheckedChange={(checked) => {
+									setUploadMode(checked ? 'url' : 'file');
+									if (checked) setFile(null);
+									else update('source_url', '');
+								}}
 							/>
+							<FieldLabel htmlFor="tpl-upload-mode" className="!mb-0">
+								{uploadMode === 'file' ? 'Subir archivo' : 'Usar URL'}
+							</FieldLabel>
 						</Field>
 
-						<Field className="sm:col-span-2">
-							<FieldLabel htmlFor="tpl-file">
-								Archivo {draft.template_type === 'pdf' ? 'PDF' : 'Word (.docx)'} (opcional)
-							</FieldLabel>
-							<Input
-								id="tpl-file"
-								type="file"
-								accept={accept}
-								onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-							/>
-							<FieldDescription>
-								{file ? (
-									<span className="text-emerald-600 dark:text-emerald-400">
-										<Icon icon="ri:check-line" className="mr-0.5 inline h-3.5 w-3.5" />
-										{file.name}
-									</span>
-								) : (
-									'Puedes subirlo después desde la vista de la plantilla.'
-								)}
-							</FieldDescription>
-						</Field>
+						{uploadMode === 'url' ? (
+							<Field className="sm:col-span-2">
+								<FieldLabel htmlFor="tpl-url">URL externa</FieldLabel>
+								<Input
+									id="tpl-url"
+									value={draft.source_url}
+									onChange={(e) => update('source_url', e.target.value)}
+									placeholder="https://..."
+								/>
+							</Field>
+						) : (
+							<Field className="sm:col-span-2">
+								<DropzoneField
+									key={draft.template_type}
+									accept={accept}
+									maxFileSizeMb={25}
+									title={draft.template_type === 'pdf' ? 'Archivo PDF' : 'Archivo Word (.docx)'}
+									description="Arrastra y suelta o haz clic para seleccionar."
+									helperText={`Formatos: ${accept}. Tamaño máximo: 25 MB.`}
+									showFileList
+									onFilesChange={(files) => setFile(files[0] ?? null)}
+								/>
+							</Field>
+						)}
 					</FieldGroup>
 					<DialogFooter showCloseButton>
 						<Button type="submit" disabled={submitting}>

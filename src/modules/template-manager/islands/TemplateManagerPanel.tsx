@@ -450,6 +450,7 @@ export default function TemplateManagerPanel({ data, transformers }: Props) {
 				onDownload={handleDownload}
 				onArchive={(t) => setOpenConfirm({ template: t, mode: 'soft' })}
 				onRestore={handleRestore}
+				onHardDelete={(t) => setOpenConfirm({ template: t, mode: 'hard' })}
 				transformerMap={transformerMap}
 			/>
 

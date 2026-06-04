@@ -21,6 +21,7 @@ interface Props {
 	onDownload: (t: TemplateWithDocument) => void;
 	onArchive: (t: TemplateWithDocument) => void;
 	onRestore: (t: TemplateWithDocument) => void;
+	onHardDelete: (t: TemplateWithDocument) => void;
 	transformerMap: Record<string, { name: string }>;
 }
 
@@ -78,6 +79,7 @@ export function TemplateDetailSheet({
 	onDownload,
 	onArchive,
 	onRestore,
+	onHardDelete,
 	transformerMap,
 }: Props) {
 	const open = template !== null;
@@ -259,10 +261,21 @@ export function TemplateDetailSheet({
 						{/* Footer acciones */}
 						<div className="sticky bottom-0 mt-auto flex items-center gap-2 border-t border-gray-200 bg-white px-5 py-3 dark:border-gray-800 dark:bg-neutral-950">
 							{isDeleted ? (
-								<Button size="sm" className="ml-auto gap-1.5" onClick={() => onRestore(t)}>
-									<Icon icon="ri:arrow-go-back-line" className="h-4 w-4" />
-									Restaurar
-								</Button>
+								<>
+									<Button
+										size="sm"
+										variant="outline"
+										className="gap-1.5 text-red-600 border-red-200 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950"
+										onClick={() => onHardDelete(t)}
+									>
+										<Icon icon="ri:delete-bin-line" className="h-4 w-4" />
+										Eliminar definitivamente
+									</Button>
+									<Button size="sm" className="ml-auto gap-1.5" onClick={() => onRestore(t)}>
+										<Icon icon="ri:arrow-go-back-line" className="h-4 w-4" />
+										Restaurar
+									</Button>
+								</>
 							) : (
 								<>
 									<Button
