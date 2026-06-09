@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.workflow');
 
 export type WorkflowStatus =
 	| 'not_started'
@@ -85,7 +88,7 @@ export const getWorkflowByIncorporation = async (
 		.eq('incorporation_id', incorporationId)
 		.maybeSingle();
 	if (error) {
-		console.error('getWorkflowByIncorporation:', error);
+		log.error('getWorkflowByIncorporation', { error });
 		return null;
 	}
 	return data;
@@ -104,7 +107,7 @@ export const listStages = async (
 		.eq('workflow_id', workflowId)
 		.order('display_order', { ascending: true });
 	if (error) {
-		console.error('listStages:', error);
+		log.error('listStages', { error });
 		return [];
 	}
 	return data ?? [];
@@ -130,7 +133,7 @@ export const listTasksByIncorporation = async (
 
 	const { data, error } = await q;
 	if (error) {
-		console.error('listTasksByIncorporation:', error);
+		log.error('listTasksByIncorporation', { error });
 		return [];
 	}
 	return data ?? [];
@@ -159,7 +162,7 @@ export const listPendingTasksForRole = async (
 		.order('created_at', { ascending: true })
 		.limit(limit);
 	if (error) {
-		console.error('listPendingTasksForRole:', error);
+		log.error('listPendingTasksForRole', { error });
 		return [];
 	}
 	return data ?? [];
@@ -177,7 +180,7 @@ export const listPendingApprovals = async (supabase: SupabaseClient) => {
 		.eq('status', 'not_started')
 		.eq('catalog.requires_approval', true);
 	if (error) {
-		console.error('listPendingApprovals:', error);
+		log.error('listPendingApprovals', { error });
 		return [];
 	}
 	return data ?? [];
@@ -195,7 +198,7 @@ export const completeTask = async (
 		p_user_id: userId ?? null,
 	});
 	if (error) {
-		console.error('completeTask:', error);
+		log.error('completeTask', { error });
 		return { ok: false, error: error.message };
 	}
 	return data as { ok: boolean; stage_completed?: boolean };
@@ -209,7 +212,7 @@ export const advanceStage = async (
 		p_workflow_id: workflowId,
 	});
 	if (error) {
-		console.error('advanceStage:', error);
+		log.error('advanceStage', { error });
 		return { ok: false, error: error.message };
 	}
 	return data as {
@@ -233,7 +236,7 @@ export const recordApproval = async (
 		p_user_id: userId ?? null,
 	});
 	if (error) {
-		console.error('recordApproval:', error);
+		log.error('recordApproval', { error });
 		return { ok: false, error: error.message };
 	}
 	return data as { ok: boolean };
@@ -253,7 +256,7 @@ export const createWorkflowForIncorporation = async (
 		},
 	);
 	if (error) {
-		console.error('createWorkflowForIncorporation:', error);
+		log.error('createWorkflowForIncorporation', { error });
 		return null;
 	}
 	return data as string | null;

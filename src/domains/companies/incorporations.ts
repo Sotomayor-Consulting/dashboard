@@ -1,5 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { User } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.incorporations');
 
 export const getIncorporacionesByUserId = async (
 	supabase: SupabaseClient,
@@ -11,7 +14,7 @@ export const getIncorporacionesByUserId = async (
 		.eq('user_id', userId);
 
 	if (error) {
-		console.error('Error fetching incorporaciones by user ID:', error);
+		log.error('Error fetching incorporaciones by user ID', { error });
 		return [];
 	}
 
@@ -30,7 +33,7 @@ export const getIncorporacionById = async (
 		.eq('user_id', userId)
 		.maybeSingle();
 	if (error) {
-		console.error('Error fetching incorporaciones by ID:', error);
+		log.error('Error fetching incorporaciones by ID', { error });
 		return null;
 	}
 
@@ -48,7 +51,7 @@ export const getIncorporacionByIdAdmin = async (
 		.eq('empresa_incorporacion_id', id)
 		.single();
 	if (error) {
-		console.error('Error fetching incorporacion by ID (admin):', error);
+		log.error('Error fetching incorporacion by ID (admin)', { error });
 		return null;
 	}
 
@@ -78,10 +81,9 @@ export const getIncorporacionesEnProceso = async (
 		.in('estado', ['En proceso', 'Upgrade'])
 		.order('updated_at', { ascending: true });
 	if (error) {
-		console.error(
-			'Error fetching incorporaciones en proceso por user ID:',
+		log.error('Error fetching incorporaciones en proceso por user ID', {
 			error,
-		);
+		});
 		return [];
 	}
 
@@ -111,10 +113,9 @@ export const getIncorporacionesUpgrade = async (
 		.eq('estado', 'Upgrade')
 		.order('updated_at', { ascending: true });
 	if (error) {
-		console.error(
-			'Error fetching incorporaciones en proceso por user ID:',
+		log.error('Error fetching incorporaciones en proceso por user ID', {
 			error,
-		);
+		});
 		return [];
 	}
 
@@ -143,7 +144,7 @@ export const IncorporacionesEmpresasBase = async (supabase: SupabaseClient) => {
 		.order('updated_at', { ascending: false });
 
 	if (error) {
-		console.error('Error fetching incorporaciones base:', error);
+		log.error('Error fetching incorporaciones base', { error });
 		return [];
 	}
 	return data;
@@ -159,7 +160,7 @@ export const getEstadoIncorporacionByUserId = async (
 		.eq('user_id', userId);
 
 	if (error) {
-		console.error('Error fetching estado incorporacion by user ID:', error);
+		log.error('Error fetching estado incorporacion by user ID', { error });
 		return [];
 	}
 

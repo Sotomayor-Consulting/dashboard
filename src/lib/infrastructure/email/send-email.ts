@@ -1,4 +1,7 @@
 import { sendMail } from '@infrastructure/email/mailer';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('EmailAPI');
 
 export type SendEmailInput = {
 	to: string;
@@ -35,7 +38,7 @@ export async function sendEmail({
 		}
 
 	} catch (error: any) {
-		console.error('[EmailAPI] Error enviando:', error);
+		log.error('Error enviando', { error });
 
 		// Redireccionar con el mensaje de error para mostrarlo en el componente
 		// Nota: En producción evita enviar error.message crudo si contiene datos sensibles

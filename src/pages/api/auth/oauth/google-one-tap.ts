@@ -4,6 +4,9 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { jsonSuccess, jsonError } from '@infrastructure/auth';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('oauth.google-one-tap');
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	try {
@@ -28,7 +31,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		});
 
 		if (error || !data.session) {
-			console.error('[google-one-tap] Error:', {
+			log.error('Error', {
 				message: error?.message,
 				code: (error as any)?.code,
 				status: (error as any)?.status,
@@ -41,7 +44,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 		return jsonSuccess({ user: data.user?.email });
 	} catch (error) {
-		console.error('[google-one-tap] Error interno:', error);
+		log.error('Error interno', { error });
 		return jsonError('Error interno del servidor.', 500);
 	}
 };

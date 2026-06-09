@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('companies.get-us-states');
 
 export interface State {
 	id: number;
@@ -16,7 +19,7 @@ export const getUsStates = async (
 		.maybeSingle<{ id: number }>();
 
 	if (countryError || !country) {
-		console.error('Error obteniendo pais US:', countryError);
+		log.error('Error obteniendo pais US', { error: countryError });
 		return [];
 	}
 
@@ -27,7 +30,7 @@ export const getUsStates = async (
 		.order('name', { ascending: true });
 
 	if (error) {
-		console.error('Error obteniendo estados:', error);
+		log.error('Error obteniendo estados', { error });
 		return [];
 	}
 

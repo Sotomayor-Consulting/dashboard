@@ -72,6 +72,9 @@ export interface ClientFormData {
 	estado: string;
 	codigoPostal: string;
 
+	// US Address — utility bill
+	facturaServicioBasicoEEUU: File | null;
+
 	// Non-US Address (si direccionOperativaEEUU === 'no')
 	pais: string;
 	direccionEmpresa: string;
@@ -104,7 +107,7 @@ export type SerializableManager = Omit<Manager, 'pasaporte' | 'facturaServicio'>
 export interface SerializableClientFormData
 	extends Omit<
 		ClientFormData,
-		'miembros' | 'managers' | 'facturaServicioBasico'
+		'miembros' | 'managers' | 'facturaServicioBasico' | 'facturaServicioBasicoEEUU'
 	> {
 	miembros: SerializableMember[];
 	managers: SerializableManager[];

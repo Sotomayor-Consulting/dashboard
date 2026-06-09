@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.roles');
 
 export const RolesGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
@@ -8,7 +11,7 @@ export const RolesGeneral = async (supabase: SupabaseClient) => {
 
 	if (error) {
 		if (error.code === 'PGRST116') return null;
-		console.error('Error fetching all Roles:', error);
+		log.error('Error fetching all Roles', { error });
 		throw error;
 	}
 
@@ -23,7 +26,7 @@ export const RolesGeneralUsers = async (supabase: SupabaseClient) => {
 
 	if (error) {
 		if (error.code === 'PGRST116') return null;
-		console.error('Error fetching all user_roles:', error);
+		log.error('Error fetching all user_roles', { error });
 		throw error;
 	}
 

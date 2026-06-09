@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.pending-signature');
 
 export const getDocumentosPorFirmar = async (
 	supabase: SupabaseClient,
@@ -12,7 +15,7 @@ export const getDocumentosPorFirmar = async (
 		.eq('empresa_incorporacion_id', empresaId)
 		.eq('status', 'Pendiente_a_firma');
 	if (error) {
-		console.error('Error fetching documentos por firmar:', error);
+		log.error('Error fetching documentos por firmar', { error });
 		throw error;
 	}
 

@@ -1,5 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.planning-design-report');
 import {
 	DocumentsError,
 	type DocumentActor,
@@ -72,7 +75,7 @@ export const getReportByIncorporation = async (
 		.eq('incorporation_id', incorporationId)
 		.maybeSingle();
 	if (error) {
-		console.error('getReportByIncorporation:', error);
+		log.error('getReportByIncorporation', { error });
 		return null;
 	}
 	return (data as PlanningDesignReport | null) ?? null;
@@ -110,7 +113,7 @@ export const upsertReport = async (
 		.single();
 
 	if (error) {
-		console.error('upsertReport:', error);
+		log.error('upsertReport', { error });
 		throw new DocumentsError(500, 'Error guardando los datos del informe');
 	}
 	return data as PlanningDesignReport;
@@ -148,7 +151,7 @@ export const completePlanningTaskByTitle = async (
 		p_user_id: userId,
 	});
 	if (error) {
-		console.error('completePlanningTaskByTitle:', error);
+		log.error('completePlanningTaskByTitle', { error });
 		return null;
 	}
 	return taskId;

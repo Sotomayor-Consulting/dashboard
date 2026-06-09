@@ -1,4 +1,7 @@
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.audit-events');
 
 export type AuditAction =
 	| 'create'
@@ -30,7 +33,7 @@ export async function recordAuditEvent(input: AuditEventInput) {
 	});
 
 	if (error) {
-		console.error('[audit_events] insert failed:', error);
+		log.error('insert failed', { error });
 		throw error;
 	}
 }

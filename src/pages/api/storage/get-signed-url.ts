@@ -2,6 +2,9 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('storage.get-signed-url');
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	try {
@@ -10,7 +13,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		const { data: { user }, error: userErr } = await supabase.auth.getUser();
 
 		if (userErr || !user) {
-			console.error('[SIGNED-URL] Sin sesión:', userErr?.message);
+			log.error('Sin sesión', { message: userErr?.message });
 			return new Response(JSON.stringify({ error: 'No autenticado' }), {
 				status: 401,
 			});
@@ -31,7 +34,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			.createSignedUrl(path, 3600);
 
 		if (error) {
-			console.error('[SIGNED-URL] Error:', error);
+			log.error('Error', { error });
 			return new Response(JSON.stringify({ error: error.message }), {
 				status: 500,
 			});
@@ -41,7 +44,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			status: 200,
 		});
 	} catch (e: unknown) {
-		console.error('[SIGNED-URL] Excepción:', e);
+		log.error('Excepción', { error: e });
 		return new Response(JSON.stringify({ error: 'Error inesperado' }), {
 			status: 500,
 		});

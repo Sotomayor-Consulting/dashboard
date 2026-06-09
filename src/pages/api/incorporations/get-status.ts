@@ -1,6 +1,9 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('incorporations.get-status');
 
 export const prerender = false;
 
@@ -36,7 +39,11 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 				.single();
 
 			if (error) {
-				// console.error('Error Supabase:', error);
+				log.warn('Empresa no encontrada', {
+					empresaId,
+					userId: user.id,
+					error: error.message,
+				});
 				return new Response(
 					JSON.stringify({
 						error: 'Empresa no encontrada',
@@ -74,7 +81,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 			{ status: 200, headers: SECURITY_HEADERS },
 		);
 	} catch (error: any) {
-		// console.error('Error general:', error);
+		log.error('Error general', { error });
 		return new Response(
 			JSON.stringify({ error: 'Error interno' }),
 			{ status: 500, headers: SECURITY_HEADERS },

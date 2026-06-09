@@ -10,6 +10,9 @@ import { uploadPlanningDocument } from '@domains/workflow/stages/planning-meetin
 import { getClientRecipientForCase } from '@domains/workflow/stages/planning-meeting-recipients';
 import { notifyByEvent } from '@infrastructure/notifications';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('planning.upload-doc');
 
 const json = (status: number, payload: unknown) =>
 	new Response(JSON.stringify(payload), {
@@ -74,7 +77,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 					action_url: `/my-companies/${caseId}/dashboard`,
 				},
 			}).catch((err) => {
-				console.error('[planning/upload-doc] notification error:', err);
+				log.error('notification error', { error: err });
 			});
 		}
 
@@ -89,7 +92,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 		if (error instanceof DocumentsError) {
 			return json(error.status, { ok: false, error: error.message });
 		}
-		console.error('[planning/upload-doc] Unexpected error:', error);
+		log.error('Unexpected error', { error });
 		return json(500, { ok: false, error: 'UNEXPECTED_ERROR' });
 	}
 };

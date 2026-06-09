@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.documents');
 
 export const getDocumentosGenerales = async (
 	supabase: SupabaseClient,
@@ -9,7 +12,7 @@ export const getDocumentosGenerales = async (
 		.select('*')
 		.eq('user_id', UserId);
 	if (error) {
-		console.error('Error fetching documentos:', error);
+		log.error('Error fetching documentos', { error });
 		throw error;
 	}
 

@@ -10,7 +10,11 @@ import {
 	companyAddressSchema,
 } from '@modules/companies/schemas/company-address.schema';
 
+import { createLogger } from '@infrastructure/logging';
+
 export const prerender = false;
+
+const log = createLogger('companies.addresses');
 
 const parseCompanyId = (raw: string | undefined) => raw?.trim() || null;
 const parseAddressId = (raw: string | undefined) => {
@@ -70,7 +74,7 @@ export const PATCH: APIRoute = async (context) => {
 
 		return json(200, { ok: true, data: address });
 	} catch (error) {
-		console.error('[company_addresses:update]', error);
+		log.error('update', { error });
 		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
 		const status = message === 'COMPANY_ADDRESS_NOT_FOUND' ? 404 : 500;
 		return json(status, { ok: false, error: message });
@@ -98,7 +102,7 @@ export const DELETE: APIRoute = async (context) => {
 
 		return json(200, { ok: true, data: address });
 	} catch (error) {
-		console.error('[company_addresses:delete]', error);
+		log.error('delete', { error });
 		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
 		const status = message === 'COMPANY_ADDRESS_NOT_FOUND' ? 404 : 500;
 		return json(status, { ok: false, error: message });

@@ -1,8 +1,11 @@
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { createLogger } from '@infrastructure/logging';
 
 export const prerender = false;
+
+const log = createLogger('webhook');
 
 const STRIPE_SECRET_KEY =
 	process.env.STRIPE_SECRET_KEY ?? import.meta.env.STRIPE_SECRET_KEY;
@@ -27,7 +30,7 @@ async function registrarPago(paymentIntentId: string) {
 
 export const POST: APIRoute = async ({ request }) => {
 	if (!stripe || !STRIPE_WEBHOOK_SECRET) {
-		console.error('[webhook] Falta STRIPE_SECRET_KEY o STRIPE_WEBHOOK_SECRET');
+		log.error('Falta STRIPE_SECRET_KEY o STRIPE_WEBHOOK_SECRET');
 		return new Response('Server misconfigured', { status: 500 });
 	}
 
@@ -40,7 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
 	try {
 		event = stripe.webhooks.constructEvent(rawBody, sig, STRIPE_WEBHOOK_SECRET);
 	} catch (err: any) {
-		console.error('[webhook] Firma inválida:', err?.message);
+		log.error('Firma inválida', { message: err?.message });
 		return new Response(`Webhook Error: ${err?.message}`, { status: 400 });
 	}
 
@@ -51,7 +54,10 @@ export const POST: APIRoute = async ({ request }) => {
 			case 'checkout.session.completed': {
 				const session = event.data.object as Stripe.Checkout.Session;
 				if (session.payment_status !== 'paid') {
-					console.log(`[webhook] session ${session.id} no pagada (${session.payment_status}), skip`);
+					log.info('session no pagada, skip', {
+							sessionId: session.id,
+							paymentStatus: session.payment_status,
+						});
 					break;
 				}
 				paymentIntentId =
@@ -75,13 +81,18 @@ export const POST: APIRoute = async ({ request }) => {
 						? (inv as any).payment_intent
 						: (inv as any).payment_intent?.id;
 				if (!paymentIntentId) {
-					console.log(`[webhook] ${event.type} sin payment_intent (invoice ${inv.id}), skip`);
+					log.info('evento sin payment_intent, skip', {
+							eventType: event.type,
+							invoiceId: inv.id,
+						});
 				}
 				break;
 			}
 
 			case 'checkout.session.expired':
-				console.log('[webhook] sesión expirada:', (event.data.object as any).id);
+				log.info('sesión expirada', {
+						sessionId: (event.data.object as any).id,
+					});
 				break;
 
 			default:
@@ -93,17 +104,18 @@ export const POST: APIRoute = async ({ request }) => {
 			if (error) {
 				const code = (error as any).code as string | undefined;
 				const isPermanent = code && PERMANENT_PG_CODES.has(code);
-				console.error(
-					`[webhook] RPC error (${isPermanent ? 'permanente' : 'transitorio'}):`,
-					error,
-				);
+				log.error('RPC error', {
+						kind: isPermanent ? 'permanente' : 'transitorio',
+						code,
+						error,
+					});
 				if (!isPermanent) {
 					// Solo pedir reintento a Stripe si parece transitorio (timeout, red, etc.)
 					return new Response(`RPC error: ${error.message}`, { status: 500 });
 				}
 				// Permanente: ack 200 para no entrar en loop de reintentos
 			} else {
-				console.log('[webhook] pago registrado:', data);
+				log.info('pago registrado', { data });
 			}
 		}
 
@@ -112,7 +124,7 @@ export const POST: APIRoute = async ({ request }) => {
 			headers: { 'Content-Type': 'application/json' },
 		});
 	} catch (err: any) {
-		console.error('[webhook] handler error:', err);
+		log.error('handler error', { err });
 		return new Response('Internal error', { status: 500 });
 	}
 };

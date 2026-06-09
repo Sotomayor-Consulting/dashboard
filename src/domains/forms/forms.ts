@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.forms');
 
 export const ListaFormulariosGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
@@ -6,7 +9,7 @@ export const ListaFormulariosGeneral = async (supabase: SupabaseClient) => {
 		.select('*', { count: 'exact' })
 		.order('titulo', { ascending: false });
 	if (error) {
-		console.error('Error fetching all países:', error);
+		log.error('Error fetching all países', { error });
 		throw error;
 	}
 
@@ -23,7 +26,7 @@ export const ListaFormulariosSurvey = async (
 		.eq('form_id', FormId)
 		.single();
 	if (error) {
-		console.log('Error fetching formulario para survey:', error);
+		log.error('Error fetching formulario para survey', { error });
 		throw error;
 	}
 	return data;

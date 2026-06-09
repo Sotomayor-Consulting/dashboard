@@ -1,8 +1,14 @@
 import { Icon } from '@iconify/react';
+import { useEffect } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
 import { Checkbox } from '@components/ui/Checkbox';
 import { Textarea } from '@components/ui/Textarea';
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@components/ui/Tooltip';
 
 import { Divider, Field, RadioCard, SectionHeader } from '../../../atoms';
 import type { Activity } from '../../../data/activities';
@@ -43,6 +49,18 @@ export function StepActivity({ activities }: Props) {
 		control,
 		name: 'formaTributacion',
 	}) as string;
+
+	const ingresosEEUU = useWatch<ClientFormData>({
+		control,
+		name: 'ingresosEEUU',
+	}) as boolean | undefined;
+
+	// Si tiene ingresos de fuente americana → forzar dirección en EE.UU.
+	useEffect(() => {
+		if (ingresosEEUU === true) {
+			setValue('direccionOperativaEEUU', 'si');
+		}
+	}, [ingresosEEUU, setValue]);
 
 	return (
 		<>
@@ -255,7 +273,7 @@ export function StepActivity({ activities }: Props) {
 			<SectionHeader
 				kicker="C · Ubicación operativa"
 				title="Dirección en Estados Unidos"
-				desc="Si no tienes una aún, podemos proveerte una dirección registrada."
+				desc="Indicanos la dirección desde donde opera tu empresa."
 			/>
 
 			<Controller
@@ -263,7 +281,35 @@ export function StepActivity({ activities }: Props) {
 				name="direccionOperativaEEUU"
 				render={({ field }) => (
 					<Field
-						label="¿Tienes una dirección operativa en EE. UU.?"
+						label={
+							<span className="inline-flex items-center gap-1.5">
+								¿Tienes una dirección en EE. UU.?
+								{ingresosEEUU === true && (
+									<Tooltip>
+										<TooltipTrigger
+											render={
+												<button
+													type="button"
+													className="inline-flex"
+													style={{ color: 'var(--cf-ink-soft)' }}
+													aria-label="Más información"
+												>
+													<Icon
+														icon="ri:information-line"
+														className="h-3.5 w-3.5"
+													/>
+												</button>
+											}
+										/>
+										<TooltipContent className="max-w-xs">
+											Al indicar que tu LLC obtiene ingresos de fuente
+											estadounidense, es necesario contar con una dirección
+											operativa en EE.&nbsp;UU.
+										</TooltipContent>
+									</Tooltip>
+								)}
+							</span>
+						}
 						required
 						error={errors.direccionOperativaEEUU?.message as string | undefined}
 					>
@@ -277,11 +323,7 @@ export function StepActivity({ activities }: Props) {
 								label="No, todavía no tengo dirección"
 								selected={field.value === 'no'}
 								onClick={() => field.onChange('no')}
-							/>
-							<RadioCard
-								label="Quiero que Sotomayor Consulting me provea una"
-								selected={field.value === 'sci'}
-								onClick={() => field.onChange('sci')}
+								disabled={ingresosEEUU === true}
 							/>
 						</div>
 					</Field>

@@ -10,6 +10,7 @@ interface Props {
 	pendingCount?: number;
 	active: boolean;
 	onClick: () => void;
+	onDelete?: (() => void) | undefined;
 }
 
 /**
@@ -33,6 +34,7 @@ export function SocioPill({
 	pendingCount,
 	active,
 	onClick,
+	onDelete,
 }: Props) {
 	const meta = (() => {
 		switch (status) {
@@ -64,7 +66,7 @@ export function SocioPill({
 		<button
 			type="button"
 			onClick={onClick}
-			className="relative flex flex-1 min-w-0 cursor-pointer flex-col gap-1.5 rounded-[12px] border-[1.5px] p-[14px_16px] text-left transition-all"
+			className="relative flex min-w-0 flex-1 cursor-pointer flex-col gap-1.5 rounded-[12px] border-[1.5px] p-[14px_16px] text-left transition-all"
 			style={{
 				borderColor: active ? 'var(--cf-ink)' : 'var(--cf-line)',
 				background: 'var(--cf-bg-card)',
@@ -79,14 +81,38 @@ export function SocioPill({
 				>
 					Socio {String(num).padStart(2, '0')}
 				</span>
-				<span
-					className="cf-mono text-[11px] font-semibold"
-					style={{
-						color: percentage > 0 ? 'var(--cf-ink)' : 'var(--cf-ink-faint)',
-					}}
-				>
-					{percentage}%
-				</span>
+				<div className="flex items-center gap-1.5">
+					<span
+						className="cf-mono text-[11px] font-semibold"
+						style={{
+							color:
+								percentage > 0 ? 'var(--cf-ink)' : 'var(--cf-ink-faint)',
+						}}
+					>
+						{percentage}%
+					</span>
+					{onDelete && (
+						<span
+							role="button"
+							tabIndex={0}
+							onClick={(e) => {
+								e.stopPropagation();
+								onDelete();
+							}}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.stopPropagation();
+									onDelete();
+								}
+							}}
+							className="inline-flex rounded p-0.5 transition-colors hover:bg-red-100 dark:hover:bg-red-950"
+							style={{ color: 'var(--cf-ink-soft)' }}
+							aria-label="Eliminar socio"
+						>
+							<Icon icon="ri:close-line" className="h-3.5 w-3.5 hover:text-red-500" />
+						</span>
+					)}
+				</div>
 			</div>
 			<div
 				className="truncate text-[14px] font-semibold tracking-[-0.005em]"
@@ -121,22 +147,25 @@ export function SocioPill({
 export function AddSocioButton({
 	onClick,
 	fill = false,
+	disabled = false,
 }: {
 	onClick: () => void;
 	fill?: boolean;
+	disabled?: boolean;
 }) {
 	return (
 		<button
 			type="button"
 			onClick={onClick}
-			className={`flex flex-col items-center justify-center gap-1.5 rounded-[12px] border-[1.5px] border-dashed p-[14px_14px] text-[13px] font-medium transition-colors hover:opacity-80 ${
-				fill ? 'h-full w-full' : 'w-[140px] shrink-0'
-			}`}
+			className={`flex flex-col items-center justify-center gap-1.5 rounded-[12px] border-[1.5px] border-dashed p-[14px_14px] text-[13px] font-medium transition-colors ${
+				disabled ? 'cursor-not-allowed opacity-40' : 'hover:opacity-80'
+			} ${fill ? 'h-full w-full' : 'w-[140px] shrink-0'}`}
 			style={{
 				borderColor: 'var(--cf-line-strong)',
 				background: 'transparent',
 				color: 'var(--cf-ink-mute)',
 			}}
+			disabled={disabled}
 		>
 			<Icon icon="ri:add-line" className="h-4 w-4" />
 			Agregar socio

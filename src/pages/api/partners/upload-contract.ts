@@ -3,6 +3,9 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('partners.upload-contract');
 
 const DEFAULT_BACK_PATH = '/partners/settings/';
 const BUCKET_NAME = 'documentos_usuarios';
@@ -23,7 +26,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const { data: { user }, error: uerr } = await supabase.auth.getUser();
 
 		if (uerr || !user) {
-			console.error('[UPLOAD-CONTRACT] Error al obtener usuario:', uerr);
+			log.error('Error al obtener usuario', { error: uerr });
 			return redirectWithStatus('error', 'No autenticado');
 		}
 
@@ -59,7 +62,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			});
 
 		if (upErr) {
-			console.error('[UPLOAD-CONTRACT] Error al subir a Storage:', upErr);
+			log.error('Error al subir a Storage', { error: upErr });
 			return redirectWithStatus(
 				'error',
 				'Error al subir el archivo al servidor',
@@ -79,7 +82,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			});
 
 		if (upsertErr) {
-			console.error('[UPLOAD-CONTRACT] Error al guardar metadatos:', upsertErr);
+			log.error('Error al guardar metadatos', { error: upsertErr });
 			return redirectWithStatus(
 				'error',
 				'Error al registrar el archivo en la base de datos',
@@ -92,7 +95,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			'Contrato subido y registrado correctamente',
 		);
 	} catch (e: unknown) {
-		console.error('[UPLOAD-CONTRACT] Excepción no controlada:', e);
+		log.error('Excepción no controlada', { error: e });
 
 		const msg =
 			e &&

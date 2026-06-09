@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.referrals');
 
 export const getReferidos = async (
 	supabase: SupabaseClient,
@@ -22,7 +25,7 @@ export const getReferidos = async (
 		.eq('partner_id', UserId)
 		.order('created_at', { ascending: false });
 	if (error) {
-		console.error('Error fetching referidos:', error);
+		log.error('Error fetching referidos', { error });
 		throw error;
 	}
 	return data;
@@ -38,7 +41,7 @@ export const getCodigoDePartner = async (
 		.eq('user_id', UserId)
 		.single();
 	if (error) {
-		console.error('Error fetching  Codigo de partner:', error);
+		log.error('Error fetching Codigo de partner', { error });
 		throw error;
 	}
 	return data;

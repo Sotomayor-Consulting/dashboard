@@ -3,15 +3,16 @@ import Stripe from 'stripe';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('payment-intent-upgrade');
 
 const STRIPE_SECRET_KEY =
 	process.env.STRIPE_SECRET_KEY ?? import.meta.env.STRIPE_SECRET_KEY;
 const PROCESSING_FEE_PERCENT = 0.045;
 
 if (!STRIPE_SECRET_KEY) {
-	console.error(
-		'[payment-intent-upgrade] Missing STRIPE_SECRET_KEY environment variable.',
-	);
+	log.error('Missing STRIPE_SECRET_KEY environment variable.');
 }
 
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
@@ -82,10 +83,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			.single();
 
 		if (servicioError || !servicio) {
-			console.error(
-				'[payment-intent-upgrade] servicio no encontrado o inactivo:',
-				servicioError,
-			);
+			log.error('servicio no encontrado o inactivo', {
+					error: servicioError,
+				});
 			return new Response(
 				JSON.stringify({ error: 'Servicio de upgrade no encontrado o inactivo' }),
 				{
@@ -109,7 +109,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			frontendPrice > 0 &&
 			frontendPrice !== upgradeBaseAmount
 		) {
-			console.warn('[payment-intent-upgrade] frontend/base mismatch', {
+			log.warn('frontend/base mismatch', {
 				frontendPrice,
 				databasePrice: upgradeBaseAmount,
 				serviceId: body.servicio.id,
@@ -152,7 +152,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			},
 		);
 	} catch (error) {
-		console.error('[payment-intent-upgrade] error:', error);
+		log.error('error', { error });
 		return new Response(JSON.stringify({ error: 'Internal server error' }), {
 			status: 500,
 			headers: SECURITY_HEADERS,

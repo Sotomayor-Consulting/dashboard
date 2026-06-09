@@ -4,6 +4,9 @@
 import type { RedirectStatus } from './auth.types';
 import { PATHS } from './auth.config';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('friendlyAuthError');
 
 type AstroRedirectFn = (
 	path: string,
@@ -143,9 +146,6 @@ export function friendlyAuthError(
 	}
 
 	// Fallback: loguear internamente pero no exponer detalles al usuario
-	console.warn('[friendlyAuthError] Error no mapeado:', {
-		errorMessage,
-		errorCode,
-	});
+	log.warn('Error no mapeado', { errorMessage, errorCode });
 	return 'Ocurrió un error inesperado. Inténtalo nuevamente.';
 }

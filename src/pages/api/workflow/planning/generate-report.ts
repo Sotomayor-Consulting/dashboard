@@ -12,6 +12,9 @@ import {
 import { getClientRecipientForCase } from '@domains/workflow/stages/planning-meeting-recipients';
 import { notifyByEvent } from '@infrastructure/notifications';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('planning.generate-report');
 
 const json = (status: number, payload: unknown) =>
 	new Response(JSON.stringify(payload), { status, headers: SECURITY_HEADERS });
@@ -71,7 +74,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 					action_url: `/my-companies/${incorporationId}/dashboard`,
 				},
 			}).catch((err) => {
-				console.error('[planning/generate-report] notification error:', err);
+				log.error('notification error', { error: err });
 			});
 		}
 
@@ -85,7 +88,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 		if (error instanceof DocumentsError) {
 			return json(error.status, { ok: false, error: error.message });
 		}
-		console.error('[planning/generate-report] Unexpected error:', error);
+		log.error('Unexpected error', { error });
 		return json(500, { ok: false, error: 'UNEXPECTED_ERROR' });
 	}
 };

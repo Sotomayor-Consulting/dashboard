@@ -3,6 +3,9 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('documents.upload-signed');
 
 const BUCKET_NAME = 'test';
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB
@@ -66,7 +69,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			});
 
 		if (upErr) {
-			console.error('[UPLOAD-FILE-SIGNED] Error al subir a Storage:', upErr);
+			log.error('Error al subir a Storage', { error: upErr });
 			return redirectWithStatus('error', 'Error al subir el archivo');
 		}
 
@@ -83,12 +86,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			.eq('empresa_incorporacion_id', empresaId);
 
 		if (updateErr) {
-			console.error('[UPLOAD-FILE-SIGNED] Error al actualizar BD:', updateErr);
+			log.error('Error al actualizar BD', { error: updateErr });
 			return redirectWithStatus('error', 'Error al actualizar documento');
 		}
 
 		if (!updatedRows || updatedRows.length === 0) {
-			console.error('[UPLOAD-FILE-SIGNED] No se encontro documento para actualizar', {
+			log.error('No se encontro documento para actualizar', {
 				fileId,
 				empresaId,
 				currentUserId,
@@ -101,7 +104,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 		return redirectWithStatus('success', 'Documento firmado correctamente');
 	} catch (e: unknown) {
-		console.error('[UPLOAD-FILE-SIGNED] Excepción:', e);
+		log.error('Excepción', { error: e });
 		return redirectWithStatus(
 			'error',
 			'Error inesperado al subir el documento',

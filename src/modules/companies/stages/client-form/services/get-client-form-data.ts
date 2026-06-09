@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('client-form.data');
 
 import { actividadesGeneral } from '@domains/utils/generals/activities';
 
@@ -62,7 +65,7 @@ async function getIncorporationIdentity(
 		.single();
 
 	if (error || !data) {
-		console.error('Error fetching incorporation identity:', error);
+		log.error('Error fetching incorporation identity', { error });
 		return { nameOptions: ['', '', ''], estadoIncorporacion: null };
 	}
 
@@ -85,7 +88,7 @@ async function getEstados(supabase: SupabaseClient): Promise<EstadoOption[]> {
 		.order('Estado', { ascending: true });
 
 	if (error || !data) {
-		console.error('Error fetching estados:', error);
+		log.error('Error fetching estados', { error });
 		return [];
 	}
 

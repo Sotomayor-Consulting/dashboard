@@ -3,7 +3,11 @@ import { createCompanyAddress } from '@domains/companies/addresses';
 import { json, requireCompanyDataManager } from '@shared/api/company-data';
 import { companyAddressSchema } from '@modules/companies/schemas/company-address.schema';
 
+import { createLogger } from '@infrastructure/logging';
+
 export const prerender = false;
+
+const log = createLogger('companies.addresses');
 
 const parseCompanyId = (raw: string | undefined) => raw?.trim() || null;
 
@@ -40,7 +44,7 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		);
 		return json(200, { ok: true, data: address });
 	} catch (error) {
-		console.error('[company_addresses:create]', error);
+		log.error('create', { error });
 		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
 		const status =
 			message === 'COMPANY_NOT_FOUND'

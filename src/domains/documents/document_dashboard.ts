@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.document_dashboard');
 
 export interface DocumentTypeLite {
 	id: number;
@@ -55,7 +58,7 @@ export async function getDocumentTypesList(
 		.order('code', { ascending: true });
 
 	if (error) {
-		console.error('[document_types] Error fetching document_types:', error);
+		log.error('Error fetching document_types', { error });
 		throw error;
 	}
 
@@ -99,7 +102,7 @@ export async function getDocumentRequestsForIncorporationCase(
 		.order('created_at', { ascending: false });
 
 	if (error) {
-		console.error('[documents] Error fetching document requests:', error);
+		log.error('Error fetching document requests', { error });
 		throw error;
 	}
 
@@ -180,7 +183,7 @@ export async function getDocumentsForIncorporationCase(
 		.order('created_at', { ascending: false });
 
 	if (error) {
-		console.error('[documents] Error fetching documents:', error);
+		log.error('Error fetching documents', { error });
 		throw error;
 	}
 

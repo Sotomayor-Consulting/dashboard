@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.submittedForms');
 
 export interface FormularioEnviadoDetalle {
 	submission_id: string;
@@ -186,10 +189,9 @@ export const FormsEnviosVericacion = async (supabase: SupabaseClient) => {
 		.order('updated_at', { ascending: true });
 
 	if (error) {
-		console.error(
-			'Error fetching all formularios enviados a verificación:',
+		log.error('Error fetching all formularios enviados a verificación', {
 			error,
-		);
+		});
 		throw error;
 	}
 
@@ -208,10 +210,9 @@ export const FormsEnviadosDataGeneral = async (supabase: SupabaseClient) => {
 		)
 		.order('created_at', { ascending: false });
 	if (error) {
-		console.error(
-			'Error fetching all formularios enviados a verificación:',
+		log.error('Error fetching all formularios enviados a verificación', {
 			error,
-		);
+		});
 		throw error;
 	}
 
@@ -232,10 +233,9 @@ export const FormsEnviadosForId = async (
 
 		.order('submitted_at', { ascending: true });
 	if (error) {
-		console.error(
-			'Error fetching all formularios a verificación por id',
+		log.error('Error fetching all formularios a verificación por id', {
 			error,
-		);
+		});
 		throw error;
 	}
 	return data;

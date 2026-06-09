@@ -99,6 +99,7 @@ src/
 │   │   ├── security/         # SECURITY_HEADERS, safeBack
 │   │   ├── email/            # mailer.ts (nodemailer config) + send-email.ts (high-level API)
 │   │   ├── notifications/    # service.ts, channels/{email,in-app}.ts, renderer, templates, types
+│   │   ├── logging/          # logger.ts (Winston) + createLogger(context) — solo servidor
 │   │   └── storage/          # user-folders.ts (lectura buckets Supabase)
 │   ├── integrations/         # Servicios externos
 │   │   ├── odoo/             # client.ts, axios-odoo-instance.ts, partners.ts (referidos)
@@ -120,6 +121,23 @@ src/
 ├── middleware.ts             # Auth + RBAC + CSP (ver §Authentication)
 └── env.d.ts                  # Astro env types
 ```
+
+### Logging (`@infrastructure/logging`)
+
+Logger basado en **Winston**, **solo servidor** (depende de APIs de Node — NO importar desde `.client.ts`, islands `.tsx` ni scripts inline `.astro`; ahí usar `console.*`).
+
+```ts
+import { createLogger } from '@infrastructure/logging';
+const log = createLogger('webhook'); // el `context` reemplaza prefijos `[tag]`
+
+log.info('pago registrado', { paymentId }); // metadata estructurada, NO interpolar
+log.error('handler error', { err });         // captura stack automáticamente
+```
+
+- En prod emite **JSON estructurado a stdout** (lo recoge Docker); en dev, formato coloreado legible.
+- Nivel por `LOG_LEVEL` (default `info` en prod / `debug` en dev).
+- Pasar datos como metadata `{ key: value }`, nunca interpolados en el string.
+- Todo el logging de servidor (`infrastructure/`, `domains/`, API routes `.ts`, servicios SSR) usa `createLogger`. Los `console.*` que quedan son **solo cliente** (`.client.ts`, islands `.tsx`, scripts inline `.astro`) y deben permanecer así.
 
 ### Naming Conventions
 
@@ -311,6 +329,7 @@ Para los `<script>` con atributos (`define:vars`, `type="module"`, `src=`, etc.)
 - `PUBLIC_GOOGLE_CLIENT_ID` — Google One Tap
 - `PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_SECRET_KEY` — Stripe
 - `RENDER_SERVER_URL` — microservicio Carbone
+- `LOG_LEVEL` — (opcional) nivel del logger Winston (`error|warn|info|http|verbose|debug|silly`). Default `info` en prod, `debug` en dev.
 
 ## Conventions
 

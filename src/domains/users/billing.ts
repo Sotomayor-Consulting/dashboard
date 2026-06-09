@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.billing');
 
 export const FacturacionGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
@@ -8,7 +11,7 @@ export const FacturacionGeneral = async (supabase: SupabaseClient) => {
 
 	if (error) {
 		if (error.code === 'PGRST116') return null;
-		console.error('Error fetching all facturaciones:', error);
+		log.error('Error fetching all facturaciones', { error });
 		throw error;
 	}
 
@@ -27,7 +30,7 @@ export const FacturacionbyId = async (
 
 	if (error) {
 		if (error.code === 'PGRST116') return null;
-		console.error('Error fetching all facturaciones:', error);
+		log.error('Error fetching all facturaciones', { error });
 		throw error;
 	}
 

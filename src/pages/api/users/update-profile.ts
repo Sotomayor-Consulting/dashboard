@@ -9,6 +9,9 @@ import {
 	formDataToObject,
 } from '@shared/validation/form-validator';
 import { safeBack } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('update-profile');
 
 const BACK_PATH = '/settings';
 
@@ -56,7 +59,7 @@ export const POST: APIRoute = async ({
 	// Usuario ya verificado por el middleware
 	const user = locals?.user;
 	if (!user) {
-		console.warn('[update-profile] Usuario no autenticado en POST');
+		log.warn('Usuario no autenticado en POST');
 		const msg = encodeURIComponent('No autenticado');
 		return redirect(`${back}?status=error&msg=${msg}`);
 	}
@@ -67,7 +70,7 @@ export const POST: APIRoute = async ({
 	const result = validateFormData(personalInfoSchema, raw);
 
 	if (!result.success) {
-		console.warn('[update-profile] Validacion fallida', result.fieldErrors);
+		log.warn('Validacion fallida', { fieldErrors: result.fieldErrors });
 		// Tomar el primer error global para mostrarlo como mensaje
 		const firstError = Object.values(result.fieldErrors)[0]?.[0]
 			?? 'Datos inválidos';
@@ -96,7 +99,7 @@ export const POST: APIRoute = async ({
 		.upsert(payload, { onConflict: 'user_id' });
 
 	if (error) {
-		console.error('[update-profile] Error en upsert usuarios', error);
+		log.error('Error en upsert usuarios', { error });
 		const msg = encodeURIComponent(`Error: ${error.message}`);
 		return redirect(`${back}?status=error&msg=${msg}`);
 	}

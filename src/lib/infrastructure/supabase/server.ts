@@ -7,6 +7,9 @@
 
 import { createServerClient, parseCookieHeader } from '@supabase/ssr';
 import type { AstroCookies } from 'astro';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('Supabase SSR');
 
 /** Explicit context: { headers, cookies } — used in API routes & middleware */
 interface ServerClientContext {
@@ -104,7 +107,7 @@ export function createSupabaseServerClient(context: SupabaseContext) {
 					// ResponseSentError. Esto es seguro de ignorar porque el
 					// middleware ya refrescó los tokens antes del render.
 					if (!(error instanceof Error) || error.name !== 'ResponseSentError') {
-						console.error('[Supabase SSR] Error setting cookies:', error);
+						log.error('Error setting cookies', { error });
 					}
 				}
 			},

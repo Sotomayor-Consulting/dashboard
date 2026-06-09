@@ -1,5 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { recordAuditEvent } from '@domains/audit/audit-events';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.company-members');
 import {
 	createMember,
 	MEMBER_COLUMNS,
@@ -330,18 +333,16 @@ export async function createCompanyMemberWithNewPerson(
 				.delete()
 				.eq('id', person.id);
 			if (deleteError) {
-				console.error(
-					'[createCompanyMemberWithNewPerson] rollback delete failed for member',
-					person.id,
-					deleteError,
-				);
+				log.error('rollback delete failed for member', {
+						personId: person.id,
+						error: deleteError,
+					});
 			}
 		} catch (rollbackError) {
-			console.error(
-				'[createCompanyMemberWithNewPerson] rollback threw for member',
-				person.id,
-				rollbackError,
-			);
+			log.error('rollback threw for member', {
+					personId: person.id,
+					error: rollbackError,
+				});
 		}
 		throw relationError;
 	}

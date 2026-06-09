@@ -2,6 +2,9 @@ import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { getReferralsByEmail } from '@integrations/odoo/partners';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('charts.odoo-partners');
 
 type Referral = {
 	name: string;
@@ -20,7 +23,7 @@ export const GET: APIRoute = async ({ cookies, request }) => {
 	} = await supabase.auth.getUser();
 
 	if (userErr || !user || !user.email) {
-		console.error('[CHART-ODOO] Error getUser:', userErr);
+		log.error('Error getUser', { error: userErr });
 		return new Response(
 			JSON.stringify({ error: 'Sesión inválida o sin email' }),
 			{
@@ -34,7 +37,7 @@ export const GET: APIRoute = async ({ cookies, request }) => {
 	const result = await getReferralsByEmail(user.email);
 
 	if (!result?.success) {
-		console.error('[CHART-ODOO] Odoo error:', result?.error);
+		log.error('Odoo error', { error: result?.error });
 		return new Response(
 			JSON.stringify({ error: 'No se pudieron obtener los referidos' }),
 			{

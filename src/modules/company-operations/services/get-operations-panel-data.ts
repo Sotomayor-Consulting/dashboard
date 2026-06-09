@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('operations-panel.data');
 import {
 	getWorkflowByIncorporation,
 	listStages,
@@ -87,7 +90,7 @@ const fetchUsersByIds = async (
 		.select('user_id, nombre, apellido')
 		.in('user_id', unique);
 	if (error || !data) {
-		console.error('fetchUsersByIds:', error);
+		log.error('fetchUsersByIds', { error });
 		return new Map();
 	}
 	const m = new Map<string, { nombre: string | null; apellido: string | null }>();

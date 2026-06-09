@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.payments');
 
 export const getPagosSurvey = async (
 	supabase: SupabaseClient,
@@ -12,7 +15,7 @@ export const getPagosSurvey = async (
 		.limit(1)
 		.maybeSingle();
 	if (error) {
-		console.log('Error fetching pagos para survey:', error);
+		log.error('Error fetching pagos para survey', { error });
 		throw error;
 	}
 	return data;
@@ -32,7 +35,7 @@ export const getPlanContratadoPorEmpresa = async (
 		.maybeSingle();
 
 	if (error) {
-		console.log('Error fetching plan contratado:', error);
+		log.error('Error fetching plan contratado', { error });
 		return null;
 	}
 

@@ -21,6 +21,9 @@ import {
 } from './auth.types';
 import { VALIDATION } from './auth.config';
 import { friendlyAuthError } from './auth.helpers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('AuthService');
 
 /**
  * AuthService — un servicio por request.
@@ -102,7 +105,7 @@ export class AuthService {
 		});
 
 		if (error) {
-			console.error('[AuthService.register] Supabase error original:', {
+			log.error('register: Supabase error original', {
 				message: error.message,
 				code: error.code,
 				status: error.status,
@@ -292,10 +295,7 @@ export class AuthService {
 
 		if (error) {
 			// Log pero no exponer al usuario si el email existe
-			console.error(
-				'[AuthService] resetPasswordForEmail error:',
-				error.message,
-			);
+			log.error('resetPasswordForEmail error', { message: error.message });
 		}
 
 		// Siempre respondemos lo mismo por seguridad
@@ -317,10 +317,7 @@ export class AuthService {
 		});
 
 		if (error) {
-			console.error(
-				'[AuthService.resetPassword] Error:',
-				error.message,
-			);
+			log.error('resetPassword error', { message: error.message });
 			throw new AuthError(
 				friendlyAuthError(error.message, error.code),
 			);

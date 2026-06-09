@@ -4,6 +4,9 @@ import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 import { extractTokenRoleNames, isAdmin } from '@shared/roles';
 import { uploadTemplateFile, updateTemplate, getTemplateById } from '@domains/templates/templates';
 import { detectPdfFormFields } from '@domains/templates/fill-pdf';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('templates.upload');
 
 const json = (status: number, payload: unknown) =>
 	new Response(JSON.stringify(payload), {
@@ -65,14 +68,14 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 					await updateTemplate(supabase, templateId, { field_definitions: fields }, claims.claims.sub as string);
 				}
 			} catch (detectErr) {
-				console.error('[templates/upload] detectPdfFormFields failed:', detectErr);
+				log.error('detectPdfFormFields failed', { error: detectErr });
 			}
 		}
 
 		const template = await getTemplateById(supabase, templateId);
 		return json(200, { documentId, data: template });
 	} catch (err) {
-		console.error('[templates/upload] failed:', err);
+		log.error('failed', { error: err });
 		const detail = err instanceof Error ? err.message : 'unknown error';
 		return json(500, { error: 'UPLOAD_FAILED', detail });
 	}

@@ -107,6 +107,20 @@ export function OperativeAddressFields() {
 								/>
 							</div>
 						</div>
+						<Controller
+							control={control}
+							name="facturaServicioBasicoEEUU"
+							render={({ field }) => (
+								<FileUploadField
+									id="facturaServicioBasicoEEUU"
+									label="Factura de servicio básico"
+									description="Factura de luz, agua o gas que verifique la dirección en EE. UU."
+									file={field.value}
+									onFileChange={field.onChange}
+									maxSizeLabel="1 MB"
+								/>
+							)}
+						/>
 					</div>
 				</motion.div>
 			)}
@@ -124,7 +138,7 @@ export function OperativeAddressFields() {
 							Dirección fuera de Estados Unidos
 						</h3>
 						<div>
-							<Label htmlFor="pais">País (Country)</Label>
+							<Label htmlFor="pais">País</Label>
 							<Controller
 								control={control}
 								name="pais"
@@ -141,6 +155,16 @@ export function OperativeAddressFields() {
 											))}
 										</SelectContent>
 									</Select>
+								)}
+							/>
+						</div>
+						<div>
+							<Label htmlFor="ciudad">Ciudad</Label>
+							<Controller
+								control={control}
+								name="ciudad"
+								render={({ field }) => (
+									<Input id="ciudad" {...field} className="mt-1.5" />
 								)}
 							/>
 						</div>
@@ -165,7 +189,7 @@ export function OperativeAddressFields() {
 							render={({ field }) => (
 								<FileUploadField
 									id="facturaServicioBasico"
-									label="Factura de servicio básico (utility bill)"
+									label="Factura de servicio básico"
 									description="Factura que verifique la dirección de operaciones del negocio."
 									file={field.value}
 									onFileChange={field.onChange}

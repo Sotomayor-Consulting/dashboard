@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.users');
 
 export const getAllUsuarios = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
@@ -7,7 +10,7 @@ export const getAllUsuarios = async (supabase: SupabaseClient) => {
 		.order('created_at', { ascending: false });
 
 	if (error) {
-		console.error('Error fetching all usuarios:', error);
+		log.error('Error fetching all usuarios', { error });
 		throw error;
 	}
 
@@ -25,7 +28,7 @@ export const getUsuarioById = async (
 		.single();
 
 	if (error) {
-		console.error('Error fetching usuario by ID:', error);
+		log.error('Error fetching usuario by ID', { error });
 		throw error;
 	}
 
@@ -43,7 +46,7 @@ export const getUsuarioAvatar = async (
 		.single();
 
 	if (error) {
-		console.error('Error fetching usuario by ID:', error);
+		log.error('Error fetching usuario by ID', { error });
 		throw error;
 	}
 
@@ -61,7 +64,7 @@ export const getUsuarioPerfilPartner = async (
 		.single();
 
 	if (error) {
-		console.error('Error fetching usuario perfil partner:', error);
+		log.error('Error fetching usuario perfil partner', { error });
 		throw error;
 	}
 

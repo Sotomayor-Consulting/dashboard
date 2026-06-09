@@ -6,6 +6,9 @@ import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { notifyByEvent } from '@infrastructure/notifications';
 import type { NotificationChannel } from '@infrastructure/notifications';
 import { safeBack } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('admin-notifications-update');
 
 const BACK_PATH = '/admin/notifications/';
 
@@ -87,7 +90,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
 
 		if (notificationResult.totalSuccess === 0) {
 			const details = channelFailures.join(' | ');
-			console.error('[admin-notifications-update] all channels failed', {
+			log.error('all channels failed', {
 				userId,
 				channels,
 				channelFailures,
@@ -98,7 +101,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
 		}
 
 		if (channelFailures.length > 0) {
-			console.error('[admin-notifications-update] partial channel failures', {
+			log.error('partial channel failures', {
 				userId,
 				channels,
 				channelFailures,
@@ -113,7 +116,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
 			`${back}?status=success&msg=${encodeURIComponent('Notificación enviada correctamente')}`,
 		);
 	} catch (e: any) {
-		console.error('[admin-notifications-update] unexpected error', e);
+		log.error('unexpected error', { error: e });
 		const msg = encodeURIComponent(`Error inesperado: ${e?.message ?? e}`);
 		return redirect(`${back}?status=error&msg=${msg}`);
 	}

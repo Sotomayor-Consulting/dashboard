@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
 import { extractTokenRoleNames, hasAnyRole, ROLES } from '@shared/roles';
 import { getTemplateById, getTemplateFileContent, getTemplateFileUrl } from '@domains/templates/templates';
 import { fillPdfAcroForm } from '@domains/templates/fill-pdf';
@@ -10,6 +11,8 @@ import { getTransformer } from '@domains/templates/transformers';
 import type { FieldMapping } from '@domains/templates/types';
 import type { ResolveContextIds } from '@domains/templates/schema-registry';
 import type { EntityType } from '@domains/templates/entity-registry';
+
+const log = createLogger('templates.fill');
 
 const json = (status: number, payload: unknown) =>
 	new Response(JSON.stringify(payload), {
@@ -151,7 +154,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 			});
 		} catch (err) {
 			const detail = err instanceof Error ? err.message : 'unknown error';
-			console.error('[fill] WORD_FILL_FAILED:', detail);
+			log.error('WORD_FILL_FAILED', { detail });
 			return json(500, { error: 'WORD_FILL_FAILED', detail });
 		}
 	}
@@ -193,7 +196,7 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
 		});
 	} catch (err) {
 		const detail = err instanceof Error ? err.message : 'unknown error';
-		console.error('[fill] PDF_FILL_FAILED:', detail);
+		log.error('PDF_FILL_FAILED', { detail });
 		return json(500, { error: 'PDF_FILL_FAILED', detail });
 	}
 };
