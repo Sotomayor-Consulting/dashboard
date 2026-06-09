@@ -17,6 +17,7 @@ import {
 	SelectValue,
 	SelectContent,
 } from '@components/ui/Select';
+
 import type {
 	IncorporationRegistrationFormValues,
 	IncorporationRegistrationInput,
@@ -44,28 +45,21 @@ export default function IncorporationRegistrationSection({
 
 	return (
 		<section className="flex flex-col gap-4">
-			<header className="flex flex-col gap-1">
-				<h3 className="text-lg font-semibold">Formulario</h3>
-				<FieldDescription>
-					Revise o edite detalles del registro de incorporación.
-				</FieldDescription>
-			</header>
-
-			<div className="flex flex-col gap-2">
+			{/* Opciones de nombre */}
+			<div className="flex flex-col gap-4 px-4">
 				<FieldLabel>Opciones de nombre</FieldLabel>
 				<FieldDescription>
 					Registre las opciones de nombre propuestas por el cliente. Estas
 					deberán ser validadas según la disponibilidad y requisitos estatales
 					donde se incorpora la empresa.
 				</FieldDescription>
-				<FieldGroup className="grid gap-4 md:grid-cols-3">
+				<FieldGroup className="grid gap-2">
 					<Field data-disabled={!canEditDetails}>
 						<Input
 							id="name_option_1"
 							{...register('nameOption1')}
 							disabled={!canEditDetails}
 						/>
-						<FieldDescription>Nombre 1</FieldDescription>
 					</Field>
 
 					<Field data-disabled={!canEditDetails}>
@@ -74,7 +68,6 @@ export default function IncorporationRegistrationSection({
 							{...register('nameOption2')}
 							disabled={!canEditDetails}
 						/>
-						<FieldDescription>Nombre 2</FieldDescription>
 					</Field>
 
 					<Field data-disabled={!canEditDetails}>
@@ -83,11 +76,10 @@ export default function IncorporationRegistrationSection({
 							{...register('nameOption3')}
 							disabled={!canEditDetails}
 						/>
-						<FieldDescription>Nombre 3</FieldDescription>
 					</Field>
 				</FieldGroup>
 			</div>
-			<FieldGroup className="grid gap-4 md:grid-cols-2">
+			<FieldGroup className="grid gap-2 px-4">
 				<Field>
 					<FieldLabel htmlFor="business_type">Tipo de entidad</FieldLabel>
 					<Controller
