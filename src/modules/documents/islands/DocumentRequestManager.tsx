@@ -64,62 +64,68 @@ export default function DocumentRequestManager({
 		<div className="space-y-4">
 			<div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
 				<h4 className="mb-1 text-base font-semibold">Solicitar documentos</h4>
-			<p className="text-muted-foreground mb-4 text-sm">
-				Crea solicitudes para que el cliente suba los documentos requeridos.
-			</p>
+				<p className="text-muted-foreground mb-4 text-sm">
+					Crea solicitudes para que el cliente suba los documentos requeridos.
+				</p>
 
-			<form
-				action={`/api/documents/request?back=${encodeURIComponent(backPath)}`}
-				method="post"
-				className="space-y-4"
-			>
-				<input
-					type="hidden"
-					name="incorporationCaseId"
-					value={incorporationCaseId}
-				/>
-				<input type="hidden" name="relatedToType" value="incorporation_case" />
-				<input type="hidden" name="relatedToId" value={incorporationCaseId} />
-
-				<FieldGroup className="grid gap-4 md:grid-cols-2">
-					<Field>
-						<FieldLabel htmlFor="documentTypeId">Tipo de documento</FieldLabel>
-						<Select name="documentTypeId" required>
-							<SelectTrigger id="documentTypeId" className="w-full">
-								<SelectValue placeholder="Selecciona un tipo" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectGroup>
-									{documentTypes.map((docType) => (
-										<SelectItem key={docType.id} value={String(docType.id)}>
-											{docType.code} - {docType.name}
-										</SelectItem>
-									))}
-								</SelectGroup>
-							</SelectContent>
-						</Select>
-					</Field>
-
-					<Field>
-						<FieldLabel htmlFor="dueDate">Fecha límite</FieldLabel>
-						<Input id="dueDate" name="dueDate" type="date" />
-					</Field>
-				</FieldGroup>
-
-				<Field>
-					<FieldLabel htmlFor="message">Mensaje para el cliente</FieldLabel>
-					<Textarea
-						id="message"
-						name="message"
-						rows={4}
-						placeholder="Describe qué debe subir el cliente."
+				<form
+					action={`/api/documents/request?back=${encodeURIComponent(backPath)}`}
+					method="post"
+					className="space-y-4"
+				>
+					<input
+						type="hidden"
+						name="incorporationCaseId"
+						value={incorporationCaseId}
 					/>
-				</Field>
+					<input
+						type="hidden"
+						name="relatedToType"
+						value="incorporation_case"
+					/>
+					<input type="hidden" name="relatedToId" value={incorporationCaseId} />
 
-				<div className="flex items-center justify-end gap-2">
-					<Button type="submit">Crear solicitud</Button>
-				</div>
-			</form>
+					<FieldGroup className="grid gap-4 px-4 md:grid-cols-2">
+						<Field>
+							<FieldLabel htmlFor="documentTypeId">
+								Tipo de documento
+							</FieldLabel>
+							<Select name="documentTypeId" required>
+								<SelectTrigger id="documentTypeId" className="w-full">
+									<SelectValue placeholder="Selecciona un tipo" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectGroup>
+										{documentTypes.map((docType) => (
+											<SelectItem key={docType.id} value={String(docType.id)}>
+												{docType.code} - {docType.name}
+											</SelectItem>
+										))}
+									</SelectGroup>
+								</SelectContent>
+							</Select>
+						</Field>
+
+						<Field>
+							<FieldLabel htmlFor="dueDate">Fecha límite</FieldLabel>
+							<Input id="dueDate" name="dueDate" type="date" />
+						</Field>
+					</FieldGroup>
+
+					<Field>
+						<FieldLabel htmlFor="message">Mensaje para el cliente</FieldLabel>
+						<Textarea
+							id="message"
+							name="message"
+							rows={4}
+							placeholder="Describe qué debe se subir el cliente."
+						/>
+					</Field>
+
+					<div className="flex items-center justify-end gap-2">
+						<Button type="submit">Crear solicitud</Button>
+					</div>
+				</form>
 			</div>
 
 			<div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-transparent">
