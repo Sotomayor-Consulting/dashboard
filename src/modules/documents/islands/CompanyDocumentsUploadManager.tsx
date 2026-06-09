@@ -167,8 +167,8 @@ export default function CompanyDocumentsUploadManager({
 	};
 
 	return (
-		<div className="space-y-4 dark:bg-transparent">
-			<div className="rounded-lg border p-4">
+		<div className="space-y-4">
+			<div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
 				<h4 className="mb-1 text-base font-semibold">Subir documentos</h4>
 				<p className="text-muted-foreground mb-4 text-sm">
 					Sube documentos internos o visibles para cliente usando el flujo
@@ -232,7 +232,7 @@ export default function CompanyDocumentsUploadManager({
 				</form>
 			</div>
 
-			<div className="overflow-hidden rounded-lg border">
+			<div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-transparent">
 				<Table>
 					<TableHeader>
 						<TableRow>

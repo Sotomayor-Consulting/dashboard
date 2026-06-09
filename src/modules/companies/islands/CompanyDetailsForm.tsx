@@ -10,6 +10,15 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@components/ui/Dialog';
+
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetDescription,
+	SheetFooter,
+} from '@components/ui/Sheet';
 import { Icon } from '@iconify/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -43,6 +52,7 @@ export default function CompanyDetailsForm({
 	states,
 }: Props) {
 	const [companyId, setCompanyId] = React.useState(empresa.company_id ?? null);
+	const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 	const [isCreateCompanyOpen, setIsCreateCompanyOpen] = React.useState(false);
 	const [isCreatingCompany, setIsCreatingCompany] = React.useState(false);
 	const [isSavingIncorporation, setIsSavingIncorporation] =
@@ -167,36 +177,68 @@ export default function CompanyDetailsForm({
 					</div>
 				)}
 
-				<div className="flex flex-col gap-5">
+				<div className="flex flex-col gap-4">
 					<section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
-						<header className="mb-4">
-							<h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-								Registro de incorporación
-							</h3>
-							<p className="text-muted-foreground text-sm">
-								Datos capturados del proceso de incorporación.
-							</p>
+						<header className="flex items-start justify-between gap-4">
+							<div>
+								<h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+									Registro de incorporación
+								</h3>
+								<p className="text-muted-foreground text-sm">
+									Datos capturados del proceso de incorporación.
+								</p>
+							</div>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setIsSheetOpen(true)}
+								disabled={!canEditDetails}
+							>
+								<Icon icon="ri:edit-line" className="h-4 w-4" />
+								Editar
+							</Button>
 						</header>
-
-						<form
-							onSubmit={incorporationForm.handleSubmit(handleSaveIncorporation)}
-							className="flex flex-col gap-4"
-						>
-							<IncorporationRegistrationSection
-								canEditDetails={canEditDetails}
-								states_us={states}
-								form={incorporationForm}
-							/>
-							<section className="flex justify-end border-gray-200 pt-5 dark:border-gray-700">
-								<Button
-									type="submit"
-									disabled={!canEditDetails || isSavingIncorporation}
-								>
-									Guardar cambios
-								</Button>
-							</section>
-						</form>
 					</section>
+
+					<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+						<SheetContent side="right" className="sm:!max-w-lg">
+							<SheetHeader>
+								<SheetTitle>Registro de incorporación</SheetTitle>
+								<SheetDescription>
+									Revise o edite detalles del registro de incorporación.
+								</SheetDescription>
+							</SheetHeader>
+							<form
+								onSubmit={incorporationForm.handleSubmit(
+									handleSaveIncorporation,
+								)}
+								className="flex flex-1 flex-col gap-4"
+							>
+								<div className="flex-1">
+									<IncorporationRegistrationSection
+										canEditDetails={canEditDetails}
+										states_us={states}
+										form={incorporationForm}
+									/>
+								</div>
+								<SheetFooter>
+									<Button
+										variant="outline"
+										type="button"
+										onClick={() => setIsSheetOpen(false)}
+									>
+										Cancelar
+									</Button>
+									<Button
+										type="submit"
+										disabled={!canEditDetails || isSavingIncorporation}
+									>
+										Guardar cambios
+									</Button>
+								</SheetFooter>
+							</form>
+						</SheetContent>
+					</Sheet>
 
 					{hasCompany && companyHref ? (
 						<aside className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
@@ -212,9 +254,7 @@ export default function CompanyDetailsForm({
 										{company?.entity_type
 											? company.entity_type.toUpperCase()
 											: 'LLC'}
-										{company?.legal_status
-											? ` · ${company.legal_status}`
-											: ''}
+										{company?.legal_status ? ` · ${company.legal_status}` : ''}
 										{company?.identification_number
 											? ` · EIN ${company.identification_number}`
 											: ''}

@@ -86,10 +86,13 @@ export function TemplateRowActions({
 					<>
 						<DropdownMenuItem onClick={stop(() => onEdit(template))}>
 							<Icon icon="ri:edit-line" className="h-4 w-4" />
-							Editar datos
+							Ver información
 						</DropdownMenuItem>
 						{template.template_type === 'pdf' && (
-							<DropdownMenuItem onClick={stop(() => onMap(template))} disabled={!canMap}>
+							<DropdownMenuItem
+								onClick={stop(() => onMap(template))}
+								disabled={!canMap}
+							>
 								<Icon icon="ri:links-line" className="h-4 w-4" />
 								Mapear campos
 							</DropdownMenuItem>
@@ -101,7 +104,10 @@ export function TemplateRowActions({
 							<Icon icon="ri:upload-2-line" className="h-4 w-4" />
 							{template.document ? 'Reemplazar archivo' : 'Subir archivo'}
 						</DropdownMenuItem>
-						<DropdownMenuItem onClick={stop(() => onDownload(template))} disabled={!hasFile}>
+						<DropdownMenuItem
+							onClick={stop(() => onDownload(template))}
+							disabled={!hasFile}
+						>
 							<Icon icon="ri:download-2-line" className="h-4 w-4" />
 							Descargar archivo
 						</DropdownMenuItem>
