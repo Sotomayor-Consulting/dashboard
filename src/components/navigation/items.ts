@@ -89,17 +89,6 @@ export const menuItems: MenuItem[] = [
 		colors: 'text-violet-500',
 	},
 	{
-		id: 'menu-notificaciones-a-usuarios',
-		label: 'Notifications',
-		href: '/admin/notifications/',
-		tooltip: 'Notifica a los usuarios con mensajes personalizados',
-		roles: ['admin'],
-		svgname: 'ri:chat-ai-line',
-		sequence: 120,
-		group: 'Admin',
-		colors: 'text-violet-500'
-	},
-	{
 		id: 'crud-servicios',
 		label: 'Servicios',
 		href: '/admin/services/',
