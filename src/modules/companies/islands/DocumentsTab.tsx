@@ -1,15 +1,26 @@
+import * as React from 'react';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
 import { DropzoneField } from '@components/ui/DropzoneField';
 import { Field, FieldGroup, FieldLabel } from '@components/ui/Field';
+import { Input } from '@components/ui/Input';
 import {
 	Select,
 	SelectContent,
 	SelectGroup,
 	SelectItem,
+	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from '@components/ui/Select';
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetDescription,
+	SheetFooter,
+} from '@components/ui/Sheet';
 import {
 	Table,
 	TableBody,
@@ -18,6 +29,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@components/ui/Table';
+import { Textarea } from '@components/ui/Textarea';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -32,20 +44,25 @@ import {
 	MoreHorizontal,
 	XCircle,
 } from 'lucide-react';
+import { Icon } from '@iconify/react';
+import { DocumentTypeComboboxField } from '@modules/documents/islands/DocumentTypeComboboxField';
 import type {
 	DocumentDashboardRow,
+	DocumentRequestDashboardRow,
 	DocumentTypeLite,
 } from '@domains/documents/document_dashboard';
-import { DocumentTypeComboboxField } from './DocumentTypeComboboxField';
 
-type Props = {
+type SheetMode = 'request' | 'upload' | null;
+
+interface Props {
 	incorporationCaseId: string;
 	backPath: string;
 	documentTypes: DocumentTypeLite[];
 	documents: DocumentDashboardRow[];
-	isStaff?: boolean;
-	sharedWithUserId?: string | undefined;
-};
+	requests: DocumentRequestDashboardRow[];
+	isStaff: boolean;
+	sharedWithUserId?: string;
+}
 
 function badgeForDocumentStatus(status: string) {
 	if (status === 'approved') return 'susess';
@@ -64,17 +81,26 @@ function formatDate(value?: string | null) {
 	return date.toLocaleDateString('es-ES');
 }
 
-export default function CompanyDocumentsUploadManager({
+export default function DocumentsTab({
 	incorporationCaseId,
 	backPath,
 	documentTypes,
 	documents,
+	requests,
 	isStaff = false,
 	sharedWithUserId,
 }: Props) {
-	const uploadAction = `/api/documents/upload?incorporationCaseId=${encodeURIComponent(
-		incorporationCaseId,
-	)}&back=${encodeURIComponent(backPath)}`;
+	const [sheetMode, setSheetMode] = React.useState<SheetMode>(null);
+	const lastMode = React.useRef<SheetMode>(null);
+	const isOpen = sheetMode !== null;
+	const closeSheet = () => setSheetMode(null);
+	const displayMode = sheetMode ?? lastMode.current;
+
+	React.useEffect(() => {
+		if (sheetMode !== null) lastMode.current = sheetMode;
+	}, [sheetMode]);
+
+	const uploadAction = `/api/documents/upload?incorporationCaseId=${encodeURIComponent(incorporationCaseId)}&back=${encodeURIComponent(backPath)}`;
 
 	const onDownload = async (documentId: string) => {
 		try {
@@ -84,7 +110,6 @@ export default function CompanyDocumentsUploadManager({
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ documentId }),
 			});
-
 			const data = await res.json();
 			if (!res.ok) throw new Error(data?.error || 'Error');
 			window.open(data.signedUrl, '_blank');
@@ -166,70 +191,34 @@ export default function CompanyDocumentsUploadManager({
 		window.location.href = `${basePath}/${documentId}`;
 	};
 
+	const pendingRequestsCount = requests.filter(
+		(r) => r.status === 'pending' || r.status === 'under_review',
+	).length;
+
 	return (
-		<div className="space-y-4">
-			<div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
-				<h4 className="mb-1 text-base font-semibold">Subir documentos</h4>
-				<p className="text-muted-foreground mb-4 text-sm">
-					Sube documentos internos o visibles para cliente usando el flujo
-					unificado.
-				</p>
-
-				<form action={uploadAction} method="post" encType="multipart/form-data">
-					<FieldGroup className="grid gap-4 md:grid-cols-2">
-						<Field>
-							<FieldLabel>Archivo</FieldLabel>
-							<DropzoneField
-								name="file"
-								id="file"
-								required
-								maxFileSizeMb={15}
-								maxFiles={1}
-							/>
-						</Field>
-
-						<Field>
-							<FieldLabel>Tipo de documento</FieldLabel>
-							<DocumentTypeComboboxField documentTypes={documentTypes} />
-						</Field>
-
-						<Field>
-							<FieldLabel htmlFor="visibility">Visibilidad</FieldLabel>
-							<Select name="visibility" defaultValue="internal_only">
-								<SelectTrigger id="visibility" className="w-full">
-									<SelectValue placeholder="Selecciona visibilidad" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectGroup>
-										<SelectItem value="internal_only">Interno</SelectItem>
-										<SelectItem value="client_visible">
-											Visible cliente
-										</SelectItem>
-									</SelectGroup>
-								</SelectContent>
-							</Select>
-						</Field>
-
-						<Field>
-							<FieldLabel htmlFor="shareWithClient">Compartir</FieldLabel>
-							<Select name="shareWithClient" defaultValue="false">
-								<SelectTrigger id="shareWithClient" className="w-full">
-									<SelectValue placeholder="Selecciona opción" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectGroup>
-										<SelectItem value="false">No compartir</SelectItem>
-										<SelectItem value="true">Compartir</SelectItem>
-									</SelectGroup>
-								</SelectContent>
-							</Select>
-						</Field>
-					</FieldGroup>
-
-					<div className="mt-4 flex items-center justify-end">
-						<Button type="submit">Subir documento</Button>
-					</div>
-				</form>
+		<div className="flex flex-col gap-4">
+			<div className="flex flex-wrap items-center gap-2">
+				<Button
+					type="button"
+					variant="outline"
+					onClick={() => setSheetMode('request')}
+				>
+					<Icon icon="ri:file-list-3-line" className="h-4 w-4" />
+					Solicitar documento
+				</Button>
+				<Button
+					type="button"
+					variant="outline"
+					onClick={() => setSheetMode('upload')}
+				>
+					<Icon icon="ri:upload-2-line" className="h-4 w-4" />
+					Subir documento
+				</Button>
+				{pendingRequestsCount > 0 && (
+					<span className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+						{pendingRequestsCount} solicitudes pendientes
+					</span>
+				)}
 			</div>
 
 			<div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-transparent">
@@ -337,14 +326,163 @@ export default function CompanyDocumentsUploadManager({
 							))
 						) : (
 							<TableRow>
-								<TableCell colSpan={6} className="h-16 text-center">
-									No hay documentos cargados aún.
+								<TableCell colSpan={6} className="h-32 text-center">
+									<div className="flex flex-col items-center gap-2 text-gray-500 dark:text-gray-400">
+										<Icon icon="ri:file-text-line" className="h-8 w-8" />
+										<p className="text-sm">No hay documentos cargados aún.</p>
+									</div>
 								</TableCell>
 							</TableRow>
 						)}
 					</TableBody>
 				</Table>
 			</div>
+
+			<Sheet
+				open={isOpen}
+				onOpenChange={(o) => {
+					if (!o) closeSheet();
+				}}
+			>
+				<SheetContent side="right" className="sm:!max-w-lg">
+					<SheetHeader>
+						<SheetTitle>
+							{displayMode === 'request'
+								? 'Solicitar documento'
+								: 'Subir documento'}
+						</SheetTitle>
+						<SheetDescription>
+							{displayMode === 'request'
+								? 'Crea una solicitud para que el cliente suba el documento requerido.'
+								: 'Sube un documento interno o visible para el cliente usando el flujo unificado.'}
+						</SheetDescription>
+					</SheetHeader>
+
+					{displayMode === 'request' ? (
+						<form
+							action={`/api/documents/request?back=${encodeURIComponent(backPath)}`}
+							method="post"
+							className="flex flex-1 flex-col gap-4"
+						>
+							<input
+								type="hidden"
+								name="incorporationCaseId"
+								value={incorporationCaseId}
+							/>
+							<input
+								type="hidden"
+								name="relatedToType"
+								value="incorporation_case"
+							/>
+							<input
+								type="hidden"
+								name="relatedToId"
+								value={incorporationCaseId}
+							/>
+
+							<div className="flex-1 space-y-4 px-4">
+								<FieldGroup className="grid gap-4 md:grid-cols-2">
+									<Field>
+										<FieldLabel htmlFor="documentTypeId">
+											Tipo de documento
+										</FieldLabel>
+										<Select name="documentTypeId" required>
+											<SelectTrigger id="documentTypeId" className="w-full">
+												<SelectValue placeholder="Selecciona un tipo" />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectGroup>
+													<SelectLabel>Tipos</SelectLabel>
+													{documentTypes.map((docType) => (
+														<SelectItem
+															key={docType.id}
+															value={String(docType.id)}
+														>
+															{docType.code} - {docType.name}
+														</SelectItem>
+													))}
+												</SelectGroup>
+											</SelectContent>
+										</Select>
+									</Field>
+									<Field>
+										<FieldLabel htmlFor="dueDate">Fecha límite</FieldLabel>
+										<Input id="dueDate" name="dueDate" type="date" />
+									</Field>
+								</FieldGroup>
+
+								<Field>
+									<FieldLabel htmlFor="message">
+										Mensaje para el cliente
+									</FieldLabel>
+									<Textarea
+										id="message"
+										name="message"
+										rows={4}
+										placeholder="Describe qué debe subir el cliente."
+									/>
+								</Field>
+							</div>
+
+							<SheetFooter>
+								<Button variant="outline" type="button" onClick={closeSheet}>
+									Cancelar
+								</Button>
+								<Button type="submit">Crear solicitud</Button>
+							</SheetFooter>
+						</form>
+					) : (
+						<form
+							action={uploadAction}
+							method="post"
+							encType="multipart/form-data"
+							className="flex flex-1 flex-col gap-4"
+						>
+							<div className="flex-1 space-y-4 px-4">
+								<Field>
+									<FieldLabel>Archivo</FieldLabel>
+									<DropzoneField
+										name="file"
+										id="file"
+										required
+										maxFileSizeMb={15}
+										maxFiles={1}
+									/>
+								</Field>
+
+								<Field>
+									<FieldLabel>Tipo de documento</FieldLabel>
+									<DocumentTypeComboboxField documentTypes={documentTypes} />
+								</Field>
+
+								<Field>
+									<FieldLabel htmlFor="visibility">Visibilidad</FieldLabel>
+									<Select name="visibility" defaultValue="internal_only">
+										<SelectTrigger id="visibility" className="w-full">
+											<SelectValue placeholder="Selecciona visibilidad" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectGroup>
+												<SelectItem value="internal_only">Interno</SelectItem>
+												<SelectItem value="client_visible">
+													Visible cliente
+												</SelectItem>
+											</SelectGroup>
+										</SelectContent>
+									</Select>
+								</Field>
+							</div>
+
+							<SheetFooter>
+								<Button variant="outline" type="button" onClick={closeSheet}>
+									Cancelar
+								</Button>
+								<Button type="submit">Subir documento</Button>
+							</SheetFooter>
+						</form>
+					)}
+				</SheetContent>
+			</Sheet>
 		</div>
 	);
 }

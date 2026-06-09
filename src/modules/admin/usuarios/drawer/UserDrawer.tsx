@@ -11,6 +11,7 @@ import type { AdminUserDetail, UserRole } from '@modules/admin/lib/types';
 import { UserDrawerActivity } from './UserDrawerActivity';
 import { UserDrawerCompanies } from './UserDrawerCompanies';
 import { UserDrawerEditForm } from './UserDrawerEditForm';
+import { UserDrawerEmailModal } from './UserDrawerEmailModal';
 import { UserDrawerHeader } from './UserDrawerHeader';
 import { UserDrawerRoles } from './UserDrawerRoles';
 
@@ -34,6 +35,7 @@ export function UserDrawer({ userId, viewerRoles, onClose }: Props) {
 	const open = userId !== null;
 	const canEdit = viewerRoles.includes('admin');
 	const [editMode, setEditMode] = useState(false);
+	const [emailModalOpen, setEmailModalOpen] = useState(false);
 
 	// Reset editMode al cambiar de usuario o cerrar
 	useEffect(() => {
@@ -108,8 +110,11 @@ export function UserDrawer({ userId, viewerRoles, onClose }: Props) {
 								variant="outline"
 								size="sm"
 								className="gap-1.5"
-								render={<a href={`mailto:${data.email}`}>Enviar email</a>}
-							/>
+								onClick={() => setEmailModalOpen(true)}
+							>
+								<Icon icon="ri:mail-send-line" className="h-4 w-4" />
+								Enviar email
+							</Button>
 							{canEdit && (
 								<Button
 									size="sm"
@@ -127,6 +132,15 @@ export function UserDrawer({ userId, viewerRoles, onClose }: Props) {
 							)}
 						</div>
 					</>
+				)}
+				{data && (
+					<UserDrawerEmailModal
+						open={emailModalOpen}
+						onClose={() => setEmailModalOpen(false)}
+						userId={data.id}
+						email={data.email}
+						userName={data.name}
+					/>
 				)}
 			</SheetContent>
 		</Sheet>

@@ -26,7 +26,7 @@ const supabase = Astro.locals.supabase;
 const data = await getOperationsPanelData(supabase, empresaId, empresaNombre);
 ---
 
-<div class="space-y-4 p-1">
+<div class="space-y-4">
 	{
 		!data.hasWorkflow ? (
 			<article class="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center dark:border-gray-700 dark:bg-neutral-950">

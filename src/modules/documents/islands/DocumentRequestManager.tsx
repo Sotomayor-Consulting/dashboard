@@ -61,8 +61,8 @@ export default function DocumentRequestManager({
 	requests,
 }: Props) {
 	return (
-		<div className="space-y-4 dark:bg-transparent">
-			<div className="rounded-lg border p-4">
+		<div className="space-y-4">
+			<div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
 				<h4 className="mb-1 text-base font-semibold">Solicitar documentos</h4>
 				<p className="text-muted-foreground mb-4 text-sm">
 					Crea solicitudes para que el cliente suba los documentos requeridos.
@@ -85,7 +85,7 @@ export default function DocumentRequestManager({
 					/>
 					<input type="hidden" name="relatedToId" value={incorporationCaseId} />
 
-					<FieldGroup className="grid gap-4 md:grid-cols-2">
+					<FieldGroup className="grid gap-4 px-4 md:grid-cols-2">
 						<Field>
 							<FieldLabel htmlFor="documentTypeId">
 								Tipo de documento
@@ -118,7 +118,7 @@ export default function DocumentRequestManager({
 							id="message"
 							name="message"
 							rows={4}
-							placeholder="Describe qué debe subir el cliente."
+							placeholder="Describe qué debe se subir el cliente."
 						/>
 					</Field>
 
@@ -128,7 +128,7 @@ export default function DocumentRequestManager({
 				</form>
 			</div>
 
-			<div className="overflow-hidden rounded-lg border">
+			<div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-transparent">
 				<Table>
 					<TableHeader>
 						<TableRow>
