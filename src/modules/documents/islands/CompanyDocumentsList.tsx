@@ -1,16 +1,6 @@
 import * as React from 'react';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
-import { DropzoneField } from '@components/ui/DropzoneField';
-import { Field, FieldGroup, FieldLabel } from '@components/ui/Field';
-import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@components/ui/Select';
 import {
 	Table,
 	TableBody,
@@ -26,23 +16,18 @@ import {
 	DropdownMenuTrigger,
 } from '@components/ui/DropdownMenu';
 import { Icon } from '@iconify/react';
-import type {
-	DocumentDashboardRow,
-	DocumentTypeLite,
-} from '@domains/documents/document_dashboard';
-import { DocumentTypeComboboxField } from './DocumentTypeComboboxField';
+import type { DocumentDashboardRow } from '@domains/documents/document_dashboard';
 import DocumentDetailDrawer from '@modules/companies/islands/DocumentDetailDrawer';
 
 type SortField = 'name' | 'type' | 'status' | 'date';
 
-type Props = {
-	incorporationCaseId: string;
-	backPath: string;
-	documentTypes: DocumentTypeLite[];
+interface Props {
 	documents: DocumentDashboardRow[];
-	isStaff?: boolean;
-	sharedWithUserId?: string | undefined;
-};
+	canUseStaffActions: boolean;
+	incorporationCaseId: string;
+	companyUserId: string;
+	isStaffDashboard: boolean;
+}
 
 function getMimeIcon(mime: string | null): string {
 	if (!mime) return 'ri:file-line';
@@ -81,9 +66,9 @@ function statusLabel(status: string): string {
 
 function formatDate(value?: string | null) {
 	if (!value) return '—';
-	const date = new Date(value);
-	if (Number.isNaN(date.getTime())) return value;
-	return date.toLocaleDateString('es-ES');
+	const d = new Date(value);
+	if (Number.isNaN(d.getTime())) return value;
+	return d.toLocaleDateString('es-ES');
 }
 
 function SortHead({
@@ -118,13 +103,12 @@ function SortHead({
 	);
 }
 
-export default function CompanyDocumentsUploadManager({
-	incorporationCaseId,
-	backPath,
-	documentTypes,
+export default function CompanyDocumentsList({
 	documents,
-	isStaff = false,
-	sharedWithUserId,
+	canUseStaffActions,
+	incorporationCaseId,
+	companyUserId,
+	isStaffDashboard,
 }: Props) {
 	const [selectedDocument, setSelectedDocument] =
 		React.useState<DocumentDashboardRow | null>(null);
@@ -161,10 +145,6 @@ export default function CompanyDocumentsUploadManager({
 		});
 	}, [documents, sortField, sortDir]);
 
-	const uploadAction = `/api/documents/upload?incorporationCaseId=${encodeURIComponent(
-		incorporationCaseId,
-	)}&back=${encodeURIComponent(backPath)}`;
-
 	const onDownload = async (documentId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
 		try {
@@ -182,9 +162,33 @@ export default function CompanyDocumentsUploadManager({
 		}
 	};
 
-	const onRevoke = async (documentId: string, e: React.MouseEvent) => {
+	const onShare = async (
+		documentId: string,
+		sharedWithUserId: string,
+		e: React.MouseEvent,
+	) => {
 		e.stopPropagation();
-		if (!isStaff) return;
+		try {
+			const res = await fetch('/api/documents/share', {
+				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ documentId, sharedWithUserId }),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data?.error || 'Error');
+			window.location.reload();
+		} catch {
+			window.alert('No se pudo compartir el documento');
+		}
+	};
+
+	const onRevoke = async (
+		documentId: string,
+		sharedWithUserId: string,
+		e: React.MouseEvent,
+	) => {
+		e.stopPropagation();
 		try {
 			const res = await fetch('/api/documents/revoke-share', {
 				method: 'POST',
@@ -200,73 +204,17 @@ export default function CompanyDocumentsUploadManager({
 		}
 	};
 
-	return (
-		<div className="space-y-4">
-			<div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
-				<h4 className="mb-1 text-base font-semibold">Subir documentos</h4>
-				<p className="text-muted-foreground mb-4 text-sm">
-					Sube documentos internos o visibles para cliente usando el flujo
-					unificado.
-				</p>
-
-				<form action={uploadAction} method="post" encType="multipart/form-data">
-					<FieldGroup className="grid gap-4 md:grid-cols-2">
-						<Field>
-							<FieldLabel>Archivo</FieldLabel>
-							<DropzoneField
-								name="file"
-								id="file"
-								required
-								maxFileSizeMb={15}
-								maxFiles={1}
-							/>
-						</Field>
-
-						<Field>
-							<FieldLabel>Tipo de documento</FieldLabel>
-							<DocumentTypeComboboxField documentTypes={documentTypes} />
-						</Field>
-
-						<Field>
-							<FieldLabel htmlFor="visibility">Visibilidad</FieldLabel>
-							<Select name="visibility" defaultValue="internal_only">
-								<SelectTrigger id="visibility" className="w-full">
-									<SelectValue placeholder="Selecciona visibilidad" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectGroup>
-										<SelectItem value="internal_only">Interno</SelectItem>
-										<SelectItem value="client_visible">
-											Visible cliente
-										</SelectItem>
-									</SelectGroup>
-								</SelectContent>
-							</Select>
-						</Field>
-
-						<Field>
-							<FieldLabel htmlFor="shareWithClient">Compartir</FieldLabel>
-							<Select name="shareWithClient" defaultValue="false">
-								<SelectTrigger id="shareWithClient" className="w-full">
-									<SelectValue placeholder="Selecciona opción" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectGroup>
-										<SelectItem value="false">No compartir</SelectItem>
-										<SelectItem value="true">Compartir</SelectItem>
-									</SelectGroup>
-								</SelectContent>
-							</Select>
-						</Field>
-					</FieldGroup>
-
-					<div className="mt-4 flex items-center justify-end">
-						<Button type="submit">Subir documento</Button>
-					</div>
-				</form>
+	if (documents.length === 0) {
+		return (
+			<div className="rounded-lg border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-300">
+				Aún no hay documentos para esta empresa.
 			</div>
+		);
+	}
 
-			<div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-transparent">
+	return (
+		<>
+			<div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
 				<Table>
 					<TableHeader>
 						<TableRow>
@@ -295,7 +243,6 @@ export default function CompanyDocumentsUploadManager({
 							>
 								Estado
 							</SortHead>
-							<TableHead>Visibilidad</TableHead>
 							<SortHead
 								field="date"
 								activeField={sortField}
@@ -308,8 +255,13 @@ export default function CompanyDocumentsUploadManager({
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{sortedDocs.length ? (
-							sortedDocs.map((doc) => (
+						{sortedDocs.map((doc) => {
+							const hasActiveShare = doc.shares.some(
+								(s) =>
+									s.shared_with_user_id === companyUserId &&
+									s.share_status === 'active',
+							);
+							return (
 								<TableRow
 									key={doc.id}
 									onClick={() => setSelectedDocument(doc)}
@@ -321,23 +273,16 @@ export default function CompanyDocumentsUploadManager({
 											className="h-5 w-5 text-gray-400 dark:text-gray-500"
 										/>
 									</TableCell>
-									<TableCell className="max-w-60 truncate">
+									<TableCell className="max-w-56 truncate">
 										{doc.file_title ?? doc.file_name}
 									</TableCell>
 									<TableCell className="max-w-36 truncate">
-										{doc.document_type
-											? `${doc.document_type.code} - ${doc.document_type.name}`
-											: 'Documento'}
+										{doc.document_type?.name ?? 'Documento'}
 									</TableCell>
 									<TableCell>
 										<Badge variant={badgeForDocumentStatus(doc.status)}>
 											{statusLabel(doc.status)}
 										</Badge>
-									</TableCell>
-									<TableCell>
-										{doc.visibility === 'client_visible'
-											? 'Visible cliente'
-											: 'Interno'}
 									</TableCell>
 									<TableCell>{formatDate(doc.uploaded_at)}</TableCell>
 									<TableCell>
@@ -366,30 +311,43 @@ export default function CompanyDocumentsUploadManager({
 													/>
 													Descargar
 												</DropdownMenuItem>
-												{isStaff && (
-													<DropdownMenuItem
-														onClick={(e) => onRevoke(doc.id, e)}
-														className="gap-2 text-red-600 dark:text-red-400"
-													>
-														<Icon icon="ri:forbid-line" className="h-4 w-4" />
-														Revocar acceso
-													</DropdownMenuItem>
+												{canUseStaffActions && (
+													<>
+														{hasActiveShare ? (
+															<DropdownMenuItem
+																onClick={(e) =>
+																	onRevoke(doc.id, companyUserId, e)
+																}
+																className="gap-2 text-red-600 dark:text-red-400"
+															>
+																<Icon
+																	icon="ri:forbid-line"
+																	className="h-4 w-4"
+																/>
+																Revocar acceso
+															</DropdownMenuItem>
+														) : (
+															<DropdownMenuItem
+																onClick={(e) =>
+																	onShare(doc.id, companyUserId, e)
+																}
+																className="gap-2 text-emerald-700 dark:text-emerald-400"
+															>
+																<Icon
+																	icon="ri:share-forward-line"
+																	className="h-4 w-4"
+																/>
+																Compartir
+															</DropdownMenuItem>
+														)}
+													</>
 												)}
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</TableCell>
 								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={7} className="h-16 text-center">
-									<div className="flex flex-col items-center gap-2 text-gray-500 dark:text-gray-400">
-										<Icon icon="ri:file-text-line" className="h-8 w-8" />
-										<p className="text-sm">No hay documentos cargados aún.</p>
-									</div>
-								</TableCell>
-							</TableRow>
-						)}
+							);
+						})}
 					</TableBody>
 				</Table>
 			</div>
@@ -398,10 +356,10 @@ export default function CompanyDocumentsUploadManager({
 				document={selectedDocument}
 				open={selectedDocument !== null}
 				onClose={() => setSelectedDocument(null)}
-				isStaff={isStaff}
+				isStaff={canUseStaffActions}
 				incorporationCaseId={incorporationCaseId}
-				sharedWithUserId={sharedWithUserId}
+				sharedWithUserId={isStaffDashboard ? companyUserId : undefined}
 			/>
-		</div>
+		</>
 	);
 }

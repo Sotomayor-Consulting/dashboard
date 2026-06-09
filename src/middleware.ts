@@ -160,11 +160,6 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		roles: [ROLES.ADMIN],
 		errorMsg: 'Acceso solo para admins',
 	},
-	{
-		path: '/forms/',
-		roles: [ROLES.ADMIN],
-		errorMsg: 'Acceso solo para admins',
-	},
 	// Excepciones específicas: rutas /admin/* accesibles a operaciones.
 	// IMPORTANTE: deben ir ANTES de /admin/ para que el startsWith no las tape.
 	{

@@ -125,25 +125,14 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 			);
 		}
 
-		// 3) Body JSON (SurveyJS)
+		// 3) Body JSON
+		// DEPRECATED: submission_id ya no es requerido — submitted_forms eliminado (SurveyJS removed)
 		const body = await request.json().catch(() => null);
 
-		const submission_id = body?.submission_id?.toString().trim();
 		const empresa_id = body?.empresa_id?.toString().trim();
 		let approved_data = body?.approved_data;
 
 		// 4) Validaciones mínimas
-		if (!submission_id || !UUID_RE.test(submission_id)) {
-			return jsonOk(
-				{
-					ok: false,
-					debug_id,
-					step: 'validate.submission_id',
-					error: { message: 'submission_id inválido' },
-				},
-				400,
-			);
-		}
 		if (!empresa_id || !UUID_RE.test(empresa_id)) {
 			return jsonOk(
 				{
@@ -168,39 +157,6 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 		}
 
 		const nowIso = new Date().toISOString();
-
-		// 5) Anti-tampering: submission -> empresa_id
-		{
-			const { data: envio, error: envioErr } = await supabase
-				.from('submitted_forms')
-				.select('submission_id, empresa_incorporacion_id, status, form_id')
-				.eq('submission_id', submission_id)
-				.single();
-
-			if (envioErr || !envio) {
-				return jsonOk(
-					{
-						ok: false,
-						debug_id,
-						step: 'anti_tampering.envio',
-						error: normSbErr(envioErr) ?? { message: 'Envío no encontrado' },
-					},
-					404,
-				);
-			}
-			if (envio.empresa_incorporacion_id !== empresa_id) {
-				return jsonOk(
-					{
-						ok: false,
-						debug_id,
-						step: 'anti_tampering.mismatch',
-						error: { message: 'Mismatch: envío no corresponde a esa empresa' },
-						meta: { envio_empresa: envio.empresa_incorporacion_id, empresa_id },
-					},
-					400,
-				);
-			}
-		}
 
 		// =========================================================
 		// 6) Subida de documentos a Storage + reemplazo en JSON
@@ -366,34 +322,7 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 		}
 
 		// =========================================================
-		// 7) Guardar JSON aprobado (ya con storage refs)
-		// =========================================================
-		{
-			const { error: updErr } = await supabase
-				.from('submitted_forms')
-				.update({
-					respuestas_validadas: approved_data,
-					verificacion_operaciones: true,
-					updated_at: nowIso,
-				})
-				.eq('submission_id', submission_id);
-
-			if (updErr) {
-				jerr(debug_id, 'db.submitted_forms.update', updErr);
-				return jsonOk(
-					{
-						ok: false,
-						debug_id,
-						step: 'db.submitted_forms.update',
-						error: normSbErr(updErr),
-					},
-					500,
-				);
-			}
-		}
-
-		// =========================================================
-		// 8) INSERT/UPSERT tablas (empresa / socios / managers_validados)
+		// 7) INSERT/UPSERT tablas (empresa / socios / managers_validados)
 		// =========================================================
 
 		// EMPRESA
@@ -610,7 +539,6 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 		return jsonOk({
 			ok: true,
 			debug_id,
-			submission_id,
 			empresa_id,
 			back,
 			meta: {

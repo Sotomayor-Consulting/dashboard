@@ -100,17 +100,6 @@ export const menuItems: MenuItem[] = [
 		colors: 'text-violet-500'
 	},
 	{
-		id: 'crud-formularios',
-		label: 'Formularios',
-		href: '/forms/',
-		tooltip: 'Crea y gestiona formularios',
-		roles: ['admin'],
-		svgname: 'ri:file-edit-line',
-		sequence: 140,
-		group: 'Admin',
-		colors: 'text-violet-500'
-	},
-	{
 		id: 'menu-vista-de-pagos',
 		label: 'Pagos',
 		href: '/admin/payments/',
