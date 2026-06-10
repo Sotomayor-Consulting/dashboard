@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
 import { DropzoneField } from '@components/ui/DropzoneField';
@@ -26,6 +26,7 @@ import {
 	DropdownMenuTrigger,
 } from '@components/ui/DropdownMenu';
 import { Icon } from '@iconify/react';
+import { toast } from 'sonner';
 import type {
 	DocumentDashboardRow,
 	DocumentTypeLite,
@@ -178,13 +179,14 @@ export default function CompanyDocumentsUploadManager({
 			if (!res.ok) throw new Error(data?.error || 'Error');
 			window.open(data.signedUrl, '_blank');
 		} catch {
-			window.alert('No se pudo descargar el documento');
+			toast.error('No se pudo descargar el documento');
 		}
 	};
 
 	const onRevoke = async (documentId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
 		if (!isStaff) return;
+		const toastId = toast.loading('Revocando acceso…');
 		try {
 			const res = await fetch('/api/documents/revoke-share', {
 				method: 'POST',
@@ -194,9 +196,10 @@ export default function CompanyDocumentsUploadManager({
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data?.error || 'Error');
-			window.location.reload();
+			toast.success('Acceso revocado', { id: toastId });
+			window.setTimeout(() => window.location.reload(), 600);
 		} catch {
-			window.alert('No se pudo revocar el acceso');
+			toast.error('No se pudo revocar el acceso', { id: toastId });
 		}
 	};
 

@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
 import {
@@ -16,6 +16,8 @@ import {
 	DropdownMenuTrigger,
 } from '@components/ui/DropdownMenu';
 import { Icon } from '@iconify/react';
+import { cn } from '@components/utils';
+import { toast } from 'sonner';
 import type { DocumentDashboardRow } from '@domains/documents/document_dashboard';
 import DocumentDetailDrawer from '@modules/companies/islands/DocumentDetailDrawer';
 
@@ -30,17 +32,45 @@ interface Props {
 }
 
 function getMimeIcon(mime: string | null): string {
-	if (!mime) return 'ri:file-line';
-	if (mime === 'application/pdf') return 'ri:file-pdf-line';
+	if (!mime) return 'ri:file-3-line';
+	if (mime === 'application/pdf') return 'ri:file-pdf-2-line';
 	if (mime.includes('word') || mime.includes('document'))
-		return 'ri:file-word-line';
+		return 'ri:file-word-2-line';
 	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'ri:file-excel-line';
+		return 'ri:file-excel-2-line';
 	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'ri:file-ppt-line';
-	if (mime.startsWith('image/')) return 'ri:image-line';
+		return 'ri:file-ppt-2-line';
+	if (mime.startsWith('image/')) return 'ri:image-2-line';
 	if (mime.startsWith('text/')) return 'ri:file-text-line';
-	return 'ri:file-line';
+	if (mime.includes('zip') || mime.includes('compressed'))
+		return 'ri:file-zip-line';
+	return 'ri:file-3-line';
+}
+
+function getMimeBg(mime: string | null): string {
+	if (!mime) return 'bg-gray-100 dark:bg-gray-800';
+	if (mime === 'application/pdf') return 'bg-red-100 dark:bg-red-950/40';
+	if (mime.includes('word') || mime.includes('document'))
+		return 'bg-blue-100 dark:bg-blue-950/40';
+	if (mime.includes('excel') || mime.includes('spreadsheet'))
+		return 'bg-emerald-100 dark:bg-emerald-950/40';
+	if (mime.includes('powerpoint') || mime.includes('presentation'))
+		return 'bg-orange-100 dark:bg-orange-950/40';
+	if (mime.startsWith('image/')) return 'bg-purple-100 dark:bg-purple-950/40';
+	return 'bg-gray-100 dark:bg-gray-800';
+}
+
+function getMimeColor(mime: string | null): string {
+	if (!mime) return 'text-gray-500 dark:text-gray-400';
+	if (mime === 'application/pdf') return 'text-red-600 dark:text-red-400';
+	if (mime.includes('word') || mime.includes('document'))
+		return 'text-blue-600 dark:text-blue-400';
+	if (mime.includes('excel') || mime.includes('spreadsheet'))
+		return 'text-emerald-600 dark:text-emerald-400';
+	if (mime.includes('powerpoint') || mime.includes('presentation'))
+		return 'text-orange-600 dark:text-orange-400';
+	if (mime.startsWith('image/')) return 'text-purple-600 dark:text-purple-400';
+	return 'text-gray-500 dark:text-gray-400';
 }
 
 function badgeForDocumentStatus(status: string) {
@@ -110,6 +140,7 @@ export default function CompanyDocumentsList({
 	companyUserId,
 	isStaffDashboard,
 }: Props) {
+	const [docs, setDocs] = React.useState<DocumentDashboardRow[]>(() => documents);
 	const [selectedDocument, setSelectedDocument] =
 		React.useState<DocumentDashboardRow | null>(null);
 	const [sortField, setSortField] = React.useState<SortField>('date');
@@ -143,7 +174,7 @@ export default function CompanyDocumentsList({
 			}
 			return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
 		});
-	}, [documents, sortField, sortDir]);
+	}, [docs, sortField, sortDir]);
 
 	const onDownload = async (documentId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
@@ -158,7 +189,7 @@ export default function CompanyDocumentsList({
 			if (!res.ok) throw new Error(data?.error || 'Error');
 			window.open(data.signedUrl, '_blank');
 		} catch {
-			window.alert('No se pudo descargar el documento');
+			toast.error('No se pudo descargar el documento');
 		}
 	};
 
@@ -168,6 +199,7 @@ export default function CompanyDocumentsList({
 		e: React.MouseEvent,
 	) => {
 		e.stopPropagation();
+		const toastId = toast.loading('Compartiendo documento…');
 		try {
 			const res = await fetch('/api/documents/share', {
 				method: 'POST',
@@ -177,9 +209,33 @@ export default function CompanyDocumentsList({
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data?.error || 'Error');
-			window.location.reload();
+			setDocs((prev) =>
+				prev.map((d) => {
+					if (d.id !== documentId) return d;
+					const existing = d.shares.find(
+						(s) => s.shared_with_user_id === sharedWithUserId,
+					);
+					const newShares = existing
+						? d.shares.map((s) =>
+								s.shared_with_user_id === sharedWithUserId
+									? { ...s, share_status: 'active', shared_at: new Date().toISOString() }
+									: s,
+							)
+						: [
+								...d.shares,
+								{
+									id: data.shareId ?? crypto.randomUUID(),
+									shared_with_user_id: sharedWithUserId,
+									share_status: 'active',
+									shared_at: new Date().toISOString(),
+								},
+							];
+					return { ...d, shares: newShares };
+				}),
+			);
+			toast.success('Documento compartido con el cliente', { id: toastId });
 		} catch {
-			window.alert('No se pudo compartir el documento');
+			toast.error('No se pudo compartir el documento', { id: toastId });
 		}
 	};
 
@@ -189,6 +245,7 @@ export default function CompanyDocumentsList({
 		e: React.MouseEvent,
 	) => {
 		e.stopPropagation();
+		const toastId = toast.loading('Revocando acceso…');
 		try {
 			const res = await fetch('/api/documents/revoke-share', {
 				method: 'POST',
@@ -198,9 +255,20 @@ export default function CompanyDocumentsList({
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data?.error || 'Error');
-			window.location.reload();
+			setDocs((prev) =>
+				prev.map((d) => {
+					if (d.id !== documentId) return d;
+					const newShares = d.shares.map((s) =>
+						s.shared_with_user_id === sharedWithUserId
+							? { ...s, share_status: 'revoked' }
+							: s,
+					);
+					return { ...d, shares: newShares };
+				}),
+			);
+			toast.success('Acceso revocado', { id: toastId });
 		} catch {
-			window.alert('No se pudo revocar el acceso');
+			toast.error('No se pudo revocar el acceso', { id: toastId });
 		}
 	};
 
@@ -268,10 +336,17 @@ export default function CompanyDocumentsList({
 									className="cursor-pointer"
 								>
 									<TableCell className="w-10 pr-0">
-										<Icon
-											icon={getMimeIcon(doc.mime_type)}
-											className="h-5 w-5 text-gray-400 dark:text-gray-500"
-										/>
+										<div
+											className={cn(
+												'flex h-8 w-8 items-center justify-center rounded-lg',
+												getMimeBg(doc.mime_type),
+											)}
+										>
+											<Icon
+												icon={getMimeIcon(doc.mime_type)}
+												className={cn('h-4 w-4', getMimeColor(doc.mime_type))}
+											/>
+										</div>
 									</TableCell>
 									<TableCell className="max-w-56 truncate">
 										{doc.file_title ?? doc.file_name}
@@ -359,6 +434,14 @@ export default function CompanyDocumentsList({
 				isStaff={canUseStaffActions}
 				incorporationCaseId={incorporationCaseId}
 				sharedWithUserId={isStaffDashboard ? companyUserId : undefined}
+				onDocumentUpdated={(updated) => {
+					setDocs((prev) =>
+						prev.map((d) => (d.id === updated.id ? updated : d)),
+					);
+					setSelectedDocument((prev) =>
+						prev?.id === updated.id ? updated : prev,
+					);
+				}}
 			/>
 		</>
 	);

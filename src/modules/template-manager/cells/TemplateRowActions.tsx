@@ -86,7 +86,7 @@ export function TemplateRowActions({
 					<>
 						<DropdownMenuItem onClick={stop(() => onEdit(template))}>
 							<Icon icon="ri:edit-line" className="h-4 w-4" />
-							Ver información
+							Editar datos
 						</DropdownMenuItem>
 						{template.template_type === 'pdf' && (
 							<DropdownMenuItem

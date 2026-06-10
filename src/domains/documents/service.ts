@@ -771,10 +771,12 @@ export async function listDocumentEvents(
 		}
 	}
 
+	// Use the view that joins document_events with public.usuarios in a single
+	// query — avoids a separate batch lookup for actor names (no N+1).
 	const { data: events, error } = await documentsDb
-		.from('document_events')
+		.from('document_events_with_actors')
 		.select(
-			'id, event_type, from_status, to_status, actor_user_id, actor_role, notes, metadata, created_at',
+			'id, event_type, actor_user_id, actor_role, actor_name, notes, created_at',
 		)
 		.eq('document_id', documentId)
 		.order('created_at', { ascending: false })

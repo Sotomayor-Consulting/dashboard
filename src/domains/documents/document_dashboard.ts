@@ -33,6 +33,9 @@ export interface DocumentDashboardRow {
 	created_at: string | null;
 	uploaded_at: string | null;
 	uploaded_by: string | null;
+	notes: string | null;
+	issue_date: string | null;
+	expiry_date: string | null;
 	document_request_id: string | null;
 	visibility: 'internal_only' | 'client_visible' | string;
 	shares: Array<{
@@ -156,6 +159,9 @@ export async function getDocumentsForIncorporationCase(
 				created_at,
 				uploaded_at,
 				uploaded_by,
+				notes,
+				issue_date,
+				expiry_date,
 				deleted_at,
 				document_shares:document_shares!left (
 					id,
@@ -201,6 +207,9 @@ export async function getDocumentsForIncorporationCase(
 			created_at: d.created_at ?? null,
 			uploaded_at: d.uploaded_at ?? null,
 			uploaded_by: d.uploaded_by ?? null,
+			notes: d.notes ?? null,
+			issue_date: d.issue_date ?? null,
+			expiry_date: d.expiry_date ?? null,
 			document_request_id: d.document_request_id ?? null,
 			visibility: d.visibility ?? 'internal_only',
 			shares: (d.document_shares ?? []).map((share: any) => ({

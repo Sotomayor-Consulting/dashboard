@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
 import { DropzoneField } from '@components/ui/DropzoneField';
@@ -37,6 +37,8 @@ import {
 	DropdownMenuTrigger,
 } from '@components/ui/DropdownMenu';
 import { Icon } from '@iconify/react';
+import { cn } from '@components/utils';
+import { toast } from 'sonner';
 import { DocumentTypeComboboxField } from '@modules/documents/islands/DocumentTypeComboboxField';
 import type {
 	DocumentDashboardRow,
@@ -59,17 +61,45 @@ interface Props {
 }
 
 function getMimeIcon(mime: string | null): string {
-	if (!mime) return 'ri:file-line';
-	if (mime === 'application/pdf') return 'ri:file-pdf-line';
+	if (!mime) return 'ri:file-3-line';
+	if (mime === 'application/pdf') return 'ri:file-pdf-2-line';
 	if (mime.includes('word') || mime.includes('document'))
-		return 'ri:file-word-line';
+		return 'ri:file-word-2-line';
 	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'ri:file-excel-line';
+		return 'ri:file-excel-2-line';
 	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'ri:file-ppt-line';
-	if (mime.startsWith('image/')) return 'ri:image-line';
+		return 'ri:file-ppt-2-line';
+	if (mime.startsWith('image/')) return 'ri:image-2-line';
 	if (mime.startsWith('text/')) return 'ri:file-text-line';
-	return 'ri:file-line';
+	if (mime.includes('zip') || mime.includes('compressed'))
+		return 'ri:file-zip-line';
+	return 'ri:file-3-line';
+}
+
+function getMimeBg(mime: string | null): string {
+	if (!mime) return 'bg-gray-100 dark:bg-gray-800';
+	if (mime === 'application/pdf') return 'bg-red-100 dark:bg-red-950/40';
+	if (mime.includes('word') || mime.includes('document'))
+		return 'bg-blue-100 dark:bg-blue-950/40';
+	if (mime.includes('excel') || mime.includes('spreadsheet'))
+		return 'bg-emerald-100 dark:bg-emerald-950/40';
+	if (mime.includes('powerpoint') || mime.includes('presentation'))
+		return 'bg-orange-100 dark:bg-orange-950/40';
+	if (mime.startsWith('image/')) return 'bg-purple-100 dark:bg-purple-950/40';
+	return 'bg-gray-100 dark:bg-gray-800';
+}
+
+function getMimeColor(mime: string | null): string {
+	if (!mime) return 'text-gray-500 dark:text-gray-400';
+	if (mime === 'application/pdf') return 'text-red-600 dark:text-red-400';
+	if (mime.includes('word') || mime.includes('document'))
+		return 'text-blue-600 dark:text-blue-400';
+	if (mime.includes('excel') || mime.includes('spreadsheet'))
+		return 'text-emerald-600 dark:text-emerald-400';
+	if (mime.includes('powerpoint') || mime.includes('presentation'))
+		return 'text-orange-600 dark:text-orange-400';
+	if (mime.startsWith('image/')) return 'text-purple-600 dark:text-purple-400';
+	return 'text-gray-500 dark:text-gray-400';
 }
 
 function badgeForDocumentStatus(status: string) {
@@ -150,6 +180,7 @@ export default function DocumentsTab({
 	const closeSheet = () => setSheetMode(null);
 	const displayMode = sheetMode ?? lastMode.current;
 
+	const [docs, setDocs] = React.useState<DocumentDashboardRow[]>(() => documents);
 	const [selectedDocument, setSelectedDocument] =
 		React.useState<DocumentDashboardRow | null>(null);
 	const [sortField, setSortField] = React.useState<SortField>('date');
@@ -169,7 +200,7 @@ export default function DocumentsTab({
 	};
 
 	const sortedDocs = React.useMemo(() => {
-		return [...documents].sort((a, b) => {
+		return [...docs].sort((a, b) => {
 			let va = '';
 			let vb = '';
 			if (sortField === 'name') {
@@ -187,9 +218,39 @@ export default function DocumentsTab({
 			}
 			return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
 		});
-	}, [documents, sortField, sortDir]);
+	}, [docs, sortField, sortDir]);
 
 	const uploadAction = `/api/documents/upload?incorporationCaseId=${encodeURIComponent(incorporationCaseId)}&back=${encodeURIComponent(backPath)}`;
+
+	const [uploading, setUploading] = React.useState(false);
+
+	const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setUploading(true);
+		const toastId = toast.loading('Subiendo documento…');
+		try {
+			const res = await fetch(uploadAction, {
+				method: 'POST',
+				body: new FormData(e.currentTarget),
+				credentials: 'include',
+				redirect: 'follow',
+			});
+			const finalUrl = new URL(res.url, window.location.origin);
+			const status = finalUrl.searchParams.get('status');
+			const msg = finalUrl.searchParams.get('msg');
+			if (status === 'error') {
+				toast.error(msg ?? 'Error al subir el documento', { id: toastId });
+			} else {
+				toast.success(msg ?? 'Documento subido correctamente', { id: toastId });
+				closeSheet();
+				window.location.reload();
+			}
+		} catch {
+			toast.error('Error al subir el documento', { id: toastId });
+		} finally {
+			setUploading(false);
+		}
+	};
 
 	const onDownload = async (documentId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
@@ -204,13 +265,14 @@ export default function DocumentsTab({
 			if (!res.ok) throw new Error(data?.error || 'Error');
 			window.open(data.signedUrl, '_blank');
 		} catch {
-			window.alert('No se pudo descargar el documento');
+			toast.error('No se pudo descargar el documento');
 		}
 	};
 
 	const onRevoke = async (documentId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
 		if (!isStaff) return;
+		const toastId = toast.loading('Revocando acceso…');
 		try {
 			const res = await fetch('/api/documents/revoke-share', {
 				method: 'POST',
@@ -220,15 +282,27 @@ export default function DocumentsTab({
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data?.error || 'Error');
-			window.location.reload();
+			setDocs((prev) =>
+				prev.map((d) => {
+					if (d.id !== documentId) return d;
+					const newShares = d.shares.map((s) => {
+						if (sharedWithUserId && s.shared_with_user_id !== sharedWithUserId)
+							return s;
+						return { ...s, share_status: 'revoked' };
+					});
+					return { ...d, shares: newShares };
+				}),
+			);
+			toast.success('Acceso revocado', { id: toastId });
 		} catch {
-			window.alert('No se pudo revocar el acceso');
+			toast.error('No se pudo revocar el acceso', { id: toastId });
 		}
 	};
 
 	const onShare = async (documentId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
 		if (!isStaff || !sharedWithUserId) return;
+		const toastId = toast.loading('Compartiendo documento…');
 		try {
 			const res = await fetch('/api/documents/share', {
 				method: 'POST',
@@ -238,9 +312,33 @@ export default function DocumentsTab({
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data?.error || 'Error');
-			window.location.reload();
+			setDocs((prev) =>
+				prev.map((d) => {
+					if (d.id !== documentId) return d;
+					const existing = d.shares.find(
+						(s) => s.shared_with_user_id === sharedWithUserId,
+					);
+					const newShares = existing
+						? d.shares.map((s) =>
+								s.shared_with_user_id === sharedWithUserId
+									? { ...s, share_status: 'active', shared_at: new Date().toISOString() }
+									: s,
+							)
+						: [
+								...d.shares,
+								{
+									id: data.shareId ?? crypto.randomUUID(),
+									shared_with_user_id: sharedWithUserId,
+									share_status: 'active',
+									shared_at: new Date().toISOString(),
+								},
+							];
+					return { ...d, shares: newShares };
+				}),
+			);
+			toast.success('Documento compartido con el cliente', { id: toastId });
 		} catch {
-			window.alert('No se pudo compartir el documento');
+			toast.error('No se pudo compartir el documento', { id: toastId });
 		}
 	};
 
@@ -328,10 +426,17 @@ export default function DocumentsTab({
 									className="cursor-pointer"
 								>
 									<TableCell className="w-10 pr-0">
-										<Icon
-											icon={getMimeIcon(doc.mime_type)}
-											className="h-5 w-5 text-gray-400 dark:text-gray-500"
-										/>
+										<div
+											className={cn(
+												'flex h-8 w-8 items-center justify-center rounded-lg',
+												getMimeBg(doc.mime_type),
+											)}
+										>
+											<Icon
+												icon={getMimeIcon(doc.mime_type)}
+												className={cn('h-4 w-4', getMimeColor(doc.mime_type))}
+											/>
+										</div>
 									</TableCell>
 									<TableCell className="max-w-60 truncate">
 										{doc.file_title ?? doc.file_name}
@@ -520,9 +625,7 @@ export default function DocumentsTab({
 							</form>
 						) : (
 							<form
-								action={uploadAction}
-								method="post"
-								encType="multipart/form-data"
+								onSubmit={handleUpload}
 								className="flex flex-1 flex-col gap-4"
 							>
 								<div className="flex-1 space-y-4 px-4">
@@ -558,13 +661,37 @@ export default function DocumentsTab({
 											</SelectContent>
 										</Select>
 									</Field>
+
+									<Field>
+										<FieldLabel htmlFor="shareWithClient">Compartir</FieldLabel>
+										<Select name="shareWithClient" defaultValue="false">
+											<SelectTrigger id="shareWithClient" className="w-full">
+												<SelectValue placeholder="Selecciona opción" />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectGroup>
+													<SelectItem value="false">No compartir</SelectItem>
+													<SelectItem value="true">
+														Compartir con cliente
+													</SelectItem>
+												</SelectGroup>
+											</SelectContent>
+										</Select>
+									</Field>
 								</div>
 
 								<SheetFooter>
-									<Button variant="outline" type="button" onClick={closeSheet}>
+									<Button
+										variant="outline"
+										type="button"
+										onClick={closeSheet}
+										disabled={uploading}
+									>
 										Cancelar
 									</Button>
-									<Button type="submit">Subir documento</Button>
+									<Button type="submit" disabled={uploading}>
+										{uploading ? 'Subiendo…' : 'Subir documento'}
+									</Button>
 								</SheetFooter>
 							</form>
 						)}
@@ -580,6 +707,14 @@ export default function DocumentsTab({
 				isStaff={isStaff}
 				incorporationCaseId={incorporationCaseId}
 				sharedWithUserId={sharedWithUserId}
+				onDocumentUpdated={(updated) => {
+					setDocs((prev) =>
+						prev.map((d) => (d.id === updated.id ? updated : d)),
+					);
+					setSelectedDocument((prev) =>
+						prev?.id === updated.id ? updated : prev,
+					);
+				}}
 			/>
 		</div>
 	);

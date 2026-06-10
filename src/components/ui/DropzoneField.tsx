@@ -377,7 +377,28 @@ export function DropzoneTrigger({
 }: React.ComponentProps<'div'>) {
 	const context = useDropzoneContext('DropzoneTrigger');
 
-	if (context.shouldHideTrigger) return null;
+	// The <input> must always be the first child of the outer <div> so React's
+	// reconciler preserves the same DOM node (and its .files) across the
+	// visible ↔ hidden transition. Returning null removes the input from the
+	// DOM and the selected file is lost before form submission.
+	const fileInput = (
+		<input
+			ref={context.inputRef}
+			id={context.id}
+			name={context.name}
+			type="file"
+			accept={context.accept}
+			required={context.required && context.files.length === 0}
+			disabled={context.disabled}
+			multiple={context.multipleFiles}
+			onChange={context.handleInputChange}
+			className="sr-only"
+		/>
+	);
+
+	if (context.shouldHideTrigger) {
+		return <div>{fileInput}</div>;
+	}
 
 	return (
 		<div
@@ -415,18 +436,7 @@ export function DropzoneTrigger({
 			aria-label="Subir archivos"
 			aria-disabled={context.disabled}
 		>
-			<input
-				ref={context.inputRef}
-				id={context.id}
-				name={context.name}
-				type="file"
-				accept={context.accept}
-				required={context.required && context.files.length === 0}
-				disabled={context.disabled}
-				multiple={context.multipleFiles}
-				onChange={context.handleInputChange}
-				className="sr-only"
-			/>
+			{fileInput}
 			<div
 				className={cn(
 					'flex flex-col items-center justify-center text-center',
