@@ -206,9 +206,6 @@ importers:
       stripe:
         specifier: ^20.4.1
         version: 20.4.1(@types/node@25.9.1)
-      survey-core:
-        specifier: ^2.5.25
-        version: 2.5.25
       tailwind-merge:
         specifier: ^3.6.0
         version: 3.6.0
@@ -4667,9 +4664,6 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
-
-  survey-core@2.5.25:
-    resolution: {integrity: sha512-fJJ+VOQEE47XXNnRcInDhxrkD7Y2+DXgcgiQC3mxm4m6wy5B3Bkwm6vzolT8mF8mlWAlHtaRcWQoAnJpjYEMtA==}
 
   svg.draggable.js@2.2.2:
     resolution: {integrity: sha512-JzNHBc2fLQMzYCZ90KZHN2ohXL0BQJGQimK1kGk6AvSeibuKcIdDX9Kr0dT9+UJ5O8nYA0RB839Lhvk4CY4MZw==}
@@ -9989,8 +9983,6 @@ snapshots:
       s.color: 0.0.15
 
   supports-preserve-symlinks-flag@1.0.0: {}
-
-  survey-core@2.5.25: {}
 
   svg.draggable.js@2.2.2:
     dependencies:

@@ -2,8 +2,6 @@ import { useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import type { PartnerRequiredField } from '@domains/users/users';
 
-const INCORPORATION_FORM_ID = '3bc86384-2cc6-440d-aa79-f2f63738fd3b';
-
 const FIELD_LABELS: Record<PartnerRequiredField, string> = {
 	direccion_linea1: 'Direccion linea 1',
 	direccion_linea2: 'Direccion linea 2',
@@ -17,8 +15,6 @@ interface BannerToastManagerProps {
 	showBannerUpgrade: boolean;
 	showBannerPartner: boolean;
 	missingFields: PartnerRequiredField[];
-	showBannerIncorporacion: boolean;
-	empresaId: string | null;
 }
 
 interface ToastDefinition {
@@ -97,8 +93,6 @@ export default function BannerToastManager({
 	showBannerUpgrade,
 	showBannerPartner,
 	missingFields,
-	showBannerIncorporacion,
-	empresaId,
 }: BannerToastManagerProps) {
 	const toasts = useMemo<ToastDefinition[]>(() => {
 		const missingFieldsText = missingFields
@@ -136,23 +130,8 @@ export default function BannerToastManager({
 				ctaClassName:
 					'bg-yellow-600 hover:bg-yellow-700 dark:bg-yellow-700 dark:text-white dark:hover:bg-yellow-800',
 			},
-			{
-				id: 'banner-incorporation-form',
-				enabled: showBannerIncorporacion && Boolean(empresaId),
-				title:
-					'Proceda con la formalización de la incorporación de su empresa a través del siguiente formulario.',
-				ctaLabel: 'Comenzar ahora',
-				url: `/forms/incorporation/${INCORPORATION_FORM_ID}?empresa=${empresaId ?? ''}`,
-			},
 		];
-	}, [
-		empresaId,
-		missingFields,
-		showBannerEnProceso,
-		showBannerIncorporacion,
-		showBannerPartner,
-		showBannerUpgrade,
-	]);
+	}, [missingFields, showBannerEnProceso, showBannerPartner, showBannerUpgrade]);
 
 	useEffect(() => {
 		for (const definition of toasts) {

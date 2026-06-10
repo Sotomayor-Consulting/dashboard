@@ -1,8 +1,20 @@
 ---
 import LayoutStacked from '@layouts/LayoutStackedDos.astro';
-import FormUpgrade from '@modules/forms/FormUpgrade.astro';
 ---
 
 <LayoutStacked>
-	<FormUpgrade />
+	<div class="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-8 text-center">
+		<h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
+			Actualización de Plan
+		</h1>
+		<p class="max-w-md text-gray-600 dark:text-gray-300">
+			Para actualizar su plan, por favor comuníquese con nuestro equipo de soporte.
+		</p>
+		<a
+			href="/"
+			class="mt-2 inline-flex items-center rounded-lg bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+		>
+			Volver al inicio
+		</a>
+	</div>
 </LayoutStacked>

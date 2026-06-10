@@ -183,37 +183,3 @@ export const checkUserIncorporacionesEnProceso = async (
 	return incorporaciones.some((c) => c.estado === 'En proceso');
 };
 
-export interface BannerIncorporacionData {
-	shouldShow: boolean;
-	empresaId: string | null;
-}
-
-export const getBannerIncorporacionData = async (
-	supabase: SupabaseClient,
-	userId: string,
-): Promise<BannerIncorporacionData> => {
-	const [{ data: empresaActiva }, { data: formularioEnviado }] =
-		await Promise.all([
-			supabase
-				.from('empresas_incorporaciones')
-				.select('empresa_incorporacion_id')
-				.eq('user_id', userId)
-				.eq('estado', 'Activo')
-				.maybeSingle(),
-			supabase
-				.from('submitted_forms')
-				.select('status')
-				.eq('user_id', userId)
-				.eq('status', 'submitted')
-				.maybeSingle(),
-		]);
-
-	const shouldShow = !!empresaActiva && !formularioEnviado;
-
-	return {
-		shouldShow,
-		empresaId: empresaActiva?.empresa_incorporacion_id || null,
-	};
-};
-
-//test

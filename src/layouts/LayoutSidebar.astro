@@ -11,10 +11,7 @@ import {
 	type PartnerRequiredField,
 } from '@domains/users/users';
 import { getNotifications } from '@domains/users/notifications';
-import {
-	getEstadoIncorporacionByUserId,
-	getBannerIncorporacionData,
-} from '@domains/companies/incorporations';
+import { getEstadoIncorporacionByUserId } from '@domains/companies/incorporations';
 import {
 	getEmpresasForSwitcher,
 	resolveActiveCompany,
@@ -31,23 +28,16 @@ const isPartner = userRoles.includes('partner');
 let usuario: any = null;
 let notificationsData: any = { notifications: [], totalUnread: 0 };
 let incorporaciones: any[] = [];
-let bannerIncorpData = { shouldShow: false, empresaId: null as string | null };
 let empresasSwitcher: EmpresaSwitcherItem[] = [];
 
 if (user && userId) {
-	[
-		usuario,
-		notificationsData,
-		incorporaciones,
-		bannerIncorpData,
-		empresasSwitcher,
-	] = await Promise.all([
-		getUsuarioById(supabase, userId),
-		getNotifications(supabase, userId),
-		getEstadoIncorporacionByUserId(supabase, userId),
-		getBannerIncorporacionData(supabase, userId),
-		getEmpresasForSwitcher(supabase, userId),
-	]);
+	[usuario, notificationsData, incorporaciones, empresasSwitcher] =
+		await Promise.all([
+			getUsuarioById(supabase, userId),
+			getNotifications(supabase, userId),
+			getEstadoIncorporacionByUserId(supabase, userId),
+			getEmpresasForSwitcher(supabase, userId),
+		]);
 }
 
 const activeCompany = resolveActiveCompany(
@@ -101,8 +91,6 @@ const showBannerPartner = missingPartnerFields.length > 0;
 				showBannerUpgrade={showBannerUpgrade}
 				showBannerPartner={showBannerPartner}
 				missingFields={missingPartnerFields}
-				showBannerIncorporacion={bannerIncorpData.shouldShow}
-				empresaId={bannerIncorpData.empresaId}
 				client:load
 			/>
 			<slot />
