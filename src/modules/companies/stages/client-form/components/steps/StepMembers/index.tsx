@@ -7,7 +7,6 @@ import {
 	useWatch,
 } from 'react-hook-form';
 
-import { Button } from '@components/ui/Button';
 import {
 	Tooltip,
 	TooltipContent,
@@ -192,11 +191,26 @@ export function StepMembers() {
 								setActiveIdx(idx);
 								setOpenSection('A');
 							}}
+							onDelete={
+								fields.length > 1
+									? () => {
+											remove(idx);
+											setActiveIdx(Math.max(0, idx === activeIndex ? activeIndex - 1 : activeIndex > idx ? activeIndex - 1 : activeIndex));
+											setOpenSection('A');
+										}
+									: undefined
+							}
 						/>
 					);
 				})}
 				<AddSocioButton
 					fill={fields.length > 3}
+					disabled={
+						members.reduce(
+							(sum, m) => sum + (Number(m?.porcentaje) || 0),
+							0,
+						) >= 100
+					}
 					onClick={() => {
 						// Asignamos automáticamente el % restante al nuevo socio.
 						const used = members.reduce(
@@ -213,7 +227,7 @@ export function StepMembers() {
 
 			{/* Detalle del socio activo */}
 			{activeField && activeIndex >= 0 && (
-				<div className="flex flex-col gap-3">
+				<div key={activeField._key} className="flex flex-col gap-3">
 					<MemberIdentitySection
 						index={activeIndex}
 						memberId={activeField.id}
@@ -238,31 +252,6 @@ export function StepMembers() {
 						onToggle={() => toggleSection('D')}
 					/>
 
-					{fields.length > 1 && (
-						<div
-							className="mt-2 flex justify-end border-t pt-4"
-							style={{ borderColor: 'var(--cf-line)' }}
-						>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={() => {
-									remove(activeIndex);
-									setActiveIdx(Math.max(0, activeIndex - 1));
-									setOpenSection('A');
-								}}
-								className="gap-1.5"
-								style={{
-									color: 'var(--cf-danger)',
-									borderColor: 'var(--cf-danger-border)',
-								}}
-							>
-								<Icon icon="ri:delete-bin-line" className="h-3.5 w-3.5" />
-								Eliminar socio
-							</Button>
-						</div>
-					)}
 				</div>
 			)}
 		</>

@@ -7,6 +7,9 @@ import Stripe from 'stripe';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('checkout-session-upgrade');
 
 const STRIPE_SECRET_KEY =
 	process.env.STRIPE_SECRET_KEY ?? import.meta.env.STRIPE_SECRET_KEY;
@@ -19,9 +22,7 @@ const PUBLIC_SITE_URL =
 const PROCESSING_FEE_PERCENT = 0.045;
 
 if (!STRIPE_SECRET_KEY) {
-	console.error(
-		'[checkout-session-upgrade] Missing STRIPE_SECRET_KEY environment variable.',
-	);
+	log.error('Missing STRIPE_SECRET_KEY environment variable.');
 }
 
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
@@ -165,7 +166,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			headers: SECURITY_HEADERS,
 		});
 	} catch (err: any) {
-		console.error('[checkout-session-upgrade] error:', err);
+		log.error('error', { err });
 		return new Response(JSON.stringify({ error: 'Internal server error' }), {
 			status: 500,
 			headers: SECURITY_HEADERS,

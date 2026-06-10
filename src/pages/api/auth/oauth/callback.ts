@@ -4,6 +4,9 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { AuthService, AuthError, PATHS, redirectWithMessage } from '@infrastructure/auth';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('oauth.callback');
 
 export const GET: APIRoute = async ({ url, request, cookies, redirect }) => {
 	// 1) Error de OAuth (usuario cancela, etc.)
@@ -11,7 +14,10 @@ export const GET: APIRoute = async ({ url, request, cookies, redirect }) => {
 	const oauthErrorDescription = url.searchParams.get('error_description');
 
 	if (oauthError) {
-		console.error('[callback] OAuth error:', oauthError, oauthErrorDescription);
+		log.error('OAuth error', {
+			error: oauthError,
+			description: oauthErrorDescription,
+		});
 		return redirectWithMessage(
 			redirect,
 			oauthErrorDescription ??
@@ -54,7 +60,7 @@ export const GET: APIRoute = async ({ url, request, cookies, redirect }) => {
 			error instanceof AuthError
 				? error.message
 				: 'Ocurrió un error interno al procesar el inicio de sesión.';
-		console.error('[callback] Error:', message);
+		log.error('Error', { message });
 		return redirectWithMessage(redirect, message, 'error', PATHS.signIn);
 	}
 };

@@ -3,8 +3,11 @@ import { json, requireCompanyDataManager } from '@shared/api/company-data';
 import { getCompanyIdForIncorporation } from '@domains/companies/company-records';
 import { createCompanyAddress } from '@domains/companies/addresses';
 import { companyAddressSchema } from '@modules/companies/schemas/company-address.schema';
+import { createLogger } from '@infrastructure/logging';
 
 export const prerender = false;
+
+const log = createLogger('incorporations.addresses');
 
 export const POST: APIRoute = async ({ request, cookies, params }) => {
 	const incorporationId = params.incorporationId?.trim();
@@ -47,7 +50,7 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		);
 		return json(200, { ok: true, data: address });
 	} catch (error) {
-		console.error('[company_addresses:create]', error);
+		log.error('create', { error });
 		return json(500, {
 			ok: false,
 			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',

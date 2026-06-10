@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.notifications');
 
 export const getNotifications = async (
 	supabase: SupabaseClient,
@@ -69,7 +72,7 @@ export const getNotificationsGeneral = async (supabase: SupabaseClient) => {
 		)
 		.order('created_at', { ascending: false });
 	if (error) {
-		console.error('Error fetching notificaciones:', error);
+		log.error('Error fetching notificaciones', { error });
 		throw error;
 	}
 
@@ -98,7 +101,7 @@ export const getNotificationsGeneralPorId = async (
 		.eq('user_id', userId)
 		.order('created_at', { ascending: false });
 	if (error) {
-		console.error('Error fetching notificaciones:', error);
+		log.error('Error fetching notificaciones', { error });
 		throw error;
 	}
 

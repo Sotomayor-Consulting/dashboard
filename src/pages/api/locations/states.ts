@@ -2,6 +2,9 @@ import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 import { listStatesByCountry } from '@domains/locations/states';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('locations.states');
 
 export const prerender = false;
 
@@ -35,7 +38,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 			},
 		});
 	} catch (error) {
-		console.error('[locations:states]', error);
+		log.error('states', { error });
 		return new Response(
 			JSON.stringify({
 				ok: false,

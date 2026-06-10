@@ -8,6 +8,9 @@ import {
 	StandardFonts,
 } from 'pdf-lib';
 import type { SyntheticFieldDef, TemplateFieldDefinition } from './types';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.fill-pdf');
 
 export interface FillPdfOptions {
 	flatten?: boolean;
@@ -70,7 +73,7 @@ export async function fillPdfAcroForm(
 		addSyntheticFields(pdfDoc, options?.syntheticFields ?? []);
 	} catch (err) {
 		const detail = err instanceof Error ? err.message : 'unknown error';
-		console.error('[fill-pdf] addSyntheticFields failed:', detail);
+		log.error('addSyntheticFields failed', { detail });
 		throw new Error(`addSyntheticFields failed: ${detail}`);
 	}
 
@@ -83,7 +86,7 @@ export async function fillPdfAcroForm(
 		saved = await pdfDoc.save();
 	} catch (err) {
 		const detail = err instanceof Error ? err.message : 'unknown error';
-		console.error('[fill-pdf] pdfDoc.save failed:', detail);
+		log.error('pdfDoc.save failed', { detail });
 		throw new Error(`pdfDoc.save failed: ${detail}`);
 	}
 

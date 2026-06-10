@@ -1,5 +1,8 @@
 import { executeKw } from '@integrations/odoo/client';
 import type { OdooPartner, ServiceResponse } from '../../../types/odoo';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('odoo.partners');
 
 export async function getReferralsByEmail(
 	email: string,
@@ -39,14 +42,12 @@ export async function getReferralsByEmail(
 			{ fields: ['display_name'], limit: 100 },
 		)) as OdooPartner[];
 
-		console.log('orders :>> ', orders);
+		log.debug('orders', { orders });
 
 
 		return { success: true, data: referrals };
 	} catch (error) {
-		console.error(
-			`[Odoo Service Error] Fallo al conectar. Razón: ${(error as Error).message}`,
-		);
+		log.error('Fallo al conectar', { message: (error as Error).message });
 
 		return {
 			success: false,

@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.validated-partners');
 
 export const getSociosByEmpresa = async (
 	supabase: SupabaseClient,
@@ -10,7 +13,7 @@ export const getSociosByEmpresa = async (
 		.eq('id_empresa', empresaId);
 
 	if (error) {
-		console.error('Error fetching socios:', error);
+		log.error('Error fetching socios', { error });
 		throw error;
 	}
 
@@ -23,7 +26,7 @@ export const getAllSocios = async (supabase: SupabaseClient) => {
 		.select('*');
 
 	if (error) {
-		console.error('Error fetching all socios:', error);
+		log.error('Error fetching all socios', { error });
 		throw error;
 	}
 
@@ -41,7 +44,7 @@ export const getSocioById = async (
 		.single();
 
 	if (error) {
-		console.error('Error fetching socio by ID:', error);
+		log.error('Error fetching socio by ID', { error });
 		throw error;
 	}
 

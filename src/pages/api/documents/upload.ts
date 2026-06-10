@@ -8,6 +8,9 @@ import {
 	uploadDocument,
 } from '@domains/documents';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('documents.upload');
 
 const ALLOWED_RELATED_TYPES = new Set<DocumentRelatedType>([
 	'user',
@@ -138,7 +141,7 @@ export const POST: APIRoute = async ({
 			return redirectWithStatus('error', error.message);
 		}
 
-		console.error('[documents/upload] Unexpected error:', error);
+		log.error('Unexpected error', { error });
 		return new Response('Error inesperado', { status: 500 });
 	}
 };

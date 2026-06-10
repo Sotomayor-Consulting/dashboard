@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.microservices');
 
 export const ListaDeMicroServiciosActivos = async (
 	supabase: SupabaseClient,
@@ -8,7 +11,7 @@ export const ListaDeMicroServiciosActivos = async (
 		.select('*')
 		.eq('estado', true);
 	if (error) {
-		console.error('Error fetching microservicios activos:', error);
+		log.error('Error fetching microservicios activos', { error });
 		throw error;
 	}
 
@@ -21,7 +24,7 @@ export const serviciosExtras = async (
 	const { data, error } = await supabase.from('servicio_extra').select('*').eq('estado', 'Activo')
 		.order('created_at', { ascending: false });
 	if (error) {
-		console.error('Error fechicg servicios Extras', error);
+		log.error('Error fetching servicios Extras', { error });
 		throw error;
 
 	}

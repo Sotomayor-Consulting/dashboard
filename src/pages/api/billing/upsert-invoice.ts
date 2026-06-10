@@ -5,6 +5,9 @@ import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('billing.upsert-invoice');
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	// ─── 1) Autenticación (server-verified via getUser) ──
@@ -87,7 +90,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			.single();
 
 		if (error) {
-			console.error('[billing/upsert] insert error:', error);
+			log.error('insert error', { error });
 			return new Response(
 				JSON.stringify({ error: 'Insert failed' }),
 				{
@@ -102,7 +105,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			headers: SECURITY_HEADERS,
 		});
 	} catch (e: any) {
-		console.error('[billing/upsert] exception:', e);
+		log.error('exception', { error: e });
 		return new Response(
 			JSON.stringify({ error: 'Internal server error' }),
 			{

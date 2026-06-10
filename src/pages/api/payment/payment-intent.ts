@@ -6,14 +6,15 @@ import Stripe from 'stripe';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('payment-intent');
 
 const STRIPE_SECRET_KEY =
 	process.env.STRIPE_SECRET_KEY ?? import.meta.env.STRIPE_SECRET_KEY;
 
 if (!STRIPE_SECRET_KEY) {
-	console.error(
-		'[payment-intent] Missing STRIPE_SECRET_KEY environment variable.',
-	);
+	log.error('Missing STRIPE_SECRET_KEY environment variable.');
 }
 
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
@@ -87,7 +88,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			.single();
 
 		if (serviciosErr || !servicio) {
-			console.error('Servicio no encontrado o inactivo:', serviciosErr);
+			log.error('Servicio no encontrado o inactivo', { error: serviciosErr });
 			return new Response(
 				JSON.stringify({ error: 'Servicio no encontrado o inactivo' }),
 				{
@@ -115,7 +116,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 					.eq('estado', true);
 
 			if (microserviciosErr) {
-				console.error('Error obteniendo microservicios:', microserviciosErr);
+				log.error('Error obteniendo microservicios', {
+						error: microserviciosErr,
+					});
 				return new Response(
 					JSON.stringify({ error: 'Error validando microservicios' }),
 					{
@@ -158,7 +161,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		const totalAmountCents = Math.round(baseAmountCents * (1 + feePercent));
 
 		if (!Number.isFinite(totalAmountCents) || totalAmountCents <= 0) {
-			console.error('Monto inválido para servicio:', servicio);
+			log.error('Monto inválido para servicio', { servicio });
 			return new Response(
 				JSON.stringify({ error: 'Monto inválido para el servicio' }),
 				{
@@ -232,7 +235,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			},
 		);
 	} catch (err: any) {
-		console.error('Error en create-payment-intent:', err);
+		log.error('Error en create-payment-intent', { err });
 		return new Response(JSON.stringify({ error: 'Internal server error' }), {
 			status: 500,
 			headers: SECURITY_HEADERS,

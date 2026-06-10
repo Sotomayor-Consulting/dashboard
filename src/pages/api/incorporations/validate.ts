@@ -3,7 +3,10 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack, SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
 import crypto from 'node:crypto';
+
+const log = createLogger('incorporations.validate');
 
 const BACK_PATH = '/admin/verification/';
 const BUCKET = 'documentos_empresas'; // <-- tu bucket
@@ -58,15 +61,12 @@ const sanitizeFileName = (name: string) => {
 };
 
 // ---------- JSON helpers ----------
-const jlog = (_debug_id: string, _step: string, _data?: any) => {
-	// En prod puedes bajar ruido: if (import.meta.env.DEV) ...
-	// console.log(`[validacion:${debug_id}] ${step}`, data ?? '');
+const jlog = (debug_id: string, step: string, data?: any) => {
+	log.debug(step, { debug_id, ...(data !== undefined ? { data } : {}) });
 };
 
 const jerr = (debug_id: string, step: string, err: any, extra?: any) => {
-	console.error(`[validacion:${debug_id}] ERROR @ ${step}`);
-	console.error(err);
-	if (extra) console.error(`[validacion:${debug_id}] EXTRA`, extra);
+	log.error(step, { debug_id, err, ...(extra !== undefined ? { extra } : {}) });
 };
 
 const jsonOk = (body: any, status = 200) =>
@@ -549,7 +549,11 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 			},
 		});
 	} catch (e: any) {
-		console.error(`[validacion:${debug_id}] FATAL`, { message: e?.message ?? String(e), stack: e?.stack ?? null });
+		log.error('FATAL', {
+			debug_id,
+			message: e?.message ?? String(e),
+			stack: e?.stack ?? null,
+		});
 		return jsonOk(
 			{
 				ok: false,

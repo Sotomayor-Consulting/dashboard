@@ -6,7 +6,11 @@ import {
 	type MemberAddressInput,
 } from '@domains/members/member-addresses';
 
+import { createLogger } from '@infrastructure/logging';
+
 export const prerender = false;
+
+const log = createLogger('members.addresses');
 
 const UUID_RE =
 	/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -28,7 +32,7 @@ export const GET: APIRoute = async ({ request, cookies, params }) => {
 		const data = await listMemberAddresses(context.supabase, memberId);
 		return json(200, { ok: true, data });
 	} catch (error) {
-		console.error('[member_addresses:list]', error);
+		log.error('list', { error });
 		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
 		const status = message === 'MEMBER_NOT_FOUND' ? 404 : 500;
 		return json(status, { ok: false, error: message });
@@ -56,7 +60,7 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		);
 		return json(200, { ok: true, data: address });
 	} catch (error) {
-		console.error('[member_addresses:create]', error);
+		log.error('create', { error });
 		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
 		const status =
 			message === 'MEMBER_NOT_FOUND'

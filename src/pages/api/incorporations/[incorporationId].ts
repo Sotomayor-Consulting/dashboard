@@ -4,8 +4,11 @@ import {
 	json,
 	requireCompanyDataManager,
 } from '@shared/api/company-data';
+import { createLogger } from '@infrastructure/logging';
 
 export const prerender = false;
+
+const log = createLogger('incorporations.update');
 
 export const PATCH: APIRoute = async ({ request, cookies, params }) => {
 	const incorporationId = params.incorporationId?.trim();
@@ -34,7 +37,7 @@ export const PATCH: APIRoute = async ({ request, cookies, params }) => {
 
 		return json(200, { ok: true, data: incorporation });
 	} catch (error) {
-		console.error('[incorporations:update]', error);
+		log.error('update', { error });
 		const message = error instanceof Error ? error.message : 'INTERNAL_ERROR';
 		const status = message === 'INCORPORATION_NOT_FOUND' ? 404 : 500;
 		return json(status, { ok: false, error: message });

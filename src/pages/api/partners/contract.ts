@@ -2,6 +2,9 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('partners.contract');
 
 export const GET: APIRoute = async ({ request, cookies, url, redirect }) => {
 	try {
@@ -48,7 +51,7 @@ export const GET: APIRoute = async ({ request, cookies, url, redirect }) => {
 			.createSignedUrl(filePath, 3600);
 
 		if (error) {
-			console.error('Error generando URL firmada:', error);
+			log.error('Error generando URL firmada', { error });
 			if (
 				error.message?.includes('not found') ||
 				error.message?.includes('No such file')
@@ -82,11 +85,10 @@ export const GET: APIRoute = async ({ request, cookies, url, redirect }) => {
 		const fetched = await fetch(data.signedUrl);
 
 		if (!fetched.ok || !fetched.body) {
-			console.error(
-				'Error al obtener el archivo desde signedUrl:',
-				fetched.status,
-				fetched.statusText,
-			);
+			log.error('Error al obtener el archivo desde signedUrl', {
+					status: fetched.status,
+					statusText: fetched.statusText,
+				});
 			return new Response(`Error al obtener archivo: ${fetched.statusText}`, {
 				status: fetched.status || 500,
 			});
@@ -109,7 +111,7 @@ export const GET: APIRoute = async ({ request, cookies, url, redirect }) => {
 			headers,
 		});
 	} catch (e: any) {
-		console.error('Error inesperado:', e);
+		log.error('Error inesperado', { error: e });
 		return new Response(`Error inesperado: ${e?.message ?? e}`, {
 			status: 500,
 		});

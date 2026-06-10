@@ -3,6 +3,9 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('meetings.create-booking-intent');
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	const { createSupabaseServerClient } = await import(
@@ -70,7 +73,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 	);
 
 	if (error) {
-		console.error('Error creating booking intent:', error);
+		log.error('Error creating booking intent', { error });
 		return new Response(
 			JSON.stringify({ error: 'Error al crear intent' }),
 			{ status: 500, headers: SECURITY_HEADERS },

@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.user-documents');
 
 export const GetDocumentosPartner = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
@@ -6,10 +9,9 @@ export const GetDocumentosPartner = async (supabase: SupabaseClient) => {
 		.select(`*`, { count: 'exact' })
 		.order('created_at', { ascending: false });
 	if (error) {
-		console.error(
-			'Error fetching documentos_usuarios contrato partners:',
+		log.error('Error fetching documentos_usuarios contrato partners', {
 			error,
-		);
+		});
 		throw error;
 	}
 

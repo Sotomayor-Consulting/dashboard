@@ -1,5 +1,8 @@
 import vault from 'node-vault';
 import { vaultConfig, SECRET_PATHS } from './vault.config.ts';
+import { createLogger } from '../logging/logger.ts';
+
+const log = createLogger('vault');
 
 export async function loadSecretsIntoEnv(): Promise<void> {
 	const client = vault(vaultConfig);
@@ -17,12 +20,12 @@ export async function loadSecretsIntoEnv(): Promise<void> {
 				// En dev mode, paths que no existen aún no deben romper el startup
 				const status = (err as { response?: { statusCode?: number } })?.response?.statusCode;
 				if (status === 404) {
-					console.warn(`[vault] Path no encontrado (ignorado): ${path}`);
+					log.warn('Path no encontrado (ignorado)', { path });
 				} else {
 					throw err;
 				}
 			}
 		}),
 	);
-	console.log('[vault] Secretos cargados en process.env');
+	log.info('Secretos cargados en process.env');
 }

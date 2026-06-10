@@ -1,4 +1,7 @@
 import nodemailer from 'nodemailer';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('Mailer');
 
 const SMTP_HOST = import.meta.env.SMTP_HOST;
 const SMTP_USER = import.meta.env.SMTP_USER;
@@ -43,7 +46,7 @@ export async function sendMail(opts: {
 		});
 		return info;
 	} catch (err) {
-		console.error('[Mailer] Error in sendMail:', err);
+		log.error('Error in sendMail', { err });
 		throw err;
 	}
 }

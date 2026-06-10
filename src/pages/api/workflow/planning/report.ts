@@ -13,6 +13,9 @@ import {
 	type AccountingMethod,
 } from '@domains/workflow/stages/planning-design-report';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('planning.report');
 
 const json = (status: number, payload: unknown) =>
 	new Response(JSON.stringify(payload), { status, headers: SECURITY_HEADERS });
@@ -89,7 +92,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 		if (error instanceof DocumentsError) {
 			return json(error.status, { ok: false, error: error.message });
 		}
-		console.error('[planning/report] Unexpected error:', error);
+		log.error('Unexpected error', { error });
 		return json(500, { ok: false, error: 'UNEXPECTED_ERROR' });
 	}
 };

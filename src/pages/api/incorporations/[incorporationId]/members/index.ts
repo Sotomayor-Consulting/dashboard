@@ -8,8 +8,11 @@ import {
 } from '@domains/companies/company-members';
 import type { MemberInput } from '@domains/members/people';
 import { BusinessRuleError } from '@domains/companies/rules/errors';
+import { createLogger } from '@infrastructure/logging';
 
 export const prerender = false;
+
+const log = createLogger('incorporations.members');
 
 type AttachExistingBody = CompanyMemberInput & { new_person?: never };
 type CreateAndAttachBody = Omit<CompanyMemberInput, 'member_id'> & {
@@ -90,7 +93,7 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 
 		return json(200, { ok: true, data: member });
 	} catch (error) {
-		console.error('[company_members:create]', error);
+		log.error('create', { error });
 		if (error instanceof BusinessRuleError) {
 			return json(422, { ok: false, error: error.message, code: error.code });
 		}

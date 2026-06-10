@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 
 interface Props {
@@ -106,21 +106,18 @@ export function SubsectionCard({
 					/>
 				</motion.span>
 			</button>
-			<AnimatePresence initial={false}>
-				{open && (
-					<motion.div
-						key="body"
-						id={bodyId}
-						initial={{ height: 0, opacity: 0 }}
-						animate={{ height: 'auto', opacity: 1 }}
-						exit={{ height: 0, opacity: 0 }}
-						transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-						className="overflow-hidden"
-					>
-						<div className="px-[22px] pt-5 pb-[22px]">{children}</div>
-					</motion.div>
-				)}
-			</AnimatePresence>
+			<motion.div
+				id={bodyId}
+				initial={false}
+				animate={{
+					height: open ? 'auto' : 0,
+					opacity: open ? 1 : 0,
+				}}
+				transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+				className="overflow-hidden"
+			>
+				<div className="px-[22px] pt-5 pb-[22px]">{children}</div>
+			</motion.div>
 		</div>
 	);
 }

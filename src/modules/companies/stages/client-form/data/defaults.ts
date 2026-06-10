@@ -48,6 +48,7 @@ export const createInitialFormData = (): ClientFormData => ({
 	ciudad: '',
 	estado: '',
 	codigoPostal: '',
+	facturaServicioBasicoEEUU: null,
 	pais: '',
 	direccionEmpresa: '',
 	facturaServicioBasico: null,

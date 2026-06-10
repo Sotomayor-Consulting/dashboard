@@ -2,7 +2,11 @@ import type { APIRoute } from 'astro';
 import { json, requireCompanyDataManager } from '@shared/api/company-data';
 import { searchMembers } from '@domains/members/people';
 
+import { createLogger } from '@infrastructure/logging';
+
 export const prerender = false;
+
+const log = createLogger('members.search');
 
 /**
  * `GET /api/members?q=...` — búsqueda de personas para el combobox
@@ -28,7 +32,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 		});
 		return json(200, { ok: true, data });
 	} catch (error) {
-		console.error('[members:search]', error);
+		log.error('search', { error });
 		return json(500, {
 			ok: false,
 			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',

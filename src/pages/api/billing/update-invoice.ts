@@ -2,6 +2,9 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('billing.update-invoice');
 
 const BACK_PATH = '/settings';
 
@@ -52,7 +55,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		} = await supabase.auth.getUser();
 
 		if (userErr || !user) {
-			console.error('Error al obtener usuario autenticado:', userErr);
+			log.error('Error al obtener usuario autenticado', { error: userErr });
 			return redirectWithMessage(
 				'error',
 				'No autenticado. Por favor inicia sesión.',
@@ -114,7 +117,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			.upsert(payload, { onConflict: 'user_id' });
 
 		if (error) {
-			console.error('Error de Supabase en upsert(datos_facturacion):', error);
+			log.error('Error de Supabase en upsert(datos_facturacion)', { error });
 
 			let errorMsg = 'Error al guardar los datos';
 
@@ -141,7 +144,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			'Datos de facturación guardados correctamente.',
 		);
 	} catch (err) {
-		console.error('Error inesperado en /api/test/usuario:', err);
+		log.error('Error inesperado', { error: err });
 		return redirectWithMessage(
 			'error',
 			'Error interno del servidor. Intenta más tarde.',

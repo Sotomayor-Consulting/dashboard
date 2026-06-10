@@ -1,10 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.states');
 
 export const EstadosGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase.from('estados').select('*');
 
 	if (error) {
-		console.error('Error fetching all estados:', error);
+		log.error('Error fetching all estados', { error });
 		throw error;
 	}
 
@@ -21,7 +24,7 @@ export const getEstadoPorEmpresa = async (
 		.eq('Estado', estado)
 		.maybeSingle();
 	if (error) {
-		console.error('Error fetching estado por empresa:', error);
+		log.error('Error fetching estado por empresa', { error });
 		return null;
 	}
 

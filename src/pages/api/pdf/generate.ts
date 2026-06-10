@@ -2,6 +2,9 @@ import type { APIRoute } from 'astro';
 import { generatePdf } from '@integrations/carbone';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('pdf.generate');
 
 type GenerateBody = {
 	data?: unknown;
@@ -57,7 +60,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			error instanceof Error ? error.message : 'Error interno generando el PDF';
 
 		// MUY ÚTIL: log en el server (lo ves en Coolify → logs de la app)
-		console.error('Error en /api/generar:', error);
+		log.error('Error generando PDF', { error });
 
 		return new Response(
 			JSON.stringify({

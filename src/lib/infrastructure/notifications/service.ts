@@ -1,5 +1,6 @@
 import { findMissingContextKeys, renderTemplate } from './renderer';
 import { getNotificationTemplate } from './templates';
+import { createLogger } from '@infrastructure/logging';
 import { sendEmailNotification } from './channels/email';
 import { sendInAppNotification } from './channels/in-app';
 import type {
@@ -11,6 +12,8 @@ import type {
 	NotifyByEventInput,
 	NotifyByEventResult,
 } from './types';
+
+const log = createLogger('notifications');
 
 function normalizeContext(
 	context: NotificationContext = {},
@@ -160,7 +163,7 @@ async function sendChannelsForRecipient(
 				});
 				channelResults.push({ channel, success: true });
 			} catch (error: any) {
-				console.error('[notifications][email] delivery failed', {
+				log.error('email delivery failed', {
 					eventKey,
 					userId: recipient.userId,
 					error: error?.message ?? String(error),

@@ -33,6 +33,7 @@ const fromSerializable = (
 ): ClientFormData => ({
 	...stored,
 	facturaServicioBasico: null,
+	facturaServicioBasicoEEUU: null,
 	miembros: stored.miembros.map((m) => ({
 		...m,
 		pasaporte: null,

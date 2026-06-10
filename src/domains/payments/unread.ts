@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('domains.payments.unread');
 
 export interface PagoPorLeer {
 	id: string;
@@ -59,7 +62,7 @@ export const pagosRealizadosData = async (supabase: SupabaseClient) => {
 		.order('created_at', { ascending: false });
 
 	if (error) {
-		console.error('Error fetching all pagos data:', error);
+		log.error('Error fetching all pagos data', { error });
 		throw error;
 	}
 
@@ -82,7 +85,7 @@ export const pagosRealizadosPorSubir = async (supabase: SupabaseClient) => {
 		.order('created_at', { ascending: false });
 
 	if (error) {
-		console.error('Error fetching all pagos data:', error);
+		log.error('Error fetching all pagos data', { error });
 		throw error;
 	}
 
@@ -111,7 +114,7 @@ export const pagosRealizadosPorSubirById = async (
 		.maybeSingle();
 
 	if (error) {
-		console.error('Error fetching all pagos data:', error);
+		log.error('Error fetching all pagos data', { error });
 		throw error;
 	}
 
@@ -139,7 +142,7 @@ export const pagosPorSubirById = async (
 		.single();
 
 	if (error) {
-		console.error('Error fetching all pagos data:', error);
+		log.error('Error fetching all pagos data', { error });
 		throw error;
 	}
 

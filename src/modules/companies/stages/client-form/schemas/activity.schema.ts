@@ -31,6 +31,7 @@ export const activityStepBaseSchema = z.object({
 	ciudad: z.string(),
 	estado: z.string(),
 	codigoPostal: z.string(),
+	facturaServicioBasicoEEUU: fileSchema,
 	pais: z.string(),
 	direccionEmpresa: z.string(),
 	facturaServicioBasico: fileSchema,

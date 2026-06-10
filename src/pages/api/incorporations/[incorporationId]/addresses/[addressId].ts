@@ -9,8 +9,11 @@ import {
 	companyAddressDeleteSchema,
 	companyAddressSchema,
 } from '@modules/companies/schemas/company-address.schema';
+import { createLogger } from '@infrastructure/logging';
 
 export const prerender = false;
+
+const log = createLogger('incorporations.addresses');
 
 const parseAddressId = (raw: string | undefined) => {
 	const parsed = Number(raw);
@@ -78,7 +81,7 @@ export const PATCH: APIRoute = async (context) => {
 
 		return json(200, { ok: true, data: address });
 	} catch (error) {
-		console.error('[company_addresses:update]', error);
+		log.error('update', { error });
 		return json(500, {
 			ok: false,
 			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',
@@ -107,7 +110,7 @@ export const DELETE: APIRoute = async (context) => {
 
 		return json(200, { ok: true, data: address });
 	} catch (error) {
-		console.error('[company_addresses:delete]', error);
+		log.error('delete', { error });
 		return json(500, {
 			ok: false,
 			error: error instanceof Error ? error.message : 'INTERNAL_ERROR',

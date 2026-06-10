@@ -8,7 +8,11 @@ import {
 } from '@domains/companies/company-members';
 import { BusinessRuleError } from '@domains/companies/rules/errors';
 
+import { createLogger } from '@infrastructure/logging';
+
 export const prerender = false;
+
+const log = createLogger('companies.members');
 
 const UUID_RE =
 	/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -72,7 +76,7 @@ export const PATCH: APIRoute = async ({ request, cookies, params }) => {
 
 		return json(200, { ok: true, data: member });
 	} catch (error) {
-		console.error('[company_members:update]', error);
+		log.error('update', { error });
 		if (error instanceof BusinessRuleError) {
 			return json(422, { ok: false, error: error.message, code: error.code });
 		}
@@ -102,7 +106,7 @@ export const DELETE: APIRoute = async ({ request, cookies, params }) => {
 
 		return json(200, { ok: true, data: member });
 	} catch (error) {
-		console.error('[company_members:delete]', error);
+		log.error('delete', { error });
 		if (error instanceof BusinessRuleError) {
 			return json(422, { ok: false, error: error.message, code: error.code });
 		}
