@@ -144,19 +144,10 @@ async function sendChannelsForRecipient(
 		}
 
 		if (channel === 'email') {
-			if (!recipient.email) {
-				channelResults.push({
-					channel,
-					success: false,
-					error: 'El destinatario no tiene correo configurado',
-				});
-				continue;
-			}
-
 			try {
 				await sendEmailNotification({
 					userId: recipient.userId,
-					email: recipient.email,
+					email: recipient.email ?? '',
 					subject: rendered.emailSubject,
 					html: rendered.emailHtml,
 					text: rendered.emailText,

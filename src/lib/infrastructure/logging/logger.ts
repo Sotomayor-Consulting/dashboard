@@ -36,6 +36,23 @@ const LEVEL =
  * Formato dev: legible y coloreado para la terminal.
  * `[timestamp] LEVEL [context]: message  { ...meta }`
  */
+/**
+ * `JSON.stringify` seguro frente a referencias circulares (p.ej. errores TLS
+ * con la cadena de certificados, donde `issuerCertificate` se referencia a sí
+ * mismo). Sin esto, loguear `{ err }` de un fallo TLS lanzaría
+ * "Converting circular structure to JSON" y enmascararía el error real.
+ */
+function safeStringify(value: unknown): string {
+	const seen = new WeakSet<object>();
+	return JSON.stringify(value, (_key, val) => {
+		if (typeof val === 'object' && val !== null) {
+			if (seen.has(val)) return '[Circular]';
+			seen.add(val);
+		}
+		return val;
+	});
+}
+
 const devFormat = combine(
 	colorize(),
 	timestamp({ format: 'HH:mm:ss.SSS' }),
@@ -44,9 +61,7 @@ const devFormat = combine(
 	printf((info) => {
 		const { timestamp, level, message, context, stack, ...meta } = info;
 		const tag = context ? ` [${context as string}]` : '';
-		const rest = Object.keys(meta).length
-			? `  ${JSON.stringify(meta)}`
-			: '';
+		const rest = Object.keys(meta).length ? `  ${safeStringify(meta)}` : '';
 		const body = (stack as string) ?? (message as string);
 		return `${timestamp as string} ${level}${tag}: ${body}${rest}`;
 	}),
