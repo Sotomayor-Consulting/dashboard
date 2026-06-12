@@ -19,7 +19,7 @@ import {
 	FieldLabel,
 } from '@components/ui/Field';
 import { Input } from '@components/ui/Input';
-import { Textarea } from '@components/ui/Textarea';
+import { HtmlEditor } from '@components/forms/HtmlEditor';
 
 interface Props {
 	open: boolean;
@@ -36,21 +36,19 @@ export function UserDrawerEmailModal({
 	email,
 	userName,
 }: Props) {
+	const [title, setTitle] = useState('');
 	const [message, setMessage] = useState('');
-	const [link, setLink] = useState('');
-	const [linkLabel, setLinkLabel] = useState('');
+	const [actionUrl, setActionUrl] = useState('');
+	const [actionLabel, setActionLabel] = useState('');
 	const [sendEmail, setSendEmail] = useState(false);
-	const [emailSubject, setEmailSubject] = useState('');
-	const [emailHtml, setEmailHtml] = useState('');
 	const [loading, setLoading] = useState(false);
 
 	const reset = () => {
+		setTitle('');
 		setMessage('');
-		setLink('');
-		setLinkLabel('');
+		setActionUrl('');
+		setActionLabel('');
 		setSendEmail(false);
-		setEmailSubject('');
-		setEmailHtml('');
 	};
 
 	const handleClose = () => {
@@ -58,9 +56,11 @@ export function UserDrawerEmailModal({
 		onClose();
 	};
 
+	const messageIsEmpty = message.replace(/<[^>]+>/g, '').trim() === '';
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!message.trim()) return;
+		if (!title.trim() || messageIsEmpty) return;
 
 		setLoading(true);
 		try {
@@ -69,12 +69,11 @@ export function UserDrawerEmailModal({
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					userId,
+					title,
 					message,
-					link: link || undefined,
-					linkLabel: linkLabel || undefined,
+					action_url: actionUrl || undefined,
+					action_label: actionLabel || undefined,
 					sendEmail,
-					emailSubject: emailSubject || undefined,
-					emailHtml: emailHtml || undefined,
 				}),
 			});
 
@@ -120,42 +119,55 @@ export function UserDrawerEmailModal({
 				<form onSubmit={handleSubmit}>
 					<FieldGroup className="gap-4">
 						<Field>
-							<FieldLabel>Mensaje</FieldLabel>
-							<Textarea
+							<FieldLabel>Título</FieldLabel>
+							<Input
 								required
-								rows={4}
-								value={message}
-								onChange={(e) => setMessage(e.target.value)}
-								placeholder="Escribe el mensaje de la notificación..."
+								type="text"
+								value={title}
+								onChange={(e) => setTitle(e.target.value)}
+								placeholder="Título de la notificación / asunto del correo"
 							/>
+						</Field>
+
+						<Field>
+							<FieldLabel>Mensaje</FieldLabel>
+							<HtmlEditor
+								value={message}
+								onChange={setMessage}
+								ariaLabel="Mensaje de la notificación"
+							/>
+							<FieldDescription>
+								Da formato al texto (negrita, cursiva, tamaño, enlaces). Se usa
+								como cuerpo del correo y contenido de la notificación.
+							</FieldDescription>
 						</Field>
 
 						<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 							<Field>
 								<FieldLabel>
 									URL{' '}
-									<span className="font-normal text-muted-foreground">
+									<span className="text-muted-foreground font-normal">
 										(opcional)
 									</span>
 								</FieldLabel>
 								<Input
 									type="text"
-									value={link}
-									onChange={(e) => setLink(e.target.value)}
+									value={actionUrl}
+									onChange={(e) => setActionUrl(e.target.value)}
 									placeholder="/my-companies/..."
 								/>
 							</Field>
 							<Field>
 								<FieldLabel>
 									Texto del botón{' '}
-									<span className="font-normal text-muted-foreground">
+									<span className="text-muted-foreground font-normal">
 										(opcional)
 									</span>
 								</FieldLabel>
 								<Input
 									type="text"
-									value={linkLabel}
-									onChange={(e) => setLinkLabel(e.target.value)}
+									value={actionLabel}
+									onChange={(e) => setActionLabel(e.target.value)}
 									placeholder="Ver detalle"
 								/>
 							</Field>
@@ -165,61 +177,27 @@ export function UserDrawerEmailModal({
 							<Checkbox
 								id="send-email-cb"
 								checked={sendEmail}
-								onCheckedChange={(checked) =>
-									setSendEmail(checked === true)
-								}
+								onCheckedChange={(checked) => setSendEmail(checked === true)}
 							/>
 							<FieldLabel htmlFor="send-email-cb">
 								Enviar también por correo
 							</FieldLabel>
 						</Field>
-
 						{sendEmail && (
-							<FieldGroup className="gap-3 rounded-lg border border-border p-3">
-								<Field>
-									<FieldLabel>
-										Asunto{' '}
-										<span className="font-normal text-muted-foreground">
-											(opcional)
-										</span>
-									</FieldLabel>
-									<Input
-										type="text"
-										value={emailSubject}
-										onChange={(e) => setEmailSubject(e.target.value)}
-										placeholder="Tienes una nueva notificacion"
-									/>
-								</Field>
-								<Field>
-									<FieldLabel>
-										HTML del correo{' '}
-										<span className="font-normal text-muted-foreground">
-											(opcional)
-										</span>
-									</FieldLabel>
-									<Textarea
-										rows={4}
-										value={emailHtml}
-										onChange={(e) => setEmailHtml(e.target.value)}
-										placeholder="<p>Hola,</p><p>...</p>"
-									/>
-									<FieldDescription>
-										Si no se proporciona, se usa la plantilla por defecto.
-									</FieldDescription>
-								</Field>
-							</FieldGroup>
+							<FieldDescription>
+								El correo usa el <strong>título</strong> como asunto y el{' '}
+								<strong>mensaje (HTML)</strong> como cuerpo.
+							</FieldDescription>
 						)}
 					</FieldGroup>
 
 					<DialogFooter className="mt-4">
-						<DialogClose
-							render={<Button variant="outline" type="button" />}
-						>
+						<DialogClose render={<Button variant="outline" type="button" />}>
 							Cancelar
 						</DialogClose>
 						<Button
 							type="submit"
-							disabled={loading || !message.trim()}
+							disabled={loading || !title.trim() || messageIsEmpty}
 						>
 							{loading ? 'Enviando...' : 'Enviar notificación'}
 						</Button>

@@ -3,6 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { notifyByEvent } from '@infrastructure/notifications';
 import type { NotificationChannel } from '@infrastructure/notifications';
+import { sanitizeNotificationHtml } from '@shared/sanitize';
 
 export const POST: APIRoute = async ({ request, locals }) => {
 	const json = (body: object, status = 200) =>
@@ -20,23 +21,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
 		const body = await request.json();
 		const {
 			userId,
+			title,
 			message,
-			link,
-			linkLabel,
+			action_url: actionUrl,
+			action_label: actionLabel,
 			sendEmail,
-			emailSubject,
-			emailHtml,
 		} = body as {
 			userId?: string;
+			title?: string;
 			message?: string;
-			link?: string;
-			linkLabel?: string;
+			action_url?: string;
+			action_label?: string;
 			sendEmail?: boolean;
-			emailSubject?: string;
-			emailHtml?: string;
 		};
 
 		if (!userId) return json({ success: false, error: 'Falta userId' }, 400);
+		if (!title?.trim())
+			return json({ success: false, error: 'El título es requerido' }, 400);
 		if (!message?.trim())
 			return json({ success: false, error: 'El mensaje es requerido' }, 400);
 
@@ -44,20 +45,27 @@ export const POST: APIRoute = async ({ request, locals }) => {
 			? ['in_app', 'email']
 			: ['in_app'];
 
+		// El mensaje del form es HTML (editor). Sanitizamos con allowlist y
+		// derivamos una versión en texto plano para la parte `text` del correo.
+		const html = sanitizeNotificationHtml(message.trim());
+		const text = html
+			.replace(/<[^>]+>/g, ' ')
+			.replace(/\s+/g, ' ')
+			.trim();
+
 		const result = await notifyByEvent({
 			eventKey: 'admin.custom',
 			recipients: [{ userId }],
 			channels,
-			link: link ?? null,
-			linkLabel: linkLabel ?? 'Ver detalle',
+			title: title.trim(),
+			actionUrl: actionUrl ?? null,
+			actionLabel: actionLabel ?? 'Ver detalle',
 			context: {
-				message: message.trim(),
-				link_label: linkLabel ?? 'Ver detalle',
-				email_subject: emailSubject || 'Tienes una nueva notificacion',
-				email_html:
-					emailHtml ||
-					`<p>Hola,</p><p>${message.trim()}</p>${link ? `<p><a href="${link}">${linkLabel || 'Ver detalle'}</a></p>` : ''}`,
-				email_text: message.trim(),
+				message: html,
+				action_label: actionLabel ?? 'Ver detalle',
+				email_subject: title.trim(),
+				email_html: html,
+				email_text: text,
 			},
 		});
 
@@ -86,6 +94,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
 		return json({ success: true });
 	} catch (e: any) {
 		console.error('[notifications/send] unexpected error', e);
-		return json({ success: false, error: e?.message ?? 'Error inesperado' }, 500);
+		return json(
+			{ success: false, error: e?.message ?? 'Error inesperado' },
+			500,
+		);
 	}
 };

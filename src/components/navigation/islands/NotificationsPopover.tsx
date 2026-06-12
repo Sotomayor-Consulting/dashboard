@@ -22,10 +22,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/Tabs';
 interface NotificationItem {
 	id: string;
 	message: string;
-	is_read: boolean;
+	title?: string;
+	type?: string;
+	read_at?: string | null;
 	created_at: string;
-	link?: string | null;
-	mensaje_link?: string | null;
+	action_url?: string | null;
+	action_label?: string | null;
 }
 
 interface NotificationsPopoverProps {
@@ -72,7 +74,7 @@ export default function NotificationsPopover({
 	const [pendingIds, setPendingIds] = useState<string[]>([]);
 
 	const unreadItems = useMemo(
-		() => items.filter((notification) => !notification.is_read),
+		() => items.filter((notification) => !notification.read_at),
 		[items],
 	);
 
@@ -83,10 +85,11 @@ export default function NotificationsPopover({
 		const previousCount = unreadCount;
 
 		setPendingIds((current) => [...current, id]);
+		const readAt = new Date().toISOString();
 		setItems((current) =>
 			current.map((notification) =>
 				notification.id === id
-					? { ...notification, is_read: true }
+					? { ...notification, read_at: readAt }
 					: notification,
 			),
 		);
@@ -126,8 +129,9 @@ export default function NotificationsPopover({
 		const previousCount = unreadCount;
 
 		setPendingIds((current) => [...new Set([...current, ...unreadIds])]);
+		const readAt = new Date().toISOString();
 		setItems((current) =>
-			current.map((notification) => ({ ...notification, is_read: true })),
+			current.map((notification) => ({ ...notification, read_at: readAt })),
 		);
 		setUnreadCount((current) => Math.max(0, current - unreadIds.length));
 
@@ -175,7 +179,7 @@ export default function NotificationsPopover({
 						/>
 						<AvatarFallback>SC</AvatarFallback>
 					</Avatar>
-					{!notification.is_read && (
+					{!notification.read_at && (
 						<>
 							<span className="absolute -right-0.5 bottom-11 h-3 w-3 animate-ping rounded-full bg-emerald-500 dark:border-gray-950" />
 							<span className="absolute -right-0.5 bottom-11 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-950" />
@@ -187,17 +191,24 @@ export default function NotificationsPopover({
 				</div>
 				<a
 					className="min-w-0 flex-1"
-					href={notification.link ?? undefined}
-					title={notification.mensaje_link ?? undefined}
+					href={notification.action_url ?? undefined}
+					title={notification.action_label ?? undefined}
 					target="_blank"
 					rel="noreferrer noopener"
 				>
-					<p className="text-xs leading-snug font-semibold text-gray-900 dark:text-white">
-						{notification.message}
-					</p>
+					{notification.title && (
+						<p className="text-xs leading-snug font-semibold text-gray-900 dark:text-white">
+							{notification.title}
+						</p>
+					)}
+					{/* message viene sanitizado desde el servidor (shared/sanitize) */}
+					<div
+						className="[&_a]:text-primary-600 text-xs leading-snug text-gray-600 dark:text-gray-300 [&_a]:underline"
+						dangerouslySetInnerHTML={{ __html: notification.message }}
+					/>
 				</a>
 				<div className="relative flex flex-col justify-between">
-					{!notification.is_read && (
+					{!notification.read_at && (
 						<Popover>
 							<PopoverTrigger
 								render={
@@ -250,16 +261,16 @@ export default function NotificationsPopover({
 						</Popover>
 					)}
 					<div className="invisible mt-3 flex flex-wrap items-center gap-2 transition-all delay-105 group-hover/card:visible group-hover/card:translate-x-2">
-						{notification.link && notification.mensaje_link && (
+						{notification.action_url && notification.action_label && (
 							<Button
 								variant="link"
 								size="sm"
 								className="h-auto gap-1.5 px-2 py-1 text-xs"
 								render={
 									<a
-										href={notification.link}
+										href={notification.action_url}
 										target="_blank"
-										title={notification.mensaje_link}
+										title={notification.action_label}
 										rel="noreferrer noopener"
 									/>
 								}

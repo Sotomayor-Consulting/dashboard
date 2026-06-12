@@ -140,17 +140,16 @@ const notificaciones = userId
 				// Obtención de DataSets
 				const id = btn.dataset.userId ?? '';
 				const mensaje = btn.dataset.mensaje ?? '';
-				const leido = btn.dataset.isread ?? '';
-				const fechalectura = btn.dataset.fechaLeido ?? '';
+				const readAt = btn.dataset.readAt ?? ''; // timestamp de lectura (vacío = no leída)
 				const creado = btn.dataset.creado ?? '';
-				const link = btn.dataset.link ?? ''; // URL para el href
-				const mensajelink = btn.dataset.mensajelink ?? ''; // Texto para el enlace
+				const link = btn.dataset.actionUrl ?? ''; // URL para el href
+				const mensajelink = btn.dataset.actionLabel ?? ''; // Texto para el enlace
 
-				// 1. Transformación del booleano (string)
-				const estadoLeidoTexto = leido === 'true' ? 'Leído' : 'No leído';
+				// 1. Estado de lectura derivado de read_at
+				const estadoLeidoTexto = readAt ? 'Leído' : 'No leído';
 
 				// 2. Formateo de las fechas
-				const fechaLeidoFormateada = formatFecha(fechalectura);
+				const fechaLeidoFormateada = formatFecha(readAt);
 				const creadoFormateado = formatFecha(creado);
 
 				// ----------------------------------------------------------------------
@@ -169,7 +168,9 @@ const notificaciones = userId
 				// ----------------------------------------------------------------------
 
 				setTextContent('display_id', id);
-				setTextContent('display_mensaje', mensaje);
+				// El mensaje viene sanitizado desde el servidor (shared/sanitize)
+				const mensajeEl = document.getElementById('display_mensaje');
+				if (mensajeEl) mensajeEl.innerHTML = mensaje;
 				setTextContent('display_leido', estadoLeidoTexto);
 				setTextContent('display_fecha_lectura', fechaLeidoFormateada);
 				setTextContent('display_fecha_creacion', creadoFormateado);

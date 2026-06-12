@@ -16,9 +16,9 @@ import { ACTIVE_COMPANY_COOKIE } from '@shared/cookies';
 type NotificationRow = {
 	id?: string;
 	message?: string;
-	created_at?: string;
-	link?: string | null;
-	is_read?: boolean;
+	created_at?: string | null;
+	action_url?: string | null;
+	read_at?: string | null;
 };
 
 type SubmittedFormRow = {
@@ -162,8 +162,8 @@ const activityItems = [
 	...notificationsData.notifications.map((notification) => ({
 		title: notification.message || 'Nueva notificacion',
 		meta: formatRelativeDate(notification.created_at),
-		href: notification.link || '/notifications',
-		isUnread: !notification.is_read,
+		href: notification.action_url || '/notifications',
+		isUnread: !notification.read_at,
 	})),
 	...submittedForms.map((form) => ({
 		title: form.formularios?.titulo || 'Formulario enviado',

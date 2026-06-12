@@ -49,7 +49,8 @@ function resolveChannels(
 
 type RenderedPayload = {
 	inAppMessage: string;
-	inAppLinkLabel: string;
+	inAppActionLabel: string;
+	inAppTitle: string;
 	emailSubject: string;
 	emailHtml: string;
 	emailText: string;
@@ -66,7 +67,7 @@ function buildRenderedPayload(
 	const sourceInAppMessage =
 		input.overrides?.inAppMessage ?? template.inApp.message;
 	const sourceInAppLabel =
-		input.linkLabel ?? template.inApp.linkLabel ?? 'Ver detalle';
+		input.actionLabel ?? template.inApp.actionLabel ?? 'Ver detalle';
 
 	const sourceEmailSubject =
 		input.overrides?.emailSubject ?? template.email?.subject ?? '';
@@ -106,7 +107,8 @@ function buildRenderedPayload(
 		channels,
 		payload: {
 			inAppMessage: renderTemplate(sourceInAppMessage, context),
-			inAppLinkLabel: renderTemplate(sourceInAppLabel, context),
+			inAppActionLabel: renderTemplate(sourceInAppLabel, context),
+			inAppTitle: input.title ?? '',
 			emailSubject: renderTemplate(sourceEmailSubject, context),
 			emailHtml: renderTemplate(sourceEmailHtml, context),
 			emailText: renderTemplate(sourceEmailText, context),
@@ -118,7 +120,7 @@ async function sendChannelsForRecipient(
 	recipient: NotificationRecipient,
 	channels: NotificationChannel[],
 	rendered: RenderedPayload,
-	link: string | null,
+	actionUrl: string | null,
 	eventKey: string,
 ): Promise<NotificationRecipientResult> {
 	const channelResults: NotificationChannelResult[] = [];
@@ -129,8 +131,10 @@ async function sendChannelsForRecipient(
 				await sendInAppNotification({
 					userId: recipient.userId,
 					message: rendered.inAppMessage,
-					link,
-					linkLabel: rendered.inAppLinkLabel,
+					type: eventKey,
+					title: rendered.inAppTitle || rendered.emailSubject || undefined,
+					actionUrl,
+					actionLabel: rendered.inAppActionLabel,
 				});
 				channelResults.push({ channel, success: true });
 			} catch (error: any) {
@@ -190,8 +194,8 @@ export async function notifyByEvent(
 	}
 
 	const context = normalizeContext(input.context);
-	const resolvedLink =
-		input.link ??
+	const resolvedActionUrl =
+		input.actionUrl ??
 		(typeof context.action_url === 'string' ? context.action_url : null);
 	const { channels, payload } = buildRenderedPayload(
 		input,
@@ -206,7 +210,7 @@ export async function notifyByEvent(
 			recipient,
 			channels,
 			payload,
-			resolvedLink,
+			resolvedActionUrl,
 			input.eventKey,
 		);
 		results.push(result);

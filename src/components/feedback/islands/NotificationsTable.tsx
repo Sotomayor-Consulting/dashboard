@@ -22,12 +22,13 @@ import { cn } from '@components/utils';
 interface NotificationItem {
 	id: string;
 	user_id?: string;
+	type?: string | null;
+	title?: string | null;
 	message?: string | null;
-	link?: string | null;
-	mensaje_link?: string | null;
+	action_url?: string | null;
+	action_label?: string | null;
 	created_at?: string | null;
-	is_read?: boolean | null;
-	leido_en?: string | null;
+	read_at?: string | null;
 }
 
 interface NotificationsTableProps {
@@ -53,7 +54,7 @@ export default function NotificationsTable({
 		const q = query.trim().toLowerCase();
 		if (!q) return notificaciones;
 		return notificaciones.filter((item) =>
-			[item.message, item.mensaje_link]
+			[item.message, item.action_label]
 				.filter(Boolean)
 				.some((value) => String(value).toLowerCase().includes(q)),
 		);
@@ -95,26 +96,34 @@ export default function NotificationsTable({
 						{rows.length ? (
 							rows.map((user, index) => {
 								const number = (currentPage - 1) * PAGE_SIZE + index + 1;
+								const isRead = user.read_at != null;
 								return (
 									<TableRow key={user.id}>
 										<TableCell>#{number}</TableCell>
-										<TableCell className="max-w-80 truncate">
-											{user.message}
+										<TableCell className="max-w-80">
+											{user.title && (
+												<div className="truncate font-medium">{user.title}</div>
+											)}
+											{/* message viene sanitizado desde el servidor */}
+											<div
+												className="text-muted-foreground line-clamp-2 [&_a]:underline"
+												dangerouslySetInnerHTML={{ __html: user.message ?? '' }}
+											/>
 										</TableCell>
 										<TableCell>
 											<a
 												className={cn(buttonVariants({ variant: 'outline' }))}
-												href={user.link ?? '#'}
+												href={user.action_url ?? '#'}
 												target="_blank"
 												rel="noreferrer"
 											>
-												{user.mensaje_link ?? 'Abrir'}
+												{user.action_label ?? 'Abrir'}
 											</a>
 										</TableCell>
 										<TableCell>{formatDate(user.created_at)}</TableCell>
 										<TableCell>
-											<Badge variant={user.is_read ? 'susess' : 'warning'}>
-												{user.is_read ? 'Leído' : 'No leído'}
+											<Badge variant={isRead ? 'susess' : 'warning'}>
+												{isRead ? 'Leído' : 'No leído'}
 											</Badge>
 										</TableCell>
 										<TableCell>
@@ -125,7 +134,7 @@ export default function NotificationsTable({
 													Acciones
 												</DropdownMenuTrigger>
 												<DropdownMenuContent align="end" className="w-44">
-													{user.is_read ? (
+													{isRead ? (
 														<DropdownMenuItem>Ya leída</DropdownMenuItem>
 													) : (
 														<DropdownMenuItem>
@@ -159,11 +168,10 @@ export default function NotificationsTable({
 														data-user-id={number}
 														data-user-userid={user.user_id}
 														data-mensaje={user.message || ''}
-														data-isread={user.is_read || ''}
-														data-fecha-leido={user.leido_en || ''}
+														data-read-at={user.read_at || ''}
 														data-creado={user.created_at || ''}
-														data-link={user.link || ''}
-														data-mensajelink={user.mensaje_link || ''}
+														data-action-url={user.action_url || ''}
+														data-action-label={user.action_label || ''}
 													>
 														Ver notificación
 													</DropdownMenuItem>

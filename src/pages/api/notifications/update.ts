@@ -8,10 +8,16 @@ import { safeBack } from '@infrastructure/security/headers';
 const BACK_PATH = '/notifications';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-	const back = safeBack(new URL(request.url).searchParams.get('back'), BACK_PATH);
+	const back = safeBack(
+		new URL(request.url).searchParams.get('back'),
+		BACK_PATH,
+	);
 
 	// 1) Sesión y Usuario
-	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+	const supabase = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
+	});
 
 	const {
 		data: { user },
@@ -41,26 +47,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const isRead = estadoLecturaRaw === 'true';
 
 	// 3) Construir el Payload de Actualización
-	const payload: Record<string, any> = {
-		is_read: isRead,
-		// Si se marca como leído (true), establecemos la fecha de lectura como ahora.
-		// Si se marca como NO leído (false), se recomienda enviar NULL o no incluirlo.
+	// El estado de lectura se consolida en `read_at` (null = no leída).
+	const payload = {
+		read_at: isRead ? new Date().toISOString() : null,
 	};
-
-	// Si el estado es 'true' (marcar como leído), añadimos el timestamp.
-	// NOTA: Supabase maneja `NOW()` automáticamente si no envías el campo, pero
-	// enviarlo explícitamente aquí es más claro para el código JS.
-	if (isRead) {
-		// Usamos la función nativa de PostgreSQL 'now()'
-		payload.leido_en = new Date().toISOString(); // O podrías usar 'now()' si Supabase lo espera así
-	} else {
-		// Opcional: Si se desmarca, forzamos que 'leido_en' sea NULL
-		payload.leido_en = null;
-	}
 
 	// 4) Ejecutar el UPDATE
 	// Usamos .update() para un UPDATE explícito basado en una condición WHERE
 	const { error } = await supabase
+		.schema('shared')
 		.from('notifications')
 		.update(payload)
 		.eq('id', notificationIdRaw)

@@ -12,15 +12,27 @@ const log = createLogger('admin-notifications-update');
 
 const BACK_PATH = '/admin/notifications/';
 
-export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }) => {
+export const POST: APIRoute = async ({
+	request,
+	cookies,
+	redirect,
+	url,
+	locals,
+}) => {
 	const back = safeBack(url.searchParams.get('back'), BACK_PATH);
 
 	try {
 		// 1) Sesión
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
 		// 2) Actor + check admin desde locals
-		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
+		const {
+			data: { user: actor },
+			error: userErr,
+		} = await supabase.auth.getUser();
 		if (userErr || !actor) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
@@ -69,11 +81,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url, locals }
 			eventKey: 'admin.custom',
 			recipients: [{ userId }],
 			channels,
-			link: link ?? null,
-			linkLabel: linkDescription ?? 'Ver detalle',
+			actionUrl: link ?? null,
+			actionLabel: linkDescription ?? 'Ver detalle',
 			context: {
 				message,
-				link_label: linkDescription ?? 'Ver detalle',
+				action_label: linkDescription ?? 'Ver detalle',
 				email_subject: emailSubject || 'Tienes una nueva notificacion',
 				email_html:
 					emailHtml ||

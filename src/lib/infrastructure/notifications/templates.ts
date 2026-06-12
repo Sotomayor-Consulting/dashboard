@@ -1,7 +1,4 @@
-import type {
-	NotificationEventKey,
-	NotificationTemplate,
-} from './types';
+import type { NotificationEventKey, NotificationTemplate } from './types';
 
 const templates: NotificationTemplate[] = [
 	{
@@ -11,7 +8,7 @@ const templates: NotificationTemplate[] = [
 		requiredContext: ['message'],
 		inApp: {
 			message: '{{message}}',
-			linkLabel: '{{link_label}}',
+			actionLabel: '{{action_label}}',
 		},
 		email: {
 			subject: '{{email_subject}}',
@@ -27,7 +24,7 @@ const templates: NotificationTemplate[] = [
 		inApp: {
 			message:
 				'Se compartio un documento de tu caso {{case_name}} para tu revision.',
-			linkLabel: 'Ver documentos',
+			actionLabel: 'Ver documentos',
 		},
 		email: {
 			subject: 'Nuevo documento disponible para {{case_name}}',
@@ -43,7 +40,7 @@ const templates: NotificationTemplate[] = [
 		inApp: {
 			message:
 				'Se revoco el acceso a un documento compartido del caso {{case_name}}.',
-			linkLabel: 'Ver documentos',
+			actionLabel: 'Ver documentos',
 		},
 		email: {
 			subject: 'Cambio de acceso en documentos de {{case_name}}',
@@ -57,9 +54,8 @@ const templates: NotificationTemplate[] = [
 		defaultChannels: ['in_app', 'email'],
 		requiredContext: ['stage_name', 'company_name', 'action_url'],
 		inApp: {
-			message:
-				'Se completo la etapa "{{stage_name}}" para {{company_name}}.',
-			linkLabel: 'Ver incorporacion',
+			message: 'Se completo la etapa "{{stage_name}}" para {{company_name}}.',
+			actionLabel: 'Ver incorporacion',
 		},
 		email: {
 			subject: 'Etapa completada: {{stage_name}}',
@@ -75,10 +71,11 @@ const templates: NotificationTemplate[] = [
 		inApp: {
 			message:
 				'Tu documento de planificacion y diseno esta listo para revision en {{company_name}}.',
-			linkLabel: 'Revisar documento',
+			actionLabel: 'Revisar documento',
 		},
 		email: {
-			subject: 'Documento de planificacion listo para revision - {{company_name}}',
+			subject:
+				'Documento de planificacion listo para revision - {{company_name}}',
 			html: '<p>Hola,</p><p>Operaciones subio el documento de planificacion y diseno para <strong>{{company_name}}</strong>. Por favor revisa y aprueba o rechaza el documento.</p><p><a href="{{action_url}}">Revisar documento</a></p>',
 			text: 'Operaciones subio el documento de planificacion para {{company_name}}. Revisa aqui: {{action_url}}',
 		},
@@ -91,7 +88,7 @@ const templates: NotificationTemplate[] = [
 		inApp: {
 			message:
 				'El cliente aprobo el documento de planificacion de {{company_name}}.',
-			linkLabel: 'Ver incorporacion',
+			actionLabel: 'Ver incorporacion',
 		},
 		email: {
 			subject: 'Planificacion aprobada por el cliente - {{company_name}}',
@@ -107,7 +104,7 @@ const templates: NotificationTemplate[] = [
 		inApp: {
 			message:
 				'El cliente rechazo el documento de planificacion de {{company_name}}. Comentarios: {{comments}}',
-			linkLabel: 'Revisar comentarios',
+			actionLabel: 'Revisar comentarios',
 		},
 		email: {
 			subject: 'Planificacion rechazada por el cliente - {{company_name}}',
@@ -123,7 +120,7 @@ const templates: NotificationTemplate[] = [
 		inApp: {
 			message:
 				'Tienes una nueva tarea asignada: "{{task_name}}" para {{company_name}}.',
-			linkLabel: 'Ver tarea',
+			actionLabel: 'Ver tarea',
 		},
 		email: {
 			subject: 'Nueva tarea asignada: {{task_name}}',

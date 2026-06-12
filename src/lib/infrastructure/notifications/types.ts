@@ -32,7 +32,7 @@ export type NotificationTemplate = {
 	requiredContext?: string[];
 	inApp: {
 		message: string;
-		linkLabel?: string;
+		actionLabel?: string;
 	};
 	email?: {
 		subject: string;
@@ -47,8 +47,9 @@ export type NotifyByEventInput = {
 	context?: NotificationContext;
 	channels?: NotificationChannel[];
 	locale?: string;
-	link?: string | null;
-	linkLabel?: string | null;
+	title?: string | null;
+	actionUrl?: string | null;
+	actionLabel?: string | null;
 	overrides?: {
 		inAppMessage?: string;
 		emailSubject?: string;

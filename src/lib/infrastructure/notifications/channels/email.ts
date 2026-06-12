@@ -7,7 +7,7 @@ type ResolveEmailInput = {
 };
 
 type SendEmailInput = {
-	userId: string
+	userId: string;
 	email: string;
 	subject: string;
 	html: string;
@@ -57,7 +57,7 @@ export async function sendEmailNotification({
 		to: recipient,
 		subject,
 		html,
-		text
+		text,
 	});
 
 	return { to: recipient };
