@@ -4,7 +4,10 @@ import { MAX_FILE_SIZE } from '../constants';
 
 const fileSchema = z
 	.instanceof(File)
-	.refine((f) => f.size <= MAX_FILE_SIZE, 'Archivo demasiado grande (máx. 5 MB)')
+	.refine(
+		(f) => f.size <= MAX_FILE_SIZE,
+		'Archivo demasiado grande (máx. 5 MB)',
+	)
 	.nullable();
 
 export const managerSchema = z

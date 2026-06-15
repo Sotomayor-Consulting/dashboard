@@ -11,6 +11,7 @@ export const COUNTRIES = [
 	'Ecuador',
 	'El Salvador',
 	'España',
+	'Estados Unidos',
 	'Guatemala',
 	'Honduras',
 	'México',

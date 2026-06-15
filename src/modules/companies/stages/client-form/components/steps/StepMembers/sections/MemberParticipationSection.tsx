@@ -12,7 +12,8 @@ interface Props {
 /**
  * B · Participación y estatus fiscal — 2 campos:
  *   - porcentaje de participación (slider 0–100 con lectura del valor)
- *   - residente fiscal en EE. UU. (Sí/No)
+ *   - residente fiscal en EE. UU. (Sí/No) — solo persona natural; para
+ *     empresas la pregunta no aplica y cuenta como completada.
  *
  * El % usa un slider en lugar de input numérico (más fácil de ajustar),
  * pero mantiene el mismo campo `porcentaje` y su validación de suma 100%.
@@ -41,13 +42,14 @@ export function MemberParticipationSection({ index, open, onToggle }: Props) {
 
 	const path = `miembros.${index}` as const;
 	const memberErrors = errors.miembros?.[index];
+	const isCompany = member?.tipoSocio === 'empresa';
 
 	const completed = countParticipationCompleted(member);
 
 	return (
 		<SubsectionCard
 			kicker="B"
-			title="Participación y estatus fiscal"
+			title={isCompany ? 'Participación' : 'Participación y estatus fiscal'}
 			completed={completed}
 			total={2}
 			open={open}
@@ -104,30 +106,32 @@ export function MemberParticipationSection({ index, open, onToggle }: Props) {
 					}}
 				/>
 
-				<Controller
-					control={control}
-					name={`${path}.residenteFiscalEEUU`}
-					render={({ field }) => (
-						<Field
-							label="¿Residente fiscal en EE. UU.?"
-							hint="Determina si necesita SSN o ITIN."
-							required
-						>
-							<div className="flex gap-2">
-								<RadioCard
-									label="Sí"
-									selected={field.value === true}
-									onClick={() => field.onChange(true)}
-								/>
-								<RadioCard
-									label="No"
-									selected={field.value === false}
-									onClick={() => field.onChange(false)}
-								/>
-							</div>
-						</Field>
-					)}
-				/>
+				{!isCompany && (
+					<Controller
+						control={control}
+						name={`${path}.residenteFiscalEEUU`}
+						render={({ field }) => (
+							<Field
+								label="¿Residente fiscal en EE. UU.?"
+								hint="Determina si necesita SSN o ITIN."
+								required
+							>
+								<div className="flex gap-2">
+									<RadioCard
+										label="Sí"
+										selected={field.value === true}
+										onClick={() => field.onChange(true)}
+									/>
+									<RadioCard
+										label="No"
+										selected={field.value === false}
+										onClick={() => field.onChange(false)}
+									/>
+								</div>
+							</Field>
+						)}
+					/>
+				)}
 			</div>
 		</SubsectionCard>
 	);
@@ -139,6 +143,8 @@ export function countParticipationCompleted(
 	if (!member) return 0;
 	let n = 0;
 	if ((member.porcentaje ?? 0) > 0) n++;
-	if (member.residenteFiscalEEUU !== null) n++;
+	// Para empresas la pregunta de residencia fiscal no aplica.
+	if (member.tipoSocio === 'empresa' || member.residenteFiscalEEUU !== null)
+		n++;
 	return n;
 }

@@ -115,7 +115,7 @@ export function FormRail({ currentStep, summary = [], onStepClick }: Props) {
 					¿Necesitas ayuda?{' '}
 					<a
 						href="mailto:info@sotomayorconsulting.com"
-						className="font-medium border-b"
+						className="border-b font-medium"
 						style={{
 							color: 'var(--cf-ink)',
 							borderColor: 'var(--cf-line-strong)',

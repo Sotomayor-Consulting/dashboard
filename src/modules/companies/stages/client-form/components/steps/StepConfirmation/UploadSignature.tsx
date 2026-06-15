@@ -146,12 +146,7 @@ export function UploadSignature({ onChange }: Props) {
 						>
 							Cambiar
 						</Button>
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							onClick={reset}
-						>
+						<Button type="button" variant="outline" size="sm" onClick={reset}>
 							Quitar
 						</Button>
 					</div>

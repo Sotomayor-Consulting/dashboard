@@ -43,10 +43,7 @@ export function Field({
 				>
 					{label}
 					{required && (
-						<span
-							className="ml-0.5"
-							style={{ color: 'var(--cf-danger)' }}
-						>
+						<span className="ml-0.5" style={{ color: 'var(--cf-danger)' }}>
 							*
 						</span>
 					)}
@@ -59,7 +56,10 @@ export function Field({
 									className="inline-flex cursor-help"
 									style={{ color: 'var(--cf-ink-faint)' }}
 								>
-									<Icon icon="ri:information-line" className="h-[13px] w-[13px]" />
+									<Icon
+										icon="ri:information-line"
+										className="h-[13px] w-[13px]"
+									/>
 								</span>
 							}
 						/>

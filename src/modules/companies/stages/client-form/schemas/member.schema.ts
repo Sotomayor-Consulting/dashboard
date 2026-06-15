@@ -4,29 +4,65 @@ import { MAX_FILE_SIZE } from '../constants';
 
 const fileSchema = z
 	.instanceof(File)
-	.refine((f) => f.size <= MAX_FILE_SIZE, 'Archivo demasiado grande (máx. 5 MB)')
+	.refine(
+		(f) => f.size <= MAX_FILE_SIZE,
+		'Archivo demasiado grande (máx. 5 MB)',
+	)
 	.nullable();
 
-export const memberSchema = z.object({
-	id: z.string(),
-	tipoSocio: z.enum(['persona', 'empresa']),
-	nombreCompleto: z.string().min(1, 'Ingresa el nombre completo'),
-	correo: z.email('Correo inválido'),
-	estadoCivil: z.enum(['single', 'married', 'divorced', 'widowed']),
-	porcentaje: z
-		.number()
-		.int('El porcentaje debe ser entero')
-		.min(1, 'Debe ser mayor a 0')
-		.max(100, 'No puede superar 100'),
-	residenteFiscalEEUU: z.boolean(),
-	pasaporte: fileSchema,
-	numeroPasaporte: z.string().min(1, 'Ingresa el número de pasaporte'),
-	nacionalidad: z.string().min(1, 'Selecciona la nacionalidad'),
-	ssn: z.string(),
-	itin: z.string(),
-	facturaServicio: fileSchema,
-	paisFactura: z.string().min(1, 'Selecciona el país'),
-	direccion: z.string().min(1, 'Ingresa la dirección'),
-});
+export const memberSchema = z
+	.object({
+		id: z.string(),
+		tipoSocio: z.enum(['persona', 'empresa']),
+		nombreCompleto: z.string(),
+		correo: z.email('Correo inválido'),
+		// Solo aplica a persona natural; las empresas no tienen estado civil.
+		estadoCivil: z.enum(['single', 'married', 'divorced', 'widowed', '']),
+		porcentaje: z
+			.number()
+			.int('El porcentaje debe ser entero')
+			.min(1, 'Debe ser mayor a 0')
+			.max(100, 'No puede superar 100'),
+		residenteFiscalEEUU: z.boolean(),
+		pasaporte: fileSchema,
+		numeroPasaporte: z.string(),
+		// País de nacionalidad (persona) o de constitución (empresa).
+		nacionalidad: z.string().min(1, 'Selecciona el país'),
+		ssn: z.string(),
+		itin: z.string(),
+		facturaServicio: fileSchema,
+		paisFactura: z.string().min(1, 'Selecciona el país'),
+		direccion: z.string().min(1, 'Ingresa la dirección'),
+		// Solo empresa: tipo de identificación fiscal y sitio web (opcional).
+		tipoIdentificacionFiscal: z.enum(['ein', 'ruc', 'nit', 'otro', '']),
+		sitioWeb: z.string(),
+	})
+	.refine((m) => m.tipoSocio !== 'persona' || m.nombreCompleto.length > 0, {
+		message: 'Ingresa el nombre completo',
+		path: ['nombreCompleto'],
+	})
+	.refine((m) => m.tipoSocio !== 'empresa' || m.nombreCompleto.length > 0, {
+		message: 'Ingresa el nombre de la empresa',
+		path: ['nombreCompleto'],
+	})
+	.refine((m) => m.tipoSocio !== 'persona' || m.numeroPasaporte.length > 0, {
+		message: 'Ingresa el número de pasaporte',
+		path: ['numeroPasaporte'],
+	})
+	.refine((m) => m.tipoSocio !== 'empresa' || m.numeroPasaporte.length > 0, {
+		message: 'Ingresa el número de identificación (EIN, RUC, NIT u otro)',
+		path: ['numeroPasaporte'],
+	})
+	.refine((m) => m.tipoSocio === 'empresa' || m.estadoCivil !== '', {
+		message: 'Selecciona el estado civil',
+		path: ['estadoCivil'],
+	})
+	.refine(
+		(m) => m.tipoSocio !== 'empresa' || m.tipoIdentificacionFiscal !== '',
+		{
+			message: 'Selecciona el tipo de identificación (EIN, RUC u otro)',
+			path: ['tipoIdentificacionFiscal'],
+		},
+	);
 
 export type MemberInput = z.infer<typeof memberSchema>;

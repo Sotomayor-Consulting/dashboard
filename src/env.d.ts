@@ -22,6 +22,13 @@ declare namespace App {
 	}
 }
 
+// Permite que `tsc --noEmit` (sin el language server de Astro) resuelva
+// imports de componentes .astro desde archivos .ts (e.g. stage registries).
+declare module '*.astro' {
+	const component: (props: Record<string, unknown>) => unknown;
+	export default component;
+}
+
 declare module '*.svg' {
 	const src: string;
 	export default src;

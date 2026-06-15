@@ -12,7 +12,7 @@ import {
 import { Field, SubsectionCard } from '../../../../atoms';
 import { COUNTRIES } from '../../../../data/countries';
 import type { ClientFormData, Member } from '../../../../types';
-import { FileUploadField } from '../../../shared/FileUploadField';
+import { ClientFileField } from '../../../shared/ClientFileField';
 
 interface Props {
 	index: number;
@@ -41,13 +41,14 @@ export function MemberAddressSection({
 	}) as Member | undefined;
 
 	const path = `miembros.${index}` as const;
+	const isCompany = member?.tipoSocio === 'empresa';
 
 	const completed = countAddressCompleted(member);
 
 	return (
 		<SubsectionCard
 			kicker="D"
-			title="Dirección del socio"
+			title={isCompany ? 'Dirección de la empresa' : 'Dirección del socio'}
 			completed={completed}
 			total={3}
 			open={open}
@@ -59,7 +60,13 @@ export function MemberAddressSection({
 					name={`${path}.paisFactura`}
 					render={({ field }) => (
 						<Field label="País">
-							<Select value={field.value} onValueChange={field.onChange}>
+							<Select
+								value={field.value}
+								onValueChange={(v) => {
+									field.onChange(v);
+									field.onBlur();
+								}}
+							>
 								<SelectTrigger className="w-full">
 									<SelectValue placeholder="Selecciona" />
 								</SelectTrigger>
@@ -87,18 +94,17 @@ export function MemberAddressSection({
 					/>
 				</Field>
 
-				<Controller
-					control={control}
-					name={`${path}.facturaServicio`}
-					render={({ field }) => (
-						<FileUploadField
-							id={`facturaServicio-${memberId}`}
-							label="Factura de servicio básico"
-							description="Factura donde conste la dirección del miembro."
-							file={field.value}
-							onFileChange={field.onChange}
-						/>
-					)}
+				<ClientFileField
+					fileName={`${path}.facturaServicio`}
+					pathName={`${path}.facturaServicioPath`}
+					slot="member-factura"
+					id={`facturaServicio-${memberId}`}
+					label="Planilla de servicio básico"
+					description={
+						isCompany
+							? 'Planilla o factura donde conste la dirección de la empresa.'
+							: 'Planilla o factura donde conste la dirección del socio.'
+					}
 				/>
 			</div>
 		</SubsectionCard>
@@ -110,6 +116,7 @@ export function countAddressCompleted(member: Member | undefined): number {
 	let n = 0;
 	if (member.paisFactura?.trim()) n++;
 	if (member.direccion?.trim()) n++;
-	if (member.facturaServicio) n++;
+	// Tras recargar el `File` queda en null pero la ruta en Storage persiste.
+	if (member.facturaServicio || member.facturaServicioPath) n++;
 	return n;
 }

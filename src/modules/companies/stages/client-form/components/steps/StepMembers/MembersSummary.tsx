@@ -16,19 +16,14 @@ export function MembersSummary({ members, total }: Props) {
 			<h4 className="text-foreground mb-3 font-medium">Resumen de socios</h4>
 			<div className="space-y-2">
 				{members.map((m, i) => (
-					<div
-						key={m.id}
-						className="flex items-center justify-between text-sm"
-					>
+					<div key={m.id} className="flex items-center justify-between text-sm">
 						<span className="text-foreground">
 							{m.nombreCompleto || `Socio ${i + 1}`}
 						</span>
 						<span
 							className={cn(
 								'font-medium',
-								m.porcentaje > 0
-									? 'text-foreground'
-									: 'text-muted-foreground',
+								m.porcentaje > 0 ? 'text-foreground' : 'text-muted-foreground',
 							)}
 						>
 							{m.porcentaje || 0}%

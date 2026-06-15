@@ -20,12 +20,18 @@ const parseAddressId = (raw: string | undefined) => {
 	return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 };
 
-async function resolveContext({ request, cookies, params }: Parameters<APIRoute>[0]) {
+async function resolveContext({
+	request,
+	cookies,
+	params,
+}: Parameters<APIRoute>[0]) {
 	const incorporationId = params.incorporationId?.trim();
 	const addressId = parseAddressId(params.addressId);
 
 	if (!incorporationId) {
-		return { error: json(400, { ok: false, error: 'MISSING_INCORPORATION_ID' }) };
+		return {
+			error: json(400, { ok: false, error: 'MISSING_INCORPORATION_ID' }),
+		};
 	}
 	if (!addressId) {
 		return { error: json(400, { ok: false, error: 'INVALID_ADDRESS_ID' }) };

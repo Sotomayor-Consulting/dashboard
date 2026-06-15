@@ -25,7 +25,10 @@ import { MemberAddressSection } from './sections/MemberAddressSection';
 import { MemberDocumentsSection } from './sections/MemberDocumentsSection';
 import { MemberIdentitySection } from './sections/MemberIdentitySection';
 import { MemberParticipationSection } from './sections/MemberParticipationSection';
-import { getMemberCompletion } from './sections/member-status';
+import {
+	getMemberCompletion,
+	getMemberMissingFields,
+} from './sections/member-status';
 import { AddSocioButton, SocioPill } from './SocioPill';
 
 type SubsectionKey = 'A' | 'B' | 'C' | 'D';
@@ -114,7 +117,7 @@ export function StepMembers() {
 				</p>
 				<div className="flex flex-col items-start gap-1.5 sm:items-end">
 					<div className="flex items-center gap-1.5 self-start sm:self-end">
-						<KickerLabel>Visibilidad</KickerLabel>
+						<KickerLabel>Confidencialidad</KickerLabel>
 						{hasReason && (
 							<Tooltip>
 								<TooltipTrigger
@@ -186,6 +189,7 @@ export function StepMembers() {
 							percentage={m?.porcentaje ?? 0}
 							status={status}
 							pendingCount={total - completed}
+							missing={getMemberMissingFields(m)}
 							active={idx === activeIndex}
 							onClick={() => {
 								setActiveIdx(idx);
@@ -195,7 +199,16 @@ export function StepMembers() {
 								fields.length > 1
 									? () => {
 											remove(idx);
-											setActiveIdx(Math.max(0, idx === activeIndex ? activeIndex - 1 : activeIndex > idx ? activeIndex - 1 : activeIndex));
+											setActiveIdx(
+												Math.max(
+													0,
+													idx === activeIndex
+														? activeIndex - 1
+														: activeIndex > idx
+															? activeIndex - 1
+															: activeIndex,
+												),
+											);
 											setOpenSection('A');
 										}
 									: undefined
@@ -206,10 +219,8 @@ export function StepMembers() {
 				<AddSocioButton
 					fill={fields.length > 3}
 					disabled={
-						members.reduce(
-							(sum, m) => sum + (Number(m?.porcentaje) || 0),
-							0,
-						) >= 100
+						members.reduce((sum, m) => sum + (Number(m?.porcentaje) || 0), 0) >=
+						100
 					}
 					onClick={() => {
 						// Asignamos automáticamente el % restante al nuevo socio.
@@ -251,7 +262,6 @@ export function StepMembers() {
 						open={openSection === 'D'}
 						onToggle={() => toggleSection('D')}
 					/>
-
 				</div>
 			)}
 		</>

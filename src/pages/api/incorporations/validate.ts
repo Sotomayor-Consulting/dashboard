@@ -95,10 +95,16 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 		jlog(debug_id, 'START', { back });
 
 		// 1) Cliente Supabase SSR
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
 		// 2) Usuario y autorización admin
-		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
+		const {
+			data: { user: actor },
+			error: userErr,
+		} = await supabase.auth.getUser();
 		if (userErr || !actor) {
 			return jsonOk(
 				{
@@ -339,8 +345,8 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 				actividad_no_listada:
 					asString(approved_data?.actividad_en_lista) || 'Si está en la lista',
 				activity_id: approved_data?.activity_id
-						? Number(approved_data.activity_id)
-						: null,
+					? Number(approved_data.activity_id)
+					: null,
 				forma_administracion:
 					asString(approved_data?.forma_administracion) || null,
 				forma_tributacion: asString(approved_data?.forma_tributacion) || null,
@@ -559,7 +565,9 @@ export const POST: APIRoute = async ({ request, cookies, url, locals }) => {
 				ok: false,
 				debug_id,
 				step: 'catch',
-				error: { message: 'Error interno del servidor. Contacta al administrador.' },
+				error: {
+					message: 'Error interno del servidor. Contacta al administrador.',
+				},
 			},
 			500,
 		);

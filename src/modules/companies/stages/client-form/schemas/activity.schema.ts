@@ -4,7 +4,10 @@ import { MAX_FILE_SIZE } from '../constants';
 
 const fileSchema = z
 	.instanceof(File)
-	.refine((f) => f.size <= MAX_FILE_SIZE, 'Archivo demasiado grande (máx. 5 MB)')
+	.refine(
+		(f) => f.size <= MAX_FILE_SIZE,
+		'Archivo demasiado grande (máx. 5 MB)',
+	)
 	.nullable();
 
 /**
@@ -46,36 +49,40 @@ export const activityRefinements: ReadonlyArray<{
 	message: string;
 	path: (string | number)[];
 }> = [
-		{
-			check: (d) => d.actividadNoEnLista || d.actividad.length > 0,
-			message: 'Selecciona una actividad o marca "no está en la lista"',
-			path: ['actividad'],
-		},
-		{
-			check: (d) => d.descripcionActividad.trim().length >= 10,
-			message: 'Describe brevemente tu negocio (mínimo 10 caracteres)',
-			path: ['descripcionActividad'],
-		},
-		{
-			check: (d) =>
-				d.direccionOperativaEEUU !== 'si' ||
-				Boolean(d.direccion && d.ciudad && d.estado && d.codigoPostal),
-			message: 'Completa la dirección en EE. UU.',
-			path: ['direccion'],
-		},
-		{
-			check: (d) =>
-				d.direccionOperativaEEUU !== 'no' ||
-				Boolean(d.pais && d.direccionEmpresa && d.facturaServicioBasico),
-			message: 'Completa país, dirección y factura de servicio básico',
-			path: ['direccionEmpresa'],
-		},
-	];
+	{
+		check: (d) => d.actividadNoEnLista || d.actividad.length > 0,
+		message: 'Selecciona una actividad o marca "no está en la lista"',
+		path: ['actividad'],
+	},
+	{
+		check: (d) => d.descripcionActividad.trim().length >= 10,
+		message: 'Describe brevemente tu negocio (mínimo 10 caracteres)',
+		path: ['descripcionActividad'],
+	},
+	{
+		// La dirección operativa siempre se solicita (la pregunta sí/no/sci
+		// ya no existe; los drafts viejos se normalizan a 'si' al hidratar).
+		check: (d) =>
+			Boolean(
+				d.pais &&
+				d.direccion &&
+				d.ciudad &&
+				(d.pais !== 'Estados Unidos' || (d.estado && d.codigoPostal)),
+			),
+		message: 'Completa la dirección operativa',
+		path: ['direccion'],
+	},
+	{
+		check: (d) => Boolean(d.facturaServicioBasicoEEUU),
+		message: 'Sube la planilla de servicio básico que verifique la dirección',
+		path: ['facturaServicioBasicoEEUU'],
+	},
+];
 
 /** Schema usado para validar el Step 2 de forma aislada. */
 export const activityStepSchema = activityRefinements.reduce(
 	(schema, r) => schema.refine(r.check, { message: r.message, path: r.path }),
-	activityStepBaseSchema
+	activityStepBaseSchema,
 );
 
 export type ActivityStepInput = z.infer<typeof activityStepBaseSchema>;

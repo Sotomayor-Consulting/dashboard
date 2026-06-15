@@ -23,18 +23,16 @@ const adminLabel = (v: ClientFormData['formaAdministracion']) => {
 };
 
 const addressLabel = (data: ClientFormData) => {
-	if (data.direccionOperativaEEUU === 'si') {
-		const parts = [data.direccion, data.ciudad, data.estado, data.codigoPostal]
-			.filter(Boolean)
-			.join(', ');
-		return parts || 'Pendiente';
-	}
-	if (data.direccionOperativaEEUU === 'sci') {
-		return 'Sotomayor proveerá una dirección';
-	}
-	if (data.direccionOperativaEEUU === 'no')
-		return 'Sin dirección operativa en EE. UU.';
-	return 'No especificada';
+	const parts = [
+		data.direccion,
+		data.ciudad,
+		data.estado,
+		data.codigoPostal,
+		data.pais,
+	]
+		.filter(Boolean)
+		.join(', ');
+	return parts || 'Pendiente';
 };
 
 /** Subtítulo de un socio: tipo · país (ej. "Persona Natural · Ecuador"). */

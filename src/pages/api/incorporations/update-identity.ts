@@ -49,11 +49,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 	// Solo persistimos los campos enviados.
 	const update: Record<string, string | null> = {};
-	if (rest.nombre_1 !== undefined) update.nombre_1 = rest.nombre_1.trim() || null;
-	if (rest.nombre_2 !== undefined) update.nombre_2 = rest.nombre_2.trim() || null;
-	if (rest.nombre_3 !== undefined) update.nombre_3 = rest.nombre_3.trim() || null;
+	if (rest.nombre_1 !== undefined)
+		update.nombre_1 = rest.nombre_1.trim() || null;
+	if (rest.nombre_2 !== undefined)
+		update.nombre_2 = rest.nombre_2.trim() || null;
+	if (rest.nombre_3 !== undefined)
+		update.nombre_3 = rest.nombre_3.trim() || null;
 	if (rest.estado_de_incorporacion !== undefined) {
-		update.estado_de_incorporacion = rest.estado_de_incorporacion.trim() || null;
+		update.estado_de_incorporacion =
+			rest.estado_de_incorporacion.trim() || null;
 	}
 
 	if (Object.keys(update).length === 0) {

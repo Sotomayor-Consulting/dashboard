@@ -63,10 +63,10 @@ export function SubsectionCard({
 					<div
 						className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-full border-[1.5px]"
 						style={{
-							background: isComplete ? 'var(--cf-accent)' : 'var(--cf-bg-subtle)',
-							borderColor: isComplete
+							background: isComplete
 								? 'var(--cf-accent)'
-								: 'var(--cf-line)',
+								: 'var(--cf-bg-subtle)',
+							borderColor: isComplete ? 'var(--cf-accent)' : 'var(--cf-line)',
 							color: isComplete ? '#fff' : 'var(--cf-ink-mute)',
 						}}
 					>

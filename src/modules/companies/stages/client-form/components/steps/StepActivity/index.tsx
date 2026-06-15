@@ -4,11 +4,6 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
 import { Checkbox } from '@components/ui/Checkbox';
 import { Textarea } from '@components/ui/Textarea';
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from '@components/ui/Tooltip';
 
 import { Divider, Field, RadioCard, SectionHeader } from '../../../atoms';
 import type { Activity } from '../../../data/activities';
@@ -37,6 +32,7 @@ export function StepActivity({ activities }: Props) {
 		control,
 		register,
 		setValue,
+		getValues,
 		formState: { errors },
 	} = useFormContext<ClientFormData>();
 
@@ -55,12 +51,19 @@ export function StepActivity({ activities }: Props) {
 		name: 'ingresosEEUU',
 	}) as boolean | undefined;
 
-	// Si tiene ingresos de fuente americana → forzar dirección en EE.UU.
+	// La dirección operativa siempre se solicita (ya no existe la pregunta
+	// sí/no); el valor 'si' se mantiene por compatibilidad con el schema.
 	useEffect(() => {
-		if (ingresosEEUU === true) {
-			setValue('direccionOperativaEEUU', 'si');
+		setValue('direccionOperativaEEUU', 'si');
+	}, [setValue]);
+
+	// Si tiene ingresos de fuente americana → preseleccionar Estados Unidos
+	// como país (editable por el usuario).
+	useEffect(() => {
+		if (ingresosEEUU === true && !getValues('pais')) {
+			setValue('pais', 'Estados Unidos');
 		}
-	}, [ingresosEEUU, setValue]);
+	}, [ingresosEEUU, setValue, getValues]);
 
 	return (
 		<>
@@ -272,71 +275,11 @@ export function StepActivity({ activities }: Props) {
 			{/* ═══════ C · UBICACIÓN OPERATIVA ═══════ */}
 			<SectionHeader
 				kicker="C · Ubicación operativa"
-				title="Dirección en Estados Unidos"
-				desc="Indicanos la dirección desde donde opera tu empresa."
+				title="Dirección operativa"
+				desc="Indícanos la dirección desde donde opera tu empresa y sube la planilla de servicio básico que la verifique."
 			/>
 
-			<Controller
-				control={control}
-				name="direccionOperativaEEUU"
-				render={({ field }) => (
-					<Field
-						label={
-							<span className="inline-flex items-center gap-1.5">
-								¿Tienes una dirección en EE. UU.?
-								{ingresosEEUU === true && (
-									<Tooltip>
-										<TooltipTrigger
-											render={
-												<button
-													type="button"
-													className="inline-flex"
-													style={{ color: 'var(--cf-ink-soft)' }}
-													aria-label="Más información"
-												>
-													<Icon
-														icon="ri:information-line"
-														className="h-3.5 w-3.5"
-													/>
-												</button>
-											}
-										/>
-										<TooltipContent className="max-w-xs">
-											Al indicar que tu LLC obtiene ingresos de fuente
-											estadounidense, es necesario contar con una dirección
-											operativa en EE.&nbsp;UU.
-										</TooltipContent>
-									</Tooltip>
-								)}
-							</span>
-						}
-						required
-						error={errors.direccionOperativaEEUU?.message as string | undefined}
-					>
-						<div className="flex flex-col gap-2.5">
-							<RadioCard
-								label="Sí, tengo una dirección"
-								selected={field.value === 'si'}
-								onClick={() => field.onChange('si')}
-							/>
-							<RadioCard
-								label="No, todavía no tengo dirección"
-								selected={field.value === 'no'}
-								onClick={() => field.onChange('no')}
-								disabled={ingresosEEUU === true}
-							/>
-						</div>
-					</Field>
-				)}
-			/>
-
-			{/* Bloque anidado con border-left visible cuando aplica */}
-			<div
-				className="mt-4 ml-[18px] border-l-2 pl-[22px]"
-				style={{ borderColor: 'var(--cf-line)' }}
-			>
-				<OperativeAddressFields />
-			</div>
+			<OperativeAddressFields />
 		</>
 	);
 }

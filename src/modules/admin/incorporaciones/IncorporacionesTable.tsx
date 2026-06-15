@@ -56,7 +56,7 @@ function SortableTh({
 			<button
 				type="button"
 				onClick={() => onClick(keyId)}
-				className="inline-flex items-center gap-1 uppercase tracking-wider hover:text-gray-900 dark:hover:text-gray-100"
+				className="inline-flex items-center gap-1 tracking-wider uppercase hover:text-gray-900 dark:hover:text-gray-100"
 			>
 				{label}
 				{active && (
@@ -154,9 +154,7 @@ export function IncorporacionesTable({
 							/>
 						)}
 						{visibleColumns.actions && (
-							<th className="w-12 py-3 pr-7 text-right">
-								<span className="sr-only">Acciones</span>
-							</th>
+							<th className="w-32 py-3 pr-7 text-right">Acciones</th>
 						)}
 					</tr>
 				</thead>
@@ -169,7 +167,7 @@ export function IncorporacionesTable({
 								key={c.id}
 								onClick={() => onSelect(c.id)}
 								className={cn(
-									'h-14 cursor-pointer border-b border-gray-100 transition-colors dark:border-gray-800/60',
+									'group/row h-14 cursor-pointer border-b border-gray-100 transition-colors dark:border-gray-800/60',
 									isOpen || rowSelected
 										? 'bg-gray-100 dark:bg-neutral-900'
 										: 'hover:bg-gray-50 dark:hover:bg-neutral-900/60',

@@ -1,9 +1,6 @@
 import type { APIRoute } from 'astro';
 import { updateIncorporationDetails } from '@domains/companies/incorporation-details';
-import {
-	json,
-	requireCompanyDataManager,
-} from '@shared/api/company-data';
+import { json, requireCompanyDataManager } from '@shared/api/company-data';
 import { createLogger } from '@infrastructure/logging';
 
 export const prerender = false;

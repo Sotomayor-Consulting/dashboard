@@ -16,7 +16,10 @@ Chart.register(
 	...registerables,
 );
 
-let chartInstance: Chart | null = null;
+let chartInstance: Chart<
+	'choropleth',
+	{ feature: any; value: number; highlighted: boolean }[]
+> | null = null;
 
 export async function renderizarMapaEstados(
 	containerId: string,

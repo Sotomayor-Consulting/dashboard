@@ -24,9 +24,7 @@ export function SideSummary({ items }: Props) {
 					className="flex flex-col gap-1 py-3"
 					style={{
 						borderBottom:
-							idx < items.length - 1
-								? '1px solid var(--cf-line)'
-								: 'none',
+							idx < items.length - 1 ? '1px solid var(--cf-line)' : 'none',
 					}}
 				>
 					<div

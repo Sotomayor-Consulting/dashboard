@@ -38,9 +38,7 @@ export function FormFooter({
 	hidePrev,
 	leftMeta,
 }: Props) {
-	const nextDisabled = isLastStep
-		? !canSubmit || isSubmitting
-		: !canGoNext;
+	const nextDisabled = isLastStep ? !canSubmit || isSubmitting : !canGoNext;
 
 	const showCheckIcon = isLastStep;
 	const finalLabel = nextLabel
@@ -77,8 +75,7 @@ export function FormFooter({
 							background:
 								currentStep <= 1 ? 'var(--cf-bg-subtle)' : 'var(--cf-bg-card)',
 							borderColor: 'var(--cf-line)',
-							color:
-								currentStep <= 1 ? 'var(--cf-ink-faint)' : 'var(--cf-ink)',
+							color: currentStep <= 1 ? 'var(--cf-ink-faint)' : 'var(--cf-ink)',
 						}}
 					>
 						<Icon icon="ri:arrow-left-line" className="h-3.5 w-3.5" />
@@ -102,9 +99,7 @@ export function FormFooter({
 					disabled={nextDisabled}
 					className={cn(
 						'inline-flex h-10 items-center gap-2 rounded-lg border-0 px-[18px] text-[14px] font-medium tracking-[-0.005em] transition-all',
-						nextDisabled
-							? 'cursor-default'
-							: 'cursor-pointer hover:opacity-90',
+						nextDisabled ? 'cursor-default' : 'cursor-pointer hover:opacity-90',
 						isLastStep && !nextDisabled && '!h-[42px] !px-5',
 					)}
 					style={{
@@ -119,9 +114,7 @@ export function FormFooter({
 								? '#fff'
 								: 'var(--cf-bg-card)',
 						boxShadow:
-							isLastStep && !nextDisabled
-								? 'var(--cf-shadow-cta)'
-								: undefined,
+							isLastStep && !nextDisabled ? 'var(--cf-shadow-cta)' : undefined,
 					}}
 				>
 					{finalLabel}

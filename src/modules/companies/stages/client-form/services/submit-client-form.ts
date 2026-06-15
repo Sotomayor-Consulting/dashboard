@@ -1,32 +1,60 @@
 import type { ClientFormData } from '../types';
+import { toIncorporationFormPayload } from '../payload';
 
 export interface SubmitClientFormResult {
 	ok: boolean;
 	message?: string;
 	redirectTo?: string;
+	/** Errores de validación de integridad del servidor (si los hay). */
+	details?: string[];
 }
 
 /**
- * STUB. Cuando definamos el endpoint:
- * 1. Subir archivos a Supabase Storage (pasaportes + facturas).
- * 2. POST a /api/incorporations/... con el payload sin Files.
- * 3. Devolver `redirectTo` para que el wizard navegue tras éxito.
- *
- * Por ahora solo loguea y simula éxito.
+ * Submit final del wizard. Proyecta el state al payload v1 y lo envía al
+ * endpoint de staging, que valida, sube la firma y marca `submitted`.
+ * Los archivos discretos (pasaporte/factura) ya se subieron al seleccionarlos,
+ * así que aquí solo viaja JSON (incluida la firma como dataURL).
  */
 export async function submitClientForm(
 	data: ClientFormData,
 	context: { empresaId: string },
 ): Promise<SubmitClientFormResult> {
-	if (import.meta.env.DEV) {
-		console.info('[client-form] submit (stub)', { empresaId: context.empresaId, data });
+	const payload = toIncorporationFormPayload(data);
+
+	try {
+		const res = await fetch(
+			`/api/incorporations/${context.empresaId}/form/submit`,
+			{
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ payload }),
+			},
+		);
+		const result = (await res.json().catch(() => null)) as {
+			ok: boolean;
+			redirectTo?: string;
+			error?: string;
+			details?: string[];
+		} | null;
+
+		if (!res.ok || !result?.ok) {
+			const details = Array.isArray(result?.details)
+				? result.details
+				: undefined;
+			return {
+				ok: false,
+				message: details?.length
+					? details.join(' · ')
+					: (result?.error ?? 'No se pudo enviar el formulario.'),
+				...(details ? { details } : {}),
+			};
+		}
+
+		return {
+			ok: true,
+			...(result.redirectTo ? { redirectTo: result.redirectTo } : {}),
+		};
+	} catch {
+		return { ok: false, message: 'Error de red al enviar el formulario.' };
 	}
-
-	// TODO: implementar upload de archivos + POST al backend.
-	await new Promise((resolve) => setTimeout(resolve, 250));
-
-	return {
-		ok: true,
-		redirectTo: '/?status=success&msg=Tu formulario se subió correctamente.',
-	};
 }

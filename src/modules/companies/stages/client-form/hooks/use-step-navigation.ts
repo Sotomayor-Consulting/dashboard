@@ -21,9 +21,7 @@ const scrollToTop = () => {
 	}
 };
 
-export function useStepNavigation(
-	initial: StepId = 1,
-): UseStepNavigationApi {
+export function useStepNavigation(initial: StepId = 1): UseStepNavigationApi {
 	const [currentStep, setCurrentStep] = useState<StepId>(initial);
 
 	const goNext = useCallback(() => {

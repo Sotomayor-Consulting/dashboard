@@ -1,10 +1,21 @@
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
 import { Input } from '@components/ui/Input';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@components/ui/Select';
 
 import { Field, SubsectionCard } from '../../../../atoms';
+import {
+	FISCAL_ID_TYPES,
+	fiscalIdTypeLabel,
+} from '../../../../data/fiscal-id-types';
 import type { ClientFormData, Member } from '../../../../types';
-import { FileUploadField } from '../../../shared/FileUploadField';
+import { ClientFileField } from '../../../shared/ClientFileField';
 
 interface Props {
 	index: number;
@@ -44,7 +55,8 @@ export function MemberDocumentsSection({
 	const path = `miembros.${index}` as const;
 	const memberErrors = errors.miembros?.[index];
 
-	const isResident = member?.residenteFiscalEEUU === true;
+	const isCompany = member?.tipoSocio === 'empresa';
+	const isResident = !isCompany && member?.residenteFiscalEEUU === true;
 	const completed = countDocumentsCompleted(member);
 	const total = 3;
 
@@ -58,7 +70,63 @@ export function MemberDocumentsSection({
 			onToggle={onToggle}
 		>
 			<div className="flex flex-col gap-[18px]">
-				{isResident ? (
+				{isCompany ? (
+					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+						<Controller
+							control={control}
+							name={`${path}.tipoIdentificacionFiscal`}
+							render={({ field }) => (
+								<Field
+									label="Tipo de identificación"
+									required
+									error={
+										memberErrors?.tipoIdentificacionFiscal?.message as
+											| string
+											| undefined
+									}
+								>
+									<Select
+										value={field.value}
+										onValueChange={(v) => {
+											field.onChange(v);
+											field.onBlur();
+										}}
+									>
+										<SelectTrigger className="w-full">
+											<SelectValue placeholder="Selecciona">
+												{(value) =>
+													fiscalIdTypeLabel(value as string) || 'Selecciona'
+												}
+											</SelectValue>
+										</SelectTrigger>
+										<SelectContent>
+											{FISCAL_ID_TYPES.map((t) => (
+												<SelectItem key={t.value} value={t.value}>
+													{t.label}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</Field>
+							)}
+						/>
+						<Field
+							label="Número de identificación"
+							hint="Número de identificación tributaria de la empresa (EIN, RUC u otro)."
+							required
+							htmlFor={`${path}.numeroPasaporte`}
+							error={
+								memberErrors?.numeroPasaporte?.message as string | undefined
+							}
+						>
+							<Input
+								id={`${path}.numeroPasaporte`}
+								{...register(`${path}.numeroPasaporte`)}
+								placeholder="12-3456789"
+							/>
+						</Field>
+					</div>
+				) : isResident ? (
 					<Field
 						label="Número de SSN"
 						hint="Social Security Number — requerido para residentes fiscales en EE. UU."
@@ -101,17 +169,20 @@ export function MemberDocumentsSection({
 					</div>
 				)}
 
-				<Controller
-					control={control}
-					name={`${path}.pasaporte`}
-					render={({ field }) => (
-						<FileUploadField
-							id={`pasaporte-${memberId}`}
-							label="Pasaporte (escaneo)"
-							file={field.value}
-							onFileChange={field.onChange}
-						/>
-					)}
+				<ClientFileField
+					fileName={`${path}.pasaporte`}
+					pathName={`${path}.pasaportePath`}
+					slot="member-pasaporte"
+					id={`pasaporte-${memberId}`}
+					label={
+						isCompany
+							? 'Certificado de existencia (escaneo)'
+							: 'Pasaporte (escaneo)'
+					}
+					{...(isCompany && {
+						description:
+							'Certificado de existencia y representación legal (o acta de constitución) de la empresa socia.',
+					})}
 				/>
 			</div>
 		</SubsectionCard>
@@ -120,9 +191,14 @@ export function MemberDocumentsSection({
 
 export function countDocumentsCompleted(member: Member | undefined): number {
 	if (!member) return 0;
-	const isResident = member.residenteFiscalEEUU === true;
+	const isCompany = member.tipoSocio === 'empresa';
+	const isResident = !isCompany && member.residenteFiscalEEUU === true;
 	let n = 0;
-	if (isResident) {
+	if (isCompany) {
+		// Tipo (EIN/RUC/Otro) + número (reutiliza numeroPasaporte).
+		if (member.tipoIdentificacionFiscal) n++;
+		if (member.numeroPasaporte?.trim()) n++;
+	} else if (isResident) {
 		if (member.ssn?.trim()) n++;
 		// Aún se cuenta 3 total para consistencia; el "campo identificador"
 		// vale 1 y ITIN siempre se cuenta como completo (opcional).

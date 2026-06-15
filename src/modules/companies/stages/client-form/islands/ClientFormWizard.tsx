@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FormProvider, useForm, useFormState, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import '../icons'; // Registra el set `ri` de iconify offline (side-effect).
@@ -21,11 +21,14 @@ import {
 } from '../schemas/client-form.schema';
 import { getIncorporationRules } from '../data/incorporation-rules';
 import { IncorporationRulesProvider } from '../data/incorporation-rules-context';
+import { IncorporationProvider } from '../context/incorporation-context';
 import type {
 	EstadoOption,
 	IncorporationIdentity,
 } from '../services/get-client-form-data';
 import { submitClientForm } from '../services/submit-client-form';
+import { saveClientDraft } from '../services/save-client-draft';
+import { parseIncorporationFormPayload } from '../payload';
 import { FormShell, type SideSummaryItem } from '../shell';
 import type { ClientFormData, StepId } from '../types';
 import { MembersAllocationBar } from '../components/steps/StepMembers/MembersAllocationBar';
@@ -56,6 +59,7 @@ const FIELD_STEP: Record<string, StepId> = {
 	pais: 2,
 	direccionEmpresa: 2,
 	facturaServicioBasico: 2,
+	facturaServicioBasicoEEUU: 2,
 	miembros: 3,
 	informacionMiembrosPublica: 3,
 	managerSCI: 4,
@@ -75,6 +79,179 @@ function firstErrorStep(errorKeys: string[]): StepId | null {
 		.filter((s): s is StepId => s !== undefined);
 	if (steps.length === 0) return null;
 	return steps.sort((a, b) => a - b)[0] ?? null;
+}
+
+/**
+ * Inverso de FIELD_STEP: los campos que el `trigger` debe validar al pulsar
+ * "Siguiente" en cada paso. Solo incluye los pasos con campos validables
+ * (el paso 1 es la pantalla de bienvenida y no tiene validación).
+ */
+const STEP_FIELDS = (
+	Object.entries(FIELD_STEP) as [keyof ClientFormData, StepId][]
+).reduce(
+	(acc, [field, step]) => {
+		(acc[step] ??= []).push(field);
+		return acc;
+	},
+	{} as Record<StepId, (keyof ClientFormData)[]>,
+);
+
+/**
+ * Etiqueta de respaldo por campo, usada cuando el nodo de error no trae un
+ * mensaje propio (raro: casi todos los refinements de zod ya tienen mensaje).
+ */
+const FIELD_LABEL: Record<string, string> = {
+	ingresosEEUU: 'Indica si tendrás ingresos de EE. UU.',
+	actividad: 'Selecciona la actividad económica',
+	descripcionActividad: 'Describe tu giro de negocio',
+	formaAdministracion: 'Selecciona la forma de administración',
+	formaTributacion: 'Selecciona la forma de tributar',
+	direccion: 'Completa la dirección operativa',
+	pais: 'Selecciona el país',
+	ciudad: 'Indica la ciudad',
+	estado: 'Selecciona el estado',
+	codigoPostal: 'Indica el código postal',
+	facturaServicioBasicoEEUU: 'Sube la planilla de servicio básico',
+	managerSCI: 'Define al menos un manager',
+	responsableIRS: 'Selecciona al responsable frente al IRS',
+	firma: 'Dibuja o sube tu firma',
+	aceptaTerminos: 'Acepta los términos y condiciones',
+};
+
+/** Extrae el primer mensaje legible de un nodo de error de react-hook-form. */
+function nodeMessage(node: unknown): string | null {
+	if (!node || typeof node !== 'object') return null;
+	const msg = (node as { message?: unknown }).message;
+	return typeof msg === 'string' && msg.length > 0 ? msg : null;
+}
+
+/**
+ * Grupo de errores: los generales del paso van sin etiqueta (`label: null`);
+ * los de socios/managers se agrupan bajo "Socio 01", "Manager 02", etc., para
+ * no repetir el prefijo en cada línea.
+ */
+interface ErrorGroup {
+	label: string | null;
+	messages: string[];
+}
+
+/** Resumen estructurado de errores que consume el banner. */
+interface FormErrorSummary {
+	/** Título principal (conteo). */
+	title: string;
+	/** Eyebrow opcional: "Paso 03 · Miembros". */
+	eyebrow?: string;
+	/** Grupos a listar (vacío → solo se muestra el título). */
+	groups: ErrorGroup[];
+	/** Nº de mensajes ocultos por el cap, para el "+ N más". */
+	overflow: number;
+}
+
+/** Máximo de líneas de detalle mostradas antes de colapsar en "+ N más". */
+const MAX_ERROR_LINES = 6;
+
+/**
+ * Recolecta los errores del paso indicado, agrupados. Para `miembros`/`managers`
+ * cada entrada inválida produce un grupo con su etiqueta ("Socio 01") y la lista
+ * de mensajes concretos del schema; el resto cae en el grupo general.
+ */
+function collectStepErrors(
+	errors: Record<string, unknown>,
+	step: StepId,
+): ErrorGroup[] {
+	const general: string[] = [];
+	const entityGroups: ErrorGroup[] = [];
+
+	const collectArray = (node: unknown, label: string) => {
+		const rootMsg = nodeMessage(node);
+		if (rootMsg) general.push(rootMsg);
+		if (Array.isArray(node)) {
+			node.forEach((entry, i) => {
+				if (!entry || typeof entry !== 'object') return;
+				const msgs: string[] = [];
+				for (const field of Object.keys(entry)) {
+					const m = nodeMessage((entry as Record<string, unknown>)[field]);
+					if (m) msgs.push(m);
+				}
+				if (msgs.length > 0) {
+					entityGroups.push({
+						label: `${label} ${String(i + 1).padStart(2, '0')}`,
+						messages: [...new Set(msgs)],
+					});
+				}
+			});
+		}
+	};
+
+	for (const key of Object.keys(errors)) {
+		if (FIELD_STEP[key] !== step) continue;
+		if (key === 'miembros') collectArray(errors[key], 'Socio');
+		else if (key === 'managers') collectArray(errors[key], 'Manager');
+		else general.push(nodeMessage(errors[key]) ?? FIELD_LABEL[key] ?? key);
+	}
+
+	const groups: ErrorGroup[] = [];
+	if (general.length > 0)
+		groups.push({ label: null, messages: [...new Set(general)] });
+	groups.push(...entityGroups);
+	return groups;
+}
+
+/**
+ * Construye el resumen estructurado del banner para un paso concreto.
+ * El conteo del título usa el total real; la lista se recorta a
+ * `MAX_ERROR_LINES` y el resto se anuncia con `overflow`.
+ */
+function buildStepErrorSummary(
+	errors: Record<string, unknown>,
+	step: StepId,
+): FormErrorSummary {
+	const stepName = STEPS.find((s) => s.id === step)?.title ?? '';
+	const groups = collectStepErrors(errors, step);
+	const total = groups.reduce((n, g) => n + g.messages.length, 0);
+
+	// Recorte respetando los grupos (no parte una entidad por la mitad).
+	let budget = MAX_ERROR_LINES;
+	let overflow = 0;
+	const trimmed: ErrorGroup[] = [];
+	for (const g of groups) {
+		if (budget <= 0) {
+			overflow += g.messages.length;
+			continue;
+		}
+		const take = g.messages.slice(0, budget);
+		overflow += g.messages.length - take.length;
+		budget -= take.length;
+		trimmed.push({ label: g.label, messages: take });
+	}
+
+	const title =
+		total === 1
+			? 'Falta 1 campo por completar'
+			: total > 0
+				? `Faltan ${total} campos por completar`
+				: 'Revisa los campos marcados en rojo';
+
+	return {
+		title,
+		eyebrow: `Paso ${String(step).padStart(2, '0')}${stepName ? ` · ${stepName}` : ''}`,
+		groups: trimmed,
+		overflow,
+	};
+}
+
+/** Resumen genérico para errores que no mapean a un paso concreto. */
+function genericErrorSummary(): FormErrorSummary {
+	return {
+		title: 'Hay datos pendientes o inválidos',
+		groups: [{ label: null, messages: ['Revisa los pasos del formulario.'] }],
+		overflow: 0,
+	};
+}
+
+/** Envuelve un mensaje simple (errores de red/submit) en el shape del banner. */
+function messageSummary(text: string): FormErrorSummary {
+	return { title: text, groups: [], overflow: 0 };
 }
 
 export default function ClientFormWizard({
@@ -101,20 +278,43 @@ export default function ClientFormWizard({
 	const methods = useForm<ClientFormData, unknown, ClientFormInput>({
 		resolver: zodResolver(clientFormSchema),
 		defaultValues: createInitialFormData(),
-		mode: 'onSubmit',
+		// onTouched: valida un campo al perder el foco (tras tocarlo) para dar
+		// feedback inline temprano; el gate duro vive en el `trigger` por-paso
+		// del botón "Siguiente" (ver handleNext) y en el submit final.
+		mode: 'onTouched',
 	});
 
 	const { control, handleSubmit, reset } = methods;
 
-	// Cargar draft al montar (sólo cliente).
+	// Cargar draft al montar: primero el local (instantáneo); si no existe, se
+	// intenta el borrador del servidor (staging) para continuar cross-device.
 	const [hydrated, setHydrated] = useState(false);
 	useEffect(() => {
-		const draft = loadDraft();
-		if (draft) reset(draft);
-		setHydrated(true);
-	}, [loadDraft, reset]);
+		let cancelled = false;
+		const local = loadDraft();
+		if (local) {
+			reset(local);
+			setHydrated(true);
+			return;
+		}
+		void fetch(`/api/incorporations/${empresaId}/form`)
+			.then((r) => r.json())
+			.then((res) => {
+				if (cancelled) return;
+				if (res?.ok && res.data?.payload) {
+					reset(parseIncorporationFormPayload(res.data.payload));
+				}
+			})
+			.catch(() => {})
+			.finally(() => {
+				if (!cancelled) setHydrated(true);
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, [loadDraft, reset, empresaId]);
 
-	// Autosave con debounce — observa todo el form.
+	// Autosave local con debounce — observa todo el form.
 	const watched = useWatch<ClientFormData>({ control }) as ClientFormData;
 	useEffect(() => {
 		if (!hydrated) return;
@@ -132,11 +332,42 @@ export default function ClientFormWizard({
 	// Navegación de steps.
 	const { currentStep, goNext, goPrev, goTo } = useStepNavigation(1);
 
+	// Autosave write-through al staging del servidor (debounce mayor que el local).
+	const serverSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	useEffect(() => {
+		if (!hydrated) return;
+		if (serverSaveTimer.current) clearTimeout(serverSaveTimer.current);
+		serverSaveTimer.current = setTimeout(() => {
+			void saveClientDraft(watched, {
+				incorporationId: empresaId,
+				step: currentStep,
+			});
+		}, 1500);
+		return () => {
+			if (serverSaveTimer.current) clearTimeout(serverSaveTimer.current);
+		};
+	}, [watched, hydrated, empresaId, currentStep]);
+
 	// Estado del submit.
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [submitError, setSubmitError] = useState<string | null>(null);
+	const [submitError, setSubmitError] = useState<FormErrorSummary | null>(null);
 
-	// Bloqueos por step (igual que el original: en step 3 se exige % === 100).
+	// Suscripción reactiva a los errores del form para auto-limpiar el banner:
+	// en cuanto el paso actual deja de tener errores (el usuario corrigió lo que
+	// faltaba), el mensaje desaparece en vez de quedarse "stale".
+	const { errors: liveErrors } = useFormState({ control });
+	useEffect(() => {
+		if (!submitError) return;
+		const fields = STEP_FIELDS[currentStep];
+		if (!fields) return;
+		const stepStillHasError = fields.some(
+			(f) => (liveErrors as Record<string, unknown>)[f] != null,
+		);
+		if (!stepStillHasError) setSubmitError(null);
+	}, [liveErrors, currentStep, submitError]);
+
+	// Porcentaje asignado — solo para mostrar (barra de asignación + resumen).
+	// El gate de "suma 100%" lo aplica el schema vía `handleNext` al avanzar.
 	const totalPercentage = useMemo(
 		() =>
 			(watched?.miembros ?? []).reduce(
@@ -145,8 +376,6 @@ export default function ClientFormWizard({
 			),
 		[watched],
 	);
-	const canGoNext = currentStep === 3 ? totalPercentage === 100 : true;
-	const canSubmit = !!watched?.aceptaTerminos;
 
 	const onSubmit = useCallback(
 		async (data: ClientFormInput) => {
@@ -155,7 +384,11 @@ export default function ClientFormWizard({
 			try {
 				const result = await submitClientForm(data, { empresaId });
 				if (!result.ok) {
-					setSubmitError(result.message ?? 'No se pudo enviar el formulario.');
+					setSubmitError(
+						messageSummary(
+							result.message ?? 'No se pudo enviar el formulario.',
+						),
+					);
 					return;
 				}
 				clearDraft();
@@ -164,13 +397,42 @@ export default function ClientFormWizard({
 				}
 			} catch (e) {
 				console.error(e);
-				setSubmitError('Ocurrió un error al enviar el formulario.');
+				setSubmitError(
+					messageSummary('Ocurrió un error al enviar el formulario.'),
+				);
 			} finally {
 				setIsSubmitting(false);
 			}
 		},
 		[empresaId, clearDraft],
 	);
+
+	/**
+	 * Gate por-paso: valida solo los campos del paso actual antes de avanzar.
+	 * El botón "Siguiente" queda SIEMPRE habilitado (no se deshabilita); si la
+	 * validación falla, no avanza, enfoca el primer campo inválido y muestra el
+	 * detalle de lo que falta. Es la pieza que garantiza consistencia paso a paso.
+	 */
+	const handleNext = useCallback(async () => {
+		const fields = STEP_FIELDS[currentStep];
+		if (!fields || fields.length === 0) {
+			setSubmitError(null);
+			goNext();
+			return;
+		}
+		const valid = await methods.trigger(fields, { shouldFocus: true });
+		if (!valid) {
+			setSubmitError(
+				buildStepErrorSummary(
+					methods.formState.errors as Record<string, unknown>,
+					currentStep,
+				),
+			);
+			return;
+		}
+		setSubmitError(null);
+		goNext();
+	}, [currentStep, methods, goNext]);
 
 	const triggerSubmit = useCallback(() => {
 		void handleSubmit(onSubmit, (errors) => {
@@ -180,12 +442,10 @@ export default function ClientFormWizard({
 			if (errorStep) {
 				goTo(errorStep);
 				setSubmitError(
-					`Faltan datos obligatorios en el paso ${String(errorStep).padStart(2, '0')}. Revisa los campos marcados en rojo.`,
+					buildStepErrorSummary(errors as Record<string, unknown>, errorStep),
 				);
 			} else {
-				setSubmitError(
-					'Hay datos pendientes o inválidos. Revisa los pasos del formulario.',
-				);
+				setSubmitError(genericErrorSummary());
 			}
 		})();
 	}, [handleSubmit, onSubmit, goTo]);
@@ -294,13 +554,12 @@ export default function ClientFormWizard({
 					</span>
 					<button
 						type="button"
-						onClick={goNext}
-						disabled={!canGoNext}
-						className="inline-flex h-10 items-center gap-2 rounded-lg px-[18px] text-[14px] font-medium transition-all"
+						onClick={handleNext}
+						className="inline-flex h-10 items-center gap-2 rounded-lg px-[18px] text-[14px] font-medium transition-all hover:opacity-90"
 						style={{
-							background: canGoNext ? 'var(--cf-ink)' : 'var(--cf-bg-subtle)',
-							color: canGoNext ? 'var(--cf-bg-card)' : 'var(--cf-ink-faint)',
-							cursor: canGoNext ? 'pointer' : 'default',
+							background: 'var(--cf-ink)',
+							color: 'var(--cf-bg-card)',
+							cursor: 'pointer',
 						}}
 					>
 						Siguiente
@@ -323,64 +582,160 @@ export default function ClientFormWizard({
 
 	return (
 		<FormProvider {...methods}>
-			<IncorporationRulesProvider value={rules}>
-				<form onSubmit={(e) => e.preventDefault()}>
-					<FormShell
-						currentStep={currentStep}
-						eyebrow={stepEyebrow}
-						title={stepTitle}
-						summary={summary}
-						footer={membersFooter}
-						onPrev={goPrev}
-						onNext={isLastStep ? triggerSubmit : goNext}
-						onStepClick={goTo}
-						canGoNext={canGoNext}
-						canSubmit={canSubmit}
-						isSubmitting={isSubmitting}
-						hidePrev={currentStep === 1}
-						nextLabel={currentStep === 1 ? 'Comenzar formulario' : undefined}
-					>
-						<AnimatePresence mode="wait">
-							<motion.div
-								key={currentStep}
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: -10 }}
-								transition={{ duration: 0.25 }}
-							>
-								{currentStep === 1 && (
-									<StepWelcome
-										empresaId={empresaId}
-										nameOptions={identity.nameOptions}
-										estado={estadoIncorporacion}
-										estados={estados}
-										onEstadoChange={setEstadoIncorporacion}
-									/>
-								)}
-								{currentStep === 2 && <StepActivity activities={activities} />}
-								{currentStep === 3 && <StepMembers />}
-								{currentStep === 4 && <StepManager />}
-								{currentStep === 5 && (
-									<StepConfirmation activities={activities} onEditStep={goTo} />
-								)}
-							</motion.div>
-						</AnimatePresence>
+			<IncorporationProvider incorporationId={empresaId}>
+				<IncorporationRulesProvider value={rules}>
+					<form onSubmit={(e) => e.preventDefault()}>
+						<FormShell
+							currentStep={currentStep}
+							eyebrow={stepEyebrow}
+							title={stepTitle}
+							summary={summary}
+							footer={membersFooter}
+							onPrev={goPrev}
+							onNext={isLastStep ? triggerSubmit : handleNext}
+							onStepClick={goTo}
+							// Botones siempre habilitados: la validación ocurre al hacer
+							// clic (handleNext / triggerSubmit), no deshabilitando el botón.
+							canGoNext={true}
+							canSubmit={true}
+							isSubmitting={isSubmitting}
+							hidePrev={currentStep === 1}
+							nextLabel={currentStep === 1 ? 'Comenzar formulario' : undefined}
+						>
+							<AnimatePresence mode="wait">
+								<motion.div
+									key={currentStep}
+									initial={{ opacity: 0, y: 10 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: -10 }}
+									transition={{ duration: 0.25 }}
+								>
+									{currentStep === 1 && (
+										<StepWelcome
+											empresaId={empresaId}
+											nameOptions={identity.nameOptions}
+											estado={estadoIncorporacion}
+											estados={estados}
+											onEstadoChange={setEstadoIncorporacion}
+										/>
+									)}
+									{currentStep === 2 && (
+										<StepActivity activities={activities} />
+									)}
+									{currentStep === 3 && <StepMembers />}
+									{currentStep === 4 && <StepManager />}
+									{currentStep === 5 && (
+										<StepConfirmation
+											activities={activities}
+											onEditStep={goTo}
+										/>
+									)}
+								</motion.div>
+							</AnimatePresence>
 
-						{submitError && (
-							<div
-								className="mt-4 rounded-lg border p-3 text-sm"
-								style={{
-									background: 'var(--cf-danger-soft)',
-									borderColor: 'var(--cf-danger-border)',
-									color: 'var(--cf-danger)',
-								}}
-							>
-								{submitError}
-							</div>
-						)}
-					</FormShell>
-				</form>
-			</IncorporationRulesProvider>
+							{submitError && (
+								<div
+									role="alert"
+									aria-live="assertive"
+									className="sticky bottom-4 z-10 mt-4 flex items-start gap-3 rounded-xl border p-4 text-sm shadow-lg"
+									style={{
+										background: 'var(--cf-danger-soft)',
+										borderColor: 'var(--cf-danger-border)',
+										color: 'var(--cf-danger)',
+									}}
+								>
+									{/* Icono de alerta */}
+									<svg
+										className="mt-0.5 shrink-0"
+										width="18"
+										height="18"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
+										<circle cx="12" cy="12" r="10" />
+										<path d="M12 8v4M12 16h.01" />
+									</svg>
+
+									<div className="min-w-0 flex-1">
+										<p className="font-semibold tracking-[-0.01em]">
+											{submitError.title}
+										</p>
+										{submitError.eyebrow && (
+											<p
+												className="mt-0.5 text-[12px] tracking-[0.02em] uppercase opacity-70"
+												style={{ color: 'var(--cf-danger)' }}
+											>
+												{submitError.eyebrow}
+											</p>
+										)}
+
+										{submitError.groups.length > 0 && (
+											<div className="mt-2.5 flex flex-col gap-2.5">
+												{submitError.groups.map((group, gi) => (
+													<div key={group.label ?? `g${gi}`}>
+														{group.label && (
+															<p className="text-[11.5px] font-semibold tracking-[0.04em] uppercase opacity-60">
+																{group.label}
+															</p>
+														)}
+														<ul className="mt-1 flex flex-col gap-1">
+															{group.messages.map((msg, mi) => (
+																<li
+																	key={mi}
+																	className="flex items-start gap-2 leading-snug"
+																>
+																	<span
+																		className="mt-1.5 h-1 w-1 shrink-0 rounded-full"
+																		style={{ background: 'currentColor' }}
+																		aria-hidden="true"
+																	/>
+																	<span className="flex-1">{msg}</span>
+																</li>
+															))}
+														</ul>
+													</div>
+												))}
+												{submitError.overflow > 0 && (
+													<p className="text-[12.5px] opacity-70">
+														y {submitError.overflow} campo
+														{submitError.overflow === 1 ? '' : 's'} más…
+													</p>
+												)}
+											</div>
+										)}
+									</div>
+
+									<button
+										type="button"
+										onClick={() => setSubmitError(null)}
+										aria-label="Cerrar aviso"
+										className="-m-1 shrink-0 rounded p-1 leading-none opacity-70 transition-opacity hover:opacity-100"
+										style={{ color: 'var(--cf-danger)' }}
+									>
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										>
+											<path d="M18 6 6 18M6 6l12 12" />
+										</svg>
+									</button>
+								</div>
+							)}
+						</FormShell>
+					</form>
+				</IncorporationRulesProvider>
+			</IncorporationProvider>
 		</FormProvider>
 	);
 }

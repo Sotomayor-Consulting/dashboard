@@ -1,10 +1,7 @@
 import { z } from 'zod';
 
 import type { ClientFormData } from '../types';
-import {
-	activityRefinements,
-	activityStepBaseSchema,
-} from './activity.schema';
+import { activityRefinements, activityStepBaseSchema } from './activity.schema';
 import { confirmationStepSchema } from './confirmation.schema';
 import { managerSchema } from './manager.schema';
 import { memberSchema } from './member.schema';
@@ -48,6 +45,14 @@ const crossStepRefinements: ReadonlyArray<{
 	{
 		check: (d) => d.miembros.some((m) => m.id === d.responsableIRS),
 		message: 'El responsable frente al IRS debe ser uno de los socios',
+		path: ['responsableIRS'],
+	},
+	{
+		check: (d) =>
+			d.miembros.find((m) => m.id === d.responsableIRS)?.tipoSocio !==
+			'empresa',
+		message:
+			'El responsable frente al IRS debe ser una persona natural; un socio tipo Empresa no puede serlo',
 		path: ['responsableIRS'],
 	},
 	{

@@ -19,6 +19,13 @@ interface Props {
 	accept?: string;
 	maxSizeLabel?: string;
 	error?: string;
+	/** Indica que el archivo se está subiendo al seleccionarlo. */
+	uploading?: boolean;
+	/**
+	 * Nombre a mostrar cuando el archivo ya fue subido pero no hay `File` en
+	 * memoria (p. ej. tras recargar). Permite el estado "cargado" sin el File.
+	 */
+	uploadedName?: string | null;
 }
 
 export function FileUploadField({
@@ -30,6 +37,8 @@ export function FileUploadField({
 	accept = '.pdf,.jpg,.jpeg,.png',
 	maxSizeLabel = MAX_FILE_SIZE_LABEL,
 	error,
+	uploading = false,
+	uploadedName = null,
 }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +58,9 @@ export function FileUploadField({
 		}
 		onFileChange(selected);
 	};
+
+	const showLoaded = !!file || !!uploadedName;
+	const displayName = file?.name ?? uploadedName ?? '';
 
 	return (
 		<div>
@@ -77,7 +89,32 @@ export function FileUploadField({
 				className="hidden"
 			/>
 
-			{file ? (
+			{uploading ? (
+				/* ── Estado subiendo: spinner ── */
+				<div
+					className="mt-2 flex items-center gap-3 rounded-[12px] border p-3"
+					style={{
+						background: 'var(--cf-bg-card)',
+						borderColor: 'var(--cf-line)',
+					}}
+				>
+					<div
+						className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px]"
+						style={{
+							background: 'var(--cf-bg-subtle)',
+							color: 'var(--cf-ink-mute)',
+						}}
+					>
+						<Icon icon="ri:loader-4-line" className="h-5 w-5 animate-spin" />
+					</div>
+					<div
+						className="text-[13px] font-medium"
+						style={{ color: 'var(--cf-ink-soft)' }}
+					>
+						Subiendo documento…
+					</div>
+				</div>
+			) : showLoaded ? (
 				/* ── Estado cargado: card con ícono, nombre, meta y badge ── */
 				<div
 					className="mt-2 flex items-center gap-3 rounded-[12px] border p-3"
@@ -100,13 +137,13 @@ export function FileUploadField({
 							className="truncate text-[13.5px] font-semibold tracking-[-0.005em]"
 							style={{ color: 'var(--cf-ink)' }}
 						>
-							{file.name}
+							{displayName}
 						</div>
 						<div
 							className="mt-0.5 text-[11.5px]"
 							style={{ color: 'var(--cf-ink-soft)' }}
 						>
-							{formatFileSize(file.size)}
+							{file ? formatFileSize(file.size) : 'Documento cargado'}
 						</div>
 					</div>
 					<span

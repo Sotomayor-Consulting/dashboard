@@ -10,7 +10,10 @@ export const prerender = false;
 export const GET: APIRoute = async ({ request, cookies, url }) => {
 	try {
 		// Cliente Supabase SSR
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
 		// === 1. OBTENER empresaId DEL QUERY ===
 		const empresaId = url.searchParams.get('empresaId');
@@ -65,7 +68,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 				.single();
 
 			if (error || !queryData) {
-			return new Response(JSON.stringify({ error: 'No hay empresas' }), {
+				return new Response(JSON.stringify({ error: 'No hay empresas' }), {
 					status: 404,
 					headers: SECURITY_HEADERS,
 				});
@@ -82,9 +85,9 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 		);
 	} catch (error: any) {
 		log.error('Error general', { error });
-		return new Response(
-			JSON.stringify({ error: 'Error interno' }),
-			{ status: 500, headers: SECURITY_HEADERS },
-		);
+		return new Response(JSON.stringify({ error: 'Error interno' }), {
+			status: 500,
+			headers: SECURITY_HEADERS,
+		});
 	}
 };

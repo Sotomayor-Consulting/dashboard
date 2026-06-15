@@ -27,7 +27,9 @@ async function resolveRequestContext(
 	const incorporationId = params.incorporationId?.trim();
 	const memberId = parseMemberId(params.memberId);
 	if (!incorporationId) {
-		return { error: json(400, { ok: false, error: 'MISSING_INCORPORATION_ID' }) };
+		return {
+			error: json(400, { ok: false, error: 'MISSING_INCORPORATION_ID' }),
+		};
 	}
 	if (!memberId) {
 		return { error: json(400, { ok: false, error: 'INVALID_MEMBER_ID' }) };
@@ -52,22 +54,14 @@ async function resolveRequestContext(
 	};
 }
 
-export const PATCH: APIRoute = async ({
-	request,
-	cookies,
-	params,
-}) => {
+export const PATCH: APIRoute = async ({ request, cookies, params }) => {
 	try {
-		const context = await resolveRequestContext(
-			request,
-			cookies,
-			params,
-		);
+		const context = await resolveRequestContext(request, cookies, params);
 		if ('error' in context) return context.error;
 
-		const body = (await request.json().catch(() => null)) as
-			| CompanyMemberInput
-			| null;
+		const body = (await request
+			.json()
+			.catch(() => null)) as CompanyMemberInput | null;
 		if (!body) {
 			return json(400, { ok: false, error: 'INVALID_BODY' });
 		}
@@ -93,22 +87,14 @@ export const PATCH: APIRoute = async ({
 	}
 };
 
-export const DELETE: APIRoute = async ({
-	request,
-	cookies,
-	params,
-}) => {
+export const DELETE: APIRoute = async ({ request, cookies, params }) => {
 	try {
-		const context = await resolveRequestContext(
-			request,
-			cookies,
-			params,
-		);
+		const context = await resolveRequestContext(request, cookies, params);
 		if ('error' in context) return context.error;
 
-		const body = (await request.json().catch(() => null)) as
-			| { reason?: string }
-			| null;
+		const body = (await request.json().catch(() => null)) as {
+			reason?: string;
+		} | null;
 		const member = await softDeleteCompanyMember(
 			context.supabase,
 			context.companyId,

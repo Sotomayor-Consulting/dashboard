@@ -1,18 +1,13 @@
 import { useCallback, useEffect, useRef } from 'react';
 
 import { CLIENT_FORM_DRAFT_KEY } from '../constants';
-import type {
-	ClientFormData,
-	SerializableClientFormData,
-} from '../types';
+import type { ClientFormData, SerializableClientFormData } from '../types';
 
 /**
  * Quita los `File` del payload antes de serializar a localStorage.
  * Los uploads se vuelven a pedir si el usuario reabre el wizard.
  */
-const toSerializable = (
-	data: ClientFormData,
-): SerializableClientFormData => ({
+const toSerializable = (data: ClientFormData): SerializableClientFormData => ({
 	...data,
 	// `facturaServicioBasico` se omite (es File).
 	// El cast siguiente está bien porque el tipo Serializable lo excluye.
@@ -32,10 +27,16 @@ const fromSerializable = (
 	stored: SerializableClientFormData,
 ): ClientFormData => ({
 	...stored,
+	// La pregunta sí/no/sci ya no existe: drafts viejos se normalizan a 'si'
+	// para no validar campos que ya no se renderizan.
+	direccionOperativaEEUU: 'si',
 	facturaServicioBasico: null,
 	facturaServicioBasicoEEUU: null,
 	miembros: stored.miembros.map((m) => ({
 		...m,
+		// Defaults para drafts guardados antes de agregar estos campos.
+		tipoIdentificacionFiscal: m.tipoIdentificacionFiscal ?? '',
+		sitioWeb: m.sitioWeb ?? '',
 		pasaporte: null,
 		facturaServicio: null,
 	})),

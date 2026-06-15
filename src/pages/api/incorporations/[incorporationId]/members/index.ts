@@ -39,9 +39,9 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 	const context = await requireCompanyDataManager(request, cookies);
 	if ('error' in context) return context.error;
 
-	const body = (await request.json().catch(() => null)) as
-		| CreateMemberBody
-		| null;
+	const body = (await request
+		.json()
+		.catch(() => null)) as CreateMemberBody | null;
 	if (!body || typeof body !== 'object') {
 		return json(400, { ok: false, error: 'INVALID_BODY' });
 	}

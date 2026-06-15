@@ -17,7 +17,7 @@ Chart.register(
 );
 
 type GeoChartWindow = Window & {
-	companyGeoChart?: Chart;
+	companyGeoChart?: Chart<'choropleth', { feature: any; value: number }[]>;
 };
 
 function renderGeoError(container: HTMLElement) {

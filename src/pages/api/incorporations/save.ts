@@ -11,10 +11,16 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const back = safeBack(url.searchParams.get('back'), BACK_PATH);
 
 		// 1) Cliente Supabase SSR
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
 		// 2) Usuario
-		const { data: { user: actor }, error: uerr } = await supabase.auth.getUser();
+		const {
+			data: { user: actor },
+			error: uerr,
+		} = await supabase.auth.getUser();
 		if (uerr || !actor) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,

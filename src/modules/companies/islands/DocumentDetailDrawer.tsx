@@ -172,11 +172,6 @@ function legalCategoryLabel(cat: string | null | undefined): string {
 	return map[cat] ?? cat;
 }
 
-function visibilityLabel(vis: string | undefined): string {
-	if (!vis) return '—';
-	return vis === 'client_visible' ? 'Visible al cliente' : 'Solo interno';
-}
-
 // Timestamps from Supabase arrive as ISO 8601 UTC strings (timestamptz).
 // Intl.DateTimeFormat without an explicit timeZone option uses the browser's
 // system timezone automatically — the correct behavior for display.

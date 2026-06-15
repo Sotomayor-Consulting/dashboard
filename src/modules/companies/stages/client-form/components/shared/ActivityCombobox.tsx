@@ -58,9 +58,7 @@ export function ActivityCombobox({
 			if (!map.has(key)) map.set(key, []);
 			map.get(key)!.push(act);
 		}
-		return Array.from(map.entries()).sort((a, b) =>
-			a[0].localeCompare(b[0]),
-		);
+		return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 	}, [activities]);
 
 	return (

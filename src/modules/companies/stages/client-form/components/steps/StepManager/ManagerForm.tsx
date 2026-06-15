@@ -17,7 +17,7 @@ import {
 import { COUNTRIES } from '../../../data/countries';
 import type { ClientFormData } from '../../../types';
 import { FieldError } from '../../shared/FieldError';
-import { FileUploadField } from '../../shared/FileUploadField';
+import { ClientFileField } from '../../shared/ClientFileField';
 
 interface Props {
 	index: number;
@@ -119,7 +119,13 @@ export function ManagerForm({ index, managerId, canRemove, onRemove }: Props) {
 						control={control}
 						name={`${path}.nacionalidad`}
 						render={({ field }) => (
-							<Select value={field.value} onValueChange={field.onChange}>
+							<Select
+								value={field.value}
+								onValueChange={(v) => {
+									field.onChange(v);
+									field.onBlur();
+								}}
+							>
 								<SelectTrigger className="mt-1.5 w-full">
 									<SelectValue placeholder="Selecciona" />
 								</SelectTrigger>
@@ -136,17 +142,12 @@ export function ManagerForm({ index, managerId, canRemove, onRemove }: Props) {
 				</div>
 			</div>
 
-			<Controller
-				control={control}
-				name={`${path}.pasaporte`}
-				render={({ field }) => (
-					<FileUploadField
-						id={`pasaporteManager-${managerId}`}
-						label="Pasaporte escaneado"
-						file={field.value}
-						onFileChange={field.onChange}
-					/>
-				)}
+			<ClientFileField
+				fileName={`${path}.pasaporte`}
+				pathName={`${path}.pasaportePath`}
+				slot="manager-pasaporte"
+				id={`pasaporteManager-${managerId}`}
+				label="Pasaporte escaneado"
 			/>
 
 			<div className="border-border border-t pt-5">
@@ -187,7 +188,10 @@ export function ManagerForm({ index, managerId, canRemove, onRemove }: Props) {
 										render={({ field }) => (
 											<Select
 												value={field.value}
-												onValueChange={field.onChange}
+												onValueChange={(v) => {
+													field.onChange(v);
+													field.onBlur();
+												}}
 											>
 												<SelectTrigger className="mt-1.5 w-full">
 													<SelectValue placeholder="Selecciona" />
@@ -213,17 +217,12 @@ export function ManagerForm({ index, managerId, canRemove, onRemove }: Props) {
 									<FieldError message={managerErrors?.direccion?.message!} />
 								</div>
 							</div>
-							<Controller
-								control={control}
-								name={`${path}.facturaServicio`}
-								render={({ field }) => (
-									<FileUploadField
-										id={`facturaManager-${managerId}`}
-										label="Factura de servicio básico"
-										file={field.value}
-										onFileChange={field.onChange}
-									/>
-								)}
+							<ClientFileField
+								fileName={`${path}.facturaServicio`}
+								pathName={`${path}.facturaServicioPath`}
+								slot="manager-factura"
+								id={`facturaManager-${managerId}`}
+								label="Factura de servicio básico"
 							/>
 						</motion.div>
 					)}

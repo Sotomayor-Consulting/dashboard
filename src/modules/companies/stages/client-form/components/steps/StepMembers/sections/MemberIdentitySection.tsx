@@ -24,12 +24,17 @@ interface Props {
 /**
  * A · Identidad — 5 campos:
  *   - tipo de socio (persona/empresa)
- *   - nombres y apellidos
+ *   - nombres y apellidos / razón social
  *   - email
- *   - estado civil
- *   - país de nacionalidad
+ *   - estado civil (solo persona; para empresa cuenta como completado)
+ *   - país de nacionalidad / país de constitución
  */
-export function MemberIdentitySection({ index, memberId, open, onToggle }: Props) {
+export function MemberIdentitySection({
+	index,
+	memberId,
+	open,
+	onToggle,
+}: Props) {
 	const {
 		control,
 		register,
@@ -43,6 +48,7 @@ export function MemberIdentitySection({ index, memberId, open, onToggle }: Props
 
 	const path = `miembros.${index}` as const;
 	const memberErrors = errors.miembros?.[index];
+	const isCompany = member?.tipoSocio === 'empresa';
 
 	// Conteo de campos completados (los 5 de identidad)
 	const completed = countCompleted(member);
@@ -80,7 +86,7 @@ export function MemberIdentitySection({ index, memberId, open, onToggle }: Props
 
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<Field
-						label="Nombres y apellidos"
+						label={isCompany ? 'Nombre de la empresa' : 'Nombres y apellidos'}
 						required
 						htmlFor={`${path}.nombreCompleto`}
 						error={memberErrors?.nombreCompleto?.message as string | undefined}
@@ -88,7 +94,9 @@ export function MemberIdentitySection({ index, memberId, open, onToggle }: Props
 						<Input
 							id={`${path}.nombreCompleto`}
 							{...register(`${path}.nombreCompleto`)}
-							placeholder="Juan Carlos Pérez García"
+							placeholder={
+								isCompany ? 'Mi Empresa S.A.S.' : 'Juan Carlos Pérez García'
+							}
 						/>
 					</Field>
 					<Field
@@ -102,35 +110,56 @@ export function MemberIdentitySection({ index, memberId, open, onToggle }: Props
 							id={`${path}.correo`}
 							type="email"
 							{...register(`${path}.correo`)}
-							placeholder="juan@ejemplo.com"
+							placeholder={
+								isCompany ? 'contacto@empresa.com' : 'juan@ejemplo.com'
+							}
 						/>
 					</Field>
-					<Controller
-						control={control}
-						name={`${path}.estadoCivil`}
-						render={({ field }) => (
-							<Field label="Estado civil">
-								<Select value={field.value} onValueChange={field.onChange}>
-									<SelectTrigger className="w-full">
-										<SelectValue placeholder="Selecciona" />
-									</SelectTrigger>
-									<SelectContent>
-										{MARITAL_STATUS_OPTIONS.map((s) => (
-											<SelectItem key={s.value} value={s.value}>
-												{s.label}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</Field>
-						)}
-					/>
+					{!isCompany && (
+						<Controller
+							control={control}
+							name={`${path}.estadoCivil`}
+							render={({ field }) => (
+								<Field label="Estado civil">
+									<Select
+										value={field.value}
+										onValueChange={(v) => {
+											field.onChange(v);
+											field.onBlur();
+										}}
+									>
+										<SelectTrigger className="w-full">
+											<SelectValue placeholder="Selecciona" />
+										</SelectTrigger>
+										<SelectContent>
+											{MARITAL_STATUS_OPTIONS.map((s) => (
+												<SelectItem key={s.value} value={s.value}>
+													{s.label}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</Field>
+							)}
+						/>
+					)}
 					<Controller
 						control={control}
 						name={`${path}.nacionalidad`}
 						render={({ field }) => (
-							<Field label="País de nacionalidad" required>
-								<Select value={field.value} onValueChange={field.onChange}>
+							<Field
+								label={
+									isCompany ? 'País de constitución' : 'País de nacionalidad'
+								}
+								required
+							>
+								<Select
+									value={field.value}
+									onValueChange={(v) => {
+										field.onChange(v);
+										field.onBlur();
+									}}
+								>
 									<SelectTrigger className="w-full">
 										<SelectValue placeholder="Selecciona" />
 									</SelectTrigger>
@@ -145,6 +174,19 @@ export function MemberIdentitySection({ index, memberId, open, onToggle }: Props
 							</Field>
 						)}
 					/>
+					{isCompany && (
+						<Field
+							label="Sitio web"
+							hint="Opcional."
+							htmlFor={`${path}.sitioWeb`}
+						>
+							<Input
+								id={`${path}.sitioWeb`}
+								{...register(`${path}.sitioWeb`)}
+								placeholder="https://miempresa.com"
+							/>
+						</Field>
+					)}
 				</div>
 			</div>
 		</SubsectionCard>
@@ -161,7 +203,8 @@ function countCompleted(member: Member | undefined): number {
 	if (member.tipoSocio) n++;
 	if (member.nombreCompleto?.trim()) n++;
 	if (member.correo?.trim()) n++;
-	if (member.estadoCivil) n++;
+	// Estado civil no aplica a empresas: cuenta como completado.
+	if (member.tipoSocio === 'empresa' || member.estadoCivil) n++;
 	if (member.nacionalidad?.trim()) n++;
 	return n;
 }

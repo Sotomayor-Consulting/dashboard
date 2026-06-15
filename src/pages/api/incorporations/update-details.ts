@@ -13,19 +13,25 @@ const json = (status: number, payload: unknown) =>
 	});
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+	const supabase = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
+	});
 
 	const {
 		data: { user },
 		error: userErr,
 	} = await supabase.auth.getUser();
-	const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
+	const { data: claimsData, error: claimsError } =
+		await supabase.auth.getClaims();
 
 	if (userErr || claimsError || !user || !claimsData?.claims) {
 		return json(401, { ok: false, error: 'No autenticado' });
 	}
 
-	const canEdit = canManageCompanyData(extractTokenRoleNames(claimsData.claims));
+	const canEdit = canManageCompanyData(
+		extractTokenRoleNames(claimsData.claims),
+	);
 
 	if (!canEdit) {
 		return json(403, { ok: false, error: 'No autorizado' });

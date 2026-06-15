@@ -57,9 +57,9 @@ export const PATCH: APIRoute = async ({ request, cookies, params }) => {
 	const context = await requireCompanyDataManager(request, cookies);
 	if ('error' in context) return context.error;
 
-	const body = (await request.json().catch(() => null)) as
-		| CompanyUpdateInput
-		| null;
+	const body = (await request
+		.json()
+		.catch(() => null)) as CompanyUpdateInput | null;
 	if (!body) {
 		return json(400, { ok: false, error: 'INVALID_BODY' });
 	}

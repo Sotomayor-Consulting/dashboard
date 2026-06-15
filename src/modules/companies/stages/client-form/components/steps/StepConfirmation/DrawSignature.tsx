@@ -108,12 +108,7 @@ export function DrawSignature({ initialDataUrl, onChange }: Props) {
 				<p className="text-muted-foreground text-xs">
 					Firme con el mouse, trackpad o el dedo (en táctil).
 				</p>
-				<Button
-					type="button"
-					variant="outline"
-					size="sm"
-					onClick={handleClear}
-				>
+				<Button type="button" variant="outline" size="sm" onClick={handleClear}>
 					Limpiar firma
 				</Button>
 			</div>

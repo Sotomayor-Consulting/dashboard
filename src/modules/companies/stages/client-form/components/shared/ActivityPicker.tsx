@@ -186,7 +186,7 @@ export function ActivityPicker({
 								type="button"
 								onClick={() => setLevel('category')}
 								className={cn(
-									'truncate hover:text-foreground',
+									'hover:text-foreground truncate',
 									level === 'category'
 										? 'text-foreground font-medium'
 										: 'text-muted-foreground',

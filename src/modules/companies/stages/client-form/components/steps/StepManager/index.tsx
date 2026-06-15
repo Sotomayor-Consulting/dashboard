@@ -95,9 +95,52 @@ export function StepManager() {
 	const eligibleMembers: Member[] = (miembros ?? []).filter(
 		(m) => m?.nombreCompleto,
 	);
-	const selectedResponsable = eligibleMembers.find(
+
+	// Cuando el sub-formulario de manager deja de aplicar (se desmarca "añadir
+	// otros socios", se vuelve a "el manager es un socio", SCI lo asigna, o se
+	// cambia a member-managed) los managers agregados quedaban huérfanos en el
+	// array y `managerSchema` los seguía validando — lo que rebotaba al usuario
+	// de vuelta a este paso al avanzar. Limpiamos el array para mantener el
+	// estado consistente con lo que el usuario ve.
+	useEffect(() => {
+		if (!showManagerForm && managerFields.length > 0) {
+			setValue('managers', []);
+			setActiveManagerTab(0);
+		}
+	}, [showManagerForm, managerFields.length, setValue]);
+	// Solo personas naturales pueden ser responsables frente al IRS.
+	const irsCandidates = eligibleMembers.filter(
+		(m) => m.tipoSocio !== 'empresa',
+	);
+	const selectedResponsable = irsCandidates.find(
 		(m) => m.id === responsableIRS,
 	);
+
+	// Si el responsable seleccionado dejó de ser elegible limpiamos la selección:
+	//  · el socio fue eliminado en el paso anterior (ya no existe), o
+	//  · pasó a ser tipo Empresa (una empresa no puede ser responsable IRS).
+	// De lo contrario el id quedaba colgado y el refinement cross-step lo
+	// rechazaba al enviar, rebotando al usuario de vuelta a este paso.
+	useEffect(() => {
+		if (!responsableIRS) return;
+		const member = (miembros ?? []).find((m) => m?.id === responsableIRS);
+		if (!member || member.tipoSocio === 'empresa') {
+			setValue('responsableIRS', '');
+		}
+	}, [responsableIRS, miembros, setValue]);
+
+	// Los managers elegidos entre los socios (`seleccionManagers`) guardan ids
+	// de miembros. Si un socio seleccionado se elimina en el paso anterior, su
+	// id quedaba huérfano en la lista — generando un manager que apunta a un
+	// miembro inexistente en el submit. Lo depuramos contra los socios actuales.
+	useEffect(() => {
+		if (seleccionManagers.length === 0) return;
+		const validIds = new Set((miembros ?? []).map((m) => m?.id));
+		const pruned = seleccionManagers.filter((id) => validIds.has(id));
+		if (pruned.length !== seleccionManagers.length) {
+			setValue('seleccionManagers', pruned);
+		}
+	}, [seleccionManagers, miembros, setValue]);
 
 	return (
 		<>
@@ -133,7 +176,7 @@ export function StepManager() {
 			<SectionHeader
 				kicker="Información adicional"
 				title="Responsable frente al IRS"
-				desc="Persona designada para responder por la entidad ante el Internal Revenue Service. Puede ser cualquiera de los socios."
+				desc="Persona designada para responder por la entidad ante el Internal Revenue Service. Debe ser un socio persona natural (una empresa no puede ser responsable frente al IRS)."
 			/>
 
 			<div
@@ -152,33 +195,44 @@ export function StepManager() {
 							hint="Será el contacto principal con el IRS para asuntos fiscales y declaraciones."
 							required
 						>
-							<Select value={field.value} onValueChange={field.onChange}>
+							<Select
+								value={field.value}
+								onValueChange={(v) => {
+									field.onChange(v);
+									field.onBlur();
+								}}
+							>
 								<SelectTrigger className="w-full">
 									<SelectValue placeholder="Selecciona un socio">
 										{(value) => {
-											const m = eligibleMembers.find(
-												(x) => x.id === value,
-											);
+											const m = irsCandidates.find((x) => x.id === value);
 											return m?.nombreCompleto || 'Selecciona un socio';
 										}}
 									</SelectValue>
 								</SelectTrigger>
 								<SelectContent>
-									{eligibleMembers.length === 0 ? (
+									{irsCandidates.length === 0 ? (
 										<div
 											className="p-3 text-[12.5px] italic"
 											style={{ color: 'var(--cf-ink-soft)' }}
 										>
-											Agrega socios en el paso anterior.
+											{eligibleMembers.length === 0
+												? 'Agrega socios en el paso anterior.'
+												: 'Solo un socio persona natural puede ser responsable frente al IRS. Agrega uno en el paso anterior.'}
 										</div>
 									) : (
-										eligibleMembers.map((m, idx) => (
-											<SelectItem key={m.id} value={m.id}>
-												{m.nombreCompleto} — Socio{' '}
-												{String(idx + 1).padStart(2, '0')}
-												{m.porcentaje ? ` · ${m.porcentaje}%` : ''}
-											</SelectItem>
-										))
+										irsCandidates.map((m) => {
+											const idx = eligibleMembers.findIndex(
+												(x) => x.id === m.id,
+											);
+											return (
+												<SelectItem key={m.id} value={m.id}>
+													{m.nombreCompleto} — Socio{' '}
+													{String(idx + 1).padStart(2, '0')}
+													{m.porcentaje ? ` · ${m.porcentaje}%` : ''}
+												</SelectItem>
+											);
+										})
 									)}
 								</SelectContent>
 							</Select>
@@ -476,8 +530,8 @@ function ManagerManagedBranch({
 							}}
 						>
 							<strong className="font-semibold">Nota:</strong> Sotomayor
-							Consulting International será asignado como Manager de su LLC
-							por un costo de $500 anuales.
+							Consulting International será asignado como Manager de su LLC por
+							un costo de $500 anuales.
 						</div>
 					</motion.div>
 				)}
@@ -743,17 +797,13 @@ function ManagerManagedBranch({
 											label="Pública"
 											sub="Visible en registros del estado"
 											selected={field.value === true}
-											onClick={() =>
-												!isManagerLocked && field.onChange(true)
-											}
+											onClick={() => !isManagerLocked && field.onChange(true)}
 										/>
 										<RadioCard
 											label="Privada"
 											sub="No se publica en registros estatales"
 											selected={field.value === false}
-											onClick={() =>
-												!isManagerLocked && field.onChange(false)
-											}
+											onClick={() => !isManagerLocked && field.onChange(false)}
 										/>
 									</div>
 								</Field>
