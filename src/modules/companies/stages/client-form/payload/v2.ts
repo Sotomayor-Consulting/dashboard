@@ -32,13 +32,7 @@ export const INCORPORATION_FORM_VERSION = 'v2' as const;
 
 type FileRefJson = FileRef | null;
 
-export interface OperatingAddressV2 {
-	country: string;
-	line1: string;
-	city: string;
-	county: string;
-	state: string;
-	postalCode: string;
+export interface OperatingAddressV2 extends AddressV2 {
 	utilityBill: FileRefJson;
 }
 
@@ -55,11 +49,26 @@ export interface GeneralSectionV2 {
 	operatingAddress: OperatingAddressV2;
 }
 
+/**
+ * Dirección unificada (US-style) compartida por la dirección operativa de la
+ * LLC, la dirección del socio y la del manager. País/línea 1/ciudad/estado/
+ * código postal son obligatorios; línea 2 y condado son opcionales.
+ */
+export interface AddressV2 {
+	country: string;
+	line1: string;
+	line2: string;
+	city: string;
+	state: string;
+	county: string;
+	postalCode: string;
+}
+
 interface MemberCommonV2 {
 	id: string;
 	email: string;
 	ownershipPercent: number;
-	address: { country: string; line1: string };
+	address: AddressV2;
 }
 
 export interface PersonMemberV2 extends MemberCommonV2 {
@@ -96,8 +105,8 @@ export interface ManagerV2 {
 	passportNumber: string;
 	nationality: string;
 	sameAddressAsCompany: boolean;
-	residenceCountry: string;
-	addressLine1: string;
+	/** Dirección unificada US-style. Aplica cuando `sameAddressAsCompany === false`. */
+	address: AddressV2;
 	documents: { passport: FileRefJson; utilityBill: FileRefJson };
 }
 
@@ -121,6 +130,31 @@ export interface IncorporationFormPayloadV2 {
 
 const ref = (r: FileRef | null | undefined): FileRefJson => r ?? null;
 
+/** Helper para construir la dirección unificada desde state campo-a-campo. */
+function addressFromMember(m: Member): AddressV2 {
+	return {
+		country: m.paisFactura,
+		line1: m.direccion,
+		line2: m.linea2,
+		city: m.ciudad,
+		state: m.estado,
+		county: m.condado,
+		postalCode: m.codigoPostal,
+	};
+}
+
+function addressFromManager(m: Manager): AddressV2 {
+	return {
+		country: m.paisResidencia,
+		line1: m.direccion,
+		line2: m.linea2,
+		city: m.ciudad,
+		state: m.estado,
+		county: m.condado,
+		postalCode: m.codigoPostal,
+	};
+}
+
 // ─────────────────────────── State → Payload ───────────────────────────
 
 function memberToV2(m: Member): MemberV2 {
@@ -128,7 +162,7 @@ function memberToV2(m: Member): MemberV2 {
 		id: m.id,
 		email: m.correo,
 		ownershipPercent: m.porcentaje,
-		address: { country: m.paisFactura, line1: m.direccion },
+		address: addressFromMember(m),
 	};
 	if (m.tipoSocio === 'empresa') {
 		return {
@@ -173,8 +207,7 @@ function managerToV2(m: Manager): ManagerV2 {
 		passportNumber: m.numeroPasaporte,
 		nationality: m.nacionalidad,
 		sameAddressAsCompany: m.mismaDireccionEmpresa,
-		residenceCountry: m.paisResidencia,
-		addressLine1: m.direccion,
+		address: addressFromManager(m),
 		documents: {
 			passport: ref(m.pasaporteRef),
 			utilityBill: ref(m.facturaServicioRef),
@@ -202,6 +235,7 @@ export function toIncorporationFormPayloadV2(
 			operatingAddress: {
 				country: data.pais,
 				line1: data.direccion,
+				line2: data.linea2,
 				city: data.ciudad,
 				county: data.condado,
 				state: data.estado,
@@ -246,6 +280,11 @@ function emptyMember(id: string): Member {
 		facturaServicio: null,
 		paisFactura: '',
 		direccion: '',
+		linea2: '',
+		ciudad: '',
+		estado: '',
+		condado: '',
+		codigoPostal: '',
 		tipoIdentificacionFiscal: '',
 		sitioWeb: '',
 	};
@@ -255,8 +294,14 @@ function memberFromV2(mv: MemberV2): Member {
 	const m = emptyMember(mv.id);
 	m.correo = mv.email;
 	m.porcentaje = mv.ownershipPercent;
+	// Dirección unificada (los campos opcionales caen a '' si vienen ausentes).
 	m.paisFactura = mv.address?.country ?? '';
 	m.direccion = mv.address?.line1 ?? '';
+	m.linea2 = mv.address?.line2 ?? '';
+	m.ciudad = mv.address?.city ?? '';
+	m.estado = mv.address?.state ?? '';
+	m.condado = mv.address?.county ?? '';
+	m.codigoPostal = mv.address?.postalCode ?? '';
 
 	if (mv.type === 'company') {
 		m.tipoSocio = 'empresa';
@@ -297,8 +342,14 @@ function managerFromV2(mv: ManagerV2): Manager {
 		numeroPasaporte: mv.passportNumber,
 		nacionalidad: mv.nationality,
 		mismaDireccionEmpresa: mv.sameAddressAsCompany,
-		paisResidencia: mv.residenceCountry,
-		direccion: mv.addressLine1,
+		// Dirección unificada del manager.
+		paisResidencia: mv.address?.country ?? '',
+		direccion: mv.address?.line1 ?? '',
+		linea2: mv.address?.line2 ?? '',
+		ciudad: mv.address?.city ?? '',
+		estado: mv.address?.state ?? '',
+		condado: mv.address?.county ?? '',
+		codigoPostal: mv.address?.postalCode ?? '',
 		facturaServicio: null,
 		pasaportePath: mv.documents?.passport?.path ?? null,
 		facturaServicioPath: mv.documents?.utilityBill?.path ?? null,
@@ -323,6 +374,7 @@ export function fromIncorporationFormPayloadV2(
 		formaTributacion: g?.taxation ?? '',
 		direccionOperativaEEUU: 'si',
 		direccion: addr?.line1 ?? '',
+		linea2: addr?.line2 ?? '',
 		condado: addr?.county ?? '',
 		ciudad: addr?.city ?? '',
 		estado: addr?.state ?? '',
@@ -393,15 +445,20 @@ export function validateIncorporationFormPayload(
 	if (!g?.management) errors.push('Selecciona la forma de administración.');
 	if (!g?.taxation) errors.push('Selecciona la forma de tributar.');
 
+	// Dirección operativa unificada (US-style sin importar el país):
+	// país + línea 1 + ciudad + estado + código postal son obligatorios;
+	// línea 2 y condado son opcionales.
 	const addr = g?.operatingAddress;
 	if (!addr?.country?.trim())
 		errors.push('Indica el país de la dirección operativa.');
-	if (!addr?.line1?.trim()) errors.push('Indica la dirección operativa.');
-	if (!addr?.city?.trim()) errors.push('Indica la ciudad.');
-	const isUS = addr?.country === 'Estados Unidos';
-	if (isUS && !addr?.state?.trim()) errors.push('Indica el estado (EE. UU.).');
-	if (isUS && !addr?.postalCode?.trim())
-		errors.push('Indica el código postal (EE. UU.).');
+	if (!addr?.line1?.trim())
+		errors.push('Indica la línea 1 de la dirección operativa.');
+	if (!addr?.city?.trim())
+		errors.push('Indica la ciudad (dirección operativa).');
+	if (!addr?.state?.trim())
+		errors.push('Indica el estado / provincia (dirección operativa).');
+	if (!addr?.postalCode?.trim())
+		errors.push('Indica el código postal (dirección operativa).');
 	if (!addr?.utilityBill?.path)
 		errors.push(
 			'Sube la planilla de servicio básico de la dirección operativa.',
@@ -417,9 +474,16 @@ export function validateIncorporationFormPayload(
 			errors.push(`${tag}: correo inválido.`);
 		if (!(m.ownershipPercent >= 1 && m.ownershipPercent <= 100))
 			errors.push(`${tag}: porcentaje fuera de rango (1-100).`);
-		if (!m.address?.line1?.trim()) errors.push(`${tag}: falta la dirección.`);
+		// Dirección unificada del socio — mismos requeridos que la operativa.
 		if (!m.address?.country?.trim())
 			errors.push(`${tag}: falta el país de la dirección.`);
+		if (!m.address?.line1?.trim())
+			errors.push(`${tag}: falta la línea 1 de la dirección.`);
+		if (!m.address?.city?.trim()) errors.push(`${tag}: falta la ciudad.`);
+		if (!m.address?.state?.trim())
+			errors.push(`${tag}: falta el estado / provincia.`);
+		if (!m.address?.postalCode?.trim())
+			errors.push(`${tag}: falta el código postal.`);
 		if (!m.documents?.utilityBill?.path)
 			errors.push(`${tag}: falta la planilla de servicio básico.`);
 
@@ -470,6 +534,22 @@ export function validateIncorporationFormPayload(
 			(payload.managers?.list?.length ?? 0) > 0;
 		if (!hasManager) errors.push('Define al menos un manager.');
 	}
+
+	// Cada manager externo con dirección propia: si no usa la misma de la
+	// empresa, exigir el set unificado (país, línea 1, ciudad, estado, ZIP).
+	(payload.managers?.list ?? []).forEach((mg, i) => {
+		if (mg.sameAddressAsCompany) return;
+		const tag = `Manager ${String(i + 1).padStart(2, '0')}`;
+		if (!mg.address?.country?.trim())
+			errors.push(`${tag}: falta el país de residencia.`);
+		if (!mg.address?.line1?.trim())
+			errors.push(`${tag}: falta la línea 1 de la dirección.`);
+		if (!mg.address?.city?.trim()) errors.push(`${tag}: falta la ciudad.`);
+		if (!mg.address?.state?.trim())
+			errors.push(`${tag}: falta el estado / provincia.`);
+		if (!mg.address?.postalCode?.trim())
+			errors.push(`${tag}: falta el código postal.`);
+	});
 
 	// Paso 5 — firma + términos.
 	if (!payload.signature?.file?.path && !payload.signature?.dataUrl)

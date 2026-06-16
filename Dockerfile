@@ -58,6 +58,10 @@ COPY --from=builder --chown=astro:nodejs /app/dist ./dist
 COPY --from=builder --chown=astro:nodejs /app/server.mjs ./server.mjs
 COPY --from=builder --chown=astro:nodejs /app/server-wrapper.mjs ./server-wrapper.mjs
 
+# Bootstrap de Vault en runtime (Node 22 ejecuta el source TS directamente)
+COPY --from=builder --chown=astro:nodejs /app/src/lib/infrastructure/vault ./src/lib/infrastructure/vault
+COPY --from=builder --chown=astro:nodejs /app/src/lib/infrastructure/logging ./src/lib/infrastructure/logging
+
 # Templates usados en runtime (carbone, emails)
 COPY --from=builder --chown=astro:nodejs /app/src/domains/documents/templates ./src/domains/documents/templates
 

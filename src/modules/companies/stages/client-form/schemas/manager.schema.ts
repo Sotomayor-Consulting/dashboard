@@ -22,17 +22,30 @@ export const managerSchema = z
 		numeroPasaporte: z.string().min(1, 'Ingresa el número de pasaporte'),
 		nacionalidad: z.string().min(1, 'Selecciona la nacionalidad'),
 		mismaDireccionEmpresa: z.boolean(),
+		// Dirección unificada del manager — solo se valida si NO usa la misma
+		// dirección que la empresa. Mismo set de campos que socio/operativa.
 		paisResidencia: z.string(),
 		direccion: z.string(),
+		linea2: z.string(),
+		ciudad: z.string(),
+		estado: z.string(),
+		condado: z.string(),
+		codigoPostal: z.string(),
 		facturaServicio: fileSchema,
 	})
 	.refine(
 		(m) =>
 			m.mismaDireccionEmpresa ||
-			(m.paisResidencia.length > 0 && m.direccion.length > 0),
+			Boolean(
+				m.paisResidencia &&
+				m.direccion &&
+				m.ciudad &&
+				m.estado &&
+				m.codigoPostal,
+			),
 		{
 			message:
-				'Completa país y dirección del manager (o marca "misma que la empresa").',
+				'Completa la dirección del manager (país, línea 1, ciudad, estado y código postal) o marca "misma que la empresa".',
 			path: ['direccion'],
 		},
 	);

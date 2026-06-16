@@ -16,6 +16,11 @@ export const createEmptyMember = (): Member => ({
 	facturaServicio: null,
 	paisFactura: '',
 	direccion: '',
+	linea2: '',
+	ciudad: '',
+	estado: '',
+	condado: '',
+	codigoPostal: '',
 	tipoIdentificacionFiscal: '',
 	sitioWeb: '',
 });
@@ -33,6 +38,11 @@ export const createEmptyManager = (): Manager => ({
 	mismaDireccionEmpresa: true,
 	paisResidencia: '',
 	direccion: '',
+	linea2: '',
+	ciudad: '',
+	estado: '',
+	condado: '',
+	codigoPostal: '',
 	facturaServicio: null,
 });
 
@@ -47,6 +57,7 @@ export const createInitialFormData = (): ClientFormData => ({
 	// La pregunta sí/no ya no existe en la UI; siempre se pide la dirección.
 	direccionOperativaEEUU: 'si',
 	direccion: '',
+	linea2: '',
 	condado: '',
 	ciudad: '',
 	estado: '',

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FormProvider, useForm, useFormState, useWatch } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import '../icons'; // Registra el set `ri` de iconify offline (side-effect).
@@ -352,19 +352,28 @@ export default function ClientFormWizard({
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitError, setSubmitError] = useState<FormErrorSummary | null>(null);
 
-	// Suscripción reactiva a los errores del form para auto-limpiar el banner:
-	// en cuanto el paso actual deja de tener errores (el usuario corrigió lo que
-	// faltaba), el mensaje desaparece en vez de quedarse "stale".
-	const { errors: liveErrors } = useFormState({ control });
+	// Auto-limpiar el banner: mientras está visible, re-validamos ACTIVAMENTE el
+	// paso en cada edición y lo cerramos en cuanto el paso es válido.
+	//
+	// Es necesario re-disparar `trigger` (en vez de mirar `formState.errors`)
+	// porque los refinements de Zod son cross-field: el error de "sube la
+	// planilla" cuelga de `facturaServicioBasicoEEUU` y el de la dirección de
+	// `direccion`. RHF NO revalida el refinement de un campo cuando el usuario
+	// edita OTRO campo del mismo paso, así que el error quedaría "stale" y el
+	// banner lo seguiría mostrando aunque el dato ya esté completo.
 	useEffect(() => {
 		if (!submitError) return;
 		const fields = STEP_FIELDS[currentStep];
 		if (!fields) return;
-		const stepStillHasError = fields.some(
-			(f) => (liveErrors as Record<string, unknown>)[f] != null,
-		);
-		if (!stepStillHasError) setSubmitError(null);
-	}, [liveErrors, currentStep, submitError]);
+		let cancelled = false;
+		void methods.trigger(fields).then((valid) => {
+			if (!cancelled && valid) setSubmitError(null);
+		});
+		return () => {
+			cancelled = true;
+		};
+		// `watched` en deps: re-evalúa en cada edición del formulario.
+	}, [watched, currentStep, submitError, methods]);
 
 	// Porcentaje asignado — solo para mostrar (barra de asignación + resumen).
 	// El gate de "suma 100%" lo aplica el schema vía `handleNext` al avanzar.

@@ -208,6 +208,7 @@ export function countDocumentsCompleted(member: Member | undefined): number {
 		// ITIN opcional — se cuenta siempre como "completo".
 		n++;
 	}
-	if (member.pasaporte) n++;
+	// Tras recargar el `File` queda en null pero la ruta en Storage persiste.
+	if (member.pasaporte || member.pasaportePath) n++;
 	return n;
 }
