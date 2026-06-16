@@ -43,10 +43,8 @@ export async function submitClientForm(
 				: undefined;
 			return {
 				ok: false,
-				message: details?.length
-					? details.join(' · ')
-					: (result?.error ?? 'No se pudo enviar el formulario.'),
-				...(details ? { details } : {}),
+				message: result?.error ?? 'No se pudo enviar el formulario.',
+				...(details && details.length ? { details } : {}),
 			};
 		}
 

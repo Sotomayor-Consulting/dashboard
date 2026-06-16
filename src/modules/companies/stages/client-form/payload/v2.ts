@@ -156,7 +156,6 @@ function addressFromManager(m: Manager): AddressV2 {
 }
 
 // ─────────────────────────── State → Payload ───────────────────────────
-
 function memberToV2(m: Member): MemberV2 {
 	const common: MemberCommonV2 = {
 		id: m.id,
@@ -558,4 +557,47 @@ export function validateIncorporationFormPayload(
 		errors.push('Debes aceptar los términos y condiciones.');
 
 	return errors;
+}
+
+/**
+ * Validación estructural ligera para el PATCH de draft: verifica que el
+ * payload sea un shape reconocible (v2 con las secciones esperadas, o v1
+ * plano con `version: 'v1'`), SIN exigir completitud de campos. Un payload
+ * que no pase esta guarda probablemente romperá el reload del wizard.
+ */
+export function isDraftPayloadShape(payload: unknown): {
+	ok: boolean;
+	reason?: string;
+} {
+	if (!payload || typeof payload !== 'object')
+		return { ok: false, reason: 'PAYLOAD_NOT_OBJECT' };
+
+	const p = payload as Record<string, unknown>;
+
+	if (p.version === 'v2') {
+		const requiredSections = [
+			'general',
+			'members',
+			'managers',
+			'irsResponsible',
+			'signature',
+			'consent',
+		] as const;
+		for (const key of requiredSections) {
+			if (typeof p[key] !== 'object' || p[key] === null)
+				return { ok: false, reason: `MISSING_SECTION_${key.toUpperCase()}` };
+		}
+		if (
+			!Array.isArray((p.members as Record<string, unknown>)?.list) ||
+			!Array.isArray((p.managers as Record<string, unknown>)?.list)
+		)
+			return { ok: false, reason: 'MEMBERS_OR_MANAGERS_LIST_NOT_ARRAY' };
+		return { ok: true };
+	}
+
+	if (p.version === 'v1' || !('version' in p)) {
+		return { ok: true };
+	}
+
+	return { ok: false, reason: `UNKNOWN_VERSION_${String(p.version)}` };
 }

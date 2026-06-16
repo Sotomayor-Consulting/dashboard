@@ -7,6 +7,7 @@ import {
 	getIncorporationForm,
 	saveIncorporationFormDraft,
 } from '@domains/workflow/incorporation-forms';
+import { isDraftPayloadShape } from '@modules/companies/stages/client-form/payload';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('incorporations.form');
@@ -77,6 +78,15 @@ export const PATCH: APIRoute = async ({ request, cookies, params }) => {
 	const body = (await request.json().catch(() => null)) as DraftBody | null;
 	if (!body || typeof body.payload !== 'object' || body.payload === null) {
 		return json(400, { ok: false, error: 'INVALID_BODY' });
+	}
+
+	const shape = isDraftPayloadShape(body.payload);
+	if (!shape.ok) {
+		log.warn('draft rejected: malformed payload shape', {
+			incorporationId,
+			reason: shape.reason,
+		});
+		return json(422, { ok: false, error: 'INVALID_PAYLOAD_SHAPE', reason: shape.reason });
 	}
 
 	const progress =

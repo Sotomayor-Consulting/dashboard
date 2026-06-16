@@ -393,11 +393,24 @@ export default function ClientFormWizard({
 			try {
 				const result = await submitClientForm(data, { empresaId });
 				if (!result.ok) {
-					setSubmitError(
-						messageSummary(
-							result.message ?? 'No se pudo enviar el formulario.',
-						),
-					);
+					if (result.details && result.details.length > 0) {
+						const take = result.details.slice(0, MAX_ERROR_LINES);
+						setSubmitError({
+							title:
+								result.details.length === 1
+									? 'El servidor rechazó 1 campo'
+									: `El servidor rechazó ${result.details.length} campos`,
+							eyebrow: 'Validación del servidor',
+							groups: [{ label: null, messages: take }],
+							overflow: result.details.length - take.length,
+						});
+					} else {
+						setSubmitError(
+							messageSummary(
+								result.message ?? 'No se pudo enviar el formulario.',
+							),
+						);
+					}
 					return;
 				}
 				clearDraft();
