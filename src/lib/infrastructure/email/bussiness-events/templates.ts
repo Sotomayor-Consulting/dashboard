@@ -20,7 +20,7 @@ function formatDueDate(value: string | null | undefined): string | null {
 }
 
 function buildTitle(clientName: string | null): string {
-	return `Estimad@ ${formatClientName(clientName)}, tiene una nueva actualizacion de su proceso con Sotomayor Consulting.`;
+	return `${formatClientName(clientName)}, tiene una nueva actualización de su proceso con Sotomayor Consulting.`;
 }
 
 function buildCommonText(data: {
@@ -52,16 +52,16 @@ export function buildBusinessEmailTemplate(
 	const ctaUrl = payload.actionUrl?.trim() || `/my-companies/${context.caseId}/dashboard`;
 
 	if (payload.eventKey === 'workflow.task.completed') {
-		const taskName = payload.taskName?.trim() || 'Actualizacion de tarea';
+		const taskName = payload.taskName?.trim() || 'Actualización de tarea';
 		const intro = `Le informamos que se ha completado una nueva tarea dentro del proceso de ${context.companyName}.`;
 		const highlightLabel = 'Tarea completada';
 		const highlightValue = taskName;
 		const details =
 			'Nuestro equipo ha registrado un nuevo avance en su proceso. Puede revisar el estado actualizado desde su panel.';
-		const ctaNote = 'Para consultar el detalle, ingrese al enlace seguro a continuacion.';
+		const ctaNote = 'Para consultar el detalle, ingrese al enlace seguro a continuación.';
 		const ctaLabel = 'Ver avance';
 		return {
-			subject: 'Actualizacion de su proceso de incorporacion',
+			subject: 'Actualización de su proceso de incorporación',
 			title,
 			intro,
 			highlightLabel,
@@ -89,10 +89,10 @@ export function buildBusinessEmailTemplate(
 		const highlightLabel = 'Documento requerido';
 		const highlightValue = dueDate
 			? `Fecha sugerida de entrega: ${dueDate}`
-			: 'Hay documentacion pendiente por cargar';
+			: 'Hay documentación pendiente por cargar';
 		const details = payload.message?.trim()
 			? payload.message.trim()
-			: 'Por favor revise el requerimiento y cargue la informacion solicitada a la brevedad para evitar demoras en su proceso.';
+			: 'Por favor revise el requerimiento y cargue la información solicitada a la brevedad para evitar demoras en su proceso.';
 		const ctaNote = 'Puede atender esta solicitud desde su panel de documentos.';
 		const ctaLabel = 'Subir documento';
 		return {
@@ -154,7 +154,7 @@ export function buildBusinessEmailTemplate(
 		const highlightLabel = 'Solicitud recibida';
 		const highlightValue = context.companyName;
 		const details =
-			'Su informacion ya fue registrada en nuestros sistemas y nuestro equipo continuara con la siguiente etapa de revision.';
+			'Su información ya fue registrada en nuestros sistemas y nuestro equipo continuara con la siguiente etapa de revision.';
 		const ctaNote = 'Puede dar seguimiento al estado de su solicitud desde el siguiente enlace.';
 		const ctaLabel = 'Ver solicitud';
 		return {
@@ -184,7 +184,7 @@ export function buildBusinessEmailTemplate(
 	const highlightLabel = 'Solicitud validada';
 	const highlightValue = context.companyName;
 	const details =
-		'Su proceso continua avanzando y ya puede revisar la informacion actualizada desde su panel.';
+		'Su proceso continua avanzando y ya puede revisar la información actualizada desde su panel.';
 	const ctaNote = 'Para consultar el siguiente paso, utilice el siguiente acceso.';
 	const ctaLabel = 'Ver detalle';
 

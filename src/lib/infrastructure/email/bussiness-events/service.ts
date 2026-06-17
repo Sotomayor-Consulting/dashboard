@@ -10,9 +10,17 @@ import { renderBusinessEmailHtml } from './renderer';
 import { buildBusinessEmailTemplate } from './templates';
 import type {
 	BusinessEmailRecipient,
+	BusinessEmailRecipientRole,
 	BusinessEmailPayload,
 	SendBusinessEmailResult,
 } from './types';
+
+type DeliveryFailure = {
+	userId: string;
+	email: string;
+	role: BusinessEmailRecipientRole;
+	error: string;
+};
 
 function withNullableField<T extends object>(
 	base: T,
@@ -36,13 +44,31 @@ async function deliverBusinessEmail(
 			totalRecipients: 0,
 			totalSent: 0,
 			totalFailed: 0,
+			debug: {
+				resolvedRecipients: [],
+				failures: [
+					{
+						userId: '',
+						email: '',
+						role: 'client',
+						error: 'CASE_CONTEXT_NOT_FOUND',
+					},
+				],
+			},
 		};
 	}
 
 	const [operationsRecipients] = await Promise.all([
 		resolveOperationsRecipients(),
 	]);
-	const clientRecipient = buildClientRecipient(context);
+	const clientRecipient = payload.clientEmailOverride?.trim()
+		? {
+				userId: context.clientUserId,
+				email: payload.clientEmailOverride.trim(),
+				name: context.clientName,
+				role: 'client' as const,
+			}
+		: buildClientRecipient(context);
 	const allRecipients: BusinessEmailRecipient[] = clientRecipient
 		? [clientRecipient, ...operationsRecipients]
 		: operationsRecipients;
@@ -56,6 +82,17 @@ async function deliverBusinessEmail(
 			totalRecipients: 0,
 			totalSent: 0,
 			totalFailed: 0,
+			debug: {
+				resolvedRecipients: [],
+				failures: [
+					{
+						userId: context.clientUserId,
+						email: '',
+						role: 'client',
+						error: 'NO_RECIPIENTS_RESOLVED',
+					},
+				],
+			},
 		};
 	}
 
@@ -73,6 +110,7 @@ async function deliverBusinessEmail(
 
 	let totalSent = 0;
 	let totalFailed = 0;
+	const failures: DeliveryFailure[] = [];
 
 	for (const recipient of recipients) {
 		try {
@@ -85,11 +123,20 @@ async function deliverBusinessEmail(
 			totalSent += 1;
 		} catch (error) {
 			totalFailed += 1;
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			failures.push({
+				userId: recipient.userId,
+				email: recipient.email,
+				role: recipient.role,
+				error: errorMessage,
+			});
 			console.error('[business-email] delivery failed', {
 				eventKey: payload.eventKey,
 				userId: recipient.userId,
 				email: recipient.email,
-				error: error instanceof Error ? error.message : String(error),
+				role: recipient.role,
+				error: errorMessage,
 			});
 		}
 	}
@@ -99,12 +146,21 @@ async function deliverBusinessEmail(
 		totalRecipients: recipients.length,
 		totalSent,
 		totalFailed,
+		debug: {
+			resolvedRecipients: recipients.map((recipient) => ({
+				userId: recipient.userId,
+				email: recipient.email,
+				role: recipient.role,
+			})),
+			failures,
+		},
 	};
 }
 
 export async function sendWorkflowTaskCompletedEmail(
 	taskId: string,
 	actionUrl?: string | null,
+	clientEmailOverride?: string | null,
 ): Promise<SendBusinessEmailResult> {
 	const { data, error } = await supabaseAdmin
 		.schema('workflow' as never)
@@ -119,15 +175,30 @@ export async function sendWorkflowTaskCompletedEmail(
 			totalRecipients: 0,
 			totalSent: 0,
 			totalFailed: 0,
+			debug: {
+				resolvedRecipients: [],
+				failures: [
+					{
+						userId: '',
+						email: '',
+						role: 'client',
+						error: error?.message ?? 'TASK_OR_CASE_NOT_FOUND',
+					},
+				],
+			},
 		};
 	}
 
 	return deliverBusinessEmail(
-		withNullableField({
-		eventKey: 'workflow.task.completed',
-		caseId: data.incorporation_id as string,
-		taskName: (data.title as string | null) ?? null,
-		}, 'actionUrl', actionUrl),
+		withNullableField(
+			withNullableField({
+				eventKey: 'workflow.task.completed',
+				caseId: data.incorporation_id as string,
+				taskName: (data.title as string | null) ?? null,
+			}, 'actionUrl', actionUrl),
+			'clientEmailOverride',
+			clientEmailOverride,
+		),
 	);
 }
 
@@ -136,16 +207,21 @@ export async function sendDocumentRequestedEmail(input: {
 	actionUrl?: string | null;
 	message?: string | null;
 	dueDate?: string | null;
+	clientEmailOverride?: string | null;
 }): Promise<SendBusinessEmailResult> {
 	return deliverBusinessEmail(
 		withNullableField(
 			withNullableField(
-				withNullableField({
-		eventKey: 'documents.requested',
-		caseId: input.caseId,
-				}, 'actionUrl', input.actionUrl),
-				'message',
-				input.message,
+				withNullableField(
+					withNullableField({
+						eventKey: 'documents.requested',
+						caseId: input.caseId,
+					}, 'actionUrl', input.actionUrl),
+					'message',
+					input.message,
+				),
+				'clientEmailOverride',
+				input.clientEmailOverride,
 			),
 			'dueDate',
 			input.dueDate,
@@ -156,35 +232,50 @@ export async function sendDocumentRequestedEmail(input: {
 export async function sendDocumentSharedEmail(input: {
 	caseId: string;
 	actionUrl?: string | null;
+	clientEmailOverride?: string | null;
 }): Promise<SendBusinessEmailResult> {
 	return deliverBusinessEmail(
-		withNullableField({
-		eventKey: 'documents.shared',
-		caseId: input.caseId,
-		}, 'actionUrl', input.actionUrl),
+		withNullableField(
+			withNullableField({
+				eventKey: 'documents.shared',
+				caseId: input.caseId,
+			}, 'actionUrl', input.actionUrl),
+			'clientEmailOverride',
+			input.clientEmailOverride,
+		),
 	);
 }
 
 export async function sendIncorporationSubmittedEmail(input: {
 	caseId: string;
 	actionUrl?: string | null;
+	clientEmailOverride?: string | null;
 }): Promise<SendBusinessEmailResult> {
 	return deliverBusinessEmail(
-		withNullableField({
-		eventKey: 'incorporation.submitted',
-		caseId: input.caseId,
-		}, 'actionUrl', input.actionUrl),
+		withNullableField(
+			withNullableField({
+				eventKey: 'incorporation.submitted',
+				caseId: input.caseId,
+			}, 'actionUrl', input.actionUrl),
+			'clientEmailOverride',
+			input.clientEmailOverride,
+		),
 	);
 }
 
 export async function sendIncorporationValidatedEmail(input: {
 	caseId: string;
 	actionUrl?: string | null;
+	clientEmailOverride?: string | null;
 }): Promise<SendBusinessEmailResult> {
 	return deliverBusinessEmail(
-		withNullableField({
-		eventKey: 'incorporation.validated',
-		caseId: input.caseId,
-		}, 'actionUrl', input.actionUrl),
+		withNullableField(
+			withNullableField({
+				eventKey: 'incorporation.validated',
+				caseId: input.caseId,
+			}, 'actionUrl', input.actionUrl),
+			'clientEmailOverride',
+			input.clientEmailOverride,
+		),
 	);
 }

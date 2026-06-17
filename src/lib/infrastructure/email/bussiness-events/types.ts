@@ -29,6 +29,7 @@ export interface BusinessEmailPayload {
 	taskName?: string | null;
 	message?: string | null;
 	dueDate?: string | null;
+	clientEmailOverride?: string | null;
 }
 
 export interface BusinessEmailTemplateData {
@@ -49,4 +50,17 @@ export interface SendBusinessEmailResult {
 	totalRecipients: number;
 	totalSent: number;
 	totalFailed: number;
+	debug?: {
+		resolvedRecipients: Array<{
+			userId: string;
+			email: string;
+			role: BusinessEmailRecipientRole;
+		}>;
+		failures: Array<{
+			userId: string;
+			email: string;
+			role: BusinessEmailRecipientRole;
+			error: string;
+		}>;
+	};
 }
