@@ -30,11 +30,17 @@ export const activityStepBaseSchema = z.object({
 		error: 'Selecciona una opción',
 	}),
 	direccion: z.string(),
+	linea2: z.string(),
 	condado: z.string(),
 	ciudad: z.string(),
 	estado: z.string(),
 	codigoPostal: z.string(),
 	facturaServicioBasicoEEUU: fileSchema,
+	// Ruta en Storage del archivo ya subido: persiste tras recargar (cuando el
+	// `File` en memoria vuelve a null) para que la validación no rebote.
+	// `.default(null)` mantiene el output `string | null` (sin `undefined`) para
+	// no perturbar los tipos Input/Output del schema completo.
+	facturaServicioBasicoEEUUPath: z.string().nullable().default(null),
 	pais: z.string(),
 	direccionEmpresa: z.string(),
 	facturaServicioBasico: fileSchema,
@@ -60,20 +66,19 @@ export const activityRefinements: ReadonlyArray<{
 		path: ['descripcionActividad'],
 	},
 	{
-		// La dirección operativa siempre se solicita (la pregunta sí/no/sci
-		// ya no existe; los drafts viejos se normalizan a 'si' al hidratar).
+		// Dirección operativa unificada (US-style) sin importar el país: país,
+		// línea 1, ciudad, estado y código postal son siempre obligatorios.
+		// Línea 2 y condado quedan opcionales.
 		check: (d) =>
-			Boolean(
-				d.pais &&
-				d.direccion &&
-				d.ciudad &&
-				(d.pais !== 'Estados Unidos' || (d.estado && d.codigoPostal)),
-			),
-		message: 'Completa la dirección operativa',
+			Boolean(d.pais && d.direccion && d.ciudad && d.estado && d.codigoPostal),
+		message:
+			'Completa la dirección operativa (país, línea 1, ciudad, estado y código postal son obligatorios)',
 		path: ['direccion'],
 	},
 	{
-		check: (d) => Boolean(d.facturaServicioBasicoEEUU),
+		// Acepta el `File` en memoria O la ruta ya subida (tras recargar).
+		check: (d) =>
+			Boolean(d.facturaServicioBasicoEEUU || d.facturaServicioBasicoEEUUPath),
 		message: 'Sube la planilla de servicio básico que verifique la dirección',
 		path: ['facturaServicioBasicoEEUU'],
 	},

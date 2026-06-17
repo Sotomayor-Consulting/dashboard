@@ -31,8 +31,15 @@ export const memberSchema = z
 		ssn: z.string(),
 		itin: z.string(),
 		facturaServicio: fileSchema,
+		// Dirección unificada del socio: país + línea 1 + ciudad + estado +
+		// código postal obligatorios; línea 2 y condado opcionales.
 		paisFactura: z.string().min(1, 'Selecciona el país'),
-		direccion: z.string().min(1, 'Ingresa la dirección'),
+		direccion: z.string().min(1, 'Ingresa la dirección (línea 1)'),
+		linea2: z.string(),
+		ciudad: z.string().min(1, 'Ingresa la ciudad'),
+		estado: z.string().min(1, 'Ingresa el estado / provincia'),
+		condado: z.string(),
+		codigoPostal: z.string().min(1, 'Ingresa el código postal'),
 		// Solo empresa: tipo de identificación fiscal y sitio web (opcional).
 		tipoIdentificacionFiscal: z.enum(['ein', 'ruc', 'nit', 'otro', '']),
 		sitioWeb: z.string(),

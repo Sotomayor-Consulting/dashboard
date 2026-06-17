@@ -6,7 +6,7 @@ const VAULT_TOKEN = process.env.VAULT_TOKEN;
 
 if (VAULT_ENDPOINT && VAULT_TOKEN) {
 	const { loadSecretsIntoEnv } = await import(
-		'./dist/server/lib/infrastructure/vault/secrets-loader.js'
+		'./src/lib/infrastructure/vault/secrets-loader.ts'
 	);
 	await loadSecretsIntoEnv();
 } else {

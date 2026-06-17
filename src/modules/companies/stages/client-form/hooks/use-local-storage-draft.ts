@@ -32,16 +32,28 @@ const fromSerializable = (
 	direccionOperativaEEUU: 'si',
 	facturaServicioBasico: null,
 	facturaServicioBasicoEEUU: null,
+	// Defaults para drafts guardados antes de añadir el shape de dirección
+	// unificado. Sin esto los `undefined` rompen Zod / la UI al rehidratar.
+	linea2: stored.linea2 ?? '',
 	miembros: stored.miembros.map((m) => ({
 		...m,
-		// Defaults para drafts guardados antes de agregar estos campos.
 		tipoIdentificacionFiscal: m.tipoIdentificacionFiscal ?? '',
 		sitioWeb: m.sitioWeb ?? '',
+		linea2: m.linea2 ?? '',
+		ciudad: m.ciudad ?? '',
+		estado: m.estado ?? '',
+		condado: m.condado ?? '',
+		codigoPostal: m.codigoPostal ?? '',
 		pasaporte: null,
 		facturaServicio: null,
 	})),
 	managers: stored.managers.map((m) => ({
 		...m,
+		linea2: m.linea2 ?? '',
+		ciudad: m.ciudad ?? '',
+		estado: m.estado ?? '',
+		condado: m.condado ?? '',
+		codigoPostal: m.codigoPostal ?? '',
 		pasaporte: null,
 		facturaServicio: null,
 	})),

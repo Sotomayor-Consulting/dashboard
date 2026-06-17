@@ -3,7 +3,8 @@ import StageShell from '../StageShell.astro';
 import { formatStageDate } from '../shared/format-date.ts';
 import type { StageProps } from '../types';
 
-const { stage } = Astro.props as StageProps;
+const { stage, empresaId } = Astro.props as StageProps;
+const canFill = stage.status !== 'completed';
 ---
 
 <StageShell
@@ -11,4 +12,15 @@ const { stage } = Astro.props as StageProps;
 	icon="ri:file-list-3-line"
 	description="Completa el formulario inicial con los datos de tu empresa y responsables."
 	formattedDate={formatStageDate(stage.dueAt)}
-/>
+>
+	{canFill && (
+		<a
+			slot="actions"
+			href={`/my-companies/${empresaId}/form`}
+			data-astro-reload
+			class="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1 text-[12px] font-medium text-white transition-colors hover:bg-blue-700"
+		>
+			Llenar formulario
+		</a>
+	)}
+</StageShell>

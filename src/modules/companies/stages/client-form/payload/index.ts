@@ -10,6 +10,7 @@ export {
 	fromIncorporationFormPayloadV2,
 	parseIncorporationFormPayload,
 	validateIncorporationFormPayload,
+	isDraftPayloadShape,
 } from './v2';
 export type { IncorporationFormPayloadV2, MemberV2, ManagerV2 } from './v2';
 

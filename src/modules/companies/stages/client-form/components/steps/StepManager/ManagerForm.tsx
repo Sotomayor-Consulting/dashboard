@@ -14,7 +14,9 @@ import {
 	SelectValue,
 } from '@components/ui/Select';
 
+import { ADDRESS_PLACEHOLDERS } from '../../../data/address-placeholders';
 import { COUNTRIES } from '../../../data/countries';
+import { US_STATES } from '../../../data/us-states';
 import type { ClientFormData } from '../../../types';
 import { FieldError } from '../../shared/FieldError';
 import { ClientFileField } from '../../shared/ClientFileField';
@@ -39,6 +41,12 @@ export function ManagerForm({ index, managerId, canRemove, onRemove }: Props) {
 		control,
 		name: `${path}.mismaDireccionEmpresa`,
 	}) as boolean;
+
+	const paisResidencia = useWatch<ClientFormData>({
+		control,
+		name: `${path}.paisResidencia`,
+	}) as string;
+	const isUS = paisResidencia === 'Estados Unidos';
 
 	return (
 		<div className="space-y-5">
@@ -179,44 +187,128 @@ export function ManagerForm({ index, managerId, canRemove, onRemove }: Props) {
 							exit={{ opacity: 0, height: 0 }}
 							className="space-y-4 overflow-hidden"
 						>
+							{/* Dirección unificada US-style del manager. */}
+							<div>
+								<Label>País de residencia</Label>
+								<Controller
+									control={control}
+									name={`${path}.paisResidencia`}
+									render={({ field }) => (
+										<Select
+											value={field.value}
+											onValueChange={(v) => {
+												field.onChange(v);
+												field.onBlur();
+											}}
+										>
+											<SelectTrigger className="mt-1.5 w-full">
+												<SelectValue
+													placeholder={ADDRESS_PLACEHOLDERS.country}
+												/>
+											</SelectTrigger>
+											<SelectContent>
+												{COUNTRIES.map((c) => (
+													<SelectItem key={c} value={c}>
+														{c}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									)}
+								/>
+							</div>
+
+							<div>
+								<Label>Línea 1 (Address Line 1)</Label>
+								<Input
+									{...register(`${path}.direccion`)}
+									className="mt-1.5"
+									placeholder={ADDRESS_PLACEHOLDERS.line1}
+								/>
+								<FieldError message={managerErrors?.direccion?.message!} />
+							</div>
+
+							<div>
+								<Label>
+									Línea 2 <span className="opacity-60">— opcional</span>
+								</Label>
+								<Input
+									{...register(`${path}.linea2`)}
+									className="mt-1.5"
+									placeholder={ADDRESS_PLACEHOLDERS.line2}
+								/>
+							</div>
+
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div>
-									<Label>País de residencia</Label>
-									<Controller
-										control={control}
-										name={`${path}.paisResidencia`}
-										render={({ field }) => (
-											<Select
-												value={field.value}
-												onValueChange={(v) => {
-													field.onChange(v);
-													field.onBlur();
-												}}
-											>
-												<SelectTrigger className="mt-1.5 w-full">
-													<SelectValue placeholder="Selecciona" />
-												</SelectTrigger>
-												<SelectContent>
-													{COUNTRIES.map((c) => (
-														<SelectItem key={c} value={c}>
-															{c}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										)}
+									<Label>Ciudad</Label>
+									<Input
+										{...register(`${path}.ciudad`)}
+										className="mt-1.5"
+										placeholder={ADDRESS_PLACEHOLDERS.city}
 									/>
 								</div>
-								<div className="sm:col-span-2">
-									<Label>Dirección del manager</Label>
+								<div>
+									<Label>
+										Condado <span className="opacity-60">— opcional</span>
+									</Label>
 									<Input
-										{...register(`${path}.direccion`)}
+										{...register(`${path}.condado`)}
 										className="mt-1.5"
-										placeholder="Calle, Ciudad, Código Postal"
+										placeholder={ADDRESS_PLACEHOLDERS.county}
 									/>
-									<FieldError message={managerErrors?.direccion?.message!} />
 								</div>
 							</div>
+
+							<div className="grid gap-4 sm:grid-cols-2">
+								<div>
+									<Label>Estado / Provincia</Label>
+									{isUS ? (
+										<Controller
+											control={control}
+											name={`${path}.estado`}
+											render={({ field }) => (
+												<Select
+													value={field.value}
+													onValueChange={(v) => {
+														field.onChange(v);
+														field.onBlur();
+													}}
+												>
+													<SelectTrigger className="mt-1.5 w-full">
+														<SelectValue
+															placeholder={ADDRESS_PLACEHOLDERS.stateSelect}
+														/>
+													</SelectTrigger>
+													<SelectContent>
+														{US_STATES.map((s) => (
+															<SelectItem key={s} value={s}>
+																{s}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+											)}
+										/>
+									) : (
+										<Input
+											{...register(`${path}.estado`)}
+											className="mt-1.5"
+											placeholder={ADDRESS_PLACEHOLDERS.stateInput}
+										/>
+									)}
+								</div>
+								<div>
+									<Label>Código postal (ZIP)</Label>
+									<Input
+										{...register(`${path}.codigoPostal`)}
+										className="mt-1.5"
+										placeholder={ADDRESS_PLACEHOLDERS.postalCode}
+										maxLength={10}
+									/>
+								</div>
+							</div>
+
 							<ClientFileField
 								fileName={`${path}.facturaServicio`}
 								pathName={`${path}.facturaServicioPath`}

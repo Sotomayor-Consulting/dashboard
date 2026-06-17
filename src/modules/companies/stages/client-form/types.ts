@@ -50,8 +50,14 @@ export interface Member {
 	ssn: string;
 	itin: string;
 	facturaServicio: File | null;
+	// Dirección del socio — shape unificado (mismo set para LLC y manager).
 	paisFactura: string;
-	direccion: string;
+	direccion: string; // line1
+	linea2: string; // opcional (apartment/suite)
+	ciudad: string;
+	estado: string; // state / provincia
+	condado: string; // opcional
+	codigoPostal: string;
 	/** Solo empresa: tipo del número de identificación (EIN, RUC, Otro). */
 	tipoIdentificacionFiscal: FiscalIdType;
 	/** Solo empresa: sitio web (opcional). */
@@ -81,8 +87,14 @@ export interface Manager {
 	numeroPasaporte: string;
 	nacionalidad: string;
 	mismaDireccionEmpresa: boolean;
+	// Dirección del manager — mismo shape unificado que socio/operativa.
 	paisResidencia: string;
-	direccion: string;
+	direccion: string; // line1
+	linea2: string; // opcional
+	ciudad: string;
+	estado: string;
+	condado: string; // opcional
+	codigoPostal: string;
 	facturaServicio: File | null;
 	/** Ruta en Storage del pasaporte del manager ya subido. */
 	pasaportePath?: string | null;
@@ -110,9 +122,10 @@ export interface ClientFormData {
 	formaTributacion: TaxClassification;
 	direccionOperativaEEUU: OperativeAddressOption;
 
-	// US Address (si direccionOperativaEEUU === 'si')
-	direccion: string;
-	condado: string;
+	// Dirección operativa de la LLC — shape unificado (US-style para cualquier país).
+	direccion: string; // line1
+	linea2: string; // opcional
+	condado: string; // opcional
 	ciudad: string;
 	estado: string;
 	codigoPostal: string;

@@ -15,7 +15,8 @@ export function getMemberCompletion(member: Member | undefined): {
 	total: number;
 	status: SocioStatus;
 } {
-	const total = 5 + 2 + 3 + 3;
+	// Totales por sub-sección: A=5 · B=2 · C=3 · D=6 (dirección US-style).
+	const total = 5 + 2 + 3 + 6;
 	const completed =
 		countIdentityCompleted(member) +
 		countParticipationCompleted(member) +
@@ -83,16 +84,20 @@ export function getMemberMissingFields(
 	} else if (!member?.numeroPasaporte?.trim()) {
 		documents.push('Número de pasaporte');
 	}
-	if (!member?.pasaporte)
+	if (!member?.pasaporte && !member?.pasaportePath)
 		documents.push(
 			isCompany ? 'Certificado de existencia' : 'Pasaporte (escaneo)',
 		);
 
-	// D · Dirección
+	// D · Dirección (shape unificado US-style — línea 2 y condado opcionales)
 	const address: string[] = [];
 	if (!member?.paisFactura?.trim()) address.push('País');
-	if (!member?.direccion?.trim()) address.push('Dirección');
-	if (!member?.facturaServicio) address.push('Planilla de servicio básico');
+	if (!member?.direccion?.trim()) address.push('Línea 1 (dirección)');
+	if (!member?.ciudad?.trim()) address.push('Ciudad');
+	if (!member?.estado?.trim()) address.push('Estado / Provincia');
+	if (!member?.codigoPostal?.trim()) address.push('Código postal');
+	if (!member?.facturaServicio && !member?.facturaServicioPath)
+		address.push('Planilla de servicio básico');
 
 	const sections: MissingSection[] = [
 		{ section: 'A', sectionLabel: 'Identidad', fields: identity },
