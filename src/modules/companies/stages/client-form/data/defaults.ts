@@ -52,6 +52,7 @@ export const createInitialFormData = (): ClientFormData => ({
 	actividadNoEnLista: false,
 	descripcionActividad: '',
 	codigoActividad: '',
+	descripcionActividadIRS: '',
 	formaAdministracion: '',
 	formaTributacion: '',
 	// La pregunta sí/no ya no existe en la UI; siempre se pide la dirección.

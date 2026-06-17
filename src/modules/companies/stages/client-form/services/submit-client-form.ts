@@ -1,5 +1,6 @@
 import type { ClientFormData } from '../types';
 import { toIncorporationFormPayload } from '../payload';
+import type { CountryRefV2 } from '../payload/incorporation-form-payload';
 
 export interface SubmitClientFormResult {
 	ok: boolean;
@@ -17,9 +18,9 @@ export interface SubmitClientFormResult {
  */
 export async function submitClientForm(
 	data: ClientFormData,
-	context: { empresaId: string },
+	context: { empresaId: string; countries?: ReadonlyArray<CountryRefV2> },
 ): Promise<SubmitClientFormResult> {
-	const payload = toIncorporationFormPayload(data);
+	const payload = toIncorporationFormPayload(data, context.countries);
 
 	try {
 		const res = await fetch(

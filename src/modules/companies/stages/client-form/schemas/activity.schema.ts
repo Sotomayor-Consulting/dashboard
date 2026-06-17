@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { MAX_FILE_SIZE } from '../constants';
+import { fileRefSchema } from './file-ref.schema';
 
 const fileSchema = z
 	.instanceof(File)
@@ -20,6 +21,7 @@ export const activityStepBaseSchema = z.object({
 	actividadNoEnLista: z.boolean(),
 	descripcionActividad: z.string(),
 	codigoActividad: z.string(),
+	descripcionActividadIRS: z.string(),
 	formaAdministracion: z.enum(['manager-managed', 'member-managed'], {
 		error: 'Selecciona una forma de administración',
 	}),
@@ -41,9 +43,11 @@ export const activityStepBaseSchema = z.object({
 	// `.default(null)` mantiene el output `string | null` (sin `undefined`) para
 	// no perturbar los tipos Input/Output del schema completo.
 	facturaServicioBasicoEEUUPath: z.string().nullable().default(null),
+	facturaServicioBasicoEEUURef: fileRefSchema.default(null),
 	pais: z.string(),
 	direccionEmpresa: z.string(),
 	facturaServicioBasico: fileSchema,
+	facturaServicioBasicoPath: z.string().nullable().default(null),
 });
 
 /**

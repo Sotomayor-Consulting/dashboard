@@ -1,16 +1,11 @@
-// Contrato de persistencia v2 del formulario de incorporación (staging).
+// Contrato de persistencia del formulario de incorporación (staging).
 //
-// Mejoras sobre v1 (plano):
+// Estructura:
 //  - Seccionado por dominio (general / members / managers / irsResponsible /
 //    signature / consent) + `meta` separado del envelope.
-//  - Socios como UNIÓN DISCRIMINADA por `type` ('person' | 'company'): cada uno
-//    lleva solo sus campos, sin los vacíos cross-tipo del v1.
-//  - Archivos como `FileRef` rico ({ path, name, mime, size }) en vez de strings
-//    sueltos: autodescriptivo para la revisión de Operaciones.
+//  - Socios como UNIÓN DISCRIMINADA por `type` ('person' | 'company').
+//  - Archivos como `FileRef` rico ({ path, name, mime, size }).
 //  - Claves en inglés (convención del codebase para estructura nueva).
-//
-// Compat: `parseIncorporationFormPayload` detecta drafts v1 (planos, sin
-// `version: 'v2'`) y los migra al vuelo vía el lector v1.
 
 import type {
 	ClientFormData,
@@ -22,10 +17,6 @@ import type {
 	Member,
 	TaxClassification,
 } from '../types';
-import {
-	type IncorporationFormPayloadV1,
-	fromIncorporationFormPayload as fromV1,
-} from './v1';
 
 /** Versión del contrato. Viaja en `payload.version`. */
 export const INCORPORATION_FORM_VERSION = 'v2' as const;
@@ -43,6 +34,7 @@ export interface GeneralSectionV2 {
 		notListed: boolean;
 		description: string;
 		irsCode: string;
+		irsActivityDescription: string;
 	};
 	management: ManagementType;
 	taxation: TaxClassification;
@@ -54,8 +46,14 @@ export interface GeneralSectionV2 {
  * LLC, la dirección del socio y la del manager. País/línea 1/ciudad/estado/
  * código postal son obligatorios; línea 2 y condado son opcionales.
  */
+export interface CountryRefV2 {
+	iso: string;
+	name: string;
+	phoneCode: string;
+}
+
 export interface AddressV2 {
-	country: string;
+	country: CountryRefV2 | string;
 	line1: string;
 	line2: string;
 	city: string;
@@ -76,7 +74,7 @@ export interface PersonMemberV2 extends MemberCommonV2 {
 	fullName: string;
 	maritalStatus: MaritalStatus;
 	usTaxResident: boolean;
-	nationality: string;
+	nationality: CountryRefV2 | string;
 	ssn: string;
 	itin: string;
 	passportNumber: string;
@@ -86,7 +84,7 @@ export interface PersonMemberV2 extends MemberCommonV2 {
 export interface CompanyMemberV2 extends MemberCommonV2 {
 	type: 'company';
 	legalName: string;
-	incorporationCountry: string;
+	incorporationCountry: CountryRefV2 | string;
 	website: string;
 	fiscalIdType: FiscalIdType;
 	fiscalIdNumber: string;
@@ -103,7 +101,7 @@ export interface ManagerV2 {
 	ssn: string;
 	itin: string;
 	passportNumber: string;
-	nationality: string;
+	nationality: CountryRefV2 | string;
 	sameAddressAsCompany: boolean;
 	/** Dirección unificada US-style. Aplica cuando `sameAddressAsCompany === false`. */
 	address: AddressV2;
@@ -130,10 +128,27 @@ export interface IncorporationFormPayloadV2 {
 
 const ref = (r: FileRef | null | undefined): FileRefJson => r ?? null;
 
+type CountryList = ReadonlyArray<CountryRefV2>;
+
+/**
+ * Resuelve un nombre de país (como se guarda en el form state) al snapshot
+ * `CountryRefV2`. Si no hay match, devuelve el string tal cual (backward-compat).
+ */
+function resolveCountry(
+	name: string,
+	countries: CountryList,
+): CountryRefV2 | string {
+	if (!name) return name;
+	const match = countries.find(
+		(c) => c.name === name || c.iso === name,
+	);
+	return match ?? name;
+}
+
 /** Helper para construir la dirección unificada desde state campo-a-campo. */
-function addressFromMember(m: Member): AddressV2 {
+function addressFromMember(m: Member, countries: CountryList): AddressV2 {
 	return {
-		country: m.paisFactura,
+		country: resolveCountry(m.paisFactura, countries),
 		line1: m.direccion,
 		line2: m.linea2,
 		city: m.ciudad,
@@ -143,9 +158,9 @@ function addressFromMember(m: Member): AddressV2 {
 	};
 }
 
-function addressFromManager(m: Manager): AddressV2 {
+function addressFromManager(m: Manager, countries: CountryList): AddressV2 {
 	return {
-		country: m.paisResidencia,
+		country: resolveCountry(m.paisResidencia, countries),
 		line1: m.direccion,
 		line2: m.linea2,
 		city: m.ciudad,
@@ -156,19 +171,19 @@ function addressFromManager(m: Manager): AddressV2 {
 }
 
 // ─────────────────────────── State → Payload ───────────────────────────
-function memberToV2(m: Member): MemberV2 {
+function memberToV2(m: Member, countries: CountryList): MemberV2 {
 	const common: MemberCommonV2 = {
 		id: m.id,
 		email: m.correo,
 		ownershipPercent: m.porcentaje,
-		address: addressFromMember(m),
+		address: addressFromMember(m, countries),
 	};
 	if (m.tipoSocio === 'empresa') {
 		return {
 			...common,
 			type: 'company',
 			legalName: m.nombreCompleto,
-			incorporationCountry: m.nacionalidad,
+			incorporationCountry: resolveCountry(m.nacionalidad, countries),
 			website: m.sitioWeb,
 			fiscalIdType: m.tipoIdentificacionFiscal,
 			fiscalIdNumber: m.numeroPasaporte,
@@ -184,7 +199,7 @@ function memberToV2(m: Member): MemberV2 {
 		fullName: m.nombreCompleto,
 		maritalStatus: m.estadoCivil,
 		usTaxResident: m.residenteFiscalEEUU,
-		nationality: m.nacionalidad,
+		nationality: resolveCountry(m.nacionalidad, countries),
 		ssn: m.ssn,
 		itin: m.itin,
 		passportNumber: m.numeroPasaporte,
@@ -195,7 +210,11 @@ function memberToV2(m: Member): MemberV2 {
 	};
 }
 
-function managerToV2(m: Manager): ManagerV2 {
+function managerToV2(
+	m: Manager,
+	operatingAddress: AddressV2,
+	countries: CountryList,
+): ManagerV2 {
 	return {
 		id: m.id,
 		name: m.nombre,
@@ -204,20 +223,37 @@ function managerToV2(m: Manager): ManagerV2 {
 		ssn: m.ssn,
 		itin: m.itin,
 		passportNumber: m.numeroPasaporte,
-		nationality: m.nacionalidad,
+		nationality: resolveCountry(m.nacionalidad, countries),
 		sameAddressAsCompany: m.mismaDireccionEmpresa,
-		address: addressFromManager(m),
+		address: m.mismaDireccionEmpresa
+			? operatingAddress
+			: addressFromManager(m, countries),
 		documents: {
 			passport: ref(m.pasaporteRef),
-			utilityBill: ref(m.facturaServicioRef),
+			utilityBill: m.mismaDireccionEmpresa ? null : ref(m.facturaServicioRef),
 		},
 	};
 }
 
-/** Proyecta el state del wizard al contrato v2 (sin `File`). */
+/**
+ * Proyecta el state del wizard al contrato v2 (sin `File`).
+ * `countries` enriquece los campos de país con `CountryRefV2`.
+ * Si no se pasa, los países se guardan como string (backward-compat).
+ */
 export function toIncorporationFormPayloadV2(
 	data: ClientFormData,
+	countries: CountryList = [],
 ): IncorporationFormPayloadV2 {
+	const opAddr: AddressV2 = {
+		country: resolveCountry(data.pais, countries),
+		line1: data.direccion,
+		line2: data.linea2,
+		city: data.ciudad,
+		county: data.condado,
+		state: data.estado,
+		postalCode: data.codigoPostal,
+	};
+
 	return {
 		version: INCORPORATION_FORM_VERSION,
 		meta: { form: 'incorporation-llc' },
@@ -228,23 +264,18 @@ export function toIncorporationFormPayloadV2(
 				notListed: data.actividadNoEnLista,
 				description: data.descripcionActividad,
 				irsCode: data.codigoActividad,
+				irsActivityDescription: data.descripcionActividadIRS,
 			},
 			management: data.formaAdministracion,
 			taxation: data.formaTributacion,
 			operatingAddress: {
-				country: data.pais,
-				line1: data.direccion,
-				line2: data.linea2,
-				city: data.ciudad,
-				county: data.condado,
-				state: data.estado,
-				postalCode: data.codigoPostal,
+				...opAddr,
 				utilityBill: ref(data.facturaServicioBasicoEEUURef),
 			},
 		},
 		members: {
 			publicInfo: data.informacionMiembrosPublica,
-			list: data.miembros.map(memberToV2),
+			list: data.miembros.map((m) => memberToV2(m, countries)),
 		},
 		managers: {
 			sciAssigns: data.managerSCI,
@@ -252,7 +283,7 @@ export function toIncorporationFormPayloadV2(
 			addOthers: data.agregarOtrosSocios,
 			selectedMemberIds: data.seleccionManagers,
 			publicInfo: data.informacionManagersPublica,
-			list: data.managers.map(managerToV2),
+			list: data.managers.map((m) => managerToV2(m, opAddr, countries)),
 		},
 		irsResponsible: { memberId: data.responsableIRS },
 		signature: { dataUrl: data.firma, file: ref(data.firmaRef) },
@@ -261,6 +292,13 @@ export function toIncorporationFormPayloadV2(
 }
 
 // ─────────────────────────── Payload → State ───────────────────────────
+
+/** Extrae el nombre del país desde un `CountryRefV2 | string` del payload. */
+function countryName(c: CountryRefV2 | string | undefined | null): string {
+	if (!c) return '';
+	if (typeof c === 'string') return c;
+	return c.name ?? '';
+}
 
 function emptyMember(id: string): Member {
 	return {
@@ -294,7 +332,7 @@ function memberFromV2(mv: MemberV2): Member {
 	m.correo = mv.email;
 	m.porcentaje = mv.ownershipPercent;
 	// Dirección unificada (los campos opcionales caen a '' si vienen ausentes).
-	m.paisFactura = mv.address?.country ?? '';
+	m.paisFactura = countryName(mv.address?.country);
 	m.direccion = mv.address?.line1 ?? '';
 	m.linea2 = mv.address?.line2 ?? '';
 	m.ciudad = mv.address?.city ?? '';
@@ -305,7 +343,7 @@ function memberFromV2(mv: MemberV2): Member {
 	if (mv.type === 'company') {
 		m.tipoSocio = 'empresa';
 		m.nombreCompleto = mv.legalName;
-		m.nacionalidad = mv.incorporationCountry;
+		m.nacionalidad = countryName(mv.incorporationCountry);
 		m.sitioWeb = mv.website;
 		m.tipoIdentificacionFiscal = mv.fiscalIdType;
 		m.numeroPasaporte = mv.fiscalIdNumber;
@@ -316,7 +354,7 @@ function memberFromV2(mv: MemberV2): Member {
 		m.nombreCompleto = mv.fullName;
 		m.estadoCivil = mv.maritalStatus;
 		m.residenteFiscalEEUU = mv.usTaxResident;
-		m.nacionalidad = mv.nationality;
+		m.nacionalidad = countryName(mv.nationality);
 		m.ssn = mv.ssn;
 		m.itin = mv.itin;
 		m.numeroPasaporte = mv.passportNumber;
@@ -339,10 +377,10 @@ function managerFromV2(mv: ManagerV2): Manager {
 		ssn: mv.ssn,
 		pasaporte: null,
 		numeroPasaporte: mv.passportNumber,
-		nacionalidad: mv.nationality,
+		nacionalidad: countryName(mv.nationality),
 		mismaDireccionEmpresa: mv.sameAddressAsCompany,
 		// Dirección unificada del manager.
-		paisResidencia: mv.address?.country ?? '',
+		paisResidencia: countryName(mv.address?.country),
 		direccion: mv.address?.line1 ?? '',
 		linea2: mv.address?.line2 ?? '',
 		ciudad: mv.address?.city ?? '',
@@ -369,6 +407,7 @@ export function fromIncorporationFormPayloadV2(
 		actividadNoEnLista: g?.activity?.notListed ?? false,
 		descripcionActividad: g?.activity?.description ?? '',
 		codigoActividad: g?.activity?.irsCode ?? '',
+		descripcionActividadIRS: g?.activity?.irsActivityDescription ?? '',
 		formaAdministracion: g?.management ?? '',
 		formaTributacion: g?.taxation ?? '',
 		direccionOperativaEEUU: 'si',
@@ -381,7 +420,7 @@ export function fromIncorporationFormPayloadV2(
 		facturaServicioBasicoEEUU: null,
 		facturaServicioBasicoEEUUPath: addr?.utilityBill?.path ?? null,
 		facturaServicioBasicoEEUURef: addr?.utilityBill ?? null,
-		pais: addr?.country ?? '',
+		pais: countryName(addr?.country),
 		direccionEmpresa: '',
 		facturaServicioBasico: null,
 		miembros: (payload.members?.list ?? []).map(memberFromV2),
@@ -401,24 +440,45 @@ export function fromIncorporationFormPayloadV2(
 }
 
 /**
- * Lee un payload persistido sea cual sea su versión y lo rehidrata a state.
- * `version === 'v2'` → lector v2; cualquier otra cosa (v1 plano o sin versión)
- * → lector v1 (compat). Así ningún draft en curso se pierde tras el cambio.
+ * Rehidrata un payload persistido al state del wizard.
  */
 export function parseIncorporationFormPayload(raw: unknown): ClientFormData {
-	if (
-		raw &&
-		typeof raw === 'object' &&
-		(raw as { version?: unknown }).version === INCORPORATION_FORM_VERSION
-	) {
-		return fromIncorporationFormPayloadV2(raw as IncorporationFormPayloadV2);
-	}
-	return fromV1(raw as IncorporationFormPayloadV1);
+	return fromIncorporationFormPayloadV2(raw as IncorporationFormPayloadV2);
 }
 
 // ─────────────────────────── Validación (servidor) ───────────────────────────
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/**
+ * Resuelve las direcciones de managers con `sameAddressAsCompany`: copia la
+ * dirección operativa de la LLC para que el payload almacenado esté completo.
+ * Muta el payload in-place y lo devuelve.
+ */
+export function resolveManagerAddresses(
+	payload: IncorporationFormPayloadV2,
+): IncorporationFormPayloadV2 {
+	const opAddr = payload.general?.operatingAddress;
+	if (!opAddr) return payload;
+
+	const resolved: AddressV2 = {
+		country: opAddr.country,
+		line1: opAddr.line1,
+		line2: opAddr.line2,
+		city: opAddr.city,
+		state: opAddr.state,
+		county: opAddr.county,
+		postalCode: opAddr.postalCode,
+	};
+
+	for (const mg of payload.managers?.list ?? []) {
+		if (mg.sameAddressAsCompany) {
+			mg.address = resolved;
+		}
+	}
+
+	return payload;
+}
 
 /**
  * Validación de integridad del payload v2 en el servidor (defensa en
@@ -427,6 +487,13 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * PRESENCIA de los documentos requeridos— que el validador v1 dejaba sin
  * chequear. Devuelve mensajes legibles; vacío = válido.
  */
+/** Valida que un campo country tenga valor (acepta string o CountryRefV2). */
+function hasCountry(c: CountryRefV2 | string | undefined | null): boolean {
+	if (!c) return false;
+	if (typeof c === 'string') return c.trim().length > 0;
+	return (c.name ?? '').trim().length > 0;
+}
+
 export function validateIncorporationFormPayload(
 	payload: IncorporationFormPayloadV2,
 ): string[] {
@@ -448,7 +515,7 @@ export function validateIncorporationFormPayload(
 	// país + línea 1 + ciudad + estado + código postal son obligatorios;
 	// línea 2 y condado son opcionales.
 	const addr = g?.operatingAddress;
-	if (!addr?.country?.trim())
+	if (!hasCountry(addr?.country))
 		errors.push('Indica el país de la dirección operativa.');
 	if (!addr?.line1?.trim())
 		errors.push('Indica la línea 1 de la dirección operativa.');
@@ -474,7 +541,7 @@ export function validateIncorporationFormPayload(
 		if (!(m.ownershipPercent >= 1 && m.ownershipPercent <= 100))
 			errors.push(`${tag}: porcentaje fuera de rango (1-100).`);
 		// Dirección unificada del socio — mismos requeridos que la operativa.
-		if (!m.address?.country?.trim())
+		if (!hasCountry(m.address?.country))
 			errors.push(`${tag}: falta el país de la dirección.`);
 		if (!m.address?.line1?.trim())
 			errors.push(`${tag}: falta la línea 1 de la dirección.`);
@@ -489,7 +556,7 @@ export function validateIncorporationFormPayload(
 		if (m.type === 'company') {
 			if (!m.legalName?.trim())
 				errors.push(`${tag}: falta el nombre de la empresa.`);
-			if (!m.incorporationCountry?.trim())
+			if (!hasCountry(m.incorporationCountry))
 				errors.push(`${tag}: falta el país de constitución.`);
 			if (!m.fiscalIdType)
 				errors.push(`${tag}: falta el tipo de identificación.`);
@@ -499,7 +566,7 @@ export function validateIncorporationFormPayload(
 				errors.push(`${tag}: falta el certificado de existencia.`);
 		} else {
 			if (!m.fullName?.trim()) errors.push(`${tag}: falta el nombre.`);
-			if (!m.nationality?.trim())
+			if (!hasCountry(m.nationality))
 				errors.push(`${tag}: falta el país de nacionalidad.`);
 			if (!m.maritalStatus) errors.push(`${tag}: falta el estado civil.`);
 			const idNum = m.usTaxResident ? m.ssn : m.passportNumber;
@@ -539,7 +606,7 @@ export function validateIncorporationFormPayload(
 	(payload.managers?.list ?? []).forEach((mg, i) => {
 		if (mg.sameAddressAsCompany) return;
 		const tag = `Manager ${String(i + 1).padStart(2, '0')}`;
-		if (!mg.address?.country?.trim())
+		if (!hasCountry(mg.address?.country))
 			errors.push(`${tag}: falta el país de residencia.`);
 		if (!mg.address?.line1?.trim())
 			errors.push(`${tag}: falta la línea 1 de la dirección.`);
@@ -574,30 +641,57 @@ export function isDraftPayloadShape(payload: unknown): {
 
 	const p = payload as Record<string, unknown>;
 
-	if (p.version === 'v2') {
-		const requiredSections = [
-			'general',
-			'members',
-			'managers',
-			'irsResponsible',
-			'signature',
-			'consent',
-		] as const;
-		for (const key of requiredSections) {
-			if (typeof p[key] !== 'object' || p[key] === null)
-				return { ok: false, reason: `MISSING_SECTION_${key.toUpperCase()}` };
-		}
-		if (
-			!Array.isArray((p.members as Record<string, unknown>)?.list) ||
-			!Array.isArray((p.managers as Record<string, unknown>)?.list)
-		)
-			return { ok: false, reason: 'MEMBERS_OR_MANAGERS_LIST_NOT_ARRAY' };
-		return { ok: true };
-	}
+	if (p.version !== 'v2')
+		return { ok: false, reason: `UNKNOWN_VERSION_${String(p.version)}` };
 
-	if (p.version === 'v1' || !('version' in p)) {
-		return { ok: true };
+	const requiredSections = [
+		'general',
+		'members',
+		'managers',
+		'irsResponsible',
+		'signature',
+		'consent',
+	] as const;
+	for (const key of requiredSections) {
+		if (typeof p[key] !== 'object' || p[key] === null)
+			return { ok: false, reason: `MISSING_SECTION_${key.toUpperCase()}` };
 	}
+	if (
+		!Array.isArray((p.members as Record<string, unknown>)?.list) ||
+		!Array.isArray((p.managers as Record<string, unknown>)?.list)
+	)
+		return { ok: false, reason: 'MEMBERS_OR_MANAGERS_LIST_NOT_ARRAY' };
+	return { ok: true };
+}
 
-	return { ok: false, reason: `UNKNOWN_VERSION_${String(p.version)}` };
+// ─────────────────────────── Helpers de progreso ───────────────────────────
+
+const STEP_LABELS: Record<number, string> = {
+	1: 'Identidad de la empresa',
+	2: 'Actividad y dirección',
+	3: 'Socios',
+	4: 'Manager y responsable IRS',
+	5: 'Confirmación y firma',
+};
+
+export function stepLabel(step: number): string {
+	return STEP_LABELS[step] ?? `Paso ${step}`;
+}
+
+export function computeFormProgress(data: ClientFormData): number {
+	const milestones: boolean[] = [
+		data.ingresosEEUU !== null &&
+			data.formaAdministracion !== '' &&
+			data.formaTributacion !== '' &&
+			(data.actividad !== '' || data.actividadNoEnLista),
+		data.miembros.length > 0 &&
+			data.miembros.reduce((s, m) => s + (m.porcentaje || 0), 0) === 100,
+		data.managerEsMiembro !== null || data.managerSCI !== null,
+		data.responsableIRS !== '',
+		(data.firma !== null || (data.firmaPath ?? null) !== null) &&
+			data.aceptaTerminos,
+	];
+	return Math.round(
+		(milestones.filter(Boolean).length / milestones.length) * 100,
+	);
 }

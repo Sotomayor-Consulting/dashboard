@@ -34,6 +34,8 @@ interface Props {
 	footerLeftMeta?: React.ReactNode;
 	/** Si true, oculta el botón Anterior (paso 1 generalmente). */
 	hidePrev?: boolean | undefined;
+	/** URL de regreso (ej. al dashboard de incorporación). */
+	backHref?: string | undefined;
 }
 
 /**
@@ -66,6 +68,7 @@ export function FormShell({
 	nextLabel,
 	footerLeftMeta,
 	hidePrev,
+	backHref,
 }: Props) {
 	const isLastStep = currentStep === totalSteps;
 
@@ -92,6 +95,31 @@ export function FormShell({
 						borderColor: 'var(--cf-line)',
 					}}
 				>
+					<div className="flex min-w-0 items-start gap-3">
+						{backHref && (
+							<a
+								href={backHref}
+								className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors hover:opacity-80"
+								style={{
+									borderColor: 'var(--cf-line)',
+									color: 'var(--cf-ink-soft)',
+								}}
+								aria-label="Volver al proceso de incorporación"
+							>
+								<svg
+									width="16"
+									height="16"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									strokeWidth="2"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								>
+									<path d="M19 12H5M12 19l-7-7 7-7" />
+								</svg>
+							</a>
+						)}
 					<div className="min-w-0">
 						{/* Indicador de paso compacto — solo móvil/tablet */}
 						<div
@@ -115,6 +143,7 @@ export function FormShell({
 						>
 							{title}
 						</h1>
+					</div>
 					</div>
 					<ThemeSwitcher />
 				</header>

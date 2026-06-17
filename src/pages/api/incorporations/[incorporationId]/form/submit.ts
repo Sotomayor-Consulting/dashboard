@@ -13,6 +13,7 @@ import {
 import {
 	type IncorporationFormPayloadV2,
 	validateIncorporationFormPayload,
+	resolveManagerAddresses,
 } from '@modules/companies/stages/client-form/payload';
 import type { FileRef } from '@modules/companies/stages/client-form/types';
 import { createLogger } from '@infrastructure/logging';
@@ -104,11 +105,12 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 
 	const errors = validateIncorporationFormPayload(payload);
 	if (errors.length > 0) {
+		log.warn('submit validation failed', { incorporationId, errors });
 		return json(422, { ok: false, error: 'VALIDATION', details: errors });
 	}
 
-	// Subir la firma si llega como dataURL; reemplazarla por su FileRef en Storage
-	// para no almacenar el base64 pesado dentro del jsonb.
+	resolveManagerAddresses(payload);
+
 	const finalPayload: IncorporationFormPayloadV2 = {
 		...payload,
 		signature: { ...payload.signature },

@@ -4,6 +4,8 @@ import { createLogger } from '@infrastructure/logging';
 const log = createLogger('client-form.data');
 
 import { actividadesGeneral } from '@domains/utils/generals/activities';
+import { getCountries } from '@domains/countries';
+import type { Country } from '@modules/companies/types';
 
 import type { Activity } from '../data/activities';
 
@@ -23,12 +25,21 @@ export interface IncorporationIdentity {
 	estadoIncorporacion: string | null;
 }
 
+/** País serializable para el island (sin el id interno). */
+export interface CountryOption {
+	iso: string;
+	name: string;
+	phoneCode: string;
+}
+
 export interface ClientFormBootstrapData {
 	activities: Activity[];
 	/** Identidad pre-cargada (nombres + estado). */
 	identity: IncorporationIdentity;
 	/** Lista de estados disponibles para editar el estado de incorporación. */
 	estados: EstadoOption[];
+	/** Países desde public.countries. */
+	countries: CountryOption[];
 }
 
 /**
@@ -42,13 +53,21 @@ export async function getClientFormBootstrapData(
 	supabase: SupabaseClient,
 	empresaId: string,
 ): Promise<ClientFormBootstrapData> {
-	const [activitiesRaw, identity, estados] = await Promise.all([
+	const [activitiesRaw, identity, estados, countriesRaw] = await Promise.all([
 		actividadesGeneral(supabase),
 		getIncorporationIdentity(supabase, empresaId),
 		getEstados(supabase),
+		getCountries(supabase),
 	]);
 	const activities = (activitiesRaw ?? []) as unknown as Activity[];
-	return { activities, identity, estados };
+	const countries: CountryOption[] = (countriesRaw ?? []).map(
+		(c: Country) => ({
+			iso: c.iso,
+			name: c.name,
+			phoneCode: c.phone_code,
+		}),
+	);
+	return { activities, identity, estados, countries };
 }
 
 /**

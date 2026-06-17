@@ -98,7 +98,7 @@ export function Callout({
 			<div
 				className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full border"
 				style={{
-					background: '#fff',
+					background: 'var(--cf-bg-card)',
 					borderColor: isAccent ? 'var(--cf-accent-border)' : 'var(--cf-line)',
 					color: isAccent ? 'var(--cf-accent-ink)' : 'var(--cf-ink-mute)',
 				}}
