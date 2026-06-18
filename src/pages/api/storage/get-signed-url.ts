@@ -30,7 +30,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		}
 
 		const { data, error } = await supabase.storage
-			.from('test')
+			.from('documents')
 			.createSignedUrl(path, 3600);
 
 		if (error) {

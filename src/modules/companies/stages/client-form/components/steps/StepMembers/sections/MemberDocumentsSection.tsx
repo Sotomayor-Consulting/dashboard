@@ -173,6 +173,7 @@ export function MemberDocumentsSection({
 					fileName={`${path}.pasaporte`}
 					pathName={`${path}.pasaportePath`}
 					slot="member-pasaporte"
+					entityId={memberId}
 					id={`pasaporte-${memberId}`}
 					label={
 						isCompany

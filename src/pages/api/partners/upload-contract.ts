@@ -8,7 +8,7 @@ import { createLogger } from '@infrastructure/logging';
 const log = createLogger('partners.upload-contract');
 
 const DEFAULT_BACK_PATH = '/partners/settings/';
-const BUCKET_NAME = 'documentos_usuarios';
+const BUCKET_NAME = 'documents';
 const RLS_SUB_FOLDER = 'contratos-partner';
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME = 'application/pdf';

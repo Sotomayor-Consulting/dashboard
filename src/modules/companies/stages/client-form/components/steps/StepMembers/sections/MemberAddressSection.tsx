@@ -177,6 +177,7 @@ export function MemberAddressSection({
 					fileName={`${path}.facturaServicio`}
 					pathName={`${path}.facturaServicioPath`}
 					slot="member-factura"
+					entityId={memberId}
 					id={`facturaServicio-${memberId}`}
 					label="Planilla de servicio básico"
 					description={

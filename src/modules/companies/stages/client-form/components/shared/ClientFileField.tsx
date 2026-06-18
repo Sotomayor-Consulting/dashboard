@@ -21,6 +21,8 @@ interface Props {
 	/** Ruta RHF al campo de la ruta en Storage, p. ej. `miembros.0.pasaportePath`. */
 	pathName: FieldPath<ClientFormData>;
 	slot: FileSlot;
+	/** UUID del miembro/manager — requerido para slots member-* y manager-*. */
+	entityId?: string;
 	id: string;
 	label: string;
 	description?: string;
@@ -37,6 +39,7 @@ export function ClientFileField({
 	fileName,
 	pathName,
 	slot,
+	entityId,
 	id,
 	label,
 	description,
@@ -81,7 +84,11 @@ export function ClientFileField({
 		field.onChange(next);
 		setUploading(true);
 		try {
-			const ref = await uploadClientFile(next, { incorporationId, slot });
+			const ref = await uploadClientFile(next, {
+				incorporationId,
+				slot,
+				...(entityId ? { entityId } : {}),
+			});
 			setPath(ref.path);
 			setRef({
 				path: ref.path,

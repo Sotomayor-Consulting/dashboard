@@ -21,14 +21,6 @@ type NotificationRow = {
 	read_at?: string | null;
 };
 
-type SubmittedFormRow = {
-	submission_id: string;
-	status: string | null;
-	submitted_at: string | null;
-	updated_at: string | null;
-	formularios?: { titulo?: string | null } | null;
-};
-
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
@@ -43,10 +35,8 @@ let notificationsData: {
 	notifications: [],
 	totalUnread: 0,
 };
-let submittedForms: SubmittedFormRow[] = [];
-
 if (userId) {
-	const [profileResult, companiesResult, notificationsResult, formsResult] =
+	const [profileResult, companiesResult, notificationsResult] =
 		await Promise.allSettled([
 			supabase
 				.from('usuarios')
@@ -55,20 +45,6 @@ if (userId) {
 				.maybeSingle(),
 			getEmpresasForSwitcher(supabase, userId),
 			getNotifications(supabase, userId),
-			supabase
-				.from('submitted_forms')
-				.select(
-					`
-					submission_id,
-					status,
-					submitted_at,
-					updated_at,
-					formularios:formularios ( titulo )
-				`,
-				)
-				.eq('user_id', userId)
-				.order('updated_at', { ascending: false })
-				.limit(5),
 		]);
 
 	if (profileResult.status === 'fulfilled' && !profileResult.value.error) {
@@ -81,10 +57,6 @@ if (userId) {
 
 	if (notificationsResult.status === 'fulfilled') {
 		notificationsData = notificationsResult.value;
-	}
-
-	if (formsResult.status === 'fulfilled' && !formsResult.value.error) {
-		submittedForms = (formsResult.value.data || []) as SubmittedFormRow[];
 	}
 }
 
@@ -164,12 +136,6 @@ const activityItems = [
 		meta: formatRelativeDate(notification.created_at),
 		href: notification.action_url || '/notifications',
 		isUnread: !notification.read_at,
-	})),
-	...submittedForms.map((form) => ({
-		title: form.formularios?.titulo || 'Formulario enviado',
-		meta: formatRelativeDate(form.submitted_at || form.updated_at),
-		href: '/forms/submitted',
-		isUnread: false,
 	})),
 	...empresas.slice(0, 3).map((company) => ({
 		title:

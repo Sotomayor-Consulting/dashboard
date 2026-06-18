@@ -161,6 +161,7 @@ export function ManagerForm({
 				fileName={`${path}.pasaporte`}
 				pathName={`${path}.pasaportePath`}
 				slot="manager-pasaporte"
+				entityId={managerId}
 				id={`pasaporteManager-${managerId}`}
 				label="Pasaporte escaneado"
 			/>
@@ -320,6 +321,7 @@ export function ManagerForm({
 								fileName={`${path}.facturaServicio`}
 								pathName={`${path}.facturaServicioPath`}
 								slot="manager-factura"
+								entityId={managerId}
 								id={`facturaManager-${managerId}`}
 								label="Factura de servicio básico"
 							/>

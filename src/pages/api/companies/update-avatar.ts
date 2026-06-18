@@ -54,23 +54,24 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		}
 
 		// 4) Limpiar archivos previos del usuario
+		const avatarPrefix = `avatars/${user.id}`;
 		const { data: existing, error: listErr } = await supabase.storage
-			.from('avatars')
-			.list(user.id, { limit: 100 });
+			.from('public-assets')
+			.list(avatarPrefix, { limit: 100 });
 
 		if (!listErr && existing?.length) {
-			const toDelete = existing.map((f) => `${user.id}/${f.name}`);
+			const toDelete = existing.map((f) => `${avatarPrefix}/${f.name}`);
 			try {
-				await supabase.storage.from('avatars').remove(toDelete);
+				await supabase.storage.from('public-assets').remove(toDelete);
 			} catch {}
 		}
 
 		// 5) Subir nuevo avatar con nombre determinístico
 		const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-		const newPath = `${user.id}/avatar.${ext}`;
+		const newPath = `${avatarPrefix}/avatar.${ext}`;
 
 		const { error: upErr } = await supabase.storage
-			.from('avatars')
+			.from('public-assets')
 			.upload(newPath, file, {
 				upsert: true,
 				contentType: file.type || 'application/octet-stream',
@@ -82,9 +83,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			);
 		}
 
-		// 6) URL pública (si el bucket es privado, usa createSignedUrl)
+		// 6) URL pública
 		const { data: pub } = supabase.storage
-			.from('avatars')
+			.from('public-assets')
 			.getPublicUrl(newPath);
 		let avatarUrl = `${pub.publicUrl}?v=${Date.now()}`;
 

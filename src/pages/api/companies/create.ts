@@ -5,7 +5,7 @@ import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/create-company';
-const BUCKET = 'empresa-logos';
+const BUCKET = 'public-assets';
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
 const normalizeImageMime = (mime?: string) => {
@@ -85,7 +85,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			);
 		}
 
-		// 5) Subir logotipo (opcional) → bucket público `empresa-logos`
+		// 5) Subir logotipo (opcional) → bucket público `public-assets`
 		let logoUrl = '';
 		if (logo && logo.size > 0) {
 			const normMime = normalizeImageMime(logo.type);
@@ -103,11 +103,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 			try {
 				// Limpieza previa del directorio empresaId/ (best-effort)
+				const brandingPrefix = `branding/${empresaId}`;
 				const { data: existing } = await supabase.storage
 					.from(BUCKET)
-					.list(empresaId, { limit: 100 });
+					.list(brandingPrefix, { limit: 100 });
 				if (existing?.length) {
-					const toDelete = existing.map((f) => `${empresaId}/${f.name}`);
+					const toDelete = existing.map((f) => `${brandingPrefix}/${f.name}`);
 					try {
 						await supabase.storage.from(BUCKET).remove(toDelete);
 					} catch {}
@@ -118,7 +119,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 				const ext = logo.name?.includes('.')
 					? logo.name.split('.').pop()!.toLowerCase()
 					: extFromMime(normMime);
-				const path = `${empresaId}/logo.${ext}`;
+				const path = `branding/${empresaId}/logo.${ext}`;
 
 				const { error: upErr } = await supabase.storage
 					.from(BUCKET)
