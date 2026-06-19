@@ -30,11 +30,36 @@ interface Props {
 	estados: EstadosOption[];
 }
 
+interface WizardActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+	children: React.ReactNode;
+}
+
+function WizardActionButton({
+	children,
+	className,
+	type = 'button',
+	...props
+}: WizardActionButtonProps) {
+	return (
+		<button
+			type={type}
+			className={cn(
+				'w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-transparent px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:border-neutral-600 dark:text-white dark:focus:ring-neutral-500',
+				className,
+			)}
+			{...props}
+		>
+			{children}
+		</button>
+	);
+}
+
 const STEPS = [
 	{
 		icon: 'ri:building-4-line',
 		title: 'Tipo de empresa',
-		description: 'Elige tu entidad comercial ¿No estás seguro? te ayudamos a elegir.',
+		description:
+			'Elige tu entidad comercial ¿No estás seguro? te ayudamos a elegir.',
 	},
 	{
 		icon: 'ri:lightbulb-line',
@@ -49,7 +74,8 @@ const STEPS = [
 	{
 		icon: 'ri:check-line',
 		title: 'Verifica tus datos y regístrate',
-		description: 'Verifica los datos que seleccionaste y regístrate para entrar a nuestra plataforma.',
+		description:
+			'Verifica los datos que seleccionaste y regístrate para entrar a nuestra plataforma.',
 	},
 ];
 
@@ -145,6 +171,20 @@ export default function StepsWizard({ estados }: Props) {
 		setCurrentStep((prev) => Math.max(prev - 1, 0));
 	};
 
+	const renderNextButton = (className?: string) => (
+		<WizardActionButton
+			onClick={currentStep === 3 ? verificar : continuar}
+			disabled={currentStep === 3 && isVerifying}
+			className={cn(
+				'hover:bg-white-50 dark:hover:bg-neutral-950',
+				currentStep === 3 && 'disabled:opacity-50',
+				className,
+			)}
+		>
+			{currentStep === 3 && isVerifying ? 'Verificando...' : 'Avanzar'}
+		</WizardActionButton>
+	);
+
 	const verificar = async () => {
 		const error = validarNombres();
 		if (error) {
@@ -154,7 +194,9 @@ export default function StepsWizard({ estados }: Props) {
 		salvaguardar();
 		setIsVerifying(true);
 		try {
-			const res = await fetch('/api/auth/session-check', { credentials: 'include' });
+			const res = await fetch('/api/auth/session-check', {
+				credentials: 'include',
+			});
 			const json = await res.json();
 			const sessionData = json?.data ?? { isAuthenticated: false };
 			if (sessionData.isAuthenticated) {
@@ -193,15 +235,22 @@ export default function StepsWizard({ estados }: Props) {
 			const result = await res.json();
 			if (res.ok) {
 				if (result?.data?.requiresEmailConfirmation === false) {
-					const sr = await fetch('/api/auth/session-check', { credentials: 'include' });
+					const sr = await fetch('/api/auth/session-check', {
+						credentials: 'include',
+					});
 					const sj = await sr.json();
 					if (sj?.data?.isAuthenticated) {
 						window.location.href = '/';
 						return;
 					}
-					toast.error('Cuenta creada, pero no se pudo validar la sesión automáticamente.');
+					toast.error(
+						'Cuenta creada, pero no se pudo validar la sesión automáticamente.',
+					);
 				} else {
-					toast.success(result?.data?.message || 'Registro exitoso. Revisa tu email para confirmar.');
+					toast.success(
+						result?.data?.message ||
+							'Registro exitoso. Revisa tu email para confirmar.',
+					);
 				}
 			} else {
 				toast.error(result?.error || 'Error en el registro.');
@@ -214,7 +263,7 @@ export default function StepsWizard({ estados }: Props) {
 	};
 
 	const stepper = (
-		<aside className="ml-5 hidden w-full lg:flex lg:min-h-175 lg:flex-col">
+		<aside className="hidden w-full lg:flex lg:min-h-175 lg:flex-col">
 			<div className="mt-16">
 				<h3 className="text-black-900 text-2xl dark:text-white">
 					Inicie su empresa en EE. UU. en minutos.
@@ -246,9 +295,9 @@ export default function StepsWizard({ estados }: Props) {
 									className={cn(
 										'relative z-10 flex w-full items-center gap-3.5 rounded-xl p-3.5 text-left transition-all',
 										activo &&
-											'border border-primary-gold bg-white dark:bg-neutral-900',
+											'border-primary-gold border bg-white dark:bg-neutral-900',
 										!activo &&
-											'border border-transparent bg-white-100 hover:border-primary-gold dark:bg-black dark:hover:border-primary-gold',
+											'bg-white-100 hover:border-primary-gold dark:hover:border-primary-gold border border-transparent dark:bg-black',
 									)}
 								>
 									<div
@@ -256,7 +305,7 @@ export default function StepsWizard({ estados }: Props) {
 											'flex items-center justify-center rounded-lg transition-all',
 											activo && 'bg-primary-gold',
 											!activo &&
-												'bg-white group-hover:bg-primary-gold dark:bg-neutral-950',
+												'group-hover:bg-primary-gold bg-white dark:bg-neutral-950',
 										)}
 									>
 										<span
@@ -274,7 +323,7 @@ export default function StepsWizard({ estados }: Props) {
 											className={cn(
 												'mb-0.5 text-base font-semibold transition-all',
 												activo && 'dark:text-white',
-												!activo && 'text-gray-500 group-hover:text-white-600',
+												!activo && 'group-hover:text-white-600 text-gray-500',
 											)}
 										>
 											{step.title}
@@ -283,7 +332,7 @@ export default function StepsWizard({ estados }: Props) {
 											className={cn(
 												'text-xs font-normal transition-all',
 												activo && 'text-neutral-600 dark:text-gray-400',
-												!activo && 'text-gray-500 group-hover:text-white-600',
+												!activo && 'group-hover:text-white-600 text-gray-500',
 											)}
 										>
 											{step.description}
@@ -299,8 +348,11 @@ export default function StepsWizard({ estados }: Props) {
 	);
 
 	const paso1 = (
-		<div id="paso1">
-			<div className="px-10 pt-6 pb-10 text-center">
+		<div
+			id="paso1"
+			className="flex h-full flex-col justify-center gap-10 py-10"
+		>
+			<div className="text-center">
 				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
 					Paso 01
 				</span>
@@ -312,7 +364,7 @@ export default function StepsWizard({ estados }: Props) {
 				</p>
 			</div>
 			<ul className="grid w-full place-items-center gap-6">
-				<li className="w-4/5 md:w-3/5">
+				<li className="w-4/5">
 					<input
 						type="radio"
 						id="LLC_radio_btn"
@@ -328,7 +380,10 @@ export default function StepsWizard({ estados }: Props) {
 						className="bg-white-100 hover:bg-white-50 dark:peer-checked:border-primary-gold group peer-checked:border-primary-gold grid w-full cursor-pointer grid-cols-[auto_1fr_auto] items-center justify-between gap-5 rounded-lg border border-neutral-700 p-5 text-neutral-500 peer-checked:bg-white peer-checked:text-black hover:text-neutral-900 dark:bg-transparent dark:text-gray-400 dark:peer-checked:bg-neutral-900 dark:peer-checked:text-white dark:hover:bg-neutral-950 dark:hover:text-white"
 					>
 						<div className="bg-primary-gold/20 text-brand-gold rounded-xl p-3">
-							<Icon icon="ri:building-4-line" className="text-primary-gold text-3xl" />
+							<Icon
+								icon="ri:building-4-line"
+								className="text-primary-gold text-3xl"
+							/>
 						</div>
 						<div className="block max-w-[90%]">
 							<div className="w-full text-lg font-semibold">LLC</div>
@@ -342,43 +397,39 @@ export default function StepsWizard({ estados }: Props) {
 						/>
 					</label>
 				</li>
-				<li className="w-4/5 md:w-3/5">
+				<li className="w-4/5">
 					<button
 						type="button"
 						onClick={() => setHelpDialogOpen(true)}
-						className="bg-white-50 hover:bg-white-50 group border-primary-gold grid w-full cursor-pointer grid-cols-[auto_1fr_auto] grid-rows-1 items-center justify-between gap-5 rounded-lg border p-5 text-neutral-500 dark:bg-transparent dark:text-gray-400 dark:hover:bg-neutral-950 dark:hover:text-white"
+						className="bg-white-50 hover:bg-white-50 group border-primary-gold group grid w-full cursor-pointer grid-cols-[auto_1fr_auto] grid-rows-1 items-center justify-between gap-5 rounded-lg border p-5 text-neutral-500 dark:bg-transparent dark:text-gray-400 dark:hover:bg-neutral-950 dark:hover:text-white"
 					>
 						<div className="bg-primary-gold/20 rounded-xl p-3">
-							<Icon icon="ri:question-line" className="text-primary-gold text-3xl" />
+							<Icon
+								icon="ri:question-line"
+								className="text-primary-gold text-3xl"
+							/>
 						</div>
 						<div className="block max-w-[90%] text-left">
-							<div className="w-full text-lg font-semibold">Ayúdame a elegir</div>
+							<div className="w-full text-lg font-semibold">
+								Ayúdame a elegir
+							</div>
 							<div className="w-full text-sm text-pretty">
-								Una evaluación estratégica para entender tu etapa actual, tus riesgos y el
-								paso exacto que necesitas dar.
+								Una evaluación estratégica para entender tu etapa actual, tus
+								riesgos y el paso exacto que necesitas dar.
 							</div>
 						</div>
 						<Icon
 							icon="ri:arrow-right-s-fill"
-							className="text-primary-gold ms-3 text-2xl transition-all delay-105 dark:text-white"
+							className="text-primary-gold ms-3 text-2xl transition-all delay-105 group-hover:translate-x-2 dark:text-white"
 						/>
 					</button>
 				</li>
 			</ul>
-			<div className="mt-8 flex w-full justify-center">
-				<button
-					type="button"
-					onClick={continuar}
-					className="hover:bg-white-50 me-2 mb-2 w-4/5 cursor-pointer rounded-lg border border-neutral-500 bg-transparent px-5 py-2.5 text-center font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:w-3/5 md:text-lg dark:text-white dark:hover:bg-neutral-950 dark:focus:ring-neutral-500"
-				>
-					Continuar
-				</button>
-			</div>
 		</div>
 	);
 
 	const paso2 = (
-		<div id="paso2">
+		<div id="paso2" className="flex flex-col justify-center gap-5 p-10">
 			<div className="px-10 py-10 text-center">
 				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
 					Paso 02
@@ -414,9 +465,9 @@ export default function StepsWizard({ estados }: Props) {
 					))}
 				</ol>
 			</div>
-			<ul className="grid w-full place-items-center gap-3">
+			<ul className="grid w-full place-items-center">
 				<li className="w-4/5 md:w-3/5">
-					<div id="seleccionar" className="mt-5">
+					<div id="seleccionar">
 						<Select
 							value={estadoDeEmpresa}
 							onValueChange={(v) => setEstadoDeEmpresa(v ?? '')}
@@ -435,28 +486,12 @@ export default function StepsWizard({ estados }: Props) {
 					</div>
 				</li>
 			</ul>
-			<div className="my-8 grid w-full grid-cols-2 gap-2 px-10 lg:px-36">
-				<button
-					type="button"
-					onClick={retroceder}
-					className="w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-transparent px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:border-neutral-600 dark:text-white dark:focus:ring-neutral-500"
-				>
-					Volver
-				</button>
-				<button
-					type="button"
-					onClick={continuar}
-					className="w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-transparent px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:border-neutral-600 dark:text-white dark:focus:ring-neutral-500"
-				>
-					Continuar
-				</button>
-			</div>
 		</div>
 	);
 
 	const paso3 = (
-		<div id="paso3">
-			<div className="px-10 py-10 text-center">
+		<div id="paso3" className="flex flex-col justify-center gap-5 p-10">
+			<div className="text-center">
 				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
 					Paso 03
 				</span>
@@ -467,11 +502,29 @@ export default function StepsWizard({ estados }: Props) {
 					Elije los nombres que mas se adapten a tu empresa
 				</p>
 			</div>
-			<ul className="flex w-full flex-col place-items-center gap-2 px-10">
+			<ul className="gap-2w flex w-full flex-col place-items-center">
 				{[
-					{ label: 'Nombre de tu empresa - (opción #1)', id: 'nombre-empresa-1', name: 'nombre_1', value: nombre1, setter: setNombre1 },
-					{ label: 'Nombre de tu empresa - (opción #2)', id: 'nombre-empresa-2', name: 'nombre_2', value: nombre2, setter: setNombre2 },
-					{ label: 'Nombre de tu empresa - (opción #3)', id: 'nombre-empresa-3', name: 'nombre_3', value: nombre3, setter: setNombre3 },
+					{
+						label: 'Nombre de tu empresa - (opción #1)',
+						id: 'nombre-empresa-1',
+						name: 'nombre_1',
+						value: nombre1,
+						setter: setNombre1,
+					},
+					{
+						label: 'Nombre de tu empresa - (opción #2)',
+						id: 'nombre-empresa-2',
+						name: 'nombre_2',
+						value: nombre2,
+						setter: setNombre2,
+					},
+					{
+						label: 'Nombre de tu empresa - (opción #3)',
+						id: 'nombre-empresa-3',
+						name: 'nombre_3',
+						value: nombre3,
+						setter: setNombre3,
+					},
 				].map((field) => (
 					<li key={field.id} className="m-2 h-full w-full md:w-3/5">
 						<label
@@ -482,7 +535,10 @@ export default function StepsWizard({ estados }: Props) {
 						</label>
 						<div className="flex">
 							<span className="rounded-e-0 inline-flex items-center rounded-s-md bg-gray-100 px-3 text-sm text-gray-900 dark:bg-neutral-950 dark:text-gray-400">
-								<Icon icon="ri:building-2-line" className="text-primary-gold text-base" />
+								<Icon
+									icon="ri:building-2-line"
+									className="text-primary-gold text-base"
+								/>
 							</span>
 							<Input
 								type="text"
@@ -492,28 +548,12 @@ export default function StepsWizard({ estados }: Props) {
 								onChange={(e) => field.setter(e.target.value)}
 								placeholder="Sotomayor Consulting"
 								required
-								className="rounded-s-none rounded-e-lg border-0 bg-gray-100 focus:bg-white-100 dark:bg-neutral-950 dark:text-white dark:focus:bg-neutral-900"
+								className="focus:bg-white-100 rounded-s-none rounded-e-lg border-0 bg-gray-100 dark:bg-neutral-950 dark:text-white dark:focus:bg-neutral-900"
 							/>
 						</div>
 					</li>
 				))}
 			</ul>
-			<div className="my-8 grid w-full grid-cols-2 gap-2 px-10 lg:px-36">
-				<button
-					type="button"
-					onClick={retroceder}
-					className="w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-transparent px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:border-neutral-600 dark:text-white dark:focus:ring-neutral-500"
-				>
-					Volver
-				</button>
-				<button
-					type="button"
-					onClick={continuar}
-					className="w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-transparent px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:border-neutral-600 dark:text-white dark:focus:ring-neutral-500"
-				>
-					Continuar
-				</button>
-			</div>
 		</div>
 	);
 
@@ -522,8 +562,8 @@ export default function StepsWizard({ estados }: Props) {
 	};
 
 	const paso4 = (
-		<div id="paso4">
-			<div className="px-10 py-10 text-center">
+		<div id="paso4" className="flex flex-col justify-center gap-5 p-10">
+			<div className="text-center">
 				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
 					Paso 04
 				</span>
@@ -607,23 +647,6 @@ export default function StepsWizard({ estados }: Props) {
 					</div>
 				</li>
 			</ul>
-			<div className="my-8 grid w-full grid-cols-2 gap-2 px-10 lg:px-36">
-				<button
-					type="button"
-					onClick={retroceder}
-					className="w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-transparent px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:border-neutral-600 dark:text-white dark:focus:ring-neutral-500"
-				>
-					Volver
-				</button>
-				<button
-					type="button"
-					onClick={verificar}
-					disabled={isVerifying}
-					className="w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-transparent px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none disabled:opacity-50 md:text-lg dark:border-neutral-600 dark:text-white dark:focus:ring-neutral-500"
-				>
-					{isVerifying ? 'Verificando...' : 'Validar Datos'}
-				</button>
-			</div>
 		</div>
 	);
 
@@ -741,7 +764,7 @@ export default function StepsWizard({ estados }: Props) {
 								type="checkbox"
 								checked={regAcceptTerms}
 								onChange={(e) => setRegAcceptTerms(e.target.checked)}
-								className="focus:ring-3 h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-primary-gold dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+								className="focus:ring-primary-gold h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-3 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
 								required
 							/>
 						</div>
@@ -774,7 +797,7 @@ export default function StepsWizard({ estados }: Props) {
 						<div className="w-full border-t border-gray-300 dark:border-gray-600" />
 					</div>
 					<div className="relative flex justify-center text-sm">
-						<span className="bg-gray-200 px-5 text-gray-500 dark:bg-black-800 dark:text-gray-400">
+						<span className="dark:bg-black-800 bg-gray-200 px-5 text-gray-500 dark:text-gray-400">
 							o
 						</span>
 					</div>
@@ -795,6 +818,22 @@ export default function StepsWizard({ estados }: Props) {
 		</div>
 	);
 
+	const wizardNavigation = !showRegisterForm && (
+		<div
+			className={cn(
+				'fixed inset-x-0 bottom-4 z-40 mx-auto w-full max-w-4xl px-4',
+				currentStep === 0 ? 'flex justify-center' : 'grid grid-cols-2 gap-2',
+			)}
+		>
+			{currentStep > 0 && (
+				<WizardActionButton onClick={retroceder}>Retroceder</WizardActionButton>
+			)}
+			{renderNextButton(
+				currentStep === 0 ? 'w-4/5 border-neutral-500 md:w-3/5' : undefined,
+			)}
+		</div>
+	);
+
 	return (
 		<>
 			<Toaster />
@@ -812,12 +851,14 @@ export default function StepsWizard({ estados }: Props) {
 						</div>
 						<DialogTitle className="text-center text-3xl leading-tight font-bold tracking-tight md:text-4xl">
 							Encuentre el tipo de entidad{' '}
-							<span className="text-primary-gold">adecuado para su negocio</span>
+							<span className="text-primary-gold">
+								adecuado para su negocio
+							</span>
 						</DialogTitle>
 						<DialogDescription className="mx-auto max-w-lg text-center text-lg leading-relaxed">
-							La elección de tu entidad legal es el primer gran paso. Evita riesgos
-							fiscales y legales. Nuestros consultores te brindan una asesoría gratuita
-							para identificar la mejor opción.
+							La elección de tu entidad legal es el primer gran paso. Evita
+							riesgos fiscales y legales. Nuestros consultores te brindan una
+							asesoría gratuita para identificar la mejor opción.
 						</DialogDescription>
 					</DialogHeader>
 					<div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -842,16 +883,21 @@ export default function StepsWizard({ estados }: Props) {
 				</DialogContent>
 			</Dialog>
 
-			<div className="md: my-8 grid h-full w-full items-center justify-center lg:grid-cols-2">
-				{stepper}
+			<div className="relative my-8 pb-24 md:pb-28">
+				<div className="my-8 grid h-full w-full items-center justify-center lg:grid-cols-2">
+					{stepper}
 
-				<div className="bg-opacity-20 z-20 grid min-h-10/12 w-full place-self-center rounded-lg bg-white bg-cover bg-center drop-shadow-xl dark:bg-black">
-					{currentStep === 0 && paso1}
-					{currentStep === 1 && paso2}
-					{currentStep === 2 && paso3}
-					{currentStep === 3 && !showRegisterForm && paso4}
-					{showRegisterForm && formularioRegistro}
+					<div className="h-full w-full">
+						<div className="bg-opacity-20 z-20 grid h-full w-full place-self-center rounded-lg bg-white bg-cover bg-center drop-shadow-xl dark:bg-black">
+							{currentStep === 0 && paso1}
+							{currentStep === 1 && paso2}
+							{currentStep === 2 && paso3}
+							{currentStep === 3 && !showRegisterForm && paso4}
+							{showRegisterForm && formularioRegistro}
+						</div>
+					</div>
 				</div>
+				{wizardNavigation}
 			</div>
 		</>
 	);
