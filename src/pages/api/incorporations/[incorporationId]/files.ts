@@ -10,7 +10,7 @@ import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('incorporations.files');
 
-const BUCKET = 'documentos_empresas';
+const BUCKET = 'incorporation_documents';
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ACCEPTED_TYPES = new Set([
 	'application/pdf',
@@ -19,14 +19,56 @@ const ACCEPTED_TYPES = new Set([
 	'image/webp',
 ]);
 
-/** Slots permitidos → subcarpeta. Evita rutas arbitrarias del cliente. */
-const SLOTS: Record<string, string> = {
-	'member-pasaporte': 'socios/pasaporte',
-	'member-factura': 'socios/servicio_basico',
-	'manager-pasaporte': 'managers/pasaporte',
-	'manager-factura': 'managers/servicio_basico',
-	'company-utility-us': 'empresa/servicio_basico',
-	'company-utility-other': 'empresa/servicio_basico',
+/**
+ * Slots permitidos → función que construye la subcarpeta.
+ *
+ * Estructura del bucket (según diagrama):
+ *   {uid}/incorporations/{incId}/company/service-bill.{ext}
+ *   {uid}/incorporations/{incId}/members/{memberId}/passport.{ext}
+ *   {uid}/incorporations/{incId}/members/{memberId}/service-bill.{ext}
+ *   {uid}/incorporations/{incId}/managers/{managerId}/passport.{ext}
+ *   {uid}/incorporations/{incId}/managers/{managerId}/service-bill.{ext}
+ *
+ * Slots que requieren `entityId`: member-passport, member-utility,
+ * manager-passport, manager-utility.
+ */
+interface SlotDef {
+	folder: (entityId?: string) => string;
+	needsEntity: boolean;
+	filename: string;
+}
+
+const SLOTS: Record<string, SlotDef> = {
+	'member-pasaporte': {
+		folder: (id) => `members/${id}`,
+		needsEntity: true,
+		filename: 'passport',
+	},
+	'member-factura': {
+		folder: (id) => `members/${id}`,
+		needsEntity: true,
+		filename: 'service-bill',
+	},
+	'manager-pasaporte': {
+		folder: (id) => `managers/${id}`,
+		needsEntity: true,
+		filename: 'passport',
+	},
+	'manager-factura': {
+		folder: (id) => `managers/${id}`,
+		needsEntity: true,
+		filename: 'service-bill',
+	},
+	'company-utility-us': {
+		folder: () => 'company',
+		needsEntity: false,
+		filename: 'service-bill',
+	},
+	'company-utility-other': {
+		folder: () => 'company',
+		needsEntity: false,
+		filename: 'service-bill',
+	},
 };
 
 const EXT_BY_TYPE: Record<string, string> = {
@@ -36,13 +78,16 @@ const EXT_BY_TYPE: Record<string, string> = {
 	'image/webp': 'webp',
 };
 
-/** Prefijo de carpeta del dueño; la política de lectura exige `{uid}/...`. */
+const UUID_RE =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const ownerPrefix = (ownerId: string, incorporationId: string) =>
 	`${ownerId}/incorporations/${incorporationId}`;
 
 /**
  * POST (multipart) — sube un archivo del formulario al seleccionarlo.
- * Campos: `file`, `slot`. Devuelve `{ path, name }` para guardar en el payload.
+ * Campos: `file`, `slot`, `entityId` (obligatorio para slots de member/manager).
+ * Devuelve `{ path, name }` para guardar en el payload.
  */
 export const POST: APIRoute = async ({ request, cookies, params }) => {
 	const incorporationId = params.incorporationId?.trim();
@@ -62,7 +107,6 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		return json(401, { ok: false, error: 'NO_AUTH_USER' });
 	}
 
-	// Ownership vía RLS (cliente per-request) antes de usar el cliente admin.
 	const owner = await getIncorporationOwner(supabase, incorporationId);
 	if (!owner) {
 		return json(403, { ok: false, error: 'FORBIDDEN' });
@@ -70,14 +114,18 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 
 	const form = await request.formData();
 	const file = form.get('file');
-	const slot = (form.get('slot') as string | null)?.trim() ?? '';
+	const slotKey = (form.get('slot') as string | null)?.trim() ?? '';
+	const entityId = (form.get('entityId') as string | null)?.trim() ?? '';
 
 	if (!(file instanceof File)) {
 		return json(400, { ok: false, error: 'FILE_REQUIRED' });
 	}
-	const subfolder = SLOTS[slot];
-	if (!subfolder) {
+	const slotDef = SLOTS[slotKey];
+	if (!slotDef) {
 		return json(400, { ok: false, error: 'INVALID_SLOT' });
+	}
+	if (slotDef.needsEntity && (!entityId || !UUID_RE.test(entityId))) {
+		return json(400, { ok: false, error: 'ENTITY_ID_REQUIRED' });
 	}
 	if (file.size > MAX_FILE_SIZE) {
 		return json(413, { ok: false, error: 'FILE_TOO_LARGE' });
@@ -87,7 +135,9 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 	}
 
 	const ext = EXT_BY_TYPE[file.type] ?? 'bin';
-	const path = `${ownerPrefix(owner.ownerId, incorporationId)}/${subfolder}/${crypto.randomUUID()}.${ext}`;
+	const subfolder = slotDef.folder(entityId || undefined);
+	const uniqueSuffix = crypto.randomUUID().slice(0, 8);
+	const path = `${ownerPrefix(owner.ownerId, incorporationId)}/${subfolder}/${slotDef.filename}_${uniqueSuffix}.${ext}`;
 
 	try {
 		const bytes = Buffer.from(await file.arrayBuffer());
@@ -96,13 +146,13 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 			.upload(path, bytes, { contentType: file.type, upsert: false });
 
 		if (upErr) {
-			log.error('upload failed', { incorporationId, slot, error: upErr });
+			log.error('upload failed', { incorporationId, slotKey, error: upErr });
 			return json(500, { ok: false, error: 'UPLOAD_FAILED' });
 		}
 
 		return json(200, { ok: true, path, name: file.name });
 	} catch (error) {
-		log.error('upload exception', { incorporationId, slot, error });
+		log.error('upload exception', { incorporationId, slotKey, error });
 		return json(500, { ok: false, error: 'UPLOAD_FAILED' });
 	}
 };
@@ -141,7 +191,6 @@ export const DELETE: APIRoute = async ({ request, cookies, params }) => {
 		return json(400, { ok: false, error: 'PATH_REQUIRED' });
 	}
 
-	// Solo puede borrar dentro de su propia carpeta de esta incorporación.
 	if (!path.startsWith(`${ownerPrefix(owner.ownerId, incorporationId)}/`)) {
 		return json(403, { ok: false, error: 'PATH_NOT_ALLOWED' });
 	}

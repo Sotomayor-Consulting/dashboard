@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { MAX_FILE_SIZE } from '../constants';
+import { fileRefSchema } from './file-ref.schema';
 
 const fileSchema = z
 	.instanceof(File)
@@ -43,6 +44,10 @@ export const memberSchema = z
 		// Solo empresa: tipo de identificación fiscal y sitio web (opcional).
 		tipoIdentificacionFiscal: z.enum(['ein', 'ruc', 'nit', 'otro', '']),
 		sitioWeb: z.string(),
+		pasaportePath: z.string().nullable().default(null),
+		facturaServicioPath: z.string().nullable().default(null),
+		pasaporteRef: fileRefSchema.default(null),
+		facturaServicioRef: fileRefSchema.default(null),
 	})
 	.refine((m) => m.tipoSocio !== 'persona' || m.nombreCompleto.length > 0, {
 		message: 'Ingresa el nombre completo',

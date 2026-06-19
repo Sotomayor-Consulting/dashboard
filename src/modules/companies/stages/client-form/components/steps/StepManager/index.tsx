@@ -35,6 +35,7 @@ import {
 	forcedPublicValue,
 } from '../../../data/incorporation-rules';
 import { useIncorporationRules } from '../../../data/incorporation-rules-context';
+import type { CountryOption } from '../../../services/get-client-form-data';
 import type { ClientFormData, Member } from '../../../types';
 import { ManagerForm } from './ManagerForm';
 
@@ -50,7 +51,7 @@ import { ManagerForm } from './ManagerForm';
  *
  * Lógica preservada íntegramente.
  */
-export function StepManager() {
+export function StepManager({ countries }: { countries: CountryOption[] }) {
 	const { control, setValue, getValues } = useFormContext<ClientFormData>();
 
 	const {
@@ -160,6 +161,7 @@ export function StepManager() {
 					activeManagerTab={activeManagerTab}
 					setActiveManagerTab={setActiveManagerTab}
 					showManagerForm={showManagerForm}
+					countries={countries}
 				/>
 			) : (
 				<MemberManagedEmptyState
@@ -423,6 +425,7 @@ interface ManagerManagedProps {
 	activeManagerTab: number;
 	setActiveManagerTab: (i: number) => void;
 	showManagerForm: boolean;
+	countries: CountryOption[];
 }
 
 function ManagerManagedBranch({
@@ -440,6 +443,7 @@ function ManagerManagedBranch({
 	activeManagerTab,
 	setActiveManagerTab,
 	showManagerForm,
+	countries,
 }: ManagerManagedProps) {
 	const { setValue: setFormValue, getFieldState } =
 		useFormContext<ClientFormData>();
@@ -731,6 +735,7 @@ function ManagerManagedBranch({
 											<ManagerForm
 												index={index}
 												managerId={field.id}
+												countries={countries}
 												canRemove={managerFields.length > 1}
 												onRemove={() => {
 													remove(index);

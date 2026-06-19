@@ -47,7 +47,7 @@ export const GET: APIRoute = async ({ request, cookies, url, redirect }) => {
 
 		// 6) Generar URL firmada (1 hora = 3600 segundos)
 		const { data, error } = await supabase.storage
-			.from('documentos_usuarios')
+			.from('documents')
 			.createSignedUrl(filePath, 3600);
 
 		if (error) {

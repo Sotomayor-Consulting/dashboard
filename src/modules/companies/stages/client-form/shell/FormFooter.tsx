@@ -118,7 +118,29 @@ export function FormFooter({
 					}}
 				>
 					{finalLabel}
-					{showCheckIcon ? (
+					{isLastStep && isSubmitting ? (
+						<svg
+							className="h-4 w-4 animate-spin"
+							viewBox="0 0 24 24"
+							fill="none"
+						>
+							<circle
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								strokeWidth="3"
+								strokeLinecap="round"
+								opacity="0.25"
+							/>
+							<path
+								d="M12 2a10 10 0 0 1 10 10"
+								stroke="currentColor"
+								strokeWidth="3"
+								strokeLinecap="round"
+							/>
+						</svg>
+					) : showCheckIcon ? (
 						<Icon icon="ri:check-line" className="h-3.5 w-3.5" />
 					) : (
 						<Icon icon="ri:arrow-right-line" className="h-3.5 w-3.5" />

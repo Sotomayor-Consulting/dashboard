@@ -37,7 +37,7 @@ export function FormRail({ currentStep, summary = [], onStepClick }: Props) {
 			}}
 		>
 			{/* Logo */}
-			<div className="h-9">
+			<div className="h-12">
 				<img
 					src={LogoLight.src}
 					alt="Sotomayor Consulting"

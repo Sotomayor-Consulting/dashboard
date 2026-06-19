@@ -11,8 +11,8 @@ import {
 
 import { Field, SubsectionCard } from '../../../../atoms';
 import { ADDRESS_PLACEHOLDERS } from '../../../../data/address-placeholders';
-import { COUNTRIES } from '../../../../data/countries';
 import { US_STATES } from '../../../../data/us-states';
+import type { CountryOption } from '../../../../services/get-client-form-data';
 import type { ClientFormData, Member } from '../../../../types';
 import { ClientFileField } from '../../../shared/ClientFileField';
 
@@ -21,18 +21,15 @@ interface Props {
 	memberId: string;
 	open: boolean;
 	onToggle: () => void;
+	countries: CountryOption[];
 }
 
-/**
- * D · Dirección del socio — shape unificado US-style.
- *   Requeridos: País · Línea 1 · Ciudad · Estado · Código postal · Planilla
- *   Opcionales: Línea 2 (apt/suite) · Condado
- */
 export function MemberAddressSection({
 	index,
 	memberId,
 	open,
 	onToggle,
+	countries,
 }: Props) {
 	const { control, register } = useFormContext<ClientFormData>();
 
@@ -73,9 +70,9 @@ export function MemberAddressSection({
 									<SelectValue placeholder={ADDRESS_PLACEHOLDERS.country} />
 								</SelectTrigger>
 								<SelectContent>
-									{COUNTRIES.map((c) => (
-										<SelectItem key={c} value={c}>
-											{c}
+									{countries.map((c) => (
+										<SelectItem key={c.iso} value={c.name}>
+											{c.name}
 										</SelectItem>
 									))}
 								</SelectContent>
@@ -180,6 +177,7 @@ export function MemberAddressSection({
 					fileName={`${path}.facturaServicio`}
 					pathName={`${path}.facturaServicioPath`}
 					slot="member-factura"
+					entityId={memberId}
 					id={`facturaServicio-${memberId}`}
 					label="Planilla de servicio básico"
 					description={

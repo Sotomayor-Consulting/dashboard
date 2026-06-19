@@ -23,6 +23,7 @@ import { getIncorporationRules } from '../data/incorporation-rules';
 import { IncorporationRulesProvider } from '../data/incorporation-rules-context';
 import { IncorporationProvider } from '../context/incorporation-context';
 import type {
+	CountryOption,
 	EstadoOption,
 	IncorporationIdentity,
 } from '../services/get-client-form-data';
@@ -40,6 +41,8 @@ interface Props {
 	identity: IncorporationIdentity;
 	/** Lista de estados disponibles para la Identity Card. */
 	estados: EstadoOption[];
+	/** Países desde public.countries. */
+	countries: CountryOption[];
 }
 
 /** Mapea un campo del form a su paso (para navegar al error en el submit). */
@@ -259,6 +262,7 @@ export default function ClientFormWizard({
 	empresaId,
 	identity,
 	estados,
+	countries,
 }: Props) {
 	// El estado de incorporación es editable desde la Identity Card (pantalla 1),
 	// así que lo mantenemos en estado local para re-evaluar las reglas en vivo.
@@ -341,6 +345,7 @@ export default function ClientFormWizard({
 			void saveClientDraft(watched, {
 				incorporationId: empresaId,
 				step: currentStep,
+				countries,
 			});
 		}, 1500);
 		return () => {
@@ -391,7 +396,10 @@ export default function ClientFormWizard({
 			setSubmitError(null);
 			setIsSubmitting(true);
 			try {
-				const result = await submitClientForm(data, { empresaId });
+				const result = await submitClientForm(data, {
+					empresaId,
+					countries,
+				});
 				if (!result.ok) {
 					if (result.details && result.details.length > 0) {
 						const take = result.details.slice(0, MAX_ERROR_LINES);
@@ -622,6 +630,7 @@ export default function ClientFormWizard({
 							canSubmit={true}
 							isSubmitting={isSubmitting}
 							hidePrev={currentStep === 1}
+							backHref={`/my-companies/${empresaId}/dashboard`}
 							nextLabel={currentStep === 1 ? 'Comenzar formulario' : undefined}
 						>
 							<AnimatePresence mode="wait">
@@ -642,10 +651,17 @@ export default function ClientFormWizard({
 										/>
 									)}
 									{currentStep === 2 && (
-										<StepActivity activities={activities} />
+										<StepActivity
+											activities={activities}
+											countries={countries}
+										/>
 									)}
-									{currentStep === 3 && <StepMembers />}
-									{currentStep === 4 && <StepManager />}
+									{currentStep === 3 && (
+										<StepMembers countries={countries} />
+									)}
+									{currentStep === 4 && (
+										<StepManager countries={countries} />
+									)}
 									{currentStep === 5 && (
 										<StepConfirmation
 											activities={activities}

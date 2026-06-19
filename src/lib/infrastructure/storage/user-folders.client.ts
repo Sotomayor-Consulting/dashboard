@@ -16,7 +16,7 @@ export const getSignedUrlClient = async (path: string) => {
 	console.log('Session:', session);
 	
 	const { data, error } = await supabaseBrowser.storage
-		.from('test')
+		.from('documents')
 		.createSignedUrl(path, 3600);
 
 	if (error) {

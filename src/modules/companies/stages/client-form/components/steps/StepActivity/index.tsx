@@ -7,12 +7,14 @@ import { Textarea } from '@components/ui/Textarea';
 
 import { Divider, Field, RadioCard, SectionHeader } from '../../../atoms';
 import type { Activity } from '../../../data/activities';
+import type { CountryOption } from '../../../services/get-client-form-data';
 import type { ClientFormData } from '../../../types';
 import { ActivityPicker } from '../../shared/ActivityPicker';
 import { OperativeAddressFields } from './OperativeAddressFields';
 
 interface Props {
 	activities: Activity[];
+	countries: CountryOption[];
 }
 
 /**
@@ -27,7 +29,7 @@ interface Props {
  * conditional rendering del bloque de dirección — todo se mantiene.
  * Solo cambia la UI (kickers, RadioCard nuevos, dividers, info bubble).
  */
-export function StepActivity({ activities }: Props) {
+export function StepActivity({ activities, countries }: Props) {
 	const {
 		control,
 		register,
@@ -116,7 +118,22 @@ export function StepActivity({ activities }: Props) {
 								value={field.value}
 								onChange={(id) => {
 									field.onChange(id);
-									if (id) setValue('actividadNoEnLista', false);
+									if (id) {
+										setValue('actividadNoEnLista', false);
+										const match = activities.find(
+											(a) => String(a.id) === String(id),
+										);
+										if (match) {
+											setValue('codigoActividad', match.irs_code ?? '');
+											setValue(
+												'descripcionActividadIRS',
+												match.name_en ?? '',
+											);
+										}
+									} else {
+										setValue('codigoActividad', '');
+										setValue('descripcionActividadIRS', '');
+									}
 								}}
 								disabled={actividadNoEnLista}
 							/>
@@ -279,7 +296,7 @@ export function StepActivity({ activities }: Props) {
 				desc="Indícanos la dirección desde donde opera tu empresa y sube la planilla de servicio básico que la verifique."
 			/>
 
-			<OperativeAddressFields />
+			<OperativeAddressFields countries={countries} />
 		</>
 	);
 }

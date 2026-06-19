@@ -30,6 +30,7 @@ const fromSerializable = (
 	// La pregunta sí/no/sci ya no existe: drafts viejos se normalizan a 'si'
 	// para no validar campos que ya no se renderizan.
 	direccionOperativaEEUU: 'si',
+	descripcionActividadIRS: stored.descripcionActividadIRS ?? '',
 	facturaServicioBasico: null,
 	facturaServicioBasicoEEUU: null,
 	// Defaults para drafts guardados antes de añadir el shape de dirección

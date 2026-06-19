@@ -6,10 +6,11 @@ export const vaultConfig: VaultOptions = {
 	token: process.env.VAULT_TOKEN!,
 };
 
-// Paths de secretos en Vault (KV v2 — dev mode usa secret/ por defecto)
+// Paths de secretos en Vault (KV v2)
+// El prefijo "data" es requerido por KV v2 para lectura via API
 export const SECRET_PATHS = {
-	supabase: 'secret/data/dashboard/supabase',
-	smtp: 'secret/data/dashboard/smtp',
-	stripe: 'secret/data/dashboard/stripe',
-	integrations: 'secret/data/dashboard/integrations',
+	supabase: 'app-sci/data/production/supabase',
+	smtp: 'app-sci/data/production/smtp',
+	stripe: 'app-sci/data/production/stripe',
+	integrations: 'app-sci/data/production/integrations',
 } as const;

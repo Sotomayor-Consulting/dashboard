@@ -98,6 +98,8 @@ export interface SaveDraftParams {
 	payload: unknown;
 	progressPercent: number;
 	currentStep: string | null;
+	/** Si se pasa, el UPDATE solo aplica si la fila tiene este mismo updated_at (optimistic lock). */
+	expectedUpdatedAt?: string;
 }
 
 /**
@@ -113,14 +115,16 @@ export async function saveIncorporationFormDraft(
 		payload,
 		progressPercent,
 		currentStep,
+		expectedUpdatedAt,
 	}: SaveDraftParams,
 ): Promise<
-	{ ok: true; status: IncorporationFormStatus } | { ok: false; reason: string }
+	| { ok: true; status: IncorporationFormStatus; updatedAt: string }
+	| { ok: false; reason: string }
 > {
 	const now = new Date().toISOString();
 
 	// 1) Intentar actualizar una fila editable (draft | rejected).
-	const { data: updated, error: updateError } = await schema(supabase)
+	let query = schema(supabase)
 		.from(TABLE)
 		.update({
 			payload,
@@ -129,35 +133,50 @@ export async function saveIncorporationFormDraft(
 			updated_at: now,
 		})
 		.eq('incorporation_id', incorporationId)
-		.in('status', CLIENT_EDITABLE as IncorporationFormStatus[])
-		.select('status')
-		.maybeSingle<{ status: IncorporationFormStatus }>();
+		.in('status', CLIENT_EDITABLE as IncorporationFormStatus[]);
+
+	if (expectedUpdatedAt) {
+		query = query.eq('updated_at', expectedUpdatedAt);
+	}
+
+	const { data: updated, error: updateError } = await query
+		.select('status, updated_at')
+		.maybeSingle<{ status: IncorporationFormStatus; updated_at: string }>();
 
 	if (updateError) {
 		log.error('saveDraft.update', { incorporationId, error: updateError });
 		return { ok: false, reason: updateError.message };
 	}
-	if (updated) return { ok: true, status: updated.status };
+	if (updated) return { ok: true, status: updated.status, updatedAt: updated.updated_at };
 
 	// 2) ¿Existe pero ya no es editable? No tocar.
 	const existing = await getIncorporationForm(supabase, incorporationId);
-	if (existing) return { ok: true, status: existing.status };
+	if (existing) {
+		if (expectedUpdatedAt && isClientEditable(existing.status)) {
+			return { ok: false, reason: 'CONFLICT' };
+		}
+		return { ok: true, status: existing.status, updatedAt: existing.updated_at };
+	}
 
 	// 3) No existe → insertar borrador nuevo.
-	const { error: insertError } = await schema(supabase).from(TABLE).insert({
-		incorporation_id: incorporationId,
-		user_id: userId,
-		payload,
-		progress_percent: progressPercent,
-		current_step: currentStep,
-		status: 'draft',
-	});
+	const { data: inserted, error: insertError } = await schema(supabase)
+		.from(TABLE)
+		.insert({
+			incorporation_id: incorporationId,
+			user_id: userId,
+			payload,
+			progress_percent: progressPercent,
+			current_step: currentStep,
+			status: 'draft',
+		})
+		.select('updated_at')
+		.single<{ updated_at: string }>();
 
 	if (insertError) {
 		log.error('saveDraft.insert', { incorporationId, error: insertError });
 		return { ok: false, reason: insertError.message };
 	}
-	return { ok: true, status: 'draft' };
+	return { ok: true, status: 'draft', updatedAt: inserted.updated_at };
 }
 
 export interface SubmitFormParams {

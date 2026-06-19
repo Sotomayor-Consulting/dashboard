@@ -14,7 +14,7 @@ import {
 	SelectValue,
 } from '@components/ui/Select';
 
-import { COUNTRIES } from '../../../data/countries';
+import { COUNTRIES } from '../../../data/countries'; // legacy file, not imported
 import { MARITAL_STATUS_OPTIONS } from '../../../data/marital-status';
 import type { ClientFormData } from '../../../types';
 import { FieldError } from '../../shared/FieldError';

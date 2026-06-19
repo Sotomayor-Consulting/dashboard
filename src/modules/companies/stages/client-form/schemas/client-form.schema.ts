@@ -26,6 +26,8 @@ const baseClientFormSchema = activityStepBaseSchema.extend({
 	informacionManagersPublica: z.boolean(),
 	responsableIRS: z.string().min(1, 'Selecciona al responsable frente al IRS'),
 	firma: confirmationStepSchema.shape.firma,
+	firmaPath: confirmationStepSchema.shape.firmaPath,
+	firmaRef: confirmationStepSchema.shape.firmaRef,
 	aceptaTerminos: confirmationStepSchema.shape.aceptaTerminos,
 });
 

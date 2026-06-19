@@ -118,6 +118,7 @@ export interface ClientFormData {
 	actividadNoEnLista: boolean;
 	descripcionActividad: string;
 	codigoActividad: string;
+	descripcionActividadIRS: string;
 	formaAdministracion: ManagementType;
 	formaTributacion: TaxClassification;
 	direccionOperativaEEUU: OperativeAddressOption;

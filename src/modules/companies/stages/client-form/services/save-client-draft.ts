@@ -8,17 +8,22 @@ import {
 	stepLabel,
 	toIncorporationFormPayload,
 } from '../payload';
+import type { CountryRefV2 } from '../payload/incorporation-form-payload';
 
 export async function saveClientDraft(
 	data: ClientFormData,
-	ctx: { incorporationId: string; step: number },
+	ctx: {
+		incorporationId: string;
+		step: number;
+		countries?: ReadonlyArray<CountryRefV2>;
+	},
 ): Promise<void> {
 	try {
 		await fetch(`/api/incorporations/${ctx.incorporationId}/form`, {
 			method: 'PATCH',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
-				payload: toIncorporationFormPayload(data),
+				payload: toIncorporationFormPayload(data, ctx.countries),
 				progress: computeFormProgress(data),
 				currentStep: stepLabel(ctx.step),
 			}),

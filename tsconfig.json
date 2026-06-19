@@ -22,7 +22,6 @@
 		"node_modules",
 		"public",
 		"src/lib/third-party/alpinejs",
-		"src/lib/third-party/simple-data-tables",
-		"src/lib/third-party/surveyjs"
+		"src/lib/third-party/simple-data-tables"
 	]
 }

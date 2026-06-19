@@ -11,15 +11,19 @@ import {
 	submitIncorporationForm,
 } from '@domains/workflow/incorporation-forms';
 import {
+	INCORPORATION_FORM_VERSION,
 	type IncorporationFormPayloadV2,
 	validateIncorporationFormPayload,
+	resolveManagerAddresses,
 } from '@modules/companies/stages/client-form/payload';
 import type { FileRef } from '@modules/companies/stages/client-form/types';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('incorporations.form.submit');
 
-const BUCKET = 'documentos_empresas';
+const BUCKET = 'incorporation_documents';
+const MAX_BODY_BYTES = 256 * 1024; // 256 KB
+const MAX_FIRMA_B64_BYTES = 2 * 1024 * 1024; // 2 MB de base64 (~1.5 MB imagen)
 
 interface SubmitBody {
 	payload?: IncorporationFormPayloadV2;
@@ -36,7 +40,7 @@ async function uploadFirma(
 	const [, mime, b64] = match;
 	const ext =
 		mime === 'image/png' ? 'png' : mime === 'image/jpeg' ? 'jpg' : 'png';
-	const path = `${ownerId}/incorporations/${incorporationId}/firma/firma.${ext}`;
+	const path = `${ownerId}/incorporations/${incorporationId}/signature.${ext}`;
 	const bytes = Buffer.from(b64!, 'base64');
 
 	const { error } = await supabaseAdmin.storage
@@ -49,21 +53,168 @@ async function uploadFirma(
 	}
 	return {
 		path,
-		name: `firma.${ext}`,
+		name: `signature.${ext}`,
 		mime: mime ?? 'image/png',
 		size: bytes.byteLength,
 	};
 }
 
+// ---------------------------------------------------------------------------
+// Helpers de validación de paths
+// ---------------------------------------------------------------------------
+
+interface LabeledPath {
+	path: string;
+	label: string;
+}
+
 /**
- * POST — submit final del formulario. Valida integridad, sube la firma y marca
- * el staging como `submitted`. No promueve a tablas canónicas (eso lo hace
- * operaciones desde `validated_payload`).
+ * Extrae todos los paths de FileRef presentes en el payload.
+ * Devuelve pares `{ path, label }` para usar en ownership y existencia.
+ */
+function collectFilePaths(
+	payload: IncorporationFormPayloadV2,
+): LabeledPath[] {
+	const paths: LabeledPath[] = [];
+
+	const add = (ref: FileRef | null | undefined, label: string) => {
+		if (ref?.path) paths.push({ path: ref.path, label });
+	};
+
+	add(payload.general?.operatingAddress?.utilityBill, 'Dirección operativa: planilla');
+
+	(payload.members?.list ?? []).forEach((m, i) => {
+		const tag = `Socio ${String(i + 1).padStart(2, '0')}`;
+		add(m.documents?.utilityBill, `${tag}: planilla`);
+		if (m.type === 'company') {
+			add(m.documents?.existenceCertificate, `${tag}: certificado`);
+		} else {
+			add(m.documents?.passport, `${tag}: pasaporte`);
+		}
+	});
+
+	(payload.managers?.list ?? []).forEach((mg, i) => {
+		const tag = `Manager ${String(i + 1).padStart(2, '0')}`;
+		add(mg.documents?.passport, `${tag}: pasaporte`);
+		add(mg.documents?.utilityBill, `${tag}: planilla`);
+	});
+
+	add(payload.signature?.file, 'Firma');
+
+	return paths;
+}
+
+/**
+ * Verifica que TODOS los paths de archivos del payload empiecen con el
+ * prefijo esperado `{ownerId}/incorporations/{incorporationId}/`.
+ */
+function validatePathOwnership(
+	filePaths: LabeledPath[],
+	expectedPrefix: string,
+): string[] {
+	return filePaths
+		.filter((fp) => !fp.path.startsWith(expectedPrefix))
+		.map((fp) => `${fp.label}: ruta no pertenece a esta incorporación.`);
+}
+
+/**
+ * Verifica que cada path exista en Storage. Usa HEAD requests en paralelo
+ * vía `supabaseAdmin` (service role, salta RLS).
+ * Devuelve labels de los archivos no encontrados.
+ */
+async function verifyFilesExist(filePaths: LabeledPath[]): Promise<string[]> {
+	if (filePaths.length === 0) return [];
+
+	const results = await Promise.all(
+		filePaths.map(async (fp) => {
+			const { data, error } = await supabaseAdmin.storage
+				.from(BUCKET)
+				.createSignedUrl(fp.path, 5);
+			if (error || !data?.signedUrl) return fp.label;
+			return null;
+		}),
+	);
+
+	return results.filter((r): r is string => r !== null);
+}
+
+/**
+ * Elimina archivos en Storage que están dentro de la carpeta de la
+ * incorporación pero NO aparecen en el payload final. Se ejecuta fire-and-forget
+ * después de un submit exitoso — un fallo aquí no afecta al usuario.
+ */
+async function cleanupOrphanedFiles(
+	ownerId: string,
+	incorporationId: string,
+	keepPaths: LabeledPath[],
+): Promise<void> {
+	const prefix = `${ownerId}/incorporations/${incorporationId}`;
+	const keepSet = new Set(keepPaths.map((fp) => fp.path));
+
+	try {
+		const { data: files, error } = await supabaseAdmin.storage
+			.from(BUCKET)
+			.list(prefix, { limit: 500 });
+
+		if (error || !files) return;
+
+		const toDelete: string[] = [];
+
+		const collectRecursive = async (folder: string) => {
+			const { data: items } = await supabaseAdmin.storage
+				.from(BUCKET)
+				.list(folder, { limit: 500 });
+			if (!items) return;
+			for (const item of items) {
+				const fullPath = `${folder}/${item.name}`;
+				if (item.metadata) {
+					if (!keepSet.has(fullPath)) toDelete.push(fullPath);
+				} else {
+					await collectRecursive(fullPath);
+				}
+			}
+		};
+
+		for (const item of files) {
+			const fullPath = `${prefix}/${item.name}`;
+			if (item.metadata) {
+				if (!keepSet.has(fullPath)) toDelete.push(fullPath);
+			} else {
+				await collectRecursive(fullPath);
+			}
+		}
+
+		if (toDelete.length > 0) {
+			const { error: delError } = await supabaseAdmin.storage
+				.from(BUCKET)
+				.remove(toDelete);
+			if (delError) {
+				log.warn('orphan cleanup partial failure', { incorporationId, error: delError });
+			} else {
+				log.info('orphaned files cleaned', { incorporationId, count: toDelete.length });
+			}
+		}
+	} catch (err) {
+		log.warn('orphan cleanup error', { incorporationId, err });
+	}
+}
+
+/**
+ * POST — submit final del formulario. Valida integridad, ownership de paths,
+ * existencia de archivos, sube la firma y marca el staging como `submitted`.
  */
 export const POST: APIRoute = async ({ request, cookies, params }) => {
 	const incorporationId = params.incorporationId?.trim();
 	if (!incorporationId) {
 		return json(400, { ok: false, error: 'MISSING_INCORPORATION_ID' });
+	}
+
+	const contentLength = parseInt(
+		request.headers.get('content-length') ?? '0',
+		10,
+	);
+	if (contentLength > MAX_BODY_BYTES) {
+		return json(413, { ok: false, error: 'BODY_TOO_LARGE' });
 	}
 
 	const supabase = createSupabaseServerClient({
@@ -83,9 +234,6 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		return json(403, { ok: false, error: 'FORBIDDEN' });
 	}
 
-	// Guard temprano: si el formulario ya fue enviado/validado/promovido no se
-	// reenvía. Se chequea ANTES de subir la firma para no sobrescribir el blob
-	// de un formulario ya cerrado. (El guard atómico final vive en el dominio.)
 	const existing = await getIncorporationForm(supabase, incorporationId);
 	if (existing && !isClientEditable(existing.status)) {
 		return json(409, {
@@ -102,18 +250,77 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		return json(400, { ok: false, error: 'INVALID_BODY' });
 	}
 
+	if (payload.version !== INCORPORATION_FORM_VERSION) {
+		return json(400, {
+			ok: false,
+			error: 'VERSION_MISMATCH',
+			details: [
+				`Versión del formulario no soportada: ${payload.version ?? 'none'}`,
+			],
+		});
+	}
+
+	const firmaDataUrl = payload.signature?.dataUrl;
+	if (
+		typeof firmaDataUrl === 'string' &&
+		firmaDataUrl.length > MAX_FIRMA_B64_BYTES
+	) {
+		return json(413, {
+			ok: false,
+			error: 'FIRMA_TOO_LARGE',
+			details: ['La firma es demasiado grande (máximo ~1.5 MB).'],
+		});
+	}
+
+	// Recopilar todos los paths de archivos del payload.
+	const filePaths = collectFilePaths(payload);
+
+	// 1) Path ownership: prefijo correcto.
+	const expectedPrefix = `${owner.ownerId}/incorporations/${incorporationId}/`;
+	const ownershipErrors = validatePathOwnership(filePaths, expectedPrefix);
+	if (ownershipErrors.length > 0) {
+		log.warn('path ownership violation', {
+			incorporationId,
+			userId: owner.ownerId,
+			errors: ownershipErrors,
+		});
+		return json(403, {
+			ok: false,
+			error: 'PATH_OWNERSHIP',
+			details: ownershipErrors,
+		});
+	}
+
+	// 2) Existencia en Storage: verificar que los archivos realmente existan.
+	const missingFiles = await verifyFilesExist(filePaths);
+	if (missingFiles.length > 0) {
+		log.warn('missing files in storage', {
+			incorporationId,
+			missing: missingFiles,
+		});
+		return json(422, {
+			ok: false,
+			error: 'FILES_NOT_FOUND',
+			details: missingFiles.map(
+				(label) => `${label}: el archivo no se encuentra en el servidor. Vuelve a subirlo.`,
+			),
+		});
+	}
+
+	// 3) Validación de completitud del payload.
 	const errors = validateIncorporationFormPayload(payload);
 	if (errors.length > 0) {
+		log.warn('submit validation failed', { incorporationId, errors });
 		return json(422, { ok: false, error: 'VALIDATION', details: errors });
 	}
 
-	// Subir la firma si llega como dataURL; reemplazarla por su FileRef en Storage
-	// para no almacenar el base64 pesado dentro del jsonb.
+	resolveManagerAddresses(payload);
+
+	// 4) Subir firma.
 	const finalPayload: IncorporationFormPayloadV2 = {
 		...payload,
 		signature: { ...payload.signature },
 	};
-	const firmaDataUrl = payload.signature?.dataUrl;
 	if (typeof firmaDataUrl === 'string' && firmaDataUrl.startsWith('data:')) {
 		const firmaRef = await uploadFirma(
 			owner.ownerId,
@@ -126,6 +333,7 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		finalPayload.signature = { dataUrl: null, file: firmaRef };
 	}
 
+	// 5) Persistir.
 	const result = await submitIncorporationForm(supabase, {
 		incorporationId,
 		userId: owner.ownerId,
@@ -133,8 +341,6 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 	});
 
 	if (!result.ok) {
-		// Carrera: otro submit cerró el formulario entre el guard temprano y el
-		// UPDATE atómico. Se responde 409, no 500 (no es un fallo del servidor).
 		if (result.reason === 'NOT_EDITABLE') {
 			log.warn('submit on non-editable form', {
 				incorporationId,
@@ -150,6 +356,20 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		log.error('submit failed', { incorporationId, reason: result.reason });
 		return json(500, { ok: false, error: 'SUBMIT_FAILED' });
 	}
+
+	log.info('form submitted', {
+		incorporationId,
+		membersCount: payload.members?.list?.length ?? 0,
+		managersCount: payload.managers?.list?.length ?? 0,
+		management: payload.general?.management,
+	});
+
+	// 6) Cleanup: eliminar archivos huérfanos en Storage (best-effort).
+	void cleanupOrphanedFiles(
+		owner.ownerId,
+		incorporationId,
+		collectFilePaths(finalPayload),
+	);
 
 	return json(200, {
 		ok: true,

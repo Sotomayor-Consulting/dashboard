@@ -10,8 +10,8 @@ import {
 } from '@components/ui/Select';
 
 import { Field, RadioCard, SubsectionCard } from '../../../../atoms';
-import { COUNTRIES } from '../../../../data/countries';
 import { MARITAL_STATUS_OPTIONS } from '../../../../data/marital-status';
+import type { CountryOption } from '../../../../services/get-client-form-data';
 import type { ClientFormData, Member } from '../../../../types';
 
 interface Props {
@@ -19,6 +19,7 @@ interface Props {
 	memberId: string;
 	open: boolean;
 	onToggle: () => void;
+	countries: CountryOption[];
 }
 
 /**
@@ -34,6 +35,7 @@ export function MemberIdentitySection({
 	memberId,
 	open,
 	onToggle,
+	countries,
 }: Props) {
 	const {
 		control,
@@ -164,9 +166,9 @@ export function MemberIdentitySection({
 										<SelectValue placeholder="Selecciona" />
 									</SelectTrigger>
 									<SelectContent>
-										{COUNTRIES.map((c) => (
-											<SelectItem key={c} value={c}>
-												{c}
+										{countries.map((c) => (
+											<SelectItem key={c.iso} value={c.name}>
+												{c.name}
 											</SelectItem>
 										))}
 									</SelectContent>

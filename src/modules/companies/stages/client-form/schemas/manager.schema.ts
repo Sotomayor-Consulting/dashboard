@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { MAX_FILE_SIZE } from '../constants';
+import { fileRefSchema } from './file-ref.schema';
 
 const fileSchema = z
 	.instanceof(File)
@@ -32,6 +33,10 @@ export const managerSchema = z
 		condado: z.string(),
 		codigoPostal: z.string(),
 		facturaServicio: fileSchema,
+		pasaportePath: z.string().nullable().default(null),
+		facturaServicioPath: z.string().nullable().default(null),
+		pasaporteRef: fileRefSchema.default(null),
+		facturaServicioRef: fileRefSchema.default(null),
 	})
 	.refine(
 		(m) =>

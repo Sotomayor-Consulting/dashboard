@@ -15,8 +15,8 @@ import {
 } from '@components/ui/Select';
 
 import { ADDRESS_PLACEHOLDERS } from '../../../data/address-placeholders';
-import { COUNTRIES } from '../../../data/countries';
 import { US_STATES } from '../../../data/us-states';
+import type { CountryOption } from '../../../services/get-client-form-data';
 import type { ClientFormData } from '../../../types';
 import { FieldError } from '../../shared/FieldError';
 import { ClientFileField } from '../../shared/ClientFileField';
@@ -24,11 +24,18 @@ import { ClientFileField } from '../../shared/ClientFileField';
 interface Props {
 	index: number;
 	managerId: string;
+	countries: CountryOption[];
 	canRemove: boolean;
 	onRemove: () => void;
 }
 
-export function ManagerForm({ index, managerId, canRemove, onRemove }: Props) {
+export function ManagerForm({
+	index,
+	managerId,
+	countries,
+	canRemove,
+	onRemove,
+}: Props) {
 	const {
 		control,
 		register,
@@ -138,9 +145,9 @@ export function ManagerForm({ index, managerId, canRemove, onRemove }: Props) {
 									<SelectValue placeholder="Selecciona" />
 								</SelectTrigger>
 								<SelectContent>
-									{COUNTRIES.map((c) => (
-										<SelectItem key={c} value={c}>
-											{c}
+									{countries.map((c) => (
+										<SelectItem key={c.iso} value={c.name}>
+											{c.name}
 										</SelectItem>
 									))}
 								</SelectContent>
@@ -154,6 +161,7 @@ export function ManagerForm({ index, managerId, canRemove, onRemove }: Props) {
 				fileName={`${path}.pasaporte`}
 				pathName={`${path}.pasaportePath`}
 				slot="manager-pasaporte"
+				entityId={managerId}
 				id={`pasaporteManager-${managerId}`}
 				label="Pasaporte escaneado"
 			/>
@@ -207,9 +215,9 @@ export function ManagerForm({ index, managerId, canRemove, onRemove }: Props) {
 												/>
 											</SelectTrigger>
 											<SelectContent>
-												{COUNTRIES.map((c) => (
-													<SelectItem key={c} value={c}>
-														{c}
+												{countries.map((c) => (
+													<SelectItem key={c.iso} value={c.name}>
+														{c.name}
 													</SelectItem>
 												))}
 											</SelectContent>
@@ -313,6 +321,7 @@ export function ManagerForm({ index, managerId, canRemove, onRemove }: Props) {
 								fileName={`${path}.facturaServicio`}
 								pathName={`${path}.facturaServicioPath`}
 								slot="manager-factura"
+								entityId={managerId}
 								id={`facturaManager-${managerId}`}
 								label="Factura de servicio básico"
 							/>

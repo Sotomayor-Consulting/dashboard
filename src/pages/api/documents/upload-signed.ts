@@ -7,7 +7,7 @@ import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('documents.upload-signed');
 
-const BUCKET_NAME = 'test';
+const BUCKET_NAME = 'documents';
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {

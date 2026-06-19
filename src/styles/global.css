@@ -454,11 +454,11 @@
 	--cf-ink-soft: #8b867f;
 	--cf-ink-faint: #b8b3ab;
 
-	/* Accent — green */
-	--cf-accent: oklch(0.58 0.13 155);
-	--cf-accent-soft: oklch(0.96 0.025 155);
-	--cf-accent-border: oklch(0.88 0.06 155);
-	--cf-accent-ink: oklch(0.4 0.11 155);
+	/* Accent — emerald (alineado con success tokens del dashboard) */
+	--cf-accent: #059669;
+	--cf-accent-soft: #ecfdf5;
+	--cf-accent-border: #a7f3d0;
+	--cf-accent-ink: #064e3b;
 
 	/* Status */
 	--cf-danger: #b91c1c;
@@ -493,31 +493,36 @@
 	background: var(--cf-bg-page);
 }
 
-/* Dark mode counterpart — sigue el toggle global `.dark` */
+/* Dark mode counterpart — sigue el toggle global `.dark`.
+   Paleta alineada con el dashboard: negro puro + grises neutros + dorado. */
 .dark .client-form-shell {
-	--cf-bg-page: #0c0a09;
-	--cf-bg-card: #161412;
-	--cf-bg-subtle: #1f1c19;
-	--cf-bg-rail: #1a1816;
-	--cf-bg-hover: #1f1c19;
+	--cf-bg-page: #000000;
+	--cf-bg-card: #111111;
+	--cf-bg-subtle: #1a1a1a;
+	--cf-bg-rail: #0a0a0a;
+	--cf-bg-hover: #1a1a1a;
 
-	--cf-line: #2a2622;
-	--cf-line-soft: #211e1b;
-	--cf-line-strong: #3a3530;
+	--cf-line: #2a2a2a;
+	--cf-line-soft: #1f1f1f;
+	--cf-line-strong: #3f3f3f;
 
-	--cf-ink: #fafaf9;
-	--cf-ink-mute: #a8a29e;
-	--cf-ink-soft: #78716c;
-	--cf-ink-faint: #57534e;
+	--cf-ink: #ffffff;
+	--cf-ink-mute: #a1a1aa;
+	--cf-ink-soft: #71717a;
+	--cf-ink-faint: #52525b;
 
-	/* Acento se mantiene — funciona en ambos modos */
-	--cf-accent-soft: oklch(0.32 0.06 155);
-	--cf-accent-border: oklch(0.42 0.09 155);
-	--cf-accent-ink: oklch(0.85 0.15 155);
+	/* Acento — emerald (alineado con bg-success-soft / fg-success-strong del dashboard) */
+	--cf-accent: #059669;
+	--cf-accent-soft: rgba(5, 150, 105, 0.15);
+	--cf-accent-border: rgba(5, 150, 105, 0.35);
+	--cf-accent-ink: #6ee7b7;
 
-	--cf-danger-soft: oklch(0.25 0.08 25);
-	--cf-danger-border: oklch(0.4 0.12 25);
-	--cf-warn-soft: oklch(0.28 0.05 65);
+	/* Errores — fondo oscuro con rojo legible */
+	--cf-danger: #fca5a5;
+	--cf-danger-soft: rgba(220, 38, 38, 0.18);
+	--cf-danger-border: rgba(248, 113, 113, 0.35);
+	--cf-warn: #fbbf24;
+	--cf-warn-soft: rgba(217, 119, 6, 0.15);
 }
 
 /* Utilidades font-family que pueden aplicarse con clases tailwind.

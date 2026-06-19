@@ -16,11 +16,12 @@ export type FileSlot =
 
 export async function uploadClientFile(
 	file: File,
-	ctx: { incorporationId: string; slot: FileSlot },
+	ctx: { incorporationId: string; slot: FileSlot; entityId?: string },
 ): Promise<UploadedFileRef> {
 	const fd = new FormData();
 	fd.append('file', file);
 	fd.append('slot', ctx.slot);
+	if (ctx.entityId) fd.append('entityId', ctx.entityId);
 
 	const res = await fetch(`/api/incorporations/${ctx.incorporationId}/files`, {
 		method: 'POST',

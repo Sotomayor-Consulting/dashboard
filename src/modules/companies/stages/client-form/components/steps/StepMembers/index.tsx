@@ -20,6 +20,7 @@ import {
 	forcedPublicValue,
 } from '../../../data/incorporation-rules';
 import { useIncorporationRules } from '../../../data/incorporation-rules-context';
+import type { CountryOption } from '../../../services/get-client-form-data';
 import type { ClientFormData, Member } from '../../../types';
 import { MemberAddressSection } from './sections/MemberAddressSection';
 import { MemberDocumentsSection } from './sections/MemberDocumentsSection';
@@ -48,7 +49,7 @@ type SubsectionKey = 'A' | 'B' | 'C' | 'D';
  * **Lógica intacta:** useFieldArray, validación 100%, condicional
  * SSN/ITIN según residente fiscal, upload archivos, privacidad.
  */
-export function StepMembers() {
+export function StepMembers({ countries }: { countries: CountryOption[] }) {
 	const { control, setValue, getFieldState } = useFormContext<ClientFormData>();
 	const { fields, append, remove } = useFieldArray({
 		control,
@@ -244,6 +245,7 @@ export function StepMembers() {
 						memberId={activeField.id}
 						open={openSection === 'A'}
 						onToggle={() => toggleSection('A')}
+						countries={countries}
 					/>
 					<MemberParticipationSection
 						index={activeIndex}
@@ -261,6 +263,7 @@ export function StepMembers() {
 						memberId={activeField.id}
 						open={openSection === 'D'}
 						onToggle={() => toggleSection('D')}
+						countries={countries}
 					/>
 				</div>
 			)}

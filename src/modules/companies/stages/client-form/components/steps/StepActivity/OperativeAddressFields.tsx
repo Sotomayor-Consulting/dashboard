@@ -11,25 +11,17 @@ import {
 } from '@components/ui/Select';
 
 import { ADDRESS_PLACEHOLDERS } from '../../../data/address-placeholders';
-import { COUNTRIES } from '../../../data/countries';
 import { US_STATES } from '../../../data/us-states';
+import type { CountryOption } from '../../../services/get-client-form-data';
 import type { ClientFormData } from '../../../types';
 import { ClientFileField } from '../../shared/ClientFileField';
 import { FieldError } from '../../shared/FieldError';
 
-/**
- * Dirección operativa de la LLC.
- *
- * Shape **unificado US-style** (mismo set para LLC, socio y manager):
- *   Requeridos: País · Línea 1 · Ciudad · Estado · Código postal
- *   Opcionales: Línea 2 · Condado
- *
- * Los campos están SIEMPRE visibles sin importar el país — la única
- * adaptación condicional es que el campo "Estado" se renderiza como dropdown
- * cuando el país es EE. UU. (mejor integridad de datos para Operaciones) y
- * como input libre en cualquier otro país.
- */
-export function OperativeAddressFields() {
+interface Props {
+	countries: CountryOption[];
+}
+
+export function OperativeAddressFields({ countries }: Props) {
 	const {
 		register,
 		control,
@@ -62,9 +54,9 @@ export function OperativeAddressFields() {
 								<SelectValue placeholder={ADDRESS_PLACEHOLDERS.country} />
 							</SelectTrigger>
 							<SelectContent>
-								{COUNTRIES.map((c) => (
-									<SelectItem key={c} value={c}>
-										{c}
+								{countries.map((c) => (
+									<SelectItem key={c.iso} value={c.name}>
+										{c.name}
 									</SelectItem>
 								))}
 							</SelectContent>
