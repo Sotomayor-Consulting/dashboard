@@ -1,3 +1,10 @@
 ---
-return Astro.redirect('/');
+import LayoutStacked from '@layouts/LayoutStackedDos.astro';
+import Steps from '@modules/forms/steps.astro';
 ---
+
+<LayoutStacked>
+	<div class="m-auto md:w-10/12">
+		<Steps />
+	</div>
+</LayoutStacked>
