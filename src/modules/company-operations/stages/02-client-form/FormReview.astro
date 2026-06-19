@@ -28,13 +28,13 @@ const payload = form.payload as IncorporationFormPayloadV2 | null;
 if (!payload) return Astro.redirect(`/incorporations/${incorporationId}`);
 
 const { data: empresa } = await supabase
-	.from('empresas_incorporaciones')
-	.select('nombre_1')
-	.eq('empresa_incorporacion_id', incorporationId)
+	.from('incorporations')
+	.select('principal_name')
+	.eq('id', incorporationId)
 	.maybeSingle();
 
 const companyName =
-	(empresa as { nombre_1?: string } | null)?.nombre_1 ?? 'Empresa';
+	(empresa as { principal_name?: string } | null)?.principal_name ?? 'Empresa';
 
 const canValidate =
 	form.status === 'submitted' || form.status === 'in_review';

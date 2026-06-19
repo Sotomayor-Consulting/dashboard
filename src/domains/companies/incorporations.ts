@@ -127,8 +127,7 @@ export const IncorporacionesEmpresasBase = async (supabase: SupabaseClient) => {
 			`
     user_id,
     id,
-    tipo_de_negocio,
-    estado_de_incorporacion,
+    entity_type,
     state,
     principal_name,
     possible_names,

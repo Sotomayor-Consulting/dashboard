@@ -51,9 +51,8 @@ export type CompanyTableRow = Omit<Company, 'formation_country_id' | 'tax_clasif
 export interface CompanyCrudRow {
 	id: string;
 	principal_name: string;
-	tipo_de_negocio: string | null;
+	entity_type: string | null;
 	porcentaje_de_incorporacion: number | null;
-	estado_de_incorporacion: string | null;
 	estado: string | null;
 	updated_at: string | null;
 	created_by_name: string;

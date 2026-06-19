@@ -10,10 +10,9 @@ export const getCompaniesPageData = async (
 	return (empresas ?? []).map((empresa) => ({
 		id: String(empresa.id ?? ''),
 		principal_name: String(empresa.principal_name ?? ''),
-		tipo_de_negocio: empresa.tipo_de_negocio ?? null,
+		entity_type: empresa.entity_type ?? null,
 		porcentaje_de_incorporacion: empresa.porcentaje_de_incorporacion ?? null,
-		estado_de_incorporacion: empresa.estado_de_incorporacion ?? null,
-		estado: empresa.estado ?? null,
+		estado: empresa.state ?? null,
 		updated_at: empresa.updated_at ?? null,
 		created_by_name:
 			empresa.usuarios?.[0]

@@ -18,25 +18,18 @@ export const companiesColumns: ColumnDef<CompanyCrudRow>[] = [
 		header: 'Usuario que la creo',
 	},
 	{
-		accessorKey: 'tipo_de_negocio',
-		header: 'Tipo de negocio',
+		accessorKey: 'entity_type',
+		header: 'Tipo de entidad',
 		cell: ({ row }) => {
-			return row.getValue('tipo_de_negocio') || 'Sin definir';
+			return row.getValue('entity_type') || 'Sin definir';
 		},
 	},
 	{
 		accessorKey: 'porcentaje_de_incorporacion',
-		header: 'Estado de incorporacion',
+		header: 'Progreso',
 		cell: ({ row }) => {
 			const value = row.getValue('porcentaje_de_incorporacion');
 			return typeof value === 'number' ? `${value}%` : '0%';
-		},
-	},
-	{
-		accessorKey: 'estado_de_incorporacion',
-		header: 'Estado',
-		cell: ({ row }) => {
-			return row.getValue('estado_de_incorporacion') || 'Sin estado';
 		},
 	},
 	{

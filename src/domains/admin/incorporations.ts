@@ -189,8 +189,8 @@ export async function listAdminCompanies(
 		.from('incorporations')
 		.select(
 			`id, principal_name, entity_type,
-			 estado_de_incorporacion, state, porcentaje_de_incorporacion,
-			 updated_at, user_id, company_id,
+			 state, porcentaje_de_incorporacion,
+			 updated_at, user_id,
 			 usuarios:user_id ( user_id, nombre, apellido, correo, avatar_url )`,
 		)
 		.order('updated_at', { ascending: false });
@@ -215,11 +215,8 @@ export async function listAdminCompanies(
 				.in('empresa_incorporacion_id', ids),
 			supabase
 				.from('incorporation_workflow')
-				.select('company_id, current_stage')
-				.in(
-					'company_id',
-					empresas.map((e: { company_id: string | null }) => e.company_id).filter(Boolean) as string[],
-				),
+				.select('id, current_stage')
+				.in('id', ids),
 		]);
 
 	const pagosByEmpresa = new Map<string, Array<{ status: string | null }>>();
@@ -239,10 +236,10 @@ export async function listAdminCompanies(
 		);
 	}
 
-	const workflowByCompany = new Map<string, string | null>();
+	const workflowByInc = new Map<string, string | null>();
 	for (const w of workflowsRows ?? []) {
-		const row = w as { company_id: string; current_stage: string | null };
-		workflowByCompany.set(row.company_id, row.current_stage);
+		const row = w as { id: string; current_stage: string | null };
+		workflowByInc.set(row.id, row.current_stage);
 	}
 
 	// Enriquecimiento desde schema `workflow` (requiere service_role).
@@ -256,12 +253,10 @@ export async function listAdminCompanies(
 			id: string;
 			principal_name: string | null;
 			entity_type: string | null;
-			estado_de_incorporacion: string | null;
-			estado: string | null;
+			state: string | null;
 			porcentaje_de_incorporacion: number | null;
 			updated_at: string | null;
 			user_id: string | null;
-			company_id: string | null;
 			usuarios:
 			| {
 				user_id: string;
@@ -310,12 +305,10 @@ export async function listAdminCompanies(
 			id: e.id,
 			name: e.principal_name ?? 'Sin nombre',
 			type: e.entity_type,
-			stateUs: e.estado_de_incorporacion,
+			stateUs: e.state,
 			status: e.state,
 			progress,
-			currentStage: e.company_id
-				? (workflowByCompany.get(e.company_id) ?? null)
-				: null,
+			currentStage: workflowByInc.get(e.id) ?? null,
 			client,
 			paymentStatus: derivePaymentStatus(e.state, pagos),
 			pendingDocs: docsCount.get(e.id) ?? 0,
