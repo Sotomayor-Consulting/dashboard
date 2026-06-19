@@ -125,7 +125,7 @@ export const getClientWorkflowProgress = async (
 
 	const { data: empresa, error: empresaError } = await supabase
 		.from('incorporations')
-		.select('principal_name, tipo_de_negocio')
+		.select('principal_name, entity_type')
 		.eq('id', incorporationId)
 		.maybeSingle();
 
@@ -137,7 +137,7 @@ export const getClientWorkflowProgress = async (
 	);
 
 	if (workflowError) {
-		return emptyState(empresa.principal_name ?? 'Empresa sin nombre', empresa.tipo_de_negocio);
+		return emptyState(empresa.principal_name ?? 'Empresa sin nombre', empresa.entity_type);
 	}
 
 	const snapshot = workflow as {
@@ -147,7 +147,7 @@ export const getClientWorkflowProgress = async (
 	};
 
 	if (!snapshot?.workflow) {
-		return emptyState(empresa.principal_name ?? 'Empresa sin nombre', empresa.tipo_de_negocio);
+		return emptyState(empresa.principal_name ?? 'Empresa sin nombre', empresa.entity_type);
 	}
 
 	const typedWorkflow = snapshot.workflow as WorkflowRow;
@@ -240,7 +240,7 @@ export const getClientWorkflowProgress = async (
 
 	return {
 		companyName: empresa.principal_name ?? 'Empresa sin nombre',
-		businessType: empresa.tipo_de_negocio,
+		businessType: empresa.entity_type,
 		workflowStatus: typedWorkflow.status,
 		progressPercent,
 		completedStages,

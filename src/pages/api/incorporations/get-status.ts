@@ -36,7 +36,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 			// === BUSCAR POR id (TU PK) ===
 			const { data: queryData, error } = await supabase
 				.from('incorporations')
-				.select('estado_de_incorporacion')
+				.select('state')
 				.eq('id', empresaId)
 				.eq('user_id', user.id)
 				.single();
@@ -61,7 +61,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 		} else {
 			const { data: queryData, error } = await supabase
 				.from('incorporations')
-				.select('estado_de_incorporacion')
+				.select('state')
 				.eq('user_id', user.id)
 				.order('updated_at', { ascending: false })
 				.limit(1)
@@ -80,7 +80,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 
 		// === RESPUESTA EXITOSA ===
 		return new Response(
-			JSON.stringify({ estado: data.estado_de_incorporacion }),
+			JSON.stringify({ estado: data.state }),
 			{ status: 200, headers: SECURITY_HEADERS },
 		);
 	} catch (error: any) {

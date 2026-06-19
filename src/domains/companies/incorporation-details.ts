@@ -35,8 +35,8 @@ export async function updateIncorporationDetails(
 	const { data: before, error: beforeError } = await supabase
 		.from('incorporations')
 		.select(
-			`id, company_id, principal_name, possible_names,
-			tipo_de_negocio, state_id, updated_at`,
+			`id, principal_name, possible_names,
+			entity_type, formation_state_id, updated_at`,
 		)
 		.eq('id', incorporationId)
 		.maybeSingle();
@@ -57,8 +57,8 @@ export async function updateIncorporationDetails(
 		})
 		.eq('id', incorporationId)
 		.select(
-			`id, company_id, principal_name, possible_names,
-			tipo_de_negocio, state_id, updated_at`,
+			`id, principal_name, possible_names,
+			entity_type, formation_state_id, updated_at`,
 		)
 		.single();
 
@@ -79,9 +79,11 @@ export async function updateIncorporationDetails(
 function incorporationDetailsPayload(input: IncorporationDetailsInput) {
 	const payload: Record<string, string | number | string[] | null> = {};
 
-	for (const field of ['principal_name', 'tipo_de_negocio'] as const) {
-		if (hasOwn(input, field)) payload[field] = cleanText(input[field]);
-	}
+	if (hasOwn(input, 'principal_name'))
+		payload.principal_name = cleanText(input.principal_name);
+	// tipo_de_negocio (input) → entity_type (columna nueva)
+	if (hasOwn(input, 'tipo_de_negocio'))
+		payload.entity_type = cleanText(input.tipo_de_negocio);
 
 	if (hasOwn(input, 'possible_names')) {
 		payload.possible_names = [
@@ -93,8 +95,9 @@ function incorporationDetailsPayload(input: IncorporationDetailsInput) {
 		];
 	}
 
+	// state_id (input) → formation_state_id (columna nueva)
 	if (hasOwn(input, 'state_id')) {
-		payload.state_id = cleanNumber(input.state_id);
+		payload.formation_state_id = cleanNumber(input.state_id);
 	}
 
 	return payload;

@@ -161,7 +161,7 @@ export async function getAdminUserDetail(
 	const { data: empresasRaw } = await supabase
 		.from('incorporations')
 		.select(
-			'id, principal_name, tipo_de_negocio, estado_de_incorporacion, porcentaje_de_incorporacion',
+			'id, principal_name, entity_type, porcentaje_de_incorporacion',
 		)
 		.eq('user_id', userId)
 		.limit(20);
@@ -170,15 +170,15 @@ export async function getAdminUserDetail(
 		const row = e as {
 			id: string;
 			principal_name: string | null;
-			tipo_de_negocio: string | null;
-			estado_de_incorporacion: string | null;
+			entity_type: string | null;
 			porcentaje_de_incorporacion: number | null;
 		};
 		return {
 			id: String(row.id),
 			name: row.principal_name ?? 'Sin nombre',
-			type: row.tipo_de_negocio,
-			state: row.estado_de_incorporacion,
+			type: row.entity_type,
+			// estado_de_incorporacion eliminada de incorporations (degradado).
+			state: null,
 			stage: row.porcentaje_de_incorporacion
 				? Math.round((row.porcentaje_de_incorporacion / 100) * 11)
 				: null,

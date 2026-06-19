@@ -217,7 +217,7 @@ export const generateAndUploadReport = async (
 
 	const { data: empresa } = await supabaseAdmin
 		.from('incorporations')
-		.select('principal_name, estado_eeuu')
+		.select('principal_name')
 		.eq('id', incorporationId)
 		.maybeSingle();
 
@@ -228,7 +228,7 @@ export const generateAndUploadReport = async (
 	const data = buildTemplateData(report, {
 		companyName,
 		stateName:
-			(empresa as { estado_eeuu?: string | null } | null)?.estado_eeuu ?? null,
+			null, // estado_eeuu eliminada de incorporations (degradado)
 	});
 
 	const safeName = companyName.replace(/[^\w\d-]+/g, '_').slice(0, 60);

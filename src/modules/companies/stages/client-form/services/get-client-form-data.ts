@@ -79,7 +79,7 @@ async function getIncorporationIdentity(
 ): Promise<IncorporationIdentity> {
 	const { data, error } = await supabase
 		.from('incorporations')
-		.select('principal_name, possible_names, estado_de_incorporacion')
+		.select('principal_name, possible_names')
 		.eq('id', empresaId)
 		.single();
 
@@ -96,8 +96,8 @@ async function getIncorporationIdentity(
 
 	return {
 		nameOptions: [principal, rest[0] ?? '', rest[1] ?? ''],
-		estadoIncorporacion:
-			(data.estado_de_incorporacion as string | null) ?? null,
+		// estado_de_incorporacion eliminada de incorporations (degradado).
+		estadoIncorporacion: null,
 	};
 }
 

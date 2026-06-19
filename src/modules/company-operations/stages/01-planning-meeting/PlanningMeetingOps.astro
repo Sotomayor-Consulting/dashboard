@@ -69,24 +69,24 @@ if (showWizard) {
 
 	const [{ data: estados }, { data: empresa }] = await Promise.all([
 		supabaseAdmin
-			.from('estados')
-			.select('ListaDeEstados_Id, Estado')
-			.order('Estado', { ascending: true }),
+			.from('states')
+			.select('id, name')
+			.eq('country_id', 75)
+			.order('name', { ascending: true }),
 		supabaseAdmin
 			.from('incorporations')
-			.select('activity_id, estado_eeuu')
+			.select('formation_state_id')
 			.eq('id', empresaId)
 			.maybeSingle(),
 	]);
 
-	wizardStates = (estados ?? []).map(
-		(e: { ListaDeEstados_Id: number; Estado: string }) => ({
-			id: e.ListaDeEstados_Id,
-			name: e.Estado,
-		}),
-	);
+	wizardStates = (estados ?? []).map((e: { id: number; name: string }) => ({
+		id: e.id,
+		name: e.name,
+	}));
 
-	const activityId = report?.activity_id ?? empresa?.activity_id ?? null;
+	// activity_id eliminada de incorporations → solo desde el report (degradado).
+	const activityId = report?.activity_id ?? null;
 	if (activityId) {
 		const { data: act } = await supabaseAdmin
 			.from('activity')
@@ -98,9 +98,7 @@ if (showWizard) {
 
 	// Prefill: estado por nombre si aún no hay state_id guardado
 	const prefillStateId =
-		report?.state_id ??
-		wizardStates.find((s) => s.name === empresa?.estado_eeuu)?.id ??
-		null;
+		report?.state_id ?? empresa?.formation_state_id ?? null;
 
 	wizardInitial = {
 		stateId: prefillStateId,

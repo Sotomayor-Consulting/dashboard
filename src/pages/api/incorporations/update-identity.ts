@@ -66,10 +66,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			),
 		];
 	}
-	if (rest.estado_de_incorporacion !== undefined) {
-		update.estado_de_incorporacion =
-			rest.estado_de_incorporacion.trim() || null;
-	}
+	// estado_de_incorporacion: columna eliminada de incorporations. El estado
+	// US ahora vive en formation_state_id (FK), pero la Identity Card envía el
+	// nombre del estado, no el id → persistencia degradada hasta re-cablear.
 
 	if (Object.keys(update).length === 0) {
 		return json(400, { ok: false, error: 'Nada que actualizar' });

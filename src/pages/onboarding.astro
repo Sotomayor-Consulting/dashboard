@@ -21,11 +21,11 @@ const isOdooUser = meta.source === 'odoo' || appMeta.source === 'odoo';
 let { data: empresa } = await supabase
 	.from('incorporations')
 	.select(
-		'id, tipo_de_negocio, estado_de_incorporacion, principal_name, possible_names',
+		'id, entity_type, principal_name, possible_names',
 	)
 	.eq('user_id', user.id)
 	.eq('source', 'odoo')
-	.is('tipo_de_negocio', null)
+	.is('entity_type', null)
 	.order('updated_at', { ascending: false })
 	.limit(1)
 	.maybeSingle();
@@ -39,14 +39,13 @@ if (!empresa && isOdooUser) {
 		.from('incorporations')
 		.insert({
 			user_id: user.id,
-			estado_de_incorporacion: 'pendiente',
-			estado: 'En proceso',
+			state: 'En proceso',
 			porcentaje_de_incorporacion: 1,
 			source: 'odoo',
 			odoo_sale_order_id: odooSaleOrderId,
 		})
 		.select(
-			'id, tipo_de_negocio, estado_de_incorporacion, principal_name, possible_names',
+			'id, entity_type, principal_name, possible_names',
 		)
 		.single();
 	if (insertError || !created) return Astro.redirect(PATHS.home);
