@@ -70,19 +70,19 @@ export default function CompanyGeneralSection({
 						id="nombre_1"
 						name="nombre_1"
 						placeholder="Primera opcion"
-						defaultValue={empresa.nombre_1 ?? ''}
+						defaultValue={empresa.principal_name ?? ''}
 					/>
 					<Input
 						id="nombre_2"
 						name="nombre_2"
 						placeholder="Segunda opcion"
-						defaultValue={empresa.nombre_2 ?? ''}
+						defaultValue={empresa.possible_names?.[1] ?? ''}
 					/>
 					<Input
 						id="nombre_3"
 						name="nombre_3"
 						placeholder="Tercera opcion"
-						defaultValue={empresa.nombre_3 ?? ''}
+						defaultValue={empresa.possible_names?.[2] ?? ''}
 					/>
 				</div>
 			</Field>

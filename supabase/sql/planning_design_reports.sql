@@ -17,7 +17,9 @@ create table if not exists workflow.planning_design_reports (
 		references workflow.incorporation_tasks(id) on delete set null,
 
 	-- Catálogos
-	state_id            bigint references public.estados("ListaDeEstados_Id"),
+	-- state_id repuntado de public.estados → public.states en la migración
+	-- `planning_design_reports_state_fk_to_states` (consolidación de catálogos).
+	state_id            integer references public.states(id),
 	activity_id         integer references public.activity(id),
 
 	-- Datos del informe (enums controlados en el form → CHECK en DB)

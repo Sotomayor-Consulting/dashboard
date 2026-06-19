@@ -1,5 +1,5 @@
 // ─── Onboarding: completar datos de empresa Odoo ────────
-// Actualiza la fila de empresas_incorporaciones creada por el flujo
+// Actualiza la fila de incorporations creada por el flujo
 // Odoo con el tipo de negocio, estado y nombres elegidos por el usuario.
 export const prerender = false;
 
@@ -38,16 +38,17 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	if (!nombre1) return redirect(back('El nombre principal es obligatorio.'));
 
 	const { error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.update({
 			tipo_de_negocio: tipo,
 			estado_de_incorporacion: estado,
-			nombre_1: nombre1,
-			nombre_2: nombre2 || null,
-			nombre_3: nombre3 || null,
+			principal_name: nombre1,
+			possible_names: [
+				...new Set([nombre1, nombre2, nombre3].filter(Boolean)),
+			],
 			updated_at: new Date().toISOString(),
 		})
-		.eq('empresa_incorporacion_id', empresaId)
+		.eq('id', empresaId)
 		.eq('user_id', user.id);
 
 	if (error) return redirect(back(`No se pudo guardar: ${error.message}`));

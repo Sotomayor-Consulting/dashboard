@@ -2,7 +2,7 @@
  * Tipos del panel de administración (Operaciones).
  *
  * Adaptan el data-model del handoff a las tablas reales de Supabase
- * (`usuarios`, `user_roles`, `roles`, `empresas_incorporaciones`).
+ * (`usuarios`, `user_roles`, `roles`, `incorporations`).
  */
 
 export const USER_ROLES = [

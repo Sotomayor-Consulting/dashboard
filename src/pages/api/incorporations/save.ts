@@ -60,14 +60,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		}
 
 		// 5) Insert
-		const { error } = await supabase.from('empresas_incorporaciones').insert([
+		const { error } = await supabase.from('incorporations').insert([
 			{
 				user_id: actor.id,
 				tipo_de_negocio: tipo_de_empresa,
 				estado_de_incorporacion: estado_de_empresa,
-				nombre_1: nombre_1.trim() || null,
-				nombre_2: nombre_2.trim() || null,
-				nombre_3: nombre_3.trim() || null,
+				principal_name: nombre_1.trim() || null,
+				possible_names: [
+					...new Set(nombres.map((n) => n.trim()).filter(Boolean)),
+				],
 				estado: estado_de,
 				porcentaje_de_incorporacion: 1,
 			},

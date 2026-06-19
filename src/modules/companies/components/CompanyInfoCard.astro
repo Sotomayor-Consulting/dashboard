@@ -38,7 +38,9 @@ const { empresa, empresaId } = Astro.props;
 			<p
 				class="mb-3 text-2xl font-normal text-neutral-700 dark:text-neutral-400"
 			>
-				{empresa.nombre_1}, {empresa.nombre_2}, {empresa.nombre_3}
+				{(empresa.possible_names ?? [empresa.principal_name])
+					.filter(Boolean)
+					.join(', ')}
 			</p>
 		</div>
 		<div class="mt-10 grid grid-cols-1 gap-2 lg:grid-cols-2">

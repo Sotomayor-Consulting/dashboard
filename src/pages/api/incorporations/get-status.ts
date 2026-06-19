@@ -33,11 +33,11 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 		}
 
 		if (empresaId) {
-			// === BUSCAR POR empresa_incorporacion_id (TU PK) ===
+			// === BUSCAR POR id (TU PK) ===
 			const { data: queryData, error } = await supabase
-				.from('empresas_incorporaciones')
+				.from('incorporations')
 				.select('estado_de_incorporacion')
-				.eq('empresa_incorporacion_id', empresaId)
+				.eq('id', empresaId)
 				.eq('user_id', user.id)
 				.single();
 
@@ -60,7 +60,7 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
 			// console.log('Datos por empresaId:', data);
 		} else {
 			const { data: queryData, error } = await supabase
-				.from('empresas_incorporaciones')
+				.from('incorporations')
 				.select('estado_de_incorporacion')
 				.eq('user_id', user.id)
 				.order('updated_at', { ascending: false })

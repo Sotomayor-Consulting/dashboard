@@ -27,7 +27,7 @@ export const ss4Transformer: Transformer = {
     const multiMember = memberCount > 1;
 
     return {
-      [F.LEGAL_NAME]:             String(row.nombre_1 ?? '').toUpperCase(),
+      [F.LEGAL_NAME]:             String(row.principal_name ?? '').toUpperCase(),
       [F.MAILING_ADDRESS]:        '9140C SW 23RD ST',
       [F.CITY_STATE_ZIP]:         'DAVIE FL 33324',
       [F.COUNTY_STATE]:           'BROWARD, FLORIDA',

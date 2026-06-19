@@ -5,14 +5,14 @@ export const getEmpresaById = async (
 	empresaId: string,
 ) => {
 	const { data: empresa, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select(
 			`
     *,
     usuarios:user_id (nombre, apellido, correo)
   `,
 		)
-		.eq('empresa_incorporacion_id', empresaId)
+		.eq('id', empresaId)
 		.single();
 
 	if (error || !empresa) {
@@ -27,7 +27,7 @@ export const getEmpresasGenenralById = async (
 	userId: string,
 ) => {
 	const { data: empresas, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select('*')
 		.eq('user_id', userId)
 		.order('updated_at', { ascending: true });
@@ -51,9 +51,9 @@ export const getEmpresasForSwitcher = async (
 	userId: string,
 ): Promise<EmpresaSwitcherItem[]> => {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select(
-			'empresa_incorporacion_id, nombre_1, nombre_2, nombre_3, tipo_de_negocio, estado, estado_de_incorporacion, updated_at',
+			'id, principal_name, possible_names, tipo_de_negocio, estado, estado_de_incorporacion, updated_at',
 		)
 		.eq('user_id', userId)
 		.order('updated_at', { ascending: false });
@@ -61,11 +61,10 @@ export const getEmpresasForSwitcher = async (
 	if (error || !data) return [];
 
 	return data.map((e: any) => ({
-		id: e.empresa_incorporacion_id as string,
+		id: e.id as string,
 		nombre:
-			(e.nombre_1 as string) ||
-			(e.nombre_2 as string) ||
-			(e.nombre_3 as string) ||
+			(e.principal_name as string) ||
+			((e.possible_names as string[] | null)?.find(Boolean) as string) ||
 			'Empresa sin nombre',
 		tipo_de_negocio: (e.tipo_de_negocio as string) ?? null,
 		estado: (e.estado as string) ?? null,

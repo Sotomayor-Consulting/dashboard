@@ -116,7 +116,7 @@ export async function listAdminUsers(
 
 	// Conteo de empresas por user_id (cliente de la incorporación)
 	const { data: counts } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select('user_id');
 
 	const countByUser = new Map<string, number>();
@@ -159,24 +159,24 @@ export async function getAdminUserDetail(
 	if (!user) return null;
 
 	const { data: empresasRaw } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select(
-			'empresa_incorporacion_id, nombre_1, tipo_de_negocio, estado_de_incorporacion, porcentaje_de_incorporacion',
+			'id, principal_name, tipo_de_negocio, estado_de_incorporacion, porcentaje_de_incorporacion',
 		)
 		.eq('user_id', userId)
 		.limit(20);
 
 	const companies: LinkedCompany[] = (empresasRaw ?? []).map((e) => {
 		const row = e as {
-			empresa_incorporacion_id: string;
-			nombre_1: string | null;
+			id: string;
+			principal_name: string | null;
 			tipo_de_negocio: string | null;
 			estado_de_incorporacion: string | null;
 			porcentaje_de_incorporacion: number | null;
 		};
 		return {
-			id: String(row.empresa_incorporacion_id),
-			name: row.nombre_1 ?? 'Sin nombre',
+			id: String(row.id),
+			name: row.principal_name ?? 'Sin nombre',
 			type: row.tipo_de_negocio,
 			state: row.estado_de_incorporacion,
 			stage: row.porcentaje_de_incorporacion

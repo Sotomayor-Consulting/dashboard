@@ -78,9 +78,9 @@ async function getIncorporationIdentity(
 	empresaId: string,
 ): Promise<IncorporationIdentity> {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
-		.select('nombre_1, nombre_2, nombre_3, estado_de_incorporacion')
-		.eq('empresa_incorporacion_id', empresaId)
+		.from('incorporations')
+		.select('principal_name, possible_names, estado_de_incorporacion')
+		.eq('id', empresaId)
 		.single();
 
 	if (error || !data) {
@@ -88,12 +88,14 @@ async function getIncorporationIdentity(
 		return { nameOptions: ['', '', ''], estadoIncorporacion: null };
 	}
 
+	// Reconstruye las 3 opciones: la preferida (principal_name) primero,
+	// luego las alternativas distintas guardadas en possible_names.
+	const options = (data.possible_names as string[] | null) ?? [];
+	const principal = (data.principal_name as string | null) ?? options[0] ?? '';
+	const rest = options.filter((n) => n && n !== principal);
+
 	return {
-		nameOptions: [
-			(data.nombre_1 as string | null) ?? '',
-			(data.nombre_2 as string | null) ?? '',
-			(data.nombre_3 as string | null) ?? '',
-		],
+		nameOptions: [principal, rest[0] ?? '', rest[1] ?? ''],
 		estadoIncorporacion:
 			(data.estado_de_incorporacion as string | null) ?? null,
 	};

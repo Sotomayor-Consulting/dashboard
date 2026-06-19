@@ -12,7 +12,7 @@ import { MoreHorizontal } from 'lucide-react';
 import type { CompanyCrudRow } from '../types';
 
 export const companiesColumns: ColumnDef<CompanyCrudRow>[] = [
-	{ accessorKey: 'nombre_1', header: 'ID' },
+	{ accessorKey: 'principal_name', header: 'ID' },
 	{
 		accessorKey: 'created_by_name',
 		header: 'Usuario que la creo',
@@ -73,7 +73,7 @@ export const companiesColumns: ColumnDef<CompanyCrudRow>[] = [
 		header: 'Acciones',
 		enableHiding: false,
 		cell: ({ row }) => {
-			const companyId = row.original.empresa_incorporacion_id;
+			const companyId = row.original.id;
 
 			return (
 				<DropdownMenu>

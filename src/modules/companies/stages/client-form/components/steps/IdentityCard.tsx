@@ -30,7 +30,7 @@ type EditKey = 0 | 1 | 2 | 'estado';
  * Tarjeta editable con los datos pre-cargados de la solicitud: 3 opciones de
  * nombre (en orden de preferencia) + estado de incorporación. Edición inline
  * por campo (lápiz) o global ("Editar todo"). Persiste en
- * `empresas_incorporaciones` vía `/api/incorporations/update-identity`.
+ * `incorporations` vía `/api/incorporations/update-identity`.
  *
  * No hay verificación automática de disponibilidad: se muestran etiquetas
  * estáticas (1ª preferencia / Alternativa). La validación de disponibilidad

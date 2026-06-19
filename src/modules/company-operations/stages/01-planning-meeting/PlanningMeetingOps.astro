@@ -73,9 +73,9 @@ if (showWizard) {
 			.select('ListaDeEstados_Id, Estado')
 			.order('Estado', { ascending: true }),
 		supabaseAdmin
-			.from('empresas_incorporaciones')
+			.from('incorporations')
 			.select('activity_id, estado_eeuu')
-			.eq('empresa_incorporacion_id', empresaId)
+			.eq('id', empresaId)
 			.maybeSingle(),
 	]);
 

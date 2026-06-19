@@ -7,7 +7,7 @@ import { supabaseAdmin } from '@infrastructure/supabase/admin';
  * PATCH /api/admin/users/[id]/archive
  *
  * Soft delete: marca `usuarios.estado = 'archivado'`. Solo `admin`.
- * No usamos un hard delete porque hay FKs en empresas_incorporaciones,
+ * No usamos un hard delete porque hay FKs en incorporations,
  * pagos, etc., y un usuario archivado debe poder restaurarse.
  */
 export const PATCH: APIRoute = async ({ params, request, cookies }) => {

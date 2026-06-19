@@ -1,6 +1,6 @@
 // Acceso a datos del staging del formulario de incorporación.
 //
-// Tabla: workflow.incorporation_forms (1:1 con empresas_incorporaciones).
+// Tabla: workflow.incorporation_forms (1:1 con incorporations).
 // Flujo de estado: draft → submitted → in_review → validated → rejected → promoted.
 // Este módulo solo cubre el lado del cliente (draft + submit). La promoción a
 // tablas canónicas (companies/members/company_members) vive en operaciones.
@@ -63,9 +63,9 @@ export async function getIncorporationOwner(
 	incorporationId: string,
 ): Promise<{ ownerId: string } | null> {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select('user_id')
-		.eq('empresa_incorporacion_id', incorporationId)
+		.eq('id', incorporationId)
 		.maybeSingle<{ user_id: string }>();
 
 	if (error) {
