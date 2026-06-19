@@ -601,20 +601,35 @@ export function validateIncorporationFormPayload(
 		if (!hasManager) errors.push('Define al menos un manager.');
 	}
 
-	// Cada manager externo con dirección propia: si no usa la misma de la
-	// empresa, exigir el set unificado (país, línea 1, ciudad, estado, ZIP).
 	(payload.managers?.list ?? []).forEach((mg, i) => {
-		if (mg.sameAddressAsCompany) return;
 		const tag = `Manager ${String(i + 1).padStart(2, '0')}`;
-		if (!hasCountry(mg.address?.country))
-			errors.push(`${tag}: falta el país de residencia.`);
-		if (!mg.address?.line1?.trim())
-			errors.push(`${tag}: falta la línea 1 de la dirección.`);
-		if (!mg.address?.city?.trim()) errors.push(`${tag}: falta la ciudad.`);
-		if (!mg.address?.state?.trim())
-			errors.push(`${tag}: falta el estado / provincia.`);
-		if (!mg.address?.postalCode?.trim())
-			errors.push(`${tag}: falta el código postal.`);
+		if (!mg.name?.trim()) errors.push(`${tag}: falta el nombre.`);
+		if (!mg.email?.trim() || !EMAIL_RE.test(mg.email))
+			errors.push(`${tag}: correo inválido.`);
+		if (!hasCountry(mg.nationality))
+			errors.push(`${tag}: falta la nacionalidad.`);
+		const mgIdNum = mg.usTaxResident ? mg.ssn : mg.passportNumber;
+		if (!mgIdNum?.trim())
+			errors.push(
+				`${tag}: falta el número de identificación (SSN/pasaporte).`,
+			);
+		if (!mg.documents?.passport?.path)
+			errors.push(`${tag}: falta el pasaporte (escaneo).`);
+
+		if (!mg.sameAddressAsCompany) {
+			if (!hasCountry(mg.address?.country))
+				errors.push(`${tag}: falta el país de residencia.`);
+			if (!mg.address?.line1?.trim())
+				errors.push(`${tag}: falta la línea 1 de la dirección.`);
+			if (!mg.address?.city?.trim())
+				errors.push(`${tag}: falta la ciudad.`);
+			if (!mg.address?.state?.trim())
+				errors.push(`${tag}: falta el estado / provincia.`);
+			if (!mg.address?.postalCode?.trim())
+				errors.push(`${tag}: falta el código postal.`);
+			if (!mg.documents?.utilityBill?.path)
+				errors.push(`${tag}: falta la planilla de servicio básico.`);
+		}
 	});
 
 	// Paso 5 — firma + términos.

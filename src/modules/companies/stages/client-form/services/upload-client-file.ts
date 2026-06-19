@@ -11,8 +11,7 @@ export type FileSlot =
 	| 'member-factura'
 	| 'manager-pasaporte'
 	| 'manager-factura'
-	| 'company-utility-us'
-	| 'company-utility-other';
+	| 'company-utility-us';
 
 export async function uploadClientFile(
 	file: File,

@@ -64,11 +64,6 @@ const SLOTS: Record<string, SlotDef> = {
 		needsEntity: false,
 		filename: 'service-bill',
 	},
-	'company-utility-other': {
-		folder: () => 'company',
-		needsEntity: false,
-		filename: 'service-bill',
-	},
 };
 
 const EXT_BY_TYPE: Record<string, string> = {

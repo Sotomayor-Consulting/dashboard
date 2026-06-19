@@ -118,24 +118,36 @@ function validatePathOwnership(
 }
 
 /**
- * Verifica que cada path exista en Storage. Usa HEAD requests en paralelo
- * vía `supabaseAdmin` (service role, salta RLS).
- * Devuelve labels de los archivos no encontrados.
+ * Verifica que cada path exista en Storage listando el directorio padre y
+ * buscando el nombre del archivo. Más ligero que generar signed URLs.
  */
 async function verifyFilesExist(filePaths: LabeledPath[]): Promise<string[]> {
 	if (filePaths.length === 0) return [];
 
-	const results = await Promise.all(
-		filePaths.map(async (fp) => {
-			const { data, error } = await supabaseAdmin.storage
+	const byFolder = new Map<string, LabeledPath[]>();
+	for (const fp of filePaths) {
+		const lastSlash = fp.path.lastIndexOf('/');
+		const folder = fp.path.slice(0, lastSlash);
+		const existing = byFolder.get(folder);
+		if (existing) existing.push(fp);
+		else byFolder.set(folder, [fp]);
+	}
+
+	const missing: string[] = [];
+	await Promise.all(
+		[...byFolder.entries()].map(async ([folder, paths]) => {
+			const { data: items } = await supabaseAdmin.storage
 				.from(BUCKET)
-				.createSignedUrl(fp.path, 5);
-			if (error || !data?.signedUrl) return fp.label;
-			return null;
+				.list(folder, { limit: 500 });
+			const names = new Set((items ?? []).map((f) => f.name));
+			for (const fp of paths) {
+				const fileName = fp.path.slice(fp.path.lastIndexOf('/') + 1);
+				if (!names.has(fileName)) missing.push(fp.label);
+			}
 		}),
 	);
 
-	return results.filter((r): r is string => r !== null);
+	return missing;
 }
 
 /**
