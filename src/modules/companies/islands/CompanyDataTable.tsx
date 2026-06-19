@@ -128,12 +128,12 @@ export default function CompanyDataTable<TData, TValue>({
 							<Input
 								placeholder="Buscar por nombre..."
 								value={
-									(table.getColumn('nombre_1')?.getFilterValue() as string) ??
+									(table.getColumn('principal_name')?.getFilterValue() as string) ??
 									''
 								}
 								onChange={(event) =>
 									table
-										.getColumn('nombre_1')
+										.getColumn('principal_name')
 										?.setFilterValue(event.target.value)
 								}
 								className="w-full pl-9"
@@ -164,7 +164,7 @@ export default function CompanyDataTable<TData, TValue>({
 										.filter(
 											(column) =>
 												column.getCanHide() &&
-												column.id !== 'nombre_1' &&
+												column.id !== 'principal_name' &&
 												column.id !== 'actions',
 										)
 										.map((column) => (

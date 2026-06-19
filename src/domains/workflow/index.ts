@@ -175,7 +175,7 @@ export const listPendingApprovals = async (supabase: SupabaseClient) => {
 			`id, workflow_id, status,
 			catalog:stage_id!inner ( slug, name, requires_approval, approval_role ),
 			workflow:workflow_id ( incorporation_id,
-				empresa:incorporation_id ( nombre_1, user_id ) )`,
+				empresa:incorporation_id ( principal_name, user_id ) )`,
 		)
 		.eq('status', 'not_started')
 		.eq('catalog.requires_approval', true);

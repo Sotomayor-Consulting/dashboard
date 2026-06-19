@@ -1,0 +1,92 @@
+{
+	"data": {
+		"user": {
+			"first_name": "",
+			"last_name": "",
+			"email": ""
+		},
+		"incorporation": {
+			"posible_names": [""],
+			"formation_state_id": null,
+			"state": "",
+			"source": ""
+		},
+		"pago": {},
+		"company": {
+			"id": "",
+			"legal_name": "",
+			"entity_type": "llc",
+			"magement_type": "",
+			"legal_status": "",
+			"identification_number": "",
+			"filing_number": "",
+			"formation_state_id": "",
+			"formation_country_id": "",
+			"tax_clasification": "",
+			"activity_code_id": "",
+			"activity_description": "",
+			"us_source_income": false,
+			"joint_ownership": false,
+			"company_addresses": [
+				{
+					"type": "",
+					"address_line_1": "",
+					"address_line_2": "",
+					"country_id": null,
+					"county": "",
+					"state_id": null,
+					"city": "",
+					"zip": ""
+				}
+			]
+		},
+		"member": {
+			"id": null,
+			"first_name": "",
+			"last_name": "",
+			"name": "",
+			"person_type": "",
+			"email": "",
+			"identification_number": "",
+			"identification_type": "",
+			"marital_status": "",
+			"birth_date": "",
+			"incorporation_date": "",
+			"country_nationality_id": null,
+			"country_residence_id": null,
+			"us_resident": false,
+			"ssn": "",
+			"itin": "",
+			"member_addresses": [
+				{
+					"type": "",
+					"address_line_1": "",
+					"address_line_2": "",
+					"country_id": null,
+					"county": "",
+					"state_id": null,
+					"city": "",
+					"zip": ""
+				}
+			]
+		},
+		"company_member": {
+			"company_id": null,
+			"member_id": null,
+			"date_start": null,
+			"date_end": null,
+			"is_manager": false,
+			"is_member": false,
+			"is_irs_responsible": false,
+			"percentage": null
+		},
+		"documents": [
+			{
+				"id_document_cognito": null,
+				"file_name": "",
+				"file_size_bytes": "",
+				"status": ""
+			}
+		]
+	}
+}

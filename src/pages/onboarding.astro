@@ -19,13 +19,13 @@ const isOdooUser = meta.source === 'odoo' || appMeta.source === 'odoo';
 
 // Buscar empresa pendiente (source='odoo' y sin tipo_de_negocio)
 let { data: empresa } = await supabase
-	.from('empresas_incorporaciones')
+	.from('incorporations')
 	.select(
-		'empresa_incorporacion_id, tipo_de_negocio, estado_de_incorporacion, nombre_1, nombre_2, nombre_3',
+		'id, entity_type, principal_name, possible_names',
 	)
 	.eq('user_id', user.id)
 	.eq('source', 'odoo')
-	.is('tipo_de_negocio', null)
+	.is('entity_type', null)
 	.order('updated_at', { ascending: false })
 	.limit(1)
 	.maybeSingle();
@@ -36,17 +36,16 @@ let { data: empresa } = await supabase
 if (!empresa && isOdooUser) {
 	const odooSaleOrderId = meta.odoo_sale_order_id ?? null;
 	const { data: created, error: insertError } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.insert({
 			user_id: user.id,
-			estado_de_incorporacion: 'pendiente',
-			estado: 'En proceso',
+			state: 'En proceso',
 			porcentaje_de_incorporacion: 1,
 			source: 'odoo',
 			odoo_sale_order_id: odooSaleOrderId,
 		})
 		.select(
-			'empresa_incorporacion_id, tipo_de_negocio, estado_de_incorporacion, nombre_1, nombre_2, nombre_3',
+			'id, entity_type, principal_name, possible_names',
 		)
 		.single();
 	if (insertError || !created) return Astro.redirect(PATHS.home);
@@ -59,6 +58,6 @@ if (!empresa) return Astro.redirect(PATHS.home);
 
 <LayoutStackedDos>
 	<div class="flex min-h-screen items-start pb-[8vh]">
-		<FormOnboarding empresaId={empresa.empresa_incorporacion_id} />
+		<FormOnboarding empresaId={empresa.id} />
 	</div>
 </LayoutStackedDos>

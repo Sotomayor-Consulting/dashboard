@@ -8,7 +8,7 @@ import AppSciLogo from '@assets/brand/isotipo-re.png';
 
 interface Props {
 	empresa: {
-		nombre_1: string;
+		principal_name: string;
 		tipo_de_negocio: string;
 		porcentaje_de_incorporacion: number;
 		estado_de_incorporacion: string;
@@ -159,7 +159,7 @@ const upgradePriceLabel = fmtUsd(upgradePrice);
 				<h2
 					class="line-clamp-2 text-2xl leading-tight font-semibold tracking-tight wrap-anywhere text-gray-900 sm:text-3xl dark:text-white"
 				>
-					{empresa.nombre_1}
+					{empresa.principal_name}
 				</h2>
 				<div
 					class="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-300"

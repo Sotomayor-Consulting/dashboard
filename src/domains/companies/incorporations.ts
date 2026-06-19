@@ -9,7 +9,7 @@ export const getIncorporacionesByUserId = async (
 	userId: string,
 ) => {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select('*')
 		.eq('user_id', userId);
 
@@ -27,9 +27,9 @@ export const getIncorporacionById = async (
 	userId: string,
 ) => {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select('*')
-		.eq('empresa_incorporacion_id', id)
+		.eq('id', id)
 		.eq('user_id', userId)
 		.maybeSingle();
 	if (error) {
@@ -46,9 +46,9 @@ export const getIncorporacionByIdAdmin = async (
 	id: string,
 ) => {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select('*')
-		.eq('empresa_incorporacion_id', id)
+		.eq('id', id)
 		.single();
 	if (error) {
 		log.error('Error fetching incorporacion by ID (admin)', { error });
@@ -63,22 +63,20 @@ export const getIncorporacionesEnProceso = async (
 	userId: string,
 ) => {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select(
 			`
 					user_id,
-					empresa_incorporacion_id,
-					tipo_de_negocio,
-					estado_de_incorporacion,
-					estado,
-					nombre_1,
-					nombre_2,
-					nombre_3,
+					id,
+					entity_type,
+					state,
+					principal_name,
+					possible_names,
 					updated_at
 				`,
 		)
 		.eq('user_id', userId)
-		.in('estado', ['En proceso', 'Upgrade'])
+		.in('state', ['En proceso', 'Upgrade'])
 		.order('updated_at', { ascending: true });
 	if (error) {
 		log.error('Error fetching incorporaciones en proceso por user ID', {
@@ -95,22 +93,20 @@ export const getIncorporacionesUpgrade = async (
 	userId: string,
 ) => {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select(
 			`
 					user_id,
-					empresa_incorporacion_id,
-					tipo_de_negocio,
-					estado_de_incorporacion,
-					estado,
-					nombre_1,
-					nombre_2,
-					nombre_3,
+					id,
+					entity_type,
+					state,
+					principal_name,
+					possible_names,
 					updated_at
 				`,
 		)
 		.eq('user_id', userId)
-		.eq('estado', 'Upgrade')
+		.eq('state', 'Upgrade')
 		.order('updated_at', { ascending: true });
 	if (error) {
 		log.error('Error fetching incorporaciones en proceso por user ID', {
@@ -124,17 +120,15 @@ export const getIncorporacionesUpgrade = async (
 
 export const IncorporacionesEmpresasBase = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select(
 			`
     user_id,
-    empresa_incorporacion_id,
-    tipo_de_negocio,
-    estado_de_incorporacion,
-    estado,
-    nombre_1,
-    nombre_2,
-    nombre_3,
+    id,
+    entity_type,
+    state,
+    principal_name,
+    possible_names,
     updated_at,
 	porcentaje_de_incorporacion,
     usuarios:user_id (nombre, apellido)
@@ -155,8 +149,8 @@ export const getEstadoIncorporacionByUserId = async (
 	userId: string,
 ) => {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
-		.select('estado')
+		.from('incorporations')
+		.select('state')
 		.eq('user_id', userId);
 
 	if (error) {
@@ -180,6 +174,6 @@ export const checkUserIncorporacionesEnProceso = async (
 
 	if (!incorporaciones || incorporaciones.length === 0) return false;
 
-	return incorporaciones.some((c) => c.estado === 'En proceso');
+	return incorporaciones.some((c) => c.state === 'En proceso');
 };
 

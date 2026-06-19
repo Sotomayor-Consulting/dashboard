@@ -22,20 +22,6 @@ export interface CompanyUpdateInput {
 	legal_status?: string | null;
 }
 
-interface IncorporationForCompany {
-	empresa_incorporacion_id: string;
-	company_id?: string | null;
-	user_id: string;
-	nombre_1: string | null;
-	tipo_de_negocio: string | null;
-	state_id: number | null;
-	activity_id: number | null;
-	activity_description: string | null;
-	descripcion_empresa?: string | null;
-	forma_administracion: string | null;
-	forma_tributacion: string | null;
-	Obtendra_ingresos_desde_eeuu: boolean | null;
-}
 
 const cleanText = (value: unknown) => {
 	if (typeof value !== 'string') return null;
@@ -59,7 +45,7 @@ const cleanBoolean = (value: unknown) => {
 	return null;
 };
 
-const normalizeManagementType = (value: string | null): ManagementType => {
+export const normalizeManagementType = (value: string | null): ManagementType => {
 	const normalized = (value ?? '').toLowerCase();
 	if (normalized.includes('manager')) return 'manager-managed';
 	return 'member-managed';
@@ -73,9 +59,9 @@ export async function getCompanyIdForIncorporation(
 	incorporationId: string,
 ): Promise<string | null> {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporation_workflow')
 		.select('company_id')
-		.eq('empresa_incorporacion_id', incorporationId)
+		.eq('id', incorporationId)
 		.maybeSingle<{ company_id: string | null }>();
 
 	if (error) throw error;
@@ -88,40 +74,36 @@ export async function createCompanyFromIncorporation(
 	actorUserId: string,
 	status: CompanyStatus = 'draft',
 ): Promise<string> {
+	const existingCompanyId = await getCompanyIdForIncorporation(supabase, incorporationId);
+	if (existingCompanyId) return existingCompanyId;
+
 	const { data: incorporation, error: incorporationError } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select(
-			`empresa_incorporacion_id, company_id, user_id, nombre_1,
-			tipo_de_negocio, state_id, activity_id, activity_description, forma_administracion, forma_tributacion,
-			Obtendra_ingresos_desde_eeuu`,
+			`id, user_id, principal_name, entity_type, formation_state_id`,
 		)
-		.eq('empresa_incorporacion_id', incorporationId)
-		.maybeSingle<IncorporationForCompany>();
+		.eq('id', incorporationId)
+		.maybeSingle<{
+			id: string;
+			user_id: string;
+			principal_name: string | null;
+			entity_type: string | null;
+			formation_state_id: number | null;
+		}>();
 
 	if (incorporationError) throw incorporationError;
 	if (!incorporation) {
 		throw new Error('INCORPORATION_NOT_FOUND');
 	}
-	if (incorporation.company_id) return incorporation.company_id;
 
 	const now = new Date().toISOString();
 	const { data: company, error: companyError } = await supabase
 		.from('companies')
 		.insert({
 			user_id: incorporation.user_id,
-			legal_name: incorporation.nombre_1,
-			entity_type: 'llc',
-			formation_state_id: incorporation.state_id,
-			tax_clasification: incorporation.forma_tributacion,
-			management_type: normalizeManagementType(
-				incorporation.forma_administracion,
-			),
-			activity_code_id: incorporation.activity_id,
-			activity_description:
-				incorporation.activity_description ??
-				incorporation.descripcion_empresa ??
-				null,
-			us_source_income: Boolean(incorporation.Obtendra_ingresos_desde_eeuu),
+			legal_name: incorporation.principal_name,
+			entity_type: incorporation.entity_type ?? 'llc',
+			formation_state_id: incorporation.formation_state_id,
 			legal_status: status,
 			created_by: actorUserId,
 			updated_by: actorUserId,
@@ -134,12 +116,13 @@ export async function createCompanyFromIncorporation(
 	if (companyError) throw companyError;
 
 	const { error: updateError } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporation_workflow')
 		.update({
 			company_id: company.id,
 			updated_at: now,
+			updated_by: actorUserId,
 		})
-		.eq('empresa_incorporacion_id', incorporationId)
+		.eq('id', incorporationId)
 		.is('company_id', null);
 
 	if (updateError) throw updateError;
@@ -155,7 +138,7 @@ export async function createCompanyFromIncorporation(
 			id: company.id,
 			incorporation_id: incorporationId,
 			legal_status: status,
-			legal_name: incorporation.nombre_1,
+			legal_name: incorporation.principal_name,
 		},
 	});
 

@@ -9,6 +9,7 @@ import {
 	getIncorporationOwner,
 	isClientEditable,
 	submitIncorporationForm,
+	completeClientFormSubmitTask,
 } from '@domains/workflow/incorporation-forms';
 import {
 	INCORPORATION_FORM_VERSION,
@@ -376,7 +377,10 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		management: payload.general?.management,
 	});
 
-	// 6) Cleanup: eliminar archivos huérfanos en Storage (best-effort).
+	// 6) Completar tarea(s) del workflow para la etapa client_form (best-effort).
+	void completeClientFormSubmitTask(incorporationId, owner.ownerId);
+
+	// 7) Cleanup: eliminar archivos huérfanos en Storage (best-effort).
 	void cleanupOrphanedFiles(
 		owner.ownerId,
 		incorporationId,

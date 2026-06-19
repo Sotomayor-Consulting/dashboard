@@ -2,17 +2,46 @@
 import StageShell from '../StageShell.astro';
 import { formatStageDate } from '../shared/format-date.ts';
 import type { StageProps } from '../types';
+import { getIncorporationForm } from '@domains/workflow/incorporation-forms';
 
 const { stage, empresaId } = Astro.props as StageProps;
-const canFill = stage.status !== 'completed';
+const supabase = Astro.locals.supabase;
+
+const form = await getIncorporationForm(supabase, empresaId);
+const formStatus = form?.status ?? null;
+
+const isSubmitted = formStatus === 'submitted' || formStatus === 'in_review';
+const isValidated = formStatus === 'validated' || formStatus === 'promoted';
+const isRejected = formStatus === 'rejected';
+const canFill = stage.status !== 'completed' && !isSubmitted && !isValidated;
+
+const description = isSubmitted
+	? 'Tu formulario fue enviado y está siendo revisado por nuestro equipo.'
+	: isValidated
+		? 'Los datos del formulario fueron validados exitosamente.'
+		: isRejected
+			? 'Tu formulario requiere correcciones. Revisa los comentarios y reenvíalo.'
+			: 'Completa el formulario inicial con los datos de tu empresa y responsables.';
+
+const displayStage = { ...stage };
+if (isSubmitted) displayStage.status = 'waiting' as any;
+if (isValidated) displayStage.status = 'completed';
 ---
 
 <StageShell
-	stage={stage}
+	stage={displayStage}
 	icon="ri:file-list-3-line"
-	description="Completa el formulario inicial con los datos de tu empresa y responsables."
+	description={description}
 	formattedDate={formatStageDate(stage.dueAt)}
 >
+	{isSubmitted && (
+		<span
+			slot="actions"
+			class="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-3 py-1 text-[12px] font-medium text-amber-700 dark:bg-amber-900/25 dark:text-amber-300"
+		>
+			En revisión por operaciones
+		</span>
+	)}
 	{canFill && (
 		<a
 			slot="actions"
@@ -20,7 +49,7 @@ const canFill = stage.status !== 'completed';
 			data-astro-reload
 			class="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1 text-[12px] font-medium text-white transition-colors hover:bg-blue-700"
 		>
-			Llenar formulario
+			{isRejected ? 'Corregir formulario' : 'Llenar formulario'}
 		</a>
 	)}
 </StageShell>

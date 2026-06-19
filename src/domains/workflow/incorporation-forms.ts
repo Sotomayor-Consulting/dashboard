@@ -1,11 +1,12 @@
 // Acceso a datos del staging del formulario de incorporación.
 //
-// Tabla: workflow.incorporation_forms (1:1 con empresas_incorporaciones).
+// Tabla: workflow.incorporation_forms (1:1 con incorporations).
 // Flujo de estado: draft → submitted → in_review → validated → rejected → promoted.
 // Este módulo solo cubre el lado del cliente (draft + submit). La promoción a
 // tablas canónicas (companies/members/company_members) vive en operaciones.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('domains.incorporation-forms');
@@ -63,9 +64,9 @@ export async function getIncorporationOwner(
 	incorporationId: string,
 ): Promise<{ ownerId: string } | null> {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select('user_id')
-		.eq('empresa_incorporacion_id', incorporationId)
+		.eq('id', incorporationId)
 		.maybeSingle<{ user_id: string }>();
 
 	if (error) {
@@ -254,4 +255,189 @@ export async function submitIncorporationForm(
 		return { ok: false, reason: insertError.message };
 	}
 	return { ok: true };
+}
+
+const CLIENT_FORM_TASK_TITLE = 'Envío de formulario';
+const VALIDATION_TASK_TITLE = 'Validación de datos';
+
+const wfAdmin = supabaseAdmin.schema('workflow' as never);
+
+/**
+ * Completa la tarea "Envío de formulario" (rol: client) de la etapa
+ * `client_form`. La tarea "Validación de datos" (rol: operations) queda
+ * pendiente para que operaciones la revise. Mientras quede alguna tarea
+ * pendiente la etapa se mantiene `in_progress`; cuando operaciones valida
+ * se completa la etapa y `auto_advance` la avanza.
+ *
+ * Se llama fire-and-forget tras un submit exitoso.
+ */
+export async function completeClientFormSubmitTask(
+	incorporationId: string,
+	userId: string,
+): Promise<void> {
+	try {
+		const { data } = await wfAdmin
+			.from('incorporation_tasks')
+			.select('id')
+			.eq('incorporation_id', incorporationId)
+			.eq('title', CLIENT_FORM_TASK_TITLE)
+			.in('status', ['pending', 'in_progress'])
+			.order('created_at', { ascending: true })
+			.limit(1)
+			.maybeSingle();
+
+		const taskId = (data as { id?: string } | null)?.id ?? null;
+		if (!taskId) {
+			log.warn('no pending client submit task found', { incorporationId });
+			return;
+		}
+
+		const { error } = await supabaseAdmin.rpc('workflow_complete_task', {
+			p_task_id: taskId,
+			p_user_id: userId,
+		});
+		if (error) {
+			log.error('completeClientFormSubmitTask', { taskId, error });
+		} else {
+			log.info('client submit task completed', { taskId, incorporationId });
+		}
+	} catch (err) {
+		log.warn('completeClientFormSubmitTask error', { incorporationId, err });
+	}
+}
+
+/**
+ * Operaciones modifica el payload del formulario: limpia firma y consentimiento,
+ * marca como `rejected` para que el cliente revise, firme y acepte de nuevo.
+ */
+export async function opsEditFormPayload(
+	incorporationId: string,
+	modifiedPayload: unknown,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+	const now = new Date().toISOString();
+
+	const cleaned = modifiedPayload as Record<string, unknown>;
+	cleaned.signature = { dataUrl: null, file: null };
+	cleaned.consent = { acceptedTerms: false };
+
+	const { data: updated, error: updateError } = await wfAdmin
+		.from(TABLE)
+		.update({
+			payload: cleaned,
+			status: 'rejected',
+			rejection_reason:
+				'Modificado por operaciones — requiere nueva firma y aceptación de términos.',
+			updated_at: now,
+		})
+		.eq('incorporation_id', incorporationId)
+		.in('status', ['submitted', 'in_review'] as IncorporationFormStatus[])
+		.select('id')
+		.maybeSingle();
+
+	if (updateError) {
+		log.error('opsEditFormPayload.update', { incorporationId, error: updateError });
+		return { ok: false, reason: updateError.message };
+	}
+	if (!(updated as { id?: string } | null)?.id) {
+		return { ok: false, reason: 'NOT_REVIEWABLE' };
+	}
+	log.info('ops edited form payload', { incorporationId });
+	return { ok: true };
+}
+
+/**
+ * Operaciones valida el formulario: marca la fila como `validated`,
+ * completa la tarea "Validación de datos" (que cierra la etapa y auto-avanza).
+ */
+export async function validateFormByOps(
+	incorporationId: string,
+	userId: string,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+	const now = new Date().toISOString();
+
+	const { data: updated, error: updateError } = await wfAdmin
+		.from(TABLE)
+		.update({ status: 'validated', updated_at: now })
+		.eq('incorporation_id', incorporationId)
+		.in('status', ['submitted', 'in_review'] as IncorporationFormStatus[])
+		.select('id')
+		.maybeSingle();
+
+	if (updateError) {
+		log.error('validateFormByOps.update', { incorporationId, error: updateError });
+		return { ok: false, reason: updateError.message };
+	}
+	if (!(updated as { id?: string } | null)?.id) {
+		return { ok: false, reason: 'NOT_REVIEWABLE' };
+	}
+
+	await completeValidationTask(incorporationId, userId);
+	return { ok: true };
+}
+
+/**
+ * Operaciones rechaza el formulario: lo devuelve a un estado editable
+ * para que el cliente corrija.
+ */
+export async function rejectFormByOps(
+	incorporationId: string,
+	reason: string,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+	const now = new Date().toISOString();
+
+	const { data: updated, error: updateError } = await wfAdmin
+		.from(TABLE)
+		.update({
+			status: 'rejected',
+			rejection_reason: reason,
+			updated_at: now,
+		})
+		.eq('incorporation_id', incorporationId)
+		.in('status', ['submitted', 'in_review'] as IncorporationFormStatus[])
+		.select('id')
+		.maybeSingle();
+
+	if (updateError) {
+		log.error('rejectFormByOps.update', { incorporationId, error: updateError });
+		return { ok: false, reason: updateError.message };
+	}
+	if (!(updated as { id?: string } | null)?.id) {
+		return { ok: false, reason: 'NOT_REVIEWABLE' };
+	}
+	return { ok: true };
+}
+
+async function completeValidationTask(
+	incorporationId: string,
+	userId: string,
+): Promise<void> {
+	try {
+		const { data } = await wfAdmin
+			.from('incorporation_tasks')
+			.select('id')
+			.eq('incorporation_id', incorporationId)
+			.eq('title', VALIDATION_TASK_TITLE)
+			.in('status', ['pending', 'in_progress'])
+			.order('created_at', { ascending: true })
+			.limit(1)
+			.maybeSingle();
+
+		const taskId = (data as { id?: string } | null)?.id ?? null;
+		if (!taskId) {
+			log.warn('no pending validation task found', { incorporationId });
+			return;
+		}
+
+		const { error } = await supabaseAdmin.rpc('workflow_complete_task', {
+			p_task_id: taskId,
+			p_user_id: userId,
+		});
+		if (error) {
+			log.error('completeValidationTask', { taskId, error });
+		} else {
+			log.info('validation task completed', { taskId, incorporationId });
+		}
+	} catch (err) {
+		log.warn('completeValidationTask error', { incorporationId, err });
+	}
 }

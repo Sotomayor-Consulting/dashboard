@@ -41,7 +41,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
 		// Si el usuario viene de una invitación Odoo, redirigir al onboarding.
 		// Detectamos el origen desde raw_user_meta_data.source porque la fila
-		// en empresas_incorporaciones puede no existir aún si la RPC
+		// en incorporations puede no existir aún si la RPC
 		// procesar_orden_odoo falló (ej: producto no mapeado en servicios).
 		// El onboarding se encarga de crear el stub si hace falta.
 		const {
@@ -52,8 +52,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 			user?.app_metadata?.source === 'odoo';
 		if (user && isOdooUser) {
 			const { data: completedEmpresa } = await supabase
-				.from('empresas_incorporaciones')
-				.select('empresa_incorporacion_id')
+				.from('incorporations')
+				.select('id')
 				.eq('user_id', user.id)
 				.eq('source', 'odoo')
 				.not('tipo_de_negocio', 'is', null)

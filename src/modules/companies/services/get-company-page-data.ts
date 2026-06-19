@@ -3,7 +3,6 @@ import { listCompanyAddresses } from '@domains/companies/addresses';
 import { listCompanyMembers } from '@domains/companies/company-members';
 import { checkManagementTypeHealth } from '@domains/companies/rules/management-type.rules';
 import { actividadesGeneral } from '@domains/utils/generals/activities';
-import { EstadosGeneral } from '@domains/utils/generals/states';
 import type { CompanyItem, CompanyPageData } from '../types';
 
 /**
@@ -31,18 +30,18 @@ export async function getCompanyPageData(
 	if (companyError) throw companyError;
 	if (!company) return null;
 
-	const [addresses, companyMembers, managementTypeHealth, actividades, states, incorporationLookup] =
+	const [addresses, companyMembers, managementTypeHealth, actividades, statesResult, incorporationLookup] =
 		await Promise.all([
 			listCompanyAddresses(supabase, companyId),
 			listCompanyMembers(supabase, companyId),
 			checkManagementTypeHealth(supabase, companyId),
 			actividadesGeneral(supabase),
-			EstadosGeneral(supabase),
+			supabase.from('states').select('*'),
 			supabase
-				.from('empresas_incorporaciones')
-				.select('empresa_incorporacion_id')
+				.from('incorporation_workflow')
+				.select('id')
 				.eq('company_id', companyId)
-				.maybeSingle<{ empresa_incorporacion_id: string }>(),
+				.maybeSingle<{ id: string }>(),
 		]);
 
 	return {
@@ -53,8 +52,8 @@ export async function getCompanyPageData(
 		managementTypeHealth:
 			(managementTypeHealth ?? null) as CompanyPageData['managementTypeHealth'],
 		actividades: (actividades ?? []) as unknown as CompanyPageData['actividades'],
-		states: (states ?? []) as CompanyPageData['states'],
+		states: (statesResult.data ?? []) as CompanyPageData['states'],
 		incorporationId:
-			incorporationLookup.data?.empresa_incorporacion_id ?? null,
+			incorporationLookup.data?.id ?? null,
 	};
 }

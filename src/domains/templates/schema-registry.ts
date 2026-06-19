@@ -6,14 +6,14 @@ export { getEntityFields, getEntityLabel, getAllEntityTypes } from './entity-reg
 
 export const ENTITY_TABLES: Record<string, string> = {
 	company: 'empresa',
-	incorporation_case: 'empresas_incorporaciones',
+	incorporation_case: 'incorporations',
 	member: 'members',
 	planning_design_report: 'workflow.planning_design_reports',
 };
 
 export const ENTITY_PK: Record<string, string> = {
 	company: 'empresa_id',
-	incorporation_case: 'empresa_incorporacion_id',
+	incorporation_case: 'id',
 	member: 'id',
 	planning_design_report: 'incorporation_id',
 };
@@ -26,9 +26,11 @@ const ENTITY_QUERY_MAP: Record<string, Record<string, string>> = {
 		created_at: 'created_at',
 	},
 	incorporation_case: {
-		business_name_1: 'nombre_1',
-		business_name_2: 'nombre_2',
-		business_name_3: 'nombre_3',
+		// nombre canónico + opciones consolidadas en possible_names (array).
+		// `col#N` lee possible_names[N] (ver resolveFieldData).
+		business_name_1: 'principal_name',
+		business_name_2: 'possible_names#1',
+		business_name_3: 'possible_names#2',
 		business_type: 'tipo_de_negocio',
 		formation_state: 'estado_de_incorporacion',
 		management_type: 'forma_administracion',
@@ -137,7 +139,8 @@ export async function resolveFieldData(
 			continue;
 		}
 		const col = columnMap[mapping.path];
-		if (col) directPaths.add(col);
+		// `col#N` indexa un array (ej. possible_names#1) → seleccionar la columna base.
+		if (col) directPaths.add(col.split('#')[0]!);
 	}
 
 	let entityData: Record<string, unknown> = {};
@@ -192,7 +195,17 @@ export async function resolveFieldData(
 		const column = isBridge ? MEMBER_BRIDGE_MAP[mapping.path]! : columnMap[mapping.path];
 		if (!column) continue;
 
-		const value = isBridge ? bridgeData[column] : entityData[column];
+		let value: unknown;
+		if (isBridge) {
+			value = bridgeData[column];
+		} else if (column.includes('#')) {
+			// `base#N` → possible_names[N] (u otra columna array indexada)
+			const [base, idx] = column.split('#');
+			const arr = entityData[base!];
+			value = Array.isArray(arr) ? arr[Number(idx)] : null;
+		} else {
+			value = entityData[column];
+		}
 		if (value == null) continue;
 
 		result[pdfField] = applyTransform(value, mapping.transform);

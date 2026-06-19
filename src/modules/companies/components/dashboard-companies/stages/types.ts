@@ -14,7 +14,7 @@ export const STAGE_KEYS = [
 
 export type StageKey = (typeof STAGE_KEYS)[number];
 
-export type StageStatus = 'completed' | 'in_progress' | 'pending';
+export type StageStatus = 'completed' | 'in_progress' | 'pending' | 'waiting';
 
 export interface StageItem {
 	id: string;
@@ -49,5 +49,6 @@ export interface StageProps {
 export const STATUS_LABEL: Record<StageStatus, string> = {
 	completed: 'Completado',
 	in_progress: 'En proceso',
+	waiting: 'En revisión',
 	pending: 'Por completar',
 };

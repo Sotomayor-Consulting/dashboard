@@ -2,9 +2,10 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { recordAuditEvent } from '@domains/audit/audit-events';
 
 export interface IncorporationDetailsInput {
-	nombre_1?: string | null;
-	nombre_2?: string | null;
-	nombre_3?: string | null;
+	/** Nombre canónico (opción preferida). */
+	principal_name?: string | null;
+	/** Opciones de nombre consideradas (se deduplica y limpia). */
+	possible_names?: (string | null | undefined)[] | null;
 	tipo_de_negocio?: string | null;
 	state_id?: number | string | null;
 }
@@ -32,12 +33,12 @@ export async function updateIncorporationDetails(
 	actorUserId: string,
 ) {
 	const { data: before, error: beforeError } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select(
-			`empresa_incorporacion_id, company_id, nombre_1, nombre_2, nombre_3,
-			tipo_de_negocio, state_id, updated_at`,
+			`id, principal_name, possible_names,
+			entity_type, formation_state_id, updated_at`,
 		)
-		.eq('empresa_incorporacion_id', incorporationId)
+		.eq('id', incorporationId)
 		.maybeSingle();
 
 	if (beforeError) throw beforeError;
@@ -49,15 +50,15 @@ export async function updateIncorporationDetails(
 	}
 
 	const { data: after, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.update({
 			...payload,
 			updated_at: new Date().toISOString(),
 		})
-		.eq('empresa_incorporacion_id', incorporationId)
+		.eq('id', incorporationId)
 		.select(
-			`empresa_incorporacion_id, company_id, nombre_1, nombre_2, nombre_3,
-			tipo_de_negocio, state_id, updated_at`,
+			`id, principal_name, possible_names,
+			entity_type, formation_state_id, updated_at`,
 		)
 		.single();
 
@@ -76,14 +77,27 @@ export async function updateIncorporationDetails(
 }
 
 function incorporationDetailsPayload(input: IncorporationDetailsInput) {
-	const payload: Record<string, string | number | null> = {};
+	const payload: Record<string, string | number | string[] | null> = {};
 
-	for (const field of ['nombre_1', 'nombre_2', 'nombre_3', 'tipo_de_negocio'] as const) {
-		if (hasOwn(input, field)) payload[field] = cleanText(input[field]);
+	if (hasOwn(input, 'principal_name'))
+		payload.principal_name = cleanText(input.principal_name);
+	// tipo_de_negocio (input) → entity_type (columna nueva)
+	if (hasOwn(input, 'tipo_de_negocio'))
+		payload.entity_type = cleanText(input.tipo_de_negocio);
+
+	if (hasOwn(input, 'possible_names')) {
+		payload.possible_names = [
+			...new Set(
+				(input.possible_names ?? [])
+					.map((n) => (typeof n === 'string' ? n.trim() : ''))
+					.filter(Boolean),
+			),
+		];
 	}
 
+	// state_id (input) → formation_state_id (columna nueva)
 	if (hasOwn(input, 'state_id')) {
-		payload.state_id = cleanNumber(input.state_id);
+		payload.formation_state_id = cleanNumber(input.state_id);
 	}
 
 	return payload;

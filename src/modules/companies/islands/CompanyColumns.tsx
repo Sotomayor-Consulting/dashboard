@@ -12,31 +12,24 @@ import { MoreHorizontal } from 'lucide-react';
 import type { CompanyCrudRow } from '../types';
 
 export const companiesColumns: ColumnDef<CompanyCrudRow>[] = [
-	{ accessorKey: 'nombre_1', header: 'ID' },
+	{ accessorKey: 'principal_name', header: 'ID' },
 	{
 		accessorKey: 'created_by_name',
 		header: 'Usuario que la creo',
 	},
 	{
-		accessorKey: 'tipo_de_negocio',
-		header: 'Tipo de negocio',
+		accessorKey: 'entity_type',
+		header: 'Tipo de entidad',
 		cell: ({ row }) => {
-			return row.getValue('tipo_de_negocio') || 'Sin definir';
+			return row.getValue('entity_type') || 'Sin definir';
 		},
 	},
 	{
 		accessorKey: 'porcentaje_de_incorporacion',
-		header: 'Estado de incorporacion',
+		header: 'Progreso',
 		cell: ({ row }) => {
 			const value = row.getValue('porcentaje_de_incorporacion');
 			return typeof value === 'number' ? `${value}%` : '0%';
-		},
-	},
-	{
-		accessorKey: 'estado_de_incorporacion',
-		header: 'Estado',
-		cell: ({ row }) => {
-			return row.getValue('estado_de_incorporacion') || 'Sin estado';
 		},
 	},
 	{
@@ -73,7 +66,7 @@ export const companiesColumns: ColumnDef<CompanyCrudRow>[] = [
 		header: 'Acciones',
 		enableHiding: false,
 		cell: ({ row }) => {
-			const companyId = row.original.empresa_incorporacion_id;
+			const companyId = row.original.id;
 
 			return (
 				<DropdownMenu>

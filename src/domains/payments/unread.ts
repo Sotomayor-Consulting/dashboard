@@ -55,7 +55,7 @@ export const pagosRealizadosData = async (supabase: SupabaseClient) => {
     *,
     usuarios ( user_id, nombre, apellido, correo ),
 	servicios (id_servicios, nombre, categoria),
-	empresas_incorporaciones (empresa_incorporacion_id, nombre_1, estado)
+	incorporations (id, principal_name, state)
   `,
 			{ count: 'exact' },
 		)
@@ -77,7 +77,7 @@ export const pagosRealizadosPorSubir = async (supabase: SupabaseClient) => {
     *,
     usuarios ( user_id, nombre, apellido, correo ),
 	servicios (id_servicios, nombre, categoria),
-	empresas_incorporaciones (empresa_incorporacion_id, nombre_1, estado)
+	incorporations (id, principal_name, state)
   `,
 			{ count: 'exact' },
 		)
@@ -103,7 +103,7 @@ export const pagosRealizadosPorSubirById = async (
     *,
     usuarios ( user_id, nombre, apellido, correo ),
 	servicios (id_servicios, nombre, categoria),
-	empresas_incorporaciones (empresa_incorporacion_id, nombre_1, estado, tipo_de_negocio)
+	incorporations (id, principal_name, state, entity_type)
   `,
 			{ count: 'exact' },
 		)

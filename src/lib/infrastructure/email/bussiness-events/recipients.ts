@@ -22,11 +22,11 @@ export async function resolveBusinessCaseContext(
 	caseId: string,
 ): Promise<BusinessEmailCaseContext | null> {
 	const { data, error } = await supabaseAdmin
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select(
-			'empresa_incorporacion_id, user_id, nombre_1, usuarios:user_id(nombre, apellido, correo)',
+			'id, user_id, principal_name, usuarios:user_id(nombre, apellido, correo)',
 		)
-		.eq('empresa_incorporacion_id', caseId)
+		.eq('id', caseId)
 		.maybeSingle();
 
 	if (error || !data?.user_id) {
@@ -42,8 +42,8 @@ export async function resolveBusinessCaseContext(
 		: await resolveRecipientEmail({ userId: data.user_id as string });
 
 	return {
-		caseId: data.empresa_incorporacion_id as string,
-		companyName: String(data.nombre_1 ?? '').trim() || 'su incorporacion',
+		caseId: data.id as string,
+		companyName: String(data.principal_name ?? '').trim() || 'su incorporacion',
 		clientUserId: data.user_id as string,
 		clientName: buildFullName(profile),
 		clientEmail,

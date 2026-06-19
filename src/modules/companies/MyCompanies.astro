@@ -39,19 +39,19 @@ const paths = [
 				empresas?.map((fr) => (
 					<div class="rounded-lg border border-gray-200 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-700 dark:bg-[#28314c] dark:hover:bg-[#101522]">
 						<a
-							href={`/my-companies/${fr.empresa_incorporacion_id}/dashboard`}
+							href={`/my-companies/${fr.id}/dashboard`}
 							class="flex h-full flex-col items-center p-6 md:flex-row"
 						>
 							<Image
 								class="mb-4 h-64 w-full rounded-lg object-cover md:mb-0 md:h-auto md:w-48"
 								src={edificioimg}
-								alt={`Imagen empresa ${fr.nombre_1}`}
+								alt={`Imagen empresa ${fr.principal_name}`}
 								loading="eager"
 							/>
 							<div class="flex w-full items-center md:p-4">
 								<div class="w-full">
 									<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-										{fr.nombre_1} - {fr.tipo_de_negocio}
+										{fr.principal_name} - {fr.tipo_de_negocio}
 									</h5>
 									<p class="mb-6 text-gray-500 dark:text-gray-400">
 										{fr.estado_de_incorporacion}
@@ -60,7 +60,7 @@ const paths = [
 								<div>
 									{fr.estado === 'En proceso' ? (
 										<span
-											data-popover-target={`tooltip-${fr.empresa_incorporacion_id}`}
+											data-popover-target={`tooltip-${fr.id}`}
 											data-popover-placement="bottom-end"
 											class="flex w-fit items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-400/20 dark:text-gray-300"
 										>
@@ -78,7 +78,7 @@ const paths = [
 						</a>
 						<div
 							data-popover
-							id={`tooltip-${fr.empresa_incorporacion_id}`}
+							id={`tooltip-${fr.id}`}
 							role="tooltip"
 							class="invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 bg-white text-sm text-gray-500 opacity-0 shadow-xs transition-opacity duration-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400"
 						>

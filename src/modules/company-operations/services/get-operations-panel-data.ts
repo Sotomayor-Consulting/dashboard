@@ -130,9 +130,9 @@ export async function getOperationsPanelData(
 		listTasksByIncorporation(supabase, empresaId),
 		listPendingTasksForRole(supabase, 'operaciones', 8),
 		supabase
-			.from('empresas_incorporaciones')
-			.select('user_id, nombre_1')
-			.eq('empresa_incorporacion_id', empresaId)
+			.from('incorporations')
+			.select('user_id, principal_name')
+			.eq('id', empresaId)
 			.maybeSingle(),
 	]);
 
@@ -324,7 +324,8 @@ export async function getOperationsPanelData(
 		workflowId,
 		companyName:
 			empresaNombre ||
-			((ownerRow.data as { nombre_1?: string } | null)?.nombre_1 ?? '—'),
+			((ownerRow.data as { principal_name?: string } | null)?.principal_name ??
+				'—'),
 		responsible: ownerName,
 		startedAt: formatDate(startedAt),
 		stagesCompleted,

@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { getEmpresaById } from '@domains/companies/companies';
 import { actividadesGeneral } from '@domains/utils/generals/activities';
 import { PaisesGeneral } from '@domains/utils/generals/countries-list';
-import { EstadosGeneral } from '@domains/utils/generals/states';
+import { listStatesByCountry } from '@domains/locations/states';
 import type { CompanyDetailData } from '../types';
 
 /**
@@ -15,11 +15,11 @@ export const getCompanyDetailData = async (
 	supabase: SupabaseClient,
 	empresaId: string,
 ): Promise<CompanyDetailData | null> => {
-	const [empresa, actividades, paises, estados] = await Promise.all([
+	const [empresa, actividades, paises, states] = await Promise.all([
 		getEmpresaById(supabase, empresaId),
 		actividadesGeneral(supabase),
 		PaisesGeneral(supabase),
-		EstadosGeneral(supabase),
+		listStatesByCountry(supabase, 75)
 	]);
 
 	if (!empresa) return null;
@@ -27,18 +27,18 @@ export const getCompanyDetailData = async (
 	const companyId = (empresa as { company_id?: string | null }).company_id;
 	const company = companyId
 		? (
-				await supabase
-					.from('companies')
-					.select(
-						`id, legal_name, filing_number, identification_number, entity_type,
+			await supabase
+				.from('companies')
+				.select(
+					`id, legal_name, filing_number, identification_number, entity_type,
 						 formation_state_id, formation_country_id, management_type,
 						 tax_clasification, activity_code_id, activity_description,
 						 us_source_income, joint_ownership,
 						 incorporation_date, irs_email, legal_status`,
-					)
-					.eq('id', companyId)
-					.maybeSingle()
-			).data
+				)
+				.eq('id', companyId)
+				.maybeSingle()
+		).data
 		: null;
 
 	return {
@@ -50,6 +50,6 @@ export const getCompanyDetailData = async (
 		managementTypeHealth: null,
 		actividades: (actividades ?? []) as unknown as CompanyDetailData['actividades'],
 		paises: (paises ?? []) as CompanyDetailData['paises'],
-		state: (estados ?? []) as CompanyDetailData['state'],
+		state: (states ?? []) as CompanyDetailData['state'],
 	};
 };

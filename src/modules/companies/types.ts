@@ -47,26 +47,24 @@ export type CompanyTableRow = Omit<Company, 'formation_country_id' | 'tax_clasif
 	tax_clasification: string;
 };
 
-// ── empresas_incorporaciones (CRUD list row) ────────────────────
+// ── incorporations (CRUD list row) ────────────────────
 export interface CompanyCrudRow {
-	empresa_incorporacion_id: string;
-	nombre_1: string;
-	tipo_de_negocio: string | null;
+	id: string;
+	principal_name: string;
+	entity_type: string | null;
 	porcentaje_de_incorporacion: number | null;
-	estado_de_incorporacion: string | null;
 	estado: string | null;
 	updated_at: string | null;
 	created_by_name: string;
 }
 
-// ── Detail view types (empresas_incorporaciones + relations) ────
+// ── Detail view types (incorporations + relations) ────
 export interface EmpresaDetail {
-	empresa_incorporacion_id: string;
+	id: string;
 	company_id: string | null;
 	user_id: string;
-	nombre_1: string | null;
-	nombre_2: string | null;
-	nombre_3: string | null;
+	principal_name: string | null;
+	possible_names: string[] | null;
 	tipo_de_negocio: string | null;
 	estado_de_incorporacion: string | null;
 	estado: string | null;
@@ -266,11 +264,11 @@ export interface PagoPorLeer {
 		apellido: string;
 		correo: string;
 	}
-	empresas_incorporaciones?: {
+	incorporations?: {
 		estado: string;
-		nombre_1: string;
+		principal_name: string;
 		tipo_de_negocio: string;
-		empresa_incorporacion_id: string;
+		id: string;
 	}
 }
 

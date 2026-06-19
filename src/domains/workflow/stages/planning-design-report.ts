@@ -216,18 +216,19 @@ export const generateAndUploadReport = async (
 	}
 
 	const { data: empresa } = await supabaseAdmin
-		.from('empresas_incorporaciones')
-		.select('nombre_1, estado_eeuu')
-		.eq('empresa_incorporacion_id', incorporationId)
+		.from('incorporations')
+		.select('principal_name')
+		.eq('id', incorporationId)
 		.maybeSingle();
 
 	const companyName =
-		(empresa as { nombre_1?: string | null } | null)?.nombre_1 ?? 'Empresa';
+		(empresa as { principal_name?: string | null } | null)?.principal_name ??
+		'Empresa';
 
 	const data = buildTemplateData(report, {
 		companyName,
 		stateName:
-			(empresa as { estado_eeuu?: string | null } | null)?.estado_eeuu ?? null,
+			null, // estado_eeuu eliminada de incorporations (degradado)
 	});
 
 	const safeName = companyName.replace(/[^\w\d-]+/g, '_').slice(0, 60);

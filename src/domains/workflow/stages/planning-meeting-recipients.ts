@@ -18,16 +18,16 @@ export async function getClientRecipientForCase(
 	caseId: string,
 ): Promise<ClientRecipient | null> {
 	const { data, error } = await supabaseAdmin
-		.from('empresas_incorporaciones')
-		.select('user_id, nombre_1')
-		.eq('empresa_incorporacion_id', caseId)
+		.from('incorporations')
+		.select('user_id, principal_name')
+		.eq('id', caseId)
 		.maybeSingle();
 
 	if (error || !data?.user_id) return null;
 
 	return {
 		userId: data.user_id as string,
-		companyName: (data.nombre_1 as string | null) ?? null,
+		companyName: (data.principal_name as string | null) ?? null,
 	};
 }
 

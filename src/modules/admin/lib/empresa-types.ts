@@ -1,7 +1,7 @@
 /**
  * Tipos del módulo Empresas (entidades legales formadas).
  * Mapea `public.companies` — la empresa real ya constituida vs.
- * `empresas_incorporaciones` que es el proceso de incorporación.
+ * `incorporations` que es el proceso de incorporación.
  */
 
 export const ENTITY_TYPE = ['llc', 'corp', 'c-corp', 's-corp'] as const;

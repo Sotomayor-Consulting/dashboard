@@ -49,9 +49,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 	// Verificar que la empresa pertenece al usuario
 	const { data: empresa, error: empresaErr } = await supabase
-		.from('empresas_incorporaciones')
-		.select('empresa_incorporacion_id')
-		.eq('empresa_incorporacion_id', empresaId)
+		.from('incorporations')
+		.select('id')
+		.eq('id', empresaId)
 		.eq('user_id', user.id)
 		.maybeSingle();
 

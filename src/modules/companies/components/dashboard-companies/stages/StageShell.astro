@@ -20,15 +20,13 @@ const { status } = stage;
 				'dark:ring-black-900 absolute -inset-s-4 flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white': true,
 				'bg-success-soft text-fg-success-strong': status === 'completed',
 				'bg-neutral-tertiary text-body': status === 'pending',
-				'animate-pulse bg-[#134aed] text-white': status === 'in_progress',
+				'stage-pulse bg-[#134aed] text-white': status === 'in_progress',
+				'stage-pulse bg-amber-500 text-white': status === 'waiting',
 			}}
 		>
 			<Icon
 				name={icon}
-				class:list={{
-					'text-base': true,
-					'animate-pulse': status === 'in_progress',
-				}}
+				class="text-base"
 			/>
 		</span>
 
@@ -38,6 +36,7 @@ const { status } = stage;
 				'text-fg-success-strong': status === 'completed',
 				'text-gray-800 dark:text-gray-200': status === 'pending',
 				'text-[#134aed]': status === 'in_progress',
+				'text-amber-600 dark:text-amber-400': status === 'waiting',
 			}}
 		>
 			{stage.name}
@@ -52,6 +51,8 @@ const { status } = stage;
 						status === 'completed',
 					'bg-blue-50 text-blue-700 dark:bg-blue-900/25 dark:text-blue-300':
 						status === 'in_progress',
+					'bg-amber-50 text-amber-700 dark:bg-amber-900/25 dark:text-amber-300':
+						status === 'waiting',
 					'dark:bg-black-700 bg-gray-100 text-gray-600 dark:text-gray-300':
 						status === 'pending',
 				}}
@@ -71,3 +72,13 @@ const { status } = stage;
 		)
 	}
 </li>
+
+<style>
+	.stage-pulse {
+		animation: soft-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
+	@keyframes soft-pulse {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.7; }
+	}
+</style>
