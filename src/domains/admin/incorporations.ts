@@ -67,9 +67,9 @@ async function loadTasksSummary(
 		assigned_role: string | null;
 		display_order: number | null;
 		workflow_stage:
-			| { status: string | null; display_order: number | null }
-			| Array<{ status: string | null; display_order: number | null }>
-			| null;
+		| { status: string | null; display_order: number | null }
+		| Array<{ status: string | null; display_order: number | null }>
+		| null;
 	};
 
 	function stageOf(r: Row) {
@@ -186,10 +186,10 @@ export async function listAdminCompanies(
 	supabase: SupabaseClient,
 ): Promise<AdminCompany[]> {
 	const { data: empresas, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select(
-			`empresa_incorporacion_id, nombre_1, tipo_de_negocio,
-			 estado_de_incorporacion, estado, porcentaje_de_incorporacion,
+			`id, principal_name, entity_type,
+			 estado_de_incorporacion, state, porcentaje_de_incorporacion,
 			 updated_at, user_id, company_id,
 			 usuarios:user_id ( user_id, nombre, apellido, correo, avatar_url )`,
 		)
@@ -200,7 +200,7 @@ export async function listAdminCompanies(
 
 	// Bulk-load relacionados para no hacer N+1
 	const ids = empresas
-		.map((e: { empresa_incorporacion_id: string }) => e.empresa_incorporacion_id)
+		.map((e: { id: string }) => e.id)
 		.filter(Boolean);
 
 	const [{ data: pagosRows }, { data: docsRows }, { data: workflowsRows }] =
@@ -253,9 +253,9 @@ export async function listAdminCompanies(
 
 	return empresas.map((raw): AdminCompany => {
 		const e = raw as {
-			empresa_incorporacion_id: string;
-			nombre_1: string | null;
-			tipo_de_negocio: string | null;
+			id: string;
+			principal_name: string | null;
+			entity_type: string | null;
 			estado_de_incorporacion: string | null;
 			estado: string | null;
 			porcentaje_de_incorporacion: number | null;
@@ -263,62 +263,62 @@ export async function listAdminCompanies(
 			user_id: string | null;
 			company_id: string | null;
 			usuarios:
-				| {
-						user_id: string;
-						nombre: string | null;
-						apellido: string | null;
-						correo: string | null;
-						avatar_url: string | null;
-				  }
-				| Array<{
-						user_id: string;
-						nombre: string | null;
-						apellido: string | null;
-						correo: string | null;
-						avatar_url: string | null;
-				  }>
-				| null;
+			| {
+				user_id: string;
+				nombre: string | null;
+				apellido: string | null;
+				correo: string | null;
+				avatar_url: string | null;
+			}
+			| Array<{
+				user_id: string;
+				nombre: string | null;
+				apellido: string | null;
+				correo: string | null;
+				avatar_url: string | null;
+			}>
+			| null;
 		};
 
 		const usuarioRaw = Array.isArray(e.usuarios) ? e.usuarios[0] : e.usuarios;
 		const client = usuarioRaw
 			? {
-					id: usuarioRaw.user_id,
-					name:
-						[usuarioRaw.nombre, usuarioRaw.apellido]
-							.filter(Boolean)
-							.join(' ')
-							.trim() ||
-						usuarioRaw.correo ||
-						'Sin nombre',
-					email: usuarioRaw.correo ?? '',
-					avatarUrl: usuarioRaw.avatar_url,
-				}
+				id: usuarioRaw.user_id,
+				name:
+					[usuarioRaw.nombre, usuarioRaw.apellido]
+						.filter(Boolean)
+						.join(' ')
+						.trim() ||
+					usuarioRaw.correo ||
+					'Sin nombre',
+				email: usuarioRaw.correo ?? '',
+				avatarUrl: usuarioRaw.avatar_url,
+			}
 			: null;
 
 		const progress = Math.round(e.porcentaje_de_incorporacion ?? 0);
-		const pagos = pagosByEmpresa.get(e.empresa_incorporacion_id) ?? [];
+		const pagos = pagosByEmpresa.get(e.id) ?? [];
 
-		const summary = tasksSummary.get(e.empresa_incorporacion_id) ?? {
+		const summary = tasksSummary.get(e.id) ?? {
 			openCount: 0,
 			next: null,
 			awaiting: 'none' as AwaitingActor,
 		};
-		const startedAt = startDates.get(e.empresa_incorporacion_id) ?? null;
+		const startedAt = startDates.get(e.id) ?? null;
 
 		return {
-			id: e.empresa_incorporacion_id,
-			name: e.nombre_1 ?? 'Sin nombre',
-			type: e.tipo_de_negocio,
+			id: e.id,
+			name: e.principal_name ?? 'Sin nombre',
+			type: e.entity_type,
 			stateUs: e.estado_de_incorporacion,
-			status: e.estado,
+			status: e.state,
 			progress,
 			currentStage: e.company_id
 				? (workflowByCompany.get(e.company_id) ?? null)
 				: null,
 			client,
-			paymentStatus: derivePaymentStatus(e.estado, pagos),
-			pendingDocs: docsCount.get(e.empresa_incorporacion_id) ?? 0,
+			paymentStatus: derivePaymentStatus(e.state, pagos),
+			pendingDocs: docsCount.get(e.id) ?? 0,
 			priority: derivePriority(e.updated_at, progress),
 			lastActivityAt: e.updated_at,
 			createdAt: e.updated_at,
@@ -361,17 +361,17 @@ async function loadTasksForIncorporation(
 		completed_at: string | null;
 		display_order: number | null;
 		workflow_stage:
-			| {
-					status: string | null;
-					completed_at: string | null;
-					display_order: number | null;
-			  }
-			| Array<{
-					status: string | null;
-					completed_at: string | null;
-					display_order: number | null;
-			  }>
-			| null;
+		| {
+			status: string | null;
+			completed_at: string | null;
+			display_order: number | null;
+		}
+		| Array<{
+			status: string | null;
+			completed_at: string | null;
+			display_order: number | null;
+		}>
+		| null;
 	};
 
 	const stageOf = (r: Row) =>
@@ -454,9 +454,9 @@ export async function getAdminCompanyDetail(
 			status: string | null;
 			created_at: string | null;
 			servicios:
-				| { nombre: string | null }
-				| Array<{ nombre: string | null }>
-				| null;
+			| { nombre: string | null }
+			| Array<{ nombre: string | null }>
+			| null;
 		};
 		const serv = Array.isArray(row.servicios) ? row.servicios[0] : row.servicios;
 		const statusNorm = (row.status ?? '').toLowerCase();

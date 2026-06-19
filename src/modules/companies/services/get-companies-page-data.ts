@@ -8,8 +8,8 @@ export const getCompaniesPageData = async (
 	const empresas = await IncorporacionesEmpresasBase(supabase);
 
 	return (empresas ?? []).map((empresa) => ({
-		empresa_incorporacion_id: String(empresa.empresa_incorporacion_id ?? ''),
-		nombre_1: String(empresa.nombre_1 ?? ''),
+		id: String(empresa.id ?? ''),
+		principal_name: String(empresa.principal_name ?? ''),
 		tipo_de_negocio: empresa.tipo_de_negocio ?? null,
 		porcentaje_de_incorporacion: empresa.porcentaje_de_incorporacion ?? null,
 		estado_de_incorporacion: empresa.estado_de_incorporacion ?? null,

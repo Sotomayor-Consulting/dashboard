@@ -26,7 +26,7 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> =>
 
 /**
  * Endpoint legacy en el ámbito de incorporación. Resuelve `companyId` desde
- * `empresas_incorporaciones.company_id` y delega en las domain functions
+ * `incorporations.company_id` y delega en las domain functions
  * company-scoped. Acepta el mismo payload combinado que
  * `/api/companies/[companyId]/members`.
  */

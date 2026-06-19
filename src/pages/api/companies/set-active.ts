@@ -39,9 +39,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	}
 
 	const { data: empresa, error } = await supabase
-		.from('empresas_incorporaciones')
-		.select('empresa_incorporacion_id')
-		.eq('empresa_incorporacion_id', companyId)
+		.from('incorporations')
+		.select('id')
+		.eq('id', companyId)
 		.eq('user_id', user.id)
 		.maybeSingle();
 

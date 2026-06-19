@@ -67,9 +67,9 @@ export default function CompanyDetailsForm({
 	>({
 		resolver: zodResolver(incorporationRegistrationSchema),
 		defaultValues: {
-			nameOption1: empresa.nombre_1,
-			nameOption2: empresa.nombre_2,
-			nameOption3: empresa.nombre_3,
+			nameOption1: empresa.principal_name,
+			nameOption2: empresa.possible_names?.[1] ?? null,
+			nameOption3: empresa.possible_names?.[2] ?? null,
 			businessType: empresa.tipo_de_negocio,
 			stateId: empresa.state_id ?? null,
 		},
@@ -83,7 +83,7 @@ export default function CompanyDetailsForm({
 		const loadingToastId = toast.loading('Creando empresa...');
 		try {
 			const response = await fetch(
-				`/api/incorporations/${empresa.empresa_incorporacion_id}/company`,
+				`/api/incorporations/${empresa.id}/company`,
 				{ method: 'POST' },
 			);
 			const payload = await response.json().catch(() => null);
@@ -131,7 +131,7 @@ export default function CompanyDetailsForm({
 		const loadingToastId = toast.loading('Guardando datos...');
 
 		const requestPayload = mapIncorporationFormToUpdateRequest(
-			empresa.empresa_incorporacion_id,
+			empresa.id,
 			values,
 		);
 
@@ -165,7 +165,7 @@ export default function CompanyDetailsForm({
 	};
 
 	const companyHref = companyId
-		? `/companies/${companyId}?from=incorporation/${empresa.empresa_incorporacion_id}`
+		? `/companies/${companyId}?from=incorporation/${empresa.id}`
 		: null;
 
 	return (
@@ -248,7 +248,7 @@ export default function CompanyDetailsForm({
 										Empresa
 									</p>
 									<h4 className="mt-1 truncate text-base font-semibold text-gray-900 dark:text-gray-100">
-										{company?.legal_name ?? empresa.nombre_1 ?? 'Sin nombre'}
+										{company?.legal_name ?? empresa.principal_name ?? 'Sin nombre'}
 									</h4>
 									<p className="mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">
 										{company?.entity_type

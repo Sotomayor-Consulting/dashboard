@@ -91,9 +91,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 	}
 
 	const { data: empresa } = await supabaseAdmin
-		.from('empresas_incorporaciones')
-		.select('user_id, nombre_1')
-		.eq('empresa_incorporacion_id', incorporationId)
+		.from('incorporations')
+		.select('user_id, principal_name')
+		.eq('id', incorporationId)
 		.maybeSingle();
 
 	if (!empresa || empresa.user_id !== user.id) {
@@ -121,7 +121,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				: 'workflow.planning.doc_rejected';
 		const recipientClient = await getClientRecipientForCase(incorporationId);
 		const companyName =
-			recipientClient?.companyName ?? empresa.nombre_1 ?? 'la empresa';
+			recipientClient?.companyName ?? empresa.principal_name ?? 'la empresa';
 
 		await notifyByEvent({
 			eventKey,

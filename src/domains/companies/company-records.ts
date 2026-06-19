@@ -23,10 +23,10 @@ export interface CompanyUpdateInput {
 }
 
 interface IncorporationForCompany {
-	empresa_incorporacion_id: string;
+	id: string;
 	company_id?: string | null;
 	user_id: string;
-	nombre_1: string | null;
+	principal_name: string | null;
 	tipo_de_negocio: string | null;
 	state_id: number | null;
 	activity_id: number | null;
@@ -73,9 +73,9 @@ export async function getCompanyIdForIncorporation(
 	incorporationId: string,
 ): Promise<string | null> {
 	const { data, error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select('company_id')
-		.eq('empresa_incorporacion_id', incorporationId)
+		.eq('id', incorporationId)
 		.maybeSingle<{ company_id: string | null }>();
 
 	if (error) throw error;
@@ -89,13 +89,13 @@ export async function createCompanyFromIncorporation(
 	status: CompanyStatus = 'draft',
 ): Promise<string> {
 	const { data: incorporation, error: incorporationError } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.select(
-			`empresa_incorporacion_id, company_id, user_id, nombre_1,
+			`id, company_id, user_id, principal_name,
 			tipo_de_negocio, state_id, activity_id, activity_description, forma_administracion, forma_tributacion,
 			Obtendra_ingresos_desde_eeuu`,
 		)
-		.eq('empresa_incorporacion_id', incorporationId)
+		.eq('id', incorporationId)
 		.maybeSingle<IncorporationForCompany>();
 
 	if (incorporationError) throw incorporationError;
@@ -109,7 +109,7 @@ export async function createCompanyFromIncorporation(
 		.from('companies')
 		.insert({
 			user_id: incorporation.user_id,
-			legal_name: incorporation.nombre_1,
+			legal_name: incorporation.principal_name,
 			entity_type: 'llc',
 			formation_state_id: incorporation.state_id,
 			tax_clasification: incorporation.forma_tributacion,
@@ -134,12 +134,12 @@ export async function createCompanyFromIncorporation(
 	if (companyError) throw companyError;
 
 	const { error: updateError } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.update({
 			company_id: company.id,
 			updated_at: now,
 		})
-		.eq('empresa_incorporacion_id', incorporationId)
+		.eq('id', incorporationId)
 		.is('company_id', null);
 
 	if (updateError) throw updateError;
@@ -155,7 +155,7 @@ export async function createCompanyFromIncorporation(
 			id: company.id,
 			incorporation_id: incorporationId,
 			legal_status: status,
-			legal_name: incorporation.nombre_1,
+			legal_name: incorporation.principal_name,
 		},
 	});
 

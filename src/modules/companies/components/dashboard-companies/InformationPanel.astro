@@ -10,7 +10,7 @@ import StatePlate from './state-info/StatePlate.astro';
 
 interface Props {
 	empresa: {
-		nombre_1: string;
+		principal_name: string;
 		tipo_de_negocio: string | null;
 		estado_de_incorporacion: string;
 		created_at?: string | null;
@@ -52,7 +52,7 @@ const tipoEntidadFull =
 		: empresa.tipo_de_negocio || '—';
 
 const rows = [
-	{ label: 'Razón social', value: empresa.nombre_1, mono: false },
+	{ label: 'Razón social', value: empresa.principal_name, mono: false },
 	{ label: 'Tipo de entidad', value: tipoEntidadFull, mono: false },
 	{
 		label: 'Estado',

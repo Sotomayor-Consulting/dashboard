@@ -127,10 +127,10 @@ export async function listAdminEmpresas(
 		}
 	}
 
-	// Resolver empresas_incorporaciones.company_id para tener el link al proceso
+	// Resolver incorporations.company_id para tener el link al proceso
 	const { data: incorpRows } = await supabase
-		.from('empresas_incorporaciones')
-		.select('empresa_incorporacion_id, company_id')
+		.from('incorporations')
+		.select('id, company_id')
 		.in(
 			'company_id',
 			companies.map((c: { id: string }) => c.id),
@@ -138,8 +138,8 @@ export async function listAdminEmpresas(
 
 	const incorpByCompany = new Map<string, string>();
 	for (const r of incorpRows ?? []) {
-		const row = r as { empresa_incorporacion_id: string; company_id: string };
-		incorpByCompany.set(row.company_id, row.empresa_incorporacion_id);
+		const row = r as { id: string; company_id: string };
+		incorpByCompany.set(row.company_id, row.id);
 	}
 
 	return (companies as unknown as RawCompanyRow[]).map((row) =>

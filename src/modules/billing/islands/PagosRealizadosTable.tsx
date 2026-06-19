@@ -48,9 +48,9 @@ export interface RawPaymentItem {
 		nombre?: string | null;
 		apellido?: string | null;
 	};
-	empresas_incorporaciones?: {
-		nombre_1?: string | null;
-		empresa_incorporacion_id?: string | null;
+	incorporations?: {
+		principal_name?: string | null;
+		id?: string | null;
 	};
 	servicios?: {
 		nombre?: string | null;
@@ -77,8 +77,8 @@ function mapPayments(items: RawPaymentItem[]): PaymentRow[] {
 		stripePaymentIntentId: item.stripe_payment_intent_id ?? '— sin id —',
 		payerName:
 			`${item.usuarios?.nombre ?? ''} ${item.usuarios?.apellido ?? ''}`.trim(),
-		companyName: item.empresas_incorporaciones?.nombre_1 ?? '—',
-		companyId: item.empresas_incorporaciones?.empresa_incorporacion_id ?? '—',
+		companyName: item.incorporations?.principal_name ?? '—',
+		companyId: item.incorporations?.id ?? '—',
 		serviceName: item.servicios?.nombre ?? '—',
 		amountLabel:
 			typeof item.amount === 'number'

@@ -50,9 +50,9 @@ function buildStoragePath(
 
 async function getCaseOwner(caseId: string): Promise<CaseOwnerRow> {
 	const { data, error } = await supabaseAdmin
-		.from('empresas_incorporaciones')
-		.select('empresa_incorporacion_id, user_id, nombre_1')
-		.eq('empresa_incorporacion_id', caseId)
+		.from('incorporations')
+		.select('id, user_id, principal_name')
+		.eq('id', caseId)
 		.maybeSingle();
 
 	if (error) {
@@ -64,9 +64,9 @@ async function getCaseOwner(caseId: string): Promise<CaseOwnerRow> {
 	}
 
 	return {
-		caseId: data.empresa_incorporacion_id,
+		caseId: data.id,
 		ownerUserId: data.user_id,
-		caseName: data.nombre_1 ?? null,
+		caseName: data.principal_name ?? null,
 	};
 }
 
@@ -607,9 +607,9 @@ export async function shareDocumentWithUser(
 	}
 
 	const { data: caseRow, error: caseErr } = await supabaseAdmin
-		.from('empresas_incorporaciones')
-		.select('empresa_incorporacion_id, user_id, nombre_1')
-		.eq('empresa_incorporacion_id', doc.case_id)
+		.from('incorporations')
+		.select('id, user_id, principal_name')
+		.eq('id', doc.case_id)
 		.maybeSingle();
 
 	if (caseErr || !caseRow) {
@@ -667,7 +667,7 @@ export async function shareDocumentWithUser(
 		eventKey: 'documents.shared',
 		recipients: [{ userId: targetUserId }],
 		context: {
-			case_name: caseRow.nombre_1 ?? 'tu incorporacion',
+			case_name: caseRow.principal_name ?? 'tu incorporacion',
 			action_url: `/documentos/${doc.case_id}`,
 		},
 	});

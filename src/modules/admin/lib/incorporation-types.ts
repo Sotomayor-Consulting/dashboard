@@ -1,6 +1,6 @@
 /**
  * Tipos del módulo Empresas del panel admin.
- * Mapean `empresas_incorporaciones` + joins de `usuarios`, `pagos`,
+ * Mapean `incorporations` + joins de `usuarios`, `pagos`,
  * `incorporation_workflow` y `documentos_por_firmar` a una forma serializada
  * apta para el front.
  */
@@ -58,7 +58,7 @@ export interface AdminCompanyClient {
 }
 
 export interface AdminCompany {
-	/** UUID de `empresas_incorporaciones.empresa_incorporacion_id`. */
+	/** UUID de `incorporations.empresa_incorporacion_id`. */
 	id: string;
 	name: string;
 	type: string | null;

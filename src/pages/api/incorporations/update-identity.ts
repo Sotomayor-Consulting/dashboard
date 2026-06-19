@@ -47,14 +47,25 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 	const { empresa_incorporacion_id: empresaId, ...rest } = parsed.data;
 
-	// Solo persistimos los campos enviados.
-	const update: Record<string, string | null> = {};
+	// Solo persistimos los campos enviados. La opción preferida (nombre_1) es
+	// el nombre canónico → principal_name; las 3 opciones se consolidan en
+	// possible_names (trim, sin vacíos, deduplicado).
+	const update: Record<string, unknown> = {};
 	if (rest.nombre_1 !== undefined)
-		update.nombre_1 = rest.nombre_1.trim() || null;
-	if (rest.nombre_2 !== undefined)
-		update.nombre_2 = rest.nombre_2.trim() || null;
-	if (rest.nombre_3 !== undefined)
-		update.nombre_3 = rest.nombre_3.trim() || null;
+		update.principal_name = rest.nombre_1.trim() || null;
+	if (
+		rest.nombre_1 !== undefined ||
+		rest.nombre_2 !== undefined ||
+		rest.nombre_3 !== undefined
+	) {
+		update.possible_names = [
+			...new Set(
+				[rest.nombre_1, rest.nombre_2, rest.nombre_3]
+					.map((n) => n?.trim())
+					.filter((n): n is string => Boolean(n)),
+			),
+		];
+	}
 	if (rest.estado_de_incorporacion !== undefined) {
 		update.estado_de_incorporacion =
 			rest.estado_de_incorporacion.trim() || null;
@@ -65,9 +76,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 	}
 
 	const { error } = await supabase
-		.from('empresas_incorporaciones')
+		.from('incorporations')
 		.update(update)
-		.eq('empresa_incorporacion_id', empresaId)
+		.eq('id', empresaId)
 		.eq('user_id', user.id); // solo su propia incorporación
 
 	if (error) {

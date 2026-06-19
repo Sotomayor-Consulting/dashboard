@@ -216,13 +216,14 @@ export const generateAndUploadReport = async (
 	}
 
 	const { data: empresa } = await supabaseAdmin
-		.from('empresas_incorporaciones')
-		.select('nombre_1, estado_eeuu')
-		.eq('empresa_incorporacion_id', incorporationId)
+		.from('incorporations')
+		.select('principal_name, estado_eeuu')
+		.eq('id', incorporationId)
 		.maybeSingle();
 
 	const companyName =
-		(empresa as { nombre_1?: string | null } | null)?.nombre_1 ?? 'Empresa';
+		(empresa as { principal_name?: string | null } | null)?.principal_name ??
+		'Empresa';
 
 	const data = buildTemplateData(report, {
 		companyName,

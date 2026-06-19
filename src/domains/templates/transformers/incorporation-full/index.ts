@@ -13,9 +13,9 @@ interface FullData {
 async function fetchFullData(incorporationId: string): Promise<FullData> {
 	const [incorporation, planningDesign, company] = await Promise.all([
 		supabaseAdmin
-			.from('empresas_incorporaciones')
+			.from('incorporations')
 			.select('*')
-			.eq('empresa_incorporacion_id', incorporationId)
+			.eq('id', incorporationId)
 			.maybeSingle()
 			.then((r) => (r.data ?? {}) as Record<string, unknown>),
 
@@ -70,16 +70,16 @@ export const incorporationFullTransformer: Transformer = {
 	entityType: 'incorporation_case',
 
 	async evaluate(row: Record<string, unknown>): Promise<Record<string, string | boolean | string[]>> {
-		const incorporationId = row.empresa_incorporacion_id as string;
+		const incorporationId = row.id as string;
 		const full = await fetchFullData(incorporationId);
 
 		const result: Record<string, string | boolean | string[]> = {};
 
 		// ── Incorporation case fields ──
 		const incMap: Record<string, string> = {
-			business_name_1: 'nombre_1',
-			business_name_2: 'nombre_2',
-			business_name_3: 'nombre_3',
+			business_name_1: 'principal_name',
+			business_name_2: 'possible_names#1',
+			business_name_3: 'possible_names#2',
 			business_type: 'tipo_de_negocio',
 			formation_state: 'estado_de_incorporacion',
 			management_type: 'forma_administracion',
@@ -97,7 +97,15 @@ export const incorporationFullTransformer: Transformer = {
 		};
 
 		for (const [key, col] of Object.entries(incMap)) {
-			const val = full.incorporation[col];
+			let val: unknown;
+				if (col.includes('#')) {
+					// `base#N` → possible_names[N] (u otra columna array indexada)
+					const [base, idx] = col.split('#');
+					const arr = full.incorporation[base!];
+					val = Array.isArray(arr) ? arr[Number(idx)] : null;
+				} else {
+					val = full.incorporation[col];
+				}
 			if (val != null) result[key] = String(val);
 		}
 

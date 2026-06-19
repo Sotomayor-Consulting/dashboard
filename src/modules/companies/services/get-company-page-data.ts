@@ -39,10 +39,10 @@ export async function getCompanyPageData(
 			actividadesGeneral(supabase),
 			EstadosGeneral(supabase),
 			supabase
-				.from('empresas_incorporaciones')
-				.select('empresa_incorporacion_id')
+				.from('incorporations')
+				.select('id')
 				.eq('company_id', companyId)
-				.maybeSingle<{ empresa_incorporacion_id: string }>(),
+				.maybeSingle<{ id: string }>(),
 		]);
 
 	return {
@@ -55,6 +55,6 @@ export async function getCompanyPageData(
 		actividades: (actividades ?? []) as unknown as CompanyPageData['actividades'],
 		states: (states ?? []) as CompanyPageData['states'],
 		incorporationId:
-			incorporationLookup.data?.empresa_incorporacion_id ?? null,
+			incorporationLookup.data?.id ?? null,
 	};
 }

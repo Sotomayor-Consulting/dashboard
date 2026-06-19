@@ -51,9 +51,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			supabase,
 			empresaId,
 			{
-				nombre_1: payload.name_option_1,
-				nombre_2: payload.name_option_2,
-				nombre_3: payload.name_option_3,
+				principal_name: payload.name_option_1,
+				possible_names: [
+					payload.name_option_1,
+					payload.name_option_2,
+					payload.name_option_3,
+				],
 				tipo_de_negocio: payload.business_type,
 				state_id: payload.state_id,
 			},
