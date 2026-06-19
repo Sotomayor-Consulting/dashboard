@@ -1,0 +1,1191 @@
+---
+import { Icon } from 'astro-icon/components';
+import {
+	getIncorporationForm,
+	type IncorporationFormStatus,
+} from '@domains/workflow/incorporation-forms';
+import type {
+	IncorporationFormPayloadV2,
+	MemberV2,
+	ManagerV2,
+} from '@modules/companies/stages/client-form/payload';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import type { FileRef } from '@modules/companies/stages/client-form/types';
+
+interface Props {
+	incorporationId: string | undefined;
+}
+
+const { incorporationId } = Astro.props;
+const supabase = Astro.locals.supabase;
+
+if (!incorporationId) return Astro.redirect('/incorporations');
+
+const form = await getIncorporationForm(supabase, incorporationId);
+if (!form) return Astro.redirect(`/incorporations/${incorporationId}`);
+
+const payload = form.payload as IncorporationFormPayloadV2 | null;
+if (!payload) return Astro.redirect(`/incorporations/${incorporationId}`);
+
+const { data: empresa } = await supabase
+	.from('empresas_incorporaciones')
+	.select('nombre_1')
+	.eq('empresa_incorporacion_id', incorporationId)
+	.maybeSingle();
+
+const companyName =
+	(empresa as { nombre_1?: string } | null)?.nombre_1 ?? 'Empresa';
+
+const canValidate =
+	form.status === 'submitted' || form.status === 'in_review';
+
+const countryName = (
+	c: { name?: string; iso?: string } | string | null | undefined,
+): string => {
+	if (!c) return '—';
+	if (typeof c === 'string') return c || '—';
+	return c.name || '—';
+};
+
+const BUCKET = 'incorporation_documents';
+
+async function getSignedUrl(
+	path: string | null | undefined,
+): Promise<string | null> {
+	if (!path) return null;
+	const { data } = await supabaseAdmin.storage
+		.from(BUCKET)
+		.createSignedUrl(path, 3600);
+	return data?.signedUrl ?? null;
+}
+
+const signatureUrl = await getSignedUrl(payload.signature?.file?.path);
+
+interface FileWithUrl {
+	ref: FileRef | null;
+	url: string | null;
+}
+
+async function resolveFile(
+	ref: FileRef | null | undefined,
+): Promise<FileWithUrl> {
+	if (!ref?.path) return { ref: null, url: null };
+	const url = await getSignedUrl(ref.path);
+	return { ref, url };
+}
+
+const g = payload.general;
+const addr = g?.operatingAddress;
+const members = payload.members?.list ?? [];
+const managers = payload.managers?.list ?? [];
+const irsId = payload.irsResponsible?.memberId;
+const irsMember = members.find((m) => m.id === irsId);
+
+const opUtilityBill = await resolveFile(addr?.utilityBill);
+
+const memberFiles: Array<{ passport: FileWithUrl; utility: FileWithUrl }> = [];
+for (const m of members) {
+	const docs =
+		m.type === 'company'
+			? {
+					passport: await resolveFile(m.documents?.existenceCertificate),
+					utility: await resolveFile(m.documents?.utilityBill),
+				}
+			: {
+					passport: await resolveFile(m.documents?.passport),
+					utility: await resolveFile(m.documents?.utilityBill),
+				};
+	memberFiles.push(docs);
+}
+
+const managerFiles: Array<{ passport: FileWithUrl; utility: FileWithUrl }> =
+	[];
+for (const mg of managers) {
+	managerFiles.push({
+		passport: await resolveFile(mg.documents?.passport),
+		utility: await resolveFile(mg.documents?.utilityBill),
+	});
+}
+
+const STATUS_LABELS: Record<
+	IncorporationFormStatus,
+	{ text: string; class: string }
+> = {
+	draft: {
+		text: 'Borrador',
+		class: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+	},
+	submitted: {
+		text: 'Enviado — pendiente de validación',
+		class: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+	},
+	in_review: {
+		text: 'En revisión',
+		class: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+	},
+	validated: {
+		text: 'Validado',
+		class: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+	},
+	rejected: {
+		text: 'Devuelto con observaciones',
+		class: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+	},
+	promoted: {
+		text: 'Promovido',
+		class: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+	},
+};
+const statusInfo = STATUS_LABELS[form.status] ?? STATUS_LABELS.draft;
+
+const inputCls =
+	'mt-0.5 w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white';
+const inputXsCls =
+	'mt-0.5 w-full rounded border border-gray-300 px-2 py-1 text-xs dark:border-gray-600 dark:bg-gray-900 dark:text-white';
+---
+
+<div class="mx-auto w-full max-w-5xl px-4 py-6" id="form-review-root">
+	<header class="mb-6 flex flex-wrap items-center justify-between gap-4">
+		<div class="min-w-0">
+			<a
+				href={`/incorporations/${incorporationId}`}
+				class="mb-2 inline-flex items-center gap-1 text-xs text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+			>
+				<Icon name="ri:arrow-left-line" class="h-3.5 w-3.5" />
+				Volver al detalle
+			</a>
+			<h1 class="text-2xl font-semibold text-gray-950 dark:text-white">
+				Revisión de formulario
+			</h1>
+			<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+				{companyName}
+			</p>
+		</div>
+		<span
+			class={`rounded-full px-3 py-1 text-xs font-semibold ${statusInfo.class}`}
+		>
+			{statusInfo.text}
+		</span>
+	</header>
+
+	<!-- Banner modo edición (hidden by default) -->
+	<div
+		id="edit-banner"
+		class="mb-6 hidden items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20"
+	>
+		<Icon
+			name="ri:edit-line"
+			class="h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400"
+		/>
+		<p class="text-sm text-blue-800 dark:text-blue-200">
+			<span class="font-semibold">Modo edición activo.</span> Los cambios
+			se guardarán y el cliente deberá firmar y aceptar los términos
+			nuevamente.
+		</p>
+	</div>
+
+	<!-- Sección: Actividad y configuración -->
+	<section
+		class="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+	>
+		<h2
+			class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-950 dark:text-white"
+		>
+			<Icon
+				name="ri:building-4-line"
+				class="h-4.5 w-4.5 text-gray-400"
+			/>
+			Actividad y configuración
+		</h2>
+		<dl class="grid gap-3 sm:grid-cols-2">
+			<div>
+				<dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+					Ingresos de EE. UU.
+				</dt>
+				<dd class="text-sm text-gray-900 dark:text-white">
+					<span class="js-read">{g?.usSourceIncome === true ? 'Sí' : g?.usSourceIncome === false ? 'No' : '—'}</span>
+					<select class={`js-edit hidden ${inputCls}`} data-field="general.usSourceIncome">
+						<option value="true" selected={g?.usSourceIncome === true}>Sí</option>
+						<option value="false" selected={g?.usSourceIncome === false}>No</option>
+					</select>
+				</dd>
+			</div>
+			<div>
+				<dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+					Actividad
+				</dt>
+				<dd class="text-sm text-gray-900 dark:text-white">
+					<span class="js-read">{g?.activity?.notListed ? g?.activity?.description : g?.activity?.id || '—'}</span>
+					<input
+						type="text"
+						class={`js-edit hidden ${inputCls}`}
+						data-field="general.activity.description"
+						value={g?.activity?.description || ''}
+					/>
+				</dd>
+			</div>
+			<div>
+				<dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+					Código IRS
+				</dt>
+				<dd class="text-sm text-gray-900 dark:text-white">
+					<span class="js-read">{g?.activity?.irsCode || '—'}</span>
+					<input
+						type="text"
+						class={`js-edit hidden ${inputCls}`}
+						data-field="general.activity.irsCode"
+						value={g?.activity?.irsCode || ''}
+					/>
+				</dd>
+			</div>
+			<div>
+				<dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+					Descripción IRS
+				</dt>
+				<dd class="text-sm text-gray-900 dark:text-white">
+					<span class="js-read">{g?.activity?.irsActivityDescription || '—'}</span>
+					<input
+						type="text"
+						class={`js-edit hidden ${inputCls}`}
+						data-field="general.activity.irsActivityDescription"
+						value={g?.activity?.irsActivityDescription || ''}
+					/>
+				</dd>
+			</div>
+			<div>
+				<dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+					Administración
+				</dt>
+				<dd class="text-sm text-gray-900 dark:text-white">
+					<span class="js-read">{g?.management || '—'}</span>
+					<select class={`js-edit hidden ${inputCls}`} data-field="general.management">
+						<option value="manager-managed" selected={g?.management === 'manager-managed'}>Manager-Managed</option>
+						<option value="member-managed" selected={g?.management === 'member-managed'}>Member-Managed</option>
+					</select>
+				</dd>
+			</div>
+			<div>
+				<dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+					Tributación
+				</dt>
+				<dd class="text-sm text-gray-900 dark:text-white">
+					<span class="js-read">{g?.taxation || '—'}</span>
+					<select class={`js-edit hidden ${inputCls}`} data-field="general.taxation">
+						<option value="pass-through" selected={g?.taxation === 'pass-through'}>Pass-Through</option>
+						<option value="corporation" selected={g?.taxation === 'corporation'}>Corporation</option>
+					</select>
+				</dd>
+			</div>
+		</dl>
+	</section>
+
+	<!-- Dirección operativa -->
+	<section
+		class="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+	>
+		<h2
+			class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-950 dark:text-white"
+		>
+			<Icon
+				name="ri:map-pin-line"
+				class="h-4.5 w-4.5 text-gray-400"
+			/>
+			Dirección operativa
+		</h2>
+		<dl class="grid gap-3 sm:grid-cols-2">
+			{
+				[
+					{ label: 'País', field: 'general.operatingAddress.country', value: countryName(addr?.country) },
+					{ label: 'Línea 1', field: 'general.operatingAddress.line1', value: addr?.line1 || '—' },
+					{ label: 'Línea 2', field: 'general.operatingAddress.line2', value: addr?.line2 || '—' },
+					{ label: 'Ciudad', field: 'general.operatingAddress.city', value: addr?.city || '—' },
+					{ label: 'Estado', field: 'general.operatingAddress.state', value: addr?.state || '—' },
+					{ label: 'Código postal', field: 'general.operatingAddress.postalCode', value: addr?.postalCode || '—' },
+				].map(({ label, field, value }) => (
+					<div>
+						<dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+							{label}
+						</dt>
+						<dd class="text-sm text-gray-900 dark:text-white">
+							<span class="js-read">{value}</span>
+							<input
+								type="text"
+								class={`js-edit hidden ${inputCls}`}
+								data-field={field}
+								value={value === '—' ? '' : value}
+							/>
+						</dd>
+					</div>
+				))
+			}
+		</dl>
+		{
+			opUtilityBill.url && (
+				<a
+					href={opUtilityBill.url}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+				>
+					<Icon name="ri:file-line" class="h-3.5 w-3.5" />
+					Ver planilla de servicio básico
+				</a>
+			)
+		}
+	</section>
+
+	<!-- Socios -->
+	<section
+		class="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+	>
+		<h2
+			class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-950 dark:text-white"
+		>
+			<Icon name="ri:team-line" class="h-4.5 w-4.5 text-gray-400" />
+			Socios ({members.length})
+			<span
+				class="ml-auto text-xs font-normal text-gray-500 dark:text-gray-400"
+			>
+				Info pública: {payload.members?.publicInfo ? 'Sí' : 'No'}
+			</span>
+		</h2>
+		{
+			members.map((m: MemberV2, i: number) => {
+				const files = memberFiles[i]!;
+				const isIrs = m.id === irsId;
+				const pre = `members.list.${i}`;
+				const isPerson = m.type === 'person';
+				const isCompany = m.type === 'company';
+				const name = isCompany ? (m as any).legalName : (m as any).fullName;
+				const nameField = isCompany ? `${pre}.legalName` : `${pre}.fullName`;
+				return (
+					<div
+						class={`mb-4 rounded-lg border p-4 last:mb-0 ${isIrs ? 'border-blue-200 dark:border-blue-800' : 'border-gray-100 dark:border-gray-800'}`}
+					>
+						<div class="mb-3 flex items-center gap-2">
+							<span class="js-read text-sm font-semibold text-gray-900 dark:text-white">
+								{name}
+							</span>
+							<input
+								type="text"
+								class={`js-edit hidden rounded border border-gray-300 px-2 py-0.5 text-sm font-semibold dark:border-gray-600 dark:bg-gray-900 dark:text-white`}
+								data-field={nameField}
+								value={name}
+							/>
+							<span class="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+								{isCompany ? 'Empresa' : 'Persona'}
+							</span>
+							<span class="js-read rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+								{m.ownershipPercent}%
+							</span>
+							<input
+								type="number"
+								class="js-edit hidden w-16 rounded border border-gray-300 px-1.5 py-0.5 text-[10px] font-medium dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+								data-field={`${pre}.ownershipPercent`}
+								data-type="number"
+								value={m.ownershipPercent}
+								min="0"
+								max="100"
+							/>
+							{isIrs && (
+								<span class="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+									Responsable IRS
+								</span>
+							)}
+						</div>
+						<dl class="grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-3">
+							<div>
+								<dt class="font-medium text-gray-500 dark:text-gray-400">
+									Email
+								</dt>
+								<dd class="text-gray-900 dark:text-white">
+									<span class="js-read">{m.email || '—'}</span>
+									<input
+										type="email"
+										class={`js-edit hidden ${inputXsCls}`}
+										data-field={`${pre}.email`}
+										value={m.email || ''}
+									/>
+								</dd>
+							</div>
+							{isPerson && (
+								<>
+									<div>
+										<dt class="font-medium text-gray-500 dark:text-gray-400">
+											Nacionalidad
+										</dt>
+										<dd class="text-gray-900 dark:text-white">
+											<span class="js-read">
+												{countryName((m as any).nationality)}
+											</span>
+											<input
+												type="text"
+												class={`js-edit hidden ${inputXsCls}`}
+												data-field={`${pre}.nationality`}
+												data-country="true"
+												value={countryName((m as any).nationality)}
+											/>
+										</dd>
+									</div>
+									<div>
+										<dt class="font-medium text-gray-500 dark:text-gray-400">
+											Estado civil
+										</dt>
+										<dd class="text-gray-900 dark:text-white">
+											<span class="js-read">
+												{(m as any).maritalStatus || '—'}
+											</span>
+											<select
+												class={`js-edit hidden ${inputXsCls}`}
+												data-field={`${pre}.maritalStatus`}
+											>
+												<option value="single" selected={(m as any).maritalStatus === 'single'}>
+													Soltero(a)
+												</option>
+												<option value="married" selected={(m as any).maritalStatus === 'married'}>
+													Casado(a)
+												</option>
+												<option value="divorced" selected={(m as any).maritalStatus === 'divorced'}>
+													Divorciado(a)
+												</option>
+												<option value="widowed" selected={(m as any).maritalStatus === 'widowed'}>
+													Viudo(a)
+												</option>
+											</select>
+										</dd>
+									</div>
+									<div>
+										<dt class="font-medium text-gray-500 dark:text-gray-400">
+											Residente fiscal EE. UU.
+										</dt>
+										<dd class="text-gray-900 dark:text-white">
+											<span class="js-read">
+												{(m as any).usTaxResident ? 'Sí' : 'No'}
+											</span>
+											<select
+												class={`js-edit hidden ${inputXsCls}`}
+												data-field={`${pre}.usTaxResident`}
+												data-type="boolean"
+											>
+												<option value="true" selected={(m as any).usTaxResident}>
+													Sí
+												</option>
+												<option value="false" selected={!(m as any).usTaxResident}>
+													No
+												</option>
+											</select>
+										</dd>
+									</div>
+									<div>
+										<dt class="font-medium text-gray-500 dark:text-gray-400">
+											{(m as any).usTaxResident ? 'SSN' : 'Pasaporte'}
+										</dt>
+										<dd class="text-gray-900 dark:text-white">
+											<span class="js-read">
+												{(m as any).usTaxResident
+													? (m as any).ssn
+													: (m as any).passportNumber || '—'}
+											</span>
+											<input
+												type="text"
+												class={`js-edit hidden ${inputXsCls}`}
+												data-field={
+													(m as any).usTaxResident
+														? `${pre}.ssn`
+														: `${pre}.passportNumber`
+												}
+												value={
+													(m as any).usTaxResident
+														? (m as any).ssn || ''
+														: (m as any).passportNumber || ''
+												}
+											/>
+										</dd>
+									</div>
+								</>
+							)}
+							{isCompany && (
+								<>
+									<div>
+										<dt class="font-medium text-gray-500 dark:text-gray-400">
+											País de constitución
+										</dt>
+										<dd class="text-gray-900 dark:text-white">
+											<span class="js-read">
+												{countryName((m as any).incorporationCountry)}
+											</span>
+											<input
+												type="text"
+												class={`js-edit hidden ${inputXsCls}`}
+												data-field={`${pre}.incorporationCountry`}
+												data-country="true"
+												value={countryName((m as any).incorporationCountry)}
+											/>
+										</dd>
+									</div>
+									<div>
+										<dt class="font-medium text-gray-500 dark:text-gray-400">
+											ID fiscal ({(m as any).fiscalIdType})
+										</dt>
+										<dd class="text-gray-900 dark:text-white">
+											<span class="js-read">
+												{(m as any).fiscalIdNumber || '—'}
+											</span>
+											<input
+												type="text"
+												class={`js-edit hidden ${inputXsCls}`}
+												data-field={`${pre}.fiscalIdNumber`}
+												value={(m as any).fiscalIdNumber || ''}
+											/>
+										</dd>
+									</div>
+								</>
+							)}
+							<div>
+								<dt class="font-medium text-gray-500 dark:text-gray-400">
+									Dirección
+								</dt>
+								<dd class="text-gray-900 dark:text-white">
+									<span class="js-read">
+										{[
+											m.address?.line1,
+											m.address?.city,
+											m.address?.state,
+											m.address?.postalCode,
+										]
+											.filter(Boolean)
+											.join(', ') || '—'}
+									</span>
+									<div class="js-edit hidden mt-0.5 space-y-1">
+										<input
+											type="text"
+											class={inputXsCls}
+											data-field={`${pre}.address.line1`}
+											placeholder="Línea 1"
+											value={m.address?.line1 || ''}
+										/>
+										<div class="grid grid-cols-3 gap-1">
+											<input
+												type="text"
+												class={inputXsCls}
+												data-field={`${pre}.address.city`}
+												placeholder="Ciudad"
+												value={m.address?.city || ''}
+											/>
+											<input
+												type="text"
+												class={inputXsCls}
+												data-field={`${pre}.address.state`}
+												placeholder="Estado"
+												value={m.address?.state || ''}
+											/>
+											<input
+												type="text"
+												class={inputXsCls}
+												data-field={`${pre}.address.postalCode`}
+												placeholder="CP"
+												value={m.address?.postalCode || ''}
+											/>
+										</div>
+									</div>
+								</dd>
+							</div>
+						</dl>
+						<div class="mt-2 flex flex-wrap gap-3">
+							{files.passport.url && (
+								<a
+									href={files.passport.url}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:underline dark:text-blue-400"
+								>
+									<Icon name="ri:file-line" class="h-3 w-3" />
+									{isCompany ? 'Certificado de existencia' : 'Pasaporte'}
+								</a>
+							)}
+							{files.utility.url && (
+								<a
+									href={files.utility.url}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:underline dark:text-blue-400"
+								>
+									<Icon name="ri:file-line" class="h-3 w-3" />
+									Planilla de servicio
+								</a>
+							)}
+						</div>
+					</div>
+				);
+			})
+		}
+	</section>
+
+	<!-- Managers -->
+	{
+		managers.length > 0 && (
+			<section class="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
+				<h2 class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-950 dark:text-white">
+					<Icon
+						name="ri:user-settings-line"
+						class="h-4.5 w-4.5 text-gray-400"
+					/>
+					Managers ({managers.length})
+				</h2>
+				{managers.map((mg: ManagerV2, mi: number) => {
+					const files = managerFiles[mi]!;
+					const pre = `managers.list.${mi}`;
+					return (
+						<div class="mb-4 rounded-lg border border-gray-100 p-4 last:mb-0 dark:border-gray-800">
+							<div class="mb-3">
+								<span class="js-read text-sm font-semibold text-gray-900 dark:text-white">
+									{mg.name}
+								</span>
+								<input
+									type="text"
+									class="js-edit hidden rounded border border-gray-300 px-2 py-0.5 text-sm font-semibold dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+									data-field={`${pre}.name`}
+									value={mg.name}
+								/>
+							</div>
+							<dl class="grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-3">
+								<div>
+									<dt class="font-medium text-gray-500 dark:text-gray-400">
+										Email
+									</dt>
+									<dd class="text-gray-900 dark:text-white">
+										<span class="js-read">{mg.email || '—'}</span>
+										<input
+											type="email"
+											class={`js-edit hidden ${inputXsCls}`}
+											data-field={`${pre}.email`}
+											value={mg.email || ''}
+										/>
+									</dd>
+								</div>
+								<div>
+									<dt class="font-medium text-gray-500 dark:text-gray-400">
+										Nacionalidad
+									</dt>
+									<dd class="text-gray-900 dark:text-white">
+										<span class="js-read">
+											{countryName(mg.nationality)}
+										</span>
+										<input
+											type="text"
+											class={`js-edit hidden ${inputXsCls}`}
+											data-field={`${pre}.nationality`}
+											data-country="true"
+											value={countryName(mg.nationality)}
+										/>
+									</dd>
+								</div>
+								<div>
+									<dt class="font-medium text-gray-500 dark:text-gray-400">
+										{mg.usTaxResident ? 'SSN' : 'Pasaporte'}
+									</dt>
+									<dd class="text-gray-900 dark:text-white">
+										<span class="js-read">
+											{mg.usTaxResident
+												? mg.ssn || '—'
+												: mg.passportNumber || '—'}
+										</span>
+										<input
+											type="text"
+											class={`js-edit hidden ${inputXsCls}`}
+											data-field={
+												mg.usTaxResident
+													? `${pre}.ssn`
+													: `${pre}.passportNumber`
+											}
+											value={
+												mg.usTaxResident
+													? mg.ssn || ''
+													: mg.passportNumber || ''
+											}
+										/>
+									</dd>
+								</div>
+								<div>
+									<dt class="font-medium text-gray-500 dark:text-gray-400">
+										Dirección
+									</dt>
+									<dd class="text-gray-900 dark:text-white">
+										<span class="js-read">
+											{mg.sameAddressAsCompany
+												? 'Misma que la empresa'
+												: [
+														mg.address?.line1,
+														mg.address?.city,
+														mg.address?.state,
+													]
+														.filter(Boolean)
+														.join(', ') || '—'}
+										</span>
+										{!mg.sameAddressAsCompany && (
+											<div class="js-edit hidden mt-0.5 space-y-1">
+												<input
+													type="text"
+													class={inputXsCls}
+													data-field={`${pre}.address.line1`}
+													placeholder="Línea 1"
+													value={mg.address?.line1 || ''}
+												/>
+												<div class="grid grid-cols-3 gap-1">
+													<input
+														type="text"
+														class={inputXsCls}
+														data-field={`${pre}.address.city`}
+														placeholder="Ciudad"
+														value={mg.address?.city || ''}
+													/>
+													<input
+														type="text"
+														class={inputXsCls}
+														data-field={`${pre}.address.state`}
+														placeholder="Estado"
+														value={mg.address?.state || ''}
+													/>
+													<input
+														type="text"
+														class={inputXsCls}
+														data-field={`${pre}.address.postalCode`}
+														placeholder="CP"
+														value={mg.address?.postalCode || ''}
+													/>
+												</div>
+											</div>
+										)}
+									</dd>
+								</div>
+							</dl>
+							<div class="mt-2 flex flex-wrap gap-3">
+								{files.passport.url && (
+									<a
+										href={files.passport.url}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:underline dark:text-blue-400"
+									>
+										<Icon name="ri:file-line" class="h-3 w-3" />
+										Pasaporte
+									</a>
+								)}
+								{files.utility.url && (
+									<a
+										href={files.utility.url}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:underline dark:text-blue-400"
+									>
+										<Icon name="ri:file-line" class="h-3 w-3" />
+										Planilla de servicio
+									</a>
+								)}
+							</div>
+						</div>
+					);
+				})}
+			</section>
+		)
+	}
+
+	<!-- Configuración -->
+	<section
+		class="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+	>
+		<h2
+			class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-950 dark:text-white"
+		>
+			<Icon
+				name="ri:settings-3-line"
+				class="h-4.5 w-4.5 text-gray-400"
+			/>
+			Configuración
+		</h2>
+		<dl class="grid gap-3 sm:grid-cols-2">
+			<div>
+				<dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+					SCI asigna manager
+				</dt>
+				<dd class="text-sm text-gray-900 dark:text-white">
+					{payload.managers?.sciAssigns === true ? 'Sí' : payload.managers?.sciAssigns === false ? 'No' : '—'}
+				</dd>
+			</div>
+			<div>
+				<dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+					Manager es miembro
+				</dt>
+				<dd class="text-sm text-gray-900 dark:text-white">
+					{payload.managers?.isMember === true ? 'Sí' : payload.managers?.isMember === false ? 'No' : '—'}
+				</dd>
+			</div>
+			<div>
+				<dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
+					Responsable IRS
+				</dt>
+				<dd class="text-sm text-gray-900 dark:text-white">
+					{
+						irsMember
+							? irsMember.type === 'company'
+								? (irsMember as any).legalName
+								: (irsMember as any).fullName
+							: '—'
+					}
+				</dd>
+			</div>
+		</dl>
+	</section>
+
+	<!-- Firma y consentimiento -->
+	<section
+		class="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+	>
+		<h2
+			class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-950 dark:text-white"
+		>
+			<Icon
+				name="ri:quill-pen-line"
+				class="h-4.5 w-4.5 text-gray-400"
+			/>
+			Firma y consentimiento
+		</h2>
+		<p
+			id="edit-signature-warning"
+			class="hidden text-xs italic text-amber-600 dark:text-amber-400"
+		>
+			La firma y el consentimiento se limpiarán al guardar los cambios. El
+			cliente deberá firmar y aceptar los términos nuevamente.
+		</p>
+		<div id="read-signature" class="flex items-center gap-4">
+			{
+				signatureUrl ? (
+					<a
+						href={signatureUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+					>
+						<Icon name="ri:image-line" class="h-3.5 w-3.5" />
+						Ver firma
+					</a>
+				) : (
+					<span class="text-xs text-gray-500 dark:text-gray-400">
+						Sin firma guardada
+					</span>
+				)
+			}
+			<span class="text-xs text-gray-500 dark:text-gray-400">
+				Términos aceptados: {
+					payload.consent?.acceptedTerms ? '✓ Sí' : '✗ No'
+				}
+			</span>
+		</div>
+	</section>
+
+	<!-- Acciones -->
+	{
+		canValidate && (
+			<section
+				class="sticky bottom-0 z-10 -mx-4 border-t border-gray-200 bg-white px-4 py-4 dark:border-gray-700 dark:bg-gray-950"
+				id="review-actions"
+			>
+				{/* Read mode actions */}
+				<div id="actions-read">
+					<div class="flex flex-wrap items-center justify-between gap-3">
+						<p class="text-sm text-gray-500 dark:text-gray-400">
+							¿Los datos del formulario son correctos?
+						</p>
+						<div class="flex gap-3">
+							<button
+								type="button"
+								id="btn-edit"
+								class="inline-flex items-center gap-1.5 rounded-lg border border-blue-300 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20"
+							>
+								<Icon name="ri:edit-line" class="h-4 w-4" />
+								Realizar modificaciones
+							</button>
+							<button
+								type="button"
+								id="btn-reject"
+								class="inline-flex items-center gap-1.5 rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
+							>
+								<Icon name="ri:close-circle-line" class="h-4 w-4" />
+								Solicitar correcciones
+							</button>
+							<button
+								type="button"
+								id="btn-validate"
+								class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+							>
+								<Icon name="ri:checkbox-circle-line" class="h-4 w-4" />
+								Validar datos
+							</button>
+						</div>
+					</div>
+					<div id="reject-reason-box" class="mt-3 hidden">
+						<label
+							for="reject-reason"
+							class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300"
+						>
+							Motivo del rechazo
+						</label>
+						<textarea
+							id="reject-reason"
+							rows="3"
+							class="w-full rounded-lg border border-gray-300 p-2 text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+							placeholder="Describe qué debe corregir el cliente..."
+						/>
+						<div class="mt-2 flex justify-end gap-2">
+							<button
+								type="button"
+								id="btn-cancel-reject"
+								class="rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+							>
+								Cancelar
+							</button>
+							<button
+								type="button"
+								id="btn-confirm-reject"
+								class="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
+							>
+								Confirmar rechazo
+							</button>
+						</div>
+					</div>
+				</div>
+
+				{/* Edit mode actions */}
+				<div id="actions-edit" class="hidden">
+					<div class="flex flex-wrap items-center justify-between gap-3">
+						<p class="text-sm text-gray-500 dark:text-gray-400">
+							Guarda los cambios para que el cliente revise, firme
+							y acepte los términos.
+						</p>
+						<div class="flex gap-3">
+							<button
+								type="button"
+								id="btn-cancel-edit"
+								class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+							>
+								Cancelar
+							</button>
+							<button
+								type="button"
+								id="btn-save-edit"
+								class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+							>
+								<Icon name="ri:save-line" class="h-4 w-4" />
+								Guardar cambios
+							</button>
+						</div>
+					</div>
+				</div>
+			</section>
+		)
+	}
+</div>
+
+<script is:inline define:vars={{ incorporationId, payload }}>
+	document.addEventListener('DOMContentLoaded', () => {
+		const root = document.getElementById('form-review-root');
+		if (!root) return;
+
+		const $ = (id) => document.getElementById(id);
+		let currentPayload = JSON.parse(JSON.stringify(payload));
+
+		// --- Toggle edit mode ---
+		function setEditMode(on) {
+			root.querySelectorAll('.js-read').forEach((el) => {
+				el.classList.toggle('hidden', on);
+			});
+			root.querySelectorAll('.js-edit').forEach((el) => {
+				el.classList.toggle('hidden', !on);
+			});
+			const banner = $('edit-banner');
+			if (banner) {
+				banner.classList.toggle('hidden', !on);
+				banner.classList.toggle('flex', on);
+			}
+			const sigWarn = $('edit-signature-warning');
+			const sigRead = $('read-signature');
+			if (sigWarn) sigWarn.classList.toggle('hidden', !on);
+			if (sigRead) sigRead.classList.toggle('hidden', on);
+
+			const actRead = $('actions-read');
+			const actEdit = $('actions-edit');
+			if (actRead) actRead.classList.toggle('hidden', on);
+			if (actEdit) actEdit.classList.toggle('hidden', !on);
+		}
+
+		// --- Collect edited values from inputs into payload ---
+		function collectEdits() {
+			const edited = JSON.parse(JSON.stringify(currentPayload));
+			root.querySelectorAll('[data-field]').forEach((el) => {
+				const path = el.dataset.field;
+				const isCountry = el.dataset.country === 'true';
+				const isNumber = el.dataset.type === 'number';
+				const isBool = el.dataset.type === 'boolean';
+				let val = el.value;
+
+				if (isBool) val = val === 'true';
+				else if (isNumber) val = Number(val);
+
+				// Navigate to the nested property
+				const parts = path.split('.');
+				let obj = edited;
+				for (let i = 0; i < parts.length - 1; i++) {
+					const key = isNaN(parts[i]) ? parts[i] : Number(parts[i]);
+					if (obj[key] == null) obj[key] = {};
+					obj = obj[key];
+				}
+				const lastKey = parts[parts.length - 1];
+
+				if (isCountry) {
+					const current = obj[lastKey];
+					if (typeof current === 'object' && current !== null) {
+						obj[lastKey] = { ...current, name: val };
+					} else {
+						obj[lastKey] = val;
+					}
+				} else {
+					obj[lastKey] = val;
+				}
+			});
+
+			// Clear signature and consent
+			edited.signature = { dataUrl: null, file: null };
+			edited.consent = { acceptedTerms: false };
+
+			return edited;
+		}
+
+		// --- API helpers ---
+		async function reviewAction(decision, reason) {
+			const res = await fetch(
+				`/api/incorporations/${incorporationId}/form/review`,
+				{
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ decision, reason }),
+				},
+			);
+			const data = await res.json();
+			if (data?.ok) {
+				window.location.href =
+					`/incorporations/${incorporationId}?status=success&msg=` +
+					encodeURIComponent(
+						decision === 'validate'
+							? 'Formulario validado exitosamente.'
+							: 'Formulario devuelto al cliente.',
+					);
+			} else {
+				alert(data?.error || 'Error al procesar la acción');
+			}
+		}
+
+		// --- Buttons ---
+		const btnEdit = $('btn-edit');
+		const btnCancelEdit = $('btn-cancel-edit');
+		const btnSaveEdit = $('btn-save-edit');
+		const btnValidate = $('btn-validate');
+		const btnReject = $('btn-reject');
+		const rejectBox = $('reject-reason-box');
+		const btnCancelReject = $('btn-cancel-reject');
+		const btnConfirmReject = $('btn-confirm-reject');
+		const reasonInput = $('reject-reason');
+
+		if (btnEdit)
+			btnEdit.addEventListener('click', () => setEditMode(true));
+
+		if (btnCancelEdit)
+			btnCancelEdit.addEventListener('click', () => {
+				// Reset input values to original payload
+				root.querySelectorAll('[data-field]').forEach((el) => {
+					const path = el.dataset.field;
+					const parts = path.split('.');
+					let val = currentPayload;
+					for (const p of parts) {
+						const key = isNaN(p) ? p : Number(p);
+						val = val?.[key];
+					}
+					if (el.dataset.country === 'true') {
+						el.value =
+							typeof val === 'object' ? val?.name || '' : val || '';
+					} else if (el.dataset.type === 'boolean') {
+						el.value = String(!!val);
+					} else {
+						el.value = val ?? '';
+					}
+				});
+				setEditMode(false);
+			});
+
+		if (btnSaveEdit)
+			btnSaveEdit.addEventListener('click', async () => {
+				if (
+					!confirm(
+						'Al guardar, la firma y consentimiento se limpiarán y el cliente deberá firmar nuevamente. ¿Continuar?',
+					)
+				)
+					return;
+				btnSaveEdit.disabled = true;
+				btnSaveEdit.textContent = 'Guardando…';
+				try {
+					const edited = collectEdits();
+					const res = await fetch(
+						`/api/incorporations/${incorporationId}/form/ops-edit`,
+						{
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ payload: edited }),
+						},
+					);
+					const data = await res.json();
+					if (data?.ok) {
+						window.location.href =
+							`/incorporations/${incorporationId}?status=success&msg=` +
+							encodeURIComponent(
+								'Formulario modificado. El cliente debe firmar y aceptar los términos nuevamente.',
+							);
+					} else {
+						alert(data?.error || 'Error al guardar los cambios');
+					}
+				} finally {
+					btnSaveEdit.disabled = false;
+					btnSaveEdit.textContent = 'Guardar cambios';
+				}
+			});
+
+		if (btnValidate)
+			btnValidate.addEventListener('click', () => {
+				if (
+					confirm(
+						'¿Confirmas que los datos del formulario son correctos?',
+					)
+				) {
+					reviewAction('validate');
+				}
+			});
+
+		if (btnReject)
+			btnReject.addEventListener('click', () => {
+				rejectBox?.classList.remove('hidden');
+			});
+
+		if (btnCancelReject)
+			btnCancelReject.addEventListener('click', () => {
+				rejectBox?.classList.add('hidden');
+			});
+
+		if (btnConfirmReject)
+			btnConfirmReject.addEventListener('click', () => {
+				const reason = reasonInput?.value?.trim();
+				if (!reason) {
+					alert('Ingresa el motivo del rechazo');
+					return;
+				}
+				reviewAction('reject', reason);
+			});
+	});
+</script>

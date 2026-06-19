@@ -4,7 +4,7 @@ import { createLogger } from '@infrastructure/logging';
 const log = createLogger('domains.states');
 
 export const EstadosGeneral = async (supabase: SupabaseClient) => {
-	const { data, error } = await supabase.from('estados').select('*');
+	const { data, error } = await supabase.from('states').select('*');
 
 	if (error) {
 		log.error('Error fetching all estados', { error });
@@ -19,7 +19,7 @@ export const getEstadoPorEmpresa = async (
 	estado: string,
 ) => {
 	const { data, error } = await supabase
-		.from('estados')
+		.from('states')
 		.select('abreviatura, Estado')
 		.eq('Estado', estado)
 		.maybeSingle();
