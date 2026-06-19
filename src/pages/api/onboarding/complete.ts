@@ -40,8 +40,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const { error } = await supabase
 		.from('incorporations')
 		.update({
-			tipo_de_negocio: tipo,
-			estado_de_incorporacion: estado,
+			entity_type: tipo,
 			principal_name: nombre1,
 			possible_names: [
 				...new Set([nombre1, nombre2, nombre3].filter(Boolean)),
