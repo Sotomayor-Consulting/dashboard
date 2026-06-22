@@ -44,31 +44,76 @@ import LandingReadme from '@modules/landing/LandingHome.astro';
 
 				// Reset de clases base
 				toast.classList.remove('hidden');
-				toast.classList.add('flex');
+				toast.classList.add('grid');
 
-				// Colores de texto
+				// Colores del contenedor
 				toast.classList.remove(
-					'text-green-700',
-					'dark:text-green-300',
-					'text-red-700',
-					'dark:text-red-300',
+					'border-emerald-200',
+					'bg-emerald-50',
+					'text-emerald-900',
+					'dark:border-emerald-900/60',
+					'dark:bg-emerald-950/40',
+					'dark:text-emerald-100',
+					'border-red-200',
+					'bg-red-50',
+					'text-red-900',
+					'dark:border-red-900/60',
+					'dark:bg-red-950/40',
+					'dark:text-red-100',
 				);
 				toast.classList.add(
-					isSuccess ? 'text-green-700' : 'text-red-700',
-					isSuccess ? 'dark:text-green-300' : 'dark:text-red-300',
+					...(isSuccess
+						? [
+								'border-emerald-200',
+								'bg-emerald-50',
+								'text-emerald-900',
+								'dark:border-emerald-900/60',
+								'dark:bg-emerald-950/40',
+								'dark:text-emerald-100',
+							]
+						: [
+								'border-red-200',
+								'bg-red-50',
+								'text-red-900',
+								'dark:border-red-900/60',
+								'dark:bg-red-950/40',
+								'dark:text-red-100',
+							]),
 				);
-				+(
-					// Colores del icon wrapper
-					iconWrapper.classList.remove(
-						'bg-green-100',
-						'dark:bg-green-800',
-						'bg-red-100',
-						'dark:bg-red-800',
-					)
+
+				// Colores del icon wrapper
+				iconWrapper.classList.remove(
+					'bg-emerald-100',
+					'text-emerald-700',
+					'ring-emerald-200',
+					'dark:bg-emerald-900/60',
+					'dark:text-emerald-100',
+					'dark:ring-emerald-800',
+					'bg-red-100',
+					'text-red-700',
+					'ring-red-200',
+					'dark:bg-red-900/60',
+					'dark:text-red-100',
+					'dark:ring-red-800',
 				);
 				iconWrapper.classList.add(
-					isSuccess ? 'bg-green-100' : 'bg-red-100',
-					isSuccess ? 'dark:bg-green-800' : 'dark:bg-red-800',
+					...(isSuccess
+						? [
+								'bg-emerald-100',
+								'text-emerald-700',
+								'ring-emerald-200',
+								'dark:bg-emerald-900/60',
+								'dark:text-emerald-100',
+								'dark:ring-emerald-800',
+							]
+						: [
+								'bg-red-100',
+								'text-red-700',
+								'ring-red-200',
+								'dark:bg-red-900/60',
+								'dark:text-red-100',
+								'dark:ring-red-800',
+							]),
 				);
 
 				// Mostrar solo el icono correcto
@@ -78,7 +123,7 @@ import LandingReadme from '@modules/landing/LandingHome.astro';
 				// Función para ocultar
 				const hide = () => {
 					toast.classList.add('hidden');
-					toast.classList.remove('flex');
+					toast.classList.remove('grid');
 				};
 
 				let timer;

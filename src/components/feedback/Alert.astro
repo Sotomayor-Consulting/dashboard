@@ -1,122 +1,103 @@
 ---
-const status = Astro.url.searchParams.get('status'); // "success" | "error" | null
+import { Alert, AlertDescription, AlertTitle } from '@components/ui/Alert';
+import { CheckCircle2, CircleAlert, TriangleAlert, X } from 'lucide-react';
+
+const status = Astro.url.searchParams.get('status');
 const msg = Astro.url.searchParams.get('msg') || '';
 
 const isSuccess = status === 'success';
 const isWarning = status === 'warning';
 
-const base =
-	'fixed right-4 top-24 z-50 flex items-center w-full max-w-sm p-4 text-sm rounded-lg shadow-sm transition-all';
-
-let variant = 'text-red-700 bg-white dark:text-red-300 dark:bg-black-800';
-let iconVariant = 'text-red-500 bg-red-100 dark:bg-red-800 dark:text-red-200';
-
-if (isSuccess) {
-	variant = 'text-green-700 bg-white dark:text-green-300 dark:bg-black-800';
-	iconVariant = 'text-green-500 bg-green-100 dark:bg-green-800 dark:text-green-200';
-} else if (isWarning) {
-	variant = 'text-yellow-700 bg-white dark:text-yellow-300 dark:bg-black-800';
-	iconVariant = 'text-yellow-500 bg-yellow-100 dark:bg-yellow-800 dark:text-yellow-200';
-}
-
+const variant = isSuccess ? 'success' : isWarning ? 'default' : 'destructive';
+const title = isSuccess
+	? 'Operacion completada'
+	: isWarning
+		? 'Atencion requerida'
+		: 'No fue posible completar la acción';
 const display = msg ? '' : 'hidden';
 ---
 
-<div id="toast-feedback" class={`${base} ${variant} ${display}`} role="alert">
+<Alert
+	id="toast-feedback"
+	className={`fixed top-20 right-4 z-50 ${display} bg-background/95 w-[calc(100%-2rem)] max-w-md items-start border shadow-2xl backdrop-blur-md`}
+	variant={variant}
+>
 	<div
-		class={`inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg ${iconVariant}`}
+		class:list={[
+			'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1',
+			isSuccess &&
+				'bg-emerald-500/10 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:ring-emerald-900/70',
+			isWarning &&
+				'bg-amber-500/10 text-amber-700 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:ring-amber-900/70',
+			!isSuccess &&
+				!isWarning &&
+				'bg-red-500/10 text-red-700 ring-red-200 dark:bg-red-500/15 dark:text-red-300 dark:ring-red-900/70',
+		]}
 	>
 		{
 			isSuccess ? (
-				<svg
-					class="w-4 h-4"
-					aria-hidden="true"
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-				>
-					<path
-						stroke="currentColor"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M5 13l4 4L19 7"
-					/>
-				</svg>
+				<CheckCircle2 className="h-4 w-4" />
+			) : isWarning ? (
+				<TriangleAlert className="h-4 w-4" />
 			) : (
-				<svg
-					class="w-4 h-4"
-					aria-hidden="true"
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-				>
-					<path
-						stroke="currentColor"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M12 8v5m0 3h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"
-					/>
-				</svg>
+				<CircleAlert className="h-4 w-4" />
 			)
 		}
-		<span class="sr-only">{isSuccess ? 'Success icon' : 'Error icon'}</span>
+		<span class="sr-only">Estado</span>
 	</div>
 
-	<div class="ms-3 text-sm font-normal">
-		{msg}
+	<div class="min-w-0 space-y-1">
+		<AlertTitle>{title}</AlertTitle>
+		<AlertDescription>{msg}</AlertDescription>
 	</div>
 
 	<button
 		type="button"
-		class="ms-auto -mx-1.5 -my-1.5 bg-transparent text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:hover:bg-[#101522]"
+		class="text-muted-foreground hover:text-foreground hover:bg-background/80 focus-visible:ring-ring inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors outline-none focus-visible:ring-2"
 		data-dismiss-target="#toast-feedback"
 		aria-label="Close"
 	>
 		<span class="sr-only">Cerrar</span>
-		<svg
-			class="w-3 h-3"
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 14 14"
-		>
-			<path
-				stroke="currentColor"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="2"
-				d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
-		</svg>
+		<X className="h-4 w-4" />
 	</button>
-</div>
+</Alert>
 
 <script is:inline>
 	(function () {
 		const toast = document.getElementById('toast-feedback');
 		if (!toast) return;
 
+		const closeBtn = toast.querySelector(
+			'[data-dismiss-target="#toast-feedback"]',
+		);
+		const hide = () => {
+			toast.classList.add('hidden');
+			toast.classList.remove('grid');
+		};
+
+		if (closeBtn) {
+			closeBtn.addEventListener('click', hide);
+		}
+
 		const params = new URLSearchParams(window.location.search);
 		const hasMsg = params.has('msg');
 
 		if (hasMsg) {
-			// Asegurar que esté visible por si el SSR lo dejó oculto
 			toast.classList.remove('hidden');
-
-			// Autocerrar a los 6s (solo añadimos 'hidden')
-			const hide = () => {
-				toast.classList.add('hidden');
-			};
-			const timer = setTimeout(hide, 6000);
+			const timer = window.setTimeout(hide, 6000);
 
 			params.delete('msg');
 			params.delete('status');
 			const newUrl = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}${location.hash}`;
 			window.history.replaceState({}, '', newUrl);
+
+			window.addEventListener(
+				'beforeunload',
+				() => window.clearTimeout(timer),
+				{ once: true },
+			);
 		} else {
-			// Asegurar oculto si no hay mensaje
-			toast.classList.add('hidden');
+			hide();
 		}
 	})();
 </script>

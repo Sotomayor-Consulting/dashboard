@@ -732,161 +732,157 @@ export default function StepsWizard({ estados }: Props) {
 			</div>
 
 			<form className="space-y-5" onSubmit={handleRegister}>
-					<div className="grid grid-cols-2 gap-4">
-						<IconField
-							id="reg-name"
-							label="Nombre"
-							icon="ri:user-line"
-							inputProps={{
-								name: 'name',
-								value: regName,
-								onChange: (e) => setRegName(e.target.value),
-								placeholder: 'Nombre',
-								required: true,
-								autoComplete: 'given-name',
-							}}
-						/>
-						<IconField
-							id="reg-last-name"
-							label="Apellido"
-							icon="ri:user-line"
-							inputProps={{
-								name: 'last-name',
-								value: regLastName,
-								onChange: (e) => setRegLastName(e.target.value),
-								placeholder: 'Apellido',
-								required: true,
-								autoComplete: 'family-name',
-							}}
-						/>
-					</div>
-
+				<div className="grid grid-cols-2 gap-4">
 					<IconField
-						id="reg-email"
-						label="Tu correo"
-						icon="ri:mail-line"
+						id="reg-name"
+						label="Nombre"
+						icon="ri:user-line"
 						inputProps={{
-							type: 'email',
-							name: 'email',
-							value: regEmail,
-							onChange: (e) => setRegEmail(e.target.value),
-							placeholder: 'correo@ejemplo.com',
+							name: 'name',
+							value: regName,
+							onChange: (e) => setRegName(e.target.value),
+							placeholder: 'Nombre',
 							required: true,
-							autoComplete: 'email',
+							autoComplete: 'given-name',
 						}}
 					/>
-
 					<IconField
-						id="reg-password"
-						label="Contraseña"
-						icon="ri:lock-2-line"
+						id="reg-last-name"
+						label="Apellido"
+						icon="ri:user-line"
 						inputProps={{
-							type: showPassword ? 'text' : 'password',
-							name: 'password',
-							value: regPassword,
-							onChange: (e) => setRegPassword(e.target.value),
-							placeholder: '••••••••',
-							minLength: 8,
+							name: 'last-name',
+							value: regLastName,
+							onChange: (e) => setRegLastName(e.target.value),
+							placeholder: 'Apellido',
 							required: true,
-							autoComplete: 'new-password',
+							autoComplete: 'family-name',
 						}}
-						trailing={
-							<InputGroupAddon align="inline-end">
-								<InputGroupButton
-									size="icon-xs"
-									aria-label={
-										showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
-									}
-									onClick={() => setShowPassword((v) => !v)}
-								>
-									<Icon
-										icon={showPassword ? 'ri:eye-off-line' : 'ri:eye-line'}
-									/>
-								</InputGroupButton>
-							</InputGroupAddon>
-						}
 					/>
+				</div>
 
-					<IconField
-						id="reg-confirm-password"
-						label="Confirmar contraseña"
-						icon="ri:lock-2-line"
-						inputProps={{
-							type: showConfirmPassword ? 'text' : 'password',
-							name: 'confirm-password',
-							value: regConfirmPassword,
-							onChange: (e) => setRegConfirmPassword(e.target.value),
-							placeholder: '••••••••',
-							required: true,
-							autoComplete: 'new-password',
-						}}
-						trailing={
-							<InputGroupAddon align="inline-end">
-								<InputGroupButton
-									size="icon-xs"
-									aria-label={
-										showConfirmPassword
-											? 'Ocultar contraseña'
-											: 'Mostrar contraseña'
-									}
-									onClick={() => setShowConfirmPassword((v) => !v)}
-								>
-									<Icon
-										icon={
-											showConfirmPassword ? 'ri:eye-off-line' : 'ri:eye-line'
-										}
-									/>
-								</InputGroupButton>
-							</InputGroupAddon>
-						}
-					/>
+				<IconField
+					id="reg-email"
+					label="Tu correo"
+					icon="ri:mail-line"
+					inputProps={{
+						type: 'email',
+						name: 'email',
+						value: regEmail,
+						onChange: (e) => setRegEmail(e.target.value),
+						placeholder: 'correo@ejemplo.com',
+						required: true,
+						autoComplete: 'email',
+					}}
+				/>
 
-					<div className="flex items-start gap-3">
-						<Checkbox
-							id="reg-accept-terms"
-							name="remember"
-							checked={regAcceptTerms}
-							onCheckedChange={(checked) => setRegAcceptTerms(checked === true)}
-							required
-							className="mt-0.5"
-						/>
-						<Label
-							htmlFor="reg-accept-terms"
-							className="text-sm leading-snug font-normal text-gray-600 dark:text-gray-300"
-						>
-							Al registrarte, aceptas los{' '}
-							<a
-								href="https://sotomayorconsulting.com/inicio/politicas/"
-								className="text-primary-gold font-medium hover:underline"
+				<IconField
+					id="reg-password"
+					label="Contraseña"
+					icon="ri:lock-2-line"
+					inputProps={{
+						type: showPassword ? 'text' : 'password',
+						name: 'password',
+						value: regPassword,
+						onChange: (e) => setRegPassword(e.target.value),
+						placeholder: '••••••••',
+						minLength: 8,
+						required: true,
+						autoComplete: 'new-password',
+					}}
+					trailing={
+						<InputGroupAddon align="inline-end">
+							<InputGroupButton
+								size="icon-xs"
+								aria-label={
+									showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+								}
+								onClick={() => setShowPassword((v) => !v)}
 							>
-								Términos de uso y Política de privacidad
-							</a>{' '}
-							de Sotomayor Consulting International LLC.
-						</Label>
-					</div>
+								<Icon icon={showPassword ? 'ri:eye-off-line' : 'ri:eye-line'} />
+							</InputGroupButton>
+						</InputGroupAddon>
+					}
+				/>
 
-					<Button
-						type="submit"
-						disabled={isRegistering}
-						className="bg-primary-gold hover:bg-primary-gold/90 h-11 w-full text-base font-semibold text-white"
+				<IconField
+					id="reg-confirm-password"
+					label="Confirmar contraseña"
+					icon="ri:lock-2-line"
+					inputProps={{
+						type: showConfirmPassword ? 'text' : 'password',
+						name: 'confirm-password',
+						value: regConfirmPassword,
+						onChange: (e) => setRegConfirmPassword(e.target.value),
+						placeholder: '••••••••',
+						required: true,
+						autoComplete: 'new-password',
+					}}
+					trailing={
+						<InputGroupAddon align="inline-end">
+							<InputGroupButton
+								size="icon-xs"
+								aria-label={
+									showConfirmPassword
+										? 'Ocultar contraseña'
+										: 'Mostrar contraseña'
+								}
+								onClick={() => setShowConfirmPassword((v) => !v)}
+							>
+								<Icon
+									icon={showConfirmPassword ? 'ri:eye-off-line' : 'ri:eye-line'}
+								/>
+							</InputGroupButton>
+						</InputGroupAddon>
+					}
+				/>
+
+				<div className="flex items-start gap-3">
+					<Checkbox
+						id="reg-accept-terms"
+						name="remember"
+						checked={regAcceptTerms}
+						onCheckedChange={(checked) => setRegAcceptTerms(checked === true)}
+						required
+						className="mt-0.5"
+					/>
+					<Label
+						htmlFor="reg-accept-terms"
+						className="text-sm leading-snug font-normal text-gray-600 dark:text-gray-300"
 					>
-						{isRegistering ? 'Creando cuenta...' : 'Crear una cuenta'}
-					</Button>
-				</form>
+						Al registrarte, aceptas los{' '}
+						<a
+							href="https://sotomayorconsulting.com/inicio/politicas/"
+							className="text-primary-gold font-medium hover:underline"
+						>
+							Términos de uso y Política de privacidad
+						</a>{' '}
+						de Sotomayor Consulting International LLC.
+					</Label>
+				</div>
 
-				<OrDivider label="o" />
+				<Button
+					type="submit"
+					disabled={isRegistering}
+					className="bg-primary-gold hover:bg-primary-gold/90 h-11 w-full text-base font-semibold text-white"
+				>
+					{isRegistering ? 'Creando cuenta...' : 'Crear una cuenta'}
+				</Button>
+			</form>
 
-				<form action="/api/auth/oauth/google" method="post">
-					<Button
-						type="submit"
-						variant="outline"
-						className="h-11 w-full gap-2 text-sm font-medium"
-					>
-						<Icon icon="ri:google-fill" className="size-5" />
-						Regístrate con Google
-					</Button>
-				</form>
-			</div>
+			<OrDivider label="o" />
+
+			<form action="/api/auth/oauth/google" method="post">
+				<Button
+					type="submit"
+					variant="outline"
+					className="h-11 w-full gap-2 text-sm font-medium"
+				>
+					<Icon icon="ri:google-fill" className="size-5" />
+					Regístrate con Google
+				</Button>
+			</form>
+		</div>
 	);
 
 	const wizardNavigation = !showRegisterForm && (

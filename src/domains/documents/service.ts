@@ -1,5 +1,9 @@
 import crypto from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import {
+	sendDocumentRequestedEmail,
+	sendDocumentSharedEmail,
+} from '@infrastructure/email/bussiness-events';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { notifyByEvent } from '@infrastructure/notifications';
 import {
@@ -332,6 +336,16 @@ export async function uploadDocument(
 				action_url: `/documentos/${context.caseId}`,
 			},
 		});
+
+		await sendDocumentSharedEmail({
+			caseId: context.caseId,
+			actionUrl: `/documentos/${context.caseId}`,
+		}).catch((error) => {
+			console.error('[business-email][documents.shared] auto-share failed', {
+				caseId: context.caseId,
+				error: error instanceof Error ? error.message : String(error),
+			});
+		});
 	}
 
 	return {
@@ -395,6 +409,18 @@ export async function createDocumentRequest(
 	if (linkErr) {
 		throw new DocumentsError(500, 'No se pudo enlazar la solicitud');
 	}
+
+	await sendDocumentRequestedEmail({
+		caseId: context.caseId,
+		actionUrl: `/documentos/${context.caseId}`,
+		message: input.message ?? null,
+		dueDate: input.dueDate ?? null,
+	}).catch((error) => {
+		console.error('[business-email][documents.requested] failed', {
+			caseId: context.caseId,
+			error: error instanceof Error ? error.message : String(error),
+		});
+	});
 
 	return {
 		requestId,
@@ -670,6 +696,16 @@ export async function shareDocumentWithUser(
 			case_name: caseRow.principal_name ?? 'tu incorporacion',
 			action_url: `/documentos/${doc.case_id}`,
 		},
+	});
+
+	await sendDocumentSharedEmail({
+		caseId: doc.case_id,
+		actionUrl: `/documentos/${doc.case_id}`,
+	}).catch((error) => {
+		console.error('[business-email][documents.shared] manual-share failed', {
+			caseId: doc.case_id,
+			error: error instanceof Error ? error.message : String(error),
+		});
 	});
 
 	return {

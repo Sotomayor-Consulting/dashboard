@@ -1,79 +1,39 @@
-<div
+---
+import { Alert, AlertDescription, AlertTitle } from '@components/ui/Alert';
+import { CheckCircle2, CircleAlert, X } from 'lucide-react';
+---
+
+<Alert
 	id="toast-feedback-2"
-	class="dark:bg-black-800 fixed top-20 right-4 z-50 hidden w-full max-w-sm items-center rounded-lg bg-white p-4 text-sm text-gray-900 shadow-sm transition-all dark:text-gray-100"
-	role="alert"
+	className="fixed top-20 right-4 z-50 hidden w-[calc(100%-2rem)] max-w-md items-start backdrop-blur-sm"
+	variant="destructive"
 >
-	<!-- Wrapper del icono -->
 	<div
 		id="toast-icon-wrapper"
-		class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-50 dark:bg-black-800"
+		class="bg-background/80 text-foreground ring-border inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1"
 	>
-		<!-- Ícono éxito -->
-		<svg
-			id="toast-icon-success"
-			class="hidden h-4 w-4"
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 24 24"
-		>
-			<path
-				stroke="currentColor"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="2"
-				d="M5 13l4 4L19 7"></path>
-		</svg>
-
-		<!-- Ícono error -->
-		<svg
-			id="toast-icon-error"
-			class="hidden h-4 w-4"
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 24 24"
-		>
-			<path
-				stroke="currentColor"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="2"
-				d="M12 8v5m0 3h.01M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"></path>
-		</svg>
-
+		<CheckCircle2 id="toast-icon-success" className="hidden h-4 w-4" />
+		<CircleAlert id="toast-icon-error" className="hidden h-4 w-4" />
 		<span class="sr-only">Estado</span>
 	</div>
 
-	<!-- Mensaje -->
-	<div class="ms-3 text-sm font-normal">
-		<span class="ms-3"></span>
+	<div class="ms-3 min-w-0 space-y-1">
+		<AlertTitle>Estado de la empresa</AlertTitle>
+		<AlertDescription>
+			<span class="ms-3"></span>
+		</AlertDescription>
 	</div>
 
-	<!-- Botón cerrar -->
 	<button
 		type="button"
-		class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-gray-300 dark:text-gray-500 dark:hover:bg-[#101522] dark:hover:text-white"
+		class="text-muted-foreground hover:text-foreground hover:bg-background/80 focus-visible:ring-ring inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors outline-none focus-visible:ring-2"
 		data-dismiss-target="#toast-feedback-2"
 		aria-label="Close"
 	>
 		<span class="sr-only">Cerrar</span>
-		<svg
-			class="h-3 w-3"
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
-			fill="none"
-			viewBox="0 0 14 14"
-		>
-			<path
-				stroke="currentColor"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="2"
-				d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"></path>
-		</svg>
+		<X className="h-4 w-4" />
 	</button>
-</div>
+</Alert>
 
 <script is:inline>
 	(function () {
@@ -87,7 +47,7 @@
 
 		closeBtn.addEventListener('click', () => {
 			toast.classList.add('hidden');
-			toast.classList.remove('flex');
+			toast.classList.remove('grid');
 		});
 	})();
 </script>
