@@ -1,8 +1,8 @@
 /**
  * Tipos del módulo Empresas del panel admin.
  * Mapean `incorporations` + joins de `usuarios`, `pagos`,
- * `incorporation_workflow` y `documentos_por_firmar` a una forma serializada
- * apta para el front.
+ * `incorporation_workflow` y documentos para firma (`documents.documents`
+ * con `relation_purpose='signature'`) a una forma serializada apta para el front.
  */
 
 export const COMPANY_PRIORITY = ['normal', 'high', 'urgent'] as const;

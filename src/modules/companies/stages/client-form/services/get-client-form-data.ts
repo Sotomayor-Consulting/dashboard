@@ -5,6 +5,7 @@ const log = createLogger('client-form.data');
 
 import { actividadesGeneral } from '@domains/utils/generals/activities';
 import { getCountries } from '@domains/countries';
+import { getUsStates } from '@modules/companies/services/get-us-states';
 import type { Country } from '@modules/companies/types';
 
 import type { Activity } from '../data/activities';
@@ -79,7 +80,7 @@ async function getIncorporationIdentity(
 ): Promise<IncorporationIdentity> {
 	const { data, error } = await supabase
 		.from('incorporations')
-		.select('principal_name, possible_names')
+		.select('principal_name, possible_names, formation_state:formation_state_id ( name )')
 		.eq('id', empresaId)
 		.single();
 
@@ -88,35 +89,24 @@ async function getIncorporationIdentity(
 		return { nameOptions: ['', '', ''], estadoIncorporacion: null };
 	}
 
-	// Reconstruye las 3 opciones: la preferida (principal_name) primero,
-	// luego las alternativas distintas guardadas en possible_names.
 	const options = (data.possible_names as string[] | null) ?? [];
 	const principal = (data.principal_name as string | null) ?? options[0] ?? '';
 	const rest = options.filter((n) => n && n !== principal);
 
+	const stateRow = data.formation_state as unknown as { name: string } | null;
+
 	return {
 		nameOptions: [principal, rest[0] ?? '', rest[1] ?? ''],
-		// estado_de_incorporacion eliminada de incorporations (degradado).
-		estadoIncorporacion: null,
+		estadoIncorporacion: stateRow?.name ?? null,
 	};
 }
 
-/** Lista de estados disponibles (nombre + abreviatura) desde la tabla `estados`. */
+/** Lista de estados de US (nombre + código) desde la tabla `states`. */
 async function getEstados(supabase: SupabaseClient): Promise<EstadoOption[]> {
-	const { data, error } = await supabase
-		.from('estados')
-		.select('Estado, abreviatura')
-		.order('Estado', { ascending: true });
-
-	if (error || !data) {
-		log.error('Error fetching estados', { error });
-		return [];
-	}
-
-	return data
-		.map((row) => ({
-			nombre: (row.Estado as string | null) ?? '',
-			codigo: (row.abreviatura as string | null) ?? '',
-		}))
+	// La tabla `estados` fue reemplazada por `states` (filtrada por country_id).
+	// Reusamos el dominio canónico `getUsStates`.
+	const states = await getUsStates(supabase);
+	return states
+		.map((s) => ({ nombre: s.name, codigo: s.code }))
 		.filter((e) => e.nombre);
 }
