@@ -42,6 +42,13 @@ if (isValidated) displayStage.status = 'completed';
 			En revisión por operaciones
 		</span>
 	)}
+	{isRejected && form?.rejection_reason && (
+		<div
+			class="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[13px] text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
+		>
+			<span class="font-medium">Motivo:</span> {form.rejection_reason}
+		</div>
+	)}
 	{canFill && (
 		<a
 			slot="actions"
