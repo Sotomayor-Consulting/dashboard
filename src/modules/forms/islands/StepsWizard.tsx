@@ -44,7 +44,7 @@ function WizardActionButton({
 		<button
 			type={type}
 			className={cn(
-				'w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-transparent px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:border-neutral-600 dark:text-white dark:focus:ring-neutral-500',
+				'w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-white px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:border-neutral-600 dark:bg-black dark:text-white dark:focus:ring-neutral-500',
 				className,
 			)}
 			{...props}
@@ -289,7 +289,7 @@ export default function StepsWizard({ estados }: Props) {
 							<button
 								type="button"
 								onClick={() => irAlPaso(index)}
-								className="flex w-full max-w-sm items-center justify-center gap-8"
+								className="flex w-full max-w-sm cursor-pointer items-center justify-center gap-8"
 							>
 								<div
 									className={cn(
@@ -466,7 +466,7 @@ export default function StepsWizard({ estados }: Props) {
 				</ol>
 			</div>
 			<ul className="grid w-full place-items-center">
-				<li className="w-4/5 md:w-3/5">
+				<li className="w-4/5">
 					<div id="seleccionar">
 						<Select
 							value={estadoDeEmpresa}
@@ -502,7 +502,7 @@ export default function StepsWizard({ estados }: Props) {
 					Elije los nombres que mas se adapten a tu empresa
 				</p>
 			</div>
-			<ul className="gap-2w flex w-full flex-col place-items-center">
+			<ul className="flex w-full flex-col place-items-center gap-2">
 				{[
 					{
 						label: 'Nombre de tu empresa - (opción #1)',
@@ -526,7 +526,7 @@ export default function StepsWizard({ estados }: Props) {
 						setter: setNombre3,
 					},
 				].map((field) => (
-					<li key={field.id} className="m-2 h-full w-full md:w-3/5">
+					<li key={field.id} className="m-2 h-full w-4/5">
 						<label
 							htmlFor={field.id}
 							className="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-400"
