@@ -5,6 +5,7 @@ const log = createLogger('client-form.data');
 
 import { actividadesGeneral } from '@domains/utils/generals/activities';
 import { getCountries } from '@domains/countries';
+import { getUsStates } from '@modules/companies/services/get-us-states';
 import type { Country } from '@modules/companies/types';
 
 import type { Activity } from '../data/activities';
@@ -100,23 +101,12 @@ async function getIncorporationIdentity(
 	};
 }
 
-/** Lista de estados disponibles (nombre + abreviatura) desde la tabla `estados`. */
+/** Lista de estados de US (nombre + código) desde la tabla `states`. */
 async function getEstados(supabase: SupabaseClient): Promise<EstadoOption[]> {
-	const { data, error } = await supabase
-		.from('states')
-		.select('name, code')
-		.order('name', { ascending: true })
-		.eq('country_id', 75);
-
-	if (error || !data) {
-		log.error('Error fetching estados', { error });
-		return [];
-	}
-
-	return data
-		.map((row) => ({
-			nombre: (row.name as string | null) ?? '',
-			codigo: (row.code as string | null) ?? '',
-		}))
+	// La tabla `estados` fue reemplazada por `states` (filtrada por country_id).
+	// Reusamos el dominio canónico `getUsStates`.
+	const states = await getUsStates(supabase);
+	return states
+		.map((s) => ({ nombre: s.name, codigo: s.code }))
 		.filter((e) => e.nombre);
 }

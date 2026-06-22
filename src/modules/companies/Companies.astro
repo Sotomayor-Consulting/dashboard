@@ -1,15 +1,16 @@
 ---
 import CompaniesCrudTable from '@modules/companies/islands/CompaniesCrudTable.tsx';
 import { getCompaniesPageData } from '@modules/companies/services/get-companies-page-data';
+import { getUsStates } from '@modules/companies/services/get-us-states';
 
 const supabase = Astro.locals.supabase;
 
-const [tableData, estadosResult] = await Promise.all([
+const [tableData, usStates] = await Promise.all([
 	getCompaniesPageData(supabase),
-	supabase.from('estados').select('Estado'),
+	getUsStates(supabase),
 ]);
 
-const estados = (estadosResult.data ?? []).map((e) => e.Estado as string);
+const estados = usStates.map((s) => s.name);
 ---
 
 <CompaniesCrudTable data={tableData} estados={estados} client:load />
