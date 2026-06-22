@@ -4,7 +4,10 @@ import * as React from 'react';
 import { Icon } from '@iconify/react';
 import { toast } from 'sonner';
 
+import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
+import { Card, CardContent } from '@components/ui/Card';
+import { Checkbox } from '@components/ui/Checkbox';
 import {
 	Dialog,
 	DialogContent,
@@ -12,8 +15,14 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@components/ui/Dialog';
-import { Card, CardContent, CardTitle } from '@components/ui/Card';
-import { Input } from '@components/ui/Input';
+import { Field, FieldLabel } from '@components/ui/Field';
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupButton,
+	InputGroupInput,
+} from '@components/ui/InputGroup';
+import { Label } from '@components/ui/Label';
 import {
 	Select,
 	SelectContent,
@@ -22,36 +31,11 @@ import {
 	SelectValue,
 } from '@components/ui/Select';
 import { cn } from '@components/utils';
-import Toaster from '@components/ui/Sonner';
 
 import type { EstadosOption } from '../types';
 
 interface Props {
 	estados: EstadosOption[];
-}
-
-interface WizardActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-	children: React.ReactNode;
-}
-
-function WizardActionButton({
-	children,
-	className,
-	type = 'button',
-	...props
-}: WizardActionButtonProps) {
-	return (
-		<button
-			type={type}
-			className={cn(
-				'w-full cursor-pointer justify-self-center rounded-lg border border-neutral-700 bg-transparent px-5 py-2.5 text-center text-xs font-medium focus:ring-4 focus:ring-neutral-600 focus:outline-none md:text-lg dark:border-neutral-600 dark:text-white dark:focus:ring-neutral-500',
-				className,
-			)}
-			{...props}
-		>
-			{children}
-		</button>
-	);
 }
 
 const STEPS = [
@@ -88,6 +72,125 @@ const STEP = {
 	REVIEW: 3,
 } as const;
 
+function StepBadge({ step }: { step: number }) {
+	return (
+		<Badge
+			variant="outline"
+			className="border-primary-gold/30 bg-primary-gold/10 text-primary-gold mb-3 px-3 py-1 text-xs font-bold tracking-widest uppercase"
+		>
+			Paso {String(step + 1).padStart(2, '0')}
+		</Badge>
+	);
+}
+
+function StepHeader({
+	step,
+	title,
+	subtitle,
+}: {
+	step: number;
+	title: string;
+	subtitle: string;
+}) {
+	return (
+		<div className="text-center">
+			<StepBadge step={step} />
+			<h3 className="text-2xl font-semibold text-gray-900 lg:text-3xl dark:text-white">
+				{title}
+			</h3>
+			<p className="mt-1.5 text-sm text-gray-500 sm:text-base dark:text-gray-400">
+				{subtitle}
+			</p>
+		</div>
+	);
+}
+
+function ReviewCard({
+	label,
+	value,
+	onEdit,
+}: {
+	label: string;
+	value: string;
+	onEdit: () => void;
+}) {
+	return (
+		<Card className="border-primary-gold/30 gap-0 py-0 dark:border-neutral-700">
+			<CardContent className="flex items-center justify-between gap-3 p-4">
+				<div className="min-w-0 flex-1">
+					<p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+					<p className="mt-0.5 truncate text-lg font-semibold text-gray-900 dark:text-white">
+						{value || 'No seleccionado'}
+					</p>
+				</div>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={onEdit}
+					className="bg-primary-gold hover:bg-primary-gold/80 ml-3 shrink-0 rounded-lg text-white dark:bg-neutral-900 dark:hover:bg-neutral-950"
+				>
+					<Icon icon="ri:edit-line" className="size-4" />
+				</Button>
+			</CardContent>
+		</Card>
+	);
+}
+
+function FormField({
+	id,
+	label,
+	children,
+}: {
+	id: string;
+	label: string;
+	children: React.ReactNode;
+}) {
+	return (
+		<Field>
+			<FieldLabel htmlFor={id} className="text-gray-900 dark:text-gray-400">
+				{label}
+			</FieldLabel>
+			{children}
+		</Field>
+	);
+}
+
+function IconField({
+	id,
+	label,
+	icon,
+	trailing,
+	inputProps,
+}: {
+	id: string;
+	label: string;
+	icon: string;
+	trailing?: React.ReactNode;
+	inputProps: React.ComponentProps<'input'>;
+}) {
+	return (
+		<FormField id={id} label={label}>
+			<InputGroup>
+				<InputGroupAddon>
+					<Icon icon={icon} className="text-primary-gold" />
+				</InputGroupAddon>
+				<InputGroupInput id={id} {...inputProps} />
+				{trailing}
+			</InputGroup>
+		</FormField>
+	);
+}
+
+function OrDivider({ label }: { label: string }) {
+	return (
+		<div className="relative flex items-center gap-3">
+			<span className="h-px flex-1 bg-gray-200 dark:bg-neutral-800" />
+			<span className="text-xs text-gray-400">{label}</span>
+			<span className="h-px flex-1 bg-gray-200 dark:bg-neutral-800" />
+		</div>
+	);
+}
+
 export default function StepsWizard({ estados }: Props) {
 	const [currentStep, setCurrentStep] = React.useState<number>(
 		STEP.ENTITY_TYPE,
@@ -108,6 +211,8 @@ export default function StepsWizard({ estados }: Props) {
 	const [regConfirmPassword, setRegConfirmPassword] = React.useState('');
 	const [regAcceptTerms, setRegAcceptTerms] = React.useState(false);
 	const [isRegistering, setIsRegistering] = React.useState(false);
+	const [showPassword, setShowPassword] = React.useState(false);
+	const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
 	React.useEffect(() => {
 		try {
@@ -179,22 +284,6 @@ export default function StepsWizard({ estados }: Props) {
 	const handleBack = () => {
 		setCurrentStep((prev) => Math.max(prev - 1, 0));
 	};
-
-	const renderNextButton = (className?: string) => (
-		<WizardActionButton
-			onClick={currentStep === STEP.REVIEW ? checkSession : handleNext}
-			disabled={currentStep === STEP.REVIEW && isVerifying}
-			className={cn(
-				'hover:bg-white-50 dark:hover:bg-neutral-950',
-				currentStep === STEP.REVIEW && 'disabled:opacity-50',
-				className,
-			)}
-		>
-			{currentStep === STEP.REVIEW && isVerifying
-				? 'Verificando...'
-				: 'Avanzar'}
-		</WizardActionButton>
-	);
 
 	const checkSession = async () => {
 		const error = validateNames();
@@ -273,68 +362,129 @@ export default function StepsWizard({ estados }: Props) {
 		}
 	};
 
+	const nameFields = [
+		{
+			label: 'Nombre de tu empresa — opción #1',
+			id: 'nombre-empresa-1',
+			name: 'nombre_1',
+			value: nombre1,
+			setter: setNombre1,
+		},
+		{
+			label: 'Nombre de tu empresa — opción #2',
+			id: 'nombre-empresa-2',
+			name: 'nombre_2',
+			value: nombre2,
+			setter: setNombre2,
+		},
+		{
+			label: 'Nombre de tu empresa — opción #3',
+			id: 'nombre-empresa-3',
+			name: 'nombre_3',
+			value: nombre3,
+			setter: setNombre3,
+		},
+	];
+
+	const reviewItems = [
+		{
+			label: 'Tipo de empresa',
+			value: tipoDeEmpresa,
+			step: STEP.ENTITY_TYPE,
+		},
+		{
+			label: 'Estado de registro',
+			value: estadoDeEmpresa,
+			step: STEP.STATE,
+		},
+		{
+			label: 'Nombre seleccionado',
+			value: nombre1,
+			step: STEP.COMPANY_NAME,
+		},
+	];
+
 	const stepper = (
-		<aside className="hidden md:flex lg:w-1/2 lg:flex-col">
-			<div className="mt-16">
-				<h3 className="text-black-900 text-2xl dark:text-white">
+		<aside className="hidden md:flex md:flex-col">
+			<div>
+				<h3 className="text-2xl font-semibold text-gray-900 dark:text-white">
 					Inicie su empresa en EE. UU. en minutos.
 				</h3>
-				<p className="w-3/4 text-gray-500">
+				<p className="mt-2 max-w-sm text-gray-500 dark:text-gray-400">
 					Responda algunas preguntas para ayudarnos a formar su nueva empresa.
 				</p>
 			</div>
-			<ol className="mt-8 w-full space-y-8 overflow-hidden">
+			<ol className="mt-10 w-full space-y-8 overflow-hidden">
 				{STEPS.map((step, index) => {
-					const activo = index === currentStep;
+					const isActive = index === currentStep;
+					const isCompleted = index < currentStep;
 					return (
 						<li
 							key={step.title}
 							className={cn(
 								'relative flex-1',
-								"after:absolute after:-bottom-11 after:left-1/4 after:inline-block after:h-full after:w-0.5 after:content-['']",
-								activo
+								"after:absolute after:-bottom-11 after:left-[37px] after:inline-block after:h-full after:w-0.5 after:content-['']",
+								isActive
 									? 'after:bg-primary-gold'
-									: 'after:bg-neutral-700 dark:after:bg-neutral-900',
+									: isCompleted
+										? 'after:bg-primary-gold/40'
+										: 'after:bg-neutral-200 dark:after:bg-neutral-800',
 							)}
 						>
 							<button
 								type="button"
 								onClick={() => goToStep(index)}
-								className="flex w-full max-w-sm items-center justify-center gap-8"
+								className="group flex w-full items-center"
 							>
 								<div
 									className={cn(
-										'relative z-10 flex w-full items-center gap-3.5 rounded-xl p-3.5 text-left transition-all',
-										activo &&
-											'border-primary-gold border bg-white dark:bg-neutral-900',
-										!activo &&
-											'bg-white-100 hover:border-primary-gold dark:hover:border-primary-gold border border-transparent dark:bg-black',
+										'relative z-10 flex w-full items-center gap-3.5 rounded-xl border p-3.5 text-left transition-all',
+										isActive &&
+											'border-primary-gold bg-white shadow-sm dark:bg-neutral-900',
+										isCompleted &&
+											!isActive &&
+											'border-primary-gold/30 bg-primary-gold/5 hover:border-primary-gold dark:bg-primary-gold/5',
+										!isActive &&
+											!isCompleted &&
+											'border-transparent bg-gray-50 hover:border-gray-300 dark:bg-neutral-950 dark:hover:border-neutral-700',
 									)}
 								>
 									<div
 										className={cn(
 											'flex items-center justify-center rounded-lg transition-all',
-											activo && 'bg-primary-gold',
-											!activo &&
-												'group-hover:bg-primary-gold bg-white dark:bg-neutral-950',
+											isActive && 'bg-primary-gold',
+											isCompleted && !isActive && 'bg-primary-gold/70',
+											!isActive &&
+												!isCompleted &&
+												'bg-white group-hover:bg-gray-100 dark:bg-neutral-900 dark:group-hover:bg-neutral-800',
 										)}
 									>
 										<span
 											className={cn(
 												'p-3 transition-all',
-												activo && 'text-white',
-												!activo && 'text-gray-600 group-hover:text-white',
+												isActive || isCompleted
+													? 'text-white'
+													: 'text-gray-500 group-hover:text-gray-700 dark:text-gray-400',
 											)}
 										>
-											<Icon icon={step.icon} className="size-5" />
+											{isCompleted && !isActive ? (
+												<Icon icon="ri:check-line" className="size-5" />
+											) : (
+												<Icon icon={step.icon} className="size-5" />
+											)}
 										</span>
 									</div>
 									<div className="flex flex-col items-start">
 										<h6
 											className={cn(
 												'mb-0.5 text-base font-semibold transition-all',
-												activo && 'dark:text-white',
-												!activo && 'group-hover:text-white-600 text-gray-500',
+												isActive && 'text-gray-900 dark:text-white',
+												isCompleted &&
+													!isActive &&
+													'text-primary-gold dark:text-primary-gold/80',
+												!isActive &&
+													!isCompleted &&
+													'text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300',
 											)}
 										>
 											{step.title}
@@ -342,8 +492,8 @@ export default function StepsWizard({ estados }: Props) {
 										<p
 											className={cn(
 												'text-xs font-normal transition-all',
-												activo && 'text-neutral-600 dark:text-gray-400',
-												!activo && 'group-hover:text-white-600 text-gray-500',
+												isActive && 'text-neutral-600 dark:text-gray-400',
+												!isActive && 'text-gray-400 dark:text-gray-500',
 											)}
 										>
 											{step.description}
@@ -358,24 +508,44 @@ export default function StepsWizard({ estados }: Props) {
 		</aside>
 	);
 
+	const mobileStepper = (
+		<div className="mb-6 flex items-center justify-center gap-2 md:hidden">
+			{STEPS.map((_, index) => (
+				<button
+					key={index}
+					type="button"
+					onClick={() => goToStep(index)}
+					className={cn(
+						'h-2 rounded-full transition-all',
+						index === currentStep
+							? 'bg-primary-gold w-8'
+							: index < currentStep
+								? 'bg-primary-gold/40 w-2'
+								: 'w-2 bg-gray-300 dark:bg-neutral-700',
+					)}
+					aria-label={`Ir al paso ${index + 1}`}
+				/>
+			))}
+		</div>
+	);
+
 	const paso1 = (
-		<div
-			id="paso1"
-			className="flex h-full flex-col justify-center gap-10 px-6 py-8 sm:px-10 sm:py-12"
-		>
-			<div className="text-center">
-				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
-					Paso 01
-				</span>
-				<h3 className="text-black-900 text-2xl lg:text-3xl dark:text-white">
-					Estructura de la empresa
-				</h3>
-				<p className="text-neutral-700 dark:text-gray-400">
-					Elija el tipo de entidad adecuada para su negocio.
-				</p>
-			</div>
-			<ul className="grid w-full place-items-center gap-6">
-				<li className="w-4/5">
+		<div className="flex h-full flex-col justify-center gap-10 px-6 py-8 sm:px-10 sm:py-12">
+			<StepHeader
+				step={STEP.ENTITY_TYPE}
+				title="Estructura de la empresa"
+				subtitle="Elija el tipo de entidad adecuada para su negocio."
+			/>
+			<div className="mx-auto grid w-full max-w-md gap-4">
+				<label
+					htmlFor="LLC_radio_btn"
+					className={cn(
+						'group grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-4 rounded-xl border p-5 transition-all',
+						tipoDeEmpresa === 'LLC'
+							? 'border-primary-gold bg-primary-gold/5 dark:bg-primary-gold/10 shadow-sm'
+							: 'border-gray-200 bg-white hover:border-gray-300 dark:border-neutral-700 dark:bg-transparent dark:hover:border-neutral-600',
+					)}
+				>
 					<input
 						type="radio"
 						id="LLC_radio_btn"
@@ -384,85 +554,85 @@ export default function StepsWizard({ estados }: Props) {
 						className="peer hidden"
 						checked={tipoDeEmpresa === 'LLC'}
 						onChange={() => setTipoDeEmpresa('LLC')}
-						required
 					/>
-					<label
-						htmlFor="LLC_radio_btn"
-						className="bg-white-100 hover:bg-white-50 dark:peer-checked:border-primary-gold group peer-checked:border-primary-gold grid w-full cursor-pointer grid-cols-[auto_1fr_auto] items-center justify-between gap-5 rounded-lg border border-neutral-700 p-5 text-neutral-500 peer-checked:bg-white peer-checked:text-black hover:text-neutral-900 dark:bg-transparent dark:text-gray-400 dark:peer-checked:bg-neutral-900 dark:peer-checked:text-white dark:hover:bg-neutral-950 dark:hover:text-white"
-					>
-						<div className="bg-primary-gold/20 text-brand-gold rounded-xl p-3">
-							<Icon
-								icon="ri:building-4-line"
-								className="text-primary-gold text-3xl"
-							/>
-						</div>
-						<div className="block max-w-[90%]">
-							<div className="w-full text-lg font-semibold">LLC</div>
-							<div className="w-full text-sm">
-								Tarifas mínimas + privacidad y flexibilidad inigualables.
-							</div>
-						</div>
+					<div className="bg-primary-gold/15 rounded-xl p-3">
 						<Icon
-							icon="ri:arrow-right-s-fill"
-							className="text-primary-gold ms-3 text-2xl transition-all delay-105 group-hover:translate-x-2 rtl:rotate-180 dark:text-white"
+							icon="ri:building-4-line"
+							className="text-primary-gold text-2xl"
 						/>
-					</label>
-				</li>
-				<li className="w-4/5">
-					<button
-						type="button"
-						onClick={() => setHelpDialogOpen(true)}
-						className="bg-white-50 hover:bg-white-50 group border-primary-gold group grid w-full cursor-pointer grid-cols-[auto_1fr_auto] grid-rows-1 items-center justify-between gap-5 rounded-lg border p-5 text-neutral-500 dark:bg-transparent dark:text-gray-400 dark:hover:bg-neutral-950 dark:hover:text-white"
-					>
-						<div className="bg-primary-gold/20 rounded-xl p-3">
-							<Icon
-								icon="ri:question-line"
-								className="text-primary-gold text-3xl"
-							/>
-						</div>
-						<div className="block max-w-[90%] text-left">
-							<div className="w-full text-lg font-semibold">
-								Ayúdame a elegir
-							</div>
-							<div className="w-full text-sm text-pretty">
-								Una evaluación estratégica para entender tu etapa actual, tus
-								riesgos y el paso exacto que necesitas dar.
-							</div>
-						</div>
+					</div>
+					<div>
+						<p className="text-lg font-semibold text-gray-900 dark:text-white">
+							LLC
+						</p>
+						<p className="text-sm text-gray-500 dark:text-gray-400">
+							Tarifas mínimas + privacidad y flexibilidad inigualables.
+						</p>
+					</div>
+					<Icon
+						icon="ri:arrow-right-s-fill"
+						className={cn(
+							'text-xl transition-all',
+							tipoDeEmpresa === 'LLC'
+								? 'text-primary-gold translate-x-0.5'
+								: 'text-gray-300 group-hover:text-gray-500 dark:text-neutral-600',
+						)}
+					/>
+				</label>
+
+				<button
+					type="button"
+					onClick={() => setHelpDialogOpen(true)}
+					className="group hover:border-primary-gold/50 hover:bg-primary-gold/5 dark:hover:border-primary-gold/30 grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-4 rounded-xl border border-dashed border-gray-300 bg-white p-5 text-left transition-all dark:border-neutral-700 dark:bg-transparent"
+				>
+					<div className="bg-primary-gold/15 rounded-xl p-3">
 						<Icon
-							icon="ri:arrow-right-s-fill"
-							className="text-primary-gold ms-3 text-2xl transition-all delay-105 group-hover:translate-x-2 dark:text-white"
+							icon="ri:question-line"
+							className="text-primary-gold text-2xl"
 						/>
-					</button>
-				</li>
-			</ul>
+					</div>
+					<div>
+						<p className="text-lg font-semibold text-gray-900 dark:text-white">
+							Ayúdame a elegir
+						</p>
+						<p className="text-sm text-gray-500 dark:text-gray-400">
+							Evaluación estratégica para entender tu etapa y el paso exacto que
+							necesitas.
+						</p>
+					</div>
+					<Icon
+						icon="ri:arrow-right-s-fill"
+						className="group-hover:text-primary-gold text-xl text-gray-300 transition-all group-hover:translate-x-0.5 dark:text-neutral-600"
+					/>
+				</button>
+			</div>
 		</div>
 	);
 
 	const paso2 = (
-		<div
-			id="paso2"
-			className="flex flex-col justify-center gap-5 px-6 py-8 sm:px-10 sm:py-12"
-		>
-			<div className="py-10 text-center">
-				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
-					Paso 02
-				</span>
-				<h3 className="text-2xl text-neutral-800 lg:text-3xl dark:text-white">
-					Elija el estado de registro
-				</h3>
-				<p className="text-neutral-700 dark:text-gray-400">Estados populares</p>
-				<ol className="mt-3 flex justify-center gap-2">
-					{POPULAR_STATES.map((estado) => (
-						<li key={estado}>
+		<div className="flex flex-col justify-center gap-8 px-6 py-8 sm:px-10 sm:py-12">
+			<StepHeader
+				step={STEP.STATE}
+				title="Elija el estado de registro"
+				subtitle="Seleccione donde desea registrar su empresa"
+			/>
+
+			<div className="mx-auto w-full max-w-md space-y-6">
+				<div>
+					<p className="mb-3 text-center text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
+						Estados populares
+					</p>
+					<div className="flex justify-center gap-2">
+						{POPULAR_STATES.map((estado) => (
 							<button
+								key={estado}
 								type="button"
 								onClick={() => setEstadoDeEmpresa(estado)}
 								className={cn(
-									'group flex items-center space-x-2 rounded-full border px-6 py-2 font-bold transition-all',
+									'flex items-center gap-2 rounded-full border px-5 py-2 text-sm font-semibold transition-all',
 									estadoDeEmpresa === estado
 										? 'bg-primary-gold border-primary-gold text-white'
-										: 'bg-primary-gold/20 border-gold/50 text-gold hover:bg-primary-gold hover:text-white',
+										: 'border-primary-gold/30 text-primary-gold hover:bg-primary-gold/10',
 								)}
 							>
 								<span
@@ -470,436 +640,339 @@ export default function StepsWizard({ estados }: Props) {
 										'h-2 w-2 rounded-full',
 										estadoDeEmpresa === estado
 											? 'bg-white'
-											: 'bg-primary-gold group-hover:bg-white',
+											: 'bg-primary-gold/50',
 									)}
 								/>
-								<span>{estado}</span>
+								{estado}
 							</button>
-						</li>
-					))}
-				</ol>
-			</div>
-			<ul className="grid w-full place-items-center">
-				<li className="w-4/5 md:w-3/5">
-					<div id="seleccionar">
-						<Select
-							value={estadoDeEmpresa}
-							onValueChange={(v) => setEstadoDeEmpresa(v ?? '')}
-						>
-							<SelectTrigger className="w-full border-neutral-700 bg-transparent p-5 text-neutral-500 dark:border-neutral-900 dark:bg-neutral-950 dark:text-gray-400">
-								<SelectValue placeholder="Selecciona un estado" />
-							</SelectTrigger>
-							<SelectContent>
-								{estados.map((es) => (
-									<SelectItem key={es.Estado} value={es.Estado}>
-										{es.Estado}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+						))}
 					</div>
-				</li>
-			</ul>
+				</div>
+
+				<OrDivider label="o selecciona otro" />
+
+				<Select
+					value={estadoDeEmpresa}
+					onValueChange={(v) => setEstadoDeEmpresa(v ?? '')}
+				>
+					<SelectTrigger className="w-full border-gray-200 bg-white p-5 text-gray-700 dark:border-neutral-800 dark:bg-neutral-950 dark:text-gray-300">
+						<SelectValue placeholder="Selecciona un estado" />
+					</SelectTrigger>
+					<SelectContent>
+						{estados.map((es) => (
+							<SelectItem key={es.Estado} value={es.Estado}>
+								{es.Estado}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
 		</div>
 	);
 
 	const paso3 = (
-		<div
-			id="paso3"
-			className="flex flex-col justify-center gap-5 px-6 py-8 sm:px-10 sm:py-12"
-		>
-			<div className="text-center">
-				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
-					Paso 03
-				</span>
-				<h3 className="text-2xl text-neutral-800 lg:text-3xl dark:text-white">
-					Escoge el nombre de tu empresa
-				</h3>
-				<p className="text-neutral-700 dark:text-gray-400">
-					Elije los nombres que mas se adapten a tu empresa
-				</p>
-			</div>
-			<ul className="flex w-full flex-col place-items-center gap-2">
-				{[
-					{
-						label: 'Nombre de tu empresa - (opción #1)',
-						id: 'nombre-empresa-1',
-						name: 'nombre_1',
-						value: nombre1,
-						setter: setNombre1,
-					},
-					{
-						label: 'Nombre de tu empresa - (opción #2)',
-						id: 'nombre-empresa-2',
-						name: 'nombre_2',
-						value: nombre2,
-						setter: setNombre2,
-					},
-					{
-						label: 'Nombre de tu empresa - (opción #3)',
-						id: 'nombre-empresa-3',
-						name: 'nombre_3',
-						value: nombre3,
-						setter: setNombre3,
-					},
-				].map((field) => (
-					<li key={field.id} className="m-2 h-full w-full md:w-3/5">
-						<label
-							htmlFor={field.id}
-							className="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-400"
-						>
-							{field.label}
-						</label>
-						<div className="flex">
-							<span className="rounded-e-0 inline-flex items-center rounded-s-md bg-gray-100 px-3 text-sm text-gray-900 dark:bg-neutral-950 dark:text-gray-400">
-								<Icon
-									icon="ri:building-2-line"
-									className="text-primary-gold text-base"
-								/>
-							</span>
-							<Input
-								type="text"
-								id={field.id}
-								name={field.name}
-								value={field.value}
-								onChange={(e) => field.setter(e.target.value)}
-								placeholder="Sotomayor Consulting"
-								required
-								className="focus:bg-white-100 rounded-s-none rounded-e-lg border-0 bg-gray-100 dark:bg-neutral-950 dark:text-white dark:focus:bg-neutral-900"
-							/>
-						</div>
-					</li>
+		<div className="flex flex-col justify-center gap-8 px-6 py-8">
+			<StepHeader
+				step={STEP.COMPANY_NAME}
+				title="Escoge el nombre de tu empresa"
+				subtitle="Proporciona tres opciones de nombre para tu empresa"
+			/>
+			<div className="mx-auto w-full max-w-md space-y-4">
+				{nameFields.map((field) => (
+					<IconField
+						key={field.id}
+						id={field.id}
+						label={field.label}
+						icon="ri:building-2-line"
+						inputProps={{
+							name: field.name,
+							value: field.value,
+							onChange: (e) => field.setter(e.target.value),
+							placeholder: 'Sotomayor Consulting',
+							required: true,
+						}}
+					/>
 				))}
-			</ul>
+			</div>
 		</div>
 	);
 
-	const editStep = (paso: number) => {
-		setCurrentStep(paso);
-	};
-
 	const paso4 = (
-		<div
-			id="paso4"
-			className="flex flex-col justify-center gap-5 px-6 py-8 sm:px-10 sm:py-12"
-		>
-			<div className="text-center">
-				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
-					Paso 04
-				</span>
-				<h3 className="text-2xl text-neutral-800 lg:text-3xl dark:text-white">
-					Revisar o iniciar sesión
-				</h3>
-				<p className="text-black-800 dark:text-gray-400">
-					Ya casi terminas. 🎉
-				</p>
-				<p className="text-black-800 dark:text-gray-400">
-					Por favor revisa tu información y procede a registrarte.
-				</p>
+		<div className="flex flex-col justify-center gap-8 px-6 py-8 sm:px-10 sm:py-12">
+			<StepHeader
+				step={STEP.REVIEW}
+				title="Revisa tu información"
+				subtitle="Ya casi terminas — verifica tus datos y procede a registrarte."
+			/>
+			<div className="m-0 mx-auto w-full max-w-md space-y-3 p-0">
+				{reviewItems.map((item) => (
+					<ReviewCard
+						key={item.label}
+						label={item.label}
+						value={item.value}
+						onEdit={() => goToStep(item.step)}
+					/>
+				))}
 			</div>
-			<ul className="grid w-full place-items-center gap-3">
-				<li className="w-4/5">
-					<div className="mt-5">
-						<Card className="border-primary-gold dark:border-neutral-700">
-							<CardContent className="flex items-center justify-between p-3">
-								<div>
-									<p className="text-black-700 mt-1 text-sm dark:text-gray-400">
-										Tipo de empresa
-									</p>
-									<CardTitle className="text-black-900 text-xs lg:text-xl dark:text-white">
-										{tipoDeEmpresa || 'No seleccionado'}
-									</CardTitle>
-								</div>
-								<Button
-									variant="ghost"
-									size="icon"
-									onClick={() => editStep(0)}
-									className="bg-primary-gold hover:bg-primary-gold/80 rounded-lg p-1 text-white dark:bg-neutral-900 dark:hover:bg-neutral-950"
-								>
-									<Icon icon="ri:edit-line" className="size-4" />
-								</Button>
-							</CardContent>
-						</Card>
-					</div>
-					<div className="mt-5">
-						<Card className="border-primary-gold dark:border-neutral-700">
-							<CardContent className="flex items-center justify-between p-3">
-								<div>
-									<p className="text-black-700 mt-1 text-sm dark:text-gray-400">
-										Estado en el cual se va a registrar
-									</p>
-									<CardTitle className="text-black-900 text-xs lg:text-xl dark:text-white">
-										{estadoDeEmpresa || 'No seleccionado'}
-									</CardTitle>
-								</div>
-								<Button
-									variant="ghost"
-									size="icon"
-									onClick={() => editStep(1)}
-									className="bg-primary-gold hover:bg-primary-gold/80 rounded-lg p-1 text-white dark:bg-neutral-900 dark:hover:bg-neutral-950"
-								>
-									<Icon icon="ri:edit-line" className="size-4" />
-								</Button>
-							</CardContent>
-						</Card>
-					</div>
-					<div className="mt-5">
-						<Card className="border-primary-gold dark:border-neutral-700">
-							<CardContent className="flex items-center justify-between p-3">
-								<div>
-									<p className="text-black-700 mt-1 text-sm dark:text-gray-400">
-										El nombre que seleccionaste
-									</p>
-									<CardTitle className="text-black-900 text-xs lg:text-xl dark:text-white">
-										{nombre1 || 'No ingresado'}
-									</CardTitle>
-								</div>
-								<Button
-									variant="ghost"
-									size="icon"
-									onClick={() => editStep(2)}
-									className="bg-primary-gold hover:bg-primary-gold/80 rounded-lg p-1 text-white dark:bg-neutral-900 dark:hover:bg-neutral-950"
-								>
-									<Icon icon="ri:edit-line" className="size-4" />
-								</Button>
-							</CardContent>
-						</Card>
-					</div>
-				</li>
-			</ul>
 		</div>
 	);
 
 	const formularioRegistro = (
-		<div className="pt:mt-0 mx-auto flex w-full flex-col items-center justify-center px-6 py-8">
-			<div className="dark:bg-black-800 w-full max-w-xl space-y-8 rounded-lg bg-gray-200 p-6 shadow sm:p-8">
-				<div className="flex justify-center">
+		<div className="space-y-6 px-6 py-8 sm:px-8 sm:py-10">
+			<div className="flex flex-col items-center gap-3 text-center">
+				<div className="bg-primary-gold/15 rounded-xl p-3">
 					<Icon
 						icon="ri:building-2-line"
-						className="text-primary-gold text-5xl"
+						className="text-primary-gold text-4xl"
 					/>
 				</div>
 				<h2 className="text-2xl font-bold text-gray-900 dark:text-white">
 					Crea tu cuenta gratuita
 				</h2>
-				<form className="mt-8 space-y-6" onSubmit={handleRegister}>
-					<div className="grid grid-cols-2 gap-x-6 gap-y-8">
-						<div>
-							<label
-								htmlFor="reg-name"
-								className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-							>
-								Nombre
-							</label>
-							<Input
-								type="text"
-								id="reg-name"
-								name="name"
-								value={regName}
-								onChange={(e) => setRegName(e.target.value)}
-								placeholder="Nombre"
-								required
-								className="w-full"
-							/>
-						</div>
-						<div>
-							<label
-								htmlFor="reg-last-name"
-								className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-							>
-								Apellido
-							</label>
-							<Input
-								type="text"
-								id="reg-last-name"
-								name="last-name"
-								value={regLastName}
-								onChange={(e) => setRegLastName(e.target.value)}
-								placeholder="Apellido"
-								required
-								className="w-full"
-							/>
-						</div>
-					</div>
-					<div>
-						<label
-							htmlFor="reg-email"
-							className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-						>
-							Tu correo
-						</label>
-						<Input
-							type="email"
-							id="reg-email"
-							name="email"
-							value={regEmail}
-							onChange={(e) => setRegEmail(e.target.value)}
-							placeholder="correo@ejemplo.com"
-							required
-							className="w-full"
+			</div>
+
+			<form className="space-y-5" onSubmit={handleRegister}>
+					<div className="grid grid-cols-2 gap-4">
+						<IconField
+							id="reg-name"
+							label="Nombre"
+							icon="ri:user-line"
+							inputProps={{
+								name: 'name',
+								value: regName,
+								onChange: (e) => setRegName(e.target.value),
+								placeholder: 'Nombre',
+								required: true,
+								autoComplete: 'given-name',
+							}}
+						/>
+						<IconField
+							id="reg-last-name"
+							label="Apellido"
+							icon="ri:user-line"
+							inputProps={{
+								name: 'last-name',
+								value: regLastName,
+								onChange: (e) => setRegLastName(e.target.value),
+								placeholder: 'Apellido',
+								required: true,
+								autoComplete: 'family-name',
+							}}
 						/>
 					</div>
-					<div>
-						<label
-							htmlFor="reg-password"
-							className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-						>
-							Contraseña
-						</label>
-						<Input
-							type="password"
-							id="reg-password"
-							name="password"
-							value={regPassword}
-							onChange={(e) => setRegPassword(e.target.value)}
-							placeholder="••••••••"
-							minLength={8}
-							required
-							className="w-full"
-						/>
-					</div>
-					<div>
-						<label
-							htmlFor="reg-confirm-password"
-							className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-						>
-							Confirmar contraseña
-						</label>
-						<Input
-							type="password"
-							id="reg-confirm-password"
-							name="confirm-password"
-							value={regConfirmPassword}
-							onChange={(e) => setRegConfirmPassword(e.target.value)}
-							placeholder="••••••••"
-							required
-							className="w-full"
-						/>
-					</div>
-					<div className="flex items-start">
-						<div className="flex h-5 items-center">
-							<input
-								id="reg-accept-terms"
-								name="remember"
-								type="checkbox"
-								checked={regAcceptTerms}
-								onChange={(e) => setRegAcceptTerms(e.target.checked)}
-								className="focus:ring-primary-gold h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-3 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
-								required
-							/>
-						</div>
-						<div className="ml-3 text-sm">
-							<label
-								htmlFor="reg-accept-terms"
-								className="font-medium text-gray-900 dark:text-white"
-							>
-								Al registrarte, estás creando una cuenta de SOTOMAYOR CONSULTING
-								INTERNATIONAL LLC y aceptas los{' '}
-								<a
-									href="https://sotomayorconsulting.com/inicio/politicas/"
-									className="text-primary-gold hover:underline"
+
+					<IconField
+						id="reg-email"
+						label="Tu correo"
+						icon="ri:mail-line"
+						inputProps={{
+							type: 'email',
+							name: 'email',
+							value: regEmail,
+							onChange: (e) => setRegEmail(e.target.value),
+							placeholder: 'correo@ejemplo.com',
+							required: true,
+							autoComplete: 'email',
+						}}
+					/>
+
+					<IconField
+						id="reg-password"
+						label="Contraseña"
+						icon="ri:lock-2-line"
+						inputProps={{
+							type: showPassword ? 'text' : 'password',
+							name: 'password',
+							value: regPassword,
+							onChange: (e) => setRegPassword(e.target.value),
+							placeholder: '••••••••',
+							minLength: 8,
+							required: true,
+							autoComplete: 'new-password',
+						}}
+						trailing={
+							<InputGroupAddon align="inline-end">
+								<InputGroupButton
+									size="icon-xs"
+									aria-label={
+										showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+									}
+									onClick={() => setShowPassword((v) => !v)}
 								>
-									Términos de uso y la Política de privacidad.
-								</a>
-							</label>
-						</div>
+									<Icon
+										icon={showPassword ? 'ri:eye-off-line' : 'ri:eye-line'}
+									/>
+								</InputGroupButton>
+							</InputGroupAddon>
+						}
+					/>
+
+					<IconField
+						id="reg-confirm-password"
+						label="Confirmar contraseña"
+						icon="ri:lock-2-line"
+						inputProps={{
+							type: showConfirmPassword ? 'text' : 'password',
+							name: 'confirm-password',
+							value: regConfirmPassword,
+							onChange: (e) => setRegConfirmPassword(e.target.value),
+							placeholder: '••••••••',
+							required: true,
+							autoComplete: 'new-password',
+						}}
+						trailing={
+							<InputGroupAddon align="inline-end">
+								<InputGroupButton
+									size="icon-xs"
+									aria-label={
+										showConfirmPassword
+											? 'Ocultar contraseña'
+											: 'Mostrar contraseña'
+									}
+									onClick={() => setShowConfirmPassword((v) => !v)}
+								>
+									<Icon
+										icon={
+											showConfirmPassword ? 'ri:eye-off-line' : 'ri:eye-line'
+										}
+									/>
+								</InputGroupButton>
+							</InputGroupAddon>
+						}
+					/>
+
+					<div className="flex items-start gap-3">
+						<Checkbox
+							id="reg-accept-terms"
+							name="remember"
+							checked={regAcceptTerms}
+							onCheckedChange={(checked) => setRegAcceptTerms(checked === true)}
+							required
+							className="mt-0.5"
+						/>
+						<Label
+							htmlFor="reg-accept-terms"
+							className="text-sm leading-snug font-normal text-gray-600 dark:text-gray-300"
+						>
+							Al registrarte, aceptas los{' '}
+							<a
+								href="https://sotomayorconsulting.com/inicio/politicas/"
+								className="text-primary-gold font-medium hover:underline"
+							>
+								Términos de uso y Política de privacidad
+							</a>{' '}
+							de Sotomayor Consulting International LLC.
+						</Label>
 					</div>
-					<button
+
+					<Button
 						type="submit"
 						disabled={isRegistering}
-						className="bg-primary-gold hover:bg-primary-gold/80 focus:ring-primary-gold/50 w-full cursor-pointer rounded-lg px-5 py-3 text-center text-base font-medium text-white focus:ring-4 focus:outline-none disabled:opacity-50"
+						className="bg-primary-gold hover:bg-primary-gold/90 h-11 w-full text-base font-semibold text-white"
 					>
 						{isRegistering ? 'Creando cuenta...' : 'Crear una cuenta'}
-					</button>
+					</Button>
 				</form>
-				<div className="relative">
-					<div className="absolute inset-0 flex items-center">
-						<div className="w-full border-t border-gray-300 dark:border-gray-600" />
-					</div>
-					<div className="relative flex justify-center text-sm">
-						<span className="dark:bg-black-800 bg-gray-200 px-5 text-gray-500 dark:text-gray-400">
-							o
-						</span>
-					</div>
-				</div>
-				<div>
-					<form action="/api/auth/oauth/google" method="post">
-						<button
-							type="submit"
-							name="provider"
-							className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-500 p-2.5 hover:bg-slate-700/10 dark:border-white dark:text-white dark:hover:bg-slate-300/10"
-						>
-							<Icon icon="ri:google-fill" className="size-5" />
-							<span>Regístrate con Google</span>
-						</button>
-					</form>
-				</div>
+
+				<OrDivider label="o" />
+
+				<form action="/api/auth/oauth/google" method="post">
+					<Button
+						type="submit"
+						variant="outline"
+						className="h-11 w-full gap-2 text-sm font-medium"
+					>
+						<Icon icon="ri:google-fill" className="size-5" />
+						Regístrate con Google
+					</Button>
+				</form>
 			</div>
-		</div>
 	);
 
 	const wizardNavigation = !showRegisterForm && (
 		<div
 			className={cn(
-				'w-full',
+				'mt-4 w-full',
 				currentStep === STEP.ENTITY_TYPE
 					? 'flex justify-center'
-					: 'grid grid-cols-2 gap-2',
+					: 'grid grid-cols-2 gap-3',
 			)}
 		>
 			{currentStep > STEP.ENTITY_TYPE && (
-				<WizardActionButton onClick={handleBack}>Retroceder</WizardActionButton>
+				<Button
+					variant="outline"
+					size="lg"
+					onClick={handleBack}
+					className="h-11 w-full text-sm font-medium"
+				>
+					<Icon icon="ri:arrow-left-line" className="mr-1 size-4" />
+					Retroceder
+				</Button>
 			)}
-			{renderNextButton(
-				currentStep === STEP.ENTITY_TYPE
-					? 'w-4/5 border-neutral-500 md:w-3/5'
-					: undefined,
-			)}
+			<Button
+				size="lg"
+				onClick={currentStep === STEP.REVIEW ? checkSession : handleNext}
+				disabled={currentStep === STEP.REVIEW && isVerifying}
+				className={cn(
+					'bg-primary-gold hover:bg-primary-gold/90 h-11 w-full text-sm font-medium text-white',
+					currentStep === STEP.ENTITY_TYPE && 'max-w-md',
+				)}
+			>
+				{currentStep === STEP.REVIEW && isVerifying
+					? 'Verificando...'
+					: currentStep === STEP.REVIEW
+						? 'Finalizar'
+						: 'Continuar'}
+				{!isVerifying && currentStep !== STEP.REVIEW && (
+					<Icon icon="ri:arrow-right-line" className="ml-1 size-4" />
+				)}
+			</Button>
 		</div>
 	);
 
 	return (
 		<>
-			<Toaster />
-
 			<Dialog open={helpDialogOpen} onOpenChange={setHelpDialogOpen}>
 				<DialogContent className="sm:max-w-2xl">
 					<DialogHeader>
-						<div className="mb-8 flex justify-center">
-							<div className="bg-brand-gold/10 border-brand-gold/20 flex h-20 w-20 items-center justify-center rounded-2xl border shadow-[0_0_30px_rgba(176,141,66,0.15)]">
+						<div className="mb-6 flex justify-center">
+							<div className="bg-primary-gold/10 border-primary-gold/20 flex h-20 w-20 items-center justify-center rounded-2xl border">
 								<Icon
 									icon="ri:calendar-todo-line"
 									className="text-primary-gold text-5xl"
 								/>
 							</div>
 						</div>
-						<DialogTitle className="text-center text-3xl leading-tight font-bold tracking-tight md:text-4xl">
+						<DialogTitle className="text-center text-2xl leading-tight font-bold tracking-tight md:text-3xl">
 							Encuentre el tipo de entidad{' '}
 							<span className="text-primary-gold">
 								adecuado para su negocio
 							</span>
 						</DialogTitle>
-						<DialogDescription className="mx-auto max-w-lg text-center text-lg leading-relaxed">
+						<DialogDescription className="mx-auto mt-2 max-w-lg text-center text-base leading-relaxed">
 							La elección de tu entidad legal es el primer gran paso. Evita
 							riesgos fiscales y legales. Nuestros consultores te brindan una
 							asesoría gratuita para identificar la mejor opción.
 						</DialogDescription>
 					</DialogHeader>
-					<div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-						<a
-							href="https://sotomayorconsulting.com/diagnostico-llc/"
-							className="bg-primary-gold hover:bg-brand-gold-hover shadow-brand-gold/10 w-full transform rounded-lg px-8 py-4 text-center font-bold text-black shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:w-auto"
+					<div className="mt-4 flex flex-col items-center justify-center gap-3 sm:flex-row">
+						<Button
+							className="bg-primary-gold hover:bg-primary-gold/90 h-12 w-full px-8 font-bold text-black sm:w-auto"
+							render={
+								<a href="https://sotomayorconsulting.com/diagnostico-llc/" />
+							}
 						>
 							Realiza un Diagnostico breve
-						</a>
-						<a
-							href="https://zcal.co/t/agendar-asesoria-llc/60min"
-							className="border-brand-gold/40 w-full transform rounded-lg border bg-transparent px-8 py-4 text-center font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:bg-white/5 active:scale-[0.98] sm:w-auto"
+						</Button>
+						<Button
+							variant="outline"
+							className="border-primary-gold/40 h-12 w-full px-8 font-semibold sm:w-auto"
+							render={<a href="https://zcal.co/t/agendar-asesoria-llc/60min" />}
 						>
 							Agendar una cita
-						</a>
+						</Button>
 					</div>
-					<div className="mt-10 border-t border-white/5 pt-8 text-center">
+					<div className="mt-8 border-t pt-6 text-center">
 						<p className="text-muted-foreground text-sm italic">
 							Asegurando un crecimiento sólido y protegido en EE. UU.
 						</p>
@@ -907,20 +980,21 @@ export default function StepsWizard({ estados }: Props) {
 				</DialogContent>
 			</Dialog>
 
-			<div className="relative my-8">
-				<div className="my-8 grid items-start gap-8 lg:grid-cols-2">
-					{stepper}
+			<div className="relative mx-auto my-8 max-w-6xl">
+				{mobileStepper}
+				<div className="grid gap-6">
+					<div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+						{stepper}
 
-					<div className="flex flex-col gap-6">
-						<div className="rounded-lg bg-white bg-cover bg-center drop-shadow-xl dark:bg-black">
+						<div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-black">
 							{currentStep === STEP.ENTITY_TYPE && paso1}
 							{currentStep === STEP.STATE && paso2}
 							{currentStep === STEP.COMPANY_NAME && paso3}
 							{currentStep === STEP.REVIEW && !showRegisterForm && paso4}
 							{showRegisterForm && formularioRegistro}
 						</div>
-						{wizardNavigation}
 					</div>
+					{wizardNavigation}
 				</div>
 			</div>
 		</>

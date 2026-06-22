@@ -5,7 +5,7 @@ const log = createLogger('domains.billing');
 
 export const FacturacionGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
-		.from('datos_facturacion')
+		.from('billing_info')
 		.select('*')
 		.single();
 
@@ -23,7 +23,7 @@ export const FacturacionbyId = async (
 	userId: string,
 ) => {
 	const { data, error } = await supabase
-		.from('datos_facturacion')
+		.from('billing_info')
 		.select('*')
 		.eq('user_id', userId)
 		.single();

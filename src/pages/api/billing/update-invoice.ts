@@ -94,7 +94,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			);
 		}
 
-		
+
 
 		// 7) Preparar payload para la base de datos
 		const payload = {
@@ -108,16 +108,16 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			pais: formData.pais_factura,
 			documento_de_identidad: formData.documento_de_identidad_factura,
 			tipo_de_documento: formData.tipo_de_documento_factura,
-			
+
 		};
 
 		// 8) Intentar upsert en la base de datos
 		const { error } = await supabase
-			.from('datos_facturacion')
+			.from('billing_info')
 			.upsert(payload, { onConflict: 'user_id' });
 
 		if (error) {
-			log.error('Error de Supabase en upsert(datos_facturacion)', { error });
+			log.error('Error de Supabase en upsert(billing_info)', { error });
 
 			let errorMsg = 'Error al guardar los datos';
 
