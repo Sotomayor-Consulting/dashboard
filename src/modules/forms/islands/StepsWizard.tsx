@@ -65,7 +65,10 @@ const STEPS = [
 	},
 ];
 
-const POPULAR_STATES = ['Florida', 'Wyoming'];
+const POPULAR_STATES = [
+	{ id: 12, name: 'Florida' },
+	{ id: 59, name: 'Wyoming' },
+];
 
 const STEP = {
 	ENTITY_TYPE: 0,
@@ -198,7 +201,7 @@ export default function StepsWizard({ states }: Props) {
 		STEP.ENTITY_TYPE,
 	);
 	const [tipoDeEmpresa, setTipoDeEmpresa] = React.useState('LLC');
-	const [estadoDeEmpresa, setEstadoDeEmpresa] = React.useState('Florida');
+	const [estadoDeEmpresa, setEstadoDeEmpresa] = React.useState(12);
 	const [nombre1, setNombre1] = React.useState('');
 	const [nombre2, setNombre2] = React.useState('');
 	const [nombre3, setNombre3] = React.useState('');
@@ -396,7 +399,7 @@ export default function StepsWizard({ states }: Props) {
 		},
 		{
 			label: 'Estado de registro',
-			value: estadoDeEmpresa,
+			value: states.find((s) => s.id === estadoDeEmpresa)?.name ?? String(estadoDeEmpresa),
 			step: STEP.STATE,
 		},
 		{
@@ -440,7 +443,7 @@ export default function StepsWizard({ states }: Props) {
 							>
 								<div
 									className={cn(
-										'relative z-10 flex w-full items-center gap-3.5 rounded-xl border p-3.5 text-left transition-all',
+										'relative flex w-full items-center gap-3.5 rounded-xl border p-3.5 text-left transition-all',
 										isActive &&
 											'border-primary-gold bg-white shadow-sm dark:bg-neutral-900',
 										isCompleted &&
@@ -627,12 +630,12 @@ export default function StepsWizard({ states }: Props) {
 					<div className="flex justify-center gap-2">
 						{POPULAR_STATES.map((estado) => (
 							<button
-								key={estado}
+								key={estado.id}
 								type="button"
-								onClick={() => setEstadoDeEmpresa(estado)}
+								onClick={() => setEstadoDeEmpresa(estado.id)}
 								className={cn(
 									'flex items-center gap-2 rounded-full border px-5 py-2 text-sm font-semibold transition-all',
-									estadoDeEmpresa === estado
+									estadoDeEmpresa === estado.id
 										? 'bg-primary-gold border-primary-gold text-white'
 										: 'border-primary-gold/30 text-primary-gold hover:bg-primary-gold/10',
 								)}
@@ -640,33 +643,37 @@ export default function StepsWizard({ states }: Props) {
 								<span
 									className={cn(
 										'h-2 w-2 rounded-full',
-										estadoDeEmpresa === estado
+										estadoDeEmpresa === estado.id
 											? 'bg-white'
 											: 'bg-primary-gold/50',
 									)}
 								/>
-								{estado}
+								{estado.name}
 							</button>
 						))}
 					</div>
 				</div>
 
 				<OrDivider label="o selecciona otro" />
-				<div className="z-10">
-					<Combobox items={states} autoHighlight>
-						<ComboboxInput placeholder="Seleccione un estado" />
-						<ComboboxContent>
-							<ComboboxEmpty>No items found.</ComboboxEmpty>
-							<ComboboxList>
-								{(item) => (
-									<ComboboxItem key={item.name} value={item.id}>
-										{item.name}
-									</ComboboxItem>
-								)}
-							</ComboboxList>
-						</ComboboxContent>
-					</Combobox>
-				</div>
+				<Combobox<States, false>
+					items={states}
+					value={states.find((s) => s.id === estadoDeEmpresa) ?? null}
+					onValueChange={(v) => setEstadoDeEmpresa(v?.id ?? 0)}
+					itemToStringLabel={(item) => item.name}
+					autoHighlight
+				>
+					<ComboboxInput placeholder="Seleccione un estado" />
+					<ComboboxContent>
+						<ComboboxEmpty>No se encontraron estados</ComboboxEmpty>
+						<ComboboxList>
+							{(item) => (
+								<ComboboxItem key={item.id} value={item}>
+									{item.name}
+								</ComboboxItem>
+							)}
+						</ComboboxList>
+					</ComboboxContent>
+				</Combobox>
 			</div>
 		</div>
 	);
@@ -929,6 +936,24 @@ export default function StepsWizard({ states }: Props) {
 
 	return (
 		<>
+			<div className="mx-auto my-8 max-w-6xl">
+				{mobileStepper}
+				<div className="grid gap-6">
+					<div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+						{stepper}
+
+						<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-black">
+							{currentStep === STEP.ENTITY_TYPE && paso1}
+							{currentStep === STEP.STATE && paso2}
+							{currentStep === STEP.COMPANY_NAME && paso3}
+							{currentStep === STEP.REVIEW && !showRegisterForm && paso4}
+							{showRegisterForm && formularioRegistro}
+						</div>
+					</div>
+					{wizardNavigation}
+				</div>
+			</div>
+
 			<Dialog open={helpDialogOpen} onOpenChange={setHelpDialogOpen}>
 				<DialogContent className="sm:max-w-2xl">
 					<DialogHeader>
@@ -976,24 +1001,6 @@ export default function StepsWizard({ states }: Props) {
 					</div>
 				</DialogContent>
 			</Dialog>
-
-			<div className="relative mx-auto my-8 max-w-6xl">
-				{mobileStepper}
-				<div className="grid gap-6">
-					<div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-						{stepper}
-
-						<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-black">
-							{currentStep === STEP.ENTITY_TYPE && paso1}
-							{currentStep === STEP.STATE && paso2}
-							{currentStep === STEP.COMPANY_NAME && paso3}
-							{currentStep === STEP.REVIEW && !showRegisterForm && paso4}
-							{showRegisterForm && formularioRegistro}
-						</div>
-					</div>
-					{wizardNavigation}
-				</div>
-			</div>
 		</>
 	);
 }

@@ -5,7 +5,6 @@ import { getUsStates } from '@modules/companies/services/get-us-states';
 
 const supabase = Astro.locals.supabase;
 const state = await getUsStates(supabase);
-console.log(state);
 ---
 
 <WhatsappBtn />
