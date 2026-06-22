@@ -348,10 +348,7 @@ export default function StepsWizard({ estados }: Props) {
 	);
 
 	const paso1 = (
-		<div
-			id="paso1"
-			className="flex h-full flex-col justify-center gap-10 py-10"
-		>
+		<div id="paso1" className="flex h-full flex-col justify-center gap-10">
 			<div className="text-center">
 				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
 					Paso 01
@@ -581,7 +578,7 @@ export default function StepsWizard({ estados }: Props) {
 				<li className="w-4/5">
 					<div className="mt-5">
 						<Card className="border-primary-gold dark:border-neutral-700">
-							<CardContent className="flex items-center justify-between p-3">
+							<CardContent className="flex items-center justify-between">
 								<div>
 									<p className="text-black-700 mt-1 text-sm dark:text-gray-400">
 										Tipo de empresa
@@ -603,7 +600,7 @@ export default function StepsWizard({ estados }: Props) {
 					</div>
 					<div className="mt-5">
 						<Card className="border-primary-gold dark:border-neutral-700">
-							<CardContent className="flex items-center justify-between p-3">
+							<CardContent className="flex items-center justify-between">
 								<div>
 									<p className="text-black-700 mt-1 text-sm dark:text-gray-400">
 										Estado en el cual se va a registrar
@@ -625,7 +622,7 @@ export default function StepsWizard({ estados }: Props) {
 					</div>
 					<div className="mt-5">
 						<Card className="border-primary-gold dark:border-neutral-700">
-							<CardContent className="flex items-center justify-between p-3">
+							<CardContent className="flex items-center justify-between">
 								<div>
 									<p className="text-black-700 mt-1 text-sm dark:text-gray-400">
 										El nombre que seleccionaste
@@ -887,7 +884,7 @@ export default function StepsWizard({ estados }: Props) {
 				<div className="my-8 grid h-full w-full items-center justify-center lg:grid-cols-2">
 					{stepper}
 
-					<div className="h-full w-full">
+					<div className="h-full w-full px-5 py-20">
 						<div className="bg-opacity-20 z-20 grid h-full w-full place-self-center rounded-lg bg-white bg-cover bg-center drop-shadow-xl dark:bg-black">
 							{currentStep === 0 && paso1}
 							{currentStep === 1 && paso2}
