@@ -6,10 +6,10 @@ import NavBarStacked from '../components/navigation/NavBarStacked.astro';
 <LayoutCommon>
 	<NavBarStacked />
 
-	<div class="fondo flex overflow-hidden bg-gray-50 bg-cover bg-center pt-16">
+	<div class="fondo flex min-h-svh flex-col bg-gray-50 bg-cover bg-center pt-16">
 		<div
 			id="main-content"
-			class="relative z-10 mx-auto h-full min-h-[calc(100svh-4rem)] w-full max-w-screen-2xl"
+			class="relative z-10 mx-auto w-full max-w-screen-2xl flex-1 overflow-y-auto"
 		>
 			<div class="px-4 pt-6 2xl:px-0">
 				<slot />

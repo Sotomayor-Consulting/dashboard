@@ -10,6 +10,7 @@ import type {
 
 interface RawCompanyRow {
 	id: string;
+	incorporation_id: string | null;
 	legal_name: string | null;
 	entity_type: string | null;
 	formation_state_id: number | null;
@@ -96,7 +97,7 @@ export async function listAdminEmpresas(
 	const { data: companies, error } = await supabase
 		.from('companies')
 		.select(
-			`id, legal_name, entity_type, formation_state_id, filing_number,
+			`id, incorporation_id, legal_name, entity_type, formation_state_id, filing_number,
 			 identification_number, incorporation_date, legal_status, tax_clasification,
 			 management_type, us_source_income, user_id, created_at, updated_at,
 			 usuarios:user_id ( user_id, nombre, apellido, correo, avatar_url )`,
@@ -127,19 +128,9 @@ export async function listAdminEmpresas(
 		}
 	}
 
-	// Resolver incorporations.company_id para tener el link al proceso
-	const { data: incorpRows } = await supabase
-		.from('incorporations')
-		.select('id, company_id')
-		.in(
-			'company_id',
-			companies.map((c: { id: string }) => c.id),
-		);
-
 	const incorpByCompany = new Map<string, string>();
-	for (const r of incorpRows ?? []) {
-		const row = r as { id: string; company_id: string };
-		incorpByCompany.set(row.company_id, row.id);
+	for (const c of companies as { id: string; incorporation_id: string | null }[]) {
+		if (c.incorporation_id) incorpByCompany.set(c.id, c.incorporation_id);
 	}
 
 	return (companies as unknown as RawCompanyRow[]).map((row) =>

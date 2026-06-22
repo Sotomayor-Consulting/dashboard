@@ -13,16 +13,7 @@ const { data: usuarios } = await supabase
 		`
     *,
     rol:roles!usuarios_rol_id_fkey ( id, nombre ),
-    estado,
-    usuarios_empresas (
-      empresa_id,
-      rol_en_empresa,
-      joined_at,
-      empresa (
-        nombre,
-        slug
-      )
-    )
+    estado
   `,
 		{ count: 'exact' },
 	)

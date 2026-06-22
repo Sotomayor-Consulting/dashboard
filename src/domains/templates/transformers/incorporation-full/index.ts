@@ -20,21 +20,22 @@ async function fetchFullData(incorporationId: string): Promise<FullData> {
 			.then((r) => (r.data ?? {}) as Record<string, unknown>),
 
 		supabaseAdmin
-			.from('workflow.planning_design_reports')
+			.schema('workflow')
+			.from('planning_design_reports')
 			.select('*')
 			.eq('incorporation_id', incorporationId)
 			.maybeSingle()
 			.then((r) => (r.data ?? null) as Record<string, unknown> | null),
 
 		supabaseAdmin
-			.from('empresa')
+			.from('companies')
 			.select('*')
-			.eq('empresa_incorporacion_id', incorporationId)
+			.eq('incorporation_id', incorporationId)
 			.maybeSingle()
 			.then((r) => (r.data ?? null) as Record<string, unknown> | null),
 	]);
 
-	const companyId = company?.empresa_id as string | undefined;
+	const companyId = company?.id as string | undefined;
 
 	let members: Record<string, unknown>[] = [];
 	if (companyId) {
@@ -160,9 +161,8 @@ export const incorporationFullTransformer: Transformer = {
 		// ── Company (empresa) fields ──
 		if (full.company) {
 			const compMap: Record<string, string> = {
-				company_legal_name: 'nombre',
-				company_slug: 'slug',
-				company_status: 'estado',
+				company_legal_name: 'legal_name',
+				company_status: 'legal_status',
 				company_entity_type: 'entity_type',
 				company_filing_number: 'filing_number',
 				company_identification_number: 'identification_number',

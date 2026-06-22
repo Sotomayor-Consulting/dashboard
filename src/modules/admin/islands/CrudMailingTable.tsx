@@ -26,7 +26,6 @@ interface MailingUser {
 	cargo?: string | null;
 	estado?: string | null;
 	pais?: Array<{ nombre_paises?: string | null }>;
-	usuarios_empresas?: Array<{ rol_en_empresa?: string | null }>;
 }
 
 interface CrudMailingTableProps {
@@ -82,7 +81,6 @@ export default function CrudMailingTable({ usuarios }: CrudMailingTableProps) {
 							<TableHead>Cargo</TableHead>
 							<TableHead>País</TableHead>
 							<TableHead>Estado</TableHead>
-							<TableHead>Rol</TableHead>
 							<TableHead>Acciones</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -132,9 +130,6 @@ export default function CrudMailingTable({ usuarios }: CrudMailingTableProps) {
 											>
 												{user.estado ?? 'inactivo'}
 											</Badge>
-										</TableCell>
-										<TableCell>
-											{user.usuarios_empresas?.[0]?.rol_en_empresa ?? '—'}
 										</TableCell>
 										<TableCell>
 											<div className="flex flex-wrap gap-2">

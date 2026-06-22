@@ -81,8 +81,17 @@ const STEPS = [
 
 const POPULAR_STATES = ['Florida', 'Wyoming'];
 
+const STEP = {
+	ENTITY_TYPE: 0,
+	STATE: 1,
+	COMPANY_NAME: 2,
+	REVIEW: 3,
+} as const;
+
 export default function StepsWizard({ estados }: Props) {
-	const [currentStep, setCurrentStep] = React.useState(0);
+	const [currentStep, setCurrentStep] = React.useState<number>(
+		STEP.ENTITY_TYPE,
+	);
 	const [tipoDeEmpresa, setTipoDeEmpresa] = React.useState('LLC');
 	const [estadoDeEmpresa, setEstadoDeEmpresa] = React.useState('Florida');
 	const [nombre1, setNombre1] = React.useState('');
@@ -128,11 +137,11 @@ export default function StepsWizard({ estados }: Props) {
 		}
 		if (status === 'auth_required') {
 			setShowRegisterForm(true);
-			setCurrentStep(3);
+			setCurrentStep(STEP.REVIEW);
 		}
 	}, []);
 
-	const salvaguardar = React.useCallback(() => {
+	const saveData = React.useCallback(() => {
 		const data = {
 			tipo_de_empresa: tipoDeEmpresa,
 			estado_de_empresa: estadoDeEmpresa,
@@ -144,54 +153,56 @@ export default function StepsWizard({ estados }: Props) {
 		localStorage.setItem('incorpData', JSON.stringify(data));
 	}, [tipoDeEmpresa, estadoDeEmpresa, nombre1, nombre2, nombre3]);
 
-	const validarNombres = React.useCallback((): string | null => {
+	const validateNames = React.useCallback((): string | null => {
 		if (!nombre1.trim()) return 'El primer nombre de empresa es obligatorio';
 		if (!nombre2.trim()) return 'El segundo nombre de empresa es obligatorio';
 		if (!nombre3.trim()) return 'El tercer nombre de empresa es obligatorio';
 		return null;
 	}, [nombre1, nombre2, nombre3]);
 
-	const irAlPaso = (paso: number) => {
+	const goToStep = (paso: number) => {
 		setCurrentStep(paso);
 		if (showRegisterForm) setShowRegisterForm(false);
 	};
 
-	const continuar = () => {
-		if (currentStep === 2) {
-			const error = validarNombres();
+	const handleNext = () => {
+		if (currentStep === STEP.COMPANY_NAME) {
+			const error = validateNames();
 			if (error) {
 				toast.error(error);
 				return;
 			}
 		}
-		setCurrentStep((prev) => Math.min(prev + 1, 3));
+		setCurrentStep((prev) => Math.min(prev + 1, STEP.REVIEW));
 	};
 
-	const retroceder = () => {
+	const handleBack = () => {
 		setCurrentStep((prev) => Math.max(prev - 1, 0));
 	};
 
 	const renderNextButton = (className?: string) => (
 		<WizardActionButton
-			onClick={currentStep === 3 ? verificar : continuar}
-			disabled={currentStep === 3 && isVerifying}
+			onClick={currentStep === STEP.REVIEW ? checkSession : handleNext}
+			disabled={currentStep === STEP.REVIEW && isVerifying}
 			className={cn(
 				'hover:bg-white-50 dark:hover:bg-neutral-950',
-				currentStep === 3 && 'disabled:opacity-50',
+				currentStep === STEP.REVIEW && 'disabled:opacity-50',
 				className,
 			)}
 		>
-			{currentStep === 3 && isVerifying ? 'Verificando...' : 'Avanzar'}
+			{currentStep === STEP.REVIEW && isVerifying
+				? 'Verificando...'
+				: 'Avanzar'}
 		</WizardActionButton>
 	);
 
-	const verificar = async () => {
-		const error = validarNombres();
+	const checkSession = async () => {
+		const error = validateNames();
 		if (error) {
 			toast.error(error);
 			return;
 		}
-		salvaguardar();
+		saveData();
 		setIsVerifying(true);
 		try {
 			const res = await fetch('/api/auth/session-check', {
@@ -211,7 +222,7 @@ export default function StepsWizard({ estados }: Props) {
 		}
 	};
 
-	const registrar: React.FormEventHandler<HTMLFormElement> = async (e) => {
+	const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (regPassword !== regConfirmPassword) {
 			toast.error('Las contraseñas no coinciden');
@@ -263,7 +274,7 @@ export default function StepsWizard({ estados }: Props) {
 	};
 
 	const stepper = (
-		<aside className="hidden w-full lg:flex lg:min-h-175 lg:flex-col">
+		<aside className="hidden md:flex lg:w-1/2 lg:flex-col">
 			<div className="mt-16">
 				<h3 className="text-black-900 text-2xl dark:text-white">
 					Inicie su empresa en EE. UU. en minutos.
@@ -288,7 +299,7 @@ export default function StepsWizard({ estados }: Props) {
 						>
 							<button
 								type="button"
-								onClick={() => irAlPaso(index)}
+								onClick={() => goToStep(index)}
 								className="flex w-full max-w-sm items-center justify-center gap-8"
 							>
 								<div
@@ -350,7 +361,7 @@ export default function StepsWizard({ estados }: Props) {
 	const paso1 = (
 		<div
 			id="paso1"
-			className="flex h-full flex-col justify-center gap-10 py-10"
+			className="flex h-full flex-col justify-center gap-10 px-6 py-8 sm:px-10 sm:py-12"
 		>
 			<div className="text-center">
 				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
@@ -429,8 +440,11 @@ export default function StepsWizard({ estados }: Props) {
 	);
 
 	const paso2 = (
-		<div id="paso2" className="flex flex-col justify-center gap-5 p-10">
-			<div className="px-10 py-10 text-center">
+		<div
+			id="paso2"
+			className="flex flex-col justify-center gap-5 px-6 py-8 sm:px-10 sm:py-12"
+		>
+			<div className="py-10 text-center">
 				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
 					Paso 02
 				</span>
@@ -490,7 +504,10 @@ export default function StepsWizard({ estados }: Props) {
 	);
 
 	const paso3 = (
-		<div id="paso3" className="flex flex-col justify-center gap-5 p-10">
+		<div
+			id="paso3"
+			className="flex flex-col justify-center gap-5 px-6 py-8 sm:px-10 sm:py-12"
+		>
 			<div className="text-center">
 				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
 					Paso 03
@@ -502,7 +519,7 @@ export default function StepsWizard({ estados }: Props) {
 					Elije los nombres que mas se adapten a tu empresa
 				</p>
 			</div>
-			<ul className="gap-2w flex w-full flex-col place-items-center">
+			<ul className="flex w-full flex-col place-items-center gap-2">
 				{[
 					{
 						label: 'Nombre de tu empresa - (opción #1)',
@@ -557,12 +574,15 @@ export default function StepsWizard({ estados }: Props) {
 		</div>
 	);
 
-	const irAEditar = (paso: number) => {
+	const editStep = (paso: number) => {
 		setCurrentStep(paso);
 	};
 
 	const paso4 = (
-		<div id="paso4" className="flex flex-col justify-center gap-5 p-10">
+		<div
+			id="paso4"
+			className="flex flex-col justify-center gap-5 px-6 py-8 sm:px-10 sm:py-12"
+		>
 			<div className="text-center">
 				<span className="bg-primary-gold/20 text-brand-gold mb-4 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-widest uppercase">
 					Paso 04
@@ -593,7 +613,7 @@ export default function StepsWizard({ estados }: Props) {
 								<Button
 									variant="ghost"
 									size="icon"
-									onClick={() => irAEditar(0)}
+									onClick={() => editStep(0)}
 									className="bg-primary-gold hover:bg-primary-gold/80 rounded-lg p-1 text-white dark:bg-neutral-900 dark:hover:bg-neutral-950"
 								>
 									<Icon icon="ri:edit-line" className="size-4" />
@@ -615,7 +635,7 @@ export default function StepsWizard({ estados }: Props) {
 								<Button
 									variant="ghost"
 									size="icon"
-									onClick={() => irAEditar(1)}
+									onClick={() => editStep(1)}
 									className="bg-primary-gold hover:bg-primary-gold/80 rounded-lg p-1 text-white dark:bg-neutral-900 dark:hover:bg-neutral-950"
 								>
 									<Icon icon="ri:edit-line" className="size-4" />
@@ -637,7 +657,7 @@ export default function StepsWizard({ estados }: Props) {
 								<Button
 									variant="ghost"
 									size="icon"
-									onClick={() => irAEditar(2)}
+									onClick={() => editStep(2)}
 									className="bg-primary-gold hover:bg-primary-gold/80 rounded-lg p-1 text-white dark:bg-neutral-900 dark:hover:bg-neutral-950"
 								>
 									<Icon icon="ri:edit-line" className="size-4" />
@@ -662,7 +682,7 @@ export default function StepsWizard({ estados }: Props) {
 				<h2 className="text-2xl font-bold text-gray-900 dark:text-white">
 					Crea tu cuenta gratuita
 				</h2>
-				<form className="mt-8 space-y-6" onSubmit={registrar}>
+				<form className="mt-8 space-y-6" onSubmit={handleRegister}>
 					<div className="grid grid-cols-2 gap-x-6 gap-y-8">
 						<div>
 							<label
@@ -777,7 +797,7 @@ export default function StepsWizard({ estados }: Props) {
 								INTERNATIONAL LLC y aceptas los{' '}
 								<a
 									href="https://sotomayorconsulting.com/inicio/politicas/"
-									className="text-[#8c681d] hover:underline dark:text-[#8c681d]"
+									className="text-primary-gold hover:underline"
 								>
 									Términos de uso y la Política de privacidad.
 								</a>
@@ -787,7 +807,7 @@ export default function StepsWizard({ estados }: Props) {
 					<button
 						type="submit"
 						disabled={isRegistering}
-						className="w-full cursor-pointer rounded-lg bg-[#967432] px-5 py-3 text-center text-base font-medium text-white hover:bg-[#8c681d] focus:ring-4 focus:ring-[#967432]/50 focus:outline-none disabled:opacity-50"
+						className="bg-primary-gold hover:bg-primary-gold/80 focus:ring-primary-gold/50 w-full cursor-pointer rounded-lg px-5 py-3 text-center text-base font-medium text-white focus:ring-4 focus:outline-none disabled:opacity-50"
 					>
 						{isRegistering ? 'Creando cuenta...' : 'Crear una cuenta'}
 					</button>
@@ -821,15 +841,19 @@ export default function StepsWizard({ estados }: Props) {
 	const wizardNavigation = !showRegisterForm && (
 		<div
 			className={cn(
-				'fixed inset-x-0 bottom-4 z-40 mx-auto w-full max-w-4xl px-4',
-				currentStep === 0 ? 'flex justify-center' : 'grid grid-cols-2 gap-2',
+				'w-full',
+				currentStep === STEP.ENTITY_TYPE
+					? 'flex justify-center'
+					: 'grid grid-cols-2 gap-2',
 			)}
 		>
-			{currentStep > 0 && (
-				<WizardActionButton onClick={retroceder}>Retroceder</WizardActionButton>
+			{currentStep > STEP.ENTITY_TYPE && (
+				<WizardActionButton onClick={handleBack}>Retroceder</WizardActionButton>
 			)}
 			{renderNextButton(
-				currentStep === 0 ? 'w-4/5 border-neutral-500 md:w-3/5' : undefined,
+				currentStep === STEP.ENTITY_TYPE
+					? 'w-4/5 border-neutral-500 md:w-3/5'
+					: undefined,
 			)}
 		</div>
 	);
@@ -883,21 +907,21 @@ export default function StepsWizard({ estados }: Props) {
 				</DialogContent>
 			</Dialog>
 
-			<div className="relative my-8 pb-24 md:pb-28">
-				<div className="my-8 grid h-full w-full items-center justify-center lg:grid-cols-2">
+			<div className="relative my-8">
+				<div className="my-8 grid items-start gap-8 lg:grid-cols-2">
 					{stepper}
 
-					<div className="h-full w-full">
-						<div className="bg-opacity-20 z-20 grid h-full w-full place-self-center rounded-lg bg-white bg-cover bg-center drop-shadow-xl dark:bg-black">
-							{currentStep === 0 && paso1}
-							{currentStep === 1 && paso2}
-							{currentStep === 2 && paso3}
-							{currentStep === 3 && !showRegisterForm && paso4}
+					<div className="flex flex-col gap-6">
+						<div className="rounded-lg bg-white bg-cover bg-center drop-shadow-xl dark:bg-black">
+							{currentStep === STEP.ENTITY_TYPE && paso1}
+							{currentStep === STEP.STATE && paso2}
+							{currentStep === STEP.COMPANY_NAME && paso3}
+							{currentStep === STEP.REVIEW && !showRegisterForm && paso4}
 							{showRegisterForm && formularioRegistro}
 						</div>
+						{wizardNavigation}
 					</div>
 				</div>
-				{wizardNavigation}
 			</div>
 		</>
 	);
