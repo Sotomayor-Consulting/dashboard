@@ -1,12 +1,13 @@
 ---
 import WhatsappBtn from '@components/display/WhatsappBtn.astro';
 import StepsWizard from './islands/StepsWizard.tsx';
-import { getStepsPageData } from './services/get-steps-page-data';
+import { getUsStates } from '@modules/companies/services/get-us-states';
 
 const supabase = Astro.locals.supabase;
-const { estados } = await getStepsPageData(supabase);
+const state = await getUsStates(supabase);
+console.log(state);
 ---
 
 <WhatsappBtn />
 
-<StepsWizard estados={estados} client:load />
+<StepsWizard states={state} client:load />

@@ -1,9 +1,11 @@
-export interface EstadosOption {
-	Estado: string;
+export interface States {
+	id: number | null;
+	name: string;
+	code: string
 }
 
 export interface StepsWizardProps {
-	estados: EstadosOption[];
+	estados: States[];
 }
 
 export interface IncorpData {

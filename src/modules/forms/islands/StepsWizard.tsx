@@ -24,18 +24,20 @@ import {
 } from '@components/ui/InputGroup';
 import { Label } from '@components/ui/Label';
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@components/ui/Select';
+	Combobox,
+	ComboboxContent,
+	ComboboxEmpty,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxList,
+} from '@components/ui/Combobox';
+
 import { cn } from '@components/utils';
 
-import type { EstadosOption } from '../types';
+import type { States } from '../types';
 
 interface Props {
-	estados: EstadosOption[];
+	states: States[];
 }
 
 const STEPS = [
@@ -191,7 +193,7 @@ function OrDivider({ label }: { label: string }) {
 	);
 }
 
-export default function StepsWizard({ estados }: Props) {
+export default function StepsWizard({ states }: Props) {
 	const [currentStep, setCurrentStep] = React.useState<number>(
 		STEP.ENTITY_TYPE,
 	);
@@ -650,22 +652,21 @@ export default function StepsWizard({ estados }: Props) {
 				</div>
 
 				<OrDivider label="o selecciona otro" />
-
-				<Select
-					value={estadoDeEmpresa}
-					onValueChange={(v) => setEstadoDeEmpresa(v ?? '')}
-				>
-					<SelectTrigger className="w-full border-gray-200 bg-white p-5 text-gray-700 dark:border-neutral-800 dark:bg-neutral-950 dark:text-gray-300">
-						<SelectValue placeholder="Selecciona un estado" />
-					</SelectTrigger>
-					<SelectContent>
-						{estados.map((es) => (
-							<SelectItem key={es.Estado} value={es.Estado}>
-								{es.Estado}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				<div className="z-10">
+					<Combobox items={states} autoHighlight>
+						<ComboboxInput placeholder="Seleccione un estado" />
+						<ComboboxContent>
+							<ComboboxEmpty>No items found.</ComboboxEmpty>
+							<ComboboxList>
+								{(item) => (
+									<ComboboxItem key={item.name} value={item.id}>
+										{item.name}
+									</ComboboxItem>
+								)}
+							</ComboboxList>
+						</ComboboxContent>
+					</Combobox>
+				</div>
 			</div>
 		</div>
 	);
@@ -982,7 +983,7 @@ export default function StepsWizard({ estados }: Props) {
 					<div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
 						{stepper}
 
-						<div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-black">
+						<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-black">
 							{currentStep === STEP.ENTITY_TYPE && paso1}
 							{currentStep === STEP.STATE && paso2}
 							{currentStep === STEP.COMPANY_NAME && paso3}
