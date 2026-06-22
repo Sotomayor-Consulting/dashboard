@@ -203,16 +203,20 @@ export async function listAdminCompanies(
 		.map((e: { id: string }) => e.id)
 		.filter(Boolean);
 
-	const [{ data: pagosRows }, { data: docsRows }, { data: workflowsRows }] =
+	const [{ data: pagosRows }, { data: sigLinkRows }, { data: workflowsRows }] =
 		await Promise.all([
 			supabase
 				.from('pagos')
 				.select('empresa_incorporacion_id, status')
 				.in('empresa_incorporacion_id', ids),
-			supabase
-				.from('documentos_por_firmar')
-				.select('empresa_incorporacion_id')
-				.in('empresa_incorporacion_id', ids),
+			// Documentos por firmar → documents.document_links (signature).
+			supabaseAdmin
+				.schema('documents')
+				.from('document_links')
+				.select('document_id, related_to_id')
+				.eq('related_to_type', 'incorporation_case')
+				.eq('relation_purpose', 'signature')
+				.in('related_to_id', ids),
 			supabase
 				.from('incorporation_workflow')
 				.select('id, current_stage')
@@ -227,13 +231,33 @@ export async function listAdminCompanies(
 		pagosByEmpresa.set(row.empresa_incorporacion_id, arr);
 	}
 
+	// Pendientes de firma por caso: links 'signature' cuyo documento sigue
+	// en status 'pending' (no firmado aún).
 	const docsCount = new Map<string, number>();
-	for (const d of docsRows ?? []) {
-		const row = d as { empresa_incorporacion_id: string };
-		docsCount.set(
-			row.empresa_incorporacion_id,
-			(docsCount.get(row.empresa_incorporacion_id) ?? 0) + 1,
-		);
+	const sigLinks = (sigLinkRows ?? []) as {
+		document_id: string;
+		related_to_id: string;
+	}[];
+	if (sigLinks.length > 0) {
+		const { data: pendingDocs } = await supabaseAdmin
+			.schema('documents')
+			.from('documents')
+			.select('id')
+			.in(
+				'id',
+				sigLinks.map((l) => l.document_id),
+			)
+			.eq('status', 'pending')
+			.is('deleted_at', null);
+		const pendingIds = new Set((pendingDocs ?? []).map((d) => d.id as string));
+		for (const l of sigLinks) {
+			if (pendingIds.has(l.document_id)) {
+				docsCount.set(
+					l.related_to_id,
+					(docsCount.get(l.related_to_id) ?? 0) + 1,
+				);
+			}
+		}
 	}
 
 	const workflowByInc = new Map<string, string | null>();
@@ -425,7 +449,7 @@ export async function getAdminCompanyDetail(
 	const base = all.find((c) => c.id === empresaId);
 	if (!base) return null;
 
-	const [{ data: pagosRows }, { data: docsRows }] = await Promise.all([
+	const [{ data: pagosRows }, { data: sigLinkRows }] = await Promise.all([
 		supabase
 			.from('pagos')
 			.select(
@@ -433,11 +457,14 @@ export async function getAdminCompanyDetail(
 			)
 			.eq('empresa_incorporacion_id', empresaId)
 			.order('created_at', { ascending: false }),
-		supabase
-			.from('documentos_por_firmar')
-			.select('*')
-			.eq('empresa_incorporacion_id', empresaId)
-			.limit(50),
+		// Documentos por firmar → documents.document_links (signature).
+		supabaseAdmin
+			.schema('documents')
+			.from('document_links')
+			.select('document_id')
+			.eq('related_to_type', 'incorporation_case')
+			.eq('relation_purpose', 'signature')
+			.eq('related_to_id', empresaId),
 	]);
 
 	const payments: AdminCompanyPayment[] = (pagosRows ?? []).map((p) => {
@@ -472,22 +499,36 @@ export async function getAdminCompanyDetail(
 		};
 	});
 
-	const documents: AdminCompanyDocument[] = (docsRows ?? []).map((d) => {
+	const sigDocIds = (sigLinkRows ?? []).map(
+		(l) => (l as { document_id: string }).document_id,
+	);
+	let docRows: Array<Record<string, unknown>> = [];
+	if (sigDocIds.length > 0) {
+		const { data } = await supabaseAdmin
+			.schema('documents')
+			.from('documents')
+			.select('id, file_name, file_title, status, created_at')
+			.in('id', sigDocIds)
+			.is('deleted_at', null)
+			.limit(50);
+		docRows = (data ?? []) as Array<Record<string, unknown>>;
+	}
+
+	const documents: AdminCompanyDocument[] = docRows.map((d) => {
 		const row = d as {
-			id?: string;
-			documento_id?: string;
-			nombre_documento?: string;
-			nombre?: string;
-			estado?: string | null;
-			created_at?: string | null;
+			id: string;
+			file_name: string | null;
+			file_title: string | null;
+			status: string | null;
+			created_at: string | null;
 		};
 		return {
-			id: String(row.id ?? row.documento_id ?? crypto.randomUUID()),
-			name: row.nombre_documento ?? row.nombre ?? 'Documento',
+			id: row.id,
+			name: row.file_title ?? row.file_name ?? 'Documento',
 			status:
-				row.estado === 'recibido' || row.estado === 'received'
+				row.status === 'uploaded' || row.status === 'approved'
 					? 'received'
-					: row.estado === 'rechazado'
+					: row.status === 'rejected'
 						? 'rejected'
 						: 'pending',
 			uploadedAt: row.created_at ?? null,

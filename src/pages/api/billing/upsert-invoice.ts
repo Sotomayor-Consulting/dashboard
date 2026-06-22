@@ -84,7 +84,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		row['personería'] = (persona || '').toLowerCase(); // "natural" | "juridica"
 
 		const { data, error } = await supabaseAdmin
-			.from('facturacion')
+			.from('datos_facturacion')
 			.insert([row])
 			.select('id')
 			.single();

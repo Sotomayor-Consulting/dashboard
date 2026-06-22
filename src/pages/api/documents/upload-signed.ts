@@ -3,6 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('documents.upload-signed');
@@ -73,17 +74,44 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			return redirectWithStatus('error', 'Error al subir el archivo');
 		}
 
-		const { data: updatedRows, error: updateErr } = await supabase
-			.from('documentos_por_firmar')
+		// Protección IDOR: como escribimos en el schema `documents` con admin
+		// (ignora RLS), verificamos manualmente que el caso sea del usuario.
+		const { data: caseRow, error: caseErr } = await supabaseAdmin
+			.from('incorporations')
+			.select('user_id')
+			.eq('id', empresaId)
+			.maybeSingle();
+
+		if (caseErr || !caseRow || caseRow.user_id !== currentUserId) {
+			log.error('Caso inexistente o ajeno al usuario', {
+				empresaId,
+				currentUserId,
+			});
+			return redirectWithStatus(
+				'error',
+				'No autorizado para firmar este documento',
+			);
+		}
+
+		// El documento "por firmar" pasa de status 'pending' a 'uploaded'
+		// (firmado) y se actualiza al archivo subido.
+		const { data: updatedRows, error: updateErr } = await supabaseAdmin
+			.schema('documents')
+			.from('documents')
 			.update({
-				status: 'Firmado',
-				storage_path: filePath,
+				status: 'uploaded',
+				bucket_storage: BUCKET_NAME,
+				bucket_path: filePath,
+				file_name: safeFileName,
+				file_title: safeFileName,
+				file_size_bytes: file.size,
+				mime_type: file.type || null,
+				updated_by: currentUserId,
 				updated_at: new Date().toISOString(),
 			})
-			.select('id')
 			.eq('id', fileId)
-			.eq('user_id', currentUserId)
-			.eq('empresa_incorporacion_id', empresaId);
+			.eq('case_id', empresaId)
+			.select('id');
 
 		if (updateErr) {
 			log.error('Error al actualizar BD', { error: updateErr });
