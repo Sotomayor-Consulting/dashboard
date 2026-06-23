@@ -180,6 +180,69 @@ export function buildBusinessEmailTemplate(
 		};
 	}
 
+	if (payload.eventKey === 'payment.succeeded') {
+		const serviceName = payload.serviceName?.trim() || 'su servicio contratado';
+		const intro = `Le confirmamos que hemos recibido correctamente el pago relacionado con ${context.companyName}.`;
+		const highlightLabel = 'Pago confirmado';
+		const highlightValue = serviceName;
+		const details =
+			'Su pago fue registrado exitosamente y continuaremos con las siguientes etapas de su proceso.';
+		const ctaNote = 'Puede revisar el avance actualizado desde el siguiente acceso.';
+		const ctaLabel = 'Ver avance';
+		return {
+			subject: 'Pago confirmado de su proceso',
+			title,
+			intro,
+			highlightLabel,
+			highlightValue,
+			details,
+			ctaNote,
+			ctaLabel,
+			ctaUrl,
+			text: buildCommonText({
+				title,
+				intro,
+				highlightLabel,
+				highlightValue,
+				details,
+				ctaNote,
+				ctaLabel,
+				ctaUrl,
+			}),
+		};
+	}
+
+	if (payload.eventKey === 'form.submitted') {
+		const intro = `Le confirmamos que hemos recibido correctamente el formulario de ${context.companyName}.`;
+		const highlightLabel = 'Formulario enviado';
+		const highlightValue = 'La información fue recibida correctamente';
+		const details =
+			'Nuestro equipo revisará la información enviada y continuará con el siguiente paso del proceso.';
+		const ctaNote = 'Puede consultar el estado actualizado desde el siguiente acceso.';
+		const ctaLabel = 'Ver solicitud';
+		return {
+			subject: 'Hemos recibido su formulario',
+			title,
+			intro,
+			highlightLabel,
+			highlightValue,
+			details,
+			ctaNote,
+			ctaLabel,
+			ctaUrl,
+			text: buildCommonText({
+				title,
+				intro,
+				highlightLabel,
+				highlightValue,
+				details,
+				ctaNote,
+				ctaLabel,
+				ctaUrl,
+			}),
+		};
+	}
+
 	const intro = `Le informamos que su solicitud para ${context.companyName} ha sido validada por nuestro equipo.`;
 	const highlightLabel = 'Solicitud validada';
 	const highlightValue = context.companyName;

@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
+import { sendPaymentSucceededEmailByPaymentIntent } from '@infrastructure/email/bussiness-events';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { createLogger } from '@infrastructure/logging';
 
@@ -116,6 +117,17 @@ export const POST: APIRoute = async ({ request }) => {
 				// Permanente: ack 200 para no entrar en loop de reintentos
 			} else {
 				log.info('pago registrado', { data });
+				await sendPaymentSucceededEmailByPaymentIntent(paymentIntentId).catch(
+					(emailError: unknown) => {
+						log.error('payment email failed', {
+							paymentIntentId,
+							error:
+								emailError instanceof Error
+									? emailError.message
+									: String(emailError),
+						});
+					},
+				);
 			}
 		}
 

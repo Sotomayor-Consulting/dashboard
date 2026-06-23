@@ -3,7 +3,9 @@ export type BusinessEmailEventKey =
 	| 'documents.requested'
 	| 'documents.shared'
 	| 'incorporation.submitted'
-	| 'incorporation.validated';
+	| 'incorporation.validated'
+	| 'payment.succeeded'
+	| 'form.submitted';
 
 export type BusinessEmailRecipientRole = 'client' | 'operations';
 
@@ -30,6 +32,7 @@ export interface BusinessEmailPayload {
 	message?: string | null;
 	dueDate?: string | null;
 	clientEmailOverride?: string | null;
+	serviceName?: string | null;
 }
 
 export interface BusinessEmailTemplateData {

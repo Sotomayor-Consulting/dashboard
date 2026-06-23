@@ -279,3 +279,81 @@ export async function sendIncorporationValidatedEmail(input: {
 		),
 	);
 }
+
+export async function sendPaymentSucceededEmail(input: {
+	caseId: string;
+	actionUrl?: string | null;
+	serviceName?: string | null;
+	clientEmailOverride?: string | null;
+}): Promise<SendBusinessEmailResult> {
+	return deliverBusinessEmail(
+		withNullableField(
+			withNullableField(
+				withNullableField({
+					eventKey: 'payment.succeeded',
+					caseId: input.caseId,
+				}, 'actionUrl', input.actionUrl),
+				'serviceName',
+				input.serviceName,
+			),
+			'clientEmailOverride',
+			input.clientEmailOverride,
+		),
+	);
+}
+
+export async function sendPaymentSucceededEmailByPaymentIntent(
+	paymentIntentId: string,
+): Promise<SendBusinessEmailResult> {
+	const { data, error } = await supabaseAdmin
+		.from('pagos')
+		.select('empresa_incorporacion_id, servicios:servicio_id(nombre)')
+		.eq('stripe_payment_intent_id', paymentIntentId)
+		.order('created_at', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+
+	if (error || !data?.empresa_incorporacion_id) {
+		return {
+			eventKey: 'payment.succeeded',
+			totalRecipients: 0,
+			totalSent: 0,
+			totalFailed: 0,
+			debug: {
+				resolvedRecipients: [],
+				failures: [
+					{
+						userId: '',
+						email: '',
+						role: 'client',
+						error: error?.message ?? 'PAYMENT_OR_CASE_NOT_FOUND',
+					},
+				],
+			},
+		};
+	}
+
+	return sendPaymentSucceededEmail({
+		caseId: data.empresa_incorporacion_id as string,
+		actionUrl: `/my-companies/${data.empresa_incorporacion_id}/dashboard`,
+		serviceName:
+			(data.servicios as { nombre?: string | null } | null)?.nombre ?? null,
+	});
+}
+
+export async function sendFormSubmittedEmail(input: {
+	caseId: string;
+	actionUrl?: string | null;
+	clientEmailOverride?: string | null;
+}): Promise<SendBusinessEmailResult> {
+	return deliverBusinessEmail(
+		withNullableField(
+			withNullableField({
+				eventKey: 'form.submitted',
+				caseId: input.caseId,
+			}, 'actionUrl', input.actionUrl),
+			'clientEmailOverride',
+			input.clientEmailOverride,
+		),
+	);
+}

@@ -1,6 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
+import { sendFormSubmittedEmail } from '@infrastructure/email/bussiness-events';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { json } from '@shared/api/company-data';
@@ -386,6 +387,16 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		incorporationId,
 		collectFilePaths(finalPayload),
 	);
+
+	await sendFormSubmittedEmail({
+		caseId: incorporationId,
+		actionUrl: `/incorporations/${incorporationId}`,
+	}).catch((error: unknown) => {
+		log.error('form submitted email failed', {
+			incorporationId,
+			error: error instanceof Error ? error.message : String(error),
+		});
+	});
 
 	return json(200, {
 		ok: true,
