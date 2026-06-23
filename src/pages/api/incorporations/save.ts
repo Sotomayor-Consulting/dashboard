@@ -6,9 +6,29 @@ import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/';
 
+const json = (status: number, payload: unknown) =>
+	new Response(JSON.stringify(payload), {
+		status,
+		headers: { 'Content-Type': 'application/json' },
+	});
+
+const isJsonRequest = (request: Request) =>
+	(request.headers.get('accept') ?? '').includes('application/json');
+
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	try {
 		const back = safeBack(url.searchParams.get('back'), BACK_PATH);
+		const wantsJson = isJsonRequest(request);
+		const respond = (status: number, message: string) => {
+			if (wantsJson) {
+				return json(status, { ok: status < 400, message });
+			}
+
+			const kind = status < 400 ? 'success' : 'error';
+			return redirect(
+				`${back}?status=${kind}&msg=${encodeURIComponent(message)}`,
+			);
+		};
 
 		// 1) Cliente Supabase SSR
 		const supabase = createSupabaseServerClient({
@@ -22,9 +42,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			error: uerr,
 		} = await supabase.auth.getUser();
 		if (uerr || !actor) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
-			);
+			return respond(401, 'No autenticado');
 		}
 
 		// 3) Form data
@@ -38,14 +56,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 		// 4) Validaciones - CORREGIDAS
 		if (!tipo_de_empresa) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('El tipo de empresa es obligatorio')}`,
-			);
+			return respond(400, 'El tipo de empresa es obligatorio');
 		}
 		if (!estado_de_empresa) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('El estado de incorporación es obligatorio')}`,
-			);
+			return respond(400, 'El estado de incorporación es obligatorio');
 		}
 
 		// Validar que al menos un nombre no esté vacío - CORREGIDO
@@ -54,9 +68,30 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			(nombre) => nombre && nombre.trim() !== '',
 		);
 		if (!alMenosUnNombre) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('Al menos un nombre de empresa es obligatorio')}`,
-			);
+			return respond(400, 'Al menos un nombre de empresa es obligatorio');
+		}
+
+		let formationStateId: number | null = null;
+		const normalizedState = estado_de_empresa.trim();
+		const parsedStateId = Number(normalizedState);
+		if (Number.isInteger(parsedStateId) && parsedStateId > 0) {
+			formationStateId = parsedStateId;
+		} else {
+			const { data: stateRow, error: stateError } = await supabase
+				.from('states')
+				.select('id')
+				.eq('name', normalizedState)
+				.maybeSingle<{ id: number }>();
+
+			if (stateError) {
+				return respond(500, `DB: ${stateError.message}`);
+			}
+
+			if (!stateRow) {
+				return respond(400, 'El estado de incorporación seleccionado no existe');
+			}
+
+			formationStateId = stateRow.id;
 		}
 
 		// 5) Insert
@@ -68,23 +103,23 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 				possible_names: [
 					...new Set(nombres.map((n) => n.trim()).filter(Boolean)),
 				],
-				state: estado_de,
+				formation_state_id: formationStateId,
+				state: estado_de?.trim() || 'En proceso',
 				porcentaje_de_incorporacion: 1,
 			},
 		]);
 
 		if (error) {
-			return redirect(
-				`${back}?status=error&msg=${encodeURIComponent('DB: ' + error.message)}`,
-			);
+			return respond(500, `DB: ${error.message}`);
 		}
 
 		// 6) OK
-		return redirect(
-			`${back}?status=success&msg=${encodeURIComponent('Empresa registrada')}`,
-		);
+		return respond(200, 'Empresa registrada');
 	} catch (e: any) {
 		const msg = typeof e?.message === 'string' ? e.message : 'Error inesperado';
+		if (isJsonRequest(request)) {
+			return json(500, { ok: false, message: msg });
+		}
 		return redirect(`${BACK_PATH}?status=error&msg=${encodeURIComponent(msg)}`);
 	}
 };
