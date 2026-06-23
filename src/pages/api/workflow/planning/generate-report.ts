@@ -88,7 +88,10 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 		if (error instanceof DocumentsError) {
 			return json(error.status, { ok: false, error: error.message });
 		}
-		log.error('Unexpected error', { error });
+		log.error('Unexpected error', {
+			message: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+		});
 		return json(500, { ok: false, error: 'UNEXPECTED_ERROR' });
 	}
 };

@@ -12,6 +12,10 @@ import {
 	uploadPlanningDocument,
 	type UploadPlanningDocumentResult,
 } from './planning-meeting-upload';
+import {
+	deriveTaxClassification,
+	TAX_CLASSIFICATION_LABEL,
+} from './tax-classification';
 
 /** Plantilla Carbone del informe de planificación y diseño. */
 export const PLANNING_REPORT_TEMPLATE = 'planning-design.docx';
@@ -170,32 +174,75 @@ const ACCOUNTING_LABEL: Record<AccountingMethod, string> = {
 	accrual: 'Devengado (accrual)',
 };
 
+/** Datos resueltos desde otras tablas para inyectar en la plantilla. */
+export interface ReportTemplateExtras {
+	/** Nombre de la empresa (incorporations.principal_name). */
+	companyName?: string | null;
+	/** Nombre del contacto/cliente dueño de la incorporación. */
+	contactName?: string | null;
+	/** Nombre del estado de incorporación (states.name desde report.state_id). */
+	stateName?: string | null;
+	/** Código NAICS/IRS de la actividad (activity.irs_code desde activity_id). */
+	activityCode?: string | null;
+	/** Nombre legible de la actividad (activity.name_es). */
+	activityName?: string | null;
+}
+
 /**
- * Construye el payload plano para la plantilla Carbone. La plantilla `.docx`
- * se entrega al final; estos campos son los marcadores `{d.*}` esperados.
+ * Construye el payload plano para la plantilla Carbone `planning-design.docx`.
+ * Las claves coinciden 1:1 con los marcadores `{d.*}` de esa plantilla.
+ *
+ * Nota: `state_fee` y `fee_cycle` aún no tienen fuente de datos (no existe
+ * tabla de franchise fees por estado) — se emiten vacíos por ahora.
  */
 export const buildTemplateData = (
 	report: PlanningDesignReport,
-	extras: { companyName?: string | null; stateName?: string | null; activityName?: string | null } = {},
-): Record<string, unknown> => ({
-	company_name: extras.companyName ?? '',
-	state: extras.stateName ?? '',
-	activity: extras.activityName ?? '',
-	confidentiality: report.confidentiality ? 'Sí' : 'No',
-	administration_form: report.administration_form
-		? ADMIN_FORM_LABEL[report.administration_form]
-		: '',
-	tax_tributation: report.tax_tributation ? TAX_LABEL[report.tax_tributation] : '',
-	accounting_method: report.accounting_method
-		? ACCOUNTING_LABEL[report.accounting_method]
-		: '',
-	members_number: report.members_number ?? '',
-	income_us: report.income_us ? 'Sí' : 'No',
-	designated_manager: report.designated_manager ?? '',
-	company_description: report.company_description ?? '',
-	meeting_resume: report.meeting_resume ?? '',
-	generated_at: new Date().toLocaleDateString('es-EC'),
-});
+	extras: ReportTemplateExtras = {},
+): Record<string, unknown> => {
+	// Clasificación fiscal IRS: pass_through + 1 socio ⇒ disregarded entity,
+	// + 2 socios ⇒ partnership, corporación ⇒ corporation.
+	const classification = deriveTaxClassification(
+		report.tax_tributation,
+		report.members_number,
+	);
+	const taxBase = report.tax_tributation
+		? TAX_LABEL[report.tax_tributation]
+		: '';
+	// Combina sistema tributario + clasificación IRS en un solo texto, p.ej.
+	// "Entidad de paso (Disregarded entity)".
+	const taxactionType = classification
+		? `${taxBase} (${TAX_CLASSIFICATION_LABEL[classification]})`
+		: taxBase;
+
+	return {
+		client_name: extras.companyName ?? '',
+		contact_name: extras.contactName ?? '',
+		created_date: new Date().toLocaleDateString('es-EC'),
+		pd_meeting_resume: report.meeting_resume ?? '',
+		state: extras.stateName ?? '',
+		privacy: report.confidentiality ? 'Sí' : 'No',
+		administration_form: report.administration_form
+			? ADMIN_FORM_LABEL[report.administration_form]
+			: '',
+		total_members: report.members_number ?? '',
+		taxaction_type: taxactionType,
+		accounting_method: report.accounting_method
+			? ACCOUNTING_LABEL[report.accounting_method]
+			: '',
+		activity_code: extras.activityCode ?? '',
+		description: extras.activityName || report.company_description || '',
+		// Sin fuente de datos todavía (franchise fee por estado):
+		state_fee: '',
+		fee_cycle: '',
+		// Claves extra disponibles por si se agregan marcadores a la plantilla:
+		tax_classification: classification
+			? TAX_CLASSIFICATION_LABEL[classification]
+			: '',
+		company_description: report.company_description ?? '',
+		income_us: report.income_us ? 'Sí' : 'No',
+		designated_manager: report.designated_manager ?? '',
+	};
+};
 
 /**
  * Genera el PDF del informe desde la plantilla con los datos guardados y lo
@@ -217,18 +264,62 @@ export const generateAndUploadReport = async (
 
 	const { data: empresa } = await supabaseAdmin
 		.from('incorporations')
-		.select('principal_name')
+		.select('principal_name, usuarios:user_id ( nombre, apellido )')
 		.eq('id', incorporationId)
 		.maybeSingle();
 
-	const companyName =
-		(empresa as { principal_name?: string | null } | null)?.principal_name ??
-		'Empresa';
+	const empresaRow = empresa as {
+		principal_name?: string | null;
+		usuarios?:
+			| { nombre?: string | null; apellido?: string | null }
+			| { nombre?: string | null; apellido?: string | null }[]
+			| null;
+	} | null;
+
+	const companyName = empresaRow?.principal_name ?? 'Empresa';
+
+	// El embed puede venir como objeto (to-one) o array según supabase-js.
+	const usuario = Array.isArray(empresaRow?.usuarios)
+		? empresaRow?.usuarios[0]
+		: empresaRow?.usuarios;
+	const contactName = usuario
+		? `${usuario.nombre ?? ''} ${usuario.apellido ?? ''}`.trim()
+		: '';
+
+	// Nombre del estado de incorporación (report.state_id → states).
+	let stateName = '';
+	if (report.state_id != null) {
+		const { data: st } = await supabaseAdmin
+			.from('states')
+			.select('name')
+			.eq('id', report.state_id)
+			.maybeSingle();
+		stateName = (st as { name?: string | null } | null)?.name ?? '';
+	}
+
+	// Código NAICS/IRS y nombre de la actividad (report.activity_id → activity).
+	let activityCode = '';
+	let activityName = '';
+	if (report.activity_id != null) {
+		const { data: act } = await supabaseAdmin
+			.from('activity')
+			.select('irs_code, name_es')
+			.eq('id', report.activity_id)
+			.maybeSingle();
+		const actRow = act as {
+			irs_code?: string | null;
+			name_es?: string | null;
+		} | null;
+		activityCode = actRow?.irs_code ?? '';
+		activityName = actRow?.name_es ?? '';
+	}
 
 	const data = buildTemplateData(report, {
 		companyName,
-		stateName:
-			null, // estado_eeuu eliminada de incorporations (degradado)
+		contactName,
+		stateName,
+		activityCode,
+		activityName,
 	});
 
 	const safeName = companyName.replace(/[^\w\d-]+/g, '_').slice(0, 60);
