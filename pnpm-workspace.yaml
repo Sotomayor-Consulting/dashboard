@@ -3,7 +3,8 @@ allowBuilds:
   msw: true
   sharp: true
 minimumReleaseAgeExclude:
-  - astro@6.4.7
+  - astro
+  - '@astrojs/markdown-satteri@0.3.2'
 onlyBuiltDependencies:
   - esbuild
   - puppeteer

@@ -15,7 +15,9 @@ import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import MeetingScheduledOps from './components/MeetingScheduledOps.astro';
 import PlanningReportWizard, {
 	type InitialReport,
+	type ActivityOption,
 } from './islands/PlanningReportWizard.tsx';
+import { actividadesGeneral } from '@domains/utils/generals/activities';
 
 const { currentStage, empresaId } = Astro.props as OpsStageProps;
 const supabase = Astro.locals.supabase;
@@ -56,7 +58,7 @@ const substate: PlanningMeetingSubstate = context.substate;
 
 // ─── Datos para el wizard (solo cuando Ops debe llenar el informe) ──────
 let wizardStates: { id: number; name: string }[] = [];
-let activityName: string | null = null;
+let wizardActivities: ActivityOption[] = [];
 let wizardInitial: InitialReport | null = null;
 let hasSavedReport = false;
 
@@ -67,7 +69,7 @@ if (showWizard) {
 	const report = await getReportByIncorporation(supabase, empresaId);
 	hasSavedReport = !!report;
 
-	const [{ data: estados }, { data: empresa }] = await Promise.all([
+	const [{ data: estados }, { data: empresa }, activitiesRaw] = await Promise.all([
 		supabaseAdmin
 			.from('states')
 			.select('id, name')
@@ -78,6 +80,7 @@ if (showWizard) {
 			.select('formation_state_id')
 			.eq('id', empresaId)
 			.maybeSingle(),
+		actividadesGeneral(supabaseAdmin),
 	]);
 
 	wizardStates = (estados ?? []).map((e: { id: number; name: string }) => ({
@@ -85,16 +88,12 @@ if (showWizard) {
 		name: e.name,
 	}));
 
-	// activity_id eliminada de incorporations → solo desde el report (degradado).
-	const activityId = report?.activity_id ?? null;
-	if (activityId) {
-		const { data: act } = await supabaseAdmin
-			.from('activity')
-			.select('name_es')
-			.eq('id', activityId)
-			.maybeSingle();
-		activityName = (act as { name_es?: string | null } | null)?.name_es ?? null;
-	}
+	wizardActivities = (activitiesRaw ?? []).map((a: any) => ({
+		id: String(a.id),
+		irs_code: a.irs_code ?? '',
+		name_es: a.name_es ?? '',
+		name_en: a.name_en ?? '',
+	}));
 
 	// Prefill: estado por nombre si aún no hay state_id guardado
 	const prefillStateId =
@@ -102,7 +101,7 @@ if (showWizard) {
 
 	wizardInitial = {
 		stateId: prefillStateId,
-		activityId,
+		activityId: report?.activity_id ?? null,
 		confidentiality: report?.confidentiality ?? null,
 		administrationForm: report?.administration_form ?? null,
 		taxTributation: report?.tax_tributation ?? null,
@@ -152,7 +151,7 @@ if (showWizard) {
 					client:load
 					incorporationId={empresaId}
 					states={wizardStates}
-					activityName={activityName}
+					activities={wizardActivities}
 					initial={wizardInitial}
 					hasSavedReport={hasSavedReport}
 				/>
