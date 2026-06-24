@@ -1,17 +1,20 @@
 // Entrypoint de producción — carga secretos de Vault antes de arrancar Astro
-// Reemplaza `node server.mjs` por `node server-wrapper.mjs` en el Dockerfile CMD
+// Soporta dos modos de auth:
+//   - Dev:        VAULT_ENDPOINT + VAULT_TOKEN
+//   - Producción: VAULT_ENDPOINT + VAULT_ROLE_ID + VAULT_SECRET_ID (AppRole)
 
 const VAULT_ENDPOINT = process.env.VAULT_ENDPOINT;
-const VAULT_TOKEN = process.env.VAULT_TOKEN;
+const hasToken = !!process.env.VAULT_TOKEN;
+const hasAppRole = !!(process.env.VAULT_ROLE_ID && process.env.VAULT_SECRET_ID);
 
-if (VAULT_ENDPOINT && VAULT_TOKEN) {
+if (VAULT_ENDPOINT && (hasToken || hasAppRole)) {
 	const { loadSecretsIntoEnv } = await import(
 		'./src/lib/infrastructure/vault/secrets-loader.ts'
 	);
 	await loadSecretsIntoEnv();
 } else {
 	console.warn(
-		'[vault] VAULT_ENDPOINT o VAULT_TOKEN no definidos — arrancando sin Vault (modo local)',
+		'[vault] Credenciales de Vault no definidas — arrancando sin Vault (modo local)',
 	);
 }
 

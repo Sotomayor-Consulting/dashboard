@@ -12,6 +12,6 @@ import { spawn } from 'child_process';
 
 await loadSecretsIntoEnv();
 
-const dev = spawn('pnpm', ['dev'], { stdio: 'inherit', shell: true });
+const dev = spawn('pnpm astro dev --host', { stdio: 'inherit', shell: true });
 
 dev.on('exit', (code) => process.exit(code ?? 0));

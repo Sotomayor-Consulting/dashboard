@@ -74,4 +74,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 
 # dumb-init maneja señales correctamente (SIGTERM, etc.)
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "server-wrapper.mjs"]
+CMD ["node", "--experimental-strip-types", "server-wrapper.mjs"]
