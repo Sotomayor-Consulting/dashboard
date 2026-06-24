@@ -85,7 +85,7 @@ const modalId = `actionModal${suffix}`;
 
 <script is:inline define:vars={{ triggerId, closeId, modalId }}>
 	// @ts-nocheck
-	document.addEventListener('DOMContentLoaded', function () {
+	function initActionModal() {
 		const openButton = document.getElementById(triggerId);
 		const closeButton = document.getElementById(closeId);
 		const modal = document.getElementById(modalId);
@@ -115,5 +115,7 @@ const modalId = `actionModal${suffix}`;
 				modal.classList.add('hidden');
 			}
 		});
-	});
+	}
+	document.addEventListener('DOMContentLoaded', initActionModal);
+	document.addEventListener('astro:page-load', initActionModal);
 </script>

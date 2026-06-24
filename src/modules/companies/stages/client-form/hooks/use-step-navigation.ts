@@ -16,7 +16,11 @@ export interface UseStepNavigationApi {
 const MAX_STEP = STEPS.length as StepId;
 
 const scrollToTop = () => {
-	if (typeof window !== 'undefined') {
+	if (typeof window === 'undefined') return;
+	const scroller = document.querySelector('.cf-scroll');
+	if (scroller) {
+		scroller.scrollTo({ top: 0, behavior: 'smooth' });
+	} else {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
 };

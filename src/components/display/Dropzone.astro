@@ -240,7 +240,7 @@ const {
 			src="https://cdn.jsdelivr.net/npm/lodash@4.17.23/lodash.min.js"></script>
 
 		<script is:inline>
-			document.addEventListener('DOMContentLoaded', function () {
+			function initDropzoneUpload() {
 				if (typeof Dropzone === 'undefined') {
 					console.error('Dropzone no está definido.');
 					return;
@@ -444,7 +444,9 @@ const {
 						alert('Hubo un error al subir el archivo. Intenta de nuevo.');
 					});
 				});
-			});
+			}
+			document.addEventListener('DOMContentLoaded', initDropzoneUpload);
+			document.addEventListener('astro:page-load', initDropzoneUpload);
 		</script>
 	</div>
 </div>

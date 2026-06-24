@@ -8,6 +8,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { createLogger } from '@infrastructure/logging';
+import { INCORPORATION_FORM_VERSION } from '@modules/companies/stages/client-form/payload';
 
 const log = createLogger('domains.incorporation-forms');
 
@@ -168,6 +169,7 @@ export async function saveIncorporationFormDraft(
 			payload,
 			progress_percent: progressPercent,
 			current_step: currentStep,
+			form_version: INCORPORATION_FORM_VERSION,
 			status: 'draft',
 		})
 		.select('updated_at')
@@ -243,6 +245,7 @@ export async function submitIncorporationForm(
 		user_id: userId,
 		payload,
 		progress_percent: progressPercent,
+		form_version: INCORPORATION_FORM_VERSION,
 		status: 'submitted',
 		submitted_at: now,
 	});

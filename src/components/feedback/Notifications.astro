@@ -91,7 +91,7 @@ const notificaciones = userId
 	</div>
 </div>
 <script is:inline>
-	document.addEventListener('DOMContentLoaded', () => {
+	function initNotificationButtons() {
 		// Seleccionar los botones
 		const btns = document.querySelectorAll('[data-edit-user]');
 
@@ -182,11 +182,13 @@ const notificaciones = userId
 				// ... (El resto de tu lógica para setValue)
 			});
 		});
-	});
+	}
+	document.addEventListener('DOMContentLoaded', initNotificationButtons);
+	document.addEventListener('astro:page-load', initNotificationButtons);
 </script>
 
 <script is:inline>
-	document.addEventListener('DOMContentLoaded', () => {
+	function initUpdateRolForm() {
 		const form = document.getElementById('updaterolForm');
 		const uidInput = document.getElementById('updaterol_user_id');
 		const estadoSel = document.getElementById('updaterol_estado');
@@ -222,5 +224,7 @@ const notificaciones = userId
 			const submitBtn = form?.querySelector('button[type="submit"]');
 			if (submitBtn) submitBtn.disabled = true;
 		});
-	});
+	}
+	document.addEventListener('DOMContentLoaded', initUpdateRolForm);
+	document.addEventListener('astro:page-load', initUpdateRolForm);
 </script>

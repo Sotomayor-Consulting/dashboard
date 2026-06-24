@@ -433,7 +433,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 </script>
 
 <script is:inline>
-	document.addEventListener('DOMContentLoaded', function () {
+	function initCopyButton() {
 		const $defaultMessage = document.getElementById('default-message-codigo');
 		const $successMessage = document.getElementById('success-message-codigo');
 		const copyButton = document.querySelector(
@@ -464,5 +464,7 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 				}
 			});
 		}
-	});
+	}
+	document.addEventListener('DOMContentLoaded', initCopyButton);
+	document.addEventListener('astro:page-load', initCopyButton);
 </script>

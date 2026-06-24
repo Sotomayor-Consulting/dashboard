@@ -989,6 +989,7 @@ export default function StepsWizard({ states }: Props) {
 						<Button
 							variant="outline"
 							className="border-primary-gold/40 h-12 w-full px-8 font-semibold sm:w-auto"
+							nativeButton={false}
 							render={<a href="https://zcal.co/t/agendar-asesoria-llc/60min" />}
 						>
 							Agendar una cita

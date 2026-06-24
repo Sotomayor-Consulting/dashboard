@@ -666,7 +666,7 @@ if (isPartner && user) {
 	Dropzone.autoDiscover = false;
 </script>
 <script is:inline>
-	document.addEventListener('DOMContentLoaded', function () {
+	function initPartnerDropzone() {
 		if (typeof Dropzone === 'undefined') {
 			console.error('Dropzone no está definido.');
 			return;
@@ -755,5 +755,7 @@ if (isPartner && user) {
 			if (tempTimeoutId) clearTimeout(tempTimeoutId);
 			alert('Hubo un error al subir el contrato. Intenta de nuevo.');
 		});
-	});
+	}
+	document.addEventListener('DOMContentLoaded', initPartnerDropzone);
+	document.addEventListener('astro:page-load', initPartnerDropzone);
 </script>

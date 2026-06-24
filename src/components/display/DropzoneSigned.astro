@@ -239,7 +239,7 @@ const {
 		src="https://cdn.jsdelivr.net/npm/lodash@4.17.23/lodash.min.js"></script>
 
 	<script is:inline>
-		document.addEventListener('DOMContentLoaded', function () {
+		function initDropzoneSigned() {
 			if (typeof Dropzone === 'undefined') {
 				console.error('Dropzone no está definido.');
 				return;
@@ -256,7 +256,9 @@ const {
 			containers.forEach((container) => {
 				initDropzone(container);
 			});
-		});
+		}
+		document.addEventListener('DOMContentLoaded', initDropzoneSigned);
+		document.addEventListener('astro:page-load', initDropzoneSigned);
 
 		function initDropzone(container) {
 			const endpoint = container.dataset.endpoint;

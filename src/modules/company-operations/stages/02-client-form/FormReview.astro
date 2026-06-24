@@ -987,7 +987,7 @@ const inputXsCls =
 </div>
 
 <script is:inline define:vars={{ incorporationId, payload }}>
-	document.addEventListener('DOMContentLoaded', () => {
+	function init() {
 		const root = document.getElementById('form-review-root');
 		if (!root) return;
 
@@ -1187,5 +1187,7 @@ const inputXsCls =
 				}
 				reviewAction('reject', reason);
 			});
-	});
+	}
+	document.addEventListener('DOMContentLoaded', init);
+	document.addEventListener('astro:page-load', init);
 </script>
