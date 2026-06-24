@@ -27,7 +27,6 @@ export interface MemberRow {
 	birth_date: string | null;
 	incorporation_date: string | null;
 	person_type: MemberPersonType;
-	is_entity: boolean | null;
 	identification_number: string | null;
 	identification_type: MemberIdentificationType;
 	country_nationality_id: number | null;
@@ -50,7 +49,6 @@ export interface MemberInput {
 	birth_date?: string | null;
 	incorporation_date?: string | null;
 	person_type?: MemberPersonType;
-	is_entity?: boolean | null;
 	identification_number?: string | null;
 	identification_type?: MemberIdentificationType;
 	country_nationality_id?: number | null;
@@ -64,7 +62,7 @@ export interface MemberInput {
 }
 
 export const MEMBER_COLUMNS =
-	'id, first_name, last_name, full_name, name, birth_date, incorporation_date, person_type, is_entity, identification_number, identification_type, country_nationality_id, country_residence_id, country_id, marital_status, ssn, itin, user_id, is_member, is_manager, created_at';
+	'id, first_name, last_name, full_name, name, birth_date, incorporation_date, person_type, identification_number, identification_type, country_nationality_id, country_residence_id, country_id, marital_status, ssn, itin, user_id, is_member, is_manager, created_at';
 
 const cleanText = (value: unknown) => {
 	if (typeof value !== 'string') return null;
@@ -118,7 +116,6 @@ const memberPayload = (input: MemberInput) => {
 		birth_date: cleanDate(input.birth_date),
 		incorporation_date: cleanDate(input.incorporation_date),
 		person_type: personType,
-		is_entity: personType === 'juridical_person',
 		identification_number: cleanText(input.identification_number),
 		identification_type: idType,
 		country_nationality_id: cleanNumber(input.country_nationality_id),

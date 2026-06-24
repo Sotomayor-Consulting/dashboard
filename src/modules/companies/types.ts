@@ -168,7 +168,6 @@ export interface MemberItem {
 	birth_date: string | null;
 	incorporation_date: string | null;
 	person_type: MemberPersonType;
-	is_entity: boolean | null;
 	identification_number: string | null;
 	identification_type: MemberIdentificationType;
 	country_nationality_id: number | null;
