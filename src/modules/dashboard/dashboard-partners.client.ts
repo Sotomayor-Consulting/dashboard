@@ -240,12 +240,12 @@ async function initMainChart() {
 		el.innerHTML = '';
 
 		const ApexCharts = await getApexCharts();
-		chart = new ApexCharts(el, getMainChartOptions(data));
+		chart = new ApexCharts(el, getMainChartOptions(data) as any);
 		await chart.render();
 
 		// re-theme sin reconstruir
 		document.addEventListener('dark-mode', () => {
-			if (chart) chart.updateOptions(getMainChartOptions(data));
+			if (chart) chart.updateOptions(getMainChartOptions(data) as any);
 		});
 	} catch (e) {
 		console.error(e);

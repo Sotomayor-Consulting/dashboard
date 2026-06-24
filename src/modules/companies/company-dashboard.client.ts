@@ -113,7 +113,7 @@ async function initPorcentajeRadioChart() {
 	};
 
 	const { default: ApexCharts } = await import('apexcharts');
-	const chart = new ApexCharts(el, options);
+	const chart = new ApexCharts(el, options as any);
 	await chart.render();
 
 	chart.updateSeries([porcentaje], true);
