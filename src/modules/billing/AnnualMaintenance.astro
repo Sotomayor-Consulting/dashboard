@@ -1031,7 +1031,7 @@ if (empresaError || !empresa) {
 <script>
 	import { renderizarMapaEstados } from '../../pages/api/charts/mapa-empresas.client.ts';
 
-	document.addEventListener('DOMContentLoaded', function () {
+	function initMapaEstados() {
 		setTimeout(() => {
 			const container = document.getElementById('mapa-estados');
 			if (container) {
@@ -1054,7 +1054,9 @@ if (empresaError || !empresa) {
 				);
 			}
 		}, 100);
-	});
+	}
+	document.addEventListener('DOMContentLoaded', initMapaEstados);
+	document.addEventListener('astro:page-load', initMapaEstados);
 </script>
 
 <style>

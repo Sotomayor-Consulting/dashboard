@@ -4,7 +4,6 @@ import { getCompanyDetailData } from './services/get-company-detail-data';
 import TabBar from '@components/navigation/TabBar.astro';
 import CompanyEditForm from './components/CompanyEditForm.astro';
 import CompanyOperationsPanel from '@modules/company-operations/OperationsPanel.astro';
-import ActivityModal from './components/ActivityModal.astro';
 import type { CompanyDetailData } from './types';
 import {
 	type DocumentDashboardRow,
@@ -142,7 +141,6 @@ const operationsTabs = [
 					/>
 				</div>
 			</div>
-			<ActivityModal />
 		</>
 	)
 }

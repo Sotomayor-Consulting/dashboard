@@ -120,6 +120,7 @@ export function CompanyDrawer({ companyId, onClose }: Props) {
 							<Button
 								size="sm"
 								className="ml-auto gap-1.5"
+								nativeButton={false}
 								render={
 									<a href={`/incorporations/${data.id}`}>
 										Ir al proceso

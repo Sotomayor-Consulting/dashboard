@@ -400,6 +400,7 @@ export default function NotificationsPopover({
 						variant="ghost"
 						size="sm"
 						className="w-full cursor-pointer text-sm"
+						nativeButton={false}
 						render={<a href="/notifications" />}
 					>
 						<Eye className="h-4 w-4" />

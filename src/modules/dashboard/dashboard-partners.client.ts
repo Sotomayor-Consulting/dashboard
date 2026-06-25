@@ -255,3 +255,4 @@ async function initMainChart() {
 }
 
 document.addEventListener('DOMContentLoaded', initMainChart);
+document.addEventListener('astro:page-load', initMainChart);

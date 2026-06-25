@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 import { cn } from '@components/utils';
 import { Label } from '@components/ui/Label';
@@ -41,10 +41,13 @@ export function FileUploadField({
 	uploadedName = null,
 }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null);
+	const [localError, setLocalError] = useState<string | null>(null);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setLocalError(null);
 		const selected = e.target.files?.[0] || null;
 		if (selected && selected.size > MAX_FILE_SIZE) {
+			setLocalError(`El archivo excede el tamaño máximo (${maxSizeLabel}).`);
 			onFileChange(null);
 			return;
 		}
@@ -53,6 +56,7 @@ export function FileUploadField({
 			ACCEPTED_FILE_TYPES.length > 0 &&
 			!ACCEPTED_FILE_TYPES.includes(selected.type)
 		) {
+			setLocalError('Formato de archivo no soportado.');
 			onFileChange(null);
 			return;
 		}
@@ -199,9 +203,9 @@ export function FileUploadField({
 				</div>
 			)}
 
-			{error && (
+			{(error || localError) && (
 				<p className="mt-1 text-[12px]" style={{ color: 'var(--cf-danger)' }}>
-					{error}
+					{error || localError}
 				</p>
 			)}
 		</div>

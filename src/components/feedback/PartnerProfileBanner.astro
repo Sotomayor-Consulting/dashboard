@@ -107,7 +107,7 @@ const missingFieldsText = typedMissingFields
 
 <script is:inline>
 	if (typeof window !== 'undefined') {
-		document.addEventListener('DOMContentLoaded', () => {
+		function initProfileBanner() {
 			const profileBanner = document.getElementById('profile-banner');
 			const closeBtn = document.getElementById('close-profile-banner');
 
@@ -117,7 +117,9 @@ const missingFieldsText = typedMissingFields
 			closeBtn.addEventListener('click', () => {
 				profileBanner.style.display = 'none';
 			});
-		});
+		}
+		document.addEventListener('DOMContentLoaded', initProfileBanner);
+		document.addEventListener('astro:page-load', initProfileBanner);
 	}
 </script>
 
