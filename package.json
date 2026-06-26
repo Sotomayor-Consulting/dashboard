@@ -67,6 +67,7 @@
 		"astro-icon": "^1.1.5",
 		"astro-pagefind": "^2.0.0",
 		"axios": "^1.18.1",
+		"chart.js": "^4.5.1",
 		"chartjs-chart-geo": "^4.3.6",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
@@ -115,7 +116,8 @@
 		"prettier-plugin-astro": "^0.14.1",
 		"prettier-plugin-tailwindcss": "^0.8.0",
 		"shadcn": "^4.11.0",
-		"tailwind-scrollbar": "^4.0.2"
+		"tailwind-scrollbar": "^4.0.2",
+		"vite": "^8.1.0"
 	},
-	"packageManager": "pnpm@10.12.1"
+	"packageManager": "pnpm@11.9.0"
 }
