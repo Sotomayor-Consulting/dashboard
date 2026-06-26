@@ -9,6 +9,8 @@ import { Sheet, SheetContent } from '@components/ui/Sheet';
 import type { TemplateWithDocument } from '@domains/templates/types';
 import { getEntityLabel, type EntityType } from '@domains/templates/entity-registry';
 
+import { TemplateTypeIcon } from '@components/display/TemplateTypeIcon';
+
 import { TemplateStatusBadge } from './cells/TemplateStatusBadge';
 import { TemplateTypeBadge } from './cells/TemplateTypeBadge';
 
@@ -119,14 +121,9 @@ export function TemplateDetailSheet({
 								)}
 							</div>
 							<div className="mt-3 flex items-start gap-3">
-								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-neutral-800">
-									<Icon
-										icon={t.template_type === 'pdf' ? 'ri:file-text-line' : 'ri:file-word-2-line'}
-										className="h-5 w-5 text-gray-500 dark:text-gray-400"
-									/>
-								</div>
+								<TemplateTypeIcon type={t.template_type} className="h-8 w-8" />
 								<div className="min-w-0">
-									<p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
+									<p className="break-words text-[16px] font-semibold leading-snug text-gray-900 dark:text-gray-100">
 										{t.name}
 									</p>
 									<p className="mt-0.5 text-[11.5px] text-gray-500 dark:text-gray-400">
@@ -167,11 +164,11 @@ export function TemplateDetailSheet({
 										<p className="truncate text-[12.5px] font-medium text-gray-900 dark:text-gray-100">
 											{t.document.file_name}
 										</p>
-										<p className="text-[11px] text-gray-500 dark:text-gray-400">
+										<p className="truncate text-[11px] text-gray-500 dark:text-gray-400">
 											{fmtBytes(t.document.file_size_bytes)} · {t.document.mime_type ?? '—'}
 										</p>
 									</div>
-									<div className="flex gap-2">
+									<div className="flex shrink-0 gap-2">
 										<Button
 											size="sm"
 											variant="outline"

@@ -47,6 +47,7 @@ interface Props {
 
 export function TypedSignature({ initialName = '', onChange }: Props) {
 	const [name, setName] = useState(initialName);
+	useEffect(() => { setName(initialName); }, [initialName]);
 	const [fontId, setFontId] = useState<string>(FONT_OPTIONS[0]!.id);
 	const [penColor, setPenColor] = useState(PEN_COLOR_LIGHT);
 	const canvasRef = useRef<HTMLCanvasElement>(null);

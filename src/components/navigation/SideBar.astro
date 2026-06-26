@@ -158,18 +158,57 @@ const inactiveClass =
 								{group.title}
 							</p>
 							<ul class="mt-1 space-y-0.5">
-								{(group.items ?? []).map((l) => (
-									<li>
-										<a
-											href={l.href}
-											data-astro-prefetch
-											class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
-										>
-											<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
-											<span>{l.label}</span>
-										</a>
-									</li>
-								))}
+								{(group.items ?? []).map((l) =>
+									l.children && l.children.length > 0 ? (
+										<li>
+											<details
+												open={l.children.some(
+													(c) =>
+														ruta === c.href || ruta.startsWith(c.href + '/'),
+												)}
+											>
+												<summary
+													class={`flex cursor-pointer list-none items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${inactiveClass}`}
+												>
+													<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
+													<span class="flex-1">{l.label}</span>
+													<Icon
+														name="ri:arrow-right-s-line"
+														class="sidebar-chevron h-4 w-4 shrink-0 text-gray-400 transition-transform"
+													/>
+												</summary>
+												<ul class="mt-0.5 ml-4 space-y-0.5 border-l border-gray-200 pl-2.5 dark:border-gray-700">
+													{l.children.map((child) => (
+														<li>
+															<a
+																href={child.href}
+																data-astro-prefetch
+																class={`flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[12.5px] font-medium transition-colors ${ruta === child.href ? activeClass : inactiveClass}`}
+															>
+																<Icon
+																	name={child.svgname}
+																	class="h-4 w-4 shrink-0"
+																/>
+																<span>{child.label}</span>
+															</a>
+														</li>
+													))}
+												</ul>
+											</details>
+										</li>
+									) : (
+										<li>
+											<a
+												href={l.href}
+												data-astro-prefetch
+												class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
+											>
+												<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
+												<span>{l.label}</span>
+											</a>
+										</li>
+									),
+								)}
 							</ul>
 						</li>
 					))
@@ -230,7 +269,7 @@ const inactiveClass =
 						</p>
 					</div>
 					<Icon
-						name="ri:arrow-down-s-line"
+						name="ri:arrow-right-s-line"
 						class="user-menu-chevron h-4 w-4 text-gray-400 transition-transform"
 					/>
 				</summary>
@@ -314,19 +353,63 @@ const inactiveClass =
 							{group.title}
 						</p>
 						<ul class="mt-1 space-y-0.5">
-							{(group.items ?? []).map((l) => (
-								<li>
-									<a
-										href={l.href}
-										data-astro-prefetch
-										class={`sb-link flex items-center gap-3 rounded-md px-2 py-1.75 text-[13px] font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
-										title={l.label}
-									>
-										<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
-										<span class="sb-label whitespace-nowrap">{l.label}</span>
-									</a>
-								</li>
-							))}
+							{(group.items ?? []).map((l) =>
+								l.children && l.children.length > 0 ? (
+									<li>
+										<details
+											open={l.children.some(
+												(c) => ruta === c.href || ruta.startsWith(c.href + '/'),
+											)}
+										>
+											<summary
+												class={`sb-link flex cursor-pointer list-none items-center gap-3 rounded-md px-2 py-1.75 text-[13px] font-medium transition-colors ${inactiveClass}`}
+												title={l.label}
+											>
+												<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
+												<span class="sb-label flex-1 whitespace-nowrap">
+													{l.label}
+												</span>
+												<Icon
+													name="ri:arrow-right-s-line"
+													class="sidebar-chevron sb-label h-4 w-4 shrink-0 text-gray-400 transition-transform"
+												/>
+											</summary>
+											<ul class="mt-0.5 ml-4 space-y-0.5 border-l border-gray-200 pl-2.5 dark:border-gray-700">
+												{l.children.map((child) => (
+													<li>
+														<a
+															href={child.href}
+															data-astro-prefetch
+															class={`sb-link flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[12.5px] font-medium transition-colors ${ruta === child.href ? activeClass : inactiveClass}`}
+															title={child.label}
+														>
+															<Icon
+																name={child.svgname}
+																class="h-4 w-4 shrink-0"
+															/>
+															<span class="sb-label whitespace-nowrap">
+																{child.label}
+															</span>
+														</a>
+													</li>
+												))}
+											</ul>
+										</details>
+									</li>
+								) : (
+									<li>
+										<a
+											href={l.href}
+											data-astro-prefetch
+											class={`sb-link flex items-center gap-3 rounded-md px-2 py-1.75 text-[13px] font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
+											title={l.label}
+										>
+											<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
+											<span class="sb-label whitespace-nowrap">{l.label}</span>
+										</a>
+									</li>
+								),
+							)}
 						</ul>
 					</li>
 				))
@@ -388,7 +471,7 @@ const inactiveClass =
 					</p>
 				</div>
 				<Icon
-					name="ri:arrow-down-s-line"
+					name="ri:arrow-right-s-line"
 					class="user-menu-chevron h-4 w-4 text-gray-400 transition-transform"
 				/>
 			</summary>
@@ -424,6 +507,11 @@ const inactiveClass =
 	#sidebar details[open] .user-menu-chevron,
 	#sidebar-desktop details[open] .user-menu-chevron {
 		transform: rotate(180deg);
+	}
+
+	#sidebar details[open] > summary .sidebar-chevron,
+	#sidebar-desktop details[open] > summary .sidebar-chevron {
+		transform: rotate(90deg);
 	}
 
 	/* Sidebar fixed expanded width */

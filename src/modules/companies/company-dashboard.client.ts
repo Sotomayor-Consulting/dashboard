@@ -51,11 +51,8 @@ async function initPorcentajeRadioChart() {
 		);
 	}
 
-	const el = await waitForElement('#porcentaje-radio', 8000);
-	if (!el) {
-		console.warn('[porcentaje-radio] No apareció #porcentaje-radio en 8s');
-		return;
-	}
+	const el = document.getElementById('porcentaje-radio');
+	if (!el) return;
 
 	const rawPct = el.dataset.porcentaje || el.getAttribute('data-porcentaje');
 

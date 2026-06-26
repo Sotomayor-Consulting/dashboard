@@ -1,3 +1,10 @@
+export interface SubMenuItem {
+	id: string;
+	label: string;
+	href: string;
+	svgname: string;
+}
+
 export interface MenuItem {
 	id: string;
 	label: string;
@@ -8,6 +15,7 @@ export interface MenuItem {
 	sequence: number;
 	colors?: string;
 	group?: string;
+	children?: SubMenuItem[];
 }
 
 export const menuItems: MenuItem[] = [
@@ -17,7 +25,7 @@ export const menuItems: MenuItem[] = [
 		href: '/start/',
 		tooltip: 'Crea una nueva LLC',
 		roles: ['cliente', 'partner'],
-		svgname: 'ri:add-circle-line',
+		svgname: 'ri:rocket-line',
 		sequence: 10,
 		group: 'Company',
 		colors: 'text-cyan-700',
@@ -101,25 +109,39 @@ export const menuItems: MenuItem[] = [
 	},
 	{
 		id: 'menu-vista-de-pagos',
-		label: 'Pagos',
+		label: 'Ordenes',
 		href: '/admin/payments/',
-		tooltip: 'verifica y gestiona los pagos realizados por los clientes',
+		tooltip: 'Verifica y gestiona las ordenes de los clientes',
 		roles: ['admin'],
-		svgname: 'ri:coins-line',
+		svgname: 'ri:shopping-bag-4-line',
 		sequence: 150,
 		group: 'Admin',
-		colors: 'text-violet-500'
+		colors: 'text-violet-500',
 	},
 	{
 		id: 'admin-settings',
 		label: 'Ajustes',
-		href: '/admin/settings/templates',
+		href: '/profile/',
 		tooltip: 'Configuración del sistema',
-		roles: ['admin'],
+		roles: ['admin', 'operaciones'],
 		svgname: 'ri:settings-3-line',
 		sequence: 160,
 		group: 'Admin',
 		colors: 'text-violet-500',
+		children: [
+			{
+				id: 'admin-profile',
+				label: 'Perfil',
+				href: '/profile/',
+				svgname: 'ri:user-3-line',
+			},
+			{
+				id: 'settings-templates',
+				label: 'Plantillas',
+				href: '/admin/settings/templates',
+				svgname: 'ri:file-text-line',
+			},
+		],
 	},
 	{
 		id: 'otros-servicios',
@@ -132,13 +154,33 @@ export const menuItems: MenuItem[] = [
 		group: 'Servicios',
 	},
 	{
-		id: 'partners-configuracion-perfil',
-		label: 'Perfil',
+		id: 'user-settings',
+		label: 'Ajustes',
 		href: '/profile/',
-		tooltip: 'Configure su perfil y datos',
-		roles: ['all'],
-		svgname: 'ri:account-circle-line',
-		sequence: 80,
-		group: 'Cuenta'
+		tooltip: 'Configuración de tu cuenta',
+		roles: ['cliente', 'partner'],
+		svgname: 'ri:settings-3-line',
+		sequence: 200,
+		group: 'Cuenta',
+		children: [
+			{
+				id: 'user-profile',
+				label: 'Perfil',
+				href: '/profile/',
+				svgname: 'ri:user-3-line',
+			},
+			{
+				id: 'user-billing',
+				label: 'Facturación',
+				href: '/profile/billing/',
+				svgname: 'ri:bank-card-line',
+			},
+			{
+				id: 'user-notifications',
+				label: 'Notificaciones',
+				href: '/profile/notifications/',
+				svgname: 'ri:notification-3-line',
+			},
+		],
 	},
 ];

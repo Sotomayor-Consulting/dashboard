@@ -45,7 +45,7 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
  * PATCH /api/admin/users/[id]
  *
  * Actualiza campos editables del usuario. Solo `admin`.
- * Campos permitidos: nombre, apellido, organizacion, cargo, telf, estado.
+ * Campos permitidos: nombre, apellido, telf, estado.
  */
 export const PATCH: APIRoute = async ({ params, request, cookies }) => {
 	const supabase = createSupabaseServerClient({
@@ -96,7 +96,7 @@ export const PATCH: APIRoute = async ({ params, request, cookies }) => {
 	}
 
 	// Whitelist de campos editables (evita actualizar columnas sensibles)
-	const ALLOWED = ['nombre', 'apellido', 'organizacion', 'cargo', 'telf', 'estado'];
+	const ALLOWED = ['nombre', 'apellido', 'telf', 'estado'];
 	const update: Record<string, unknown> = {};
 	for (const k of ALLOWED) {
 		if (k in body) update[k] = body[k];

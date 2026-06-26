@@ -19,7 +19,6 @@ import { UsuariosToolbar, type ColumnId } from './UsuariosToolbar';
 import { UserDrawer } from './drawer/UserDrawer';
 
 const DEFAULT_VISIBLE: Record<ColumnId, boolean> = {
-	organization: true,
 	country: true,
 	status: true,
 	roles: true,
@@ -113,7 +112,6 @@ function UsuariosPageInner({ viewerRoles }: Props) {
 		| 'email'
 		| 'lastSignIn'
 		| 'created'
-		| 'organization'
 		| 'country'
 		| 'status';
 	type SortDir = 'asc' | 'desc';
@@ -156,7 +154,7 @@ function UsuariosPageInner({ viewerRoles }: Props) {
 			}
 			// búsqueda
 			if (lower) {
-				const haystack = `${u.name} ${u.email} ${u.organization ?? ''}`.toLowerCase();
+				const haystack = `${u.name} ${u.email}`.toLowerCase();
 				if (!haystack.includes(lower)) return false;
 			}
 			return true;
@@ -184,10 +182,6 @@ function UsuariosPageInner({ viewerRoles }: Props) {
 				case 'created':
 					av = a.createdAt ? Date.parse(a.createdAt) : 0;
 					bv = b.createdAt ? Date.parse(b.createdAt) : 0;
-					break;
-				case 'organization':
-					av = (a.organization ?? '').toLowerCase();
-					bv = (b.organization ?? '').toLowerCase();
 					break;
 				case 'country':
 					av = (a.countryCode ?? '').toLowerCase();

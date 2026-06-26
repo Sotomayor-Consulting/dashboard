@@ -1061,26 +1061,38 @@ const inputXsCls =
 		}
 
 		// --- API helpers ---
+		let _reviewBusy = false;
 		async function reviewAction(decision, reason) {
-			const res = await fetch(
-				`/api/incorporations/${incorporationId}/form/review`,
-				{
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ decision, reason }),
-				},
-			);
-			const data = await res.json();
-			if (data?.ok) {
-				window.location.href =
-					`/incorporations/${incorporationId}?status=success&msg=` +
-					encodeURIComponent(
-						decision === 'validate'
-							? 'Formulario validado exitosamente.'
-							: 'Formulario devuelto al cliente.',
-					);
-			} else {
+			if (_reviewBusy) return;
+			_reviewBusy = true;
+			const actionBtns = [btnValidate, btnConfirmReject].filter(Boolean);
+			actionBtns.forEach((b) => { b.disabled = true; });
+			try {
+				const res = await fetch(
+					`/api/incorporations/${incorporationId}/form/review`,
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ decision, reason }),
+					},
+				);
+				const data = await res.json().catch(() => null);
+				if (res.ok && data?.ok) {
+					window.location.href =
+						`/incorporations/${incorporationId}?status=success&msg=` +
+						encodeURIComponent(
+							decision === 'validate'
+								? 'Formulario validado exitosamente.'
+								: 'Formulario devuelto al cliente.',
+						);
+					return;
+				}
 				alert(data?.error || 'Error al procesar la acción');
+			} catch {
+				alert('Error de conexión. Intenta de nuevo.');
+			} finally {
+				_reviewBusy = false;
+				actionBtns.forEach((b) => { b.disabled = false; });
 			}
 		}
 

@@ -32,8 +32,6 @@ const FIELD_TO_DB: Record<string, string> = {
 	direccion2: 'direccion_linea2',
 	telefono: 'telf',
 	fecha_nacimiento: 'fecha_nacimiento',
-	organizacion: 'organizacion',
-	cargo: 'cargo',
 	departamento: 'departamento',
 	codigo_postal: 'codigo_postal',
 	tipo_de_documento: 'tipo_identificacion',

@@ -52,6 +52,7 @@ export default function CompanyDetailsForm({
 	states,
 }: Props) {
 	const [companyId, setCompanyId] = React.useState(empresa.company_id ?? null);
+	React.useEffect(() => { setCompanyId(empresa.company_id ?? null); }, [empresa.company_id]);
 	const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 	const [isCreateCompanyOpen, setIsCreateCompanyOpen] = React.useState(false);
 	const [isCreatingCompany, setIsCreatingCompany] = React.useState(false);

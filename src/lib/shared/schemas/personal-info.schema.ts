@@ -62,19 +62,6 @@ export const personalInfoSchema = z.object({
 		.optional()
 		.or(z.literal('')),
 
-	organizacion: z
-		.string()
-		.max(150, {
-			error: 'La organización no puede exceder 150 caracteres',
-		})
-		.optional()
-		.or(z.literal('')),
-	cargo: z
-		.string()
-		.max(100, { error: 'El cargo no puede exceder 100 caracteres' })
-		.optional()
-		.or(z.literal('')),
-
 	departamento: z
 		.string()
 		.max(100, {

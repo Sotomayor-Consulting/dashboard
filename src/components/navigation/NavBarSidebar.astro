@@ -7,10 +7,8 @@ import NotificationsPopover from '@components/navigation/islands/NotificationsPo
 import { menuItems } from '@components/navigation/items';
 
 // Datos recibidos desde LayoutSidebar (ya consultados en paralelo)
-const {
-	notificationsData: notifProp,
-	empresas: empresasProp = [],
-} = Astro.props;
+const { notificationsData: notifProp, empresas: empresasProp = [] } =
+	Astro.props;
 
 const { notifications, totalUnread } = notifProp ?? {
 	notifications: [],
@@ -102,8 +100,21 @@ const breadcrumbItems = (() => {
 	);
 	const moduleLabel =
 		alias?.moduleLabel ?? matchedItem?.label ?? humanize(firstSegment);
-	const moduleAnchorHref =
-		alias?.moduleHref ?? matchedItem?.href ?? moduleHref;
+	const moduleAnchorHref = alias?.moduleHref ?? matchedItem?.href ?? moduleHref;
+
+	// Si el item tiene children y la ruta actual matchea uno de ellos,
+	// mostramos 2 crumbs: "Parent > Child".
+	if (matchedItem?.children?.length) {
+		const matchedChild = matchedItem.children.find(
+			(c) => pathname.replace(/\/$/, '') === c.href.replace(/\/$/, ''),
+		);
+		if (matchedChild) {
+			return [
+				{ label: moduleLabel, href: matchedItem.children[0]?.href ?? moduleAnchorHref },
+				{ label: matchedChild.label, href: matchedChild.href },
+			];
+		}
+	}
 
 	// Si el item del sidebar matchea el path COMPLETO (ej. estamos en
 	// `/admin/usuarios` y el item es `/admin/usuarios`), un solo crumb.
@@ -125,9 +136,7 @@ const breadcrumbItems = (() => {
 
 	// Deduplicar: si el último label ya equivale al label del módulo,
 	// solo devolvemos un crumb.
-	if (
-		lastLabel.toLowerCase().trim() === moduleLabel.toLowerCase().trim()
-	) {
+	if (lastLabel.toLowerCase().trim() === moduleLabel.toLowerCase().trim()) {
 		return [{ label: moduleLabel, href: moduleAnchorHref }];
 	}
 
@@ -222,7 +231,8 @@ const quickActions = [
 						/>
 					</a>
 				</div>
-
+			</div>
+			<div class="grid w-full grid-cols-[100px_1fr]">
 				<div class="hidden min-w-0 items-center pl-4 lg:flex">
 					<nav
 						aria-label="Breadcrumb"
@@ -240,8 +250,7 @@ const quickActions = [
 									<a
 										href={crumb.href}
 										class:list={{
-											'truncate transition-colors hover:text-gray-700 dark:hover:text-gray-200':
-												true,
+											'truncate transition-colors hover:text-gray-700 dark:hover:text-gray-200': true,
 											'font-semibold text-gray-900 dark:text-white':
 												idx === breadcrumbItems.length - 1,
 										}}
@@ -252,11 +261,11 @@ const quickActions = [
 							))
 						}
 					</nav>
+				</div><div
+					class="hidden flex-1 items-center justify-center px-4 md:flex"
+				>
+					<GlobalSearch />
 				</div>
-			</div>
-
-			<div class="hidden flex-1 items-center justify-center px-4 md:flex">
-				<GlobalSearch />
 			</div>
 
 			<div class="flex items-center gap-1.5">

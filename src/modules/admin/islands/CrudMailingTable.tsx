@@ -22,8 +22,6 @@ interface MailingUser {
 	apellido?: string | null;
 	correo?: string | null;
 	avatar_url?: string | null;
-	organizacion?: string | null;
-	cargo?: string | null;
 	estado?: string | null;
 	pais?: Array<{ nombre_paises?: string | null }>;
 }
@@ -45,7 +43,6 @@ export default function CrudMailingTable({ usuarios }: CrudMailingTableProps) {
 			[
 				`${user.nombre ?? ''} ${user.apellido ?? ''}`,
 				user.correo,
-				user.organizacion,
 			]
 				.filter(Boolean)
 				.some((value) => String(value).toLowerCase().includes(q)),
@@ -77,8 +74,6 @@ export default function CrudMailingTable({ usuarios }: CrudMailingTableProps) {
 					<TableHeader>
 						<TableRow>
 							<TableHead>Nombre</TableHead>
-							<TableHead>Compañía</TableHead>
-							<TableHead>Cargo</TableHead>
 							<TableHead>País</TableHead>
 							<TableHead>Estado</TableHead>
 							<TableHead>Acciones</TableHead>
@@ -117,8 +112,6 @@ export default function CrudMailingTable({ usuarios }: CrudMailingTableProps) {
 												</div>
 											</div>
 										</TableCell>
-										<TableCell>{user.organizacion ?? '—'}</TableCell>
-										<TableCell>{user.cargo ?? '—'}</TableCell>
 										<TableCell>
 											{user.pais?.[0]?.nombre_paises ?? '—'}
 										</TableCell>

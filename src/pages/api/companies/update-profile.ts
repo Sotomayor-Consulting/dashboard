@@ -41,8 +41,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const direccion_linea2Raw = form.get('direccion2')?.toString().trim() ?? '';
 	const fecha_nacimientoRaw =
 		form.get('fecha_nacimiento')?.toString().trim() ?? '';
-	const organizacionRaw = form.get('organizacion')?.toString().trim() ?? '';
-	const cargoRaw = form.get('cargo')?.toString().trim() ?? '';
 	const departamentoRaw = form.get('departamento')?.toString().trim() ?? '';
 	const codigo_postalRaw = form.get('codigo_postal')?.toString().trim() ?? '';
 
@@ -56,8 +54,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	if (direccion_linea2Raw) payload.direccion_linea2 = direccion_linea2Raw;
 	if (telefonoRaw) payload.telf = telefonoRaw;
 	if (fecha_nacimientoRaw) payload.fecha_nacimiento = fecha_nacimientoRaw;
-	if (organizacionRaw) payload.organizacion = organizacionRaw;
-	if (cargoRaw) payload.cargo = cargoRaw;
 	if (departamentoRaw) payload.departamento = departamentoRaw;
 	if (codigo_postalRaw) payload.codigo_postal = codigo_postalRaw;
 

@@ -19,8 +19,6 @@ interface UsuarioRow {
 	direccion_linea2?: string | null;
 	telf?: string | null;
 	fecha_nacimiento?: string | null;
-	organizacion?: string | null;
-	cargo?: string | null;
 	departamento?: string | null;
 	codigo_postal?: string | null;
 	tipo_identificacion?: string | null;
@@ -153,20 +151,6 @@ const selectedCountry = usuario?.pais_id ? String(usuario.pais_id) : '';
 				type="date"
 				value={usuario?.fecha_nacimiento ?? ''}
 			/>
-			<!-- Organización / Cargo -->
-			<FormInput
-				label="Organización a la que pertenece"
-				name="organizacion"
-				value={usuario?.organizacion ?? ''}
-				placeholder="Ejem. Sotomayor Consulting Ecuador"
-			/>
-			<FormInput
-				label="Cargo"
-				name="cargo"
-				value={usuario?.cargo ?? ''}
-				placeholder="Ejem. Gerente General"
-			/>
-
 			<!-- Departamento / Código Postal -->
 			<FormInput
 				label="Departamento"

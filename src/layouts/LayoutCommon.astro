@@ -196,17 +196,7 @@ const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : '';
 <script>
 	import { initFlowbite } from 'flowbite';
 
-	function bootFlowbite() {
+	document.addEventListener('astro:page-load', () => {
 		initFlowbite();
-	}
-
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', bootFlowbite, {
-			once: true,
-		});
-	} else {
-		bootFlowbite();
-	}
-
-	document.addEventListener('astro:page-load', bootFlowbite);
+	});
 </script>

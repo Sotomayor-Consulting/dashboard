@@ -17,8 +17,6 @@ interface Props {
 type Editable = {
 	nombre: string;
 	apellido: string;
-	organizacion: string;
-	cargo: string;
 	telf: string;
 };
 
@@ -42,8 +40,6 @@ export function UserDrawerEditForm({ user, onCancel, onSaved }: Props) {
 	const [form, setForm] = useState<Editable>({
 		nombre: seedNames.nombre,
 		apellido: seedNames.apellido,
-		organizacion: user.organization ?? '',
-		cargo: user.jobTitle ?? '',
 		telf: '',
 	});
 
@@ -99,24 +95,6 @@ export function UserDrawerEditForm({ user, onCancel, onSaved }: Props) {
 					/>
 				</Field>
 			</div>
-
-			<Field label="Organización">
-				<Input
-					value={form.organizacion}
-					onChange={(e) => setField('organizacion', e.target.value)}
-					placeholder="Sin compañía"
-					className="!h-9"
-				/>
-			</Field>
-
-			<Field label="Cargo">
-				<Input
-					value={form.cargo}
-					onChange={(e) => setField('cargo', e.target.value)}
-					placeholder="Sin cargo"
-					className="!h-9"
-				/>
-			</Field>
 
 			<Field label="Teléfono">
 				<Input
