@@ -146,7 +146,6 @@ export const incorporationFullTransformer: Transformer = {
 				client_id_number: 'numero_de_identificacion',
 				client_person_type: 'tipo_persona',
 				client_birth_date: 'fecha_nacimiento',
-				client_organization: 'organizacion',
 				client_partner_code: 'codigo_de_partner',
 			};
 

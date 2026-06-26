@@ -248,10 +248,7 @@ const {
 			Dropzone.autoDiscover = false;
 
 			const containers = document.querySelectorAll('[data-endpoint]');
-			if (containers.length === 0) {
-				console.error('Contenedor de upload no encontrado');
-				return;
-			}
+			if (containers.length === 0) return;
 
 			containers.forEach((container) => {
 				initDropzone(container);

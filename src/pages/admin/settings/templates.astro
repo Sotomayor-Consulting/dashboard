@@ -1,7 +1,6 @@
 ---
 import LayoutSidebar from '@layouts/LayoutSidebar.astro';
 import TemplateManager from '@modules/template-manager/TemplateManager.astro';
-import TabBar from '@components/navigation/TabBar.astro';
 
 const userRoles = Astro.locals.userRoles ?? [];
 const allowedRoles = ['admin'];
@@ -12,22 +11,8 @@ if (!canView) {
 }
 
 const supabase = Astro.locals.supabase;
-
-const tabs = [
-	{
-		label: 'Plantillas',
-		icon: 'ri:file-text-line',
-		active: true,
-		link: '/admin/settings/templates',
-	},
-];
 ---
 
 <LayoutSidebar>
-	<div class="flex min-h-[calc(100vh-3.5rem)] flex-col">
-		<div class="border-b border-gray-200 px-7 pt-4 dark:border-gray-800">
-			<TabBar buttons={tabs} syncUrl={false} />
-		</div>
-		<TemplateManager supabase={supabase} />
-	</div>
+	<TemplateManager supabase={supabase} />
 </LayoutSidebar>

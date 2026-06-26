@@ -50,8 +50,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const nombre = form.get('nombre_create')?.toString().trim();
 	const apellido = form.get('apellido_create')?.toString().trim();
 	const correo = form.get('correo_create')?.toString().trim();
-	const organizacion = form.get('organizacion_create')?.toString().trim();
-
 	// rol (admin puede establecerlo)
 	const rolIdRaw = form.get('rol_id_create')?.toString();
 	const rol_id =
@@ -62,7 +60,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	if (nombre) payload.nombre = nombre;
 	if (apellido) payload.apellido = apellido;
 	if (correo) payload.correo = correo;
-	if (organizacion) payload.organizacion = organizacion;
 	if (rol_id !== undefined) payload.rol_id = rol_id;
 
 	// 5) Inserción

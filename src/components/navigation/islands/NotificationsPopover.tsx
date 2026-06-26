@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	BellIcon,
 	CheckCheck,
@@ -72,6 +72,9 @@ export default function NotificationsPopover({
 	const [items, setItems] = useState(notifications);
 	const [unreadCount, setUnreadCount] = useState(totalUnread);
 	const [pendingIds, setPendingIds] = useState<string[]>([]);
+
+	useEffect(() => { setItems(notifications); }, [notifications]);
+	useEffect(() => { setUnreadCount(totalUnread); }, [totalUnread]);
 
 	const unreadItems = useMemo(
 		() => items.filter((notification) => !notification.read_at),

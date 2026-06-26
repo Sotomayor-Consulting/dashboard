@@ -105,6 +105,20 @@ const breadcrumbItems = (() => {
 	const moduleAnchorHref =
 		alias?.moduleHref ?? matchedItem?.href ?? moduleHref;
 
+	// Si el item tiene children y la ruta actual matchea uno de ellos,
+	// mostramos 2 crumbs: "Parent > Child".
+	if (matchedItem?.children?.length) {
+		const matchedChild = matchedItem.children.find(
+			(c) => pathname.replace(/\/$/, '') === c.href.replace(/\/$/, ''),
+		);
+		if (matchedChild) {
+			return [
+				{ label: moduleLabel, href: matchedItem.children[0]?.href ?? moduleAnchorHref },
+				{ label: matchedChild.label, href: matchedChild.href },
+			];
+		}
+	}
+
 	// Si el item del sidebar matchea el path COMPLETO (ej. estamos en
 	// `/admin/usuarios` y el item es `/admin/usuarios`), un solo crumb.
 	const matchedItemHrefNoSlash = (matchedItem?.href ?? '').replace(/\/$/, '');

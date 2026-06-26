@@ -13,14 +13,12 @@ import { cn } from '@components/utils';
 import type { AdminUser, UserFilter } from '@modules/admin/lib/types';
 
 export type ColumnId =
-	| 'organization'
 	| 'country'
 	| 'status'
 	| 'roles'
 	| 'actions';
 
 export const COLUMN_LABELS: Record<ColumnId, string> = {
-	organization: 'Compañía / Cargo',
 	country: 'País',
 	status: 'Estado',
 	roles: 'Roles',

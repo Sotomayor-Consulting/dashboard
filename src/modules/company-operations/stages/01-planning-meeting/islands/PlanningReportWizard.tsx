@@ -384,6 +384,7 @@ export default function PlanningReportWizard({
 	const [open, setOpen] = useState(false);
 	const [step, setStep] = useState(0);
 	const [saved, setSaved] = useState(hasSavedReport);
+	useEffect(() => { setSaved(hasSavedReport); }, [hasSavedReport]);
 	const [busy, setBusy] = useState<false | 'save' | 'generate'>(false);
 	const [error, setError] = useState<string | null>(null);
 	const [successMsg, setSuccessMsg] = useState<string | null>(null);

@@ -31,8 +31,6 @@ interface UserItem {
 	apellido?: string | null;
 	correo?: string | null;
 	avatar_url?: string | null;
-	organizacion?: string | null;
-	cargo?: string | null;
 	estado?: string | null;
 	countries?: {
 		name?: string | null;
@@ -51,8 +49,6 @@ interface TableRow {
 	nombreCompleto: string;
 	correo: string;
 	avatarUrl: string | null;
-	organizacion: string;
-	cargo: string;
 	pais: string;
 	estado: string;
 	roles: string[];
@@ -83,8 +79,6 @@ function mapRows(usuarios: UserItem[], roles: RoleItem[]): TableRow[] {
 			`${user.nombre ?? ''} ${user.apellido ?? ''}`.trim() || 'Sin nombre',
 		correo: user.correo ?? '—',
 		avatarUrl: user.avatar_url ?? null,
-		organizacion: user.organizacion ?? '—',
-		cargo: user.cargo ?? '—',
 		pais: user.countries?.name ?? '—',
 		estado: user.estado ?? 'inactivo',
 		roles: rolesMap.get(user.user_id) ?? [],
@@ -137,14 +131,6 @@ export default function UserNotificationsTable({
 						</div>
 					);
 				},
-			},
-			{
-				accessorKey: 'organizacion',
-				header: 'Compañía',
-			},
-			{
-				accessorKey: 'cargo',
-				header: 'Cargo',
 			},
 			{
 				accessorKey: 'pais',

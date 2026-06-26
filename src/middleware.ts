@@ -35,7 +35,7 @@ const CSP_DIRECTIVES = [
 	// Fuentes
 	`font-src 'self' https://fonts.gstatic.com https://fonts.cdnfonts.com`,
 	// Conexiones: fetch/XHR/WebSocket
-	`connect-src 'self' ${SUPABASE_URL} ${SUPABASE_WSS} https://unpkg.com https://esm.sh https://api.stripe.com https://accounts.google.com https://zcal.co https://static.zcal.co`,
+	`connect-src 'self' ${SUPABASE_URL} ${SUPABASE_WSS} https://unpkg.com https://esm.sh https://api.stripe.com https://accounts.google.com https://zcal.co https://static.zcal.co https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com`,
 	// Imágenes
 	`img-src 'self' data: blob: ${SUPABASE_URL} https://app.sotomayorconsulting.com https://sotomayorconsulting.com https://i.imgur.com https://api.dicebear.com`,
 	// Iframes (Stripe Elements crea iframes)

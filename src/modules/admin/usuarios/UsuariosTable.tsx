@@ -16,7 +16,6 @@ export type UsuariosSortKey =
 	| 'email'
 	| 'lastSignIn'
 	| 'created'
-	| 'organization'
 	| 'country'
 	| 'status';
 export type UsuariosSortDir = 'asc' | 'desc';
@@ -105,16 +104,6 @@ export function UsuariosTable({
 							onClick={onSort}
 							className="px-7 py-3 text-left"
 						/>
-						{visibleColumns.organization && (
-							<SortableTh
-								label="Compañía / Cargo"
-								keyId="organization"
-								active={sortKey === 'organization'}
-								dir={sortDir}
-								onClick={onSort}
-								className="py-3 pr-4 text-left"
-							/>
-						)}
 						{visibleColumns.country && (
 							<SortableTh
 								label="País"
@@ -164,24 +153,6 @@ export function UsuariosTable({
 								<td className="px-7">
 									<UserCell user={u} />
 								</td>
-								{visibleColumns.organization && (
-									<td className="pr-4">
-										<div className="flex flex-col leading-tight">
-											<span className="truncate text-[12.5px] text-gray-700 dark:text-gray-200">
-												{u.organization || (
-													<span className="text-gray-400 italic">
-														Sin compañía
-													</span>
-												)}
-											</span>
-											<span className="truncate text-[11px] text-gray-500 dark:text-gray-400">
-												{u.jobTitle || (
-													<span className="text-gray-400 italic">Sin cargo</span>
-												)}
-											</span>
-										</div>
-									</td>
-								)}
 								{visibleColumns.country && (
 									<td className="pr-4">
 										{u.countryCode ? (

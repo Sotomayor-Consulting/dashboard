@@ -64,7 +64,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const nombre = form.get('nombre')?.toString().trim();
 		const apellido = form.get('apellido')?.toString().trim();
 		const correo = form.get('correo')?.toString().trim();
-		const organizacion = form.get('compania')?.toString().trim();
 		const estado = form.get('estado')?.toString().trim();
 		const pais = form.get('pais_modal')?.toString().trim();
 		const ciudad = form.get('ciudad_modal')?.toString().trim();
@@ -88,7 +87,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		if (nombre) payload.nombre = nombre;
 		if (apellido) payload.apellido = apellido;
 		if (correo) payload.correo = correo;
-		if (organizacion) payload.organizacion = organizacion;
 		if (estado) payload.estado = estado;
 		if (pais) payload.pais_id = pais;
 		if (ciudad) payload.ciudad = ciudad;

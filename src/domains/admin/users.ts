@@ -38,8 +38,6 @@ interface RawUserRow {
 	apellido: string | null;
 	correo: string | null;
 	avatar_url: string | null;
-	organizacion: string | null;
-	cargo: string | null;
 	estado: string | null;
 	created_at: string | null;
 	pais_id: number | null;
@@ -82,8 +80,8 @@ function toAdminUser(
 		email: row.correo ?? '',
 		avatarUrl: row.avatar_url,
 		countryCode: extractCountryIso(row),
-		organization: row.organizacion,
-		jobTitle: row.cargo,
+		organization: null,
+		jobTitle: null,
 		status,
 		roles,
 		companiesCount,
@@ -102,7 +100,7 @@ export async function listAdminUsers(
 	const { data: users, error } = await supabase
 		.from('usuarios')
 		.select(
-			`user_id, nombre, apellido, correo, avatar_url, organizacion, cargo,
+			`user_id, nombre, apellido, correo, avatar_url,
 			 estado, created_at, pais_id,
 			 countries:pais_id ( iso ),
 			 user_roles ( roles ( name ) )`,
@@ -147,7 +145,7 @@ export async function getAdminUserDetail(
 	const { data: user, error } = await supabase
 		.from('usuarios')
 		.select(
-			`user_id, nombre, apellido, correo, avatar_url, organizacion, cargo,
+			`user_id, nombre, apellido, correo, avatar_url,
 			 estado, created_at, pais_id,
 			 countries:pais_id ( iso ),
 			 user_roles ( roles ( name ) )`,
