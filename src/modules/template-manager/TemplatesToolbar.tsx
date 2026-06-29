@@ -12,7 +12,12 @@ import { cn } from '@components/utils';
 
 import type { TemplateWithDocument } from '@domains/templates/types';
 
-export type TemplateFilter = 'todas' | 'pdf' | 'word' | 'sin_archivo' | 'papelera';
+export type TemplateFilter =
+	| 'todas'
+	| 'pdf'
+	| 'word'
+	| 'sin_archivo'
+	| 'papelera';
 
 export type ColumnId = 'category' | 'entity' | 'file' | 'status' | 'actions';
 
@@ -32,8 +37,16 @@ interface FilterDef {
 
 export const FILTERS: FilterDef[] = [
 	{ id: 'todas', label: 'Todas', match: (t) => !t.deleted_at },
-	{ id: 'pdf', label: 'PDF', match: (t) => !t.deleted_at && t.template_type === 'pdf' },
-	{ id: 'word', label: 'Word', match: (t) => !t.deleted_at && t.template_type === 'word' },
+	{
+		id: 'pdf',
+		label: 'PDF',
+		match: (t) => !t.deleted_at && t.template_type === 'pdf',
+	},
+	{
+		id: 'word',
+		label: 'Word',
+		match: (t) => !t.deleted_at && t.template_type === 'word',
+	},
 	{
 		id: 'sin_archivo',
 		label: 'Sin archivo',
@@ -63,7 +76,7 @@ export function TemplatesToolbar({
 }: Props) {
 	return (
 		<div className="border-b border-gray-200 px-7 py-3 dark:border-gray-800">
-			<div className="flex items-center gap-2">
+			<div className="flex flex-col items-start gap-2 md:flex-row">
 				<div className="relative w-64 shrink-0">
 					<Icon
 						icon="ri:search-line"
@@ -77,7 +90,7 @@ export function TemplatesToolbar({
 					/>
 				</div>
 
-				<div className="scrollbar-thin flex flex-1 items-center gap-1.5 overflow-x-auto">
+				<div className="flex scrollbar-thin flex-wrap items-center gap-1.5 overflow-x-auto">
 					{FILTERS.map((f) => {
 						const count = templates.filter(f.match).length;
 						const isActive = activeFilter === f.id;
@@ -109,10 +122,12 @@ export function TemplatesToolbar({
 					})}
 				</div>
 
-				<div className="ml-auto shrink-0">
+				<div className="shrink-0 md:ml-auto">
 					<DropdownMenu>
 						<DropdownMenuTrigger
-							render={<Button variant="outline" size="sm" className="gap-1.5" />}
+							render={
+								<Button variant="outline" size="sm" className="gap-1.5" />
+							}
 						>
 							<Icon icon="ri:layout-column-line" className="h-4 w-4" />
 							Columnas

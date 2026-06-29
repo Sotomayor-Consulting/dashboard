@@ -22,7 +22,10 @@ export type IncorporacionesColumnId =
 	| 'lastActivity'
 	| 'actions';
 
-export const INCORPORACIONES_COLUMN_LABELS: Record<IncorporacionesColumnId, string> = {
+export const INCORPORACIONES_COLUMN_LABELS: Record<
+	IncorporacionesColumnId,
+	string
+> = {
 	client: 'Cliente',
 	stage: 'Etapa',
 	payment: 'Pago',
@@ -83,7 +86,7 @@ export function IncorporacionesToolbar({
 }: Props) {
 	return (
 		<div className="border-b border-gray-200 px-7 py-3 dark:border-gray-800">
-			<div className="flex items-center gap-2">
+			<div className="flex flex-col items-start gap-2 md:flex-row">
 				<div className="relative w-64 shrink-0">
 					<Icon
 						icon="ri:search-line"
@@ -97,7 +100,7 @@ export function IncorporacionesToolbar({
 					/>
 				</div>
 
-				<div className="flex flex-1 items-center gap-1.5 overflow-x-auto">
+				<div className="flex scrollbar-thin flex-wrap items-center gap-1.5 overflow-x-auto">
 					{FILTERS.map((f) => {
 						const count = companies.filter(f.match).length;
 						const isActive = activeFilter === f.id;
@@ -129,7 +132,7 @@ export function IncorporacionesToolbar({
 					})}
 				</div>
 
-				<div className="ml-auto shrink-0">
+				<div className="shrink-0 md:ml-auto">
 					<DropdownMenu>
 						<DropdownMenuTrigger
 							render={
@@ -140,17 +143,19 @@ export function IncorporacionesToolbar({
 							Columnas
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-48">
-							{(Object.keys(INCORPORACIONES_COLUMN_LABELS) as IncorporacionesColumnId[]).map(
-								(id) => (
-									<DropdownMenuCheckboxItem
-										key={id}
-										checked={visibleColumns[id]}
-										onCheckedChange={() => onToggleColumn(id)}
-									>
-										{INCORPORACIONES_COLUMN_LABELS[id]}
-									</DropdownMenuCheckboxItem>
-								),
-							)}
+							{(
+								Object.keys(
+									INCORPORACIONES_COLUMN_LABELS,
+								) as IncorporacionesColumnId[]
+							).map((id) => (
+								<DropdownMenuCheckboxItem
+									key={id}
+									checked={visibleColumns[id]}
+									onCheckedChange={() => onToggleColumn(id)}
+								>
+									{INCORPORACIONES_COLUMN_LABELS[id]}
+								</DropdownMenuCheckboxItem>
+							))}
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>

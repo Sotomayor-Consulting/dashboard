@@ -62,7 +62,13 @@ export default defineConfig({
 		},
 	},
 	base: '/',
-	integrations: [sitemap(), icon(), react()],
+	integrations: [
+		sitemap(),
+		icon({
+			iconDir: 'src/assets/illustrations',
+		}),
+		react(),
+	],
 	image: {
 		remotePatterns: [{ protocol: 'https' }],
 	},

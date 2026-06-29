@@ -12,11 +12,7 @@ import { cn } from '@components/utils';
 
 import type { AdminUser, UserFilter } from '@modules/admin/lib/types';
 
-export type ColumnId =
-	| 'country'
-	| 'status'
-	| 'roles'
-	| 'actions';
+export type ColumnId = 'country' | 'status' | 'roles' | 'actions';
 
 export const COLUMN_LABELS: Record<ColumnId, string> = {
 	country: 'País',
@@ -41,7 +37,8 @@ const FILTERS: FilterDef[] = [
 	{
 		id: 'ops',
 		label: 'Operaciones',
-		match: (u) => u.roles.some((r) => r === 'operaciones' || r === 'operations'),
+		match: (u) =>
+			u.roles.some((r) => r === 'operaciones' || r === 'operations'),
 	},
 	{ id: 'admin', label: 'Admin', match: (u) => u.roles.includes('admin') },
 	{
@@ -73,7 +70,7 @@ export function UsuariosToolbar({
 }: Props) {
 	return (
 		<div className="border-b border-gray-200 px-7 py-3 dark:border-gray-800">
-			<div className="flex items-center gap-2">
+			<div className="flex flex-wrap items-center gap-2">
 				<div className="relative w-64 shrink-0">
 					<Icon
 						icon="ri:search-line"
@@ -87,40 +84,39 @@ export function UsuariosToolbar({
 					/>
 				</div>
 
-				<div className="flex flex-1 items-center gap-1.5 overflow-x-auto scrollbar-thin">
-				{FILTERS.map((f) => {
-					const count = users.filter(f.match).length;
-					const isActive = activeFilter === f.id;
-					return (
-						<button
-							key={f.id}
-							type="button"
-							onClick={() => onFilterChange(f.id)}
-							className={cn(
-								'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-xs font-medium transition-colors',
-								isActive
-									? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-gray-900'
-									: 'border-gray-200 bg-transparent text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-neutral-800',
-							)}
-						>
-							<span>{f.label}</span>
-							<span
+				<div className="flex scrollbar-thin flex-wrap items-center gap-1.5 overflow-x-auto">
+					{FILTERS.map((f) => {
+						const count = users.filter(f.match).length;
+						const isActive = activeFilter === f.id;
+						return (
+							<button
+								key={f.id}
+								type="button"
+								onClick={() => onFilterChange(f.id)}
 								className={cn(
-									'rounded px-1 text-[10.5px] tabular-nums',
+									'inline-flex shrink-0 items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors',
 									isActive
-										? 'bg-white/15 text-current'
-										: 'bg-gray-100 text-gray-500 dark:bg-neutral-800 dark:text-gray-400',
+										? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-gray-900'
+										: 'border-gray-200 bg-transparent text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-neutral-800',
 								)}
 							>
-								{count}
-							</span>
-						</button>
-					);
-				})}
-
+								<span>{f.label}</span>
+								<span
+									className={cn(
+										'rounded px-1 text-[10.5px] tabular-nums',
+										isActive
+											? 'bg-white/15 text-current'
+											: 'bg-gray-100 text-gray-500 dark:bg-neutral-800 dark:text-gray-400',
+									)}
+								>
+									{count}
+								</span>
+							</button>
+						);
+					})}
 				</div>
 
-				<div className="ml-auto shrink-0">
+				<div className="shrink-0 md:ml-auto">
 					<DropdownMenu>
 						<DropdownMenuTrigger
 							render={

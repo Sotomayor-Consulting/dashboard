@@ -124,14 +124,19 @@ export default function BannerToastManager({
 					? `Campos incompletos: ${missingFieldsText}`
 					: undefined,
 				ctaLabel: 'Actualizar Perfil',
-				url: '/settings/',
+				url: '/profile/',
 				accentClassName:
-					'border border-yellow-200 bg-linear-to-r from-yellow-50 to-orange-50 dark:border-yellow-800 dark:from-yellow-900/20 dark:to-orange-900/20',
+					'border border-yellow-200 bg-orange-900 dark:border-yellow-800 dark:bg-orange-900/20',
 				ctaClassName:
 					'bg-yellow-600 hover:bg-yellow-700 dark:bg-yellow-700 dark:text-white dark:hover:bg-yellow-800',
 			},
 		];
-	}, [missingFields, showBannerEnProceso, showBannerPartner, showBannerUpgrade]);
+	}, [
+		missingFields,
+		showBannerEnProceso,
+		showBannerPartner,
+		showBannerUpgrade,
+	]);
 
 	useEffect(() => {
 		for (const definition of toasts) {

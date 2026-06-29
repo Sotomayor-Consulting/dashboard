@@ -83,20 +83,20 @@ const canUploadForRequest = (status: string) =>
 <div>
 	{
 		errorMessage ? (
-			<div class="rounded-lg border border-dashed border-border p-6 text-sm text-muted-foreground">
+			<div class="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-sm">
 				{errorMessage}
 			</div>
 		) : (
 			<div class="my-4 grid w-full grid-cols-1 gap-6 xl:grid-cols-2">
 				<div>
-					<h3 class="text-lg font-semibold text-foreground">Solicitudes</h3>
-					<p class="mt-1 mb-4 text-sm text-muted-foreground">
+					<h3 class="text-foreground text-lg font-semibold">Solicitudes</h3>
+					<p class="text-muted-foreground mt-1 mb-4 text-sm">
 						Documentos solicitados por el equipo de operaciones.
 					</p>
 
 					{canUseStaffActions && showQuickUpload ? (
-						<div class="mb-4 rounded-lg border border-dashed border-border bg-muted/30 p-4">
-							<h4 class="text-sm font-semibold text-foreground">
+						<div class="border-border bg-muted/30 mb-4 rounded-lg border border-dashed p-4">
+							<h4 class="text-foreground text-sm font-semibold">
 								Subida rápida (Operaciones/Admin)
 							</h4>
 							<form
@@ -109,7 +109,7 @@ const canUploadForRequest = (status: string) =>
 									type="file"
 									name="file"
 									required
-									class="block w-full text-sm text-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-muted file:px-3 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/80"
+									class="text-foreground file:bg-muted file:text-foreground hover:file:bg-muted/80 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:px-3 file:py-2 file:text-sm file:font-medium"
 									accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
 								/>
 								<DocumentTypeComboboxField
@@ -118,14 +118,14 @@ const canUploadForRequest = (status: string) =>
 								/>
 								<select
 									name="visibility"
-									class="block w-full rounded-lg border border-border bg-card px-2 py-2 text-sm text-foreground"
+									class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-2 text-sm"
 								>
 									<option value="internal_only">Interno</option>
 									<option value="client_visible">Visible</option>
 								</select>
 								<select
 									name="shareWithClient"
-									class="block w-full rounded-lg border border-border bg-card px-2 py-2 text-sm text-foreground"
+									class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-2 text-sm"
 								>
 									<option value="false">No compartir</option>
 									<option value="true">Compartir</option>
@@ -144,22 +144,20 @@ const canUploadForRequest = (status: string) =>
 					) : null}
 
 					{requests.length === 0 ? (
-						<div class="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+						<div class="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
 							No hay solicitudes de documentos para esta empresa.
 						</div>
 					) : (
-						<div class="rounded-lg border border-border">
-							<ul class="divide-y divide-border">
+						<div class="border-border rounded-lg border">
+							<ul class="divide-border divide-y">
 								{requests.map((request) => (
 									<li class="p-4">
-										<p class="text-sm font-semibold text-foreground">
+										<p class="text-foreground text-sm font-semibold">
 											{request.document_type?.name ?? 'Documento requerido'}
 										</p>
-										<p class="mt-1 text-xs text-muted-foreground">
+										<p class="text-muted-foreground mt-1 text-xs">
 											Status: {request.status}
-											{request.due_date
-												? ` · Vence: ${request.due_date}`
-												: ''}
+											{request.due_date ? ` · Vence: ${request.due_date}` : ''}
 										</p>
 
 										{canUploadForRequest(request.status) ? (
@@ -173,13 +171,13 @@ const canUploadForRequest = (status: string) =>
 													type="file"
 													name="file"
 													required
-													class="block w-full text-sm text-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-muted file:px-3 file:py-2 file:text-sm file:font-medium file:text-foreground hover:file:bg-muted/80"
+													class="block w-full text-sm text-gray-900 file:mr-3 file:ml-0 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200 dark:text-gray-200 dark:file:bg-white/10 dark:file:text-gray-200 dark:hover:file:bg-white/15"
 													accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
 												/>
 												{canUseStaffActions ? (
 													<select
 														name="visibility"
-														class="block w-full rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground"
+														class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-1 text-xs"
 													>
 														<option value="internal_only">Interno</option>
 														<option value="client_visible">
@@ -209,12 +207,12 @@ const canUploadForRequest = (status: string) =>
 				</div>
 
 				<div>
-					<h3 class="text-lg font-semibold text-foreground">Documentos</h3>
-					<p class="mt-1 mb-4 text-sm text-muted-foreground">
+					<h3 class="text-foreground text-lg font-semibold">Documentos</h3>
+					<p class="text-muted-foreground mt-1 mb-4 text-sm">
 						Archivos subidos y compartidos de esta empresa.
 					</p>
 
-					<div class="rounded-lg border border-border p-4">
+					<div class="border-border rounded-lg border p-4">
 						<CompanyDocumentsList
 							documents={documents}
 							canUseStaffActions={canUseStaffActions}
