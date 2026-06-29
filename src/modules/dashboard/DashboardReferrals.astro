@@ -76,12 +76,12 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 );
 ---
 
-<div class="px-4 pt-6">
+<div class="flex w-full justify-center px-4 py-6">
 	<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
 		{
 			referidosCombinados.length !== 0 ? (
 				<>
-					<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-transparent">
+					<div class="self-center rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-transparent">
 						<div class="mb-4 flex items-center justify-between">
 							<div class="shrink-0">
 								<span class="text-xl leading-none font-bold text-gray-900 sm:text-2xl dark:text-white">
@@ -203,99 +203,97 @@ const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
 				</>
 			) : (
 				<>
-					<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-transparent">
-						<div>
-							<section>
-								<div class="mx-auto max-w-7xl gap-16 px-4 py-8 lg:px-6 lg:py-16">
-									<div class="font-light text-gray-500 sm:text-lg dark:text-gray-400">
-										<h2 class="mb-4 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-											Aún no tienes referidos
-										</h2>
-										<p class="mb-4">
-											¡No te preocupes! Este es el momento ideal para empezar a
-											compartir tu código único de referido. Cada persona que
-											forme su LLC en Estados Unidos a través de tu código te
-											generará una comisión. Piensa en todos los emprendedores,
-											dueños de negocios o inversores que conoces y que podrían
-											beneficiarse de tener una empresa en EE.UU. (acceso a
-											Stripe, PayPal, facilidad para facturar, etc.).
-										</p>
-										<p class="mb-4">
-											<strong>
-												¿Cómo puedes compartir tu código y atraer clientes?
-											</strong>
-											Aquí tienes algunas ideas prácticas:
-										</p>
+					<div class="w-fit self-center rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-transparent">
+						<section class="w-fit">
+							<div class="mx-auto w-fit gap-16 px-4 py-8 md:max-w-7xl lg:px-6 lg:py-16">
+								<div class="font-light text-gray-500 sm:text-lg dark:text-gray-400">
+									<h2 class="mb-4 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+										Aún no tienes referidos
+									</h2>
+									<p class="mb-4">
+										¡No te preocupes! Este es el momento ideal para empezar a
+										compartir tu código único de referido. Cada persona que
+										forme su LLC en Estados Unidos a través de tu código te
+										generará una comisión. Piensa en todos los emprendedores,
+										dueños de negocios o inversores que conoces y que podrían
+										beneficiarse de tener una empresa en EE.UU. (acceso a
+										Stripe, PayPal, facilidad para facturar, etc.).
+									</p>
+									<p class="mb-4">
+										<strong>
+											¿Cómo puedes compartir tu código y atraer clientes?
+										</strong>
+										Aquí tienes algunas ideas prácticas:
+									</p>
 
-										<div
-											id="accordion-card"
-											data-accordion="collapse"
-											class="mb-5"
-										>
-											{[
-												{
-													titulo: 'Redes sociales',
-													parrafo:
-														'Publica en LinkedIn, Instagram o Facebook explicando las ventajas de formar una LLC en EE.UU. (por ejemplo, para vender online, proteger activos o acceder al mercado americano). Incluye tu código en la publicación o en tu biografía.',
-												},
-												{
-													titulo: 'Comunidades de emprendedores',
-													parrafo:
-														'Participa en grupos de Facebook, foros o canales de Slack donde haya personas interesadas en internacionalizar sus negocios. Comparte tu experiencia y ofrece tu código como ayuda.',
-												},
-												{
-													titulo: 'Email marketing',
-													parrafo:
-														' Si ya tienes una lista de contactos (clientes, colegas, seguidores), envía un correo breve contándoles cómo pueden formar su LLC fácilmente y con un beneficio extra al usar tu código.',
-												},
+									<div
+										id="accordion-card"
+										data-accordion="collapse"
+										class="mb-5"
+									>
+										{[
+											{
+												titulo: 'Redes sociales',
+												parrafo:
+													'Publica en LinkedIn, Instagram o Facebook explicando las ventajas de formar una LLC en EE.UU. (por ejemplo, para vender online, proteger activos o acceder al mercado americano). Incluye tu código en la publicación o en tu biografía.',
+											},
+											{
+												titulo: 'Comunidades de emprendedores',
+												parrafo:
+													'Participa en grupos de Facebook, foros o canales de Slack donde haya personas interesadas en internacionalizar sus negocios. Comparte tu experiencia y ofrece tu código como ayuda.',
+											},
+											{
+												titulo: 'Email marketing',
+												parrafo:
+													' Si ya tienes una lista de contactos (clientes, colegas, seguidores), envía un correo breve contándoles cómo pueden formar su LLC fácilmente y con un beneficio extra al usar tu código.',
+											},
 
-												{
-													titulo: 'Alianzas estratégicas',
-													parrafo:
-														'Conecta con contadores, abogados o asesores de negocios que atiendan a emprendedores. Ofréceles compartir tu código con sus clientes a cambio de una comisión (puedes establecer un acuerdo de referidos).',
-												},
-											].map((l, index) => (
-												<>
-													<h2 id={`recomendacion-${index}`}>
-														<button
-															type="button"
-															class="text-body rounded-base border-default hover:text-heading flex w-full items-center justify-between gap-3 border bg-white p-5 font-medium shadow-xs hover:bg-gray-100 aria-expanded:rounded-b-none aria-expanded:shadow-none rtl:text-right dark:bg-neutral-950 dark:hover:bg-neutral-900"
-															data-accordion-target={`#recomendacion-body-${index}`}
-															aria-expanded="true"
-															aria-controls={`recomendacion-body-${index}`}
-														>
-															<span>{l.titulo}</span>
-
-															<Icon
-																name="ri:arrow-up-s-line"
-																class="h-5 w-5 shrink-0 rotate-180"
-																data-accordion-icon
-															/>
-														</button>
-													</h2>
-													<div
-														id={`recomendacion-body-${index}`}
-														class="border-default rounded-b-base hidden border border-t-0 shadow-xs"
-														aria-labelledby={`recomendacion-${index}`}
+											{
+												titulo: 'Alianzas estratégicas',
+												parrafo:
+													'Conecta con contadores, abogados o asesores de negocios que atiendan a emprendedores. Ofréceles compartir tu código con sus clientes a cambio de una comisión (puedes establecer un acuerdo de referidos).',
+											},
+										].map((l, index) => (
+											<>
+												<h2 id={`recomendacion-${index}`}>
+													<button
+														type="button"
+														class="text-body rounded-base border-default hover:text-heading flex w-full items-center justify-between gap-3 border bg-white p-5 font-medium shadow-xs hover:bg-gray-100 aria-expanded:rounded-b-none aria-expanded:shadow-none rtl:text-right dark:bg-neutral-950 dark:hover:bg-neutral-900"
+														data-accordion-target={`#recomendacion-body-${index}`}
+														aria-expanded="true"
+														aria-controls={`recomendacion-body-${index}`}
 													>
-														<div class="p-4 md:p-5">
-															<p class="text-body mb-2">{l.parrafo}</p>
-														</div>
-													</div>
-												</>
-											))}
-										</div>
+														<span>{l.titulo}</span>
 
-										<p>
-											Recuerda: mientras más personas conozcan los beneficios de
-											tener una LLC en EE.UU., más oportunidades tendrás de
-											ganar comisiones. ¡Empieza hoy mismo a compartir tu código
-											y construye tu red de referidos!
-										</p>
+														<Icon
+															name="ri:arrow-up-s-line"
+															class="h-5 w-5 shrink-0 rotate-180"
+															data-accordion-icon
+														/>
+													</button>
+												</h2>
+												<div
+													id={`recomendacion-body-${index}`}
+													class="border-default rounded-b-base hidden border border-t-0 shadow-xs"
+													aria-labelledby={`recomendacion-${index}`}
+												>
+													<div class="p-4 md:p-5">
+														<p class="text-body mb-2">{l.parrafo}</p>
+													</div>
+												</div>
+											</>
+										))}
 									</div>
+
+									<p>
+										Recuerda: mientras más personas conozcan los beneficios de
+										tener una LLC en EE.UU., más oportunidades tendrás de ganar
+										comisiones. ¡Empieza hoy mismo a compartir tu código y
+										construye tu red de referidos!
+									</p>
 								</div>
-							</section>
-						</div>
+							</div>
+						</section>
 					</div>
 
 					<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-transparent">

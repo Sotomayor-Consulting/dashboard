@@ -36,7 +36,7 @@ const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 ---
 
 <ul
-	class="mt-4 inline-flex w-fit items-center gap-1 rounded-lg border border-gray-200 bg-gray-100 p-1 text-xs font-semibold md:w-auto xl:text-sm dark:border-gray-700 dark:bg-neutral-950"
+	class="mt-4 flex w-fit flex-wrap items-center gap-1 rounded-lg border border-gray-200 bg-gray-100 p-1 text-xs font-semibold md:inline-flex md:w-auto xl:text-sm dark:border-gray-700 dark:bg-neutral-950"
 	data-tab-strip
 	data-default-panel={defaultPanelId}
 	data-sync-url={syncUrl ? '1' : '0'}

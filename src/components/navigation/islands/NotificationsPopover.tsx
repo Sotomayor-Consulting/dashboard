@@ -73,8 +73,12 @@ export default function NotificationsPopover({
 	const [unreadCount, setUnreadCount] = useState(totalUnread);
 	const [pendingIds, setPendingIds] = useState<string[]>([]);
 
-	useEffect(() => { setItems(notifications); }, [notifications]);
-	useEffect(() => { setUnreadCount(totalUnread); }, [totalUnread]);
+	useEffect(() => {
+		setItems(notifications);
+	}, [notifications]);
+	useEffect(() => {
+		setUnreadCount(totalUnread);
+	}, [totalUnread]);
 
 	const unreadItems = useMemo(
 		() => items.filter((notification) => !notification.read_at),
@@ -311,7 +315,7 @@ export default function NotificationsPopover({
 			<PopoverContent
 				align="center"
 				sideOffset={15}
-				className="z-20 w-[24rem] max-w-sm gap-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-0 shadow-xl ring-0 dark:border-gray-700 dark:bg-black"
+				className="z-20 w-[24rem] max-w-xs gap-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-0 shadow-xl ring-0 md:max-w-sm dark:border-gray-700 dark:bg-black"
 			>
 				<div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-transparent">
 					<div className="flex items-center gap-2">

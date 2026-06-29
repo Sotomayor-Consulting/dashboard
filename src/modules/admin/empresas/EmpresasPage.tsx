@@ -128,7 +128,8 @@ function EmpresasPageInner() {
 	}, [visibleIds, selectedIds]);
 	const toggleAll = () =>
 		setSelectedIds((prev) => {
-			const allSelected = visibleIds.length > 0 && visibleIds.every((id) => prev.has(id));
+			const allSelected =
+				visibleIds.length > 0 && visibleIds.every((id) => prev.has(id));
 			const next = new Set(prev);
 			if (allSelected) visibleIds.forEach((id) => next.delete(id));
 			else visibleIds.forEach((id) => next.add(id));
@@ -165,8 +166,8 @@ function EmpresasPageInner() {
 				</Button>
 			</header>
 
-			<div className="border-b border-gray-200 px-7 py-3 dark:border-gray-800">
-				<div className="flex items-center gap-2">
+			<div className="flex border-b border-gray-200 px-7 py-3 dark:border-gray-800">
+				<div className="flex flex-col items-center gap-2 md:flex-row">
 					<div className="relative w-64 shrink-0">
 						<Icon
 							icon="ri:search-line"
@@ -180,7 +181,7 @@ function EmpresasPageInner() {
 						/>
 					</div>
 
-					<div className="flex items-center gap-1.5">
+					<div className="flex flex-wrap items-center gap-1.5">
 						{EMPRESAS_FILTERS.map((f) => {
 							const isActive = filter === f;
 							return (
