@@ -316,7 +316,7 @@ export default function StepsWizard({ states }: Props) {
 		}
 	};
 
-	const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleRegister = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (regPassword !== regConfirmPassword) {
 			toast.error('Las contraseñas no coinciden');

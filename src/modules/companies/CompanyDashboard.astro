@@ -11,7 +11,6 @@ import Gridline2 from '@modules/companies/components/dashboard-companies/StatusG
 import ProcessIncorp from '@modules/companies/components/dashboard-companies/IncorporationProcess.astro';
 import SignedPanel from '@modules/companies/components/dashboard-companies/SignedPanel.astro';
 import ModalDropzone from '@modules/companies/components/dashboard-companies/DropzoneModal.astro';
-import InformationPanel from '@modules/companies/components/dashboard-companies/InformationPanel.astro';
 import { getClientWorkflowProgress } from '@modules/companies/services/get-client-workflow-progress';
 
 interface Props {
@@ -59,8 +58,6 @@ if (!empresa) {
 
 const clientWorkflowData = clientWorkflowProgress;
 
-const estadoMapa = empresa?.estado_de_incorporacion ?? null;
-
 const porfirmarCount = porfirmar.length;
 
 const stages = clientWorkflowData?.stages ?? [];
@@ -88,23 +85,13 @@ const upgradePrice = servicioUpgrade?.precio
 	? Number(servicioUpgrade.precio)
 	: null;
 
-const activeTabParam = Astro.url.searchParams.get('tab');
-const initialTab = activeTabParam === 'info' ? 'info' : 'general';
-
 const tabs = [
 	{
 		id: 'general',
 		label: 'General',
 		icon: 'ri:apps-2-ai-line',
 		kind: 'panel' as const,
-		active: initialTab === 'general',
-	},
-	{
-		id: 'info',
-		label: 'Información',
-		icon: 'ri:information-line',
-		kind: 'panel' as const,
-		active: initialTab === 'info',
+		active: true,
 	},
 	{
 		id: 'documents',
@@ -125,10 +112,10 @@ const tabs = [
 ];
 ---
 
-<div class="px-4 pt-6">
+<div>
 	<TabBar buttons={tabs} />
 
-	<div data-tab-panel="general" hidden={initialTab !== 'general'}>
+	<div data-tab-panel="general">
 		<Head
 			empresa={empresa}
 			planName={planName}
@@ -165,9 +152,6 @@ const tabs = [
 		</div>
 	</div>
 
-	<div data-tab-panel="info" hidden={initialTab !== 'info'}>
-		<InformationPanel empresa={empresa} estadoMapa={estadoMapa ?? ''} />
-	</div>
 </div>
 
 <ModalDropzone userId={userId} empresaId={empresaId} />
@@ -180,17 +164,6 @@ const tabs = [
 	import './company-dashboard-geo.client.ts';
 </script>
 
-<script>
-	// Re-renderiza el mapa de geolocalización cuando el usuario abre la tab
-	// "Información" (el mapa necesita un re-trigger porque su contenedor pasa
-	// de display:none a visible). El toggle visual ya lo maneja TabBar.
-	document.addEventListener('tabbar:change', (e) => {
-		const id = (e as CustomEvent<{ id: string }>).detail.id;
-		if (id === 'info') {
-			document.dispatchEvent(new CustomEvent('dark-mode'));
-		}
-	});
-</script>
 
 <script>
 	document.addEventListener('click', async (e) => {

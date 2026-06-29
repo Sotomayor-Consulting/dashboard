@@ -81,7 +81,7 @@ const showBannerPartner = missingPartnerFields.length > 0;
 	<div class="dark:bg-primary-black flex h-dvh overflow-hidden bg-white pt-14">
 		<div
 			id="main-content"
-			class="dark:bg-primary-black relative h-full w-full overflow-y-auto bg-white px-6"
+			class="dark:bg-primary-black relative h-full w-full overflow-y-auto bg-white"
 		>
 			<div transition:persist="global-toaster">
 				<Toaster client:load />
@@ -93,7 +93,9 @@ const showBannerPartner = missingPartnerFields.length > 0;
 				missingFields={missingPartnerFields}
 				client:load
 			/>
-			<slot />
+			<div class="px-6">
+				<slot />
+			</div>
 		</div>
 	</div>
 </LayoutCommon>

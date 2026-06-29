@@ -5,7 +5,7 @@ interface Props {
 	className?: string;
 }
 
-function WordIcon({ className }: { className?: string }) {
+function WordIcon({ className }: { className?: string | undefined }) {
 	return (
 		<svg viewBox="0 0 486 500" className={cn('h-7 w-7 shrink-0', className)}>
 			<defs>
@@ -31,7 +31,7 @@ function WordIcon({ className }: { className?: string }) {
 	);
 }
 
-function PdfIcon({ className }: { className?: string }) {
+function PdfIcon({ className }: { className?: string | undefined }) {
 	return (
 		<svg viewBox="0 0 75.32 92.604" className={cn('h-7 w-7 shrink-0', className)}>
 			<path fill="#ff2116" d="M-29.633 123.947c-3.552 0-6.443 2.894-6.443 6.446v49.498c0 3.551 2.891 6.445 6.443 6.445h37.85c3.552 0 6.443-2.893 6.443-6.445v-40.702s.102-1.191-.416-2.351a6.516 6.516 0 0 0-1.275-1.844 1.058 1.058 0 0 0-.006-.008l-9.39-9.21a1.058 1.058 0 0 0-.016-.016s-.802-.764-1.99-1.274c-1.4-.6-2.842-.537-2.842-.537l.021-.002z" transform="translate(53.548 -183.975) scale(1.4843)"/>
@@ -43,6 +43,6 @@ function PdfIcon({ className }: { className?: string }) {
 }
 
 export function TemplateTypeIcon({ type, className }: Props) {
-	if (type === 'word') return <WordIcon className={className} />;
-	return <PdfIcon className={className} />;
+	if (type === 'word') return <WordIcon className={className ?? undefined} />;
+	return <PdfIcon className={className ?? undefined} />;
 }

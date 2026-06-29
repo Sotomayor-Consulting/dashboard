@@ -2,7 +2,6 @@
 import PersonalInfoForm from './components/PersonalInfoForm.astro';
 import UserAccountPanel from './components/UserAccountPanel.astro';
 import BillingForm from './components/BillingForm.astro';
-import Tab from '@components/navigation/TabBar.astro';
 import { getUsuarioById } from '@domains/users/users';
 import { PaisesGeneral } from '@domains/utils/generals/countries-list';
 import { FacturacionbyId } from '@domains/users/billing';
@@ -13,47 +12,34 @@ interface Props {
 
 const { section = 'account' } = Astro.props as Props;
 
-// Auth handled by middleware
 const user = Astro.locals.user;
 const userId = user?.id ?? '';
 const supabase = Astro.locals.supabase;
 
+const sectionTitles: Record<string, string> = {
+	account: 'Perfil y cuenta',
+	general: 'Información general',
+	billing: 'Datos de facturación',
+};
+
+const needsUser = section === 'general';
+const needsBilling = section === 'billing';
+const needsPaises = needsUser || needsBilling;
+
 const [testRow, paises, facturacion] = await Promise.all([
-	getUsuarioById(supabase, userId),
-	PaisesGeneral(supabase),
-	FacturacionbyId(supabase, userId),
+	needsUser ? getUsuarioById(supabase, userId) : Promise.resolve(null),
+	needsPaises ? PaisesGeneral(supabase) : Promise.resolve(null),
+	needsBilling ? FacturacionbyId(supabase, userId) : Promise.resolve(null),
 ]);
 
 const email = user?.email ?? undefined;
-
-const tabs = [
-	{
-		label: 'Perfil y cuenta',
-		icon: 'ri:user-settings-line',
-		active: section === 'account',
-		link: '/profile/',
-	},
-	{
-		label: 'Información general',
-		icon: 'ri:file-user-line',
-		active: section === 'general',
-		link: '/profile/general/',
-	},
-	{
-		label: 'Datos de facturación',
-		icon: 'ri:receipt-line',
-		active: section === 'billing',
-		link: '/profile/billing-info/',
-	},
-];
 ---
 
 <div class="grid grid-cols-1 px-4 pt-6">
 	<div class="col-span-full mb-4 xl:mb-2">
 		<h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-			Configuraciones de usuario
+			{sectionTitles[section]}
 		</h1>
-		<Tab buttons={tabs} />
 	</div>
 
 	{section === 'account' && <UserAccountPanel email={email} />}

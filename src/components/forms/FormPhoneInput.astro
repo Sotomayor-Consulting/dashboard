@@ -46,7 +46,6 @@ const {
 </div>
 <script>
 	import intlTelInput from 'intl-tel-input/intlTelInputWithUtils';
-	import es from 'intl-tel-input/i18n/es';
 	import 'intl-tel-input/styles';
 	function initPhoneInputs() {
 		const inputs =
@@ -57,14 +56,13 @@ const {
 			const country = input.dataset.phoneCountry || 'us';
 			const isRequired = input.dataset.phoneRequired === 'true';
 			const iti = intlTelInput(input, {
-				i18n: es,
 				initialCountry: country as any,
-				nationalMode: true,
 				formatAsYouType: true,
 				separateDialCode: true,
 				countrySearch: true,
 				strictMode: true,
-				hiddenInput: () => ({
+				countrySelectorMode: 'DROPDOWN' as any,
+				hiddenInputs: () => ({
 					phone: name,
 					country: `${name}_country`,
 				}),
