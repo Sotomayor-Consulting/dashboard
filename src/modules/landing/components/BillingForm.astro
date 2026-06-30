@@ -1,8 +1,9 @@
 ---
+import { Icon } from 'astro-icon/components';
 import FormPhoneInput from '@components/forms/FormPhoneInput.astro';
 import FormInput from '@components/forms/FormInput.astro';
 import FormSelect from '@components/forms/FormSelect.astro';
-import FormButton from '@components/forms/FormButton.astro';
+import type { BillingInfoRow } from '@domains/users/billing';
 
 interface PaisRow {
 	id: number;
@@ -11,20 +12,8 @@ interface PaisRow {
 	codigo_telf: string;
 }
 
-interface FacturacionRow {
-	personería?: string | null;
-	nombre_o_razon_social?: string | null;
-	correo?: string | null;
-	telefono?: string | null;
-	direccion_linea_1?: string | null;
-	pais?: string | null;
-	ciudad?: string | null;
-	tipo_de_documento?: string | null;
-	documento_de_identidad?: string | null;
-}
-
 interface Props {
-	facturacion?: FacturacionRow | null | undefined;
+	addresses: (BillingInfoRow & { paises?: { name: string } | null })[];
 	paises?: PaisRow[] | null | undefined;
 	userId?: string | undefined;
 }
@@ -34,110 +23,191 @@ type Option = {
 	label: string;
 };
 
-const personTypeOptions: Option[] = [
-	{ value: 'Natural', label: 'Natural' },
-	{ value: 'Jurídica', label: 'Jurídica' },
-];
-
-const documentTypeOptions: Option[] = [
-	{ value: 'Cédula', label: 'Cédula' },
-	{ value: 'RUC', label: 'RUC' },
-	{ value: 'ID', label: 'ID' },
-	{ value: 'Pasaporte', label: 'Pasaporte' },
-	{ value: 'EIN', label: 'EIN' },
-];
-
-const { facturacion, paises, userId } = Astro.props;
+const { addresses = [], paises, userId } = Astro.props;
+const canAdd = addresses.length < 3;
 
 const countryOptions: Option[] = (paises ?? []).map((p) => ({
-	value: p.name,
+	value: String(p.id),
 	label: p.name,
 }));
 ---
 
-<div
-	id="billing-info"
-	class="flat-card-padded mb-4 sm:p-6 2xl:col-span-2"
->
-	<h3 class="section-title mb-4">
-		Datos de facturación
-	</h3>
-	<form method="post" action="/api/billing/update-invoice">
-		<input type="hidden" value={userId} name="user_id_factura" />
-		<div class="grid grid-cols-6 gap-6">
-			<!-- Personería / Razón Social -->
-			<FormSelect
-				label="Personería"
-				name="tipo_de_persona"
-				value={facturacion?.personería ?? ''}
-				options={personTypeOptions}
-				placeholder="Seleccione el tipo de persona"
-				required
-			/>
-			<FormInput
-				label="Nombre o Razón Social"
-				name="razon_social"
-				value={facturacion?.nombre_o_razon_social ?? ''}
-				placeholder="Ejem. Juan Perez o Comercial Perez S.A."
-				required
-			/>
-			<!-- Correo / Teléfono -->
-			<FormInput
-				label="Correo electrónico para facturación"
-				name="correo_electronico_factura"
-				type="email"
-				value={facturacion?.correo ?? ''}
-				placeholder="ejemplo@gmail.com"
-				required
-			/>
-			<FormPhoneInput
-				label="Número de teléfono"
-				name="telefono"
-				value={facturacion?.telefono ?? ''}
-				initialCountry="us"
-			/>
-			<!-- Dirección (full width) -->
-			<FormInput
-				label="Dirección"
-				name="direccion_factura"
-				value={facturacion?.direccion_linea_1 ?? ''}
-				placeholder="Av. Siempre Viva 123 y Calle Alguna"
-				required
-				class="col-span-6"
-			/>
-			<!-- País / Ciudad -->
-			<FormSelect
-				label="País"
-				name="pais_factura"
-				value={facturacion?.pais ?? ''}
-				options={countryOptions}
-				placeholder="Seleccione un país"
-				required
-			/>
-			<FormInput
-				label="Ciudad"
-				name="ciudad_factura"
-				value={facturacion?.ciudad ?? ''}
-				placeholder="Quito"
-				required
-			/>
-			<FormSelect
-				label="Tipo de documento"
-				name="tipo_de_documento_factura"
-				value={facturacion?.tipo_de_documento ?? ''}
-				options={documentTypeOptions}
-				placeholder="Seleccione un tipo de documento"
-				required
-			/>
-			<FormInput
-				label="Número de identificación"
-				name="documento_de_identidad_factura"
-				value={facturacion?.documento_de_identidad ?? ''}
-				placeholder="1712345678"
-				required
-			/>
-			<!-- Botón guardar -->
-			<FormButton label="Guardar" variant="dark" />
+<!-- Saved addresses -->
+{addresses.length > 0 && (
+	<div class="mb-8">
+		<div class="flex items-center justify-between mb-4">
+			<div>
+				<h3 class="text-sm font-medium text-foreground">Direcciones guardadas</h3>
+				<p class="mt-0.5 text-sm text-muted-foreground">{addresses.length} de 3</p>
+			</div>
 		</div>
-	</form>
-</div>
+
+		<div class="space-y-3">
+			{addresses.map((addr) => (
+				<div class="group flex items-start justify-between rounded-lg border border-border p-4 transition hover:bg-hover">
+					<div class="min-w-0 flex-1">
+						<div class="flex items-center gap-2 mb-1">
+							<span class="text-sm font-medium text-foreground">
+								{addr.line1}
+							</span>
+							{addr.is_default && (
+								<span class="badge-status bg-accent-gold/10 text-accent-gold">
+									Predeterminada
+								</span>
+							)}
+						</div>
+						{addr.line2 && (
+							<p class="text-sm text-muted-foreground">{addr.line2}</p>
+						)}
+						<p class="text-sm text-muted-foreground">
+							{[addr.city, addr.paises?.name, addr.zip].filter(Boolean).join(', ')}
+						</p>
+						{(addr.email || addr.phone) && (
+							<p class="mt-1 text-xs text-muted-foreground">
+								{[addr.email, addr.phone].filter(Boolean).join(' · ')}
+							</p>
+						)}
+					</div>
+
+					<div class="flex shrink-0 items-center gap-1 ml-4">
+						{!addr.is_default && (
+							<form method="post" action="/api/billing/set-default">
+								<input type="hidden" name="billing_id" value={addr.id} />
+								<button
+									type="submit"
+									class="rounded-md p-1.5 text-muted-foreground transition hover:bg-hover hover:text-foreground"
+									title="Establecer como predeterminada"
+								>
+									<Icon name="ri:star-line" class="h-4 w-4" />
+								</button>
+							</form>
+						)}
+						<form method="post" action="/api/billing/delete">
+							<input type="hidden" name="billing_id" value={addr.id} />
+							<button
+								type="submit"
+								class="rounded-md p-1.5 text-muted-foreground transition hover:bg-hover hover:text-red-500"
+								title="Eliminar dirección"
+							>
+								<Icon name="ri:delete-bin-line" class="h-4 w-4" />
+							</button>
+						</form>
+					</div>
+				</div>
+			))}
+		</div>
+	</div>
+)}
+
+<!-- Add new address form -->
+{canAdd ? (
+	<div x-data="{ open: false }">
+		<button
+			type="button"
+			x-on:click="open = !open"
+			class="btn-outline w-full gap-2"
+		>
+			<Icon name="ri:add-line" class="h-4 w-4" />
+			Agregar dirección de facturación
+		</button>
+
+		<div x-show="open" x-transition class="mt-6">
+			<form method="post" action="/api/billing/upsert-invoice">
+				<input type="hidden" value={userId} name="user_id_factura" />
+				{addresses.length === 0 && (
+					<input type="hidden" name="is_default" value="true" />
+				)}
+
+				<div class="divide-y divide-border">
+					<!-- Contacto -->
+					<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 first:pt-0 sm:grid-cols-[220px_1fr]">
+						<div>
+							<h3 class="text-sm font-medium text-foreground">Contacto</h3>
+							<p class="mt-1 text-sm text-muted-foreground">Correo y teléfono de facturación.</p>
+						</div>
+						<div class="grid grid-cols-2 gap-4">
+							<FormInput
+								label=""
+								name="email"
+								type="email"
+								placeholder="correo@ejemplo.com"
+								class="col-span-1"
+							/>
+							<FormPhoneInput
+								label=""
+								name="phone"
+								initialCountry="us"
+								class="col-span-1"
+							/>
+						</div>
+					</div>
+
+					<!-- Dirección -->
+					<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
+						<div>
+							<h3 class="text-sm font-medium text-foreground">Dirección *</h3>
+							<p class="mt-1 text-sm text-muted-foreground">Ubicación para facturación.</p>
+						</div>
+						<div class="grid grid-cols-2 gap-4">
+							<FormInput
+								label=""
+								name="line1"
+								placeholder="Dirección línea 1"
+								required
+								class="col-span-2"
+							/>
+							<FormInput
+								label=""
+								name="line2"
+								placeholder="Dirección línea 2"
+								class="col-span-2"
+							/>
+							<FormSelect
+								label=""
+								name="country_id"
+								options={countryOptions}
+								placeholder="País"
+								required
+								class="col-span-1"
+							/>
+							<FormInput
+								label=""
+								name="city"
+								placeholder="Ciudad"
+								required
+								class="col-span-1"
+							/>
+							<FormInput
+								label=""
+								name="zip"
+								placeholder="Código postal"
+								class="col-span-1"
+							/>
+						</div>
+					</div>
+				</div>
+
+				<!-- Save button -->
+				<div class="flex justify-end gap-3 border-t border-border pt-6">
+					<button
+						type="button"
+						x-on:click="open = false"
+						class="btn-outline"
+					>
+						Cancelar
+					</button>
+					<button
+						type="submit"
+						class="btn-primary"
+					>
+						Guardar dirección
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+) : (
+	<p class="text-center text-sm text-muted-foreground py-4">
+		Has alcanzado el máximo de 3 direcciones de facturación.
+	</p>
+)}

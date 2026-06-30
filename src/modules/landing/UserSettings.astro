@@ -4,7 +4,7 @@ import UserAccountPanel from './components/UserAccountPanel.astro';
 import BillingForm from './components/BillingForm.astro';
 import { getUsuarioById } from '@domains/users/users';
 import { PaisesGeneral } from '@domains/utils/generals/countries-list';
-import { FacturacionbyId } from '@domains/users/billing';
+import { getAllBillingInfo } from '@domains/users/billing';
 
 interface Props {
 	section?: 'account' | 'general' | 'billing';
@@ -17,29 +17,34 @@ const userId = user?.id ?? '';
 const supabase = Astro.locals.supabase;
 
 const sectionTitles: Record<string, string> = {
-	account: 'Perfil y cuenta',
+	account: 'Perfil',
 	general: 'Información general',
 	billing: 'Datos de facturación',
+};
+
+const sectionDescriptions: Record<string, string> = {
+	account: 'Gestiona tu información personal y cuenta.',
+	general: 'Completa tus datos personales y de contacto.',
+	billing: 'Administra tus datos de facturación.',
 };
 
 const needsUser = section === 'general';
 const needsBilling = section === 'billing';
 const needsPaises = needsUser || needsBilling;
 
-const [testRow, paises, facturacion] = await Promise.all([
+const [testRow, paises, billingAddresses] = await Promise.all([
 	needsUser ? getUsuarioById(supabase, userId) : Promise.resolve(null),
 	needsPaises ? PaisesGeneral(supabase) : Promise.resolve(null),
-	needsBilling ? FacturacionbyId(supabase, userId) : Promise.resolve(null),
+	needsBilling ? getAllBillingInfo(supabase, userId) : Promise.resolve([]),
 ]);
 
 const email = user?.email ?? undefined;
 ---
 
-<div class="grid grid-cols-1 px-4 pt-6">
-	<div class="section-header col-span-full">
-		<h1 class="text-xl font-semibold text-foreground sm:text-2xl">
-			{sectionTitles[section]}
-		</h1>
+<div class="mx-auto max-w-3xl px-4 pt-6 pb-12">
+	<div class="section-header mb-8">
+		<h1 class="section-title text-xl">{sectionTitles[section]}</h1>
+		<p class="section-description">{sectionDescriptions[section]}</p>
 	</div>
 
 	{section === 'account' && <UserAccountPanel email={email} />}
@@ -49,6 +54,6 @@ const email = user?.email ?? undefined;
 	)}
 
 	{section === 'billing' && (
-		<BillingForm facturacion={facturacion} paises={paises} userId={userId} />
+		<BillingForm addresses={billingAddresses ?? []} paises={paises} userId={userId} />
 	)}
 </div>

@@ -181,6 +181,12 @@ export const menuItems: MenuItem[] = [
 				href: '/profile/notifications/',
 				svgname: 'ri:notification-3-line',
 			},
+			{
+				id: 'user-security',
+				label: 'Seguridad',
+				href: '/profile/security/',
+				svgname: 'ri:shield-line',
+			}
 		],
 	},
 ];

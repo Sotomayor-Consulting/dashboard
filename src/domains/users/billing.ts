@@ -37,6 +37,26 @@ export const FacturacionbyId = async (
 	return data;
 };
 
+export const getAllBillingInfo = async (
+	supabase: SupabaseClient,
+	userId: string,
+): Promise<BillingInfoRow[]> => {
+	const { data, error } = await supabase
+		.from('billing_info')
+		.select('*, paises:country_id(name)')
+		.eq('user_id', userId)
+		.order('is_default', { ascending: false })
+		.order('created_at', { ascending: true })
+		.limit(3);
+
+	if (error) {
+		log.error('Error fetching all billing_info', { error });
+		return [];
+	}
+
+	return data ?? [];
+};
+
 export const getDefaultBillingInfo = async (
 	supabase: SupabaseClient,
 	userId: string,

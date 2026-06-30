@@ -1,6 +1,6 @@
 ---
 import LayoutSidebar from '@layouts/LayoutSidebar.astro';
-import UserSettings from '@modules/landing/UserSettings.astro';
+import NotificationSettings from '@modules/landing/NotificationSettings.astro';
 import Alerta from '@components/feedback/Alert.astro';
 import TabBar from '@components/navigation/TabBar.astro';
 ---
@@ -18,13 +18,13 @@ import TabBar from '@components/navigation/TabBar.astro';
 			{
 				label: 'Facturación',
 				icon: 'ri:bank-card-line',
-				active: true,
+				active: false,
 				link: '/profile/billing',
 			},
 			{
 				label: 'Notificaciones',
 				icon: 'ri:notification-3-line',
-				active: false,
+				active: true,
 				link: '/profile/notifications',
 			},
 			{
@@ -35,5 +35,5 @@ import TabBar from '@components/navigation/TabBar.astro';
 			},
 		]}
 	/>
-	<UserSettings section="billing" />
+	<NotificationSettings />
 </LayoutSidebar>

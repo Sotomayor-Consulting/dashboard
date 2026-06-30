@@ -4,6 +4,7 @@
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/geist';
 @import '@fontsource-variable/geist-mono';
+@import 'intl-tel-input/styles';
 
 @custom-variant dark (&:is(.dark *));
 @plugin 'flowbite/plugin';
@@ -159,101 +160,53 @@
 	}
 }
 
-/* intl-tel-input global theming */
+/* intl-tel-input global theming (official CSS variables) */
 .iti {
-	--iti-border-color: #d1d5db;
-	--iti-dropdown-bg: #f1f1f1;
-	--iti-hover-color: rgba(0, 0, 0, 0.05);
-	--iti-dialcode-bg: #f9fafb;
-	--iti-path-globe-1x: url('https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/img/globe_light.webp');
-	--iti-path-globe-2x: url('https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/img/globe_light@2x.webp');
+	--iti-border-color: var(--border);
+	--iti-hover-color: var(--hover);
+	--iti-country-selector-bg: var(--card);
+	--iti-path-globe-1x: url('https://cdn.jsdelivr.net/npm/intl-tel-input@29.1.1/dist/img/globe_light.webp');
+	--iti-path-globe-2x: url('https://cdn.jsdelivr.net/npm/intl-tel-input@29.1.1/dist/img/globe_light@2x.webp');
 	width: 100%;
 }
 
+:where(.dark) .iti {
+	--iti-icon-color: #9ca3af;
+	--iti-path-globe-1x: url('https://cdn.jsdelivr.net/npm/intl-tel-input@29.1.1/dist/img/globe_dark.webp');
+	--iti-path-globe-2x: url('https://cdn.jsdelivr.net/npm/intl-tel-input@29.1.1/dist/img/globe_dark@2x.webp');
+}
+
+/* Dropdown list */
 .iti .iti__country-list,
 .iti--container .iti__country-list {
-	background: var(--iti-dropdown-bg);
-	color: inherit;
+	background: var(--popover);
+	color: var(--foreground);
+	border: 1px solid var(--border);
 	font-size: 0.875rem;
 	line-height: 1.25rem;
 }
 
-.iti .iti__country,
-.iti--container .iti__country {
-	background: transparent;
+.iti__search-input {
+	background-color: var(--popover) !important;
+	color: var(--foreground) !important;
 }
 
 .iti .iti__country.iti__highlight,
 .iti--container .iti__country.iti__highlight,
 .iti .iti__country:hover,
 .iti--container .iti__country:hover {
-	background-color: var(--iti-hover-color) !important;
-	color: inherit !important;
-}
-
-.iti--container {
-	--iti-dropdown-bg: #e5e5e5;
-	--iti-hover-color: rgba(0, 0, 0, 0.05);
-}
-
-:where(.dark) .iti {
-	--iti-border-color: #4b5563;
-	--iti-dropdown-bg: #00122c;
-	--iti-hover-color: rgba(255, 255, 255, 0.06);
-	--iti-icon-color: #9ca3af;
-	--iti-dialcode-bg: #101521;
-	--iti-path-globe-1x: url('https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/img/globe_dark.webp');
-	--iti-path-globe-2x: url('https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/img/globe_dark@2x.webp');
-}
-
-:where(.dark) .iti--container {
-	--iti-dropdown-bg: #0b1c35;
-	--iti-hover-color: rgba(255, 255, 255, 0.06);
-}
-
-:where(.dark) .iti__country-list {
-	border: 1px solid #4b5563;
-}
-
-:where(.dark) .iti__search-input {
-	background-color: #0b1c35;
-	color: #fff;
+	background-color: var(--hover) !important;
 }
 
 :where(.dark) .iti__country-name,
 :where(.dark) .iti__dial-code,
 :where(.dark) .iti__selected-dial-code {
-	color: #e5e7eb;
+	color: var(--foreground);
 }
 
-.iti__selected-country {
-	background-color: transparent;
-}
-
-.iti--separate-dial-code .iti__selected-country {
-	background-color: var(--iti-dialcode-bg);
-}
-
-.iti--separate-dial-code .iti__selected-country-primary {
-	background-color: var(--iti-dialcode-bg);
-}
-
-:where(.dark) .iti--separate-dial-code .iti__selected-country {
-	border-right: 1px solid #374151;
-}
-
-.iti__selected-country:hover {
-	background-color: var(--iti-hover-color);
-}
-
-:where(.dark) .iti__country.iti__highlight {
-	background-color: var(--iti-hover-color);
-	color: #e5e7eb;
-}
-
-:where(.dark) .iti--container .iti__country.iti__highlight {
-	background-color: var(--iti-hover-color) !important;
-	color: #e5e7eb !important;
+/* Country selector: round left corners to match input */
+.iti .iti__selected-country-primary {
+	border-radius: 0.5rem 0 0 0.5rem;
 }
 
 .iti,
@@ -482,6 +435,16 @@
 	html {
 		@apply font-sans;
 	}
+
+	input:-webkit-autofill,
+	input:-webkit-autofill:hover,
+	input:-webkit-autofill:focus,
+	select:-webkit-autofill,
+	textarea:-webkit-autofill {
+		-webkit-text-fill-color: var(--foreground);
+		-webkit-box-shadow: 0 0 0 1000px var(--background) inset;
+		transition: background-color 5000s ease-in-out 0s;
+	}
 }
 
 /* ── Flat/Open Layout — Typography & Card System ────────────
@@ -527,6 +490,14 @@
 
 	.badge-status {
 		@apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+	}
+
+	.btn-primary {
+		@apply inline-flex cursor-pointer items-center justify-center rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-background transition hover:opacity-80;
+	}
+
+	.btn-outline {
+		@apply inline-flex cursor-pointer items-center justify-center rounded-lg border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-hover;
 	}
 }
 
