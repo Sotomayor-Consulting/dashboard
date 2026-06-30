@@ -1,0 +1,78 @@
+---
+import { Icon } from 'astro-icon/components';
+
+export interface Tab {
+	label: string;
+	icon: string;
+	href: string;
+	active?: boolean;
+}
+
+export interface ActionLink {
+	label: string;
+	icon: string;
+	href: string;
+	external?: boolean;
+}
+
+interface Props {
+	title: string;
+	icon: string;
+	tabs?: Tab[];
+	action?: ActionLink;
+}
+
+const { title, icon, tabs = [], action } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<div class="border-b border-border">
+	<div class="flex items-center gap-2.5 px-1 pt-4 pb-3">
+		<Icon name={icon} class="h-5 w-5 text-muted-foreground" />
+		<h1 class="text-lg font-semibold text-foreground">{title}</h1>
+	</div>
+
+	{
+		tabs.length > 0 && (
+			<div class="flex items-center justify-between">
+				<nav class="-mb-px flex gap-1" aria-label="Tabs">
+					{tabs.map((tab) => {
+						const isActive =
+							tab.active ?? currentPath.replace(/\/$/, '') === tab.href.replace(/\/$/, '');
+						return (
+							<a
+								href={tab.href}
+								data-astro-prefetch="viewport"
+								class:list={[
+									'inline-flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors',
+									isActive
+										? 'border-primary-gold text-primary-gold'
+										: 'border-transparent text-muted-foreground hover:border-border hover:text-foreground',
+								]}
+								aria-current={isActive ? 'page' : undefined}
+							>
+								<Icon name={tab.icon} class="h-4 w-4" />
+								{tab.label}
+							</a>
+						);
+					})}
+				</nav>
+
+				{action && (
+					<a
+						href={action.href}
+						target={action.external ? '_blank' : undefined}
+						rel={action.external ? 'noreferrer noopener' : undefined}
+						class="inline-flex items-center gap-1.5 px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+					>
+						<Icon name={action.icon} class="h-4 w-4" />
+						{action.label}
+						{action.external && (
+							<Icon name="ri:external-link-line" class="h-3 w-3" />
+						)}
+					</a>
+				)}
+			</div>
+		)
+	}
+</div>

@@ -12,13 +12,13 @@ import TabBar from '@components/navigation/TabBar.astro';
 			{
 				label: 'Perfil',
 				icon: 'ri:user-line',
-				active: true,
+				active: false,
 				link: '/profile/',
 			},
 			{
 				label: 'Facturación',
 				icon: 'ri:bank-card-line',
-				active: false,
+				active: true,
 				link: '/profile/billing',
 			},
 			{
@@ -29,5 +29,5 @@ import TabBar from '@components/navigation/TabBar.astro';
 			},
 		]}
 	/>
-	<UserSettings section="account" />
+	<UserSettings section="billing" />
 </LayoutSidebar>

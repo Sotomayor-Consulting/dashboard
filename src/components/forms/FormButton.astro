@@ -1,1 +1,42 @@
-<div>Prueba FormButton</div>
+---
+interface Props {
+	label?: string;
+	type?: 'submit' | 'button' | 'reset';
+	variant?: 'primary' | 'dark';
+	class?: string;
+	disabled?: boolean;
+	name?: string;
+	value?: string;
+}
+
+const {
+	label = 'Guardar',
+	type = 'submit',
+	variant = 'dark',
+	class: extraClass = '',
+	disabled = false,
+	name,
+	value,
+} = Astro.props;
+
+const base =
+	'cursor-pointer rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+
+const variants = {
+	primary:
+		'bg-primary-gold hover:bg-primary-gold/80 focus:ring-primary-300 dark:focus:ring-[#323f67]',
+	dark: 'bg-black-600 hover:bg-black-500 dark:bg-black-400 dark:hover:bg-black-400/80 focus:ring-primary-300 dark:focus:ring-[#323f67]',
+};
+---
+
+<div class={`sm:col-full col-span-6 ${extraClass}`}>
+	<button
+		type={type}
+		disabled={disabled}
+		name={name}
+		value={value}
+		class={`${base} ${variants[variant]}`}
+	>
+		<slot>{label}</slot>
+	</button>
+</div>

@@ -1,105 +1,19 @@
 ---
 import { serviciosExtras } from '@domains/utils/generals/microservices';
-import { Image } from 'astro:assets';
+import ServicesSection from '@modules/services/islands/ServicesSection';
 
 const supabase = Astro.locals.supabase;
 const servicios = await serviciosExtras(supabase);
+
+const mapped = (servicios ?? []).map((s: any) => ({
+	id: String(s.servicio_ex_id),
+	nombre: s.nombre ?? '',
+	descripcion: s.descripcion ?? '',
+	categoria: s.categoria ?? 'General',
+	link_imagen: s.link_imagen ?? '',
+	link: s.link ?? '#',
+	estado: s.estado ?? 'Activo',
+}));
 ---
 
-<div class="mx-4 my-6">
-	<h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-		Lista de nuestros servicios
-	</h1>
-</div>
-<div
-	class="mx-4 mt-6 mb-6 hidden grid-cols-2 items-stretch gap-4 border-b border-neutral-600 pb-6 md:grid md:grid-cols-3"
-	style="grid-auto-rows: minmax(110px, auto);"
->
-	{
-		servicios?.slice(0, 3).map((sr) => (
-			<a class="h-full" id={sr.servicio_ex_id} href={sr.link} target="_blank">
-				<div class="bg-white-50 h-full overflow-hidden rounded-lg border border-neutral-600 shadow-sm dark:bg-transparent dark:text-white">
-					<div class="bg-surface-400 relative flex h-24 w-full items-center justify-center overflow-hidden rounded-t-md">
-						<Image
-							alt="Cron integration"
-							inferSize={true}
-							loading="lazy"
-							decoding="async"
-							data-nimg="fill"
-							class="h-full w-full object-cover"
-							sizes="100vw"
-							src={sr.link_imagen}
-							style="position: absolute; height: 100%; width: 100%; inset: 0px; object-fit: cover; color: transparent;"
-						/>
-					</div>
-					<div class="border-b p-6 px-4 last:border-none">
-						<div class="flex flex-col items-center justify-start gap-y-0.5 text-center">
-							<h3 class="text-black dark:text-white">{sr.nombre}</h3>
-							<p class="text-foreground-light text-sm text-neutral-500 dark:text-neutral-400">
-								{sr.descripcion}
-							</p>
-							<div class="mt-4 flex items-center gap-x-1">
-								<div class="bg-opacity-10 text-foreground-light border-strong inline-flex items-center rounded-full border border-neutral-600 px-2.5 py-0.5 text-xs">
-									<span>{sr.categoria}</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</a>
-		))
-	}
-</div>
-<div class="mx-4 mt-6 grid gap-4 lg:grid-cols-3 xl:grid-cols-4">
-	{
-		servicios?.map((cards) => (
-			<a class="h-full" href={cards.link} target="_blank">
-				<div class="bg-white-50 text-card-foreground h-full overflow-hidden rounded-lg border border-neutral-600 shadow-sm dark:bg-transparent">
-					<div class="flex h-full flex-col border-b p-4 last:border-none @2xl:p-6">
-						<div class="mb-4 flex items-start justify-between">
-							<div class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-neutral-600 bg-white">
-								<img
-									src={cards.link_imagen}
-									class="inset-0 h-full w-full"
-									alt={`imagen de ${cards.nombre}`}
-								/>
-							</div>
-							<div class="flex items-center gap-x-1">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="text-[#3ECF8E]"
-									width="14"
-									height="14"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									class="lucide lucide-badge-check text-brand"
-								>
-									<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" />
-									<path d="m9 12 2 2 4-4" />
-								</svg>
-								<span class="text-xs text-[#3ECF8E]">{cards.estado}</span>
-							</div>
-						</div>
-						<div class="flex flex-1 flex-col items-start justify-start gap-y-0.5">
-							<h3 class="text-foreground mb-1 text-sm text-black dark:text-white">
-								{cards.nombre}
-							</h3>
-							<p class="text-foreground-light flex-1 text-xs text-neutral-600 dark:text-neutral-400">
-								{cards.descripcion}
-							</p>
-							<div class="mt-4 flex items-center gap-x-1">
-								<div class="bg-surface-75 border-strong inline-flex items-center rounded-full border border-neutral-600 px-2 py-0.5 text-xs font-normal whitespace-nowrap text-black dark:text-white">
-									<span>{cards.categoria}</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</a>
-		))
-	}
-</div>
+<ServicesSection services={mapped} client:load />

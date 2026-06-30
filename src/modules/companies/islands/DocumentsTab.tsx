@@ -224,7 +224,7 @@ export default function DocumentsTab({
 
 	const [uploading, setUploading] = React.useState(false);
 
-	const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleUpload = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setUploading(true);
 		const toastId = toast.loading('Subiendo documento…');

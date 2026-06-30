@@ -1,105 +1,382 @@
 ---
 import { Icon } from 'astro-icon/components';
+import { menuItems } from './items';
 
 interface Props {
 	placeholder?: string;
 	id?: string;
+	userRoles?: string[];
 }
 
 const {
-	placeholder = 'Buscar empresa, documento o tarea...',
+	placeholder = 'Buscar...',
 	id = 'global-search',
+	userRoles = [],
 } = Astro.props;
+
+const visibleItems = menuItems.filter(
+	(item) =>
+		item.roles.includes('all') ||
+		item.roles.includes('todos') ||
+		item.roles.some((r) => userRoles.includes(r)),
+);
+
+const groupOrder = [
+	'Company',
+	'Partner Hub',
+	'Admin',
+	'Servicios',
+	'Cuenta',
+	'General',
+];
+
+type SearchItem = {
+	id: string;
+	label: string;
+	href: string;
+	svgname: string;
+	group: string;
+};
+
+const searchItems: SearchItem[] = [];
+
+for (const item of visibleItems) {
+	const group = item.group ?? 'General';
+	if (item.children && item.children.length > 0) {
+		for (const child of item.children) {
+			searchItems.push({
+				id: child.id,
+				label: child.label,
+				href: child.href,
+				svgname: child.svgname,
+				group,
+			});
+		}
+	} else {
+		searchItems.push({
+			id: item.id,
+			label: item.label,
+			href: item.href,
+			svgname: item.svgname,
+			group,
+		});
+	}
+}
+
+searchItems.push(
+	{
+		id: 'home',
+		label: 'Inicio',
+		href: '/',
+		svgname: 'ri:home-9-line',
+		group: 'General',
+	},
+	{
+		id: 'web',
+		label: 'Visita nuestra web',
+		href: 'https://sotomayorconsulting.com/',
+		svgname: 'ri:earth-line',
+		group: 'Recursos',
+	},
+	{
+		id: 'terms',
+		label: 'Términos y condiciones',
+		href: 'https://sotomayorconsulting.com/inicio/terminos/',
+		svgname: 'ri:file-list-3-line',
+		group: 'Recursos',
+	},
+);
+
+const grouped = new Map<string, SearchItem[]>();
+for (const item of searchItems) {
+	const arr = grouped.get(item.group);
+	if (arr) arr.push(item);
+	else grouped.set(item.group, [item]);
+}
+const orderedGroups = [...groupOrder, 'Recursos']
+	.filter((g) => (grouped.get(g)?.length ?? 0) > 0)
+	.map((g) => ({ title: g, items: grouped.get(g)! }));
 ---
 
+<!-- Trigger button in navbar -->
 <div class="relative w-full max-w-md" data-global-search data-search-id={id}>
-	<label for={id} class="sr-only">Buscar</label>
-	<Icon
-		name="ri:search-line"
-		class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500"
-	/>
-	<input
-		id={id}
-		type="search"
-		role="searchbox"
-		autocomplete="off"
-		spellcheck="false"
-		placeholder={placeholder}
-		aria-label="Buscar"
-		aria-keyshortcuts="Control+K Meta+K"
-		class="h-9 w-full rounded-lg border border-gray-200 bg-white py-1.5 pr-20 pl-9 text-sm text-gray-700 transition outline-none placeholder:text-gray-400 focus:border-gray-300 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-neutral-950 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-gray-500 dark:focus:ring-gray-600/40"
-		data-global-search-input
-	/>
-	<kbd
-		class="pointer-events-none absolute top-1/2 right-2 hidden -translate-y-1/2 items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-1.5 py-0.5 font-mono text-[11px] font-medium text-gray-500 select-none sm:inline-flex dark:border-gray-700 dark:bg-neutral-900 dark:text-gray-400"
-		aria-hidden="true"
-		data-global-search-hint
+	<button
+		type="button"
+		class="border-border bg-card text-muted-foreground hover:bg-muted flex h-9 w-full items-center gap-2 rounded-lg border py-1.5 pr-2 pl-3 text-sm transition outline-none"
+		data-global-search-trigger
+		aria-label="Abrir búsqueda"
 	>
-		<span data-global-search-mod>Ctrl</span>
-		<span>K</span>
-	</kbd>
+		<Icon name="ri:search-line" class="h-4 w-4 shrink-0" />
+		<span class="flex-1 text-left">{placeholder}</span>
+		<kbd
+			class="border-border bg-muted hidden items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-[11px] font-medium select-none sm:inline-flex"
+			aria-hidden="true"
+		>
+			<span data-global-search-mod>Ctrl</span>
+			<span>K</span>
+		</kbd>
+	</button>
 </div>
 
-<style>
-	input[type='search']::-webkit-search-cancel-button {
-		-webkit-appearance: none;
-		appearance: none;
-		height: 16px;
-		width: 16px;
-		background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg>");
-		background-size: contain;
-		background-repeat: no-repeat;
-		cursor: pointer;
-		margin-right: 6px;
-	}
-	:global(.dark) input[type='search']::-webkit-search-cancel-button {
-		background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg>");
+<!-- Modal command palette -->
+<div
+	id={`${id}-backdrop`}
+	class="fixed inset-0 z-100 hidden items-start justify-center bg-black/40 pt-[20vh] backdrop-blur-sm"
+	data-search-backdrop
+>
+	<div
+		id={`${id}-dialog`}
+		role="dialog"
+		aria-modal="true"
+		aria-label="Búsqueda rápida"
+		class="border-border bg-card w-full max-w-130 overflow-hidden rounded-lg border shadow-xl"
+		data-search-dialog
+	>
+		<!-- Search input -->
+		<div class="border-border flex items-center gap-3 border-b px-4">
+			<Icon
+				name="ri:search-line"
+				class="text-muted-foreground h-4 w-4 shrink-0"
+			/>
+			<input
+				id={`${id}-input`}
+				type="text"
+				autocomplete="off"
+				spellcheck="false"
+				placeholder={placeholder}
+				aria-label="Buscar"
+				class="search-modal-input text-foreground placeholder:text-muted-foreground h-11 w-full border-0 bg-transparent text-sm shadow-none ring-0 outline-none focus:border-0 focus:shadow-none focus:ring-0 focus:outline-none"
+				data-search-modal-input
+			/>
+			<button
+				type="button"
+				class="text-muted-foreground hover:text-foreground shrink-0 rounded p-0.5 transition-colors"
+				data-search-close
+				aria-label="Cerrar búsqueda"
+			>
+				<Icon name="ri:close-line" class="h-4 w-4" />
+			</button>
+		</div>
+
+		<!-- Results list -->
+		<div
+			class="scrollbar scrollbar-w-1.5 scrollbar-thumb-rounded-full max-h-90 scrollbar-thumb-gray-300 scrollbar-track-transparent overflow-y-auto overscroll-contain py-1 dark:scrollbar-thumb-neutral-700"
+			data-search-list
+		>
+			{
+				orderedGroups.map((group) => (
+					<div data-search-group={group.title}>
+						<p class="text-muted-foreground px-4 pt-3 pb-1.5 text-[11px] font-semibold tracking-wide uppercase">
+							{group.title}
+						</p>
+						{group.items.map((item) => (
+							<a
+								href={item.href}
+								target={item.href.startsWith('http') ? '_blank' : undefined}
+								rel={
+									item.href.startsWith('http')
+										? 'noreferrer noopener'
+										: undefined
+								}
+								data-search-item
+								data-search-label={item.label.toLowerCase()}
+								data-astro-prefetch={
+									item.href.startsWith('http') ? undefined : ''
+								}
+								class="text-foreground mx-1.5 flex items-center gap-3 rounded-md px-3 py-2 text-[13px] transition-colors"
+								role="option"
+								aria-selected="false"
+							>
+								<Icon
+									name={item.svgname}
+									class="text-muted-foreground h-4 w-4 shrink-0"
+								/>
+								<span class="flex-1">{item.label}</span>
+							</a>
+						))}
+					</div>
+				))
+			}
+			<p
+				class="text-muted-foreground hidden px-4 py-8 text-center text-sm"
+				data-search-empty
+			>
+				Sin resultados
+			</p>
+		</div>
+	</div>
+</div>
+
+<style is:global>
+	.search-modal-input,
+	.search-modal-input:focus,
+	.search-modal-input:active,
+	.search-modal-input:focus-visible {
+		border: none !important;
+		box-shadow: none !important;
+		outline: none !important;
+		ring: none !important;
 	}
 </style>
 
 <script>
-	function initGlobalSearch() {
-		const containers = document.querySelectorAll<HTMLElement>(
-			'[data-global-search]',
+	const isMac =
+		typeof navigator !== 'undefined' &&
+		/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+	let cleanupFns: (() => void)[] = [];
+
+	function setupGlobalSearch() {
+		cleanupFns.forEach((fn) => fn());
+		cleanupFns = [];
+
+		document
+			.querySelectorAll<HTMLElement>('[data-global-search-mod]')
+			.forEach((el) => {
+				el.textContent = isMac ? '⌘' : 'Ctrl';
+			});
+
+		const backdrop = document.querySelector<HTMLElement>(
+			'[data-search-backdrop]',
 		);
-		if (containers.length === 0) return;
+		if (backdrop && backdrop.parentElement !== document.body) {
+			document.body.appendChild(backdrop);
+		}
+		const modalInput = document.querySelector<HTMLInputElement>(
+			'[data-search-modal-input]',
+		);
+		const closeBtn = document.querySelector<HTMLElement>('[data-search-close]');
+		const list = document.querySelector<HTMLElement>('[data-search-list]');
+		const emptyMsg = document.querySelector<HTMLElement>('[data-search-empty]');
 
-		const isMac =
-			typeof navigator !== 'undefined' &&
-			/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent);
+		if (!backdrop || !modalInput || !list || !emptyMsg) return;
 
-		containers.forEach((container) => {
-			if (container.dataset.searchInit === 'true') return;
-			container.dataset.searchInit = 'true';
+		const items =
+			list.querySelectorAll<HTMLAnchorElement>('[data-search-item]');
+		const groups = list.querySelectorAll<HTMLElement>('[data-search-group]');
 
-			const modEl = container.querySelector<HTMLElement>(
-				'[data-global-search-mod]',
+		let activeIndex = -1;
+
+		function getVisibleItems(): HTMLAnchorElement[] {
+			return Array.from(items).filter((el) => el.style.display !== 'none');
+		}
+
+		function setActive(index: number) {
+			const visible = getVisibleItems();
+			items.forEach((el) => {
+				el.classList.remove('bg-muted');
+				el.setAttribute('aria-selected', 'false');
+			});
+			activeIndex = index;
+			const el = index >= 0 ? visible[index] : undefined;
+			if (el) {
+				el.classList.add('bg-muted');
+				el.setAttribute('aria-selected', 'true');
+				el.scrollIntoView({ block: 'nearest' });
+			}
+		}
+
+		function openModal() {
+			backdrop!.classList.remove('hidden');
+			backdrop!.classList.add('flex');
+			modalInput!.value = '';
+			filterItems();
+			requestAnimationFrame(() => modalInput!.focus());
+		}
+
+		function closeModal() {
+			backdrop!.classList.add('hidden');
+			backdrop!.classList.remove('flex');
+			modalInput!.value = '';
+			activeIndex = -1;
+		}
+
+		function filterItems() {
+			const q = (modalInput!.value || '').toLowerCase().trim();
+			let totalVisible = 0;
+
+			groups.forEach((group) => {
+				const groupItems =
+					group.querySelectorAll<HTMLAnchorElement>('[data-search-item]');
+				let groupVisible = 0;
+				groupItems.forEach((item) => {
+					const label = item.dataset.searchLabel || '';
+					const match = !q || label.includes(q);
+					item.style.display = match ? '' : 'none';
+					if (match) groupVisible++;
+				});
+				const heading = group.querySelector('p');
+				if (heading) heading.style.display = groupVisible > 0 ? '' : 'none';
+				group.style.display = groupVisible > 0 ? '' : 'none';
+				totalVisible += groupVisible;
+			});
+
+			emptyMsg!.classList.toggle('hidden', totalVisible > 0);
+			setActive(totalVisible > 0 ? 0 : -1);
+		}
+
+		function handleDocClick(e: MouseEvent) {
+			const trigger = (e.target as HTMLElement).closest(
+				'[data-global-search-trigger]',
 			);
-			if (modEl) modEl.textContent = isMac ? '⌘' : 'Ctrl';
-		});
+			if (trigger) {
+				e.preventDefault();
+				openModal();
+				return;
+			}
+			if (e.target === backdrop) {
+				closeModal();
+				return;
+			}
+		}
 
-		if ((window as any).__globalSearchHotkeyBound) return;
-		(window as any).__globalSearchHotkeyBound = true;
-
-		document.addEventListener('keydown', (ev) => {
+		function handleDocKeydown(ev: KeyboardEvent) {
 			const mod = isMac ? ev.metaKey : ev.ctrlKey;
 			if (mod && ev.key.toLowerCase() === 'k') {
 				ev.preventDefault();
-				const input = document.querySelector<HTMLInputElement>(
-					'[data-global-search-input]',
-				);
-				input?.focus();
-				input?.select();
-				return;
+				const isOpen = !backdrop!.classList.contains('hidden');
+				if (isOpen) closeModal();
+				else openModal();
 			}
-			if (ev.key === 'Escape') {
-				const active = document.activeElement as HTMLElement | null;
-				if (active && active.matches('[data-global-search-input]')) {
-					(active as HTMLInputElement).blur();
+		}
+
+		document.addEventListener('click', handleDocClick);
+		document.addEventListener('keydown', handleDocKeydown);
+		cleanupFns.push(() => {
+			document.removeEventListener('click', handleDocClick);
+			document.removeEventListener('keydown', handleDocKeydown);
+		});
+
+		const handleClose = () => closeModal();
+		closeBtn?.addEventListener('click', handleClose);
+
+		modalInput.addEventListener('input', filterItems);
+
+		modalInput.addEventListener('keydown', (e) => {
+			const visible = getVisibleItems();
+			if (e.key === 'ArrowDown') {
+				e.preventDefault();
+				setActive(activeIndex < visible.length - 1 ? activeIndex + 1 : 0);
+			} else if (e.key === 'ArrowUp') {
+				e.preventDefault();
+				setActive(activeIndex > 0 ? activeIndex - 1 : visible.length - 1);
+			} else if (e.key === 'Enter') {
+				e.preventDefault();
+				const visibleEnter = getVisibleItems();
+				const target = activeIndex >= 0 ? visibleEnter[activeIndex] : undefined;
+				if (target) {
+					target.click();
+					closeModal();
 				}
+			} else if (e.key === 'Escape') {
+				closeModal();
 			}
+		});
+
+		items.forEach((item) => {
+			item.addEventListener('click', () => closeModal());
 		});
 	}
 
-	document.addEventListener('astro:page-load', initGlobalSearch);
+	document.addEventListener('astro:page-load', setupGlobalSearch);
 </script>

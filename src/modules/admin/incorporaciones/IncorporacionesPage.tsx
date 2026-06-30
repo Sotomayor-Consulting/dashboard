@@ -139,7 +139,8 @@ function EmpresasPageInner() {
 		const lower = debouncedSearch.toLowerCase().trim();
 		return companies.filter((c) => {
 			if (filter === 'atencion') {
-				if (c.priority === 'normal' && c.paymentStatus !== 'overdue') return false;
+				if (c.priority === 'normal' && c.paymentStatus !== 'overdue')
+					return false;
 			} else if (filter === 'esperando_cliente') {
 				if (c.awaiting !== 'cliente') return false;
 			} else if (filter === 'esperando_ops') {
@@ -218,7 +219,8 @@ function EmpresasPageInner() {
 	}, [visibleIds, selectedIds]);
 	const toggleAll = () =>
 		setSelectedIds((prev) => {
-			const allSelected = visibleIds.length > 0 && visibleIds.every((id) => prev.has(id));
+			const allSelected =
+				visibleIds.length > 0 && visibleIds.every((id) => prev.has(id));
 			const next = new Set(prev);
 			if (allSelected) visibleIds.forEach((id) => next.delete(id));
 			else visibleIds.forEach((id) => next.add(id));
@@ -238,7 +240,8 @@ function EmpresasPageInner() {
 			atencion: companies.filter(
 				(c) => c.priority !== 'normal' || c.paymentStatus === 'overdue',
 			).length,
-			esperandoCliente: companies.filter((c) => c.awaiting === 'cliente').length,
+			esperandoCliente: companies.filter((c) => c.awaiting === 'cliente')
+				.length,
 			esperandoOps: companies.filter((c) => c.awaiting === 'ops').length,
 		};
 	}, [companies]);
@@ -246,7 +249,7 @@ function EmpresasPageInner() {
 	return (
 		<div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
 			<header className="border-b border-gray-200 px-7 pt-6 pb-4 dark:border-gray-800">
-				<div className="flex items-end justify-between gap-4">
+				<div className="flex flex-col items-end justify-between gap-4 md:flex-row">
 					<div>
 						<p className="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
 							Incorporaciones
@@ -381,7 +384,7 @@ function KpiCard({
 			type="button"
 			onClick={onClick}
 			className={
-				'flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors ' +
+				'flex items-center gap-3 rounded-lg border px-1 py-2.5 text-left transition-colors md:px-3 ' +
 				(active
 					? 'border-gray-900 bg-gray-50 dark:border-white dark:bg-neutral-900'
 					: 'border-gray-200 bg-transparent hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-neutral-900')
@@ -394,7 +397,7 @@ function KpiCard({
 				<p className="text-[10.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
 					{label}
 				</p>
-				<p className="text-[16px] font-semibold tabular-nums text-gray-900 dark:text-gray-100">
+				<p className="text-[16px] font-semibold text-gray-900 tabular-nums dark:text-gray-100">
 					{value}
 				</p>
 			</div>

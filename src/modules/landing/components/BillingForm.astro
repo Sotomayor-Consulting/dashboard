@@ -2,6 +2,7 @@
 import FormPhoneInput from '@components/forms/FormPhoneInput.astro';
 import FormInput from '@components/forms/FormInput.astro';
 import FormSelect from '@components/forms/FormSelect.astro';
+import FormButton from '@components/forms/FormButton.astro';
 
 interface PaisRow {
 	id: number;
@@ -136,14 +137,7 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 				required
 			/>
 			<!-- Botón guardar -->
-			<div class="sm:col-full col-span-6">
-				<button
-					type="submit"
-					class="focus:ring-primary-300 dark:bg-black-400 dark:hover:bg-black-400/80 bg-black-600 hover:bg-black-500 cursor-pointer rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 dark:focus:ring-[#323f67]"
-				>
-					Guardar
-				</button>
-			</div>
+			<FormButton label="Guardar" variant="dark" />
 		</div>
 	</form>
 </div>

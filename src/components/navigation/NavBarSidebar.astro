@@ -7,8 +7,18 @@ import NotificationsPopover from '@components/navigation/islands/NotificationsPo
 import { menuItems } from '@components/navigation/items';
 
 // Datos recibidos desde LayoutSidebar (ya consultados en paralelo)
-const { notificationsData: notifProp, empresas: empresasProp = [] } =
-	Astro.props;
+const {
+	notificationsData: notifProp,
+	empresas: empresasProp = [],
+	usuario,
+} = Astro.props;
+
+const user = Astro.locals.user;
+const userId = user?.id ?? '';
+const userName =
+	usuario?.nombre
+		? `${usuario.nombre} ${usuario.apellido ?? ''}`.trim()
+		: (user?.user_metadata?.name ?? user?.email ?? 'Usuario');
 
 const { notifications, totalUnread } = notifProp ?? {
 	notifications: [],
@@ -162,78 +172,59 @@ const quickActions = [
 
 <nav
 	id="navbar-sidebar"
-	class="dark:bg-primary-black fixed top-0 right-0 left-0 z-30 h-14 w-full border-b border-gray-300/90 bg-white dark:border-gray-600/80"
+	class="dark:bg-primary-black fixed top-0 right-0 left-0 z-30 h-14 border-b border-gray-300/90 bg-white lg:left-60 dark:border-gray-600/80"
 >
-	<div class="h-full pr-3 pl-0 lg:pr-5">
-		<div class="flex h-full items-center justify-between">
-			<div class="flex min-w-0 items-center justify-start">
-				<button
-					id="toggleSidebarMobile"
-					data-drawer-target="sidebar"
-					data-drawer-show="sidebar"
-					aria-controls="sidebar"
-					aria-expanded="true"
-					class="cursor-pointer rounded p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:ring-2 focus:ring-gray-100 lg:hidden dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:bg-neutral-700 dark:focus:ring-gray-700"
+	<div class="flex h-full items-center">
+		<!-- Mobile: hamburger + logo -->
+		<div class="flex items-center lg:hidden">
+			<button
+				id="toggleSidebarMobile"
+				data-drawer-target="sidebar"
+				data-drawer-show="sidebar"
+				aria-controls="sidebar"
+				aria-expanded="true"
+				class="cursor-pointer rounded p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:ring-2 focus:ring-gray-100 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:bg-neutral-700 dark:focus:ring-gray-700"
+			>
+				<svg
+					id="toggleSidebarMobileHamburger"
+					class="h-6 w-6"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+					><path
+						fill-rule="evenodd"
+						d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+						clip-rule="evenodd"></path></svg
 				>
-					<svg
-						id="toggleSidebarMobileHamburger"
-						class="h-6 w-6"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							fill-rule="evenodd"
-							d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-							clip-rule="evenodd"></path></svg
-					>
-					<svg
-						id="toggleSidebarMobileClose"
-						class="hidden h-6 w-6"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
-						><path
-							fill-rule="evenodd"
-							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-							clip-rule="evenodd"></path></svg
-					>
-				</button>
-
-				<a href="/" class="ml-1 hidden md:mr-4 md:flex lg:hidden">
-					<Icon
-						name="logo-sotomayor-consulting-isotipo"
-						class="block text-3xl dark:hidden"
-						title="Logo Sotomayor Consulting"
-					/>
-					<Icon
-						name="logo-sotomayor-consulting-isotipo-white"
-						class="mr-3 hidden text-3xl dark:block"
-						title="Logo Sotomayor Consulting"
-					/>
-				</a>
-
-				<div
-					class="hidden h-full items-center justify-center border-r border-gray-300/90 px-2 lg:flex dark:border-gray-600/80"
-					style="width: var(--sb-divider-x, 3rem);"
+				<svg
+					id="toggleSidebarMobileClose"
+					class="hidden h-6 w-6"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+					><path
+						fill-rule="evenodd"
+						d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+						clip-rule="evenodd"></path></svg
 				>
-					<a href="/" class="flex items-center justify-center">
-						<Icon
-							name="logo-sotomayor-consulting"
-							id="isotipo"
-							class="block text-4xl dark:hidden"
-							title="Logo Sotomayor Consulting"
-						/>
-						<Icon
-							name="logo-sotomayor-consulting-black"
-							id="isotipo"
-							class="hidden text-4xl dark:block"
-							title="Logo Sotomayor Consulting"
-						/>
-					</a>
-				</div>
-			</div>
-			<div class="grid w-full grid-cols-[100px_1fr]">
-				<div class="hidden min-w-0 items-center pl-4 lg:flex">
+			</button>
+			<a href="/" class="ml-1 hidden md:flex">
+				<Icon
+					name="logo-sotomayor-consulting-isotipo"
+					class="block text-3xl dark:hidden"
+					title="Logo Sotomayor Consulting"
+				/>
+				<Icon
+					name="logo-sotomayor-consulting-isotipo-white"
+					class="mr-3 hidden text-3xl dark:block"
+					title="Logo Sotomayor Consulting"
+				/>
+			</a>
+		</div>
+
+		<!-- Content area: breadcrumb + search + actions -->
+		<div class="flex min-w-0 flex-1 items-center justify-between pr-3 pl-3 lg:pr-5 lg:pl-4">
+			<div class="hidden min-w-0 items-center pl-4 lg:flex">
 					<nav
 						aria-label="Breadcrumb"
 						class="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
@@ -261,51 +252,123 @@ const quickActions = [
 							))
 						}
 					</nav>
-				</div><div
-					class="hidden flex-1 items-center justify-center px-4 md:flex"
-				>
-					<GlobalSearch />
 				</div>
-			</div>
+				<div
+					class="hidden flex-1 items-center justify-center px-4 md:flex lg:hidden"
+				>
+					<GlobalSearch userRoles={Astro.locals.userRoles ?? []} />
+				</div>
 
-			<div class="flex items-center gap-1.5">
-				<div class="hidden items-center gap-1 pr-1 lg:flex">
-					{
-						quickActions.map((action) => (
-							<a
-								href={action.href}
-								target={action.href.startsWith('http') ? '_blank' : undefined}
-								rel={
-									action.href.startsWith('http')
-										? 'noreferrer noopener'
-										: undefined
-								}
-								class="inline-flex h-9 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
-							>
-								<Icon name={action.icon} class="h-5 w-5" />
-								<span>{action.label}</span>
-							</a>
-						))
-					}
+				<div class="flex items-center gap-2">
+					<ColorModeSwitcher />
+					<div id="notificaciones">
+						<NotificationsPopover
+							notifications={notifications}
+							totalUnread={totalUnread}
+							avatarSrc={logonotificaciones.src}
+							client:load
+						/>
+					</div>
+					<div class="relative hidden lg:block" data-user-dropdown>
+						<button
+							type="button"
+							class="flex cursor-pointer items-center gap-2 rounded-full py-1 pr-3 pl-1 transition-colors hover:bg-muted"
+							data-user-dropdown-trigger
+						>
+							<img
+								src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
+								alt="Avatar"
+								class="h-8 w-8 shrink-0 rounded-full border border-border"
+							/>
+							<span class="text-sm font-medium text-foreground">{userName}</span>
+							<Icon name="ri:arrow-down-s-line" class="h-4 w-4 text-muted-foreground transition-transform" data-user-dropdown-chevron />
+						</button>
+
+						<div
+							class="absolute right-0 top-full z-50 mt-2 hidden w-56 overflow-hidden rounded-lg border border-border bg-card shadow-lg"
+							data-user-dropdown-panel
+						>
+							<div class="border-b border-border px-4 py-3">
+								<p class="text-sm font-medium text-foreground">{userName}</p>
+								<p class="truncate text-xs text-muted-foreground">{user?.email ?? ''}</p>
+							</div>
+							<div class="py-1.5">
+								<a
+									href="/profile/"
+									data-astro-prefetch
+									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+								>
+									<Icon name="ri:user-line" class="h-4 w-4 text-muted-foreground" />
+									Editar perfil
+								</a>
+								<a
+									href="/profile/billing"
+									data-astro-prefetch
+									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+								>
+									<Icon name="ri:settings-3-line" class="h-4 w-4 text-muted-foreground" />
+									Configuración
+								</a>
+								<a
+									href="mailto:info@sotomayorconsulting.com"
+									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+								>
+									<Icon name="ri:customer-service-2-line" class="h-4 w-4 text-muted-foreground" />
+									Soporte
+								</a>
+							</div>
+							<div class="border-t border-border py-1.5">
+								<form method="POST" action="/api/auth/sign-out">
+									<button
+										type="submit"
+										class="flex w-full items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+									>
+										<Icon name="ri:logout-box-r-line" class="h-4 w-4 text-muted-foreground" />
+										Cerrar sesión
+									</button>
+								</form>
+							</div>
+						</div>
+					</div>
 				</div>
-				<div
-					class="mx-1 hidden h-5 w-px bg-gray-300/90 lg:block dark:bg-gray-600/80"
-				>
-				</div>
-				<div id="notificaciones">
-					<NotificationsPopover
-						notifications={notifications}
-						totalUnread={totalUnread}
-						avatarSrc={logonotificaciones.src}
-						client:load
-					/>
-				</div>
-				<div
-					class="mx-0.5 hidden h-5 w-px bg-gray-300/90 lg:block dark:bg-gray-600/80"
-				>
-				</div>
-				<ColorModeSwitcher />
 			</div>
 		</div>
-	</div>
 </nav>
+
+<script>
+	function initUserDropdown() {
+		const dropdown = document.querySelector<HTMLElement>('[data-user-dropdown]');
+		if (!dropdown || dropdown.dataset.dropdownInit === '1') return;
+		dropdown.dataset.dropdownInit = '1';
+
+		const trigger = dropdown.querySelector<HTMLButtonElement>('[data-user-dropdown-trigger]');
+		const panel = dropdown.querySelector<HTMLElement>('[data-user-dropdown-panel]');
+		const chevron = dropdown.querySelector<HTMLElement>('[data-user-dropdown-chevron]');
+		if (!trigger || !panel) return;
+
+		const open = () => {
+			panel.classList.remove('hidden');
+			chevron?.classList.add('rotate-180');
+		};
+		const close = () => {
+			panel.classList.add('hidden');
+			chevron?.classList.remove('rotate-180');
+		};
+
+		trigger.addEventListener('click', (e) => {
+			e.stopPropagation();
+			panel.classList.contains('hidden') ? open() : close();
+		});
+
+		document.addEventListener('click', (e) => {
+			if (!dropdown.contains(e.target as Node)) close();
+		});
+
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') close();
+		});
+	}
+
+	initUserDropdown();
+	document.addEventListener('astro:page-load', initUserDropdown);
+</script>

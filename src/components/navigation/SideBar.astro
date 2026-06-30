@@ -29,17 +29,30 @@ const showClientOnlyHome =
 
 const dynamicItems: MenuItem[] = [];
 if (isClientOrPartner && activeCompany) {
-	dynamicItems.push({
-		id: 'company-details',
-		label: 'Mi Empresa',
-		href: `/my-companies/${activeCompany.id}/dashboard`,
-		tooltip: 'Ver detalles de mi empresa',
-		roles: ['cliente', 'partner'],
-		svgname: 'ri:building-line',
-		sequence: 20,
-		group: 'Company',
-		colors: 'text-cyan-700',
-	});
+	dynamicItems.push(
+		{
+			id: 'company-incorporation',
+			label: 'Incorporación',
+			href: `/my-companies/${activeCompany.id}/dashboard`,
+			tooltip: 'Proceso de incorporación',
+			roles: ['cliente', 'partner'],
+			svgname: 'ri:file-list-3-line',
+			sequence: 20,
+			group: 'Company',
+			colors: 'text-cyan-700',
+		},
+		{
+			id: 'company-entity',
+			label: 'Empresa',
+			href: `/my-companies/${activeCompany.id}/company`,
+			tooltip: 'Tu empresa constituida',
+			roles: ['cliente', 'partner'],
+			svgname: 'ri:building-2-line',
+			sequence: 25,
+			group: 'Company',
+			colors: 'text-cyan-700',
+		},
+	);
 }
 
 const visibleMenu = [...menuItems, ...dynamicItems].filter(
@@ -83,7 +96,7 @@ const ruta = Astro.url.pathname;
 
 /* Clases reutilizables */
 const activeClass =
-	'bg-gray-100 text-gray-900 font-semibold dark:bg-neutral-900 dark:text-white';
+	'bg-primary-gold/10 text-primary-gold font-medium dark:bg-primary-gold/10 dark:text-primary-gold';
 const inactiveClass =
 	'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-200';
 ---
@@ -306,40 +319,79 @@ const inactiveClass =
 <!-- ===== Desktop collapsible sidebar (>= lg) ===== -->
 <aside
 	id="sidebar-desktop"
-	class="dark:bg-primary-black fixed top-14 left-0 z-20 box-border hidden h-[calc(100vh-3.5rem)] w-60 flex-col border-r border-gray-300/90 bg-white lg:flex dark:border-gray-600/90"
+	class="dark:bg-primary-black border-border fixed top-0 left-0 z-20 box-border hidden h-screen w-60 flex-col border-r bg-white lg:flex"
 >
-	{
-		showCompanySwitcher && (
-			<>
+	<!-- Company switcher / Brand area -->
+	<div class="px-3 pt-2 pb-3">
+		{
+			showCompanySwitcher ? (
 				<CompanySwitcher
 					empresas={empresas}
 					activeCompany={activeCompany}
 					id="desktop"
 				/>
-				<div class="mx-3 my-1 h-px bg-gray-200/80 dark:bg-gray-700/70" />
-			</>
-		)
-	}
+			) : (
+				<a href="/" class="flex items-center gap-2.5">
+					<Icon
+						name="logo-sotomayor-consulting-isotipo"
+						class="block h-7 w-7 shrink-0 dark:hidden"
+						title="Sotomayor Consulting"
+					/>
+					<Icon
+						name="logo-sotomayor-consulting-isotipo-white"
+						class="hidden h-7 w-7 shrink-0 dark:block"
+						title="Sotomayor Consulting"
+					/>
+					<span class="sb-label text-foreground text-sm font-semibold">
+						Sotomayor
+					</span>
+				</a>
+			)
+		}
+	</div>
+
+	<!-- Search trigger -->
+	<div class="px-3 pb-3">
+		<button
+			type="button"
+			class="border-border bg-muted/40 text-muted-foreground hover:bg-muted flex h-9 w-full items-center gap-2.5 rounded-lg border px-3 text-sm transition"
+			data-global-search-trigger
+			aria-label="Abrir búsqueda"
+		>
+			<Icon name="ri:search-line" class="h-4 w-4 shrink-0 opacity-50" />
+			<span class="sb-label flex-1 text-left">Search...</span>
+			<kbd
+				class="sb-label border-border bg-background text-muted-foreground/70 text-2xs inline-flex items-center gap-0.5 rounded border px-1.5 py-0.5 font-mono font-medium select-none"
+				aria-hidden="true"
+			>
+				<span data-global-search-mod>Ctrl</span>
+				<span>K</span>
+			</kbd>
+		</button>
+	</div>
 
 	<nav
 		class:list={[
-			'flex-1 overflow-x-hidden overflow-y-auto px-1.5 py-2',
+			'flex-1 overflow-x-hidden overflow-y-auto px-3 pb-2',
 			'scrollbar scrollbar-w-1.5 scrollbar-thumb-rounded-full',
 			'scrollbar-thumb-gray-300 scrollbar-track-transparent',
 			'dark:scrollbar-thumb-neutral-700',
 		]}
 	>
-		<ul class="space-y-0.5">
+		<ul class="space-y-1">
 			<li>
 				<a
 					href="/"
 					data-astro-prefetch
-					class={`sb-link flex items-center gap-3 rounded-md px-2 py-1.75 text-[13px] font-medium transition-colors ${ruta === '/' ? activeClass : inactiveClass}`}
+					class={`sb-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${ruta === '/' ? activeClass : inactiveClass}`}
 					title={showClientOnlyHome ? 'Comenzar' : 'Inicio'}
 				>
 					<Icon
 						name={showClientOnlyHome ? 'ri:rocket-2-line' : 'ri:home-9-line'}
-						class:list={['h-5 w-5 shrink-0', showClientOnlyHome && 'rotate-45']}
+						class:list={[
+							'h-4.5 w-4.5 shrink-0',
+							showClientOnlyHome && 'rotate-45',
+						]}
 					/>
 					<span class="sb-label whitespace-nowrap">
 						{showClientOnlyHome ? 'Comenzar' : 'Inicio'}
@@ -348,11 +400,11 @@ const inactiveClass =
 			</li>
 			{
 				visibleGroups.map((group) => (
-					<li class="mt-1 pt-1">
-						<p class="sb-label px-2 pt-1 text-[11px] font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500">
+					<li class="mt-3 pt-2">
+						<p class="sb-label text-muted-foreground/60 mb-1.5 px-3 text-[11px] font-semibold tracking-wider uppercase">
 							{group.title}
 						</p>
-						<ul class="mt-1 space-y-0.5">
+						<ul class="space-y-0.5">
 							{(group.items ?? []).map((l) =>
 								l.children && l.children.length > 0 ? (
 									<li>
@@ -362,31 +414,27 @@ const inactiveClass =
 											)}
 										>
 											<summary
-												class={`sb-link flex cursor-pointer list-none items-center gap-3 rounded-md px-2 py-1.75 text-[13px] font-medium transition-colors ${inactiveClass}`}
+												class={`sb-link flex cursor-pointer list-none items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${inactiveClass}`}
 												title={l.label}
 											>
-												<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
+												<Icon name={l.svgname} class="h-4.5 w-4.5 shrink-0" />
 												<span class="sb-label flex-1 whitespace-nowrap">
 													{l.label}
 												</span>
 												<Icon
-													name="ri:arrow-right-s-line"
-													class="sidebar-chevron sb-label h-4 w-4 shrink-0 text-gray-400 transition-transform"
+													name="ri:arrow-up-s-line"
+													class="sidebar-chevron sb-label text-muted-foreground/50 h-4 w-4 shrink-0 transition-transform"
 												/>
 											</summary>
-											<ul class="mt-0.5 ml-4 space-y-0.5 border-l border-gray-200 pl-2.5 dark:border-gray-700">
+											<ul class="mt-0.5 ml-6.5 space-y-0.5 pl-3">
 												{l.children.map((child) => (
 													<li>
 														<a
 															href={child.href}
 															data-astro-prefetch
-															class={`sb-link flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[12.5px] font-medium transition-colors ${ruta === child.href ? activeClass : inactiveClass}`}
+															class={`sb-link flex items-center rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors ${ruta === child.href ? activeClass : inactiveClass}`}
 															title={child.label}
 														>
-															<Icon
-																name={child.svgname}
-																class="h-4 w-4 shrink-0"
-															/>
 															<span class="sb-label whitespace-nowrap">
 																{child.label}
 															</span>
@@ -401,10 +449,10 @@ const inactiveClass =
 										<a
 											href={l.href}
 											data-astro-prefetch
-											class={`sb-link flex items-center gap-3 rounded-md px-2 py-1.75 text-[13px] font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
+											class={`sb-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
 											title={l.label}
 										>
-											<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
+											<Icon name={l.svgname} class="h-4.5 w-4.5 shrink-0" />
 											<span class="sb-label whitespace-nowrap">{l.label}</span>
 										</a>
 									</li>
@@ -415,86 +463,45 @@ const inactiveClass =
 				))
 			}
 		</ul>
-
-		<!-- Links externos -->
-		<div class="mt-1 space-y-0.5 pt-1.5">
-			<p
-				class="sb-label px-2 pb-1 text-[11px] font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500"
-			>
-				Recursos
-			</p>
-			{
-				[
-					{
-						link: 'https://sotomayorconsulting.com/',
-						svgname: 'ri:earth-line',
-						span: 'Visita nuestra web',
-					},
-					{
-						link: 'https://sotomayorconsulting.com/inicio/terminos/',
-						svgname: 'ri:file-list-3-line',
-						span: 'Términos y condiciones',
-					},
-				].map((l) => (
-					<a
-						href={l.link}
-						target="_blank"
-						class={`sb-link flex items-center gap-3 rounded-md px-2 py-1.75 text-[13px] font-medium transition-colors ${inactiveClass}`}
-						title={l.span}
-					>
-						<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
-						<span class="sb-label whitespace-nowrap">{l.span}</span>
-					</a>
-				))
-			}
-		</div>
 	</nav>
 
-	<div class="border-t border-gray-200/90 p-3 dark:border-gray-700/80">
-		<details class="group">
-			<summary
-				class="flex cursor-pointer list-none items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
+	<!-- Quick links -->
+	<div class="mt-auto space-y-0.5 px-3 pb-2">
+		<a
+			href="mailto:info@sotomayorconsulting.com?subject=Feedback%20Dashboard"
+			class="sb-link text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+		>
+			<Icon name="ri:message-3-line" class="h-4.5 w-4.5 shrink-0" />
+			<span class="sb-label whitespace-nowrap">Feedback</span>
+			<Icon
+				name="ri:external-link-line"
+				class="sb-label text-muted-foreground/50 ml-auto h-3 w-3"
+			/>
+		</a>
+		<a
+			href="mailto:info@sotomayorconsulting.com"
+			class="sb-link text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+		>
+			<Icon name="ri:customer-service-2-line" class="h-4.5 w-4.5 shrink-0" />
+			<span class="sb-label whitespace-nowrap">Ayuda & Soporte</span>
+			<Icon
+				name="ri:external-link-line"
+				class="sb-label text-muted-foreground/50 ml-auto h-3 w-3"
+			/>
+		</a>
+	</div>
+
+	<!-- Logout -->
+	<div class="border-border border-t px-3 py-2">
+		<form method="POST" action="/api/auth/sign-out">
+			<button
+				type="submit"
+				class="sb-link text-muted-foreground flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400"
 			>
-				<img
-					src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
-					alt="Avatar"
-					class="h-8 w-8 rounded-full border border-gray-200 dark:border-gray-700"
-				/>
-				<div class="min-w-0 flex-1">
-					<p
-						class="truncate text-sm font-medium text-gray-800 dark:text-gray-100"
-					>
-						{userName}
-					</p>
-					<p class="truncate text-xs text-gray-500 dark:text-gray-400">
-						{userEmail}
-					</p>
-				</div>
-				<Icon
-					name="ri:arrow-right-s-line"
-					class="user-menu-chevron h-4 w-4 text-gray-400 transition-transform"
-				/>
-			</summary>
-			<div class="mt-2 space-y-1 rounded-md p-1.5">
-				<a
-					href="/profile/"
-					data-astro-prefetch
-					class="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
-				>
-					<Icon name="ri:user-3-line" class="h-4 w-4" />
-					<span>Mi perfil</span>
-				</a>
-				<form action="/api/auth/sign-out" method="post">
-					<button
-						type="submit"
-						class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
-					>
-						<Icon name="ri:logout-box-r-line" class="h-4 w-4" />
-						<span>Cerrar sesión</span>
-					</button>
-				</form>
-			</div>
-		</details>
+				<Icon name="ri:logout-box-r-line" class="h-4.5 w-4.5 shrink-0" />
+				<span class="sb-label whitespace-nowrap">Cerrar sesión</span>
+			</button>
+		</form>
 	</div>
 </aside>
 
@@ -504,14 +511,34 @@ const inactiveClass =
 		display: none;
 	}
 
-	#sidebar details[open] .user-menu-chevron,
-	#sidebar-desktop details[open] .user-menu-chevron {
+	#sidebar details > summary .sidebar-chevron,
+	#sidebar-desktop details > summary .sidebar-chevron {
 		transform: rotate(180deg);
 	}
-
 	#sidebar details[open] > summary .sidebar-chevron,
 	#sidebar-desktop details[open] > summary .sidebar-chevron {
-		transform: rotate(90deg);
+		transform: rotate(0deg);
+	}
+
+	/* Submenu slide-down animation */
+	#sidebar details > ul,
+	#sidebar-desktop details > ul {
+		display: grid;
+		grid-template-rows: 0fr;
+		opacity: 0;
+		transition:
+			grid-template-rows 0.25s ease,
+			opacity 0.2s ease;
+		overflow: hidden;
+	}
+	#sidebar details > ul > *,
+	#sidebar-desktop details > ul > * {
+		overflow: hidden;
+	}
+	#sidebar details[open] > ul,
+	#sidebar-desktop details[open] > ul {
+		grid-template-rows: 1fr;
+		opacity: 1;
 	}
 
 	/* Sidebar fixed expanded width */
@@ -532,11 +559,11 @@ const inactiveClass =
 
 <script>
 	const ACTIVE_CLASSES = [
-		'bg-gray-100',
-		'text-gray-900',
-		'font-semibold',
-		'dark:bg-neutral-900',
-		'dark:text-white',
+		'bg-primary-gold/10',
+		'text-primary-gold',
+		'font-medium',
+		'dark:bg-primary-gold/10',
+		'dark:text-primary-gold',
 	];
 	const INACTIVE_CLASSES = [
 		'text-gray-600',

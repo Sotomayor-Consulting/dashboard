@@ -58,7 +58,7 @@ export function UserDrawerEmailModal({
 
 	const messageIsEmpty = message.replace(/<[^>]+>/g, '').trim() === '';
 
-	const handleSubmit = async (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!title.trim() || messageIsEmpty) return;
 

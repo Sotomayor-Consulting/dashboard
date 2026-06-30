@@ -7,36 +7,28 @@ const { incorporationId } = Astro.params;
 ---
 
 <LayoutSidebar>
-	<div class="pt-6 lg:px-4">
-		<Tab
-			buttons={[
-				{
-					label: 'General',
-					icon: 'ri:layout-grid-line',
-					active: false,
-					link: `/my-companies/${incorporationId}/dashboard`,
-				},
-				{
-					label: 'Información',
-					icon: 'ri:information-line',
-					active: false,
-					link: `/my-companies/${incorporationId}/dashboard?tab=info`,
-				},
-				{
-					label: 'Documentos',
-					icon: 'ri:file-copy-line',
-					active: false,
-					link: `/my-companies/${incorporationId}/documents`,
-				},
-				{
-					label: 'Ordenes',
-					icon: 'ri:contract-line',
-					active: true,
-					link: `/my-companies/${incorporationId}/orders`,
-				},
-			]}
-		/>
-	</div>
+	<Tab
+		buttons={[
+			{
+				label: 'General',
+				icon: 'ri:apps-2-ai-line',
+				active: false,
+				link: `/my-companies/${incorporationId}/dashboard`,
+			},
+			{
+				label: 'Documentos',
+				icon: 'ri:file-copy-line',
+				active: false,
+				link: `/my-companies/${incorporationId}/documents`,
+			},
+			{
+				label: 'Ordenes',
+				icon: 'ri:contract-line',
+				active: true,
+				link: `/my-companies/${incorporationId}/orders`,
+			},
+		]}
+	/>
 
 	<Orderselemet />
 </LayoutSidebar>

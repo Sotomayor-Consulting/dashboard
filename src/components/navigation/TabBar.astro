@@ -2,32 +2,16 @@
 import { Icon } from 'astro-icon/components';
 
 export interface TabButton {
-	/** Texto visible. */
 	label: string;
-	/** Nombre de icono iconify (ej: 'ri:layout-grid-line'). */
 	icon: string;
-	/** Si esta tab es la activa actualmente. */
 	active: boolean;
-	/**
-	 * Tipo de tab:
-	 * - `link` (default): renderiza `<a href>` y navega a otra ruta.
-	 * - `panel`: renderiza `<button data-tab-btn>` que togglea el panel
-	 *   correspondiente (un `<div data-tab-panel="…">`) en la misma página.
-	 *   El binding del toggle lo maneja el script al final de este archivo.
-	 */
 	kind?: 'link' | 'panel';
-	/** Requerido si `kind === 'link'`. */
 	link?: string;
-	/** Requerido si `kind === 'panel'`. Coincide con `data-tab-panel`. */
 	id?: string;
 }
 
 interface Props {
 	buttons: TabButton[];
-	/**
-	 * Si es `true` (default), sincroniza la tab activa con el query param `?tab=`.
-	 * El primer botón (índice 0) se considera "default" y limpia el param.
-	 */
 	syncUrl?: boolean;
 }
 
@@ -35,93 +19,75 @@ const { buttons, syncUrl = true } = Astro.props;
 const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 ---
 
-<ul
-	class="mt-4 inline-flex w-fit items-center gap-1 rounded-lg border border-gray-200 bg-gray-100 p-1 text-xs font-semibold md:w-auto xl:text-sm dark:border-gray-700 dark:bg-neutral-950"
+<nav
+	class="-mx-6 flex items-end gap-1 overflow-x-auto border-b-2 border-border px-6 pt-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border"
 	data-tab-strip
 	data-default-panel={defaultPanelId}
 	data-sync-url={syncUrl ? '1' : '0'}
+	aria-label="Tabs"
 >
 	{
 		buttons.map((b) => {
 			const kind = b.kind ?? 'link';
 			const baseClass =
-				'link-moderate inline-flex w-full items-center gap-2 rounded-md px-4 py-2 transition-colors md:w-auto';
-			const activeClass =
-				'bg-white text-gray-900 shadow-sm dark:bg-neutral-800 dark:text-white';
+				'inline-flex cursor-pointer items-center gap-2 whitespace-nowrap border-b-2 px-3 pb-2 text-sm font-medium transition-colors -mb-px';
+			const activeClass = 'border-primary-gold text-primary-gold';
 			const inactiveClass =
-				'text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200';
+				'border-transparent text-muted-foreground hover:border-border hover:text-foreground';
 
-			return (
-				<li class="m-0">
-					{kind === 'link' ? (
-						<a
-							href={b.link}
-							data-astro-prefetch="viewport"
-							class:list={{
-								[baseClass]: true,
-								[activeClass]: b.active,
-								[inactiveClass]: !b.active,
-							}}
-							aria-current={b.active ? 'page' : undefined}
-						>
-							<Icon name={b.icon} class="h-4 w-4" />
-							{b.label}
-						</a>
-					) : (
-						<button
-							type="button"
-							data-tab-btn={b.id}
-							class:list={{
-								[baseClass]: true,
-								[activeClass]: b.active,
-								[inactiveClass]: !b.active,
-							}}
-							aria-current={b.active ? 'page' : undefined}
-						>
-							<Icon name={b.icon} class="h-4 w-4" />
-							{b.label}
-						</button>
-					)}
-				</li>
+			return kind === 'link' ? (
+				<a
+					href={b.link}
+					data-astro-prefetch="viewport"
+					class:list={[
+						baseClass,
+						b.active ? activeClass : inactiveClass,
+					]}
+					aria-current={b.active ? 'page' : undefined}
+				>
+					<Icon name={b.icon} class="h-5 w-5" />
+					{b.label}
+				</a>
+			) : (
+				<button
+					type="button"
+					data-tab-btn={b.id}
+					class:list={[
+						baseClass,
+						b.active ? activeClass : inactiveClass,
+					]}
+					aria-current={b.active ? 'page' : undefined}
+				>
+					<Icon name={b.icon} class="h-5 w-5" />
+					{b.label}
+				</button>
 			);
 		})
 	}
-</ul>
+</nav>
 
 <script>
-	/**
-	 * Comportamiento self-contained del TabBar:
-	 *   - Toggle de paneles `[data-tab-panel="<id>"]` cuando se hace click
-	 *     en un botón `[data-tab-btn="<id>"]`.
-	 *   - Sincroniza el query param `?tab=` (omitible vía `data-sync-url="0"`).
-	 *   - Emite un evento custom `tabbar:change` con `{ id }` para que
-	 *     páginas interesadas puedan reaccionar (ej: re-renderizar un mapa).
-	 *
-	 * Re-engancha listeners tras Astro View Transitions (`astro:page-load`)
-	 * y evita doble-bind con `data-tab-bound`.
-	 */
 	const ACTIVE_CLASSES = [
-		'bg-white',
-		'text-gray-900',
-		'shadow-sm',
-		'dark:bg-neutral-800',
-		'dark:text-white',
+		'border-primary-gold',
+		'text-primary-gold',
 	];
 	const INACTIVE_CLASSES = [
-		'text-gray-400',
-		'hover:text-gray-700',
-		'dark:text-gray-500',
-		'dark:hover:text-gray-200',
+		'border-transparent',
+		'text-muted-foreground',
+		'hover:border-border',
+		'hover:text-foreground',
 	];
 
 	function initTabBar() {
 		const strip = document.querySelector<HTMLElement>('[data-tab-strip]');
 		if (!strip) return;
 
-		const buttons = strip.querySelectorAll<HTMLButtonElement>('[data-tab-btn]');
+		const buttons =
+			strip.querySelectorAll<HTMLButtonElement>('[data-tab-btn]');
 		if (buttons.length === 0) return;
 
-		const panels = document.querySelectorAll<HTMLElement>('[data-tab-panel]');
+		const panels =
+			document.querySelectorAll<HTMLElement>('[data-tab-panel]');
 		const defaultPanel = strip.dataset['defaultPanel'] ?? '';
 		const syncUrl = strip.dataset['syncUrl'] !== '0';
 
