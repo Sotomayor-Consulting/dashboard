@@ -229,9 +229,9 @@ function UsuariosPageInner({ viewerRoles }: Props) {
 	}, [users]);
 
 	return (
-		<div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
+		<div className="-mx-6 flex min-h-[calc(100vh-3.5rem)] flex-col">
 			{/* Header */}
-			<header className="flex items-end justify-between gap-4 border-b border-gray-200 px-7 pt-6 pb-4 dark:border-gray-800">
+			<header className="flex items-end justify-between gap-4 border-b border-border px-7 pt-6 pb-4">
 				<div>
 					<p className="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
 						Usuarios

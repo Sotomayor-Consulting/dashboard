@@ -172,7 +172,7 @@ const quickActions = [
 
 <nav
 	id="navbar-sidebar"
-	class="dark:bg-primary-black fixed top-0 right-0 left-0 z-30 h-14 border-b border-gray-300/90 bg-white lg:left-60 dark:border-gray-600/80"
+	class="dark:bg-primary-black fixed top-0 right-0 left-0 z-30 h-14 border-b border-border bg-white lg:left-60"
 >
 	<div class="flex h-full items-center">
 		<!-- Mobile: hamburger + logo -->
@@ -183,7 +183,7 @@ const quickActions = [
 				data-drawer-show="sidebar"
 				aria-controls="sidebar"
 				aria-expanded="true"
-				class="cursor-pointer rounded p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:ring-2 focus:ring-gray-100 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:bg-neutral-700 dark:focus:ring-gray-700"
+				class="cursor-pointer rounded p-2 text-muted-foreground hover:bg-hover hover:text-foreground focus:bg-hover focus:ring-2 focus:ring-ring"
 			>
 				<svg
 					id="toggleSidebarMobileHamburger"
@@ -272,7 +272,7 @@ const quickActions = [
 					<div class="relative hidden lg:block" data-user-dropdown>
 						<button
 							type="button"
-							class="flex cursor-pointer items-center gap-2 rounded-full py-1 pr-3 pl-1 transition-colors hover:bg-muted"
+							class="flex cursor-pointer items-center gap-2 rounded-full py-1 pr-3 pl-1 transition-colors hover:bg-hover"
 							data-user-dropdown-trigger
 						>
 							<img
@@ -296,7 +296,7 @@ const quickActions = [
 								<a
 									href="/profile/"
 									data-astro-prefetch
-									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-hover"
 								>
 									<Icon name="ri:user-line" class="h-4 w-4 text-muted-foreground" />
 									Editar perfil
@@ -304,14 +304,14 @@ const quickActions = [
 								<a
 									href="/profile/billing"
 									data-astro-prefetch
-									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-hover"
 								>
 									<Icon name="ri:settings-3-line" class="h-4 w-4 text-muted-foreground" />
 									Configuración
 								</a>
 								<a
 									href="mailto:info@sotomayorconsulting.com"
-									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-hover"
 								>
 									<Icon name="ri:customer-service-2-line" class="h-4 w-4 text-muted-foreground" />
 									Soporte
@@ -321,7 +321,7 @@ const quickActions = [
 								<form method="POST" action="/api/auth/sign-out">
 									<button
 										type="submit"
-										class="flex w-full items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+										class="flex w-full items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-hover"
 									>
 										<Icon name="ri:logout-box-r-line" class="h-4 w-4 text-muted-foreground" />
 										Cerrar sesión

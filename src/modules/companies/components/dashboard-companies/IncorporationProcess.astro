@@ -23,36 +23,32 @@ const {
 } = Astro.props;
 ---
 
-<div
-	class="rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-gray-200/70 sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-transparent dark:shadow-none"
->
+<div class="2xl:col-span-2">
 	<div
-		class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+		class="section-header flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
 	>
 		<div>
-			<h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-				Proceso de incorporación
-			</h2>
-			<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+			<h2 class="section-title">Proceso de incorporación</h2>
+			<p class="section-description">
 				Sigue el avance etapa por etapa de tu empresa.
 			</p>
 		</div>
 		<div class="flex items-center gap-2">
 			<span
-				class="dark:bg-primary-gold rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:text-white"
+				class="rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground"
 			>
 				{completedCount}/{totalCount} completadas
 			</span>
 			<span
-				class="dark:bg-primary-gold/20 rounded-md bg-[#e8efff] px-2 py-1 text-xs font-semibold text-[#134aed] dark:text-amber-100"
+				class="badge-status rounded-md bg-accent-gold/10 text-accent-gold"
 			>
 				{progressPercent}%
 			</span>
 		</div>
 	</div>
 
-	<div class="px-1 pb-1">
-		<ol class="relative border-s border-gray-200 pl-1 dark:border-gray-700">
+	<div class="flat-card p-4 sm:p-6">
+		<ol class="relative border-s border-border pl-1">
 			{
 				stages.map((stage) => {
 					if (!isKnownStage(stage.slug)) return null;

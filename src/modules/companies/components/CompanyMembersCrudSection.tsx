@@ -147,9 +147,8 @@ export default function CompanyMembersCrudSection({
 	};
 
 	return (
-		<section className="-mx-5 -my-5 flex flex-col">
-			{/* Header estilo /admin/usuarios */}
-			<header className="flex items-end justify-between gap-4 border-b border-gray-200 px-7 pt-6 pb-4 dark:border-gray-800">
+		<section className="-mx-6 -my-5 flex flex-col">
+			<header className="flex items-end justify-between gap-4 border-b border-border px-7 pt-6 pb-4">
 				<div>
 					<p className="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
 						Miembros

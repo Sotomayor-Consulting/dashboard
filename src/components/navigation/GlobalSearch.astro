@@ -102,7 +102,7 @@ const orderedGroups = [...groupOrder, 'Recursos']
 <div class="relative w-full max-w-md" data-global-search data-search-id={id}>
 	<button
 		type="button"
-		class="border-border bg-card text-muted-foreground hover:bg-muted flex h-9 w-full items-center gap-2 rounded-lg border py-1.5 pr-2 pl-3 text-sm transition outline-none"
+		class="border-border bg-card text-muted-foreground hover:bg-hover flex h-9 w-full items-center gap-2 rounded-lg border py-1.5 pr-2 pl-3 text-sm transition outline-none"
 		data-global-search-trigger
 		aria-label="Abrir búsqueda"
 	>
@@ -264,13 +264,13 @@ const orderedGroups = [...groupOrder, 'Recursos']
 		function setActive(index: number) {
 			const visible = getVisibleItems();
 			items.forEach((el) => {
-				el.classList.remove('bg-muted');
+				el.classList.remove('bg-hover');
 				el.setAttribute('aria-selected', 'false');
 			});
 			activeIndex = index;
 			const el = index >= 0 ? visible[index] : undefined;
 			if (el) {
-				el.classList.add('bg-muted');
+				el.classList.add('bg-white/5');
 				el.setAttribute('aria-selected', 'true');
 				el.scrollIntoView({ block: 'nearest' });
 			}

@@ -85,7 +85,7 @@ export function IncorporacionesToolbar({
 	onToggleColumn,
 }: Props) {
 	return (
-		<div className="border-b border-gray-200 px-7 py-3 dark:border-gray-800">
+		<div className="border-b border-border px-7 py-3">
 			<div className="flex flex-col items-start gap-2 md:flex-row">
 				<div className="relative w-64 shrink-0">
 					<Icon
