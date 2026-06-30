@@ -20,7 +20,7 @@ const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 ---
 
 <nav
-	class="-mx-6 flex items-end gap-1 overflow-x-auto border-b-2 border-border px-6 pt-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border"
+	class="-mx-6 flex items-end gap-1 overflow-x-auto border-b border-border px-6 pt-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border"
 	data-tab-strip
 	data-default-panel={defaultPanelId}
 	data-sync-url={syncUrl ? '1' : '0'}

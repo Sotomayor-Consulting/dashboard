@@ -320,6 +320,7 @@
 	--color-ring: var(--ring);
 	--color-input: var(--input);
 	--color-border: var(--border);
+	--color-hover: var(--hover);
 	--color-accent-gold: var(--accent-gold);
 	--color-accent-gold-foreground: var(--accent-gold-foreground);
 	--color-success: var(--success);
@@ -387,6 +388,9 @@
 	--success: #059669;
 	--success-foreground: #ffffff;
 
+	/* Interactive */
+	--hover: rgba(0, 0, 0, 0.04);
+
 	/* Borders & inputs */
 	--border: #e5e7eb;
 	--input: #e5e7eb;
@@ -416,9 +420,9 @@
 	/* Surfaces */
 	--background: #000000;
 	--foreground: #f9fafb;
-	--card: transparent;
+	--card: #0a0a0a;
 	--card-foreground: #f9fafb;
-	--popover: #1f2937;
+	--popover: #0a0a0a;
 	--popover-foreground: #f9fafb;
 
 	/* Brand */
@@ -439,6 +443,9 @@
 	--destructive: oklch(0.704 0.191 22.216);
 	--success: #34d399;
 	--success-foreground: #064e3b;
+
+	/* Interactive */
+	--hover: rgba(255, 255, 255, 0.05);
 
 	/* Borders & inputs */
 	--border: #1f2937;
@@ -474,6 +481,52 @@
 
 	html {
 		@apply font-sans;
+	}
+}
+
+/* ── Flat/Open Layout — Typography & Card System ────────────
+   Estandariza el patrón: títulos fuera de cards, datos dentro.
+   Inspirado en Vercel, Linear, Shadcn dashboards.
+   ──────────────────────────────────────────────────────────── */
+@layer components {
+	.section-title {
+		@apply text-lg font-semibold text-foreground;
+	}
+
+	.section-description {
+		@apply mt-1 text-sm text-muted-foreground;
+	}
+
+	.section-header {
+		@apply mb-4;
+	}
+
+	.flat-card {
+		@apply rounded-lg border border-border;
+	}
+
+	.flat-card-padded {
+		@apply rounded-lg border border-border p-4;
+	}
+
+	.flat-list {
+		@apply divide-y divide-border rounded-lg border border-border;
+	}
+
+	.kicker {
+		@apply text-[11px] font-semibold tracking-wider text-muted-foreground uppercase;
+	}
+
+	.stat-value {
+		@apply text-2xl font-bold text-foreground;
+	}
+
+	.stat-label {
+		@apply text-xs text-muted-foreground;
+	}
+
+	.badge-status {
+		@apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
 	}
 }
 

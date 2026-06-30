@@ -22,14 +22,16 @@ const paths = [
 <SharedBreadcrumb paths={paths} />
 
 <div class="px-4">
-	<h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-		Tus incorporaciones
-	</h1>
+	<div class="section-header">
+		<h1 class="text-xl font-semibold text-foreground sm:text-2xl">
+			Tus incorporaciones
+		</h1>
+	</div>
 
-	<div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+	<div class="mt-2 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 		{
 			(empresas?.length ?? 0) === 0 ? (
-				<div class="col-span-3 flex flex-col items-center rounded-lg border p-6 text-center text-gray-600 dark:text-gray-300">
+				<div class="col-span-3 flex flex-col items-center rounded-lg border border-dashed border-border p-6 text-center text-muted-foreground">
 					<h3 class="mb-5 text-lg font-semibold">
 						No tienes incorporaciones aún
 					</h3>
@@ -37,7 +39,7 @@ const paths = [
 				</div>
 			) : (
 				empresas?.map((fr) => (
-					<div class="rounded-lg border border-gray-200 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-700 dark:bg-[#28314c] dark:hover:bg-[#101522]">
+					<div class="flat-card transition-colors hover:bg-muted/50">
 						<a
 							href={`/my-companies/${fr.id}/dashboard`}
 							class="flex h-full flex-col items-center p-6 md:flex-row"
@@ -50,10 +52,10 @@ const paths = [
 							/>
 							<div class="flex w-full items-center md:p-4">
 								<div class="w-full">
-									<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+									<h5 class="mb-2 text-2xl font-bold tracking-tight text-foreground">
 										{fr.principal_name} - {fr.tipo_de_negocio}
 									</h5>
-									<p class="mb-6 text-gray-500 dark:text-gray-400">
+									<p class="mb-6 text-muted-foreground">
 										{fr.estado_de_incorporacion}
 									</p>
 								</div>
@@ -62,13 +64,13 @@ const paths = [
 										<span
 											data-popover-target={`tooltip-${fr.id}`}
 											data-popover-placement="bottom-end"
-											class="flex w-fit items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-400/20 dark:text-gray-300"
+											class="badge-status bg-muted text-foreground"
 										>
 											<span class="mr-1 h-2 w-2 animate-pulse rounded-full bg-orange-500" />
 											{fr.estado}
 										</span>
 									) : (
-										<span class="flex w-fit items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-400/20 dark:text-gray-300">
+										<span class="badge-status bg-muted text-foreground">
 											<span class="mr-1 h-2 w-2 animate-pulse rounded-full bg-green-500" />
 											{fr.estado}
 										</span>

@@ -146,8 +146,8 @@ function EmpresasPageInner() {
 	}, [empresas]);
 
 	return (
-		<div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
-			<header className="flex items-end justify-between gap-4 border-b border-gray-200 px-7 pt-6 pb-4 dark:border-gray-800">
+		<div className="-mx-6 flex min-h-[calc(100vh-3.5rem)] flex-col">
+			<header className="flex items-end justify-between gap-4 border-b border-border px-7 pt-6 pb-4">
 				<div>
 					<p className="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
 						Empresas
@@ -166,7 +166,7 @@ function EmpresasPageInner() {
 				</Button>
 			</header>
 
-			<div className="flex border-b border-gray-200 px-7 py-3 dark:border-gray-800">
+			<div className="flex border-b border-border px-7 py-3">
 				<div className="flex flex-col items-center gap-2 md:flex-row">
 					<div className="relative w-64 shrink-0">
 						<Icon

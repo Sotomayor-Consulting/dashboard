@@ -69,7 +69,7 @@ export function UsuariosToolbar({
 	onToggleColumn,
 }: Props) {
 	return (
-		<div className="border-b border-gray-200 px-7 py-3 dark:border-gray-800">
+		<div className="border-b border-border px-7 py-3">
 			<div className="flex flex-wrap items-center gap-2">
 				<div className="relative w-64 shrink-0">
 					<Icon

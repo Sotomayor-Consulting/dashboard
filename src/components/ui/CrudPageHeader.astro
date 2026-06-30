@@ -11,11 +11,8 @@ const { title, descripcion, classAlt } = Astro.props;
 <div
 	class={`flex flex-wrap items-center justify-between gap-3 ${classAlt || ''}`}
 >
-	<div class="space-y-1">
-		<p class="text-muted-foreground text-sm">{descripcion}</p><h1
-			class="text-xl font-semibold"
-		>
-			{title}
-		</h1>
+	<div class="section-header">
+		<h1 class="section-title text-xl">{title}</h1>
+		{descripcion && <p class="section-description">{descripcion}</p>}
 	</div>
 </div>

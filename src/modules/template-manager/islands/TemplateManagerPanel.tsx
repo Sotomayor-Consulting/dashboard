@@ -319,9 +319,9 @@ export default function TemplateManagerPanel({ data, transformers }: Props) {
 	const handleRowClick = (t: TemplateWithDocument) => setOpenDetail(t);
 
 	return (
-		<div className="flex min-h-full flex-col">
+		<div className="-mx-6 flex min-h-full flex-col">
 			{/* Header */}
-			<header className="flex items-end justify-between gap-4 border-b border-gray-200 px-7 pt-6 pb-4 dark:border-gray-800">
+			<header className="flex items-end justify-between gap-4 border-b border-border px-7 pt-6 pb-4">
 				<div>
 					<p className="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
 						Ajustes
