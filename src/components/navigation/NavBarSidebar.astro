@@ -15,10 +15,9 @@ const {
 
 const user = Astro.locals.user;
 const userId = user?.id ?? '';
-const userName =
-	usuario?.nombre
-		? `${usuario.nombre} ${usuario.apellido ?? ''}`.trim()
-		: (user?.user_metadata?.name ?? user?.email ?? 'Usuario');
+const userName = usuario?.nombre
+	? `${usuario.nombre} ${usuario.apellido ?? ''}`.trim()
+	: (user?.user_metadata?.name ?? user?.email ?? 'Usuario');
 
 const { notifications, totalUnread } = notifProp ?? {
 	notifications: [],
@@ -120,7 +119,10 @@ const breadcrumbItems = (() => {
 		);
 		if (matchedChild) {
 			return [
-				{ label: moduleLabel, href: matchedItem.children[0]?.href ?? moduleAnchorHref },
+				{
+					label: moduleLabel,
+					href: matchedItem.children[0]?.href ?? moduleAnchorHref,
+				},
 				{ label: matchedChild.label, href: matchedChild.href },
 			];
 		}
@@ -155,24 +157,11 @@ const breadcrumbItems = (() => {
 		{ label: lastLabel, href: lastFullPath },
 	];
 })();
-
-const quickActions = [
-	{
-		label: 'Feedback',
-		href: 'mailto:info@sotomayorconsulting.com?subject=Feedback%20Dashboard',
-		icon: 'ri:message-3-line',
-	},
-	{
-		label: 'Soporte',
-		href: 'mailto:info@sotomayorconsulting.com',
-		icon: 'ri:customer-service-2-line',
-	},
-];
 ---
 
 <nav
 	id="navbar-sidebar"
-	class="dark:bg-primary-black fixed top-0 right-0 left-0 z-30 h-14 border-b border-border bg-white lg:left-60"
+	class="dark:bg-primary-black border-border fixed top-0 right-0 left-0 z-30 h-14 border-b bg-white lg:left-60"
 >
 	<div class="flex h-full items-center">
 		<!-- Mobile: hamburger + logo -->
@@ -183,7 +172,7 @@ const quickActions = [
 				data-drawer-show="sidebar"
 				aria-controls="sidebar"
 				aria-expanded="true"
-				class="cursor-pointer rounded p-2 text-muted-foreground hover:bg-hover hover:text-foreground focus:bg-hover focus:ring-2 focus:ring-ring"
+				class="text-muted-foreground hover:bg-hover hover:text-foreground focus:bg-hover focus:ring-ring cursor-pointer rounded p-2 focus:ring-2"
 			>
 				<svg
 					id="toggleSidebarMobileHamburger"
@@ -223,127 +212,155 @@ const quickActions = [
 		</div>
 
 		<!-- Content area: breadcrumb + search + actions -->
-		<div class="flex min-w-0 flex-1 items-center justify-between pr-3 pl-3 lg:pr-5 lg:pl-4">
+		<div
+			class="flex min-w-0 flex-1 items-center justify-between pr-3 pl-3 lg:pr-5 lg:pl-4"
+		>
 			<div class="hidden min-w-0 items-center pl-4 lg:flex">
-					<nav
-						aria-label="Breadcrumb"
-						class="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
-					>
-						{
-							breadcrumbItems.map((crumb, idx) => (
-								<>
-									{idx > 0 && (
-										<Icon
-											name="ri:arrow-right-s-line"
-											class="h-3.5 w-3.5 shrink-0 text-gray-400"
-										/>
-									)}
-									<a
-										href={crumb.href}
-										class:list={{
-											'truncate transition-colors hover:text-gray-700 dark:hover:text-gray-200': true,
-											'font-semibold text-gray-900 dark:text-white':
-												idx === breadcrumbItems.length - 1,
-										}}
-									>
-										{crumb.label}
-									</a>
-								</>
-							))
-						}
-					</nav>
-				</div>
-				<div
-					class="hidden flex-1 items-center justify-center px-4 md:flex lg:hidden"
+				<nav
+					aria-label="Breadcrumb"
+					class="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
 				>
-					<GlobalSearch userRoles={Astro.locals.userRoles ?? []} />
+					{
+						breadcrumbItems.map((crumb, idx) => (
+							<>
+								{idx > 0 && (
+									<Icon
+										name="ri:arrow-right-s-line"
+										class="h-3.5 w-3.5 shrink-0 text-gray-400"
+									/>
+								)}
+								<a
+									href={crumb.href}
+									class:list={{
+										'truncate transition-colors hover:text-gray-700 dark:hover:text-gray-200': true,
+										'font-semibold text-gray-900 dark:text-white':
+											idx === breadcrumbItems.length - 1,
+									}}
+								>
+									{crumb.label}
+								</a>
+							</>
+						))
+					}
+				</nav>
+			</div>
+			<div
+				class="hidden flex-1 items-center justify-center px-4 md:flex lg:hidden"
+			>
+				<GlobalSearch userRoles={Astro.locals.userRoles ?? []} />
+			</div>
+
+			<div class="flex items-center gap-2">
+				<ColorModeSwitcher />
+				<div id="notificaciones">
+					<NotificationsPopover
+						notifications={notifications}
+						totalUnread={totalUnread}
+						avatarSrc={logonotificaciones.src}
+						client:load
+					/>
 				</div>
-
-				<div class="flex items-center gap-2">
-					<ColorModeSwitcher />
-					<div id="notificaciones">
-						<NotificationsPopover
-							notifications={notifications}
-							totalUnread={totalUnread}
-							avatarSrc={logonotificaciones.src}
-							client:load
+				<div class="relative hidden lg:block" data-user-dropdown>
+					<button
+						type="button"
+						class="hover:bg-hover flex cursor-pointer items-center gap-2 rounded-full py-1 pr-3 pl-1 transition-colors"
+						data-user-dropdown-trigger
+					>
+						<img
+							src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
+							alt="Avatar"
+							class="border-border h-8 w-8 shrink-0 rounded-full border"
 						/>
-					</div>
-					<div class="relative hidden lg:block" data-user-dropdown>
-						<button
-							type="button"
-							class="flex cursor-pointer items-center gap-2 rounded-full py-1 pr-3 pl-1 transition-colors hover:bg-hover"
-							data-user-dropdown-trigger
-						>
-							<img
-								src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
-								alt="Avatar"
-								class="h-8 w-8 shrink-0 rounded-full border border-border"
-							/>
-							<span class="text-sm font-medium text-foreground">{userName}</span>
-							<Icon name="ri:arrow-down-s-line" class="h-4 w-4 text-muted-foreground transition-transform" data-user-dropdown-chevron />
-						</button>
+						<span class="text-foreground text-sm font-medium">{userName}</span>
+						<Icon
+							name="ri:arrow-down-s-line"
+							class="text-muted-foreground h-4 w-4 transition-transform"
+							data-user-dropdown-chevron
+						/>
+					</button>
 
-						<div
-							class="absolute right-0 top-full z-50 mt-2 hidden w-56 overflow-hidden rounded-lg border border-border bg-card shadow-lg"
-							data-user-dropdown-panel
-						>
-							<div class="border-b border-border px-4 py-3">
-								<p class="text-sm font-medium text-foreground">{userName}</p>
-								<p class="truncate text-xs text-muted-foreground">{user?.email ?? ''}</p>
-							</div>
-							<div class="py-1.5">
-								<a
-									href="/profile/"
-									data-astro-prefetch
-									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-hover"
+					<div
+						class="border-border bg-card absolute top-full right-0 z-50 mt-2 hidden w-56 overflow-hidden rounded-lg border shadow-lg"
+						data-user-dropdown-panel
+					>
+						<div class="border-border border-b px-4 py-3">
+							<p class="text-foreground text-sm font-medium">{userName}</p>
+							<p class="text-muted-foreground truncate text-xs">
+								{user?.email ?? ''}
+							</p>
+						</div>
+						<div class="py-1.5">
+							<a
+								href="/profile/"
+								data-astro-prefetch
+								class="text-foreground hover:bg-hover flex items-center gap-3 px-4 py-2 text-sm transition-colors"
+							>
+								<Icon
+									name="ri:user-line"
+									class="text-muted-foreground h-4 w-4"
+								/>
+								Editar perfil
+							</a>
+							<a
+								href="/profile/billing"
+								data-astro-prefetch
+								class="text-foreground hover:bg-hover flex items-center gap-3 px-4 py-2 text-sm transition-colors"
+							>
+								<Icon
+									name="ri:settings-3-line"
+									class="text-muted-foreground h-4 w-4"
+								/>
+								Configuración
+							</a>
+							<a
+								href="mailto:info@sotomayorconsulting.com"
+								class="text-foreground hover:bg-hover flex items-center gap-3 px-4 py-2 text-sm transition-colors"
+							>
+								<Icon
+									name="ri:customer-service-2-line"
+									class="text-muted-foreground h-4 w-4"
+								/>
+								Soporte
+							</a>
+						</div>
+						<div class="border-border border-t py-1.5">
+							<form method="POST" action="/api/auth/sign-out">
+								<button
+									type="submit"
+									class="text-foreground hover:bg-hover flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors"
 								>
-									<Icon name="ri:user-line" class="h-4 w-4 text-muted-foreground" />
-									Editar perfil
-								</a>
-								<a
-									href="/profile/billing"
-									data-astro-prefetch
-									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-hover"
-								>
-									<Icon name="ri:settings-3-line" class="h-4 w-4 text-muted-foreground" />
-									Configuración
-								</a>
-								<a
-									href="mailto:info@sotomayorconsulting.com"
-									class="flex items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-hover"
-								>
-									<Icon name="ri:customer-service-2-line" class="h-4 w-4 text-muted-foreground" />
-									Soporte
-								</a>
-							</div>
-							<div class="border-t border-border py-1.5">
-								<form method="POST" action="/api/auth/sign-out">
-									<button
-										type="submit"
-										class="flex w-full items-center gap-3 px-4 py-2 text-sm text-foreground transition-colors hover:bg-hover"
-									>
-										<Icon name="ri:logout-box-r-line" class="h-4 w-4 text-muted-foreground" />
-										Cerrar sesión
-									</button>
-								</form>
-							</div>
+									<Icon
+										name="ri:logout-box-r-line"
+										class="text-muted-foreground h-4 w-4"
+									/>
+									Cerrar sesión
+								</button>
+							</form>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+	</div>
 </nav>
 
 <script>
 	function initUserDropdown() {
-		const dropdown = document.querySelector<HTMLElement>('[data-user-dropdown]');
+		const dropdown = document.querySelector<HTMLElement>(
+			'[data-user-dropdown]',
+		);
 		if (!dropdown || dropdown.dataset.dropdownInit === '1') return;
 		dropdown.dataset.dropdownInit = '1';
 
-		const trigger = dropdown.querySelector<HTMLButtonElement>('[data-user-dropdown-trigger]');
-		const panel = dropdown.querySelector<HTMLElement>('[data-user-dropdown-panel]');
-		const chevron = dropdown.querySelector<HTMLElement>('[data-user-dropdown-chevron]');
+		const trigger = dropdown.querySelector<HTMLButtonElement>(
+			'[data-user-dropdown-trigger]',
+		);
+		const panel = dropdown.querySelector<HTMLElement>(
+			'[data-user-dropdown-panel]',
+		);
+		const chevron = dropdown.querySelector<HTMLElement>(
+			'[data-user-dropdown-chevron]',
+		);
 		if (!trigger || !panel) return;
 
 		const open = () => {

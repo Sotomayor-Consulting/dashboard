@@ -16,25 +16,7 @@ export type BillingInfoRow = {
 	email: string | null;
 	is_default: boolean;
 	created_at: string;
-};
-
-export const FacturacionbyId = async (
-	supabase: SupabaseClient,
-	userId: string,
-): Promise<BillingInfoRow | null> => {
-	const { data, error } = await supabase
-		.from('billing_info')
-		.select('*')
-		.eq('user_id', userId)
-		.single();
-
-	if (error) {
-		if (error.code === 'PGRST116') return null;
-		log.error('Error fetching billing_info by user_id', { error });
-		throw error;
-	}
-
-	return data;
+	paises?: { name: string } | null;
 };
 
 export const getAllBillingInfo = async (
@@ -57,21 +39,132 @@ export const getAllBillingInfo = async (
 	return data ?? [];
 };
 
-export const getDefaultBillingInfo = async (
+export const getBillingInfoById = async (
 	supabase: SupabaseClient,
+	id: string,
 	userId: string,
 ): Promise<BillingInfoRow | null> => {
 	const { data, error } = await supabase
 		.from('billing_info')
 		.select('*')
+		.eq('id', id)
 		.eq('user_id', userId)
-		.eq('is_default', true)
 		.maybeSingle();
 
 	if (error) {
-		log.error('Error fetching default billing_info', { error });
-		throw error;
+		log.error('Error fetching billing_info by id', { error });
+		return null;
 	}
 
 	return data;
+};
+
+export const countBillingInfo = async (
+	supabase: SupabaseClient,
+	userId: string,
+): Promise<number> => {
+	const { count, error } = await supabase
+		.from('billing_info')
+		.select('id', { count: 'exact', head: true })
+		.eq('user_id', userId);
+
+	if (error) {
+		log.error('Error counting billing_info', { error });
+		return 0;
+	}
+
+	return count ?? 0;
+};
+
+export type BillingInfoInsert = {
+	user_id: string;
+	country_id: number;
+	city: string;
+	line1: string;
+	state_id?: number | null;
+	line2?: string | null;
+	zip?: string | null;
+	phone?: string | null;
+	email?: string | null;
+	is_default?: boolean;
+};
+
+export const createBillingInfo = async (
+	supabase: SupabaseClient,
+	payload: BillingInfoInsert,
+): Promise<{ id: string } | null> => {
+	const { data, error } = await supabase
+		.from('billing_info')
+		.insert(payload)
+		.select('id')
+		.single();
+
+	if (error) {
+		log.error('Error creating billing_info', { error });
+		return null;
+	}
+
+	return data;
+};
+
+export type BillingInfoUpdate = Partial<
+	Omit<BillingInfoInsert, 'user_id'>
+>;
+
+export const updateBillingInfo = async (
+	supabase: SupabaseClient,
+	id: string,
+	userId: string,
+	payload: BillingInfoUpdate,
+): Promise<boolean> => {
+	const { error } = await supabase
+		.from('billing_info')
+		.update(payload)
+		.eq('id', id)
+		.eq('user_id', userId);
+
+	if (error) {
+		log.error('Error updating billing_info', { error });
+		return false;
+	}
+
+	return true;
+};
+
+export const deleteBillingInfo = async (
+	supabase: SupabaseClient,
+	id: string,
+	userId: string,
+): Promise<boolean> => {
+	const { error } = await supabase
+		.from('billing_info')
+		.delete()
+		.eq('id', id)
+		.eq('user_id', userId);
+
+	if (error) {
+		log.error('Error deleting billing_info', { error });
+		return false;
+	}
+
+	return true;
+};
+
+export const setDefaultBillingInfo = async (
+	supabase: SupabaseClient,
+	id: string,
+	userId: string,
+): Promise<boolean> => {
+	const { error } = await supabase
+		.from('billing_info')
+		.update({ is_default: true })
+		.eq('id', id)
+		.eq('user_id', userId);
+
+	if (error) {
+		log.error('Error setting default billing_info', { error });
+		return false;
+	}
+
+	return true;
 };

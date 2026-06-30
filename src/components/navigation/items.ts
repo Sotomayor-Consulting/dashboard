@@ -3,6 +3,8 @@ export interface SubMenuItem {
 	label: string;
 	href: string;
 	svgname: string;
+	/** Si se omite, hereda los roles del padre. */
+	roles?: string[];
 }
 
 export interface MenuItem {
@@ -16,6 +18,18 @@ export interface MenuItem {
 	colors?: string;
 	group?: string;
 	children?: SubMenuItem[];
+}
+
+export interface QuickAction {
+	id: string;
+	label: string;
+	icon: string;
+	/** 'link' navega al href; 'dialog' dispara un CustomEvent en window con `eventName`. */
+	kind: 'link' | 'dialog';
+	href?: string;
+	eventName?: string;
+	badge?: string;
+	external?: boolean;
 }
 
 export const menuItems: MenuItem[] = [
@@ -119,31 +133,6 @@ export const menuItems: MenuItem[] = [
 		colors: 'text-violet-500',
 	},
 	{
-		id: 'admin-settings',
-		label: 'Ajustes',
-		href: '/profile/',
-		tooltip: 'Configuración del sistema',
-		roles: ['admin', 'operaciones'],
-		svgname: 'ri:settings-3-line',
-		sequence: 160,
-		group: 'Admin',
-		colors: 'text-violet-500',
-		children: [
-			{
-				id: 'admin-profile',
-				label: 'Perfil',
-				href: '/profile/',
-				svgname: 'ri:user-3-line',
-			},
-			{
-				id: 'settings-templates',
-				label: 'Plantillas',
-				href: '/admin/settings/templates',
-				svgname: 'ri:file-text-line',
-			},
-		],
-	},
-	{
 		id: 'otros-servicios',
 		label: 'Otros servicios',
 		href: '/services/',
@@ -154,11 +143,11 @@ export const menuItems: MenuItem[] = [
 		group: 'Servicios',
 	},
 	{
-		id: 'user-settings',
+		id: 'settings',
 		label: 'Ajustes',
 		href: '/profile/',
-		tooltip: 'Configuración de tu cuenta',
-		roles: ['cliente', 'partner'],
+		tooltip: 'Ajustes de tu cuenta y configuración',
+		roles: ['cliente', 'partner', 'admin', 'gerencia', 'operaciones'],
 		svgname: 'ri:settings-3-line',
 		sequence: 200,
 		group: 'Cuenta',
@@ -182,11 +171,38 @@ export const menuItems: MenuItem[] = [
 				svgname: 'ri:notification-3-line',
 			},
 			{
-				id: 'user-security',
-				label: 'Seguridad',
-				href: '/profile/security/',
-				svgname: 'ri:shield-line',
-			}
+				id: 'settings-templates',
+				label: 'Plantillas',
+				href: '/admin/settings/templates',
+				svgname: 'ri:file-text-line',
+				roles: ['admin'],
+			},
+			{
+				id: 'settings-feedback',
+				label: 'Feedback Beta',
+				href: '/admin/settings/feedback',
+				svgname: 'ri:message-3-line',
+				roles: ['admin', 'gerencia', 'operaciones'],
+			},
 		],
+	},
+];
+
+export const quickActions: QuickAction[] = [
+	{
+		id: 'quick-feedback',
+		label: 'Feedback',
+		icon: 'ri:message-3-line',
+		kind: 'dialog',
+		eventName: 'open-feedback-dialog',
+		badge: 'Beta',
+	},
+	{
+		id: 'quick-support',
+		label: 'Ayuda & Soporte',
+		icon: 'ri:customer-service-2-line',
+		kind: 'link',
+		href: 'mailto:info@sotomayorconsulting.com',
+		external: true,
 	},
 ];

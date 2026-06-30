@@ -1,7 +1,12 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { menuItems, type MenuItem } from '@components/navigation/items';
+import {
+	menuItems,
+	quickActions,
+	type MenuItem,
+} from '@components/navigation/items';
 import CompanySwitcher from './CompanySwitcher.astro';
+import FeedbackDialog from '@components/feedback/FeedbackDialog.tsx';
 import type { EmpresaSwitcherItem } from '@domains/companies/companies';
 
 interface Props {
@@ -63,7 +68,15 @@ const visibleMenu = [...menuItems, ...dynamicItems].filter(
 			item.roles.some((r) => userRoles.includes(r))),
 );
 
-const sortedMenu = [...visibleMenu].sort((a, b) => a.sequence - b.sequence);
+const sortedMenu = [...visibleMenu]
+	.sort((a, b) => a.sequence - b.sequence)
+	.map((item) => {
+		if (!item.children?.length) return item;
+		const filteredChildren = item.children.filter(
+			(c) => !c.roles || c.roles.some((r) => userRoles.includes(r)),
+		);
+		return { ...item, children: filteredChildren };
+	});
 
 const groupOrder = [
 	'Company',
@@ -227,6 +240,45 @@ const inactiveClass =
 					))
 				}
 			</ul>
+
+			<!-- Quick actions (mobile) -->
+			<div
+				class="mt-2 space-y-0.5 border-t border-gray-200/80 pt-2 dark:border-gray-700/70"
+			>
+				{
+					quickActions.map((qa) =>
+						qa.kind === 'dialog' ? (
+							<button
+								type="button"
+								data-quick-action={qa.eventName}
+								class={`flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${inactiveClass}`}
+							>
+								<Icon name={qa.icon} class="h-5 w-5 shrink-0" />
+								<span class="flex-1 text-left">{qa.label}</span>
+								{qa.badge && (
+									<span class="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+										{qa.badge}
+									</span>
+								)}
+							</button>
+						) : (
+							<a
+								href={qa.href}
+								class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${inactiveClass}`}
+							>
+								<Icon name={qa.icon} class="h-5 w-5 shrink-0" />
+								<span class="flex-1">{qa.label}</span>
+								{qa.external && (
+									<Icon
+										name="ri:external-link-line"
+										class="text-muted-foreground/50 h-3 w-3"
+									/>
+								)}
+							</a>
+						),
+					)
+				}
+			</div>
 
 			<!-- Links externos -->
 			<div class="mt-1 space-y-0.5 pt-1.5">
@@ -466,44 +518,62 @@ const inactiveClass =
 	</nav>
 
 	<!-- Quick links -->
-	<div class="mt-auto space-y-0.5 px-3 pb-2">
-		<a
-			href="mailto:info@sotomayorconsulting.com?subject=Feedback%20Dashboard"
-			class="sb-link text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-		>
-			<Icon name="ri:message-3-line" class="h-4.5 w-4.5 shrink-0" />
-			<span class="sb-label whitespace-nowrap">Feedback</span>
-			<Icon
-				name="ri:external-link-line"
-				class="sb-label text-muted-foreground/50 ml-auto h-3 w-3"
-			/>
-		</a>
-		<a
-			href="mailto:info@sotomayorconsulting.com"
-			class="sb-link text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
-		>
-			<Icon name="ri:customer-service-2-line" class="h-4.5 w-4.5 shrink-0" />
-			<span class="sb-label whitespace-nowrap">Ayuda & Soporte</span>
-			<Icon
-				name="ri:external-link-line"
-				class="sb-label text-muted-foreground/50 ml-auto h-3 w-3"
-			/>
-		</a>
-	</div>
-
-	<!-- Logout -->
-	<div class="border-border border-t px-3 py-2">
-		<form method="POST" action="/api/auth/sign-out">
-			<button
-				type="submit"
-				class="sb-link text-muted-foreground flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400"
-			>
-				<Icon name="ri:logout-box-r-line" class="h-4.5 w-4.5 shrink-0" />
-				<span class="sb-label whitespace-nowrap">Cerrar sesión</span>
-			</button>
-		</form>
-	</div>
+	<nav class="flex flex-col border-t px-3 py-3">
+		{
+			quickActions.map((qa) =>
+				qa.kind === 'dialog' ? (
+					<button
+						type="button"
+						data-quick-action={qa.eventName}
+						class="sb-link text-muted-foreground flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+					>
+						<Icon name={qa.icon} class="h-4.5 w-4.5 shrink-0" />
+						<span class="sb-label whitespace-nowrap">{qa.label}</span>
+						{qa.badge && (
+							<span class="sb-label ml-auto rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+								{qa.badge}
+							</span>
+						)}
+					</button>
+				) : (
+					<a
+						href={qa.href}
+						class="sb-link text-muted-foreground flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+					>
+						<Icon name={qa.icon} class="h-4.5 w-4.5 shrink-0" />
+						<span class="sb-label whitespace-nowrap">{qa.label}</span>
+						{qa.external && (
+							<Icon
+								name="ri:external-link-line"
+								class="sb-label text-muted-foreground/50 ml-auto h-3 w-3"
+							/>
+						)}
+					</a>
+				),
+			)
+		}
+	</nav>
 </aside>
+
+<FeedbackDialog client:idle />
+
+<script>
+	function bindQuickActions() {
+		document
+			.querySelectorAll<HTMLElement>('[data-quick-action]')
+			.forEach((el) => {
+				if (el.dataset.qaBound) return;
+				el.dataset.qaBound = '1';
+				el.addEventListener('click', () => {
+					const evt = el.dataset.quickAction;
+					if (evt) window.dispatchEvent(new CustomEvent(evt));
+				});
+			});
+	}
+
+	bindQuickActions();
+	document.addEventListener('astro:page-load', bindQuickActions);
+</script>
 
 <style is:global>
 	#sidebar details > summary::-webkit-details-marker,

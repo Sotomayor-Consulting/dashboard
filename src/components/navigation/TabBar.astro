@@ -38,7 +38,7 @@ const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 			return kind === 'link' ? (
 				<a
 					href={b.link}
-					data-astro-prefetch="viewport"
+					data-astro-prefetch="load"
 					class:list={[
 						baseClass,
 						b.active ? activeClass : inactiveClass,

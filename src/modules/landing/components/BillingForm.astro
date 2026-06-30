@@ -15,7 +15,6 @@ interface PaisRow {
 interface Props {
 	addresses: (BillingInfoRow & { paises?: { name: string } | null })[];
 	paises?: PaisRow[] | null | undefined;
-	userId?: string | undefined;
 }
 
 type Option = {
@@ -23,7 +22,8 @@ type Option = {
 	label: string;
 };
 
-const { addresses = [], paises, userId } = Astro.props;
+const { addresses = [], paises } = Astro.props;
+const hasAddresses = addresses.length > 0;
 const canAdd = addresses.length < 3;
 
 const countryOptions: Option[] = (paises ?? []).map((p) => ({
@@ -32,8 +32,7 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 }));
 ---
 
-<!-- Saved addresses -->
-{addresses.length > 0 && (
+{hasAddresses && (
 	<div class="mb-8">
 		<div class="flex items-center justify-between mb-4">
 			<div>
@@ -70,6 +69,22 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 					</div>
 
 					<div class="flex shrink-0 items-center gap-1 ml-4">
+						<button
+							type="button"
+							class="rounded-md p-1.5 text-muted-foreground transition hover:bg-hover hover:text-foreground"
+							title="Editar dirección"
+							data-edit-billing
+							data-id={addr.id}
+							data-email={addr.email ?? ''}
+							data-phone={addr.phone ?? ''}
+							data-line1={addr.line1}
+							data-line2={addr.line2 ?? ''}
+							data-country-id={String(addr.country_id)}
+							data-city={addr.city}
+							data-zip={addr.zip ?? ''}
+						>
+							<Icon name="ri:pencil-line" class="h-4 w-4" />
+						</button>
 						{!addr.is_default && (
 							<form method="post" action="/api/billing/set-default">
 								<input type="hidden" name="billing_id" value={addr.id} />
@@ -99,115 +114,227 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 	</div>
 )}
 
-<!-- Add new address form -->
-{canAdd ? (
-	<div x-data="{ open: false }">
-		<button
-			type="button"
-			x-on:click="open = !open"
-			class="btn-outline w-full gap-2"
-		>
-			<Icon name="ri:add-line" class="h-4 w-4" />
-			Agregar dirección de facturación
-		</button>
+{hasAddresses && canAdd && (
+	<button
+		type="button"
+		data-toggle-billing-form
+		class="btn-outline w-full gap-2 mb-6"
+	>
+		<Icon name="ri:add-line" class="h-4 w-4" />
+		Agregar dirección de facturación
+	</button>
+)}
 
-		<div x-show="open" x-transition class="mt-6">
-			<form method="post" action="/api/billing/upsert-invoice">
-				<input type="hidden" value={userId} name="user_id_factura" />
-				{addresses.length === 0 && (
-					<input type="hidden" name="is_default" value="true" />
-				)}
-
-				<div class="divide-y divide-border">
-					<!-- Contacto -->
-					<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 first:pt-0 sm:grid-cols-[220px_1fr]">
-						<div>
-							<h3 class="text-sm font-medium text-foreground">Contacto</h3>
-							<p class="mt-1 text-sm text-muted-foreground">Correo y teléfono de facturación.</p>
-						</div>
-						<div class="grid grid-cols-2 gap-4">
-							<FormInput
-								label=""
-								name="email"
-								type="email"
-								placeholder="correo@ejemplo.com"
-								class="col-span-1"
-							/>
-							<FormPhoneInput
-								label=""
-								name="phone"
-								initialCountry="us"
-								class="col-span-1"
-							/>
-						</div>
-					</div>
-
-					<!-- Dirección -->
-					<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
-						<div>
-							<h3 class="text-sm font-medium text-foreground">Dirección *</h3>
-							<p class="mt-1 text-sm text-muted-foreground">Ubicación para facturación.</p>
-						</div>
-						<div class="grid grid-cols-2 gap-4">
-							<FormInput
-								label=""
-								name="line1"
-								placeholder="Dirección línea 1"
-								required
-								class="col-span-2"
-							/>
-							<FormInput
-								label=""
-								name="line2"
-								placeholder="Dirección línea 2"
-								class="col-span-2"
-							/>
-							<FormSelect
-								label=""
-								name="country_id"
-								options={countryOptions}
-								placeholder="País"
-								required
-								class="col-span-1"
-							/>
-							<FormInput
-								label=""
-								name="city"
-								placeholder="Ciudad"
-								required
-								class="col-span-1"
-							/>
-							<FormInput
-								label=""
-								name="zip"
-								placeholder="Código postal"
-								class="col-span-1"
-							/>
-						</div>
-					</div>
-				</div>
-
-				<!-- Save button -->
-				<div class="flex justify-end gap-3 border-t border-border pt-6">
-					<button
-						type="button"
-						x-on:click="open = false"
-						class="btn-outline"
-					>
-						Cancelar
-					</button>
-					<button
-						type="submit"
-						class="btn-primary"
-					>
-						Guardar dirección
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
-) : (
+{hasAddresses && !canAdd && (
 	<p class="text-center text-sm text-muted-foreground py-4">
 		Has alcanzado el máximo de 3 direcciones de facturación.
 	</p>
 )}
+
+<div id="billing-form-wrapper" class:list={[hasAddresses && 'hidden']}>
+	<form
+		id="billing-form"
+		method="post"
+		action={hasAddresses ? '/api/billing/upsert-invoice' : '/api/billing/upsert-invoice'}
+	>
+		<input type="hidden" name="billing_id" id="bf-billing-id" value="" />
+		{!hasAddresses && (
+			<input type="hidden" name="is_default" value="true" />
+		)}
+
+		<div id="billing-form-title" class="mb-4 hidden">
+			<h3 class="text-sm font-medium text-foreground">Editar dirección</h3>
+		</div>
+
+		<div class="divide-y divide-border">
+			<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 first:pt-0 sm:grid-cols-[220px_1fr]">
+				<div>
+					<h3 class="text-sm font-medium text-foreground">Contacto</h3>
+					<p class="mt-1 text-sm text-muted-foreground">Correo y teléfono de facturación.</p>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<FormInput
+						label=""
+						name="email"
+						id="bf-email"
+						type="email"
+						placeholder="correo@ejemplo.com"
+						class="col-span-1"
+					/>
+					<FormPhoneInput
+						label=""
+						name="phone"
+						id="bf-phone"
+						initialCountry="us"
+						class="col-span-1"
+					/>
+				</div>
+			</div>
+
+			<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
+				<div>
+					<h3 class="text-sm font-medium text-foreground">Dirección *</h3>
+					<p class="mt-1 text-sm text-muted-foreground">Ubicación para facturación.</p>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<FormInput
+						label=""
+						name="line1"
+						id="bf-line1"
+						placeholder="Dirección línea 1"
+						required
+						class="col-span-2"
+					/>
+					<FormInput
+						label=""
+						name="line2"
+						id="bf-line2"
+						placeholder="Dirección línea 2"
+						class="col-span-2"
+					/>
+					<FormSelect
+						label=""
+						name="country_id"
+						id="bf-country-id"
+						options={countryOptions}
+						placeholder="País"
+						required
+						class="col-span-1"
+					/>
+					<FormInput
+						label=""
+						name="city"
+						id="bf-city"
+						placeholder="Ciudad"
+						required
+						class="col-span-1"
+					/>
+					<FormInput
+						label=""
+						name="zip"
+						id="bf-zip"
+						placeholder="Código postal"
+						class="col-span-1"
+					/>
+				</div>
+			</div>
+		</div>
+
+		<div class="flex justify-end gap-3 border-t border-border pt-6">
+			{hasAddresses && (
+				<button
+					type="button"
+					data-cancel-billing-form
+					class="btn-outline"
+				>
+					Cancelar
+				</button>
+			)}
+			<button type="submit" id="bf-submit" class="btn-primary">
+				{hasAddresses ? 'Guardar dirección' : 'Guardar cambios'}
+			</button>
+		</div>
+	</form>
+</div>
+
+<script>
+	function initBillingForm() {
+		const wrapper = document.getElementById('billing-form-wrapper');
+		const form = document.getElementById('billing-form') as HTMLFormElement | null;
+		const title = document.getElementById('billing-form-title');
+		const submitBtn = document.getElementById('bf-submit');
+		const toggleBtn = document.querySelector('[data-toggle-billing-form]');
+		const cancelBtn = document.querySelector('[data-cancel-billing-form]');
+
+		if (!wrapper || !form) return;
+
+		const isAlwaysVisible = !wrapper.classList.contains('hidden');
+		if (isAlwaysVisible) return;
+
+		function showForm(mode: 'add' | 'edit') {
+			wrapper!.classList.remove('hidden');
+			if (mode === 'edit') {
+				title?.classList.remove('hidden');
+				form!.action = '/api/billing/update';
+				if (submitBtn) submitBtn.textContent = 'Guardar cambios';
+			} else {
+				title?.classList.add('hidden');
+				form!.action = '/api/billing/upsert-invoice';
+				if (submitBtn) submitBtn.textContent = 'Guardar dirección';
+			}
+			wrapper!.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+
+		function hideForm() {
+			wrapper!.classList.add('hidden');
+			form!.reset();
+			const billingId = document.getElementById('bf-billing-id') as HTMLInputElement | null;
+			if (billingId) billingId.value = '';
+			title?.classList.add('hidden');
+			form!.action = '/api/billing/upsert-invoice';
+			if (submitBtn) submitBtn.textContent = 'Guardar dirección';
+		}
+
+		function fillForm(data: Record<string, string>) {
+			const fields = ['email', 'line1', 'line2', 'city', 'zip'] as const;
+			fields.forEach((f) => {
+				const el = document.getElementById(`bf-${f}`) as HTMLInputElement | null;
+				if (el) el.value = data[f] ?? '';
+			});
+
+			const phoneInput = document.getElementById('bf-phone') as HTMLInputElement | null;
+			if (phoneInput && data['phone']) {
+				const iti = (phoneInput as any)._iti;
+				if (iti) {
+					iti.setNumber(data['phone']);
+				} else {
+					phoneInput.value = data['phone'];
+				}
+			}
+
+			const countrySelect = document.getElementById('bf-country-id') as HTMLSelectElement | null;
+			if (countrySelect) countrySelect.value = data['country-id'] ?? '';
+
+			const billingId = document.getElementById('bf-billing-id') as HTMLInputElement | null;
+			if (billingId) billingId.value = data['id'] ?? '';
+		}
+
+		if (toggleBtn && !toggleBtn.hasAttribute('data-bound')) {
+			toggleBtn.setAttribute('data-bound', '1');
+			toggleBtn.addEventListener('click', () => {
+				if (wrapper!.classList.contains('hidden')) {
+					hideForm();
+					showForm('add');
+				} else {
+					hideForm();
+				}
+			});
+		}
+
+		if (cancelBtn && !cancelBtn.hasAttribute('data-bound')) {
+			cancelBtn.setAttribute('data-bound', '1');
+			cancelBtn.addEventListener('click', () => hideForm());
+		}
+
+		document.querySelectorAll<HTMLElement>('[data-edit-billing]').forEach((btn) => {
+			if (btn.hasAttribute('data-bound')) return;
+			btn.setAttribute('data-bound', '1');
+			btn.addEventListener('click', () => {
+				fillForm({
+					id: btn.dataset.id ?? '',
+					email: btn.dataset.email ?? '',
+					phone: btn.dataset.phone ?? '',
+					line1: btn.dataset.line1 ?? '',
+					line2: btn.dataset.line2 ?? '',
+					'country-id': btn.dataset.countryId ?? '',
+					city: btn.dataset.city ?? '',
+					zip: btn.dataset.zip ?? '',
+				});
+				showForm('edit');
+			});
+		});
+	}
+
+	initBillingForm();
+	document.addEventListener('astro:page-load', initBillingForm);
+</script>
