@@ -14,58 +14,56 @@ const {
 } = Astro.props as Props;
 ---
 
-<div class="col-span-full xl:col-auto">
-	<div class="flat-card-padded mb-4 sm:p-6 2xl:col-span-2">
-		<div
-			class="items-center sm:flex sm:space-x-4 xl:block xl:space-x-0 2xl:flex 2xl:space-x-4"
-		>
-			<PictureUploader title="Foto de perfil" />
+<div class="divide-y divide-border">
+	<!-- Avatar -->
+	<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 first:pt-0 sm:grid-cols-[220px_1fr]">
+		<div>
+			<h3 class="text-sm font-medium text-foreground">Foto de perfil</h3>
+			<p class="mt-1 text-sm text-muted-foreground">JPG, PNG o WEBP. Máx 5 MB.</p>
+		</div>
+		<div class="flex items-center gap-6">
+			<PictureUploader title="" />
 		</div>
 	</div>
 
-	<div class="flat-card-padded mb-4 sm:p-6 2xl:col-span-2">
-		<h3 class="section-title mb-4">Rol de cuenta</h3>
-		<div class="mb-4">
-			<p
-				class="block w-full cursor-not-allowed rounded-lg border border-border bg-card p-2.5 text-foreground shadow-sm sm:text-sm"
-			>
+	<!-- Rol de cuenta -->
+	<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
+		<div>
+			<h3 class="text-sm font-medium text-foreground">Rol de cuenta</h3>
+			<p class="mt-1 text-sm text-muted-foreground">Tu correo vinculado a la cuenta.</p>
+		</div>
+		<div class="space-y-4">
+			<p class="block w-full rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground">
 				{email}
 			</p>
-		</div>
-
-		<div>
 			<a
 				href={promoteHref}
-				class="rounded-lg bg-accent-gold px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-accent-gold/80 focus:ring-4 focus:ring-accent-gold/30"
+				class="btn-outline"
 			>
 				Promover a cuenta de asociado
 			</a>
 		</div>
 	</div>
 
-	<div class="flat-card-padded mb-4 sm:p-6 2xl:col-span-2">
-		<h3 class="section-title mb-4">
-			Canjear código de Referido
-		</h3>
-
-		<form action={referralAction} method="POST">
-			<div class="mb-4">
-				<input
-					type="text"
-					name="code"
-					class="block w-full rounded-lg border border-border bg-card p-2.5 text-foreground shadow-sm placeholder:text-muted-foreground focus:border-accent-gold focus:ring-accent-gold sm:text-sm"
-					placeholder="Ejemplo: 9F2A7C4B"
-				/>
-			</div>
-
-			<div>
-				<button
-					type="submit"
-					class="cursor-pointer rounded-lg bg-accent-gold px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-accent-gold/80 focus:ring-4 focus:ring-accent-gold/30"
-				>
-					Canjear
-				</button>
-			</div>
+	<!-- Código de referido -->
+	<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
+		<div>
+			<h3 class="text-sm font-medium text-foreground">Código de referido</h3>
+			<p class="mt-1 text-sm text-muted-foreground">Ingresa un código para vincular tu cuenta.</p>
+		</div>
+		<form action={referralAction} method="POST" class="space-y-4">
+			<input
+				type="text"
+				name="code"
+				class="block w-full rounded-lg border border-border bg-transparent px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition focus:border-accent-gold focus:ring-accent-gold"
+				placeholder="Ejemplo: 9F2A7C4B"
+			/>
+			<button
+				type="submit"
+				class="btn-primary"
+			>
+				Canjear
+			</button>
 		</form>
 	</div>
 </div>

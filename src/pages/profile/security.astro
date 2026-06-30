@@ -1,6 +1,6 @@
 ---
 import LayoutSidebar from '@layouts/LayoutSidebar.astro';
-import UserSettings from '@modules/landing/UserSettings.astro';
+import SecuritySettings from '@modules/landing/SecuritySettings.astro';
 import Alerta from '@components/feedback/Alert.astro';
 import TabBar from '@components/navigation/TabBar.astro';
 ---
@@ -18,7 +18,7 @@ import TabBar from '@components/navigation/TabBar.astro';
 			{
 				label: 'Facturación',
 				icon: 'ri:bank-card-line',
-				active: true,
+				active: false,
 				link: '/profile/billing',
 			},
 			{
@@ -30,10 +30,10 @@ import TabBar from '@components/navigation/TabBar.astro';
 			{
 				label: 'Seguridad',
 				icon: 'ri:shield-line',
-				active: false,
+				active: true,
 				link: '/profile/security',
 			},
 		]}
 	/>
-	<UserSettings section="billing" />
+	<SecuritySettings />
 </LayoutSidebar>

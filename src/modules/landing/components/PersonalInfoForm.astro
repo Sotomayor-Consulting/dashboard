@@ -60,122 +60,167 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 const selectedCountry = usuario?.pais_id ? String(usuario.pais_id) : '';
 ---
 
-<div
-	class="flat-card-padded mb-4 sm:p-6 2xl:col-span-2"
+<form
+	id="personal-info-form"
+	method="post"
+	action="/api/users/update-profile"
 >
-	<h3 class="section-title mb-4">
-		Información General
-	</h3>
-	<form
-		id="personal-info-form"
-		method="post"
-		action="/api/users/update-profile"
-	>
-		<div class="grid grid-cols-6 gap-6">
-			<!-- Nombre / Apellido -->
-			<FormInput
-				label="Nombre"
-				name="nombre"
-				value={usuario?.nombre ?? ''}
-				placeholder="Juan"
-			/>
-			<FormInput
-				label="Apellido"
-				name="apellido"
-				value={usuario?.apellido ?? ''}
-				placeholder="Green"
-			/>
-			<!-- País / Ciudad -->
-			<FormSelect
-				label="País"
-				name="pais"
-				value={selectedCountry}
-				options={countryOptions}
-				placeholder="Seleccione un país"
-			/>
-			<FormInput
-				label="Ciudad"
-				name="ciudad"
-				value={usuario?.ciudad ?? ''}
-				placeholder="ejem. San Francisco"
-			/>
-			<!-- Dirección línea 1 / Dirección línea 2 -->
-			<FormInput
-				label="Dirección línea 1"
-				name="direccion"
-				value={usuario?.direccion_linea1 ?? ''}
-				placeholder="ejem. Av. Juan Molineros"
-			/>
-			<FormInput
-				label="Dirección línea 2"
-				name="direccion2"
-				value={usuario?.direccion_linea2 ?? ''}
-				placeholder="ejem. y De los Guayacanes"
-			/>
-
-			<!-- Tipo de documento / Número de identificación -->
-			<FormSelect
-				label="Tipo de documento"
-				name="tipo_de_documento"
-				value={usuario?.tipo_identificacion ?? ''}
-				options={documentTypeOptions}
-				placeholder="Seleccione un tipo de documento"
-			/>
-			<FormInput
-				label="Número de identificación"
-				name="Numero_de_identificacion"
-				value={usuario?.numero_de_identificacion ?? ''}
-				placeholder="1777745898"
-			/>
-
-			<!-- Tipo de persona / Email -->
-			<FormSelect
-				label="Tipo de persona"
-				name="tipo_de_persona"
-				value={usuario?.tipo_persona ?? ''}
-				options={personTypeOptions}
-				placeholder="Seleccione el tipo de persona"
-			/>
-			<FormInput label="Email" name="email" value={email ?? ''} disabled />
-
-			<!-- Teléfono / Fecha de nacimiento -->
-			<FormPhoneInput
-				label="Número de teléfono"
-				name="telefono"
-				value={usuario?.telf ?? ''}
-				initialCountry="us"
-			/>
-			<FormInput
-				label="Fecha de nacimiento"
-				name="fecha_nacimiento"
-				type="date"
-				value={usuario?.fecha_nacimiento ?? ''}
-			/>
-			<!-- Departamento / Código Postal -->
-			<FormInput
-				label="Departamento"
-				name="departamento"
-				value={usuario?.departamento ?? ''}
-				placeholder="Development"
-			/>
-			<FormInput
-				label="Código Postal"
-				name="codigo_postal"
-				value={usuario?.codigo_postal ?? ''}
-				placeholder="123456"
-			/>
-			<!-- Botón guardar -->
-			<div class="sm:col-full col-span-6">
-				<button
-					type="submit"
-					class="focus:ring-primary-300 bg-primary-gold hover:bg-primary-gold/80 cursor-pointer rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 dark:focus:ring-[#323f67]"
-				>
-					Guardar
-				</button>
+	<div class="divide-y divide-border">
+		<!-- Nombre -->
+		<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 first:pt-0 sm:grid-cols-[220px_1fr]">
+			<div>
+				<h3 class="text-sm font-medium text-foreground">Nombre *</h3>
+				<p class="mt-1 text-sm text-muted-foreground">Aparecerá en recibos, facturas y comunicaciones.</p>
+			</div>
+			<div class="grid grid-cols-2 gap-4">
+				<FormInput
+					label=""
+					name="nombre"
+					value={usuario?.nombre ?? ''}
+					placeholder="Nombre"
+					class="col-span-1"
+				/>
+				<FormInput
+					label=""
+					name="apellido"
+					value={usuario?.apellido ?? ''}
+					placeholder="Apellido"
+					class="col-span-1"
+				/>
 			</div>
 		</div>
-	</form>
-</div>
+
+		<!-- Email -->
+		<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
+			<div>
+				<h3 class="text-sm font-medium text-foreground">Email *</h3>
+				<p class="mt-1 text-sm text-muted-foreground">Usado para inicio de sesión y comunicaciones.</p>
+			</div>
+			<FormInput label="" name="email" value={email ?? ''} disabled class="col-span-1" />
+		</div>
+
+		<!-- Ubicación -->
+		<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
+			<div>
+				<h3 class="text-sm font-medium text-foreground">Ubicación</h3>
+				<p class="mt-1 text-sm text-muted-foreground">País, ciudad y dirección.</p>
+			</div>
+			<div class="grid grid-cols-2 gap-4">
+				<FormSelect
+					label=""
+					name="pais"
+					value={selectedCountry}
+					options={countryOptions}
+					placeholder="Seleccione un país"
+					class="col-span-1"
+				/>
+				<FormInput
+					label=""
+					name="ciudad"
+					value={usuario?.ciudad ?? ''}
+					placeholder="Ciudad"
+					class="col-span-1"
+				/>
+				<FormInput
+					label=""
+					name="direccion"
+					value={usuario?.direccion_linea1 ?? ''}
+					placeholder="Dirección línea 1"
+					class="col-span-1"
+				/>
+				<FormInput
+					label=""
+					name="direccion2"
+					value={usuario?.direccion_linea2 ?? ''}
+					placeholder="Dirección línea 2"
+					class="col-span-1"
+				/>
+				<FormInput
+					label=""
+					name="departamento"
+					value={usuario?.departamento ?? ''}
+					placeholder="Departamento"
+					class="col-span-1"
+				/>
+				<FormInput
+					label=""
+					name="codigo_postal"
+					value={usuario?.codigo_postal ?? ''}
+					placeholder="Código postal"
+					class="col-span-1"
+				/>
+			</div>
+		</div>
+
+		<!-- Identificación -->
+		<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
+			<div>
+				<h3 class="text-sm font-medium text-foreground">Identificación</h3>
+				<p class="mt-1 text-sm text-muted-foreground">Tipo y número de documento.</p>
+			</div>
+			<div class="grid grid-cols-2 gap-4">
+				<FormSelect
+					label=""
+					name="tipo_de_documento"
+					value={usuario?.tipo_identificacion ?? ''}
+					options={documentTypeOptions}
+					placeholder="Tipo de documento"
+					class="col-span-1"
+				/>
+				<FormInput
+					label=""
+					name="Numero_de_identificacion"
+					value={usuario?.numero_de_identificacion ?? ''}
+					placeholder="Número de identificación"
+					class="col-span-1"
+				/>
+				<FormSelect
+					label=""
+					name="tipo_de_persona"
+					value={usuario?.tipo_persona ?? ''}
+					options={personTypeOptions}
+					placeholder="Tipo de persona"
+					class="col-span-1"
+				/>
+			</div>
+		</div>
+
+		<!-- Contacto -->
+		<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
+			<div>
+				<h3 class="text-sm font-medium text-foreground">Contacto</h3>
+				<p class="mt-1 text-sm text-muted-foreground">Teléfono y fecha de nacimiento.</p>
+			</div>
+			<div class="grid grid-cols-2 gap-4">
+				<FormPhoneInput
+					label=""
+					name="telefono"
+					value={usuario?.telf ?? ''}
+					initialCountry="us"
+					class="col-span-1"
+				/>
+				<FormInput
+					label=""
+					name="fecha_nacimiento"
+					type="date"
+					value={usuario?.fecha_nacimiento ?? ''}
+					placeholder="Fecha de nacimiento"
+					class="col-span-1"
+				/>
+			</div>
+		</div>
+	</div>
+
+	<!-- Save button -->
+	<div class="flex justify-end border-t border-border pt-6">
+		<button
+			type="submit"
+			class="btn-primary"
+		>
+			Guardar cambios
+		</button>
+	</div>
+</form>
 
 <script>
 	import { personalInfoSchema } from '@shared/schemas/personal-info.schema';
@@ -204,7 +249,6 @@ const selectedCountry = usuario?.pais_id ? String(usuario.pais_id) : '';
 			}
 		});
 
-		// Limpiar error individual al escribir/cambiar
 		form.addEventListener('input', (e) => {
 			const target = e.target as HTMLElement;
 			const fieldName = target.getAttribute('name') || target.dataset.field;

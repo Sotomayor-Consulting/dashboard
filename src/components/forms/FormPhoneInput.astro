@@ -20,41 +20,51 @@ const {
 ---
 
 <div class={wrapperClass}>
-	<label
-		for={id}
-		class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-	>
-		{label}
-	</label>
+	{label && (
+		<label
+			for={id}
+			class="mb-2 block text-sm font-medium text-foreground"
+		>
+			{label}
+		</label>
+	)}
 	<input
 		type="tel"
 		id={id}
 		value={value ?? ''}
 		placeholder=""
-		class="iti-input focus:border-primary-500 focus:ring-primary-500 dark:focus:border-black-400 bg-white-50 block w-full rounded-lg border border-gray-300 p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-neutral-900 dark:text-white dark:placeholder-gray-400"
+		class="block w-full rounded-lg border border-border bg-transparent px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition focus:border-accent-gold focus:ring-accent-gold"
 		data-phone-input
 		data-phone-name={name}
 		data-phone-country={initialCountry}
 		data-phone-required={required ? 'true' : undefined}
+		data-field={name}
 	/>
 	<p
 		class="mt-1 hidden text-sm text-red-600 dark:text-red-400"
-		data-phone-error={id}
+		data-error={name}
 	>
 		Número de teléfono inválido
 	</p>
 </div>
+
 <script>
 	import intlTelInput from 'intl-tel-input/intlTelInputWithUtils';
-	import 'intl-tel-input/styles';
+
 	function initPhoneInputs() {
 		const inputs =
 			document.querySelectorAll<HTMLInputElement>('[data-phone-input]');
 		inputs.forEach((input) => {
-			if (intlTelInput.getInstance(input)) return;
+			if ((input as any)._iti) return;
+			const existing = intlTelInput.getInstance(input);
+			if (existing) {
+				existing.destroy();
+			}
+
 			const name = input.dataset.phoneName || 'telefono';
 			const country = input.dataset.phoneCountry || 'us';
 			const isRequired = input.dataset.phoneRequired === 'true';
+
 			const iti = intlTelInput(input, {
 				initialCountry: country as any,
 				formatAsYouType: true,
@@ -62,15 +72,18 @@ const {
 				countrySearch: true,
 				strictMode: true,
 				countrySelectorMode: 'DROPDOWN' as any,
+				dropdownParent: document.body,
 				hiddenInputs: () => ({
 					phone: name,
 					country: `${name}_country`,
 				}),
 			});
-			// Validación inline (opcional, si el form lo requiere)
+
+			(input as any)._iti = iti;
+
 			if (isRequired) {
 				const errorEl = document.querySelector(
-					`[data-phone-error="${input.id}"]`,
+					`[data-error="${name}"]`,
 				);
 				input.addEventListener('blur', () => {
 					const isValid = iti.isValidNumber();
@@ -80,7 +93,6 @@ const {
 					);
 					errorEl?.classList.toggle('hidden', isValid || input.value === '');
 				});
-				// Limpiar error al escribir
 				input.addEventListener('input', () => {
 					input.classList.remove('border-red-500');
 					errorEl?.classList.add('hidden');
@@ -88,6 +100,11 @@ const {
 			}
 		});
 	}
-	document.addEventListener('DOMContentLoaded', initPhoneInputs);
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initPhoneInputs);
+	} else {
+		initPhoneInputs();
+	}
 	document.addEventListener('astro:page-load', initPhoneInputs);
 </script>
