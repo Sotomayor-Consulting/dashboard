@@ -1,6 +1,7 @@
 ---
 import { getReferidos } from '@domains/partners/referrals';
 import { getCodigoDePartner } from '@domains/partners/referrals';
+import { getAvatarUrl } from '@shared/avatar';
 import { Icon } from 'astro-icon/components';
 
 const user = Astro.locals.user;
@@ -15,7 +16,7 @@ const referidosSupabase = (rows ?? []).map((r) => ({
 		`${r.referido[0]?.nombre ?? ''} ${r.referido[0]?.apellido ?? ''}`.trim() ||
 		'—',
 	email: r.referido[0]?.correo ?? '—',
-	avatar: r.referido[0]?.avatar_url ?? null,
+	avatar: getAvatarUrl(r.referido[0]?.avatar_url, supabase),
 	code: r.code,
 	fecha: r.created_at,
 	estado: r.referido[0]?.estado,

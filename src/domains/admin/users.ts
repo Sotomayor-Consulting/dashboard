@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { getAvatarUrl } from '@shared/avatar';
 import type {
 	AdminUser,
 	AdminUserDetail,
@@ -66,6 +67,7 @@ function toAdminUser(
 	row: RawUserRow,
 	companiesCount: number,
 	lastSignInAt: string | null,
+	supabase: SupabaseClient,
 ): AdminUser {
 	const fullName = [row.nombre, row.apellido].filter(Boolean).join(' ').trim();
 	const roles = extractRoleNames(row);
@@ -78,7 +80,7 @@ function toAdminUser(
 		id: row.user_id,
 		name: fullName || row.correo || 'Sin nombre',
 		email: row.correo ?? '',
-		avatarUrl: row.avatar_url,
+		avatarUrl: getAvatarUrl(row.avatar_url, supabase),
 		countryCode: extractCountryIso(row),
 		organization: null,
 		jobTitle: null,
@@ -131,6 +133,7 @@ export async function listAdminUsers(
 			u,
 			countByUser.get(u.user_id) ?? 0,
 			lastSignInMap.get(u.user_id) ?? null,
+			supabase,
 		),
 	);
 }
@@ -197,6 +200,7 @@ export async function getAdminUserDetail(
 		user as unknown as RawUserRow,
 		companies.length,
 		lastSignInAt,
+		supabase,
 	);
 	return { ...base, companies };
 }

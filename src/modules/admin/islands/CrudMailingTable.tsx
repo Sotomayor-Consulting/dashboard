@@ -4,6 +4,7 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from '@components/ui/Avatar';
+import { getAvatarUrl } from '@shared/avatar';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
 import { Input } from '@components/ui/Input';
@@ -92,9 +93,8 @@ export default function CrudMailingTable({ usuarios }: CrudMailingTableProps) {
 									.join('')
 									.toUpperCase();
 								const avatar =
-									user.avatar_url && user.avatar_url !== 'NULL'
-										? user.avatar_url
-										: `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(fullName || user.user_id)}`;
+									getAvatarUrl(user.avatar_url) ??
+									`https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(fullName || user.user_id)}`;
 
 								return (
 									<TableRow key={user.user_id}>

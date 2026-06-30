@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+import { getAvatarUrl } from '@shared/avatar';
 import type {
 	AdminEmpresa,
 	AdminEmpresaDetail,
@@ -51,6 +52,7 @@ function buildEmpresa(
 	row: RawCompanyRow,
 	stateName: string | null,
 	incorporationId: string | null,
+	supabase: SupabaseClient,
 ): AdminEmpresa {
 	const u = takeOne(row.usuarios);
 	const owner = u
@@ -61,7 +63,7 @@ function buildEmpresa(
 					u.correo ||
 					'Sin nombre',
 				email: u.correo ?? '',
-				avatarUrl: u.avatar_url,
+				avatarUrl: getAvatarUrl(u.avatar_url, supabase),
 			}
 		: null;
 
@@ -138,6 +140,7 @@ export async function listAdminEmpresas(
 			row,
 			row.formation_state_id ? (stateMap.get(row.formation_state_id) ?? null) : null,
 			incorpByCompany.get(row.id) ?? null,
+			supabase,
 		),
 	);
 }

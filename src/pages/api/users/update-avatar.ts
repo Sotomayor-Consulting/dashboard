@@ -74,18 +74,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			);
 		}
 
-		// 6) URL (pública)
-		const { data: pub } = supabase.storage
-			.from('public-assets')
-			.getPublicUrl(newPath);
-		let avatarUrl = pub.publicUrl;
-		avatarUrl = `${avatarUrl}?v=${Date.now()}`; // cache-busting
-
-		// 7) Guardar SOLO avatar_url en la tabla
+		// 6) Guardar SOLO el path relativo (getAvatarUrl construye la URL completa)
 		const { error: upsertErr } = await supabase
 			.from('usuarios')
 			.upsert(
-				{ user_id: user.id, avatar_url: avatarUrl },
+				{ user_id: user.id, avatar_url: newPath },
 				{ onConflict: 'user_id' },
 			);
 

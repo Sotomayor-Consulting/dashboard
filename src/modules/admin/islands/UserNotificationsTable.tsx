@@ -12,6 +12,7 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
+import { getAvatarUrl } from '@shared/avatar';
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/Avatar';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
@@ -110,9 +111,8 @@ export default function UserNotificationsTable({
 						.join('')
 						.toUpperCase();
 					const avatar =
-						user.avatarUrl && user.avatarUrl !== 'NULL'
-							? user.avatarUrl
-							: `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(user.nombreCompleto)}`;
+						getAvatarUrl(user.avatarUrl) ??
+						`https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(user.nombreCompleto)}`;
 
 					return (
 						<div className="flex items-center gap-3">

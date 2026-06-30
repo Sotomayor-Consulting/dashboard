@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { getAvatarUrl } from '@shared/avatar';
 import type {
 	AdminCompany,
 	AdminCompanyDetail,
@@ -311,7 +312,7 @@ export async function listAdminCompanies(
 					usuarioRaw.correo ||
 					'Sin nombre',
 				email: usuarioRaw.correo ?? '',
-				avatarUrl: usuarioRaw.avatar_url,
+				avatarUrl: getAvatarUrl(usuarioRaw.avatar_url, supabase),
 			}
 			: null;
 

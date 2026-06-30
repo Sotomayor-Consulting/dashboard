@@ -36,7 +36,7 @@ export interface AuthUser {
 	email: string;
 	name: string;
 	lastName: string;
-	avatarUrl?: string;
+	avatarUrl?: string | null;
 	createdAt: string;
 }
 
@@ -66,6 +66,7 @@ export const VALID_OAUTH_PROVIDERS: readonly OAuthProvider[] = [
 export type RedirectStatus = 'success' | 'error' | 'info';
 
 // ─── Mappers ────────────────────────────────────────────
+import { getAvatarUrl } from '@shared/avatar';
 
 export function mapSupabaseUser(user: SupabaseUser): AuthUser {
 	const meta = user.user_metadata ?? {};
@@ -74,7 +75,7 @@ export function mapSupabaseUser(user: SupabaseUser): AuthUser {
 		email: user.email ?? '',
 		name: meta.name ?? meta.full_name ?? '',
 		lastName: meta.lastName ?? meta.last_name ?? '',
-		avatarUrl: meta.avatar_url,
+		avatarUrl: getAvatarUrl(meta.avatar_url),
 		createdAt: user.created_at,
 	};
 }

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createLogger } from '@infrastructure/logging';
+import { getAvatarUrl } from '@shared/avatar';
 
 const log = createLogger('domains.users');
 
@@ -10,7 +11,7 @@ export const getAllUsuarios = async (supabase: SupabaseClient) => {
 		.order('created_at', { ascending: false });
 
 	if (error) {
-		log.error('Error fetching all usuarios', { error });
+		log.error('Error fetching usuario by ID', { error });
 		throw error;
 	}
 
@@ -50,7 +51,8 @@ export const getUsuarioAvatar = async (
 		throw error;
 	}
 
-	return data;
+	const row = data as unknown as { avatar_url: string | null } | null;
+	return { avatar_url: getAvatarUrl(row?.avatar_url, supabase) };
 };
 
 export const getUsuarioPerfilPartner = async (
