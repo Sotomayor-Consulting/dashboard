@@ -3,14 +3,6 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@components/ui/Button';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@components/ui/Dialog';
 import { Label } from '@components/ui/Label';
 import {
 	Select,
@@ -19,6 +11,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@components/ui/Select';
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+} from '@components/ui/Sheet';
 import { Textarea } from '@components/ui/Textarea';
 import { cn } from '@components/utils';
 
@@ -100,115 +100,131 @@ export default function FeedbackDialog() {
 	const displayRating = hover ?? rating ?? 0;
 
 	return (
-		<Dialog open={open} onOpenChange={handleOpenChange}>
-			<DialogContent className="sm:max-w-lg">
-				<DialogHeader>
-					<DialogTitle className="flex items-center gap-2">
+		<Sheet open={open} onOpenChange={handleOpenChange}>
+			<SheetContent side="right" className="sm:max-w-md">
+				<SheetHeader className="border-b">
+					<SheetTitle className="flex items-center gap-2">
 						<Icon icon="ri:message-3-line" className="h-5 w-5" />
 						Enviar feedback
 						<span className="ml-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
 							Beta
 						</span>
-					</DialogTitle>
-					<DialogDescription>
+					</SheetTitle>
+					<SheetDescription>
 						Estamos en fase beta. Cuéntanos qué viste, qué te gustaría mejorar
 						o qué falla. Tu feedback nos ayuda a priorizar.
-					</DialogDescription>
-				</DialogHeader>
+					</SheetDescription>
+				</SheetHeader>
 
-				<form onSubmit={handleSubmit} className="space-y-4 py-1">
-					<div>
-						<Label
-							htmlFor="fb-category"
-							className="mb-1.5 block text-xs font-medium"
-						>
-							Categoría
-						</Label>
-						<Select
-							value={category}
-							onValueChange={(v) => setCategory(v as Category)}
-						>
-							<SelectTrigger id="fb-category" className="!h-9 w-full text-sm">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{CATEGORIES.map((c) => (
-									<SelectItem key={c.value} value={c.value}>
-										<span className="flex items-center gap-2">
+				<form
+					onSubmit={handleSubmit}
+					className="flex flex-1 flex-col overflow-hidden"
+				>
+					<div className="flex-1 space-y-4 overflow-y-auto px-4 py-3">
+						<div>
+							<Label
+								htmlFor="fb-category"
+								className="mb-1.5 block text-xs font-medium"
+							>
+								Categoría
+							</Label>
+							<Select
+								value={category}
+								onValueChange={(v) => setCategory(v as Category)}
+							>
+								<SelectTrigger id="fb-category" className="!h-9 w-full text-sm">
+									<SelectValue>
+										{(label) => {
+											const c =
+												CATEGORIES.find((opt) => opt.label === label) ??
+												CATEGORIES.find((opt) => opt.value === category) ??
+												CATEGORIES[0]!;
+											return (
+												<>
+													<Icon icon={c.icon} className="h-4 w-4" />
+													{c.label}
+												</>
+											);
+										}}
+									</SelectValue>
+								</SelectTrigger>
+								<SelectContent>
+									{CATEGORIES.map((c) => (
+										<SelectItem key={c.value} value={c.value} label={c.label}>
 											<Icon icon={c.icon} className="h-4 w-4" />
 											{c.label}
-										</span>
-									</SelectItem>
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div>
+							<Label className="mb-1.5 block text-xs font-medium">
+								¿Cómo calificarías tu experiencia?{' '}
+								<span className="text-muted-foreground font-normal">
+									(opcional)
+								</span>
+							</Label>
+							<div
+								className="flex items-center gap-1"
+								onMouseLeave={() => setHover(null)}
+							>
+								{[1, 2, 3, 4, 5].map((n) => (
+									<button
+										key={n}
+										type="button"
+										onClick={() => setRating(n === rating ? null : n)}
+										onMouseEnter={() => setHover(n)}
+										aria-label={`${n} estrellas`}
+										className={cn(
+											'rounded-md p-1 transition-colors',
+											n <= displayRating
+												? 'text-yellow-400'
+												: 'text-gray-300 dark:text-gray-600',
+										)}
+									>
+										<Icon icon="ri:star-fill" className="h-6 w-6" />
+									</button>
 								))}
-							</SelectContent>
-						</Select>
-					</div>
+								{rating !== null && (
+									<button
+										type="button"
+										onClick={() => setRating(null)}
+										className="text-muted-foreground ml-2 text-xs underline"
+									>
+										Limpiar
+									</button>
+								)}
+							</div>
+						</div>
 
-					<div>
-						<Label className="mb-1.5 block text-xs font-medium">
-							¿Cómo calificarías tu experiencia?{' '}
-							<span className="text-muted-foreground font-normal">
-								(opcional)
-							</span>
-						</Label>
-						<div
-							className="flex items-center gap-1"
-							onMouseLeave={() => setHover(null)}
-						>
-							{[1, 2, 3, 4, 5].map((n) => (
-								<button
-									key={n}
-									type="button"
-									onClick={() => setRating(n === rating ? null : n)}
-									onMouseEnter={() => setHover(n)}
-									aria-label={`${n} estrellas`}
-									className={cn(
-										'rounded-md p-1 transition-colors',
-										n <= displayRating
-											? 'text-yellow-400'
-											: 'text-gray-300 dark:text-gray-600',
-									)}
-								>
-									<Icon icon="ri:star-fill" className="h-6 w-6" />
-								</button>
-							))}
-							{rating !== null && (
-								<button
-									type="button"
-									onClick={() => setRating(null)}
-									className="text-muted-foreground ml-2 text-xs underline"
-								>
-									Limpiar
-								</button>
-							)}
+						<div>
+							<Label
+								htmlFor="fb-message"
+								className="mb-1.5 block text-xs font-medium"
+							>
+								Mensaje
+							</Label>
+							<Textarea
+								id="fb-message"
+								rows={6}
+								maxLength={MAX_MESSAGE}
+								value={message}
+								onChange={(e) => setMessage(e.target.value)}
+								placeholder="Describe brevemente tu feedback..."
+								required
+								className="resize-none text-sm"
+							/>
+							<div className="mt-1 flex justify-end">
+								<span className="text-muted-foreground text-xs tabular-nums">
+									{message.length} / {MAX_MESSAGE}
+								</span>
+							</div>
 						</div>
 					</div>
 
-					<div>
-						<Label
-							htmlFor="fb-message"
-							className="mb-1.5 block text-xs font-medium"
-						>
-							Mensaje
-						</Label>
-						<Textarea
-							id="fb-message"
-							rows={5}
-							maxLength={MAX_MESSAGE}
-							value={message}
-							onChange={(e) => setMessage(e.target.value)}
-							placeholder="Describe brevemente tu feedback..."
-							required
-							className="resize-none text-sm"
-						/>
-						<div className="mt-1 flex justify-end">
-							<span className="text-muted-foreground text-xs tabular-nums">
-								{message.length} / {MAX_MESSAGE}
-							</span>
-						</div>
-					</div>
-
-					<DialogFooter className="pt-2">
+					<SheetFooter className="border-t sm:flex-row sm:justify-end">
 						<Button
 							type="button"
 							variant="outline"
@@ -221,7 +237,10 @@ export default function FeedbackDialog() {
 						<Button type="submit" size="sm" disabled={submitting}>
 							{submitting ? (
 								<>
-									<Icon icon="ri:loader-4-line" className="h-4 w-4 animate-spin" />
+									<Icon
+										icon="ri:loader-4-line"
+										className="h-4 w-4 animate-spin"
+									/>
 									Enviando…
 								</>
 							) : (
@@ -231,9 +250,9 @@ export default function FeedbackDialog() {
 								</>
 							)}
 						</Button>
-					</DialogFooter>
+					</SheetFooter>
 				</form>
-			</DialogContent>
-		</Dialog>
+			</SheetContent>
+		</Sheet>
 	);
 }

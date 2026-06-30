@@ -4,8 +4,14 @@ import { Icon } from '@iconify/react';
 import { useMemo, useState } from 'react';
 
 import { Badge } from '@components/ui/Badge';
-import { Button } from '@components/ui/Button';
 import { Input } from '@components/ui/Input';
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+} from '@components/ui/Sheet';
 import {
 	Select,
 	SelectContent,
@@ -25,6 +31,7 @@ import { cn } from '@components/utils';
 import type { BetaFeedbackRow } from '@domains/feedback/beta-feedback';
 
 type Category = BetaFeedbackRow['category'];
+type CategoryFilter = Category | 'all';
 
 const CATEGORY_META: Record<
 	Category,
@@ -55,6 +62,16 @@ const CATEGORY_META: Record<
 			'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900/40 dark:text-slate-300 dark:border-slate-800',
 	},
 };
+
+const FILTER_OPTIONS: { value: CategoryFilter; label: string; icon: string }[] =
+	[
+		{ value: 'all', label: 'Todas', icon: 'ri:filter-line' },
+		...(Object.keys(CATEGORY_META) as Category[]).map((c) => ({
+			value: c,
+			label: CATEGORY_META[c].label,
+			icon: CATEGORY_META[c].icon,
+		})),
+	];
 
 interface Props {
 	items: BetaFeedbackRow[];
@@ -95,7 +112,7 @@ function StarRating({ value }: { value: number | null }) {
 
 export default function FeedbackList({ items }: Props) {
 	const [search, setSearch] = useState('');
-	const [category, setCategory] = useState<Category | 'all'>('all');
+	const [category, setCategory] = useState<CategoryFilter>('all');
 	const [selected, setSelected] = useState<BetaFeedbackRow | null>(null);
 
 	const filtered = useMemo(() => {
@@ -145,19 +162,29 @@ export default function FeedbackList({ items }: Props) {
 				</div>
 				<Select
 					value={category}
-					onValueChange={(v) => setCategory(v as Category | 'all')}
+					onValueChange={(v) => setCategory(v as CategoryFilter)}
 				>
-					<SelectTrigger className="!h-9 w-full text-sm sm:w-48">
-						<SelectValue />
+					<SelectTrigger className="!h-9 w-full text-sm sm:w-52">
+						<SelectValue>
+							{(label) => {
+								const opt =
+									FILTER_OPTIONS.find((o) => o.label === label) ??
+									FILTER_OPTIONS.find((o) => o.value === category) ??
+									FILTER_OPTIONS[0]!;
+								return (
+									<>
+										<Icon icon={opt.icon} className="h-4 w-4" />
+										{opt.label}
+									</>
+								);
+							}}
+						</SelectValue>
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="all">Todas las categorías</SelectItem>
-						{(Object.keys(CATEGORY_META) as Category[]).map((c) => (
-							<SelectItem key={c} value={c}>
-								<span className="flex items-center gap-2">
-									<Icon icon={CATEGORY_META[c].icon} className="h-4 w-4" />
-									{CATEGORY_META[c].label}
-								</span>
+						{FILTER_OPTIONS.map((opt) => (
+							<SelectItem key={opt.value} value={opt.value} label={opt.label}>
+								<Icon icon={opt.icon} className="h-4 w-4" />
+								{opt.label}
 							</SelectItem>
 						))}
 					</SelectContent>
@@ -240,111 +267,101 @@ export default function FeedbackList({ items }: Props) {
 				</Table>
 			)}
 
-			{/* Detail panel */}
-			{selected && (
-				<div
-					className="fixed inset-0 z-50 flex items-end justify-end bg-black/30 backdrop-blur-sm"
-					onClick={() => setSelected(null)}
-				>
-					<aside
-						className="bg-card flex h-full w-full max-w-md flex-col border-l shadow-2xl"
-						onClick={(e) => e.stopPropagation()}
-					>
-						<header className="flex items-center justify-between border-b p-4">
-							<div className="flex items-center gap-2">
-								<Icon
-									icon={CATEGORY_META[selected.category].icon}
-									className="h-5 w-5"
-								/>
-								<h2 className="font-heading text-base font-medium">
+			{/* Detail sheet (shadcn) */}
+			<Sheet
+				open={!!selected}
+				onOpenChange={(o) => {
+					if (!o) setSelected(null);
+				}}
+			>
+				<SheetContent side="right" className="sm:max-w-md">
+					{selected && (
+						<>
+							<SheetHeader className="border-b">
+								<SheetTitle className="flex items-center gap-2">
+									<Icon
+										icon={CATEGORY_META[selected.category].icon}
+										className="h-5 w-5"
+									/>
 									Detalle del feedback
-								</h2>
-							</div>
-							<Button
-								variant="ghost"
-								size="icon-sm"
-								onClick={() => setSelected(null)}
-								aria-label="Cerrar"
-							>
-								<Icon icon="ri:close-line" className="h-4 w-4" />
-							</Button>
-						</header>
-						<div className="flex-1 space-y-4 overflow-y-auto p-4 text-sm">
-							<div className="grid grid-cols-2 gap-3">
-								<div>
-									<p className="text-muted-foreground text-xs">Categoría</p>
-									<Badge
-										variant="outline"
-										className={cn(
-											'mt-1 gap-1',
-											CATEGORY_META[selected.category].tone,
-										)}
-									>
-										<Icon
-											icon={CATEGORY_META[selected.category].icon}
-											className="h-3.5 w-3.5"
-										/>
-										{CATEGORY_META[selected.category].label}
-									</Badge>
-								</div>
-								<div>
-									<p className="text-muted-foreground text-xs">Rating</p>
-									<div className="mt-1">
-										<StarRating value={selected.rating} />
+								</SheetTitle>
+								<SheetDescription>
+									Enviado el {formatDate(selected.created_at)}
+								</SheetDescription>
+							</SheetHeader>
+
+							<div className="flex-1 space-y-4 overflow-y-auto p-4 text-sm">
+								<div className="grid grid-cols-2 gap-3">
+									<div>
+										<p className="text-muted-foreground text-xs">Categoría</p>
+										<Badge
+											variant="outline"
+											className={cn(
+												'mt-1 gap-1',
+												CATEGORY_META[selected.category].tone,
+											)}
+										>
+											<Icon
+												icon={CATEGORY_META[selected.category].icon}
+												className="h-3.5 w-3.5"
+											/>
+											{CATEGORY_META[selected.category].label}
+										</Badge>
+									</div>
+									<div>
+										<p className="text-muted-foreground text-xs">Rating</p>
+										<div className="mt-1">
+											<StarRating value={selected.rating} />
+										</div>
 									</div>
 								</div>
-							</div>
 
-							<div>
-								<p className="text-muted-foreground text-xs">Usuario</p>
-								<p className="mt-0.5 font-medium">
-									{selected.user_name ?? 'Anónimo'}
-								</p>
-								{selected.user_email && (
-									<p className="text-muted-foreground text-xs">
-										{selected.user_email}
+								<div>
+									<p className="text-muted-foreground text-xs">Usuario</p>
+									<p className="mt-0.5 font-medium">
+										{selected.user_name ?? 'Anónimo'}
 									</p>
+									{selected.user_email && (
+										<p className="text-muted-foreground text-xs">
+											{selected.user_email}
+										</p>
+									)}
+								</div>
+
+								<div>
+									<p className="text-muted-foreground text-xs">Mensaje</p>
+									<p className="bg-muted/40 mt-1 rounded-md p-3 whitespace-pre-wrap">
+										{selected.message}
+									</p>
+								</div>
+
+								{selected.page_url && (
+									<div>
+										<p className="text-muted-foreground text-xs">Página</p>
+										<a
+											href={selected.page_url}
+											target="_blank"
+											rel="noreferrer"
+											className="text-primary mt-0.5 block break-all text-xs underline"
+										>
+											{selected.page_url}
+										</a>
+									</div>
+								)}
+
+								{selected.user_agent && (
+									<div>
+										<p className="text-muted-foreground text-xs">User agent</p>
+										<p className="text-muted-foreground mt-0.5 text-xs break-all">
+											{selected.user_agent}
+										</p>
+									</div>
 								)}
 							</div>
-
-							<div>
-								<p className="text-muted-foreground text-xs">Fecha</p>
-								<p className="mt-0.5">{formatDate(selected.created_at)}</p>
-							</div>
-
-							<div>
-								<p className="text-muted-foreground text-xs">Mensaje</p>
-								<p className="bg-muted/40 mt-1 rounded-md p-3 whitespace-pre-wrap">
-									{selected.message}
-								</p>
-							</div>
-
-							{selected.page_url && (
-								<div>
-									<p className="text-muted-foreground text-xs">Página</p>
-									<a
-										href={selected.page_url}
-										target="_blank"
-										rel="noreferrer"
-										className="text-primary mt-0.5 block break-all text-xs underline"
-									>
-										{selected.page_url}
-									</a>
-								</div>
-							)}
-
-							{selected.user_agent && (
-								<div>
-									<p className="text-muted-foreground text-xs">User agent</p>
-									<p className="text-muted-foreground mt-0.5 text-xs break-all">
-										{selected.user_agent}
-									</p>
-								</div>
-							)}
-						</div>
-					</aside>
-				</div>
-			)}
+						</>
+					)}
+				</SheetContent>
+			</Sheet>
 		</div>
 	);
 }
