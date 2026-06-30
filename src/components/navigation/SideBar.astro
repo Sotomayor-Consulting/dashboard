@@ -2,6 +2,7 @@
 import { Icon } from 'astro-icon/components';
 import { menuItems, type MenuItem } from '@components/navigation/items';
 import CompanySwitcher from './CompanySwitcher.astro';
+import FeedbackDialog from '@components/feedback/FeedbackDialog.tsx';
 import type { EmpresaSwitcherItem } from '@domains/companies/companies';
 
 interface Props {
@@ -467,17 +468,19 @@ const inactiveClass =
 
 	<!-- Quick links -->
 	<div class="mt-auto space-y-0.5 px-3 pb-2">
-		<a
-			href="mailto:info@sotomayorconsulting.com?subject=Feedback%20Dashboard"
-			class="sb-link text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+		<button
+			type="button"
+			id="open-feedback-btn"
+			class="sb-link text-muted-foreground hover:bg-muted hover:text-foreground flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
 		>
 			<Icon name="ri:message-3-line" class="h-4.5 w-4.5 shrink-0" />
 			<span class="sb-label whitespace-nowrap">Feedback</span>
-			<Icon
-				name="ri:external-link-line"
-				class="sb-label text-muted-foreground/50 ml-auto h-3 w-3"
-			/>
-		</a>
+			<span
+				class="sb-label ml-auto rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
+			>
+				Beta
+			</span>
+		</button>
 		<a
 			href="mailto:info@sotomayorconsulting.com"
 			class="sb-link text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
@@ -504,6 +507,14 @@ const inactiveClass =
 		</form>
 	</div>
 </aside>
+
+<FeedbackDialog client:idle />
+
+<script>
+	document.getElementById('open-feedback-btn')?.addEventListener('click', () => {
+		window.dispatchEvent(new CustomEvent('open-feedback-dialog'));
+	});
+</script>
 
 <style is:global>
 	#sidebar details > summary::-webkit-details-marker,

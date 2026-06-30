@@ -178,6 +178,11 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		errorMsg: 'Acceso solo para admins y operaciones',
 	},
 	{
+		path: '/admin/settings/feedback',
+		roles: [ROLES.ADMIN, ROLES.GERENCIA, ROLES.OPERACIONES],
+		errorMsg: 'Acceso solo para admins, gerencia y operaciones',
+	},
+	{
 		path: '/admin/',
 		roles: [ROLES.ADMIN],
 		errorMsg: 'Acceso solo para admins',
