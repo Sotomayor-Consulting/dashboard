@@ -143,7 +143,7 @@ El contrato actual tiene desajustes contra el esquema real que **harían fallar 
 | `person_type` *(enum)* | natural/jurídica | **`natural_person` · `juridical_person`** |
 | `identification_type` *(enum)* | tipo doc | **`passport` · `national_id` · `driver_licence` · `ein`** |
 | `marital_status` *(enum)* | estado civil | **`single` · `married` · `widowed` · `divorced` · `legally_separated` · `civil_union` · `annulled`** |
-| `first_name`/`last_name`/`full_name` (natural) o `name` (jurídica) | nombre | `is_entity` = (person_type=juridical) |
+| `first_name`/`last_name`/`full_name` (natural) o `name` (jurídica) | nombre | derivado de `person_type` |
 | `country_nationality_id`, `country_residence_id`, `country_id` | países | lookup (n8n) → `countries.id` |
 | `ssn`, `itin`, `identification_number`, `birth_date` | directos | `birth_date`→`date` |
 | **Relación** → `company_members` | — | `company_id`+`member_id` encadenados en runtime; `start_date`/`end_date` (no `date_*`), `percentage numeric`, `is_member`, `is_manager` |

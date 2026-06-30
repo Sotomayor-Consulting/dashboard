@@ -1,0 +1,75 @@
+{
+	"_meta": {
+		"phase": "F3a — Empresas",
+		"description": "Crear empresa en companies y sus direcciones en company_addresses.",
+		"n8n_flow": "1) INSERT companies → capturar company_id → 2) INSERT company_addresses (una o más)",
+		"depends_on": "01-identity (user_id y created_by deben existir en auth.users)",
+		"idempotency": "UPSERT por legal_name + user_id (o identification_number/filing_number si existe)"
+	},
+	"companies": {
+		"_meta": {
+			"target_table": "public.companies",
+			"required_on_insert": [],
+			"note": "Todos los campos son nullable o tienen default, pero legal_name y user_id son necesarios lógicamente.",
+			"fk_resolve": {
+				"user_id": "UUID del usuario dueño (de 01-identity)",
+				"created_by": "mismo que user_id (o UUID del migration user)",
+				"formation_state_id": "lookup → public.states.id por nombre del estado",
+				"formation_country_id": "lookup → public.countries.id por nombre del país",
+				"activity_code_id": "lookup → public.activity.id por código IRS"
+			}
+		},
+		"user_id": "{{user_uuid}}",
+		"created_by": "{{user_uuid}}",
+		"legal_name": "",
+		"entity_type": "llc",
+		"management_type": "member-managed",
+		"legal_status": "active",
+		"identification_number": null,
+		"filing_number": null,
+		"formation_state_id": null,
+		"formation_country_id": null,
+		"tax_clasification": null,
+		"activity_code_id": null,
+		"activity_description": null,
+		"us_source_income": false,
+		"joint_ownership": false,
+		"incorporation_date": null,
+		"irs_email": null
+	},
+	"company_addresses": {
+		"_meta": {
+			"target_table": "public.company_addresses",
+			"required_on_insert": ["type", "line1", "city", "country_id"],
+			"note": "id es bigint NOT NULL sin default — usar secuencia o proveer manualmente en n8n.",
+			"fk_resolve": {
+				"company_id": "UUID de la company recién insertada",
+				"country_id": "lookup → public.countries.id",
+				"state_id": "lookup → public.states.id"
+			}
+		},
+		"company_id": "{{company_uuid}}",
+		"type": "legal",
+		"line1": "",
+		"line2": null,
+		"city": "",
+		"county": null,
+		"state_id": null,
+		"country_id": null,
+		"zip": null
+	},
+	"_enums": {
+		"entity_type": ["llc", "lp", "c-corp"],
+		"management_type": ["member-managed", "manager-managed"],
+		"legal_status": [
+			"draft",
+			"pending_validation",
+			"pending",
+			"active",
+			"inactive",
+			"suspended",
+			"dissolved"
+		],
+		"address_type": ["legal", "operating"]
+	}
+}

@@ -1,0 +1,51 @@
+{
+	"_meta": {
+		"phase": "F1 — Catálogo de servicios y planes",
+		"description": "Cargar servicios desde Odoo product.template, planes de servicio y sus líneas. Prerequisito para órdenes.",
+		"n8n_flow": "1) INSERT services → 2) INSERT service_plans → 3) INSERT service_plan_lines",
+		"depends_on": "Nada (catálogo base). Verificar que countries y states estén poblados.",
+		"idempotency": "UPSERT por name en services; name en service_plans; service_plan_id + service_id en lines"
+	},
+	"services": {
+		"_meta": {
+			"target_table": "public.services",
+			"required_on_insert": ["name", "status", "price"],
+			"note": "id es bigint NOT NULL sin default — proveer manualmente o dejar que n8n lo genere secuencialmente. is_active tiene default."
+		},
+		"name": "",
+		"description": null,
+		"status": "active",
+		"price": 0,
+		"metadata": null
+	},
+	"service_plans": {
+		"_meta": {
+			"target_table": "public.service_plans",
+			"required_on_insert": [],
+			"note": "id es uuid con default gen_random_uuid(). Agrupa varios services en un paquete con precio."
+		},
+		"name": "",
+		"description": null,
+		"status": "active",
+		"is_active": true,
+		"metadata": null,
+		"sort_order": 1
+	},
+	"service_plan_lines": {
+		"_meta": {
+			"target_table": "public.service_plan_lines",
+			"required_on_insert": ["service_plan_id", "service_id", "unit_price"],
+			"note": "id es bigint NOT NULL sin default. quantity tiene default.",
+			"fk_resolve": {
+				"service_plan_id": "UUID del service_plan recién insertado",
+				"service_id": "bigint — ID del servicio"
+			}
+		},
+		"service_plan_id": "{{plan_uuid}}",
+		"service_id": null,
+		"sort_order": 1,
+		"quantity": 1,
+		"unit_price": 0,
+		"metadata": null
+	}
+}

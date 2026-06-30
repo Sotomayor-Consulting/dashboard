@@ -1,0 +1,75 @@
+{
+	"_meta": {
+		"phase": "F5 — Comercial (órdenes, pagos, facturación)",
+		"description": "Crear pagos, órdenes y líneas de orden. Conciliar Odoo sale.order/account.move con Stripe.",
+		"n8n_flow": "1) INSERT pagos → capturar id_pagos → 2) INSERT orders (payment_id = id_pagos) → capturar order_id → 3) INSERT order_lines",
+		"depends_on": "01-identity + 02-company (user_id, company refs)",
+		"idempotency": "UPSERT por stripe_payment_intent_id o odoo_invoice_id en pagos; order_number en orders"
+	},
+	"pagos": {
+		"_meta": {
+			"target_table": "public.pagos",
+			"required_on_insert": ["servicio_id", "amount", "status", "stripe_payment_intent_id"],
+			"note": "user_id tiene default (auth.uid()) pero con service_role hay que proveerlo. amount es bigint (centavos, no decimales). source tiene default.",
+			"fk_resolve": {
+				"user_id": "UUID del usuario (de 01-identity)",
+				"servicio_id": "UUID — referencia al servicio (legacy, puede ser el mismo incorporation_id)",
+				"empresa_incorporacion_id": "UUID de la incorporación (opcional)"
+			}
+		},
+		"user_id": "{{user_uuid}}",
+		"servicio_id": "{{service_uuid}}",
+		"amount": 0,
+		"status": "succeeded",
+		"stripe_payment_intent_id": "",
+		"empresa_incorporacion_id": null,
+		"odoo_invoice_id": null,
+		"odoo_sale_order_id": null,
+		"source": "migration"
+	},
+	"orders": {
+		"_meta": {
+			"target_table": "public.orders",
+			"required_on_insert": ["order_number", "payment_id", "total"],
+			"fk_resolve": {
+				"client_id": "UUID del usuario (de 01-identity)",
+				"payment_id": "UUID del pago recién insertado (id_pagos)",
+				"service_plan_id": "bigint — ID del plan de servicio (de services/service_plans)"
+			}
+		},
+		"client_id": "{{user_uuid}}",
+		"order_number": "",
+		"payment_id": "{{pago_uuid}}",
+		"payment_status": "paid",
+		"service_plan_id": null,
+		"total": 0,
+		"note": null,
+		"metadata": null
+	},
+	"order_lines": {
+		"_meta": {
+			"target_table": "public.order_lines",
+			"required_on_insert": ["sort_order"],
+			"note": "id es bigint NOT NULL sin default. Una línea por producto/servicio de la orden.",
+			"fk_resolve": {
+				"order_id": "UUID de la order recién insertada",
+				"service_id": "bigint — ID del servicio (public.services.id)",
+				"source_plan_line_id": "bigint — ID de la línea del plan original (opcional)"
+			}
+		},
+		"order_id": "{{order_uuid}}",
+		"sort_order": 1,
+		"service_id": null,
+		"service_name": "",
+		"quantity": 1,
+		"unit_price": 0,
+		"subtotal": 0,
+		"total": 0,
+		"source_plan_line_id": null
+	},
+	"_enums": {
+		"pago_status": ["succeeded", "pending", "failed", "refunded"],
+		"payment_status": ["paid", "pending", "partial", "refunded"],
+		"source": ["stripe", "manual", "migration", "odoo"]
+	}
+}

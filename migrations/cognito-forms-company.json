@@ -3,89 +3,113 @@
 		"user": {
 			"first_name": "",
 			"last_name": "",
-			"email": ""
+			"email": "",
+			"phone": null,
+			"country_id": null,
+			"city": null,
+			"address_line_1": null,
+			"address_line_2": null,
+			"zip": null,
+			"identification_type": null,
+			"identification_number": null,
+			"person_type": null,
+			"odoo_partner_id": null
 		},
 		"incorporation": {
-			"posible_names": [""],
-			"formation_state_id": null,
-			"state": "",
-			"source": ""
+			"principal_name"
+			"posible_names": [],
+			"state_id": null,
+			"state": ""
 		},
-		"pago": {},
 		"company": {
-			"id": "",
 			"legal_name": "",
 			"entity_type": "llc",
-			"magement_type": "",
-			"legal_status": "",
-			"identification_number": "",
-			"filing_number": "",
-			"formation_state_id": "",
-			"formation_country_id": "",
-			"tax_clasification": "",
-			"activity_code_id": "",
-			"activity_description": "",
+			"management_type": "member-managed",
+			"legal_status": "draft",
+			"identification_number": null,
+			"filing_number": null,
+			"formation_state_id": null,
+			"formation_country_id": null,
+			"tax_clasification": null,
+			"activity_code_id": null,
+			"activity_description": null,
 			"us_source_income": false,
 			"joint_ownership": false,
-			"company_addresses": [
-				{
-					"type": "",
-					"address_line_1": "",
-					"address_line_2": "",
-					"country_id": null,
-					"county": "",
-					"state_id": null,
-					"city": "",
-					"zip": ""
-				}
-			]
+			"incorporation_date": null,
+			"irs_email": null
 		},
-		"member": {
-			"id": null,
-			"first_name": "",
-			"last_name": "",
-			"name": "",
-			"person_type": "",
-			"email": "",
-			"identification_number": "",
-			"identification_type": "",
-			"marital_status": "",
-			"birth_date": "",
-			"incorporation_date": "",
-			"country_nationality_id": null,
-			"country_residence_id": null,
-			"us_resident": false,
-			"ssn": "",
-			"itin": "",
-			"member_addresses": [
-				{
-					"type": "",
-					"address_line_1": "",
-					"address_line_2": "",
-					"country_id": null,
-					"county": "",
-					"state_id": null,
-					"city": "",
-					"zip": ""
-				}
-			]
-		},
-		"company_member": {
-			"company_id": null,
-			"member_id": null,
-			"date_start": null,
-			"date_end": null,
-			"is_manager": false,
-			"is_member": false,
-			"is_irs_responsible": false,
-			"percentage": null
+		"company_addresses": [
+			{
+				"type": "legal",
+				"line1": "",
+				"line2": null,
+				"city": "",
+				"county": null,
+				"state_id": null,
+				"country_id": null,
+				"zip": null
+			}
+		],
+		"members": [
+			{
+				"email": "",
+				"us_resident": false,
+				"first_name": "",
+				"last_name": "",
+				"full_name": "",
+				"name": null,
+				"person_type": "natural_person",
+				"identification_number": "",
+				"identification_type": "passport",
+				"marital_status": null,
+				"birth_date": null,
+				"incorporation_date": null,
+				"country_nationality_id": null,
+				"country_residence_id": null,
+				"country_id": null,
+				"ssn": null,
+				"itin": null,
+				"company_member": {
+					"_meta": {
+						"target_table": "public.company_members",
+						"fk_resolve": "company_id y member_id se encadenan de los UUIDs insertados",
+						"validation": "SUM(percentage) por company_id = 100"
+					},
+					"start_date": null,
+					"end_date": null,
+					"is_manager": false,
+					"is_member": true,
+					"percentage": null,
+					"is_active": true
+				},
+				"member_addresses": [
+					{
+						"type": "residential",
+						"line1": "",
+						"line2": null,
+						"city": null,
+						"state_id": null,
+						"state": null,
+						"country_id": null,
+						"zip": null,
+						"is_primary": true
+					}
+				]
+			}
+		],
+		"incorporation_form": {
+			"payload": {
+				"posible_names": []
+			},
+			"status": "promoted",
+			"progress_percent": 100
 		},
 		"documents": [
 			{
-				"id_document_cognito": null,
+				"cognito_field": "",
 				"file_name": "",
-				"file_size_bytes": "",
-				"status": ""
+				"file_size_bytes": 0,
+				"status": "uploaded"
 			}
 		]
 	}

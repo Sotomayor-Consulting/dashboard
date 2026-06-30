@@ -1,3 +1,4 @@
+nodeLinker: hoisted
 allowBuilds:
   esbuild: true
   msw: true
@@ -11,15 +12,15 @@ onlyBuiltDependencies:
   - sharp
 peerDependencyRules:
   allowedVersions:
-    astro-pagefind>astro: ">=7"
+    astro-pagefind>astro: '>=7'
 overrides:
   smol-toml: 1.6.1
   picomatch: 2.3.2
-  fast-uri: ">=3.1.2"
-  hono: ">=4.12.25"
+  fast-uri: '>=3.1.2'
+  hono: '>=4.12.25'
   ip-address: 10.1.1
   path-to-regexp: 8.4.0
-  brace-expansion: ">=5.0.6"
+  brace-expansion: '>=5.0.6'
   yaml: 2.8.3
   follow-redirects: 1.16.0
   postcss: 8.5.10

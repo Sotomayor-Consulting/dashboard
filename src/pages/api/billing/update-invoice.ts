@@ -1,153 +1,87 @@
-export const prerender = false;
-
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('billing.update-invoice');
 
-const BACK_PATH = '/settings';
+export const prerender = false;
 
-// Lista de campos requeridos y sus nombres legibles
-const REQUIRED_FIELDS = {
-	tipo_de_persona: 'Tipo de persona',
-	razon_social: 'Razón social / Nombre',
-	correo_electronico_factura: 'Correo electrónico',
-	telefono: 'Teléfono',
-	direccion_factura: 'Dirección',
-	pais_factura: 'País',
-	ciudad_factura: 'Ciudad',
-	documento_de_identidad_factura: 'Documento de identidad',
-	tipo_de_documento_factura: 'Tipo de documento',
-} as const;
+export const POST: APIRoute = async ({ request, cookies }) => {
+  const supabase = createSupabaseServerClient({
+    headers: request.headers,
+    cookies,
+  });
 
-type RequiredFieldKey = keyof typeof REQUIRED_FIELDS;
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-type BillingFormData = Record<RequiredFieldKey, string>;
+  if (authError || !user) {
+    return new Response(JSON.stringify({ error: 'No autenticado' }), {
+      status: 401,
+      headers: SECURITY_HEADERS,
+    });
+  }
 
-function isValidEmail(email: string): boolean {
-	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	return emailRegex.test(email);
-}
+  try {
+    const body = await request.json();
 
+    const {
+      country_id,
+      state_id,
+      city,
+      line1,
+      line2,
+      zip,
+      phone,
+      email,
+      is_default,
+    } = body;
 
-export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
-	// Sanitizar parámetro "back" para evitar open redirects
-	const backParam = url.searchParams.get('back');
-	const back = backParam && backParam.startsWith('/') ? backParam : BACK_PATH;
+    if (!country_id || !city || !line1) {
+      return new Response(
+        JSON.stringify({ error: 'Faltan campos obligatorios: country_id, city, line1' }),
+        { status: 400, headers: SECURITY_HEADERS },
+      );
+    }
 
-	const redirectWithMessage = (
-		status: 'error' | 'success',
-		msg: string,
-	): Response => {
-		const encoded = encodeURIComponent(msg);
-		return redirect(`${back}?status=${status}&msg=${encoded}`);
-	};
+    const payload: Record<string, unknown> = {
+      user_id: user.id,
+      country_id: Number(country_id),
+      city: String(city).trim(),
+      line1: String(line1).trim(),
+    };
 
-	try {
-		// 1) Sesión
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+    if (state_id) payload.state_id = Number(state_id);
+    if (line2) payload.line2 = String(line2).trim();
+    if (zip) payload.zip = String(zip).trim();
+    if (phone) payload.phone = String(phone).trim();
+    if (email) payload.email = String(email).trim();
+    if (typeof is_default === 'boolean') payload.is_default = is_default;
 
-		// 2) Obtener usuario autenticado
-		const {
-			data: { user },
-			error: userErr,
-		} = await supabase.auth.getUser();
+    const { data, error } = await supabaseAdmin
+      .from('billing_info')
+      .upsert(payload, { onConflict: 'user_id' })
+      .select('id')
+      .single();
 
-		if (userErr || !user) {
-			log.error('Error al obtener usuario autenticado', { error: userErr });
-			return redirectWithMessage(
-				'error',
-				'No autenticado. Por favor inicia sesión.',
-			);
-		}
+    if (error) {
+      log.error('upsert error', { error });
+      return new Response(JSON.stringify({ error: 'Error al guardar datos de facturación' }), {
+        status: 400,
+        headers: SECURITY_HEADERS,
+      });
+    }
 
-		// 4) Obtener y validar datos del formulario
-		const form = await request.formData();
-
-		const formData = {} as BillingFormData;
-		const missingFields: string[] = [];
-
-		(Object.keys(REQUIRED_FIELDS) as RequiredFieldKey[]).forEach((fieldKey) => {
-			const raw = form.get(fieldKey);
-			const value = typeof raw === 'string' ? raw.trim() : '';
-
-			if (!value) {
-				missingFields.push(REQUIRED_FIELDS[fieldKey]);
-			} else {
-				formData[fieldKey] = value;
-			}
-		});
-
-		if (missingFields.length > 0) {
-			return redirectWithMessage(
-				'error',
-				`Faltan los siguientes campos obligatorios: ${missingFields.join(', ')}`,
-			);
-		}
-
-		// 5) Validar formato del correo electrónico
-		if (!isValidEmail(formData.correo_electronico_factura)) {
-			return redirectWithMessage(
-				'error',
-				'El correo electrónico no tiene un formato válido.',
-			);
-		}
-
-
-
-		// 7) Preparar payload para la base de datos
-		const payload = {
-			user_id: user.id,
-			personería: formData.tipo_de_persona,
-			nombre_o_razon_social: formData.razon_social,
-			correo: formData.correo_electronico_factura,
-			telefono: formData.telefono,
-			direccion_linea_1: formData.direccion_factura,
-			ciudad: formData.ciudad_factura,
-			pais: formData.pais_factura,
-			documento_de_identidad: formData.documento_de_identidad_factura,
-			tipo_de_documento: formData.tipo_de_documento_factura,
-
-		};
-
-		// 8) Intentar upsert en la base de datos
-		const { error } = await supabase
-			.from('billing_info')
-			.upsert(payload, { onConflict: 'user_id' });
-
-		if (error) {
-			log.error('Error de Supabase en upsert(billing_info)', { error });
-
-			let errorMsg = 'Error al guardar los datos';
-
-			if (error.code === '23505') {
-				// Violación de unicidad
-				errorMsg = 'Ya existe un registro de facturación para este usuario.';
-			} else if (error.code === '23503') {
-				// Violación de llave foránea
-				errorMsg = 'Error de referencia: usuario no encontrado.';
-			} else if (error.message?.includes('ON CONFLICT')) {
-				errorMsg =
-					'Error de configuración de la tabla (ON CONFLICT). Contacta al administrador.';
-			}
-
-			return redirectWithMessage(
-				'error',
-				`${errorMsg} Detalle técnico: ${error.message}`,
-			);
-		}
-
-		// 9) Éxito
-		return redirectWithMessage(
-			'success',
-			'Datos de facturación guardados correctamente.',
-		);
-	} catch (err) {
-		log.error('Error inesperado', { error: err });
-		return redirectWithMessage(
-			'error',
-			'Error interno del servidor. Intenta más tarde.',
-		);
-	}
+    return new Response(JSON.stringify({ id: data?.id }), {
+      status: 200,
+      headers: SECURITY_HEADERS,
+    });
+  } catch (e: unknown) {
+    log.error('exception', { error: e });
+    return new Response(JSON.stringify({ error: 'Error interno del servidor' }), {
+      status: 500,
+      headers: SECURITY_HEADERS,
+    });
+  }
 };

@@ -1,0 +1,104 @@
+{
+	"_meta": {
+		"phase": "F3b — Personas (miembros/managers)",
+		"description": "Crear miembros en members, enlazarlos a empresas en company_members, y sus direcciones en member_addresses.",
+		"n8n_flow": "1) INSERT members → capturar member_id → 2) INSERT company_members → 3) INSERT member_addresses",
+		"depends_on": "01-identity + 02-company (user_id y company_id deben existir)",
+		"idempotency": "UPSERT por identification_number (o full_name + birth_date como fallback)",
+		"validation": "SUM(company_members.percentage) WHERE company_id = X debe ser 100"
+	},
+	"members": {
+		"_meta": {
+			"target_table": "public.members",
+			"required_on_insert": [],
+			"note": "person_type e identification_type tienen default pero conviene especificarlos. is_member e is_manager son campos directos en members (además de en company_members).",
+			"fk_resolve": {
+				"user_id": "UUID del auth.users SI el miembro es también usuario del sistema (puede ser null)",
+				"country_nationality_id": "lookup → public.countries.id",
+				"country_residence_id": "lookup → public.countries.id",
+				"country_id": "lookup → public.countries.id"
+			}
+		},
+		"_helpers": {
+			"_email": "helper para matching/dedup — no se inserta en members",
+			"_us_resident": "helper para lógica — no existe columna en members"
+		},
+		"_email": "",
+		"_us_resident": false,
+		"first_name": "",
+		"last_name": "",
+		"full_name": "",
+		"name": null,
+		"person_type": "natural_person",
+		"identification_number": "",
+		"identification_type": "passport",
+		"marital_status": null,
+		"birth_date": null,
+		"incorporation_date": null,
+		"country_nationality_id": null,
+		"country_residence_id": null,
+		"country_id": null,
+		"ssn": null,
+		"itin": null,
+		"user_id": null,
+		"is_member": true,
+		"is_manager": false
+	},
+	"company_members": {
+		"_meta": {
+			"target_table": "public.company_members",
+			"required_on_insert": ["company_id"],
+			"note": "id es bigint NOT NULL sin default — usar secuencia o proveer manualmente. Si is_irs_responsible del source, setear companies.irs_email con el _email del miembro.",
+			"fk_resolve": {
+				"company_id": "UUID de la company (de 02-company)",
+				"member_id": "UUID del member recién insertado",
+				"created_by": "UUID del migration user o del user dueño"
+			}
+		},
+		"company_id": "{{company_uuid}}",
+		"member_id": "{{member_uuid}}",
+		"is_manager": false,
+		"is_member": true,
+		"percentage": null,
+		"start_date": null,
+		"end_date": null,
+		"is_active": true,
+		"created_by": null
+	},
+	"member_addresses": {
+		"_meta": {
+			"target_table": "public.member_addresses",
+			"required_on_insert": ["member_id", "type", "line1"],
+			"note": "id es bigint NOT NULL sin default. is_primary tiene default true.",
+			"fk_resolve": {
+				"member_id": "UUID del member recién insertado",
+				"country_id": "lookup → public.countries.id",
+				"state_id": "lookup → public.states.id"
+			}
+		},
+		"member_id": "{{member_uuid}}",
+		"type": "residential",
+		"line1": "",
+		"line2": null,
+		"city": null,
+		"state_id": null,
+		"state": null,
+		"country_id": null,
+		"zip": null,
+		"is_primary": true
+	},
+	"_enums": {
+		"person_type": ["natural_person", "juridical_person"],
+		"identification_type": ["passport", "national_id", "driver_licence", "ein"],
+		"marital_status": [
+			"single",
+			"married",
+			"widowed",
+			"divorced",
+			"legally_separated",
+			"civil_union",
+			"annulled"
+		],
+		"address_type": ["residential", "mailing", "business"]
+	}
+}
