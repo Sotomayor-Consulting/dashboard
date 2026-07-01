@@ -14,9 +14,12 @@ export type BillingInfoRow = {
 	zip: string | null;
 	phone: string | null;
 	email: string | null;
+	business_name: string | null;
+	tax_id: string | null;
 	is_default: boolean;
 	created_at: string;
 	paises?: { name: string } | null;
+	states?: { name: string } | null;
 };
 
 export const getAllBillingInfo = async (
@@ -25,7 +28,7 @@ export const getAllBillingInfo = async (
 ): Promise<BillingInfoRow[]> => {
 	const { data, error } = await supabase
 		.from('billing_info')
-		.select('*, paises:country_id(name)')
+		.select('*, paises:country_id(name), states:state_id(name)')
 		.eq('user_id', userId)
 		.order('is_default', { ascending: false })
 		.order('created_at', { ascending: true })
@@ -86,6 +89,8 @@ export type BillingInfoInsert = {
 	zip?: string | null;
 	phone?: string | null;
 	email?: string | null;
+	business_name?: string | null;
+	tax_id?: string | null;
 	is_default?: boolean;
 };
 

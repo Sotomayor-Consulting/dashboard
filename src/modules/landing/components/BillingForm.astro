@@ -13,7 +13,7 @@ interface PaisRow {
 }
 
 interface Props {
-	addresses: (BillingInfoRow & { paises?: { name: string } | null })[];
+	addresses: (BillingInfoRow & { paises?: { name: string } | null; states?: { name: string } | null })[];
 	paises?: PaisRow[] | null | undefined;
 }
 
@@ -30,6 +30,10 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 	value: String(p.id),
 	label: p.name,
 }));
+
+const paisesMap = Object.fromEntries(
+	(paises ?? []).map((p) => [String(p.id), p.iso]),
+);
 ---
 
 {hasAddresses && (
@@ -63,8 +67,14 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 							<p class="mt-0.5 text-sm text-muted-foreground">{addr.line2}</p>
 						)}
 						<p class="mt-0.5 text-sm text-muted-foreground">
-							{[addr.city, addr.paises?.name, addr.zip].filter(Boolean).join(', ')}
+							{[addr.city, addr.states?.name, addr.paises?.name, addr.zip].filter(Boolean).join(', ')}
 						</p>
+						{addr.business_name && (
+							<p class="mt-1 text-sm text-muted-foreground">
+								<span class="font-medium">{addr.business_name}</span>
+								{addr.tax_id && <span> · {addr.tax_id}</span>}
+							</p>
+						)}
 						{(addr.email || addr.phone) && (
 							<div class="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
 								{addr.email && (
@@ -95,8 +105,11 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 							data-line1={addr.line1}
 							data-line2={addr.line2 ?? ''}
 							data-country-id={String(addr.country_id)}
+							data-state-id={String(addr.state_id ?? '')}
 							data-city={addr.city}
 							data-zip={addr.zip ?? ''}
+							data-business-name={addr.business_name ?? ''}
+							data-tax-id={addr.tax_id ?? ''}
 						>
 							<Icon name="ri:pencil-line" class="h-4 w-4" />
 						</button>
@@ -164,6 +177,7 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 		)}
 
 		<div class="divide-y divide-border">
+			<!-- Contacto -->
 			<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 first:pt-0 sm:grid-cols-[220px_1fr]">
 				<div>
 					<h3 class="text-sm font-medium text-foreground">Contacto</h3>
@@ -188,6 +202,7 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 				</div>
 			</div>
 
+			<!-- Dirección -->
 			<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
 				<div>
 					<h3 class="text-sm font-medium text-foreground">Dirección *</h3>
@@ -206,7 +221,7 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 						label=""
 						name="line2"
 						id="bf-line2"
-						placeholder="Dirección línea 2"
+						placeholder="Apt., suite, unidad, etc. (opcional)"
 						class="col-span-2"
 					/>
 					<FormSelect
@@ -214,10 +229,19 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 						name="country_id"
 						id="bf-country-id"
 						options={countryOptions}
-						placeholder="País"
+						placeholder="País o región"
 						required
-						class="col-span-1"
+						class="col-span-2"
 					/>
+					<div id="bf-state-wrapper" class="col-span-1 hidden">
+						<select
+							name="state_id"
+							id="bf-state-id"
+							class="block w-full rounded-lg border border-border bg-transparent px-3 py-2.5 text-sm text-foreground transition focus:border-accent-gold focus:ring-accent-gold"
+						>
+							<option value="">Estado / Provincia</option>
+						</select>
+					</div>
 					<FormInput
 						label=""
 						name="city"
@@ -233,6 +257,51 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 						placeholder="Código postal"
 						class="col-span-1"
 					/>
+				</div>
+			</div>
+
+			<!-- Empresa (opcional, patrón Stripe) -->
+			<div class="py-8">
+				<label class="inline-flex cursor-pointer items-center gap-2 text-sm text-foreground">
+					<input
+						type="checkbox"
+						id="bf-is-business"
+						class="h-4 w-4 border-border text-accent-gold focus:ring-accent-gold"
+					/>
+					Facturo como empresa
+				</label>
+
+				<div id="bf-business-fields" class="mt-4 hidden grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-[220px_1fr]">
+					<div>
+						<h3 class="text-sm font-medium text-foreground">Empresa</h3>
+						<p class="mt-1 text-sm text-muted-foreground">Nombre legal y número de identificación fiscal.</p>
+					</div>
+					<div class="grid grid-cols-2 gap-4">
+						<FormInput
+							label=""
+							name="business_name"
+							id="bf-business-name"
+							placeholder="Razón social / Nombre legal"
+							class="col-span-2"
+						/>
+						<div class="col-span-2 grid grid-cols-[140px_1fr] gap-2">
+							<select
+								name="tax_id_type"
+								id="bf-tax-id-type"
+								class="block w-full rounded-lg border border-border bg-transparent px-2.5 py-2.5 text-sm text-foreground transition focus:border-accent-gold focus:ring-accent-gold"
+							>
+								<option value="">Tipo</option>
+							</select>
+							<input
+								type="text"
+								name="tax_id"
+								id="bf-tax-id"
+								placeholder="Número de identificación fiscal"
+								class="block w-full rounded-lg border border-border bg-transparent px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition focus:border-accent-gold focus:ring-accent-gold"
+							/>
+						</div>
+						<p id="bf-tax-hint" class="col-span-2 -mt-2 text-xs text-muted-foreground hidden"></p>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -283,88 +352,248 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 	</div>
 </div>
 
-<script>
+<script is:inline define:vars={{ paisesMap }}>
+	// Tax ID types per country ISO (Stripe convention)
+	var TAX_ID_TYPES = {
+		US: [{ value: 'us_ein', label: 'EIN', hint: 'ej: 12-3456789' }],
+		EC: [{ value: 'ec_ruc', label: 'RUC', hint: 'ej: 1712345678001' }],
+		MX: [{ value: 'mx_rfc', label: 'RFC', hint: 'ej: ABC010101XYZ' }],
+		PE: [{ value: 'pe_ruc', label: 'RUC', hint: 'ej: 20123456789' }],
+		BO: [{ value: 'bo_nit', label: 'NIT', hint: '' }],
+		CO: [{ value: 'co_nit', label: 'NIT', hint: 'ej: 900.123.456-7' }],
+	};
+
+	var statesCache = {};
+
+	function fetchStates(countryId) {
+		if (statesCache[countryId]) return Promise.resolve(statesCache[countryId]);
+		return fetch('/api/locations/states?countryId=' + countryId)
+			.then(function(r) { return r.json(); })
+			.then(function(json) {
+				if (json.ok) { statesCache[countryId] = json.data; return json.data; }
+				return [];
+			})
+			.catch(function() { return []; });
+	}
+
+	function updateStateSelect(states, selectedId) {
+		var select = document.getElementById('bf-state-id');
+		var wrapper = document.getElementById('bf-state-wrapper');
+		if (!select || !wrapper) return;
+
+		select.innerHTML = '<option value="">Estado / Provincia</option>';
+		if (states.length === 0) { wrapper.classList.add('hidden'); return; }
+
+		states.forEach(function(s) {
+			var opt = document.createElement('option');
+			opt.value = String(s.id);
+			opt.textContent = s.name;
+			if (selectedId && String(s.id) === String(selectedId)) opt.selected = true;
+			select.appendChild(opt);
+		});
+		wrapper.classList.remove('hidden');
+	}
+
+	function updateTaxIdType(countryIso) {
+		var typeSelect = document.getElementById('bf-tax-id-type');
+		var hint = document.getElementById('bf-tax-hint');
+		if (!typeSelect) return;
+
+		typeSelect.innerHTML = '<option value="">Tipo</option>';
+		var types = TAX_ID_TYPES[countryIso] || [];
+
+		types.forEach(function(t) {
+			var opt = document.createElement('option');
+			opt.value = t.value;
+			opt.textContent = t.label;
+			typeSelect.appendChild(opt);
+		});
+
+		// Auto-select if only one type
+		if (types.length === 1) typeSelect.value = types[0].value;
+
+		// Show hint for selected type
+		if (hint) {
+			var selected = types.length === 1 ? types[0] : null;
+			if (selected && selected.hint) {
+				hint.textContent = selected.hint;
+				hint.classList.remove('hidden');
+			} else {
+				hint.classList.add('hidden');
+			}
+		}
+	}
+
+	function handleCountryChange(countryId, selectedStateId) {
+		var iso = paisesMap[String(countryId)];
+		updateTaxIdType(iso || '');
+
+		if (countryId) {
+			fetchStates(Number(countryId)).then(function(states) {
+				updateStateSelect(states, selectedStateId);
+			});
+		} else {
+			updateStateSelect([], null);
+		}
+	}
+
+	function toggleBusinessFields(show) {
+		var fields = document.getElementById('bf-business-fields');
+		if (!fields) return;
+		if (show) {
+			fields.classList.remove('hidden');
+		} else {
+			fields.classList.add('hidden');
+			var bname = document.getElementById('bf-business-name');
+			var taxId = document.getElementById('bf-tax-id');
+			var taxType = document.getElementById('bf-tax-id-type');
+			if (bname) bname.value = '';
+			if (taxId) taxId.value = '';
+			if (taxType) taxType.value = '';
+		}
+	}
+
 	function initBillingForm() {
-		const wrapper = document.getElementById('billing-form-wrapper');
-		const form = document.getElementById('billing-form') as HTMLFormElement | null;
-		const header = document.getElementById('billing-form-header');
-		const formLabel = document.getElementById('bf-form-label');
-		const iconEdit = document.getElementById('bf-icon-edit');
-		const iconAdd = document.getElementById('bf-icon-add');
-		const submitBtn = document.getElementById('bf-submit');
-		const toggleBtn = document.querySelector('[data-toggle-billing-form]');
-		const cancelBtn = document.querySelector('[data-cancel-billing-form]');
-		const deleteDialog = document.getElementById('billing-delete-dialog');
-		const deleteIdInput = document.getElementById('delete-billing-id') as HTMLInputElement | null;
+		var wrapper = document.getElementById('billing-form-wrapper');
+		var form = document.getElementById('billing-form');
+		var header = document.getElementById('billing-form-header');
+		var formLabel = document.getElementById('bf-form-label');
+		var iconEdit = document.getElementById('bf-icon-edit');
+		var iconAdd = document.getElementById('bf-icon-add');
+		var submitBtn = document.getElementById('bf-submit');
+		var toggleBtn = document.querySelector('[data-toggle-billing-form]');
+		var cancelBtn = document.querySelector('[data-cancel-billing-form]');
+		var deleteDialog = document.getElementById('billing-delete-dialog');
+		var deleteIdInput = document.getElementById('delete-billing-id');
+		var countrySelect = document.getElementById('bf-country-id');
+		var businessCheckbox = document.getElementById('bf-is-business');
 
 		if (!wrapper || !form) return;
 
-		const isAlwaysVisible = !wrapper.classList.contains('hidden');
+		var isAlwaysVisible = !wrapper.classList.contains('hidden');
+
+		// Business checkbox toggle
+		if (businessCheckbox && !businessCheckbox.hasAttribute('data-bound')) {
+			businessCheckbox.setAttribute('data-bound', '1');
+			businessCheckbox.addEventListener('change', function() {
+				toggleBusinessFields(businessCheckbox.checked);
+				if (businessCheckbox.checked && countrySelect && countrySelect.value) {
+					var iso = paisesMap[String(countrySelect.value)];
+					if (iso) updateTaxIdType(iso);
+				}
+			});
+		}
+
+		// Country change listener
+		if (countrySelect && !countrySelect.hasAttribute('data-bound')) {
+			countrySelect.setAttribute('data-bound', '1');
+			countrySelect.addEventListener('change', function() {
+				handleCountryChange(countrySelect.value, null);
+			});
+			if (countrySelect.value) {
+				handleCountryChange(countrySelect.value, null);
+			}
+		}
+
+		// Tax ID type change → update hint
+		var taxTypeSelect = document.getElementById('bf-tax-id-type');
+		if (taxTypeSelect && !taxTypeSelect.hasAttribute('data-bound')) {
+			taxTypeSelect.setAttribute('data-bound', '1');
+			taxTypeSelect.addEventListener('change', function() {
+				var hint = document.getElementById('bf-tax-hint');
+				var iso = paisesMap[String(countrySelect ? countrySelect.value : '')];
+				var types = TAX_ID_TYPES[iso] || [];
+				var match = types.find(function(t) { return t.value === taxTypeSelect.value; });
+				if (hint && match && match.hint) {
+					hint.textContent = match.hint;
+					hint.classList.remove('hidden');
+				} else if (hint) {
+					hint.classList.add('hidden');
+				}
+			});
+		}
+
 		if (isAlwaysVisible) return;
 
-		function setFormMode(mode: 'add' | 'edit') {
+		function setFormMode(mode) {
 			if (mode === 'edit') {
-				header?.classList.remove('hidden');
-				iconEdit?.classList.remove('hidden');
-				iconAdd?.classList.add('hidden');
+				header && header.classList.remove('hidden');
+				iconEdit && iconEdit.classList.remove('hidden');
+				iconAdd && iconAdd.classList.add('hidden');
 				if (formLabel) formLabel.textContent = 'Editar dirección';
-				form!.action = '/api/billing/update';
+				form.action = '/api/billing/update';
 				if (submitBtn) submitBtn.textContent = 'Guardar cambios';
 			} else {
-				header?.classList.remove('hidden');
-				iconAdd?.classList.remove('hidden');
-				iconEdit?.classList.add('hidden');
+				header && header.classList.remove('hidden');
+				iconAdd && iconAdd.classList.remove('hidden');
+				iconEdit && iconEdit.classList.add('hidden');
 				if (formLabel) formLabel.textContent = 'Nueva dirección';
-				form!.action = '/api/billing/upsert-invoice';
+				form.action = '/api/billing/upsert-invoice';
 				if (submitBtn) submitBtn.textContent = 'Guardar dirección';
 			}
 		}
 
-		function showForm(mode: 'add' | 'edit') {
-			wrapper!.classList.remove('hidden');
+		function showForm(mode) {
+			wrapper.classList.remove('hidden');
 			setFormMode(mode);
-			wrapper!.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+			wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 		}
 
 		function hideForm() {
-			wrapper!.classList.add('hidden');
-			form!.reset();
-			const billingId = document.getElementById('bf-billing-id') as HTMLInputElement | null;
+			wrapper.classList.add('hidden');
+			form.reset();
+			var billingId = document.getElementById('bf-billing-id');
 			if (billingId) billingId.value = '';
-			header?.classList.add('hidden');
-			form!.action = '/api/billing/upsert-invoice';
+			header && header.classList.add('hidden');
+			form.action = '/api/billing/upsert-invoice';
 			if (submitBtn) submitBtn.textContent = 'Guardar dirección';
+			updateStateSelect([], null);
+			toggleBusinessFields(false);
+			if (businessCheckbox) businessCheckbox.checked = false;
+			var hint = document.getElementById('bf-tax-hint');
+			if (hint) hint.classList.add('hidden');
 		}
 
-		function fillForm(data: Record<string, string>) {
-			const fields = ['email', 'line1', 'line2', 'city', 'zip'] as const;
-			fields.forEach((f) => {
-				const el = document.getElementById(`bf-${f}`) as HTMLInputElement | null;
-				if (el) el.value = data[f] ?? '';
+		function fillForm(data) {
+			var fields = ['email', 'line1', 'line2', 'city', 'zip'];
+			fields.forEach(function(f) {
+				var el = document.getElementById('bf-' + f);
+				if (el) el.value = data[f] || '';
 			});
 
-			const phoneInput = document.getElementById('bf-phone') as HTMLInputElement | null;
+			var phoneInput = document.getElementById('bf-phone');
 			if (phoneInput && data['phone']) {
-				const iti = (phoneInput as any)._iti;
-				if (iti) {
-					iti.setNumber(data['phone']);
-				} else {
-					phoneInput.value = data['phone'];
-				}
+				var iti = phoneInput._iti;
+				if (iti) { iti.setNumber(data['phone']); }
+				else { phoneInput.value = data['phone']; }
 			}
 
-			const countrySelect = document.getElementById('bf-country-id') as HTMLSelectElement | null;
-			if (countrySelect) countrySelect.value = data['country-id'] ?? '';
+			if (countrySelect) countrySelect.value = data['country-id'] || '';
 
-			const billingId = document.getElementById('bf-billing-id') as HTMLInputElement | null;
-			if (billingId) billingId.value = data['id'] ?? '';
+			var billingId = document.getElementById('bf-billing-id');
+			if (billingId) billingId.value = data['id'] || '';
+
+			if (data['country-id']) {
+				handleCountryChange(data['country-id'], data['state-id']);
+			}
+
+			// Business fields
+			var hasBusiness = !!(data['business-name'] || data['tax-id']);
+			if (businessCheckbox) businessCheckbox.checked = hasBusiness;
+			toggleBusinessFields(hasBusiness);
+			if (hasBusiness) {
+				var bname = document.getElementById('bf-business-name');
+				var taxId = document.getElementById('bf-tax-id');
+				if (bname) bname.value = data['business-name'] || '';
+				if (taxId) taxId.value = data['tax-id'] || '';
+			}
 		}
 
 		// Toggle (add) button
 		if (toggleBtn && !toggleBtn.hasAttribute('data-bound')) {
 			toggleBtn.setAttribute('data-bound', '1');
-			toggleBtn.addEventListener('click', () => {
-				if (wrapper!.classList.contains('hidden')) {
+			toggleBtn.addEventListener('click', function() {
+				if (wrapper.classList.contains('hidden')) {
 					hideForm();
 					showForm('add');
 				} else {
@@ -376,42 +605,45 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 		// Cancel button
 		if (cancelBtn && !cancelBtn.hasAttribute('data-bound')) {
 			cancelBtn.setAttribute('data-bound', '1');
-			cancelBtn.addEventListener('click', () => hideForm());
+			cancelBtn.addEventListener('click', function() { hideForm(); });
 		}
 
 		// Edit buttons
-		document.querySelectorAll<HTMLElement>('[data-edit-billing]').forEach((btn) => {
+		document.querySelectorAll('[data-edit-billing]').forEach(function(btn) {
 			if (btn.hasAttribute('data-bound')) return;
 			btn.setAttribute('data-bound', '1');
-			btn.addEventListener('click', () => {
+			btn.addEventListener('click', function() {
 				fillForm({
-					id: btn.dataset.id ?? '',
-					email: btn.dataset.email ?? '',
-					phone: btn.dataset.phone ?? '',
-					line1: btn.dataset.line1 ?? '',
-					line2: btn.dataset.line2 ?? '',
-					'country-id': btn.dataset.countryId ?? '',
-					city: btn.dataset.city ?? '',
-					zip: btn.dataset.zip ?? '',
+					id: btn.dataset.id || '',
+					email: btn.dataset.email || '',
+					phone: btn.dataset.phone || '',
+					line1: btn.dataset.line1 || '',
+					line2: btn.dataset.line2 || '',
+					'country-id': btn.dataset.countryId || '',
+					'state-id': btn.dataset.stateId || '',
+					city: btn.dataset.city || '',
+					zip: btn.dataset.zip || '',
+					'business-name': btn.dataset.businessName || '',
+					'tax-id': btn.dataset.taxId || '',
 				});
 				showForm('edit');
 			});
 		});
 
-		// Delete buttons → open confirmation dialog
-		document.querySelectorAll<HTMLElement>('[data-delete-billing]').forEach((btn) => {
+		// Delete buttons
+		document.querySelectorAll('[data-delete-billing]').forEach(function(btn) {
 			if (btn.hasAttribute('data-bound')) return;
 			btn.setAttribute('data-bound', '1');
-			btn.addEventListener('click', () => {
-				if (deleteIdInput) deleteIdInput.value = btn.dataset.deleteBilling ?? '';
-				deleteDialog?.classList.remove('hidden');
+			btn.addEventListener('click', function() {
+				if (deleteIdInput) deleteIdInput.value = btn.dataset.deleteBilling || '';
+				deleteDialog && deleteDialog.classList.remove('hidden');
 			});
 		});
 
 		// Delete dialog: cancel & backdrop
-		const closeDelete = () => deleteDialog?.classList.add('hidden');
-		const deleteCancelBtn = document.querySelector('[data-delete-cancel]');
-		const deleteBackdrop = document.querySelector('[data-delete-backdrop]');
+		var closeDelete = function() { deleteDialog && deleteDialog.classList.add('hidden'); };
+		var deleteCancelBtn = document.querySelector('[data-delete-cancel]');
+		var deleteBackdrop = document.querySelector('[data-delete-backdrop]');
 
 		if (deleteCancelBtn && !deleteCancelBtn.hasAttribute('data-bound')) {
 			deleteCancelBtn.setAttribute('data-bound', '1');

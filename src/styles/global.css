@@ -432,6 +432,15 @@
 		@apply bg-background text-foreground;
 	}
 
+	option {
+		background-color: var(--background);
+		color: var(--foreground);
+	}
+
+	input[type='checkbox']:not(.sr-only) {
+		border: 2px solid #6b7280;
+	}
+
 	html {
 		@apply font-sans;
 	}

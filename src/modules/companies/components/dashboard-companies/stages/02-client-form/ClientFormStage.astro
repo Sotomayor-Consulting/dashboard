@@ -34,29 +34,29 @@ if (isValidated) displayStage.status = 'completed';
 	description={description}
 	formattedDate={formatStageDate(stage.dueAt)}
 >
-	{isSubmitted && (
-		<span
-			slot="actions"
-			class="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-3 py-1 text-[12px] font-medium text-amber-700 dark:bg-amber-900/25 dark:text-amber-300"
-		>
-			En revisión por operaciones
-		</span>
-	)}
+	<Fragment slot="actions">
+		{isSubmitted && (
+			<span
+				class="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-3 py-1 text-[12px] font-medium text-amber-700 dark:bg-amber-900/25 dark:text-amber-300"
+			>
+				En revisión por operaciones
+			</span>
+		)}
+		{canFill && (
+			<a
+				href={`/my-companies/${empresaId}/form`}
+				data-astro-reload
+				class="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1 text-[12px] font-medium text-white transition-colors hover:bg-blue-700"
+			>
+				{isRejected ? 'Corregir formulario' : 'Llenar formulario'}
+			</a>
+		)}
+	</Fragment>
 	{isRejected && form?.rejection_reason && (
 		<div
 			class="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[13px] text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
 		>
 			<span class="font-medium">Motivo:</span> {form.rejection_reason}
 		</div>
-	)}
-	{canFill && (
-		<a
-			slot="actions"
-			href={`/my-companies/${empresaId}/form`}
-			data-astro-reload
-			class="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1 text-[12px] font-medium text-white transition-colors hover:bg-blue-700"
-		>
-			{isRejected ? 'Corregir formulario' : 'Llenar formulario'}
-		</a>
 	)}
 </StageShell>

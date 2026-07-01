@@ -34,14 +34,20 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 			);
 		}
 
+		const stateIdRaw = form.get('state_id');
+		const stateId = stateIdRaw ? Number(stateIdRaw) : null;
+
 		const ok = await updateBillingInfo(supabase, billingId, user.id, {
 			country_id,
+			state_id: stateId || null,
 			city,
 			line1,
 			line2: String(form.get('line2') ?? '').trim() || null,
 			zip: String(form.get('zip') ?? '').trim() || null,
 			phone: String(form.get('phone') ?? '').trim() || null,
 			email: String(form.get('email') ?? '').trim() || null,
+			business_name: String(form.get('business_name') ?? '').trim() || null,
+			tax_id: String(form.get('tax_id') ?? '').trim() || null,
 		});
 
 		if (!ok) {
