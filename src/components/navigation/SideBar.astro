@@ -12,9 +12,10 @@ import type { EmpresaSwitcherItem } from '@domains/companies/companies';
 interface Props {
 	empresas?: EmpresaSwitcherItem[];
 	activeCompany?: EmpresaSwitcherItem | null;
+	avatarUrl?: string | null;
 }
 
-const { empresas = [], activeCompany = null } = Astro.props;
+const { empresas = [], activeCompany = null, avatarUrl = null } = Astro.props;
 
 const userRoles = Astro.locals.userRoles;
 const user = Astro.locals.user;
@@ -319,9 +320,10 @@ const inactiveClass =
 					class="flex cursor-pointer list-none items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
 				>
 					<img
-						src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
+						src={avatarUrl ?? `https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
 						alt="Avatar"
-						class="h-8 w-8 rounded-full border border-gray-200 dark:border-gray-700"
+						class="h-8 w-8 rounded-full border border-gray-200 object-cover dark:border-gray-700"
+						data-user-avatar
 					/>
 					<div class="min-w-0 flex-1">
 						<p

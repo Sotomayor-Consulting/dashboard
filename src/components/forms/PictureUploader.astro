@@ -1,83 +1,24 @@
 ---
 import { getUsuarioAvatar } from '@domains/users/users';
-import Image from 'astro/components/Image.astro';
+import PictureUploaderIsland from './islands/PictureUploaderIsland';
 
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
 const imagen = userId ? await getUsuarioAvatar(supabase, userId) : null;
 
+const hasAvatar = imagen?.avatar_url && imagen.avatar_url !== 'NULL';
+
 interface Props {
 	title?: string;
 }
 const { title } = Astro.props;
-const { slug } = Astro.params;
-
-const hasAvatar = imagen?.avatar_url && imagen.avatar_url !== 'NULL';
 ---
 
-<div class="flex items-center gap-5">
-	<div class="relative">
-		{
-			hasAvatar ? (
-				<Image
-					class="h-16 w-16 rounded-full object-cover"
-					src={imagen!.avatar_url!}
-					alt="Foto de perfil"
-					inferSize={true}
-					loading="eager"
-				/>
-			) : (
-				<Image
-					src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId || ''}`}
-					class="h-16 w-16 rounded-full"
-					alt="avatar"
-					loading="eager"
-					inferSize={true}
-				/>
-			)
-		}
-		<img
-			id="preview-avatar"
-			class="absolute inset-0 hidden h-16 w-16 rounded-full object-cover"
-			alt="Preview"
-		/>
-	</div>
-
-	<form
-		method="post"
-		action="/api/companies/update-avatar"
-		enctype="multipart/form-data"
-		class="flex items-center gap-3"
-	>
-		<input type="hidden" name="slug" value={slug} />
-		<label class="btn-outline">
-			Seleccionar archivo
-			<input
-				class="hidden"
-				type="file"
-				name="avatar"
-				accept="image/*"
-				required
-				id="avatar-input"
-			/>
-		</label>
-		<button type="submit" class="btn-primary"> Subir </button>
-	</form>
-</div>
+<PictureUploaderIsland
+	initialAvatarUrl={hasAvatar ? imagen!.avatar_url : null}
+	fallbackSeed={userId}
+	client:load
+/>
 
 {title && <p class="text-muted-foreground mt-2 text-sm">{title}</p>}
-
-<script>
-	const input = document.getElementById('avatar-input') as HTMLInputElement;
-	const preview = document.getElementById('preview-avatar') as HTMLImageElement;
-
-	input?.addEventListener('change', (e) => {
-		const file = (e.target as HTMLInputElement).files?.[0];
-		if (file) {
-			const url = URL.createObjectURL(file);
-			preview.src = url;
-			preview.classList.remove('hidden');
-		}
-	});
-</script>
