@@ -41,11 +41,15 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 			</div>
 		</div>
 
-		<div class="space-y-3">
+		<div class="divide-y divide-border rounded-lg border border-border">
 			{addresses.map((addr) => (
-				<div class="group flex items-start justify-between rounded-lg border border-border p-4 transition hover:bg-hover">
+				<div class="flex items-start gap-3 p-4 transition hover:bg-hover">
+					<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
+						<Icon name="ri:map-pin-line" class="h-4 w-4 text-muted-foreground" />
+					</div>
+
 					<div class="min-w-0 flex-1">
-						<div class="flex items-center gap-2 mb-1">
+						<div class="flex items-center gap-2">
 							<span class="text-sm font-medium text-foreground">
 								{addr.line1}
 							</span>
@@ -56,22 +60,33 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 							)}
 						</div>
 						{addr.line2 && (
-							<p class="text-sm text-muted-foreground">{addr.line2}</p>
+							<p class="mt-0.5 text-sm text-muted-foreground">{addr.line2}</p>
 						)}
-						<p class="text-sm text-muted-foreground">
+						<p class="mt-0.5 text-sm text-muted-foreground">
 							{[addr.city, addr.paises?.name, addr.zip].filter(Boolean).join(', ')}
 						</p>
 						{(addr.email || addr.phone) && (
-							<p class="mt-1 text-xs text-muted-foreground">
-								{[addr.email, addr.phone].filter(Boolean).join(' · ')}
-							</p>
+							<div class="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
+								{addr.email && (
+									<span class="inline-flex items-center gap-1">
+										<Icon name="ri:mail-line" class="h-3.5 w-3.5" />
+										{addr.email}
+									</span>
+								)}
+								{addr.phone && (
+									<span class="inline-flex items-center gap-1">
+										<Icon name="ri:phone-line" class="h-3.5 w-3.5" />
+										{addr.phone}
+									</span>
+								)}
+							</div>
 						)}
 					</div>
 
-					<div class="flex shrink-0 items-center gap-1 ml-4">
+					<div class="flex shrink-0 items-center gap-0.5">
 						<button
 							type="button"
-							class="rounded-md p-1.5 text-muted-foreground transition hover:bg-hover hover:text-foreground"
+							class="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
 							title="Editar dirección"
 							data-edit-billing
 							data-id={addr.id}
@@ -90,23 +105,21 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 								<input type="hidden" name="billing_id" value={addr.id} />
 								<button
 									type="submit"
-									class="rounded-md p-1.5 text-muted-foreground transition hover:bg-hover hover:text-foreground"
+									class="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted hover:text-accent-gold"
 									title="Establecer como predeterminada"
 								>
 									<Icon name="ri:star-line" class="h-4 w-4" />
 								</button>
 							</form>
 						)}
-						<form method="post" action="/api/billing/delete">
-							<input type="hidden" name="billing_id" value={addr.id} />
-							<button
-								type="submit"
-								class="rounded-md p-1.5 text-muted-foreground transition hover:bg-hover hover:text-red-500"
-								title="Eliminar dirección"
-							>
-								<Icon name="ri:delete-bin-line" class="h-4 w-4" />
-							</button>
-						</form>
+						<button
+							type="button"
+							class="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted hover:text-red-500"
+							title="Eliminar dirección"
+							data-delete-billing={addr.id}
+						>
+							<Icon name="ri:delete-bin-line" class="h-4 w-4" />
+						</button>
 					</div>
 				</div>
 			))}
@@ -118,33 +131,37 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 	<button
 		type="button"
 		data-toggle-billing-form
-		class="btn-outline w-full gap-2 mb-6"
+		class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground transition hover:border-foreground/30 hover:text-foreground"
 	>
 		<Icon name="ri:add-line" class="h-4 w-4" />
-		Agregar dirección de facturación
+		Agregar dirección
 	</button>
 )}
 
 {hasAddresses && !canAdd && (
 	<p class="text-center text-sm text-muted-foreground py-4">
-		Has alcanzado el máximo de 3 direcciones de facturación.
+		Has alcanzado el máximo de 3 direcciones.
 	</p>
 )}
 
-<div id="billing-form-wrapper" class:list={[hasAddresses && 'hidden']}>
+<div id="billing-form-wrapper" class:list={[hasAddresses && 'hidden', 'mt-6']}>
+	<div id="billing-form-header" class="mb-4 hidden">
+		<div class="flex items-center gap-2 text-sm font-medium text-foreground">
+			<Icon name="ri:pencil-line" class="h-4 w-4 text-muted-foreground" id="bf-icon-edit" />
+			<Icon name="ri:add-line" class="h-4 w-4 text-muted-foreground hidden" id="bf-icon-add" />
+			<span id="bf-form-label">Editar dirección</span>
+		</div>
+	</div>
+
 	<form
 		id="billing-form"
 		method="post"
-		action={hasAddresses ? '/api/billing/upsert-invoice' : '/api/billing/upsert-invoice'}
+		action="/api/billing/upsert-invoice"
 	>
 		<input type="hidden" name="billing_id" id="bf-billing-id" value="" />
 		{!hasAddresses && (
 			<input type="hidden" name="is_default" value="true" />
 		)}
-
-		<div id="billing-form-title" class="mb-4 hidden">
-			<h3 class="text-sm font-medium text-foreground">Editar dirección</h3>
-		</div>
 
 		<div class="divide-y divide-border">
 			<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 first:pt-0 sm:grid-cols-[220px_1fr]">
@@ -237,31 +254,75 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 	</form>
 </div>
 
+<!-- Delete confirmation dialog -->
+<div id="billing-delete-dialog" class="fixed inset-0 z-50 hidden">
+	<div class="fixed inset-0 bg-black/50" data-delete-backdrop></div>
+	<div class="fixed inset-0 flex items-center justify-center p-4">
+		<div class="w-full max-w-sm rounded-lg border border-border bg-card p-6 shadow-lg">
+			<div class="flex items-center gap-3 mb-4">
+				<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/10">
+					<Icon name="ri:delete-bin-line" class="h-5 w-5 text-red-500" />
+				</div>
+				<div>
+					<h3 class="text-sm font-medium text-foreground">Eliminar dirección</h3>
+					<p class="text-sm text-muted-foreground">Esta acción no se puede deshacer.</p>
+				</div>
+			</div>
+			<div class="flex justify-end gap-3">
+				<button type="button" data-delete-cancel class="btn-outline">
+					Cancelar
+				</button>
+				<form method="post" action="/api/billing/delete">
+					<input type="hidden" name="billing_id" id="delete-billing-id" value="" />
+					<button type="submit" class="inline-flex cursor-pointer items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700">
+						Eliminar
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
 	function initBillingForm() {
 		const wrapper = document.getElementById('billing-form-wrapper');
 		const form = document.getElementById('billing-form') as HTMLFormElement | null;
-		const title = document.getElementById('billing-form-title');
+		const header = document.getElementById('billing-form-header');
+		const formLabel = document.getElementById('bf-form-label');
+		const iconEdit = document.getElementById('bf-icon-edit');
+		const iconAdd = document.getElementById('bf-icon-add');
 		const submitBtn = document.getElementById('bf-submit');
 		const toggleBtn = document.querySelector('[data-toggle-billing-form]');
 		const cancelBtn = document.querySelector('[data-cancel-billing-form]');
+		const deleteDialog = document.getElementById('billing-delete-dialog');
+		const deleteIdInput = document.getElementById('delete-billing-id') as HTMLInputElement | null;
 
 		if (!wrapper || !form) return;
 
 		const isAlwaysVisible = !wrapper.classList.contains('hidden');
 		if (isAlwaysVisible) return;
 
-		function showForm(mode: 'add' | 'edit') {
-			wrapper!.classList.remove('hidden');
+		function setFormMode(mode: 'add' | 'edit') {
 			if (mode === 'edit') {
-				title?.classList.remove('hidden');
+				header?.classList.remove('hidden');
+				iconEdit?.classList.remove('hidden');
+				iconAdd?.classList.add('hidden');
+				if (formLabel) formLabel.textContent = 'Editar dirección';
 				form!.action = '/api/billing/update';
 				if (submitBtn) submitBtn.textContent = 'Guardar cambios';
 			} else {
-				title?.classList.add('hidden');
+				header?.classList.remove('hidden');
+				iconAdd?.classList.remove('hidden');
+				iconEdit?.classList.add('hidden');
+				if (formLabel) formLabel.textContent = 'Nueva dirección';
 				form!.action = '/api/billing/upsert-invoice';
 				if (submitBtn) submitBtn.textContent = 'Guardar dirección';
 			}
+		}
+
+		function showForm(mode: 'add' | 'edit') {
+			wrapper!.classList.remove('hidden');
+			setFormMode(mode);
 			wrapper!.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 		}
 
@@ -270,7 +331,7 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 			form!.reset();
 			const billingId = document.getElementById('bf-billing-id') as HTMLInputElement | null;
 			if (billingId) billingId.value = '';
-			title?.classList.add('hidden');
+			header?.classList.add('hidden');
 			form!.action = '/api/billing/upsert-invoice';
 			if (submitBtn) submitBtn.textContent = 'Guardar dirección';
 		}
@@ -299,6 +360,7 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 			if (billingId) billingId.value = data['id'] ?? '';
 		}
 
+		// Toggle (add) button
 		if (toggleBtn && !toggleBtn.hasAttribute('data-bound')) {
 			toggleBtn.setAttribute('data-bound', '1');
 			toggleBtn.addEventListener('click', () => {
@@ -311,11 +373,13 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 			});
 		}
 
+		// Cancel button
 		if (cancelBtn && !cancelBtn.hasAttribute('data-bound')) {
 			cancelBtn.setAttribute('data-bound', '1');
 			cancelBtn.addEventListener('click', () => hideForm());
 		}
 
+		// Edit buttons
 		document.querySelectorAll<HTMLElement>('[data-edit-billing]').forEach((btn) => {
 			if (btn.hasAttribute('data-bound')) return;
 			btn.setAttribute('data-bound', '1');
@@ -333,6 +397,30 @@ const countryOptions: Option[] = (paises ?? []).map((p) => ({
 				showForm('edit');
 			});
 		});
+
+		// Delete buttons → open confirmation dialog
+		document.querySelectorAll<HTMLElement>('[data-delete-billing]').forEach((btn) => {
+			if (btn.hasAttribute('data-bound')) return;
+			btn.setAttribute('data-bound', '1');
+			btn.addEventListener('click', () => {
+				if (deleteIdInput) deleteIdInput.value = btn.dataset.deleteBilling ?? '';
+				deleteDialog?.classList.remove('hidden');
+			});
+		});
+
+		// Delete dialog: cancel & backdrop
+		const closeDelete = () => deleteDialog?.classList.add('hidden');
+		const deleteCancelBtn = document.querySelector('[data-delete-cancel]');
+		const deleteBackdrop = document.querySelector('[data-delete-backdrop]');
+
+		if (deleteCancelBtn && !deleteCancelBtn.hasAttribute('data-bound')) {
+			deleteCancelBtn.setAttribute('data-bound', '1');
+			deleteCancelBtn.addEventListener('click', closeDelete);
+		}
+		if (deleteBackdrop && !deleteBackdrop.hasAttribute('data-bound')) {
+			deleteBackdrop.setAttribute('data-bound', '1');
+			deleteBackdrop.addEventListener('click', closeDelete);
+		}
 	}
 
 	initBillingForm();
