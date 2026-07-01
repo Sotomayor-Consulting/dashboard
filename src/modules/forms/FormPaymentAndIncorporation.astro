@@ -10,6 +10,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@components/ui/Card';
+import CompanySelect from './islands/CompanySelect.tsx';
 import { getIncorporacionesEnProceso } from '@domains/companies/incorporations';
 import { ListaServiciosStripe } from '@domains/services/services';
 
@@ -22,10 +23,18 @@ const [empresas, servicios] = await Promise.all([
 	ListaServiciosStripe(supabase),
 ]);
 
-const planBasico = servicios?.find((s) => s.nombre === 'Plan Básico');
-const planEstandar = servicios?.find((s) => s.nombre === 'Plan Estándar');
-const planBusiness = servicios?.find((s) => s.nombre === 'Plan Business');
-const planDiseno = servicios?.find((s) => s.nombre === 'Plan Diseño - upgrade');
+const planBasico = servicios?.find(
+	(s: { nombre: string }) => s.nombre === 'Plan Básico',
+);
+const planEstandar = servicios?.find(
+	(s: { nombre: string }) => s.nombre === 'Plan Estándar',
+);
+const planBusiness = servicios?.find(
+	(s: { nombre: string }) => s.nombre === 'Plan Business',
+);
+const planDiseno = servicios?.find(
+	(s: { nombre: string }) => s.nombre === 'Plan Diseño - upgrade',
+);
 
 const basePlans = [planBasico, planBusiness, planEstandar].filter(Boolean);
 
@@ -110,8 +119,7 @@ const designPlanDetails = [
 							class="text-muted-foreground max-w-2xl text-base leading-7 sm:text-lg"
 						>
 							Elija la incorporación que desea activar y avance a un checkout
-							seguro con Stripe. Mantuvimos el flujo actual, pero con una
-							presentación más clara y consistente con shadcn.
+							seguro con Stripe.
 						</p>
 					</div>
 
@@ -157,40 +165,38 @@ const designPlanDetails = [
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-5 pt-5">
-						<div class="space-y-2">
-							<label
-								for="empresa-select"
-								class="text-foreground text-sm font-medium"
-							>
-								Empresas disponibles
-							</label>
-							<select
-								name="empresa"
-								id="empresa-select"
-								class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 flex h-11 w-full rounded-xl border px-4 text-sm transition-colors outline-none focus-visible:ring-4"
-							>
-								{
-									empresas?.map((empresa) => (
-										<option value={empresa.id}>{empresa.principal_name}</option>
-									))
-								}
-							</select>
-						</div>
+						{
+							empresas?.length ? (
+								<>
+									<div class="space-y-2">
+										<label
+											for="empresa-select"
+											class="text-foreground text-sm font-medium"
+										>
+											Empresas disponibles
+										</label>
+										<CompanySelect companies={empresas ?? []} client:load />
+									</div>
 
-						<div
-							class="border-border bg-muted/30 text-muted-foreground rounded-xl border border-dashed p-4 text-sm"
-						>
-							Su selección definirá a qué incorporación se vinculará el pago y
-							el flujo posterior del proceso.
-						</div>
+									<div class="border-border bg-muted/30 text-muted-foreground rounded-xl border border-dashed p-4 text-sm">
+										Su selección definirá a qué incorporación se vinculará el
+										pago y el flujo posterior del proceso.
+									</div>
 
-						<button
-							id="btn-paso1"
-							type="button"
-							class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-medium transition disabled:pointer-events-none disabled:opacity-50"
-						>
-							Continuar a planes
-						</button>
+									<button
+										id="btn-paso1"
+										type="button"
+										class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-medium transition disabled:pointer-events-none disabled:opacity-50"
+									>
+										Continuar a planes
+									</button>
+								</>
+							) : (
+								<div class="border-border bg-muted/30 text-muted-foreground rounded-xl border border-dashed p-4 text-sm">
+									Aún no tienes ninguna empresa pendiente por pagar.
+								</div>
+							)
+						}
 					</CardContent>
 				</Card>
 			</div>
