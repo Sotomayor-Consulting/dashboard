@@ -5,11 +5,7 @@ import LayoutCommon from './LayoutCommon.astro';
 import NavBarSidebar from '../components/navigation/NavBarSidebar.astro';
 import SideBar from '../components/navigation/SideBar.astro';
 
-import {
-	getUsuarioById,
-	getMissingFieldsFromProfile,
-	type PartnerRequiredField,
-} from '@domains/users/users';
+import { getUsuarioById, type PartnerRequiredField } from '@domains/users/users';
 import { getAvatarUrl } from '@shared/avatar';
 import { getNotifications } from '@domains/users/notifications';
 import { getEstadoIncorporacionByUserId } from '@domains/companies/incorporations';
@@ -23,8 +19,6 @@ import { ACTIVE_COMPANY_COOKIE } from '@shared/cookies';
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
-const userRoles = Astro.locals.userRoles || [];
-const isPartner = userRoles.includes('partner');
 
 let usuario: any = null;
 let notificationsData: any = { notifications: [], totalUnread: 0 };
@@ -64,10 +58,19 @@ const showBannerUpgrade =
 	incorporaciones?.length > 0 &&
 	incorporaciones.some((c: any) => c.estado === 'Upgrade');
 
-// Reusar datos del usuario para verificar campos de partner (0 queries extra)
-const missingPartnerFields: PartnerRequiredField[] =
-	isPartner && usuario ? getMissingFieldsFromProfile(usuario) : [];
-const showBannerPartner = missingPartnerFields.length > 0;
+/*
+	Toast de validacion partner deshabilitado temporalmente.
+	Mantener este bloque comentado por si se vuelve a habilitar a futuro.
+
+	const userRoles = Astro.locals.userRoles || [];
+	const isPartner = userRoles.includes('partner');
+	const missingPartnerFields: PartnerRequiredField[] =
+		isPartner && usuario ? getMissingFieldsFromProfile(usuario) : [];
+	const showBannerPartner = missingPartnerFields.length > 0;
+*/
+
+const missingPartnerFields: PartnerRequiredField[] = [];
+const showBannerPartner = false;
 
 const avatarUrl = getAvatarUrl(usuario?.avatar_url, supabase);
 ---
