@@ -60,8 +60,8 @@ export const getUsuarioPerfilPartner = async (
 	userId: string,
 ) => {
 	const { data, error } = await supabase
-		.from('usuarios')
-		.select('direccion_linea1, direccion_linea2, tipo_identificacion, numero_de_identificacion, tipo_persona')
+		.from('billing_info')
+		.select('line1, line2, email, tax_id, phone')
 		.eq('user_id', userId)
 		.single();
 
@@ -74,11 +74,11 @@ export const getUsuarioPerfilPartner = async (
 };
 
 export const PARTNER_REQUIRED_FIELDS = [
-	'direccion_linea1',
-	'direccion_linea2',
-	'tipo_identificacion',
-	'numero_de_identificacion',
-	'tipo_persona',
+	'line1',
+	'line2',
+	'email',
+	'tax_id',
+	'phone',
 ] as const;
 
 export type PartnerRequiredField = (typeof PARTNER_REQUIRED_FIELDS)[number];
