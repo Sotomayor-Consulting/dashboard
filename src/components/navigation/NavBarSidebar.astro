@@ -11,6 +11,7 @@ const {
 	notificationsData: notifProp,
 	empresas: empresasProp = [],
 	usuario,
+	avatarUrl = null,
 } = Astro.props;
 
 const user = Astro.locals.user;
@@ -267,9 +268,10 @@ const breadcrumbItems = (() => {
 						data-user-dropdown-trigger
 					>
 						<img
-							src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
+							src={avatarUrl ?? `https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
 							alt="Avatar"
-							class="border-border h-8 w-8 shrink-0 rounded-full border"
+							class="border-border h-8 w-8 shrink-0 rounded-full border object-cover"
+							data-user-avatar
 						/>
 						<span class="text-foreground text-sm font-medium">{userName}</span>
 						<Icon

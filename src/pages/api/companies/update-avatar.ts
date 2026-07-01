@@ -1,7 +1,10 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
+import sharp from 'sharp';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+
+const AVATAR_SIZE = 400;
 
 const FALLBACK_BACK = '/settings';
 
@@ -66,15 +69,20 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			} catch {}
 		}
 
-		// 5) Subir nuevo avatar con nombre determinístico
-		const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-		const newPath = `${avatarPrefix}/avatar.${ext}`;
+		// 5) Convertir a WebP 400×400 y subir
+		const inputBuffer = Buffer.from(await file.arrayBuffer());
+		const webpBuffer = await sharp(inputBuffer)
+			.resize(AVATAR_SIZE, AVATAR_SIZE, { fit: 'cover', position: 'centre' })
+			.webp({ quality: 82 })
+			.toBuffer();
+
+		const newPath = `${avatarPrefix}/avatar.webp`;
 
 		const { error: upErr } = await supabase.storage
 			.from('public-assets')
-			.upload(newPath, file, {
+			.upload(newPath, webpBuffer, {
 				upsert: true,
-				contentType: file.type || 'application/octet-stream',
+				contentType: 'image/webp',
 			});
 
 		if (upErr) {

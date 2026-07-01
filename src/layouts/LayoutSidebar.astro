@@ -10,6 +10,7 @@ import {
 	getMissingFieldsFromProfile,
 	type PartnerRequiredField,
 } from '@domains/users/users';
+import { getAvatarUrl } from '@shared/avatar';
 import { getNotifications } from '@domains/users/notifications';
 import { getEstadoIncorporacionByUserId } from '@domains/companies/incorporations';
 import {
@@ -67,6 +68,8 @@ const showBannerUpgrade =
 const missingPartnerFields: PartnerRequiredField[] =
 	isPartner && usuario ? getMissingFieldsFromProfile(usuario) : [];
 const showBannerPartner = missingPartnerFields.length > 0;
+
+const avatarUrl = getAvatarUrl(usuario?.avatar_url, supabase);
 ---
 
 <LayoutCommon>
@@ -74,9 +77,10 @@ const showBannerPartner = missingPartnerFields.length > 0;
 		usuario={usuario}
 		notificationsData={notificationsData}
 		empresas={empresasSwitcher}
+		avatarUrl={avatarUrl}
 	/>
 
-	<SideBar empresas={empresasSwitcher} activeCompany={selectedCompany} />
+	<SideBar empresas={empresasSwitcher} activeCompany={selectedCompany} avatarUrl={avatarUrl} />
 
 	<div class="dark:bg-primary-black flex h-dvh overflow-hidden bg-white pt-14">
 		<div
