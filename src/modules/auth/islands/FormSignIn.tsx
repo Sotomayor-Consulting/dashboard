@@ -276,7 +276,7 @@ export default function FormSignIn() {
 			</a>
 
 			<div className="group relative hidden h-full min-h-screen flex-col overflow-hidden p-10 lg:flex dark:border-r dark:border-slate-800">
-				<div className="absolute inset-0 bg-slate-900 dark:bg-white/5" />
+				<div className="absolute inset-0 bg-white dark:bg-white/5" />
 				<div className="relative z-20 flex items-center text-lg font-medium text-white">
 					<img
 						src={LogoDark.src}
@@ -284,8 +284,8 @@ export default function FormSignIn() {
 						className="mr-3 h-7 invert dark:invert-0"
 					/>
 				</div>
-				<div className="absolute inset-x-0 inset-y-0 flex h-full items-center justify-center [mask-image:radial-gradient(400px_circle_at_center,white,transparent)]">
-					<div className="absolute size-96 rounded-full bg-white/8 blur-3xl transition duration-500 group-hover:scale-110 group-hover:bg-white/12" />
+				<div className="absolute inset-x-0 inset-y-0 flex h-full items-center justify-center [mask-image:radial-gradient(400px_circle_at_center,black,transparent)] dark:[mask-image:radial-gradient(400px_circle_at_center,white,transparent)]">
+					<div className="absolute size-96 rounded-full bg-black/8 blur-3xl transition duration-500 group-hover:scale-110 group-hover:bg-white/12 dark:bg-white/8" />
 					<img
 						src={Isotipo.src}
 						alt="Sotomayor Consulting"
@@ -293,12 +293,14 @@ export default function FormSignIn() {
 					/>
 				</div>
 				<div className="relative z-20 mt-auto text-white">
-					<blockquote className="space-y-2">
+					<blockquote className="space-y-2 text-black dark:text-white">
 						<p className="text-lg">
 							&quot;Las chicas buenas van para el cielo, y las malas para el
 							vitara&quot;
 						</p>
-						<footer className="text-sm text-white/70">Joann Salgero</footer>
+						<footer className="text-sm dark:text-white/70">
+							Joann Salgero
+						</footer>
 					</blockquote>
 				</div>
 			</div>
@@ -416,7 +418,7 @@ export default function FormSignIn() {
 							<button
 								type="submit"
 								className={cn(
-									buttonVariants({ variant: 'default' }),
+									buttonVariants({ variant: 'outline' }),
 									'h-11 w-full rounded-xl',
 								)}
 								disabled={anyPending}
