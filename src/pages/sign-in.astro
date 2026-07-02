@@ -1,11 +1,11 @@
 ---
-import LayoutStacked from '@layouts/LayoutStackedDos.astro';
+import LayoutStacked from '@layouts/LayoutSignIn.astro';
 import FormSignIn from '@modules/auth/islands/FormSignIn.tsx';
 import Alerta from '@components/feedback/Alert.astro';
 ---
 
 <LayoutStacked>
-	<div class="flex items-center justify-center py-10">
+	<div class="flex h-full w-full items-center justify-center">
 		<Alerta />
 		<FormSignIn client:load />
 	</div>
@@ -14,5 +14,4 @@ import Alerta from '@components/feedback/Alert.astro';
 <script
 	src="https://accounts.google.com/gsi/client"
 	is:inline
-	onload="window.dispatchEvent(new Event('google-one-tap-loaded'))"
-></script>
+	onload="window.dispatchEvent(new Event('google-one-tap-loaded'))"></script>
