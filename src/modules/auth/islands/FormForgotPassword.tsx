@@ -3,9 +3,10 @@ import { buttonVariants } from '@components/ui/Button';
 import { FieldLabel, FieldLegend } from '@components/ui/Field';
 import { Input } from '@components/ui/Input';
 import { Spinner } from '@components/ui/Spinner';
+import { Checkbox } from '@components/ui/Checkbox';
+import LogoDark from '../../../icons/Letras_logo_SCI.svg';
+import Isotipo from '../../../icons/isotipo.svg';
 import { cn } from '@components/utils';
-import LogoLight from '../../../icons/logo-sotomayor-consulting.svg';
-import LogoDark from '../../../icons/logo-sotomayor-consulting-black.svg';
 
 interface FormForgotPasswordProps {
 	status?: string | null;
@@ -21,7 +22,7 @@ export default function FormForgotPassword({
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
 	const cleanInputClass =
-		'h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/30 dark:border-slate-600 dark:bg-[#0b1220] dark:text-slate-100 dark:placeholder:text-slate-500';
+		'h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/20 dark:border-slate-700 dark:bg-white/10 dark:text-slate-100 dark:placeholder:text-slate-500';
 
 	const feedbackClassName =
 		status === 'success'
@@ -60,133 +61,186 @@ export default function FormForgotPassword({
 
 			setSuccessMessage(
 				payload.data?.message ??
-					'Si el email está registrado, recibirás un enlace para restablecer tu contraseña.',
+					'Si el email esta registrado, recibirás un enlace para restablecer tu contraseña.',
 			);
 			form.reset();
 		} catch {
-			setClientError('Error de conexion. Intentalo nuevamente.');
+			setClientError('Error de conexión. Inténtalo nuevamente.');
 		} finally {
 			setPending(false);
 		}
 	};
 
 	return (
-		<div className="mx-auto flex w-full flex-col items-center justify-center px-6 pt-10">
-			<div className="w-full max-w-xl space-y-8 rounded-lg bg-gray-200 p-6 shadow sm:p-8 dark:bg-black">
-				<a
-					href="/"
-					className="mb-8 flex items-center justify-center text-2xl font-semibold lg:mb-10 dark:text-white"
-				>
-					<img
-						src={LogoLight.src}
-						alt="Sotomayor Consulting"
-						className="mr-4 hidden h-10 dark:block"
-					/>
-					<img
-						src={LogoDark.src}
-						alt="Sotomayor Consulting"
-						className="mr-4 block h-10 invert dark:hidden"
-					/>
-				</a>
-
-				<FieldLegend className="dark:text-yellow text-2xl font-bold">
-					¿Olvidaste tu contraseña?
-				</FieldLegend>
-
-				<p className="text-base font-normal text-gray-500 dark:text-gray-400">
-					¡No te preocupes! Solo escribe tu correo electrónico y te enviaremos
-					un enlace para restablecer tu contraseña.
-				</p>
-
-				{status && message ? (
-					<p className={cn('rounded-lg px-4 py-3 text-sm', feedbackClassName)}>
-						{message}
-					</p>
-				) : null}
-
-				{successMessage ? (
-					<p className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-400">
-						{successMessage}
-					</p>
-				) : null}
-
-				<form
-					className="mt-8 space-y-6"
-					method="POST"
-					action="/api/auth/forgot-password"
-					onSubmit={handleSubmit}
-				>
-					<div>
-						<FieldLabel
-							htmlFor="email"
-							className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-						>
-							Tu correo
-						</FieldLabel>
-						<Input
-							id="email"
-							type="email"
-							name="email"
-							className={cleanInputClass}
-							placeholder="correo@ejemplo.com"
-							autoComplete="email"
-							required
-							disabled={pending}
+		<div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden lg:grid lg:grid-cols-2 lg:px-0">
+			<a
+				href="/sign-in"
+				className={cn(
+					buttonVariants({ variant: 'ghost' }),
+					'absolute top-4 right-4 z-30 hidden md:top-8 md:right-8 md:inline-flex',
+				)}
+			>
+				Inicia sesión
+			</a>
+			<div className="group relative hidden h-full min-h-screen flex-col overflow-hidden p-10 lg:flex dark:border-r dark:border-slate-800">
+				<div className="absolute inset-0 bg-white dark:bg-white/5" />
+				<div className="relative z-20 flex items-center text-lg font-medium text-white">
+					<a href="https://sotomayorconsulting.com/inicio/">
+						<img
+							src={LogoDark.src}
+							alt="Sotomayor Consulting"
+							className="mr-3 h-7 invert dark:invert-0"
 						/>
-					</div>
+					</a>
+				</div>
+				<div className="absolute inset-x-0 inset-y-0 flex h-full items-center justify-center [mask-image:radial-gradient(400px_circle_at_center,black,transparent)] dark:[mask-image:radial-gradient(400px_circle_at_center,white,transparent)]">
+					<div className="absolute size-96 rounded-full bg-black/8 blur-3xl transition duration-500 group-hover:scale-110 group-hover:bg-white/12 dark:bg-white/8" />
+					<img
+						src={Isotipo.src}
+						alt="Sotomayor Consulting"
+						className="relative size-150 invert transition duration-500 ease-out group-hover:-translate-y-2 group-hover:scale-105 group-hover:rotate-2 dark:invert-0"
+					/>
+				</div>
+				<div className="relative z-20 mt-auto text-white">
+					<blockquote className="space-y-2 text-black dark:text-white">
+						<p className="text-lg">
+							&quot;Las chicas buenas van para el cielo, y las malas para el
+							vitara&quot;
+						</p>
+						<footer className="text-sm dark:text-white/70">
+							Joann Salgero
+						</footer>
+					</blockquote>
+				</div>
+			</div>
 
-					<div className="flex items-start gap-2">
-						<input
-							id="remember"
-							name="remember"
-							type="checkbox"
-							className="mt-0.5 size-4 shrink-0 rounded border border-slate-300 accent-[#8c681d]"
-							required
-							disabled={pending}
-						/>
-						<FieldLabel
-							htmlFor="remember"
-							className="min-w-0 flex-1 font-medium text-gray-900 dark:text-white"
-						>
-							Acepto los{' '}
-							<a
-								href="https://sotomayorconsulting.com/inicio/terminos/"
-								className="text-[#8c681d] hover:underline"
+			<div className="flex h-full min-h-screen items-center justify-center p-4 lg:p-8">
+				<div className="flex w-full max-w-md flex-col items-center justify-center space-y-6">
+					<div className="w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-white/5">
+						<div className="mb-6 space-y-2 text-center">
+							<FieldLegend className="w-full text-2xl font-semibold text-slate-900 dark:text-white">
+								Olvidaste tu contraseña
+							</FieldLegend>
+							<p className="text-sm text-slate-500 dark:text-slate-400">
+								Escribe tu correo y te enviaremos un enlace para restablecer tu
+								contraseña.
+							</p>
+						</div>
+
+						{status && message ? (
+							<p
+								className={cn(
+									'mb-4 rounded-lg px-4 py-3 text-sm',
+									feedbackClassName,
+								)}
 							>
-								Términos y Condiciones
+								{message}
+							</p>
+						) : null}
+
+						{successMessage ? (
+							<p className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-400">
+								{successMessage}
+							</p>
+						) : null}
+
+						<form
+							className="space-y-4"
+							method="POST"
+							action="/api/auth/forgot-password"
+							onSubmit={handleSubmit}
+						>
+							<div>
+								<FieldLabel
+									htmlFor="email"
+									className="mb-2 block text-sm font-medium text-slate-900 dark:text-white"
+								>
+									Tu correo
+								</FieldLabel>
+								<Input
+									id="email"
+									type="email"
+									name="email"
+									className={cleanInputClass}
+									placeholder="correo@ejemplo.com"
+									autoComplete="email"
+									required
+									disabled={pending}
+								/>
+							</div>
+
+							<div className="flex items-start gap-3 text-sm">
+								<label className="flex items-start gap-3 text-slate-900 dark:text-white">
+									<Checkbox
+										id="remember"
+										name="remember"
+										className="mt-0.5"
+										required
+										disabled={pending}
+									/>
+									<span className="min-w-0 flex-1 font-medium">
+										Acepto los{' '}
+										<a
+											href="https://sotomayorconsulting.com/inicio/terminos/"
+											className="text-[#8c681d] hover:underline"
+										>
+											Terminos y Condiciones
+										</a>
+									</span>
+								</label>
+							</div>
+
+							<button
+								type="submit"
+								className={cn(
+									buttonVariants({ variant: 'outline' }),
+									'h-11 w-full rounded-xl',
+								)}
+								disabled={pending}
+							>
+								{pending && <Spinner data-icon="inline-start" />}
+								{pending ? 'Enviando...' : 'Restablecer contraseña'}
+							</button>
+
+							{clientError ? (
+								<p className="text-sm text-red-500">{clientError}</p>
+							) : null}
+						</form>
+					</div>
+
+					<div className="text-muted-foreground space-y-2 px-8 text-center text-xs text-slate-500 dark:text-slate-400">
+						<p>
+							Esta es una plataforma interna de Sotomayor Consulting para
+							gestionar accesos, documentos y seguimiento operativo.
+						</p>
+						<p>
+							<a
+								href="/sign-in"
+								className="hover:text-primary underline underline-offset-4"
+							>
+								Volver a iniciar sesion
 							</a>
-						</FieldLabel>
+						</p>
 					</div>
 
-					<div className="flex w-full">
-						<button
-							type="submit"
-							className={cn(
-								buttonVariants({ variant: 'outline' }),
-								'h-11 w-full cursor-pointer',
-							)}
-							disabled={pending}
-						>
-							{pending && <Spinner data-icon="inline-start" />}
-							{pending ? 'Enviando...' : 'Restablecer contraseña'}
-						</button>
-					</div>
-
-					{clientError ? <p className="text-sm text-red-500">{clientError}</p> : null}
-
-					<div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-						¿Recordaste tu contraseña?{' '}
+					<p className="text-muted-foreground px-8 text-center text-sm text-slate-500 dark:text-slate-400">
+						Al continuar, aceptas nuestros{' '}
 						<a
-							href="/sign-in"
-							className={cn(
-								buttonVariants({ variant: 'link' }),
-								'ml-auto text-sm',
-							)}
+							href="https://sotomayorconsulting.com/inicio/politicas/"
+							className="hover:text-primary underline underline-offset-4"
 						>
-							Inicia sesión
+							Terminos de Servicio
+						</a>{' '}
+						y la{' '}
+						<a
+							href="https://sotomayorconsulting.com/inicio/politicas/"
+							className="hover:text-primary underline underline-offset-4"
+						>
+							Politica de Privacidad
 						</a>
-					</div>
-				</form>
+						.
+					</p>
+				</div>
 			</div>
 		</div>
 	);

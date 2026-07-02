@@ -71,12 +71,12 @@ const WARNING_MAP: Readonly<Record<string, string>> = {
 	'Recent years are easy to guess': 'Anos recientes son faciles de adivinar',
 	'Dates are often easy to guess': 'Las fechas son faciles de adivinar',
 	'This is a top-10 common password':
-		'Esta es una de las 10 contrasenas mas comunes',
+		'Esta es una de las 10 contraseñas mas comunes',
 	'This is a top-100 common password':
-		'Esta es una de las 100 contrasenas mas comunes',
-	'This is a very common password': 'Esta es una contrasena muy comun',
+		'Esta es una de las 100 contraseñas mas comunes',
+	'This is a very common password': 'Esta es una contraseña muy comun',
 	'This is similar to a commonly used password':
-		'Es similar a una contrasena comun',
+		'Es similar a una contraseña comun',
 	'A word by itself is easy to guess': 'Una palabra sola es facil de adivinar',
 	'Names and surnames by themselves are easy to guess':
 		'Nombres y apellidos solos son faciles de adivinar',
@@ -101,7 +101,7 @@ const SUGGESTION_MAP: Readonly<Record<string, string>> = {
 		'Sustituciones predecibles como @ por a no ayudan mucho',
 };
 const cleanInputClass =
-	'h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/30 dark:border-slate-600 dark:bg-[#0b1220] dark:text-slate-100 dark:placeholder:text-slate-500';
+	'h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/30 dark:border-slate-600 dark:bg-white/10 dark:text-slate-100 dark:placeholder:text-slate-500';
 
 function normalizeSuggestion(result: ZXCVBNResult): string {
 	if (result.feedback.warning) {
@@ -237,7 +237,7 @@ export default function PasswordMeter({
 
 			const isMatch = confirmInput.value === password;
 			confirmInput.setCustomValidity(
-				isMatch ? '' : 'Las contrasenas no coinciden',
+				isMatch ? '' : 'Las contraseñas no coinciden',
 			);
 			setMatchesConfirm(isMatch);
 		};
@@ -277,7 +277,7 @@ export default function PasswordMeter({
 					type="button"
 					onClick={() => setIsVisible((prev) => !prev)}
 					className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-					aria-label="Mostrar u ocultar contrasena"
+					aria-label="Mostrar u ocultar contraseña"
 					disabled={disabled}
 				>
 					{isVisible ? 'Ocultar' : 'Mostrar'}
@@ -291,7 +291,7 @@ export default function PasswordMeter({
 				aria-live="polite"
 			>
 				<div className="mb-2 flex items-center gap-3">
-					<div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-700/70">
+					<div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
 						<div
 							className="h-full rounded-full transition-all duration-300"
 							style={{
@@ -354,7 +354,7 @@ export default function PasswordMeter({
 						className="border-destructive/30 bg-destructive/10 mt-2 rounded-md border px-2.5 py-1.5 text-xs font-normal"
 						aria-live="polite"
 					>
-						Las contrasenas no coinciden
+						Las contraseñas no coinciden
 					</FieldError>
 				)}
 			</div>
