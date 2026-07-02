@@ -301,7 +301,7 @@ export default function FormSignIn() {
 							vitara&quot;
 						</p>
 						<footer className="text-sm dark:text-white/70">
-							Joann Salgero
+							Joann Salguero
 						</footer>
 					</blockquote>
 				</div>

@@ -108,7 +108,7 @@ export default function FormForgotPassword({
 							vitara&quot;
 						</p>
 						<footer className="text-sm dark:text-white/70">
-							Joann Salgero
+							Joann Salguero
 						</footer>
 					</blockquote>
 				</div>
