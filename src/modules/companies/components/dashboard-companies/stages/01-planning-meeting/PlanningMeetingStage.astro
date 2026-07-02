@@ -60,22 +60,26 @@ const showDelivered = context.substate === 'delivered' && context.document;
 	description="Coordinamos y agendamos la reunión de planificación con tu asesor."
 	formattedDate={formatStageDate(stage.dueAt)}
 >
-	<Fragment slot="actions">
-		{meetingUiState === 'awaiting_booking' && (
+	{
+		meetingUiState === 'awaiting_booking' && (
 			<BookingButton
+				slot="actions"
 				href={BOOKING_URL}
 				empresaId={empresaId}
 				userId={userId}
 			/>
-		)}
-		{hasMeetingBadge && (
+		)
+	}
+	{
+		hasMeetingBadge && (
 			<MeetingStatusBadge
+				slot="actions"
 				variant={
 					meetingUiState as 'scheduled' | 'past' | 'completed' | 'cancelled'
 				}
 			/>
-		)}
-	</Fragment>
+		)
+	}
 	{hasMeetingPanel && meeting && <MeetingDetailsPanel meeting={meeting} />}
 
 	{showAwaitingDoc && <AwaitingDocBanner />}

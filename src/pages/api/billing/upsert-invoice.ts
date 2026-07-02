@@ -43,21 +43,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 		const isFirst = count === 0;
 		const isDefaultRaw = form.get('is_default');
 
-		const stateIdRaw = form.get('state_id');
-		const stateId = stateIdRaw ? Number(stateIdRaw) : null;
-
 		const result = await createBillingInfo(supabase, {
 			user_id: user.id,
 			country_id,
 			city,
 			line1,
-			state_id: stateId || null,
 			line2: String(form.get('line2') ?? '').trim() || null,
 			zip: String(form.get('zip') ?? '').trim() || null,
 			phone: String(form.get('phone') ?? '').trim() || null,
 			email: String(form.get('email') ?? '').trim() || null,
-			business_name: String(form.get('business_name') ?? '').trim() || null,
-			tax_id: String(form.get('tax_id') ?? '').trim() || null,
 			is_default: isFirst || isDefaultRaw === 'true',
 		});
 

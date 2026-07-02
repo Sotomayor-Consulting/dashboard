@@ -114,6 +114,9 @@ export function friendlyAuthError(
 	if (msg.includes('already registered') || code === 'user_already_exists') {
 		return 'Este correo electrónico ya está registrado. ¿Olvidaste tu contraseña?';
 	}
+	if (msg.includes('different from the old password')) {
+		return 'La nueva contraseña debe ser diferente a la contraseña actual.';
+	}
 	if (msg.includes('password') || code === 'weak_password') {
 		return 'La contraseña no cumple con los requisitos de seguridad.';
 	}
