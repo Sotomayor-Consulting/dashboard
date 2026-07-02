@@ -37,6 +37,17 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	if (!estado) return redirect(back('Selecciona el estado de incorporación.'));
 	if (!nombre1) return redirect(back('El nombre principal es obligatorio.'));
 
+	let formationStateId: number | null = null;
+	if (estado) {
+		const { data: stateRow } = await supabase
+			.from('states')
+			.select('id')
+			.ilike('name', estado)
+			.limit(1)
+			.maybeSingle();
+		formationStateId = stateRow?.id ?? null;
+	}
+
 	const { error } = await supabase
 		.from('incorporations')
 		.update({
@@ -45,6 +56,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 			possible_names: [
 				...new Set([nombre1, nombre2, nombre3].filter(Boolean)),
 			],
+			formation_state_id: formationStateId,
 			updated_at: new Date().toISOString(),
 		})
 		.eq('id', empresaId)

@@ -12,6 +12,8 @@ interface Props {
 }
 
 const { stages } = Astro.props;
+const canReset = (status: string) =>
+	status === 'in_progress' || status === 'completed';
 ---
 
 <section
@@ -44,12 +46,63 @@ const { stages } = Astro.props;
 					<p class="mt-1 text-sm font-semibold text-gray-950 dark:text-white">
 						{s.name}
 					</p>
-					<p class="mt-1 inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-						<Icon name="ri:time-line" class="h-3 w-3" />
-						SLA: {s.slaHours}h
-					</p>
+					<div class="mt-2 flex items-center justify-between">
+						<p class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+							<Icon name="ri:time-line" class="h-3 w-3" />
+							SLA: {s.slaHours}h
+						</p>
+						{canReset(s.status) && (
+							<button
+								type="button"
+								class="btn-reset-stage inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium text-amber-600 transition hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20"
+								data-stage-id={s.id}
+								data-stage-name={s.name}
+								title="Resetear etapa y sus tareas a pendiente"
+							>
+								<Icon name="ri:restart-line" class="h-3 w-3" />
+								Resetear
+							</button>
+						)}
+					</div>
 				</article>
 			))
 		}
 	</div>
 </section>
+
+<script is:inline>
+	document.addEventListener('click', async (e) => {
+		const btn = e.target.closest('.btn-reset-stage');
+		if (!btn) return;
+		e.preventDefault();
+
+		const stageId = btn.dataset.stageId;
+		const stageName = btn.dataset.stageName || 'esta etapa';
+
+		const confirmed = confirm(
+			`¿Resetear "${stageName}"?\n\nTodas las tareas volverán a pendiente y la etapa quedará en progreso.`
+		);
+		if (!confirmed) return;
+
+		btn.disabled = true;
+		const originalText = btn.textContent;
+		btn.textContent = ' Reseteando...';
+
+		try {
+			const res = await fetch('/api/workflow/stages/reset', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ stage_id: stageId }),
+			});
+			const data = await res.json();
+			if (!res.ok || !data.ok) {
+				throw new Error(data.error || 'Error al resetear');
+			}
+			window.location.reload();
+		} catch (err) {
+			alert(err.message || 'Error al resetear la etapa');
+			btn.disabled = false;
+			btn.textContent = originalText;
+		}
+	});
+</script>

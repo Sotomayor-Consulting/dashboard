@@ -66,9 +66,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			),
 		];
 	}
-	// estado_de_incorporacion: columna eliminada de incorporations. El estado
-	// US ahora vive en formation_state_id (FK), pero la Identity Card envía el
-	// nombre del estado, no el id → persistencia degradada hasta re-cablear.
+	if (rest.estado_de_incorporacion) {
+		const { data: stateRow } = await supabase
+			.from('states')
+			.select('id')
+			.ilike('name', rest.estado_de_incorporacion.trim())
+			.limit(1)
+			.maybeSingle();
+		if (stateRow) update.formation_state_id = stateRow.id;
+	}
 
 	if (Object.keys(update).length === 0) {
 		return json(400, { ok: false, error: 'Nada que actualizar' });
