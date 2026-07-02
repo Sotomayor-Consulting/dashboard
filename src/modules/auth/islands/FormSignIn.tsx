@@ -278,11 +278,13 @@ export default function FormSignIn() {
 			<div className="group relative hidden h-full min-h-screen flex-col overflow-hidden p-10 lg:flex dark:border-r dark:border-slate-800">
 				<div className="absolute inset-0 bg-white dark:bg-white/5" />
 				<div className="relative z-20 flex items-center text-lg font-medium text-white">
-					<img
-						src={LogoDark.src}
-						alt="Sotomayor Consulting"
-						className="mr-3 h-7 invert dark:invert-0"
-					/>
+					<a href="https://sotomayorconsulting.com/inicio/">
+						<img
+							src={LogoDark.src}
+							alt="Sotomayor Consulting"
+							className="mr-3 h-7 invert dark:invert-0"
+						/>
+					</a>
 				</div>
 				<div className="absolute inset-x-0 inset-y-0 flex h-full items-center justify-center [mask-image:radial-gradient(400px_circle_at_center,black,transparent)] dark:[mask-image:radial-gradient(400px_circle_at_center,white,transparent)]">
 					<div className="absolute size-96 rounded-full bg-black/8 blur-3xl transition duration-500 group-hover:scale-110 group-hover:bg-white/12 dark:bg-white/8" />
