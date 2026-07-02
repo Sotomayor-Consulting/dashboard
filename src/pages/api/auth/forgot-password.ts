@@ -3,17 +3,31 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
-import { AuthService, PATHS, redirectWithMessage } from '@infrastructure/auth';
+import {
+	AuthService,
+	PATHS,
+	buildOAuthRedirectUrl,
+	jsonError,
+	jsonSuccess,
+	redirectWithMessage,
+} from '@infrastructure/auth';
 import { safeBack } from '@infrastructure/security/headers';
 
+const wantsJson = (request: Request) =>
+	(request.headers.get('accept') ?? '').includes('application/json');
+
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
-	const back = safeBack(url.searchParams.get('back'), PATHS.signIn);
+	const back = safeBack(url.searchParams.get('back'), PATHS.forgotPassword);
 
 	try {
 		const form = await request.formData();
 		const email = form.get('email')?.toString().trim() ?? '';
 
 		if (!email) {
+			if (wantsJson(request)) {
+				return jsonError('El email es requerido.', 400);
+			}
+
 			return redirectWithMessage(
 				redirect,
 				'El email es requerido.',
@@ -28,8 +42,18 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		});
 		const auth = new AuthService(supabase, cookies);
 
-		const redirectTo = `${url.origin}${PATHS.resetPassword}`;
+		const redirectTo = buildOAuthRedirectUrl(
+			request,
+			'/api/auth/recovery-callback',
+		);
 		await auth.forgotPassword({ email, redirectTo });
+
+		if (wantsJson(request)) {
+			return jsonSuccess({
+				message:
+					'Si el email está registrado, recibirás un enlace para restablecer tu contraseña.',
+			});
+		}
 
 		// Siempre responder lo mismo por seguridad (no revelar si el email existe)
 		return redirectWithMessage(
@@ -39,6 +63,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			back,
 		);
 	} catch {
+		if (wantsJson(request)) {
+			return jsonError('Error inesperado. Inténtalo nuevamente.', 500);
+		}
+
 		return redirectWithMessage(
 			redirect,
 			'Error inesperado. Inténtalo nuevamente.',
@@ -49,7 +77,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 };
 
 export const GET: APIRoute = async ({ redirect, url }) => {
-	const back = safeBack(url.searchParams.get('back'), PATHS.signIn);
+	const back = safeBack(url.searchParams.get('back'), PATHS.forgotPassword);
 	return redirectWithMessage(
 		redirect,
 		'Usa el formulario para solicitar recuperación de contraseña.',
