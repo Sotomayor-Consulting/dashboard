@@ -31,6 +31,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
 	const password = formData.get('password')?.toString();
 	const provider = formData.get('provider')?.toString();
 	const remember = formData.has('remember');
+	const next = safeBack(formData.get('next')?.toString(), PATHS.home);
 	const turnstileToken = formData.get('cf-turnstile-response')?.toString();
 
 	// Detectar si el cliente espera JSON (fetch desde React)
