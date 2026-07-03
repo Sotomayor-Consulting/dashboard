@@ -1,19 +1,26 @@
 import { useActionState, useState, useEffect, useCallback } from 'react';
-import {
-	FieldLabel,
-	FieldLegend,
-	FieldDescription,
-} from '@components/ui/Field';
+import { navigate } from 'astro:transitions/client';
+import { Field, FieldLabel, FieldDescription } from '@components/ui/Field';
 import { buttonVariants } from '@components/ui/Button';
 import { Input } from '@components/ui/Input';
 import { Spinner } from '@components/ui/Spinner';
-import { Checkbox } from '@components/ui/Checkbox';
 import LogoDark from '../../../icons/Letras_logo_SCI.svg';
 import Isotipo from '../../../icons/isotipo.svg';
 import { cn } from '@components/utils';
-import PasswordMeter from '@components/forms/PasswordMeter';
+
+declare const turnstile: {
+	render: (
+		container: string | HTMLElement,
+		options: Record<string, unknown>,
+	) => string;
+	remove: (widgetId: string) => void;
+};
 
 type FormState = { error: string | null };
+
+interface FormSignUpProps {
+	turnstileSiteKey?: string | undefined;
+}
 
 function openOAuthPopup(url: string) {
 	const width = 500;
@@ -27,16 +34,18 @@ function openOAuthPopup(url: string) {
 	);
 }
 
-export default function FormSignUp() {
+export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 	const [googlePending, setGooglePending] = useState<boolean>(false);
+	const [isVisible, setIsVisible] = useState<boolean>(false);
 	const [isConfirmVisible, setIsConfirmVisible] = useState<boolean>(false);
+	const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
 	const handleOAuthMessage = useCallback((event: MessageEvent) => {
 		if (event.origin !== window.location.origin) return;
 		if (event.data?.type !== 'oauth-callback') return;
 		setGooglePending(false);
 		if (event.data.status === 'success') {
-			window.location.href = '/';
+			navigate('/');
 		}
 	}, []);
 
@@ -44,6 +53,56 @@ export default function FormSignUp() {
 		window.addEventListener('message', handleOAuthMessage);
 		return () => window.removeEventListener('message', handleOAuthMessage);
 	}, [handleOAuthMessage]);
+
+	// ─── Cloudflare Turnstile (explicit render) ─────────
+	useEffect(() => {
+		if (!turnstileSiteKey) return;
+
+		let widgetId: string | null = null;
+
+		const TURNSTILE_SRC =
+			'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+
+		const renderWidget = () => {
+			const container = document.getElementById('turnstile-widget-signup');
+			if (!container || typeof turnstile === 'undefined') return;
+
+			const isDark = document.documentElement.classList.contains('dark');
+			widgetId = turnstile.render(container, {
+				sitekey: turnstileSiteKey,
+				theme: isDark ? 'dark' : 'light',
+				size: 'flexible',
+				language: 'es',
+				callback: (token: string) => setTurnstileToken(token),
+				'expired-callback': () => setTurnstileToken(null),
+				'error-callback': () => setTurnstileToken(null),
+			});
+		};
+
+		if (typeof turnstile !== 'undefined') {
+			renderWidget();
+		} else {
+			const existing = document.querySelector<HTMLScriptElement>(
+				`script[src^="https://challenges.cloudflare.com/turnstile"]`,
+			);
+			if (existing) {
+				existing.addEventListener('load', renderWidget, { once: true });
+			} else {
+				const script = document.createElement('script');
+				script.src = TURNSTILE_SRC;
+				script.async = true;
+				script.defer = true;
+				script.onload = renderWidget;
+				document.head.appendChild(script);
+			}
+		}
+
+		return () => {
+			if (widgetId && typeof turnstile !== 'undefined') {
+				turnstile.remove(widgetId);
+			}
+		};
+	}, [turnstileSiteKey]);
 
 	const handleGoogleLogin = async () => {
 		setGooglePending(true);
@@ -70,16 +129,39 @@ export default function FormSignUp() {
 		}
 	};
 
+	const turnstileRequired = !!turnstileSiteKey;
+
 	const [registerState, registerAction, registerPending] = useActionState(
 		async (_prev: FormState, formData: FormData): Promise<FormState> => {
+			const password = formData.get('password')?.toString() ?? '';
+			const confirmPassword =
+				formData.get('confirm-password')?.toString() ?? '';
+
+			if (password !== confirmPassword) {
+				return { error: 'Las contraseñas no coinciden.' };
+			}
+
+			if (password.length < 8) {
+				return {
+					error: 'La contraseña debe tener al menos 8 caracteres.',
+				};
+			}
+
+			if (turnstileRequired && !turnstileToken) {
+				return { error: 'Completa la verificación de seguridad.' };
+			}
+
 			try {
+				if (turnstileToken) {
+					formData.set('cf-turnstile-response', turnstileToken);
+				}
 				const response = await fetch('/api/auth/register', {
 					method: 'POST',
 					body: formData,
 					redirect: 'follow',
 				});
 
-				window.location.href = response.url;
+				navigate(response.url);
 				return { error: null };
 			} catch {
 				return {
@@ -92,21 +174,40 @@ export default function FormSignUp() {
 
 	const anyPending = registerPending || googlePending;
 	const cleanInputClass =
-		'h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/20 dark:border-slate-700 dark:bg-white/10 dark:text-slate-100 dark:placeholder:text-slate-500';
+		'h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/20 dark:border-input dark:bg-white/10 dark:text-slate-100 dark:placeholder:text-neutral-500 autofill:shadow-[inset_0_0_0_1000px_white] autofill:[font-family:inherit] autofill:[font-size:inherit] dark:autofill:shadow-[inset_0_0_0_1000px_#1a1a1a] dark:autofill:[-webkit-text-fill-color:#f1f5f9] dark:caret-slate-100';
 
 	return (
 		<div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden lg:grid lg:grid-cols-2 lg:px-0">
-			<a
-				href="/sign-in"
-				className={cn(
-					buttonVariants({ variant: 'ghost' }),
-					'absolute top-4 right-4 z-30 hidden md:top-8 md:right-8 md:inline-flex',
-				)}
-			>
-				Inicia sesión
-			</a>
-			<div className="group relative hidden h-full min-h-screen flex-col overflow-hidden p-10 lg:flex dark:border-r dark:border-slate-800">
-				<div className="absolute inset-0 bg-white dark:bg-white/5" />
+			<div className="absolute top-4 right-4 z-30 flex items-center gap-4 md:top-8 md:right-8">
+				<button
+					type="button"
+					onClick={() => {
+						const toggle = () => {
+							const isDark = document.documentElement.classList.toggle('dark');
+							localStorage.setItem('color-theme', isDark ? 'dark' : 'light');
+							document.dispatchEvent(new Event('dark-mode'));
+						};
+						if (document.startViewTransition) {
+							document.startViewTransition(toggle);
+						} else {
+							toggle();
+						}
+					}}
+					className="text-slate-500 hover:text-slate-700 dark:text-white dark:hover:text-slate-300"
+					aria-label="Cambiar tema"
+				>
+					<svg className="hidden size-5 dark:block" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="M6.34 17.66l-1.41 1.41" /><path d="M19.07 4.93l-1.41 1.41" /></svg>
+					<svg className="block size-5 dark:hidden" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 3a6 6 0 1 0 9 9 9 9 0 1 1-9-9z" /></svg>
+				</button>
+				<a
+					href="/sign-in"
+					className="hidden text-sm font-medium text-slate-500 no-underline hover:underline md:inline-flex dark:text-white"
+				>
+					Inicia sesión
+				</a>
+			</div>
+			<div className="group relative hidden h-full min-h-screen flex-col overflow-hidden p-10 lg:flex dark:border-r dark:border-neutral-900">
+				<div className="absolute inset-0 bg-white dark:bg-transparent" />
 				<div className="relative z-20 flex items-center text-lg font-medium text-white">
 					<a href="https://sotomayorconsulting.com/inicio/">
 						<img
@@ -127,170 +228,174 @@ export default function FormSignUp() {
 				<div className="relative z-20 mt-auto text-white">
 					<blockquote className="space-y-2 text-black dark:text-white">
 						<p className="text-lg">
-							&quot;Las chicas buenas van para el cielo, y las malas para el
-							vitara&quot;
+							&quot;Las grandes cosas en los negocios nunca las hace una sola
+							persona; las hace un equipo de personas.&quot;
 						</p>
-						<footer className="text-sm dark:text-white/70">
-							Joann Salguero
-						</footer>
+						<footer className="text-sm dark:text-white/70">- Steve Jobs</footer>
 					</blockquote>
 				</div>
 			</div>
 
-			<div className="flex h-full min-h-screen items-center justify-center p-4 lg:p-8">
+			<div className="flex h-full min-h-screen items-center justify-center p-4 dark:bg-neutral-950 lg:p-8">
 				<div className="flex w-full max-w-md flex-col items-center justify-center space-y-6">
-					<div className="w-full rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-white/5">
-						<div className="mb-6 space-y-2 text-center">
-							<FieldLegend className="w-full text-2xl font-semibold text-slate-900 dark:text-white">
-								Crea tu cuenta gratuita
-							</FieldLegend>
-							<p className="text-sm text-slate-500 dark:text-slate-400">
-								Completa tus datos para comenzar a usar la plataforma.
-							</p>
-						</div>
+					<div className="space-y-2 text-center">
+						<h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
+							Crea tu cuenta gratuita
+						</h1>
+						<p className="text-sm text-slate-500 dark:text-slate-400">
+							Completa tus datos para comenzar a usar la plataforma.
+						</p>
+					</div>
 
-						<form className="space-y-4" action={registerAction}>
-							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-								<div>
-									<FieldLabel
-										htmlFor="name"
-										className="mb-2 block text-sm font-medium text-slate-900 dark:text-white"
-									>
-										Nombre
-									</FieldLabel>
-									<Input
-										type="text"
-										name="name"
-										id="name"
-										className={cleanInputClass}
-										placeholder="Nombre"
-										autoComplete="given-name"
-										required
-										disabled={anyPending}
-									/>
-								</div>
-								<div>
-									<FieldLabel
-										htmlFor="last-name"
-										className="mb-2 block text-sm font-medium text-slate-900 dark:text-white"
-									>
-										Apellido
-									</FieldLabel>
-									<Input
-										type="text"
-										name="last-name"
-										id="last-name"
-										className={cleanInputClass}
-										placeholder="Apellido"
-										autoComplete="family-name"
-										required
-										disabled={anyPending}
-									/>
-								</div>
-							</div>
-
+					<form className="w-full space-y-4" action={registerAction}>
+						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 							<div>
 								<FieldLabel
-									htmlFor="email"
+									htmlFor="name"
 									className="mb-2 block text-sm font-medium text-slate-900 dark:text-white"
 								>
-									Tu correo
+									Nombre
 								</FieldLabel>
 								<Input
-									type="email"
-									name="email"
-									id="email"
+									type="text"
+									name="name"
+									id="name"
 									className={cleanInputClass}
-									placeholder="correo@ejemplo.com"
-									autoComplete="email"
+									placeholder="Nombre"
+									autoComplete="given-name"
 									required
 									disabled={anyPending}
 								/>
 							</div>
-
 							<div>
 								<FieldLabel
-									htmlFor="password"
+									htmlFor="last-name"
 									className="mb-2 block text-sm font-medium text-slate-900 dark:text-white"
 								>
-									Contraseña
+									Apellido
 								</FieldLabel>
-								<PasswordMeter
-									id="password"
+								<Input
+									type="text"
+									name="last-name"
+									id="last-name"
+									className={cleanInputClass}
+									placeholder="Apellido"
+									autoComplete="family-name"
+									required
+									disabled={anyPending}
+								/>
+							</div>
+						</div>
+
+						<div>
+							<FieldLabel
+								htmlFor="email"
+								className="mb-2 block text-sm font-medium text-slate-900 dark:text-white"
+							>
+								Tu correo
+							</FieldLabel>
+							<Input
+								type="email"
+								name="email"
+								id="email"
+								className={cleanInputClass}
+								placeholder="correo@ejemplo.com"
+								autoComplete="email"
+								required
+								disabled={anyPending}
+							/>
+						</div>
+
+						<Field>
+							<FieldLabel
+								htmlFor="password"
+								className="text-sm font-medium text-slate-900 dark:text-white"
+							>
+								Contraseña
+							</FieldLabel>
+							<div className="relative">
+								<Input
+									type={isVisible ? 'text' : 'password'}
 									name="password"
-									placeholder="********"
+									id="password"
+									placeholder="Ingresa tu contraseña"
+									className={cn(cleanInputClass, 'pr-16')}
+									autoComplete="new-password"
 									required
 									minLength={8}
-									confirmInputId="confirm-password"
 									disabled={anyPending}
 								/>
-							</div>
-
-							<div>
-								<FieldLabel
-									htmlFor="confirm-password"
-									className="mb-2 block text-sm font-medium text-slate-900 dark:text-white"
+								<button
+									type="button"
+									onClick={() => setIsVisible((prev) => !prev)}
+									className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
 								>
-									Confirmar contrasena
-								</FieldLabel>
-								<div className="relative">
-									<Input
-										type={isConfirmVisible ? 'text' : 'password'}
-										name="confirm-password"
-										id="confirm-password"
-										placeholder="********"
-										className={cn(cleanInputClass, 'pr-16')}
-										autoComplete="new-password"
-										required
-										disabled={anyPending}
-									/>
-									<button
-										type="button"
-										onClick={() => setIsConfirmVisible((prev) => !prev)}
-										className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
-									>
-										{isConfirmVisible ? 'Ocultar' : 'Mostrar'}
-									</button>
-								</div>
+									{isVisible ? 'Ocultar' : 'Mostrar'}
+								</button>
 							</div>
+							<FieldDescription>
+								Debe contener mayúsculas, minúsculas, número y carácter especial.
+							</FieldDescription>
+						</Field>
 
-							<div className="flex items-start gap-3 text-sm">
-								<Checkbox
-									id="terminos"
-									aria-describedby="terminos"
-									name="terminos"
-									className="mt-0.5 shrink-0"
+						<Field>
+							<FieldLabel
+								htmlFor="confirm-password"
+								className="text-sm font-medium text-slate-900 dark:text-white"
+							>
+								Confirmar contraseña
+							</FieldLabel>
+							<div className="relative">
+								<Input
+									type={isConfirmVisible ? 'text' : 'password'}
+									name="confirm-password"
+									id="confirm-password"
+									placeholder="Confirma tu contraseña"
+									className={cn(cleanInputClass, 'pr-16')}
+									autoComplete="new-password"
 									required
 									disabled={anyPending}
 								/>
-								<FieldDescription className="min-w-0 flex-1 font-medium text-slate-900 dark:text-white">
-									Al completar tu registro, creas una cuenta en Sotomayor
-									Consulting y aceptas los{' '}
-									<a
-										href="https://sotomayorconsulting.com/inicio/politicas/"
-										className="text-[#8c681d] hover:underline"
-									>
-										Terminos de uso y la Politica de privacidad
-									</a>
-								</FieldDescription>
+								<button
+									type="button"
+									onClick={() => setIsConfirmVisible((prev) => !prev)}
+									className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+								>
+									{isConfirmVisible ? 'Ocultar' : 'Mostrar'}
+								</button>
 							</div>
+							<FieldDescription>
+								Vuelve a ingresar tu contraseña para confirmar.
+							</FieldDescription>
+						</Field>
 
-							<button
-								type="submit"
-								className={cn(
-									buttonVariants({ variant: 'outline' }),
-									'h-11 w-full rounded-xl',
-								)}
-								disabled={anyPending}
-							>
-								{registerPending && <Spinner data-icon="inline-start" />}
-								{registerPending ? 'Creando cuenta...' : 'Crear una cuenta'}
-							</button>
+						{turnstileSiteKey && (
+							<div id="turnstile-widget-signup" />
+						)}
 
-							{registerState.error && (
-								<p className="text-sm text-red-500">{registerState.error}</p>
+						<button
+							type="submit"
+							className={cn(
+								buttonVariants({ variant: 'outline' }),
+								'h-11 w-full rounded-xl',
 							)}
-						</form>
+							disabled={anyPending || (turnstileRequired && !turnstileToken)}
+						>
+							{registerPending && <Spinner data-icon="inline-start" />}
+							{registerPending ? 'Creando cuenta...' : 'Crear una cuenta'}
+						</button>
+
+						{registerState.error && (
+							<p className="text-sm text-red-500">{registerState.error}</p>
+						)}
+					</form>
+
+					<div className="flex w-full items-center gap-3">
+						<div className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
+						<span className="text-xs text-slate-500 dark:text-slate-400">
+							O continuar con
+						</span>
+						<div className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
 					</div>
 
 					<button
@@ -298,7 +403,7 @@ export default function FormSignUp() {
 						onClick={handleGoogleLogin}
 						className={cn(
 							buttonVariants({ variant: 'outline' }),
-							'h-11 w-full max-w-md rounded-xl',
+							'h-11 w-full rounded-xl',
 						)}
 						disabled={anyPending}
 					>
@@ -317,20 +422,32 @@ export default function FormSignUp() {
 						{googlePending ? 'Conectando...' : 'Registrate con Google'}
 					</button>
 
-					<div className="text-muted-foreground space-y-2 px-8 text-center text-xs text-slate-500 dark:text-slate-400">
-						<p>
-							Esta es una plataforma interna de Sotomayor Consulting para
-							gestionar accesos, documentos y seguimiento operativo.
-						</p>
-						<p>
-							<a
-								href="/sign-in"
-								className="hover:text-primary underline underline-offset-4"
-							>
-								Ya tienes una cuenta? Inicia sesión
-							</a>
-						</p>
-					</div>
+					<p className="px-8 text-center text-sm text-slate-500 dark:text-slate-400">
+						<a
+							href="/sign-in"
+							className="text-sm text-slate-500 no-underline hover:underline dark:text-white"
+						>
+							¿Ya tienes una cuenta? Inicia sesión
+						</a>
+					</p>
+
+					<p className="px-8 text-center text-sm text-slate-500 dark:text-slate-400">
+						Al continuar, aceptas nuestros{' '}
+						<a
+							href="https://sotomayorconsulting.com/inicio/politicas/"
+							className="hover:text-primary underline underline-offset-4"
+						>
+							Términos de Servicio
+						</a>{' '}
+						y la{' '}
+						<a
+							href="https://sotomayorconsulting.com/inicio/politicas/"
+							className="hover:text-primary underline underline-offset-4"
+						>
+							Política de Privacidad
+						</a>
+						.
+					</p>
 				</div>
 			</div>
 		</div>

@@ -29,6 +29,10 @@ declare module '*.astro' {
 	export default component;
 }
 
+interface Document {
+	startViewTransition?: (callback: () => void) => void;
+}
+
 declare module '*.svg' {
 	const src: string;
 	export default src;

@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
-import { completeTask } from '@domains/workflow';
+import { completeTaskAndAdvance } from '@domains/workflow';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 
 export const prerender = false;
@@ -31,10 +31,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		return json(400, { ok: false, error: 'MISSING_TASK_ID' });
 	}
 
-	const result = await completeTask(supabase, taskId, user.id);
+	const result = await completeTaskAndAdvance(supabase, taskId, user.id);
 	if (!result.ok) {
 		return json(400, result);
 	}
 
-	return json(200, { ok: true, result });
+	return json(200, result);
 };

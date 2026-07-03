@@ -13,23 +13,17 @@ const { currentStage } = Astro.props as OpsStageProps;
 
 {
 	currentStage.tasks.length === 0 ? (
-		<p class="rounded-lg border border-dashed border-gray-200 p-4 text-center text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+		<p class="rounded-lg border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
 			No hay tareas registradas en esta etapa todavía.
 		</p>
 	) : (
-		<ul class="space-y-2">
+		<ul class="divide-y divide-border">
 			{currentStage.tasks.map((t) => (
-				<li
-					class={`flex items-start gap-3 rounded-lg border p-3 transition ${
-						t.status === 'in_progress'
-							? 'border-amber-200 bg-amber-50/60 dark:border-amber-500/20 dark:bg-amber-500/5'
-							: 'border-gray-200 bg-white dark:border-gray-700 dark:bg-transparent'
-					}`}
-				>
+				<li class="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
 					<input
 						type="checkbox"
 						checked={t.status === 'completed'}
-						class="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 dark:border-gray-600"
+						class="mt-1 h-4 w-4 shrink-0 rounded border-border"
 						disabled
 					/>
 					<div class="min-w-0 flex-1">
@@ -37,8 +31,8 @@ const { currentStage } = Astro.props as OpsStageProps;
 							<p
 								class={`text-sm font-medium ${
 									t.status === 'completed'
-										? 'text-gray-400 line-through dark:text-gray-500'
-										: 'text-gray-950 dark:text-white'
+										? 'text-muted-foreground line-through'
+										: 'text-foreground'
 								}`}
 							>
 								{t.title}
@@ -49,15 +43,15 @@ const { currentStage } = Astro.props as OpsStageProps;
 								{priorityLabel(t.priority)}
 							</span>
 						</div>
-						<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+						<p class="mt-0.5 text-xs text-muted-foreground">
 							{t.description}
 						</p>
 					</div>
 
 					<div class="flex shrink-0 items-center gap-3">
 						{t.assignee ? (
-							<span class="inline-flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
-								<span class="text-2xs inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-200">
+							<span class="inline-flex items-center gap-2 text-xs text-muted-foreground">
+								<span class="text-2xs inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted font-semibold text-foreground">
 									{t.assignee.initials}
 								</span>
 								{t.assignee.name}
@@ -65,7 +59,7 @@ const { currentStage } = Astro.props as OpsStageProps;
 						) : (
 							<button
 								type="button"
-								class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-950 dark:text-gray-400 dark:hover:text-white"
+								class="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
 							>
 								<Icon name="ri:user-add-line" class="h-3.5 w-3.5" />
 								Asignar

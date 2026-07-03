@@ -4,6 +4,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { AuthService, AuthError, PATHS, redirectWithMessage } from '@infrastructure/auth';
+import { TURNSTILE_SECRET_KEY } from 'astro:env/server';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const supabase = createSupabaseServerClient({
@@ -18,6 +19,38 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const confirmPassword = formData.get('confirm-password')?.toString() ?? '';
 	const name = formData.get('name')?.toString().trim() ?? '';
 	const lastName = formData.get('last-name')?.toString().trim() ?? '';
+	const turnstileToken = formData.get('cf-turnstile-response')?.toString();
+
+	// ─── Turnstile verification ──────────────────────
+	const turnstileSecret = TURNSTILE_SECRET_KEY;
+	if (turnstileSecret) {
+		if (!turnstileToken) {
+			return redirectWithMessage(
+				redirect,
+				'Verificación de seguridad requerida.',
+				'error',
+				PATHS.signUp,
+			);
+		}
+
+		const verifyBody = new URLSearchParams();
+		verifyBody.set('secret', turnstileSecret);
+		verifyBody.set('response', turnstileToken);
+
+		const verifyRes = await fetch(
+			'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+			{ method: 'POST', body: verifyBody },
+		);
+		const verifyData = (await verifyRes.json()) as { success: boolean };
+		if (!verifyData.success) {
+			return redirectWithMessage(
+				redirect,
+				'Verificación de seguridad fallida. Intenta de nuevo.',
+				'error',
+				PATHS.signUp,
+			);
+		}
+	}
 
 	if (password !== confirmPassword) {
 		return redirectWithMessage(

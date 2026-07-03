@@ -222,6 +222,72 @@ export const advanceStage = async (
 	};
 };
 
+/**
+ * Completa una tarea y, si la etapa quedó completada, avanza el workflow
+ * automáticamente a la siguiente etapa.
+ */
+export const completeTaskAndAdvance = async (
+	supabase: SupabaseClient,
+	taskId: string,
+	userId?: string,
+): Promise<{
+	ok: boolean;
+	error?: string;
+	stageCompleted?: boolean;
+	workflowAdvanced?: boolean;
+	workflowCompleted?: boolean;
+}> => {
+	const result = await completeTask(supabase, taskId, userId);
+	if (!result.ok) return { ok: false, error: result.error };
+
+	if (!result.stage_completed) {
+		return { ok: true, stageCompleted: false };
+	}
+
+	const workflow = await getWorkflowByTaskId(supabase, taskId);
+	if (!workflow) {
+		log.warn('completeTaskAndAdvance: could not resolve workflow for task', {
+			taskId,
+		});
+		return { ok: true, stageCompleted: true, workflowAdvanced: false };
+	}
+
+	const advance = await advanceStage(supabase, workflow.id);
+	return {
+		ok: true,
+		stageCompleted: true,
+		workflowAdvanced: advance.ok,
+		workflowCompleted: advance.workflow_completed ?? false,
+	};
+};
+
+const getWorkflowByTaskId = async (
+	supabase: SupabaseClient,
+	taskId: string,
+): Promise<{ id: string } | null> => {
+	const { data, error } = await wf(supabase)
+		.from('incorporation_tasks')
+		.select('workflow_stage:workflow_stage_id ( workflow_id )')
+		.eq('id', taskId)
+		.maybeSingle();
+	if (error || !data) return null;
+	const stageRow = (data as { workflow_stage?: { workflow_id?: string } })
+		.workflow_stage;
+	return stageRow?.workflow_id ? { id: stageRow.workflow_id } : null;
+};
+
+export const getWorkflowIdByIncorporation = async (
+	supabase: SupabaseClient,
+	incorporationId: string,
+): Promise<string | null> => {
+	const { data } = await wf(supabase)
+		.from('incorporation_workflows')
+		.select('id')
+		.eq('incorporation_id', incorporationId)
+		.maybeSingle();
+	return (data as { id?: string } | null)?.id ?? null;
+};
+
 export const recordApproval = async (
 	supabase: SupabaseClient,
 	stageId: string,

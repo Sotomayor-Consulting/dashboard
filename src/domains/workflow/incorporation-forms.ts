@@ -295,14 +295,16 @@ export async function completeClientFormSubmitTask(
 			return;
 		}
 
-		const { error } = await supabaseAdmin.rpc('workflow_complete_task', {
-			p_task_id: taskId,
-			p_user_id: userId,
-		});
-		if (error) {
-			log.error('completeClientFormSubmitTask', { taskId, error });
+		const { completeTaskAndAdvance } = await import('@domains/workflow');
+		const result = await completeTaskAndAdvance(
+			supabaseAdmin,
+			taskId,
+			userId,
+		);
+		if (!result.ok) {
+			log.error('completeClientFormSubmitTask', { taskId, error: result.error });
 		} else {
-			log.info('client submit task completed', { taskId, incorporationId });
+			log.info('client submit task completed', { taskId, incorporationId, stageCompleted: result.stageCompleted, workflowAdvanced: result.workflowAdvanced });
 		}
 	} catch (err) {
 		log.warn('completeClientFormSubmitTask error', { incorporationId, err });
@@ -431,14 +433,16 @@ async function completeValidationTask(
 			return;
 		}
 
-		const { error } = await supabaseAdmin.rpc('workflow_complete_task', {
-			p_task_id: taskId,
-			p_user_id: userId,
-		});
-		if (error) {
-			log.error('completeValidationTask', { taskId, error });
+		const { completeTaskAndAdvance } = await import('@domains/workflow');
+		const result = await completeTaskAndAdvance(
+			supabaseAdmin,
+			taskId,
+			userId,
+		);
+		if (!result.ok) {
+			log.error('completeValidationTask', { taskId, error: result.error });
 		} else {
-			log.info('validation task completed', { taskId, incorporationId });
+			log.info('validation task completed', { taskId, incorporationId, stageCompleted: result.stageCompleted, workflowAdvanced: result.workflowAdvanced });
 		}
 	} catch (err) {
 		log.warn('completeValidationTask error', { incorporationId, err });

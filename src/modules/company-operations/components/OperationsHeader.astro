@@ -12,50 +12,46 @@ const progressPct = Math.round(
 );
 ---
 
-<article
-	class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent"
+<div
+	class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
 >
-	<div
-		class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-	>
-		<div class="min-w-0">
-			<p
-				class="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400"
-			>
-				<Icon name="ri:building-2-line" class="h-4 w-4" />
-				Workflow activo
-			</p>
-			<h3 class="mt-1 text-lg font-semibold text-gray-950 dark:text-white">
-				{workflow.companyName}
-			</h3>
-			<div
-				class="mt-2 flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400"
-			>
-				<span class="inline-flex items-center gap-1.5">
-					<Icon name="ri:user-3-line" class="h-3.5 w-3.5" />
-					Cliente: {workflow.responsible}
-				</span>
-				<span class="inline-flex items-center gap-1.5">
-					<Icon name="ri:calendar-line" class="h-3.5 w-3.5" />
-					Inicio: {workflow.startedAt}
-				</span>
-			</div>
+	<div class="min-w-0">
+		<p
+			class="flex items-center gap-2 text-xs font-medium text-muted-foreground"
+		>
+			<Icon name="ri:building-2-line" class="h-4 w-4" />
+			Workflow activo
+		</p>
+		<h3 class="mt-1 text-lg font-semibold text-foreground">
+			{workflow.companyName}
+		</h3>
+		<div
+			class="mt-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground"
+		>
+			<span class="inline-flex items-center gap-1.5">
+				<Icon name="ri:user-3-line" class="h-3.5 w-3.5" />
+				Cliente: {workflow.responsible}
+			</span>
+			<span class="inline-flex items-center gap-1.5">
+				<Icon name="ri:calendar-line" class="h-3.5 w-3.5" />
+				Inicio: {workflow.startedAt}
+			</span>
 		</div>
+	</div>
 
-		<div class="shrink-0 text-right">
-			<p class="text-2xl font-semibold text-gray-950 dark:text-white">
-				{workflow.stagesCompleted}/{workflow.stagesTotal}
-			</p>
-			<p class="text-xs text-gray-500 dark:text-gray-400">Etapas completadas</p>
+	<div class="shrink-0 text-right">
+		<p class="text-2xl font-semibold text-foreground">
+			{workflow.stagesCompleted}/{workflow.stagesTotal}
+		</p>
+		<p class="text-xs text-muted-foreground">Etapas completadas</p>
+		<div
+			class="mt-2 h-1.5 w-40 overflow-hidden rounded-full bg-muted"
+		>
 			<div
-				class="mt-2 h-1.5 w-40 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800"
+				class="h-full rounded-full bg-foreground"
+				style={`width:${progressPct}%`}
 			>
-				<div
-					class="h-full rounded-full bg-gray-950 dark:bg-white"
-					style={`width:${progressPct}%`}
-				>
-				</div>
 			</div>
 		</div>
 	</div>
-</article>
+</div>

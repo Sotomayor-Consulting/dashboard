@@ -119,7 +119,9 @@ const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : '';
 	>
 		<!-- Progress bar de navegación -->
 		<div id="nav-progress"></div>
-		<slot />
+		<main transition:animate="fade">
+			<slot />
+		</main>
 	</body>
 </html>
 
