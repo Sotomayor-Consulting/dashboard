@@ -1,10 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { navigate } from 'astro:transitions/client';
 import { buttonVariants } from '@components/ui/Button';
-import { FieldLabel, FieldLegend } from '@components/ui/Field';
+import { Field, FieldLabel, FieldDescription } from '@components/ui/Field';
 import { Input } from '@components/ui/Input';
 import { Spinner } from '@components/ui/Spinner';
-import { Checkbox } from '@components/ui/Checkbox';
 import LogoDark from '../../../icons/Letras_logo_SCI.svg';
 import Isotipo from '../../../icons/isotipo.svg';
 import { cn } from '@components/utils';
@@ -28,7 +27,7 @@ export default function FormResetPassword({
 	const [clientError, setClientError] = useState<string | null>(null);
 
 	const cleanInputClass =
-		'h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/20 dark:border-slate-700 dark:bg-white/10 dark:text-slate-100 dark:placeholder:text-neutral-500';
+		'h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/20 dark:border-input dark:bg-white/10 dark:text-slate-100 dark:placeholder:text-neutral-500 autofill:shadow-[inset_0_0_0_1000px_white] autofill:[font-family:inherit] autofill:[font-size:inherit] dark:autofill:shadow-[inset_0_0_0_1000px_#1a1a1a] dark:autofill:[-webkit-text-fill-color:#f1f5f9] dark:caret-slate-100';
 
 	const isPasswordValid = password.length >= 6;
 	const passwordsMatch = password.length > 0 && password === confirmPassword;
@@ -42,7 +41,7 @@ export default function FormResetPassword({
 		}
 
 		if (!passwordsMatch) {
-			setClientError('Las contraseña no coinciden.');
+			setClientError('Las contraseñas no coinciden.');
 			return;
 		}
 
@@ -75,9 +74,9 @@ export default function FormResetPassword({
 				return;
 			}
 
-			setClientError('No se recibio una redireccion valida.');
+			setClientError('No se recibió una redirección válida.');
 		} catch {
-			setClientError('Error de conexion. Intentalo nuevamente.');
+			setClientError('Error de conexión. Inténtalo nuevamente.');
 		} finally {
 			setPending(false);
 		}
@@ -89,7 +88,7 @@ export default function FormResetPassword({
 			: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400';
 
 	return (
-		<div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-r from-white/5 to-black lg:grid lg:grid-cols-2 lg:px-0">
+		<div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden lg:grid lg:grid-cols-2 lg:px-0">
 			<div className="absolute top-4 right-4 z-30 flex items-center gap-4 md:top-8 md:right-8">
 				<button
 					type="button"
@@ -118,7 +117,9 @@ export default function FormResetPassword({
 					Inicia sesión
 				</a>
 			</div>
-			<div className="group relative hidden h-full min-h-screen flex-col overflow-hidden p-10 lg:flex dark:border-r dark:border-slate-800">
+
+			<div className="group relative hidden h-full min-h-screen flex-col overflow-hidden p-10 lg:flex dark:border-r dark:border-neutral-900">
+				<div className="absolute inset-0 bg-white dark:bg-transparent" />
 				<div className="relative z-20 flex items-center text-lg font-medium text-white">
 					<a href="https://sotomayorconsulting.com/inicio/">
 						<img
@@ -128,7 +129,7 @@ export default function FormResetPassword({
 						/>
 					</a>
 				</div>
-				<div className="absolute inset-x-0 inset-y-0 flex h-full items-center justify-center [mask-image:radial-gradient(400px_circle_at_center,black,transparent)]">
+				<div className="absolute inset-x-0 inset-y-0 flex h-full items-center justify-center [mask-image:radial-gradient(400px_circle_at_center,white,transparent)]">
 					<div className="absolute size-96 rounded-full bg-black/8 blur-3xl transition duration-500 group-hover:scale-110 group-hover:bg-white/12 dark:bg-white/8" />
 					<img
 						src={Isotipo.src}
@@ -146,12 +147,13 @@ export default function FormResetPassword({
 					</blockquote>
 				</div>
 			</div>
-			<div className="selft-center flex w-full flex-col items-center justify-center space-y-6">
-				<div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-white/5">
-					<div className="mb-6 space-y-2 text-center">
-						<FieldLegend className="w-full text-2xl font-semibold text-slate-900 dark:text-white">
+
+			<div className="flex h-full min-h-screen items-center justify-center p-4 dark:bg-neutral-950 lg:p-8">
+				<div className="flex w-full max-w-sm flex-col items-center justify-center space-y-6">
+					<div className="space-y-2 text-center">
+						<h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
 							Restablecer contraseña
-						</FieldLegend>
+						</h1>
 						<p className="text-sm text-slate-500 dark:text-slate-400">
 							Ingresa tu nueva contraseña para recuperar el acceso a tu cuenta.
 						</p>
@@ -160,7 +162,7 @@ export default function FormResetPassword({
 					{status && message ? (
 						<p
 							className={cn(
-								'mb-4 rounded-lg px-4 py-3 text-sm',
+								'w-full rounded-lg px-4 py-3 text-sm',
 								feedbackClassName,
 							)}
 						>
@@ -169,7 +171,7 @@ export default function FormResetPassword({
 					) : null}
 
 					<form
-						className="space-y-4"
+						className="w-full space-y-4"
 						method="POST"
 						action="/api/auth/reset-password"
 						onSubmit={handleSubmit}
@@ -194,7 +196,7 @@ export default function FormResetPassword({
 							/>
 						</div>
 
-						<div>
+						<Field>
 							<FieldLabel
 								htmlFor="password"
 								className="mb-2 block text-sm font-medium text-slate-900 dark:text-white"
@@ -208,7 +210,7 @@ export default function FormResetPassword({
 									type={showPassword ? 'text' : 'password'}
 									value={password}
 									onChange={(event) => setPassword(event.target.value)}
-									placeholder="Minimo 6 caracteres"
+									placeholder="Mínimo 6 caracteres"
 									className={cn(cleanInputClass, 'pr-16')}
 									autoComplete="new-password"
 									minLength={6}
@@ -223,14 +225,12 @@ export default function FormResetPassword({
 									{showPassword ? 'Ocultar' : 'Mostrar'}
 								</button>
 							</div>
-							{password.length > 0 && !isPasswordValid ? (
-								<p className="mt-1 text-xs text-red-500">
-									La contraseña debe tener al menos 6 caracteres.
-								</p>
-							) : null}
-						</div>
+							<FieldDescription className="text-xs text-slate-500 dark:text-slate-400">
+								Debe tener al menos 6 caracteres.
+							</FieldDescription>
+						</Field>
 
-						<div>
+						<Field>
 							<FieldLabel
 								htmlFor="confirm-password"
 								className="mb-2 block text-sm font-medium text-slate-900 dark:text-white"
@@ -260,37 +260,16 @@ export default function FormResetPassword({
 								</button>
 							</div>
 							{confirmPassword.length > 0 && !passwordsMatch ? (
-								<p className="mt-1 text-xs text-red-500">
-									Las contraseña no coinciden.
-								</p>
+								<FieldDescription className="text-xs text-red-500">
+									Las contraseñas no coinciden.
+								</FieldDescription>
 							) : null}
 							{passwordsMatch ? (
-								<p className="mt-1 text-xs text-green-600 dark:text-green-400">
-									Las contraseña coinciden.
-								</p>
+								<FieldDescription className="text-xs text-green-600 dark:text-green-400">
+									Las contraseñas coinciden.
+								</FieldDescription>
 							) : null}
-						</div>
-
-						<div className="flex items-start gap-3 text-sm">
-							<label className="flex items-start gap-3 text-slate-900 dark:text-white">
-								<Checkbox
-									id="terms"
-									name="terms"
-									className="mt-0.5"
-									required
-									disabled={pending}
-								/>
-								<span className="min-w-0 flex-1 font-medium">
-									Acepto los{' '}
-									<a
-										href="https://sotomayorconsulting.com/inicio/terminos/"
-										className="text-[#8c681d] hover:underline"
-									>
-										Términos y Condiciones
-									</a>
-								</span>
-							</label>
-						</div>
+						</Field>
 
 						<button
 							type="submit"
@@ -308,40 +287,16 @@ export default function FormResetPassword({
 							<p className="text-sm text-red-500">{clientError}</p>
 						) : null}
 					</form>
-				</div>
 
-				<div className="text-muted-foreground max-w-md space-y-2 px-8 text-center text-xs text-slate-500 dark:text-slate-400">
-					<p>
-						Esta es una plataforma interna de Sotomayor Consulting para
-						gestionar accesos, documentos y seguimiento operativo.
-					</p>
-					<p>
+					<p className="px-8 text-center text-sm text-slate-500 dark:text-slate-400">
 						<a
 							href="/sign-in"
-							className="hover:text-primary underline underline-offset-4"
+							className="text-sm text-slate-500 no-underline hover:underline dark:text-white"
 						>
-							Volver a iniciar sesion
+							Volver a iniciar sesión
 						</a>
 					</p>
 				</div>
-
-				<p className="text-muted-foreground px-8 text-center text-sm text-slate-500 dark:text-slate-400">
-					Al continuar, aceptas nuestros{' '}
-					<a
-						href="https://sotomayorconsulting.com/inicio/politicas/"
-						className="hover:text-primary underline underline-offset-4"
-					>
-						Terminos de Servicio
-					</a>{' '}
-					y la{' '}
-					<a
-						href="https://sotomayorconsulting.com/inicio/politicas/"
-						className="hover:text-primary underline underline-offset-4"
-					>
-						Política de Privacidad
-					</a>
-					.
-				</p>
 			</div>
 		</div>
 	);

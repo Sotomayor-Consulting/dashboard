@@ -3,11 +3,21 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { AuthError, AuthService, PATHS, redirectWithMessage } from '@infrastructure/auth';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('recovery-callback');
 
 export const GET: APIRoute = async ({ url, request, cookies, redirect }) => {
 	const code = url.searchParams.get('code') ?? undefined;
 	const tokenHash = url.searchParams.get('token_hash') ?? undefined;
 	const type = url.searchParams.get('type') ?? undefined;
+
+	log.info('recovery-callback hit', {
+		fullUrl: url.toString(),
+		hasCode: !!code,
+		hasTokenHash: !!tokenHash,
+		type,
+	});
 
 	try {
 		const supabase = createSupabaseServerClient({
@@ -41,6 +51,7 @@ export const GET: APIRoute = async ({ url, request, cookies, redirect }) => {
 			PATHS.forgotPassword,
 		);
 	} catch (error) {
+		log.error('recovery-callback error', { error, message: (error as Error)?.message });
 		const message =
 			error instanceof AuthError
 				? error.message

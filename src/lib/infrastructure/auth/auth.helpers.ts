@@ -67,9 +67,10 @@ export function buildOAuthRedirectUrl(
 		'app.sotomayorconsulting.com',
 		'localhost:4321',
 		'localhost:3000',
+		'127.0.0.1:4321',
 	];
 	if (host && allowedHosts.some((h) => host === h)) {
-		const scheme = host.startsWith('localhost') ? 'http' : 'https';
+		const scheme = host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https';
 		return `${scheme}://${host}${callbackPath}`;
 	}
 
