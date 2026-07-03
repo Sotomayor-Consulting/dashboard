@@ -1,4 +1,4 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import { createLogger } from 'vite';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
@@ -24,6 +24,20 @@ logger.warn = (msg, options) => {
 };
 
 export default defineConfig({
+	env: {
+		schema: {
+			PUBLIC_TURNSTILE_SITE_KEY: envField.string({
+				context: 'client',
+				access: 'public',
+				optional: true,
+			}),
+			TURNSTILE_SECRET_KEY: envField.string({
+				context: 'server',
+				access: 'secret',
+				optional: true,
+			}),
+		},
+	},
 	site: 'https://app.sotomayorconsulting.com',
 	security: {
 		checkOrigin: true,

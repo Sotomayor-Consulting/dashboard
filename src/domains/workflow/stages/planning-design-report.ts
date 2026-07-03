@@ -150,13 +150,19 @@ export const completePlanningTaskByTitle = async (
 	const taskId = (data as { id?: string } | null)?.id ?? null;
 	if (!taskId) return null;
 
-	const { error } = await supabaseAdmin.rpc('workflow_complete_task', {
-		p_task_id: taskId,
-		p_user_id: userId,
-	});
-	if (error) {
-		log.error('completePlanningTaskByTitle', { error });
+	const { completeTaskAndAdvance } = await import('@domains/workflow');
+	const result = await completeTaskAndAdvance(supabaseAdmin, taskId, userId);
+	if (!result.ok) {
+		log.error('completePlanningTaskByTitle', { error: result.error });
 		return null;
+	}
+	if (result.stageCompleted) {
+		log.info('Stage auto-completed after task', { taskId, title });
+	}
+	if (result.workflowAdvanced) {
+		log.info('Workflow auto-advanced after stage completion', {
+			incorporationId,
+		});
 	}
 	return taskId;
 };

@@ -2,16 +2,15 @@
 import LayoutStacked from '@layouts/LayoutSignIn.astro';
 import FormSignIn from '@modules/auth/islands/FormSignIn.tsx';
 import Alerta from '@components/feedback/Alert.astro';
+import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
 ---
 
 <LayoutStacked>
 	<div class="flex h-full w-full items-center justify-center">
 		<Alerta />
-		<FormSignIn client:load />
+		<FormSignIn
+			turnstileSiteKey={PUBLIC_TURNSTILE_SITE_KEY}
+			client:load
+		/>
 	</div>
 </LayoutStacked>
-
-<script
-	src="https://accounts.google.com/gsi/client"
-	is:inline
-	onload="window.dispatchEvent(new Event('google-one-tap-loaded'))"></script>

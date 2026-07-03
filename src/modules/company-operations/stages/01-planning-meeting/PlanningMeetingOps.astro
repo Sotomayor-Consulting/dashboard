@@ -2,6 +2,12 @@
 import { Icon } from 'astro-icon/components';
 import type { OpsStageProps } from '../types';
 import {
+	priorityClass,
+	priorityLabel,
+	taskStatusBadge,
+	taskStatusLabel,
+} from '../../lib/style-helpers';
+import {
 	resolvePlanningMeetingContext,
 	type PlanningMeetingSubstate,
 } from '@domains/workflow/stages/planning-meeting';
@@ -95,7 +101,6 @@ if (showWizard) {
 		name_en: a.name_en ?? '',
 	}));
 
-	// Prefill: estado por nombre si aún no hay state_id guardado
 	const prefillStateId =
 		report?.state_id ?? empresa?.formation_state_id ?? null;
 
@@ -115,19 +120,82 @@ if (showWizard) {
 }
 ---
 
-<div class="space-y-3">
+<div class="space-y-4">
+	{/* ─── Task list ─── */}
+	{
+		currentStage.tasks.length > 0 && (
+			<ul class="divide-y divide-border">
+				{currentStage.tasks.map((t) => (
+					<li class="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+						<input
+							type="checkbox"
+							checked={t.status === 'completed'}
+							class="mt-1 h-4 w-4 shrink-0 rounded border-border"
+							disabled
+						/>
+						<div class="min-w-0 flex-1">
+							<div class="flex flex-wrap items-center gap-2">
+								<p
+									class={`text-sm font-medium ${
+										t.status === 'completed'
+											? 'text-muted-foreground line-through'
+											: 'text-foreground'
+									}`}
+								>
+									{t.title}
+								</p>
+								<span
+									class={`text-2xs rounded px-1.5 py-0.5 font-semibold tracking-wide uppercase ${priorityClass(t.priority)}`}
+								>
+									{priorityLabel(t.priority)}
+								</span>
+							</div>
+							<p class="mt-0.5 text-xs text-muted-foreground">
+								{t.description}
+							</p>
+						</div>
+						<div class="flex shrink-0 items-center gap-3">
+							{t.assignee ? (
+								<span class="inline-flex items-center gap-2 text-xs text-muted-foreground">
+									<span class="text-2xs inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted font-semibold text-foreground">
+										{t.assignee.initials}
+									</span>
+									{t.assignee.name}
+								</span>
+							) : (
+								<button
+									type="button"
+									class="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+								>
+									<Icon name="ri:user-add-line" class="h-3.5 w-3.5" />
+									Asignar
+								</button>
+							)}
+							<span
+								class={`rounded-full px-2 py-0.5 text-[11px] font-medium ${taskStatusBadge(t.status)}`}
+							>
+								{taskStatusLabel(t.status)}
+							</span>
+						</div>
+					</li>
+				))}
+			</ul>
+		)
+	}
+
+	{/* ─── Contextual stage UI ─── */}
 	{
 		substate === 'schedule_pending' && (
-			<div class="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
+			<div class="flex items-start gap-3 rounded-lg border border-dashed border-border p-3">
 				<Icon
 					name="ri:calendar-todo-line"
-					class="h-5 w-5 shrink-0 text-gray-500 dark:text-gray-400"
+					class="h-5 w-5 shrink-0 text-muted-foreground"
 				/>
 				<div>
-					<p class="text-sm font-semibold text-gray-900 dark:text-white">
+					<p class="text-sm font-medium text-foreground">
 						Esperando que el cliente agende la reunión
 					</p>
-					<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+					<p class="mt-0.5 text-xs text-muted-foreground">
 						El cliente aún no ha agendado su reunión de planificación con un
 						asesor.
 					</p>
@@ -167,10 +235,10 @@ if (showWizard) {
 					class="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400"
 				/>
 				<div class="min-w-0">
-					<p class="text-sm font-semibold text-gray-900 dark:text-white">
+					<p class="text-sm font-medium text-foreground">
 						Informe enviado al cliente
 					</p>
-					<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+					<p class="mt-0.5 text-xs text-muted-foreground">
 						El informe de planificación y diseño se generó y está disponible para
 						el cliente. La etapa avanzó al siguiente paso.
 					</p>
@@ -192,10 +260,3 @@ if (showWizard) {
 		)
 	}
 </div>
-
-{/*
-  NOTA: el flujo anterior incluía subir el PDF manualmente y la aprobación
-  del cliente (UploadPlanningDoc, AwaitingApprovalCard, RejectionFeedbackCard
-  + planning-meeting-ops.client.ts). Se retiró al pasar al wizard + generación
-  automática. Los componentes se conservan en el repo por si se reactivan.
-*/}

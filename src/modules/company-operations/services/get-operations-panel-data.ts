@@ -151,10 +151,37 @@ export async function getOperationsPanelData(
 	const usersById = await fetchUsersByIds(supabase, userIds);
 
 	// ─── Stages ─────────────────────────────────────────
+	// Agrupar tareas por stage_id para inyectarlas en cada stage
+	const tasksByStageId = new Map<string, Task[]>();
+	for (const t of tasksRaw) {
+		const stageDbId = (t as { workflow_stage_id: string }).workflow_stage_id;
+		const aid = (t as { assigned_to?: string | null }).assigned_to ?? null;
+		const u = aid ? usersById.get(aid) : null;
+		const assignee: Assignee | null =
+			aid && u
+				? {
+						name: formatName(u.nombre, u.apellido) || 'Sin nombre',
+						initials: toInitials(u.nombre, u.apellido),
+					}
+				: null;
+		const task: Task = {
+			id: (t as { id: string }).id,
+			title: (t as { title: string }).title,
+			description: (t as { description?: string | null }).description ?? '',
+			priority: mapPriority((t as { priority: TaskPriority }).priority),
+			status: mapTaskStatus((t as { status: DomainTaskStatus }).status),
+			assignee,
+		};
+		const arr = tasksByStageId.get(stageDbId) ?? [];
+		arr.push(task);
+		tasksByStageId.set(stageDbId, arr);
+	}
+
 	const stages: Stage[] = stagesRaw.map((s) => {
 		const cat = (s as { catalog?: Record<string, unknown> }).catalog ?? {};
+		const stageId = (s as { id: string }).id;
 		return {
-			id: (s as { id: string }).id,
+			id: stageId,
 			order: (s as { display_order: number }).display_order,
 			slug: (cat['slug'] as string) ?? '',
 			name: (cat['name'] as string) ?? '—',
@@ -162,6 +189,7 @@ export async function getOperationsPanelData(
 			status: mapStageStatus((s as { status: string }).status),
 			requiresApproval: Boolean(cat['requires_approval']),
 			approvalRole: (cat['approval_role'] as string | null) ?? null,
+			tasks: tasksByStageId.get(stageId) ?? [],
 		};
 	});
 
@@ -173,35 +201,13 @@ export async function getOperationsPanelData(
 		(s) => (s as { stage_id: number }).stage_id === currentStageCatalogId,
 	);
 
-	// ─── Tasks de la stage actual ───────────────────────
+	// ─── Current stage (reutiliza tareas ya agrupadas) ──
 	const currentStageDbId = currentStageRow
 		? (currentStageRow as { id: string }).id
 		: null;
-	const currentStageTasks: Task[] = tasksRaw
-		.filter(
-			(t) => (t as { workflow_stage_id: string }).workflow_stage_id === currentStageDbId,
-		)
-		.map((t) => {
-			const aid = (t as { assigned_to?: string | null }).assigned_to ?? null;
-			const u = aid ? usersById.get(aid) : null;
-			const assignee: Assignee | null =
-				aid && u
-					? {
-							name: formatName(u.nombre, u.apellido) || 'Sin nombre',
-							initials: toInitials(u.nombre, u.apellido),
-						}
-					: null;
-			return {
-				id: (t as { id: string }).id,
-				title: (t as { title: string }).title,
-				description: (t as { description?: string | null }).description ?? '',
-				priority: mapPriority(
-					(t as { priority: TaskPriority }).priority,
-				),
-				status: mapTaskStatus((t as { status: DomainTaskStatus }).status),
-				assignee,
-			};
-		});
+	const currentStageTasks: Task[] = currentStageDbId
+		? (tasksByStageId.get(currentStageDbId) ?? [])
+		: [];
 
 	let currentStage: CurrentStage | null = null;
 	if (currentStageRow) {

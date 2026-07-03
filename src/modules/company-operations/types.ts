@@ -25,6 +25,7 @@ export type Stage = {
 	status: StageStatus;
 	requiresApproval: boolean;
 	approvalRole: string | null;
+	tasks: Task[];
 };
 
 export type QueueItem = {

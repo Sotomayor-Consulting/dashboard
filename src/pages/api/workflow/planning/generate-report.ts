@@ -6,7 +6,7 @@ import { resolveDocumentActor, DocumentsError } from '@domains/documents';
 import {
 	generateAndUploadReport,
 	completePlanningTaskByTitle,
-	PLANNING_TASK_SEND,
+	PLANNING_TASK_FILL,
 	PLANNING_TASK_SCHEDULE,
 } from '@domains/workflow/stages/planning-design-report';
 import { getClientRecipientForCase } from '@domains/workflow/stages/planning-meeting-recipients';
@@ -55,11 +55,11 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 			user.id,
 		);
 
-		// Completa "Enviar informe" → con todas las tareas hechas la etapa
+		// Completa "Llenar informe" → con todas las tareas hechas la etapa
 		// (auto_advance) se completa y avanza sola.
 		const completed = await completePlanningTaskByTitle(
 			incorporationId,
-			PLANNING_TASK_SEND,
+			PLANNING_TASK_FILL,
 			user.id,
 		);
 

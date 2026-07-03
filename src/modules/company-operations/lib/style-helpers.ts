@@ -41,6 +41,16 @@ export const stageRingClass = (s: StageStatus) =>
 		pending: 'border-gray-200 bg-white dark:border-gray-700/60 dark:bg-white/5',
 	})[s];
 
+export const stageActiveRingClass = (s: StageStatus) =>
+	({
+		completed:
+			'ring-2 ring-emerald-400 border-emerald-300 bg-emerald-100 dark:ring-emerald-500 dark:border-emerald-500/50 dark:bg-emerald-500/20',
+		in_progress:
+			'ring-2 ring-amber-400 border-amber-300 bg-amber-100 dark:ring-amber-500 dark:border-amber-500/50 dark:bg-amber-500/20',
+		pending:
+			'ring-2 ring-gray-400 border-gray-300 bg-gray-100 dark:ring-gray-500 dark:border-gray-600 dark:bg-white/10',
+	})[s];
+
 export const stageIcon = (s: StageStatus) =>
 	({
 		completed: 'ri:checkbox-circle-fill',

@@ -12,6 +12,7 @@ import {
 	redirectWithMessage,
 } from '@infrastructure/auth';
 import { safeBack } from '@infrastructure/security/headers';
+import { TURNSTILE_SECRET_KEY } from 'astro:env/server';
 
 const wantsJson = (request: Request) =>
 	(request.headers.get('accept') ?? '').includes('application/json');
@@ -22,6 +23,34 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	try {
 		const form = await request.formData();
 		const email = form.get('email')?.toString().trim() ?? '';
+		const turnstileToken = form.get('cf-turnstile-response')?.toString();
+
+		// ─── Turnstile verification ──────────────────────
+		const turnstileSecret = TURNSTILE_SECRET_KEY;
+		if (turnstileSecret) {
+			if (!turnstileToken) {
+				const msg = 'Verificación de seguridad requerida.';
+				return wantsJson(request)
+					? jsonError(msg, 400)
+					: redirectWithMessage(redirect, msg, 'error', back);
+			}
+
+			const verifyBody = new URLSearchParams();
+			verifyBody.set('secret', turnstileSecret);
+			verifyBody.set('response', turnstileToken);
+
+			const verifyRes = await fetch(
+				'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+				{ method: 'POST', body: verifyBody },
+			);
+			const verifyData = (await verifyRes.json()) as { success: boolean };
+			if (!verifyData.success) {
+				const msg = 'Verificación de seguridad fallida. Intenta de nuevo.';
+				return wantsJson(request)
+					? jsonError(msg, 403)
+					: redirectWithMessage(redirect, msg, 'error', back);
+			}
+		}
 
 		if (!email) {
 			if (wantsJson(request)) {

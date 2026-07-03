@@ -1,6 +1,6 @@
-import type { CurrentStage } from '../types';
+import type { Stage } from '../types';
 
 export interface OpsStageProps {
-	currentStage: CurrentStage;
+	currentStage: Stage;
 	empresaId: string;
 }

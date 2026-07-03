@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { navigate } from 'astro:transitions/client';
 import { buttonVariants } from '@components/ui/Button';
 import { FieldLabel, FieldLegend } from '@components/ui/Field';
 import { Input } from '@components/ui/Input';
@@ -27,7 +28,7 @@ export default function FormResetPassword({
 	const [clientError, setClientError] = useState<string | null>(null);
 
 	const cleanInputClass =
-		'h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/20 dark:border-slate-700 dark:bg-white/10 dark:text-slate-100 dark:placeholder:text-slate-500';
+		'h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/20 dark:border-slate-700 dark:bg-white/10 dark:text-slate-100 dark:placeholder:text-neutral-500';
 
 	const isPasswordValid = password.length >= 6;
 	const passwordsMatch = password.length > 0 && password === confirmPassword;
@@ -70,7 +71,7 @@ export default function FormResetPassword({
 			}
 
 			if (payload.data?.redirectTo) {
-				window.location.href = payload.data.redirectTo;
+				navigate(payload.data.redirectTo);
 				return;
 			}
 
@@ -89,15 +90,34 @@ export default function FormResetPassword({
 
 	return (
 		<div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-r from-white/5 to-black lg:grid lg:grid-cols-2 lg:px-0">
-			<a
-				href="/sign-in"
-				className={cn(
-					buttonVariants({ variant: 'ghost' }),
-					'absolute top-4 right-4 z-30 hidden md:top-8 md:right-8 md:inline-flex',
-				)}
-			>
-				Inicia sesión
-			</a>
+			<div className="absolute top-4 right-4 z-30 flex items-center gap-4 md:top-8 md:right-8">
+				<button
+					type="button"
+					onClick={() => {
+						const toggle = () => {
+							const isDark = document.documentElement.classList.toggle('dark');
+							localStorage.setItem('color-theme', isDark ? 'dark' : 'light');
+							document.dispatchEvent(new Event('dark-mode'));
+						};
+						if (document.startViewTransition) {
+							document.startViewTransition(toggle);
+						} else {
+							toggle();
+						}
+					}}
+					className="text-slate-500 hover:text-slate-700 dark:text-white dark:hover:text-slate-300"
+					aria-label="Cambiar tema"
+				>
+					<svg className="hidden size-5 dark:block" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="M6.34 17.66l-1.41 1.41" /><path d="M19.07 4.93l-1.41 1.41" /></svg>
+					<svg className="block size-5 dark:hidden" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 3a6 6 0 1 0 9 9 9 9 0 1 1-9-9z" /></svg>
+				</button>
+				<a
+					href="/sign-in"
+					className="hidden text-sm font-medium text-slate-500 no-underline hover:underline md:inline-flex dark:text-white"
+				>
+					Inicia sesión
+				</a>
+			</div>
 			<div className="group relative hidden h-full min-h-screen flex-col overflow-hidden p-10 lg:flex dark:border-r dark:border-slate-800">
 				<div className="relative z-20 flex items-center text-lg font-medium text-white">
 					<a href="https://sotomayorconsulting.com/inicio/">
@@ -119,12 +139,10 @@ export default function FormResetPassword({
 				<div className="relative z-20 mt-auto text-white">
 					<blockquote className="space-y-2 text-black dark:text-white">
 						<p className="text-lg">
-							&quot;Las chicas buenas van para el cielo, y las malas para el
-							vitara&quot;
+							&quot;Las grandes cosas en los negocios nunca las hace una sola
+							persona; las hace un equipo de personas.&quot;
 						</p>
-						<footer className="text-sm dark:text-white/70">
-							Joann Salgero
-						</footer>
+						<footer className="text-sm dark:text-white/70">- Steve Jobs</footer>
 					</blockquote>
 				</div>
 			</div>

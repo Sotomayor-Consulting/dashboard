@@ -445,6 +445,15 @@
 		-webkit-box-shadow: 0 0 0 1000px var(--background) inset;
 		transition: background-color 5000s ease-in-out 0s;
 	}
+
+	:where(.dark) input:-webkit-autofill,
+	:where(.dark) input:-webkit-autofill:hover,
+	:where(.dark) input:-webkit-autofill:focus,
+	:where(.dark) select:-webkit-autofill,
+	:where(.dark) textarea:-webkit-autofill {
+		-webkit-text-fill-color: #f1f5f9;
+		-webkit-box-shadow: 0 0 0 1000px #1a1a1a inset;
+	}
 }
 
 /* ── Flat/Open Layout — Typography & Card System ────────────
