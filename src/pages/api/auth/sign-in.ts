@@ -12,6 +12,7 @@ import {
 	jsonSuccess,
 	jsonError,
 } from '@infrastructure/auth';
+import { safeBack } from '@infrastructure/security/headers';
 import type { OAuthProvider } from '@infrastructure/auth';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -26,6 +27,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
 	const password = formData.get('password')?.toString();
 	const provider = formData.get('provider')?.toString();
 	const remember = formData.has('remember');
+	const next = safeBack(formData.get('next')?.toString(), PATHS.home);
 
 	// Detectar si el cliente espera JSON (fetch desde React)
 	const wantsJson = request.headers
@@ -46,10 +48,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
 	try {
 		// ─── OAuth (Google) ───────────────────────────────
 		if (provider) {
-			const redirectTo = buildOAuthRedirectUrl(request);
+			const redirectToUrl = new URL(buildOAuthRedirectUrl(request));
+			redirectToUrl.searchParams.set('next', next);
 			const result = await auth.signInWithOAuth(
 				provider as OAuthProvider,
-				redirectTo,
+				redirectToUrl.toString(),
 			);
 			return redirect(result.url);
 		}
@@ -63,10 +66,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
 		// JSON: devolver respuesta sin redirect para que el browser
 		// procese las Set-Cookie headers antes de navegar.
 		if (wantsJson) {
-			return jsonSuccess({ redirect: PATHS.home });
+			return jsonSuccess({ redirect: next });
 		}
 
-		return redirect(PATHS.home);
+		return redirect(next);
 	} catch (error) {
 		const message =
 			error instanceof AuthError

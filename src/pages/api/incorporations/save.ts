@@ -3,8 +3,11 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
+import { ACTIVE_COMPANY_COOKIE } from '@shared/cookies';
+import { clearIncorporationDraftCookie } from '@shared/incorporation-draft';
 
 const BACK_PATH = '/';
+const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 
 const json = (status: number, payload: unknown) =>
 	new Response(JSON.stringify(payload), {
@@ -19,9 +22,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	try {
 		const back = safeBack(url.searchParams.get('back'), BACK_PATH);
 		const wantsJson = isJsonRequest(request);
-		const respond = (status: number, message: string) => {
+		const respond = (
+			status: number,
+			message: string,
+			extra: Record<string, unknown> = {},
+		) => {
 			if (wantsJson) {
-				return json(status, { ok: status < 400, message });
+				return json(status, { ok: status < 400, message, ...extra });
 			}
 
 			const kind = status < 400 ? 'success' : 'error';
@@ -95,7 +102,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		}
 
 		// 5) Insert
-		const { error } = await supabase.from('incorporations').insert([
+		const { data: created, error } = await supabase
+			.from('incorporations')
+			.insert([
 			{
 				user_id: actor.id,
 				entity_type: tipo_de_empresa,
@@ -107,14 +116,31 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 				state: estado_de?.trim() || 'En proceso',
 				porcentaje_de_incorporacion: 1,
 			},
-		]);
+		])
+			.select('id')
+			.single<{ id: string }>();
 
 		if (error) {
 			return respond(500, `DB: ${error.message}`);
 		}
 
+		if (created?.id) {
+			cookies.set(ACTIVE_COMPANY_COOKIE, created.id, {
+				path: '/',
+				sameSite: 'lax',
+				httpOnly: false,
+				secure: import.meta.env.PROD,
+				maxAge: ONE_YEAR_SECONDS,
+			});
+		}
+
+		clearIncorporationDraftCookie(cookies);
+
 		// 6) OK
-		return respond(200, 'Empresa registrada');
+		return respond(200, 'Empresa registrada', {
+			incorporationId: created?.id ?? null,
+			redirectTo: BACK_PATH,
+		});
 	} catch (e: any) {
 		const msg = typeof e?.message === 'string' ? e.message : 'Error inesperado';
 		if (isJsonRequest(request)) {

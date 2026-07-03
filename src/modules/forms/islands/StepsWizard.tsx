@@ -31,14 +31,48 @@ import {
 	ComboboxItem,
 	ComboboxList,
 } from '@components/ui/Combobox';
+import {
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+} from '@components/ui/Tabs';
 
 import { cn } from '@components/utils';
+import type { IncorporationStartDraft } from '@shared/incorporation-draft';
 
 import type { States } from '../types';
 
 interface Props {
 	states: States[];
+	initialDraft: IncorporationStartDraft;
+	isAuthenticated: boolean;
 }
+
+type AuthTab = 'sign-in' | 'sign-up';
+
+type SignInResponse = {
+	ok?: boolean;
+	error?: string;
+	data?: { redirect?: string };
+};
+
+type RegisterResponse = {
+	ok?: boolean;
+	error?: string;
+	data?: {
+		requiresEmailConfirmation?: boolean;
+		message?: string;
+		redirect?: string;
+	};
+};
+
+type SaveIncorporationResponse = {
+	ok?: boolean;
+	message?: string;
+	redirectTo?: string;
+	incorporationId?: string | null;
+};
 
 const STEPS = [
 	{
@@ -196,19 +230,34 @@ function OrDivider({ label }: { label: string }) {
 	);
 }
 
-export default function StepsWizard({ states }: Props) {
+export default function StepsWizard({
+	states,
+	initialDraft,
+	isAuthenticated,
+}: Props) {
 	const [currentStep, setCurrentStep] = React.useState<number>(
-		STEP.ENTITY_TYPE,
+		initialDraft.current_step,
 	);
-	const [tipoDeEmpresa, setTipoDeEmpresa] = React.useState('LLC');
-	const [estadoDeEmpresa, setEstadoDeEmpresa] = React.useState(12);
-	const [nombre1, setNombre1] = React.useState('');
-	const [nombre2, setNombre2] = React.useState('');
-	const [nombre3, setNombre3] = React.useState('');
-	const [showRegisterForm, setShowRegisterForm] = React.useState(false);
+	const [tipoDeEmpresa, setTipoDeEmpresa] = React.useState(
+		initialDraft.tipo_de_empresa,
+	);
+	const [estadoDeEmpresa, setEstadoDeEmpresa] = React.useState(
+		initialDraft.estado_de_empresa,
+	);
+	const [nombre1, setNombre1] = React.useState(initialDraft.nombre_1);
+	const [nombre2, setNombre2] = React.useState(initialDraft.nombre_2);
+	const [nombre3, setNombre3] = React.useState(initialDraft.nombre_3);
+	const [showAuthPanel, setShowAuthPanel] = React.useState(false);
+	const [authTab, setAuthTab] = React.useState<AuthTab>('sign-in');
 	const [helpDialogOpen, setHelpDialogOpen] = React.useState(false);
-	const [isVerifying, setIsVerifying] = React.useState(false);
+	const [isSavingDraft, setIsSavingDraft] = React.useState(false);
+	const [isFinalizing, setIsFinalizing] = React.useState(false);
+	const [isSigningIn, setIsSigningIn] = React.useState(false);
 
+	const [loginEmail, setLoginEmail] = React.useState('');
+	const [loginPassword, setLoginPassword] = React.useState('');
+	const [loginRemember, setLoginRemember] = React.useState(true);
+	const [showLoginPassword, setShowLoginPassword] = React.useState(false);
 	const [regName, setRegName] = React.useState('');
 	const [regLastName, setRegLastName] = React.useState('');
 	const [regEmail, setRegEmail] = React.useState('');
@@ -218,22 +267,9 @@ export default function StepsWizard({ states }: Props) {
 	const [isRegistering, setIsRegistering] = React.useState(false);
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+	const hasHydratedDraft = React.useRef(false);
 
 	React.useEffect(() => {
-		try {
-			const saved = localStorage.getItem('incorpData');
-			if (saved) {
-				const data = JSON.parse(saved);
-				setTipoDeEmpresa(data.tipo_de_empresa || 'LLC');
-				setEstadoDeEmpresa(data.estado_de_empresa || 'Florida');
-				setNombre1(data.nombre_1 || '');
-				setNombre2(data.nombre_2 || '');
-				setNombre3(data.nombre_3 || '');
-			}
-		} catch {
-			/* ignore */
-		}
-
 		const params = new URLSearchParams(window.location.search);
 		const status = params.get('status');
 		const msg = params.get('msg');
@@ -245,23 +281,57 @@ export default function StepsWizard({ states }: Props) {
 			const newUrl = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}${location.hash}`;
 			window.history.replaceState({}, '', newUrl);
 		}
-		if (status === 'auth_required') {
-			setShowRegisterForm(true);
-			setCurrentStep(STEP.REVIEW);
-		}
 	}, []);
 
-	const saveData = React.useCallback(() => {
-		const data = {
+	const persistDraft = React.useCallback(
+		async (draft: Partial<IncorporationStartDraft>) => {
+			setIsSavingDraft(true);
+			try {
+				await fetch('/api/incorporations/draft', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Accept: 'application/json',
+					},
+					body: JSON.stringify(draft),
+				});
+			} finally {
+				setIsSavingDraft(false);
+			}
+		},
+		[],
+	);
+
+	React.useEffect(() => {
+		const draft: IncorporationStartDraft = {
 			tipo_de_empresa: tipoDeEmpresa,
 			estado_de_empresa: estadoDeEmpresa,
 			nombre_1: nombre1,
 			nombre_2: nombre2,
 			nombre_3: nombre3,
 			estado_de: 'En proceso',
+			current_step: currentStep,
 		};
-		localStorage.setItem('incorpData', JSON.stringify(data));
-	}, [tipoDeEmpresa, estadoDeEmpresa, nombre1, nombre2, nombre3]);
+
+		if (!hasHydratedDraft.current) {
+			hasHydratedDraft.current = true;
+			return;
+		}
+
+		const timeoutId = window.setTimeout(() => {
+			void persistDraft(draft);
+		}, 250);
+
+		return () => window.clearTimeout(timeoutId);
+	}, [
+		currentStep,
+		estadoDeEmpresa,
+		nombre1,
+		nombre2,
+		nombre3,
+		persistDraft,
+		tipoDeEmpresa,
+	]);
 
 	const validateNames = React.useCallback((): string | null => {
 		if (!nombre1.trim()) return 'El primer nombre de empresa es obligatorio';
@@ -272,7 +342,7 @@ export default function StepsWizard({ states }: Props) {
 
 	const goToStep = (paso: number) => {
 		setCurrentStep(paso);
-		if (showRegisterForm) setShowRegisterForm(false);
+		if (showAuthPanel) setShowAuthPanel(false);
 	};
 
 	const handleNext = () => {
@@ -290,29 +360,90 @@ export default function StepsWizard({ states }: Props) {
 		setCurrentStep((prev) => Math.max(prev - 1, 0));
 	};
 
-	const checkSession = async () => {
+	const finalizeIncorporation = async () => {
 		const error = validateNames();
 		if (error) {
 			toast.error(error);
 			return;
 		}
-		saveData();
-		setIsVerifying(true);
+
+		setIsFinalizing(true);
 		try {
-			const res = await fetch('/api/auth/session-check', {
-				credentials: 'include',
+			const formData = new FormData();
+			formData.set('tipo_de_empresa', tipoDeEmpresa);
+			formData.set('estado_de_empresa', String(estadoDeEmpresa));
+			formData.set('nombre_1', nombre1);
+			formData.set('nombre_2', nombre2);
+			formData.set('nombre_3', nombre3);
+			formData.set('estado_de', 'En proceso');
+
+			const res = await fetch('/api/incorporations/save', {
+				method: 'POST',
+				headers: { Accept: 'application/json' },
+				body: formData,
 			});
-			const json = await res.json();
-			const sessionData = json?.data ?? { isAuthenticated: false };
-			if (sessionData.isAuthenticated) {
-				window.location.href = '/';
-			} else {
-				setShowRegisterForm(true);
+			const result = (await res.json()) as SaveIncorporationResponse;
+
+			if (!res.ok || result.ok === false) {
+				throw new Error(result.message || 'No se pudo registrar la empresa.');
 			}
+
+			window.location.href = result.redirectTo || '/';
 		} catch {
-			toast.error('Error al verificar la sesión.');
+			toast.error('No se pudo registrar la empresa. Intenta nuevamente.');
 		} finally {
-			setIsVerifying(false);
+			setIsFinalizing(false);
+		}
+	};
+
+	const handleReviewContinue = async () => {
+		if (isAuthenticated) {
+			await finalizeIncorporation();
+			return;
+		}
+
+		const error = validateNames();
+		if (error) {
+			toast.error(error);
+			return;
+		}
+
+		setShowAuthPanel(true);
+		setAuthTab('sign-in');
+	};
+
+	const handleSignIn = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setIsSigningIn(true);
+		try {
+			const formData = new FormData();
+			formData.set('email', loginEmail);
+			formData.set('password', loginPassword);
+			formData.set('next', '/start');
+			if (loginRemember) {
+				formData.set('remember', 'on');
+			}
+
+			const response = await fetch('/api/auth/sign-in', {
+				method: 'POST',
+				headers: { Accept: 'application/json' },
+				body: formData,
+			});
+			const payload = (await response.json()) as SignInResponse;
+
+			if (!response.ok || payload.ok === false) {
+				throw new Error(payload.error || 'No se pudo iniciar sesión.');
+			}
+
+			window.location.href = payload.data?.redirect || '/start';
+		} catch (error) {
+			toast.error(
+				error instanceof Error
+					? error.message
+					: 'No se pudo iniciar sesión.',
+			);
+		} finally {
+			setIsSigningIn(false);
 		}
 	};
 
@@ -330,32 +461,24 @@ export default function StepsWizard({ states }: Props) {
 			formData.set('email', regEmail);
 			formData.set('password', regPassword);
 			formData.set('confirm-password', regConfirmPassword);
-			formData.set('remember', regAcceptTerms ? 'on' : '');
+			formData.set('next', '/start');
 
 			const res = await fetch('/api/auth/register-start', {
 				method: 'POST',
 				headers: { Accept: 'application/json' },
 				body: formData,
 			});
-			const result = await res.json();
+			const result = (await res.json()) as RegisterResponse;
 			if (res.ok) {
 				if (result?.data?.requiresEmailConfirmation === false) {
-					const sr = await fetch('/api/auth/session-check', {
-						credentials: 'include',
-					});
-					const sj = await sr.json();
-					if (sj?.data?.isAuthenticated) {
-						window.location.href = '/';
-						return;
-					}
-					toast.error(
-						'Cuenta creada, pero no se pudo validar la sesión automáticamente.',
-					);
+					window.location.href = result.data?.redirect || '/start';
+					return;
 				} else {
 					toast.success(
 						result?.data?.message ||
 							'Registro exitoso. Revisa tu email para confirmar.',
 					);
+					setAuthTab('sign-in');
 				}
 			} else {
 				toast.error(result?.error || 'Error en el registro.');
@@ -710,7 +833,7 @@ export default function StepsWizard({ states }: Props) {
 			<StepHeader
 				step={STEP.REVIEW}
 				title="Revisa tu información"
-				subtitle="Ya casi terminas — verifica tus datos y procede a registrarte."
+				subtitle="Ya casi terminas — verifica tus datos y continua con el acceso o la incorporacion."
 			/>
 			<div className="m-0 mx-auto w-full max-w-md space-y-3 p-0">
 				{reviewItems.map((item) => (
@@ -725,7 +848,7 @@ export default function StepsWizard({ states }: Props) {
 		</div>
 	);
 
-	const formularioRegistro = (
+	const authPanel = (
 		<div className="space-y-6 px-6 py-8 sm:px-8 sm:py-10">
 			<div className="flex flex-col items-center gap-3 text-center">
 				<div className="bg-primary-gold/15 rounded-xl p-3">
@@ -735,173 +858,292 @@ export default function StepsWizard({ states }: Props) {
 					/>
 				</div>
 				<h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-					Crea tu cuenta gratuita
+					Continua para incorporar tu empresa
 				</h2>
+				<p className="max-w-md text-sm text-gray-500 dark:text-gray-400">
+					Inicia sesion si ya tienes cuenta o registrate para guardar tu
+					incorporacion y continuar el proceso.
+				</p>
 			</div>
 
-			<form className="space-y-5" onSubmit={handleRegister}>
-				<div className="grid grid-cols-2 gap-4">
-					<IconField
-						id="reg-name"
-						label="Nombre"
-						icon="ri:user-line"
-						inputProps={{
-							name: 'name',
-							value: regName,
-							onChange: (e) => setRegName(e.target.value),
-							placeholder: 'Nombre',
-							required: true,
-							autoComplete: 'given-name',
-						}}
-					/>
-					<IconField
-						id="reg-last-name"
-						label="Apellido"
-						icon="ri:user-line"
-						inputProps={{
-							name: 'last-name',
-							value: regLastName,
-							onChange: (e) => setRegLastName(e.target.value),
-							placeholder: 'Apellido',
-							required: true,
-							autoComplete: 'family-name',
-						}}
-					/>
-				</div>
+			<Tabs value={authTab} onValueChange={(value) => setAuthTab(value as AuthTab)}>
+				<TabsList className="grid w-full grid-cols-2">
+					<TabsTrigger value="sign-in">Iniciar sesion</TabsTrigger>
+					<TabsTrigger value="sign-up">Crear cuenta</TabsTrigger>
+				</TabsList>
 
-				<IconField
-					id="reg-email"
-					label="Tu correo"
-					icon="ri:mail-line"
-					inputProps={{
-						type: 'email',
-						name: 'email',
-						value: regEmail,
-						onChange: (e) => setRegEmail(e.target.value),
-						placeholder: 'correo@ejemplo.com',
-						required: true,
-						autoComplete: 'email',
-					}}
-				/>
+				<TabsContent value="sign-in" className="mt-5 space-y-5">
+					<form className="space-y-5" onSubmit={handleSignIn}>
+						<IconField
+							id="login-email"
+							label="Tu correo"
+							icon="ri:mail-line"
+							inputProps={{
+								type: 'email',
+								name: 'email',
+								value: loginEmail,
+								onChange: (e) => setLoginEmail(e.target.value),
+								placeholder: 'correo@ejemplo.com',
+								required: true,
+								autoComplete: 'email',
+							}}
+						/>
 
-				<IconField
-					id="reg-password"
-					label="Contraseña"
-					icon="ri:lock-2-line"
-					inputProps={{
-						type: showPassword ? 'text' : 'password',
-						name: 'password',
-						value: regPassword,
-						onChange: (e) => setRegPassword(e.target.value),
-						placeholder: '••••••••',
-						minLength: 8,
-						required: true,
-						autoComplete: 'new-password',
-					}}
-					trailing={
-						<InputGroupAddon align="inline-end">
-							<InputGroupButton
-								size="icon-xs"
-								aria-label={
-									showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
-								}
-								onClick={() => setShowPassword((v) => !v)}
+						<IconField
+							id="login-password"
+							label="Contraseña"
+							icon="ri:lock-2-line"
+							inputProps={{
+								type: showLoginPassword ? 'text' : 'password',
+								name: 'password',
+								value: loginPassword,
+								onChange: (e) => setLoginPassword(e.target.value),
+								placeholder: '••••••••',
+								required: true,
+								autoComplete: 'current-password',
+							}}
+							trailing={
+								<InputGroupAddon align="inline-end">
+									<InputGroupButton
+										size="icon-xs"
+										aria-label={
+											showLoginPassword
+												? 'Ocultar contraseña'
+												: 'Mostrar contraseña'
+										}
+										onClick={() =>
+											setShowLoginPassword((value) => !value)
+										}
+									>
+										<Icon
+											icon={showLoginPassword ? 'ri:eye-off-line' : 'ri:eye-line'}
+										/>
+									</InputGroupButton>
+								</InputGroupAddon>
+							}
+						/>
+
+						<div className="flex items-start gap-3">
+							<Checkbox
+								id="login-remember"
+								checked={loginRemember}
+								onCheckedChange={(checked) => setLoginRemember(checked === true)}
+								className="mt-0.5"
+							/>
+							<Label
+								htmlFor="login-remember"
+								className="text-sm leading-snug font-normal text-gray-600 dark:text-gray-300"
 							>
-								<Icon icon={showPassword ? 'ri:eye-off-line' : 'ri:eye-line'} />
-							</InputGroupButton>
-						</InputGroupAddon>
-					}
-				/>
+								Mantener mi sesion activa en este navegador.
+							</Label>
+						</div>
 
-				<IconField
-					id="reg-confirm-password"
-					label="Confirmar contraseña"
-					icon="ri:lock-2-line"
-					inputProps={{
-						type: showConfirmPassword ? 'text' : 'password',
-						name: 'confirm-password',
-						value: regConfirmPassword,
-						onChange: (e) => setRegConfirmPassword(e.target.value),
-						placeholder: '••••••••',
-						required: true,
-						autoComplete: 'new-password',
-					}}
-					trailing={
-						<InputGroupAddon align="inline-end">
-							<InputGroupButton
-								size="icon-xs"
-								aria-label={
-									showConfirmPassword
-										? 'Ocultar contraseña'
-										: 'Mostrar contraseña'
-								}
-								onClick={() => setShowConfirmPassword((v) => !v)}
-							>
-								<Icon
-									icon={showConfirmPassword ? 'ri:eye-off-line' : 'ri:eye-line'}
-								/>
-							</InputGroupButton>
-						</InputGroupAddon>
-					}
-				/>
-
-				<div className="flex items-start gap-3">
-					<Checkbox
-						id="reg-accept-terms"
-						name="remember"
-						checked={regAcceptTerms}
-						onCheckedChange={(checked) => setRegAcceptTerms(checked === true)}
-						required
-						className="mt-0.5"
-					/>
-					<Label
-						htmlFor="reg-accept-terms"
-						className="text-sm leading-snug font-normal text-gray-600 dark:text-gray-300"
-					>
-						Al registrarte, aceptas los{' '}
-						<a
-							href="https://sotomayorconsulting.com/inicio/politicas/"
-							className="text-primary-gold font-medium hover:underline"
+						<Button
+							type="submit"
+							disabled={isSigningIn}
+							className="bg-primary-gold hover:bg-primary-gold/90 h-11 w-full text-base font-semibold text-white"
 						>
-							Términos de uso y Política de privacidad
-						</a>{' '}
-						de Sotomayor Consulting International LLC.
-					</Label>
-				</div>
+							{isSigningIn ? 'Ingresando...' : 'Iniciar sesion'}
+						</Button>
+					</form>
 
-				<Button
-					type="submit"
-					disabled={isRegistering}
-					className="bg-primary-gold hover:bg-primary-gold/90 h-11 w-full text-base font-semibold text-white"
-				>
-					{isRegistering ? 'Creando cuenta...' : 'Crear una cuenta'}
-				</Button>
-			</form>
+					<OrDivider label="o" />
 
-			<OrDivider label="o" />
+					<form
+						action="/api/auth/oauth/google?back=/start&next=/start"
+						method="post"
+					>
+						<Button
+							type="submit"
+							variant="outline"
+							className="h-11 w-full gap-2 text-sm font-medium"
+						>
+							<Icon icon="ri:google-fill" className="size-5" />
+							Continuar con Google
+						</Button>
+					</form>
+				</TabsContent>
 
-			<form action="/api/auth/oauth/google" method="post">
-				<Button
-					type="submit"
-					variant="outline"
-					className="h-11 w-full gap-2 text-sm font-medium"
-				>
-					<Icon icon="ri:google-fill" className="size-5" />
-					Regístrate con Google
-				</Button>
-			</form>
+				<TabsContent value="sign-up" className="mt-5 space-y-5">
+					<form className="space-y-5" onSubmit={handleRegister}>
+						<div className="grid grid-cols-2 gap-4">
+							<IconField
+								id="reg-name"
+								label="Nombre"
+								icon="ri:user-line"
+								inputProps={{
+									name: 'name',
+									value: regName,
+									onChange: (e) => setRegName(e.target.value),
+									placeholder: 'Nombre',
+									required: true,
+									autoComplete: 'given-name',
+								}}
+							/>
+							<IconField
+								id="reg-last-name"
+								label="Apellido"
+								icon="ri:user-line"
+								inputProps={{
+									name: 'last-name',
+									value: regLastName,
+									onChange: (e) => setRegLastName(e.target.value),
+									placeholder: 'Apellido',
+									required: true,
+									autoComplete: 'family-name',
+								}}
+							/>
+						</div>
+
+						<IconField
+							id="reg-email"
+							label="Tu correo"
+							icon="ri:mail-line"
+							inputProps={{
+								type: 'email',
+								name: 'email',
+								value: regEmail,
+								onChange: (e) => setRegEmail(e.target.value),
+								placeholder: 'correo@ejemplo.com',
+								required: true,
+								autoComplete: 'email',
+							}}
+						/>
+
+						<IconField
+							id="reg-password"
+							label="Contraseña"
+							icon="ri:lock-2-line"
+							inputProps={{
+								type: showPassword ? 'text' : 'password',
+								name: 'password',
+								value: regPassword,
+								onChange: (e) => setRegPassword(e.target.value),
+								placeholder: '••••••••',
+								minLength: 8,
+								required: true,
+								autoComplete: 'new-password',
+							}}
+							trailing={
+								<InputGroupAddon align="inline-end">
+									<InputGroupButton
+										size="icon-xs"
+										aria-label={
+											showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+										}
+										onClick={() => setShowPassword((value) => !value)}
+									>
+										<Icon
+											icon={showPassword ? 'ri:eye-off-line' : 'ri:eye-line'}
+										/>
+									</InputGroupButton>
+								</InputGroupAddon>
+							}
+						/>
+
+						<IconField
+							id="reg-confirm-password"
+							label="Confirmar contraseña"
+							icon="ri:lock-2-line"
+							inputProps={{
+								type: showConfirmPassword ? 'text' : 'password',
+								name: 'confirm-password',
+								value: regConfirmPassword,
+								onChange: (e) => setRegConfirmPassword(e.target.value),
+								placeholder: '••••••••',
+								required: true,
+								autoComplete: 'new-password',
+							}}
+							trailing={
+								<InputGroupAddon align="inline-end">
+									<InputGroupButton
+										size="icon-xs"
+										aria-label={
+											showConfirmPassword
+												? 'Ocultar contraseña'
+												: 'Mostrar contraseña'
+										}
+										onClick={() =>
+											setShowConfirmPassword((value) => !value)
+										}
+									>
+										<Icon
+											icon={showConfirmPassword ? 'ri:eye-off-line' : 'ri:eye-line'}
+										/>
+									</InputGroupButton>
+								</InputGroupAddon>
+							}
+						/>
+
+						<div className="flex items-start gap-3">
+							<Checkbox
+								id="reg-accept-terms"
+								name="remember"
+								checked={regAcceptTerms}
+								onCheckedChange={(checked) =>
+									setRegAcceptTerms(checked === true)
+								}
+								required
+								className="mt-0.5"
+							/>
+							<Label
+								htmlFor="reg-accept-terms"
+								className="text-sm leading-snug font-normal text-gray-600 dark:text-gray-300"
+							>
+								Al registrarte, aceptas los{' '}
+								<a
+									href="https://sotomayorconsulting.com/inicio/politicas/"
+									className="text-primary-gold font-medium hover:underline"
+								>
+									Términos de uso y Política de privacidad
+								</a>{' '}
+								de Sotomayor Consulting International LLC.
+							</Label>
+						</div>
+
+						<Button
+							type="submit"
+							disabled={isRegistering}
+							className="bg-primary-gold hover:bg-primary-gold/90 h-11 w-full text-base font-semibold text-white"
+						>
+							{isRegistering ? 'Creando cuenta...' : 'Crear una cuenta'}
+						</Button>
+					</form>
+
+					<OrDivider label="o" />
+
+					<form
+						action="/api/auth/oauth/google?back=/start&next=/start"
+						method="post"
+					>
+						<Button
+							type="submit"
+							variant="outline"
+							className="h-11 w-full gap-2 text-sm font-medium"
+						>
+							<Icon icon="ri:google-fill" className="size-5" />
+							Regístrate con Google
+						</Button>
+					</form>
+				</TabsContent>
+			</Tabs>
 		</div>
 	);
 
-	const wizardNavigation = !showRegisterForm && (
-		<div
-			className={cn(
-				'mt-4 w-full',
-				currentStep === STEP.ENTITY_TYPE
-					? 'flex justify-center'
-					: 'grid grid-cols-2 gap-3',
-			)}
-		>
+	const wizardNavigation = !showAuthPanel && (
+		<div className="mt-4 w-full space-y-2">
+			{isSavingDraft ? (
+				<p className="text-center text-xs text-gray-500 dark:text-gray-400">
+					Guardando borrador...
+				</p>
+			) : null}
+			<div
+				className={cn(
+					currentStep === STEP.ENTITY_TYPE
+						? 'flex justify-center'
+						: 'grid grid-cols-2 gap-3',
+				)}
+			>
 			{currentStep > STEP.ENTITY_TYPE && (
 				<Button
 					variant="outline"
@@ -915,22 +1157,25 @@ export default function StepsWizard({ states }: Props) {
 			)}
 			<Button
 				size="lg"
-				onClick={currentStep === STEP.REVIEW ? checkSession : handleNext}
-				disabled={currentStep === STEP.REVIEW && isVerifying}
+				onClick={currentStep === STEP.REVIEW ? handleReviewContinue : handleNext}
+				disabled={currentStep === STEP.REVIEW && isFinalizing}
 				className={cn(
 					'bg-primary-gold hover:bg-primary-gold/90 h-11 w-full text-sm font-medium text-white',
 					currentStep === STEP.ENTITY_TYPE && 'max-w-md',
 				)}
 			>
-				{currentStep === STEP.REVIEW && isVerifying
-					? 'Verificando...'
+				{currentStep === STEP.REVIEW && isFinalizing
+					? 'Guardando...'
 					: currentStep === STEP.REVIEW
-						? 'Finalizar'
+						? isAuthenticated
+							? 'Incorporar empresa'
+							: 'Continuar'
 						: 'Continuar'}
-				{!isVerifying && currentStep !== STEP.REVIEW && (
+				{!isFinalizing && currentStep !== STEP.REVIEW && (
 					<Icon icon="ri:arrow-right-line" className="ml-1 size-4" />
 				)}
 			</Button>
+			</div>
 		</div>
 	);
 
@@ -946,8 +1191,8 @@ export default function StepsWizard({ states }: Props) {
 							{currentStep === STEP.ENTITY_TYPE && paso1}
 							{currentStep === STEP.STATE && paso2}
 							{currentStep === STEP.COMPANY_NAME && paso3}
-							{currentStep === STEP.REVIEW && !showRegisterForm && paso4}
-							{showRegisterForm && formularioRegistro}
+							{currentStep === STEP.REVIEW && !showAuthPanel && paso4}
+							{showAuthPanel && authPanel}
 						</div>
 					</div>
 					{wizardNavigation}

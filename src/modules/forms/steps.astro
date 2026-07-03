@@ -2,11 +2,19 @@
 import WhatsappBtn from '@components/display/WhatsappBtn.astro';
 import StepsWizard from './islands/StepsWizard.tsx';
 import { getUsStates } from '@modules/companies/services/get-us-states';
+import { readIncorporationDraftCookie } from '@shared/incorporation-draft';
 
 const supabase = Astro.locals.supabase;
 const state = await getUsStates(supabase);
+const initialDraft = readIncorporationDraftCookie(Astro.cookies);
+const isAuthenticated = Boolean(Astro.locals.user);
 ---
 
 <WhatsappBtn />
 
-<StepsWizard states={state} client:load />
+<StepsWizard
+	states={state}
+	initialDraft={initialDraft}
+	isAuthenticated={isAuthenticated}
+	client:load
+/>

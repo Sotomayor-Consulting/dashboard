@@ -1,13 +1,10 @@
 ---
 import Alerta from '@components/feedback/Alert.astro';
-import IncorporationSaveToast from '@components/feedback/islands/IncorporationSaveToast.tsx';
 import LayoutSidebar from '@layouts/LayoutSidebar.astro';
 import LandingReadme from '@modules/landing/LandingHome.astro';
 ---
 
 <LayoutSidebar>
 	<Alerta />
-	<IncorporationSaveToast client:load />
-
 	<LandingReadme />
 </LayoutSidebar>

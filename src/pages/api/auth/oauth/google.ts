@@ -10,6 +10,7 @@ const BACK_PATH = '/start';
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	const back = safeBack(url.searchParams.get('back'), BACK_PATH);
+	const next = safeBack(url.searchParams.get('next'), BACK_PATH);
 
 	try {
 		const supabase = createSupabaseServerClient({
@@ -18,8 +19,14 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		});
 		const auth = new AuthService(supabase, cookies);
 
-		const redirectTo = `${url.origin}/api/auth/oauth/callback-start?next=/`;
-		const result = await auth.signInWithOAuth('google', redirectTo);
+		const redirectToUrl = new URL(
+			`${url.origin}/api/auth/oauth/callback-start`,
+		);
+		redirectToUrl.searchParams.set('next', next);
+		const result = await auth.signInWithOAuth(
+			'google',
+			redirectToUrl.toString(),
+		);
 
 		return redirect(result.url);
 	} catch (error) {
