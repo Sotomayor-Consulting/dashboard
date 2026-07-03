@@ -3,9 +3,20 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
-import { AuthService, AuthError, PATHS, redirectWithMessage } from '@infrastructure/auth';
+import {
+	AuthService,
+	AuthError,
+	PATHS,
+	redirectWithMessage,
+	jsonSuccess,
+	jsonError,
+} from '@infrastructure/auth';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
+	const wantsJson = request.headers
+		.get('Accept')
+		?.includes('application/json');
+
 	const supabase = createSupabaseServerClient({
 		headers: request.headers,
 		cookies,
@@ -20,6 +31,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const lastName = formData.get('last-name')?.toString().trim() ?? '';
 
 	if (password !== confirmPassword) {
+		if (wantsJson) {
+			return jsonError(
+				'Las contraseñas no coinciden. Por favor, verifica e intenta de nuevo.',
+				400,
+			);
+		}
+
 		return redirectWithMessage(
 			redirect,
 			'Las contraseñas no coinciden. Por favor, verifica e intenta de nuevo. ',
@@ -32,12 +50,29 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 		const result = await auth.register({ email, password, name, lastName });
 
 		if (result.requiresEmailConfirmation) {
+			if (wantsJson) {
+				return jsonSuccess({
+					requiresEmailConfirmation: true,
+					message:
+						'¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.',
+					redirect: PATHS.signIn,
+				});
+			}
+
 			return redirectWithMessage(
 				redirect,
 				'¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.',
 				'success',
 				PATHS.signIn,
 			);
+		}
+
+		if (wantsJson) {
+			return jsonSuccess({
+				requiresEmailConfirmation: false,
+				message: '¡Registro exitoso! Bienvenido/a.',
+				redirect: PATHS.home,
+			});
 		}
 
 		return redirectWithMessage(
@@ -51,6 +86,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 			error instanceof AuthError
 				? error.message
 				: 'Ocurrió un error inesperado. Intenta de nuevo.';
+
+		if (wantsJson) {
+			return jsonError(message, 400);
+		}
+
 		return redirectWithMessage(redirect, message, 'error', PATHS.signUp);
 	}
 };

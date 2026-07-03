@@ -108,6 +108,7 @@ const AUTH_ROUTES: readonly string[] = [
 // Evitar doble cliente Supabase en handlers de auth API que mutan cookies
 // (sign-in/sign-out). Esos handlers ya gestionan su propio ciclo de cookies.
 const AUTH_API_COOKIE_HANDLERS = new Set([
+	'/api/auth/register',
 	'/api/auth/sign-in',
 	'/api/auth/sign-out',
 ]);
