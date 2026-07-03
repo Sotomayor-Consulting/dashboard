@@ -8,6 +8,7 @@ import {
 	AuthError,
 	PATHS,
 	redirectWithMessage,
+	buildOAuthRedirectUrl,
 	jsonSuccess,
 	jsonError,
 } from '@infrastructure/auth';
@@ -22,6 +23,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 		cookies,
 	});
 	const auth = new AuthService(supabase, cookies);
+	const emailRedirectTo = buildOAuthRedirectUrl(request, PATHS.confirmEmail);
 
 	const formData = await request.formData();
 	const email = formData.get('email')?.toString().trim() ?? '';
@@ -47,7 +49,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	}
 
 	try {
-		const result = await auth.register({ email, password, name, lastName });
+		const result = await auth.register({
+			email,
+			password,
+			name,
+			lastName,
+			emailRedirectTo,
+		});
 
 		if (result.requiresEmailConfirmation) {
 			if (wantsJson) {

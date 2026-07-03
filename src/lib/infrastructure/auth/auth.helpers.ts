@@ -114,6 +114,13 @@ export function friendlyAuthError(
 	if (msg.includes('already registered') || code === 'user_already_exists') {
 		return 'Este correo electrónico ya está registrado. ¿Olvidaste tu contraseña?';
 	}
+	if (
+		msg.includes('email not confirmed') ||
+		msg.includes('email not verified') ||
+		code === 'email_not_confirmed'
+	) {
+		return 'Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.';
+	}
 	if (msg.includes('different from the old password')) {
 		return 'La nueva contraseña debe ser diferente a la contraseña actual.';
 	}

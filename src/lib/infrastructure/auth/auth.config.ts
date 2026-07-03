@@ -17,6 +17,7 @@ export const PATHS = {
 	home: '/',
 	forgotPassword: '/forgot-password',
 	resetPassword: '/reset-password',
+	confirmEmail: '/api/auth/confirm',
 	setPassword: '/set-password',
 	onboarding: '/onboarding',
 	oauthCallback: '/api/auth/oauth/callback',

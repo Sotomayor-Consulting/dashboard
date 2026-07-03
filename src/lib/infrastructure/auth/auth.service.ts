@@ -97,6 +97,9 @@ export class AuthService {
 			email: dto.email,
 			password: dto.password,
 			options: {
+				...(dto.emailRedirectTo
+					? { emailRedirectTo: dto.emailRedirectTo }
+					: {}),
 				data: {
 					name: dto.name,
 					lastName: dto.lastName,
