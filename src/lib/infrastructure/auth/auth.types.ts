@@ -21,6 +21,7 @@ export interface RegisterDto {
 	password: string;
 	name: string;
 	lastName: string;
+	emailRedirectTo?: string;
 }
 
 export interface ForgotPasswordDto {

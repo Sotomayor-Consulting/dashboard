@@ -17,10 +17,15 @@ declare const turnstile: {
 };
 
 type FormState = { error: string | null };
-
-interface FormSignUpProps {
-	turnstileSiteKey?: string | undefined;
-}
+type RegisterResponse = {
+	ok?: boolean;
+	data?: {
+		requiresEmailConfirmation?: boolean;
+		message?: string;
+		redirect?: string;
+	};
+	error?: string;
+};
 
 function openOAuthPopup(url: string) {
 	const width = 500;
@@ -157,11 +162,31 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 				}
 				const response = await fetch('/api/auth/register', {
 					method: 'POST',
+					headers: { Accept: 'application/json' },
 					body: formData,
-					redirect: 'follow',
 				});
+				const result = (await response.json()) as RegisterResponse;
 
-				navigate(response.url);
+				if (!response.ok || !result.ok) {
+					return {
+						error:
+							result.error ??
+							'No se pudo procesar el registro. Intenta nuevamente.',
+					};
+				}
+
+				if (result.data?.requiresEmailConfirmation) {
+					const params = new URLSearchParams({
+						status: 'success',
+						msg:
+							result.data.message ??
+							'¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.',
+					});
+					window.location.href = `${result.data.redirect ?? '/sign-in'}?${params.toString()}`;
+					return { error: null };
+				}
+
+				window.location.href = result.data?.redirect ?? '/';
 				return { error: null };
 			} catch {
 				return {
@@ -196,8 +221,36 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 					className="text-slate-500 hover:text-slate-700 dark:text-white dark:hover:text-slate-300"
 					aria-label="Cambiar tema"
 				>
-					<svg className="hidden size-5 dark:block" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="M6.34 17.66l-1.41 1.41" /><path d="M19.07 4.93l-1.41 1.41" /></svg>
-					<svg className="block size-5 dark:hidden" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 3a6 6 0 1 0 9 9 9 9 0 1 1-9-9z" /></svg>
+					<svg
+						className="hidden size-5 dark:block"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="1.8"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						viewBox="0 0 24 24"
+					>
+						<circle cx="12" cy="12" r="4" />
+						<path d="M12 2v2" />
+						<path d="M12 20v2" />
+						<path d="M4.93 4.93l1.41 1.41" />
+						<path d="M17.66 17.66l1.41 1.41" />
+						<path d="M2 12h2" />
+						<path d="M20 12h2" />
+						<path d="M6.34 17.66l-1.41 1.41" />
+						<path d="M19.07 4.93l-1.41 1.41" />
+					</svg>
+					<svg
+						className="block size-5 dark:hidden"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="1.8"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						viewBox="0 0 24 24"
+					>
+						<path d="M12 3a6 6 0 1 0 9 9 9 9 0 1 1-9-9z" />
+					</svg>
 				</button>
 				<a
 					href="/sign-in"
@@ -236,7 +289,7 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 				</div>
 			</div>
 
-			<div className="flex h-full min-h-screen items-center justify-center p-4 dark:bg-neutral-950 lg:p-8">
+			<div className="flex h-full min-h-screen items-center justify-center p-4 lg:p-8 dark:bg-neutral-950">
 				<div className="flex w-full max-w-md flex-col items-center justify-center space-y-6">
 					<div className="space-y-2 text-center">
 						<h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
@@ -334,7 +387,8 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 								</button>
 							</div>
 							<FieldDescription>
-								Debe contener mayúsculas, minúsculas, número y carácter especial.
+								Debe contener mayúsculas, minúsculas, número y carácter
+								especial.
 							</FieldDescription>
 						</Field>
 
@@ -369,9 +423,7 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 							</FieldDescription>
 						</Field>
 
-						{turnstileSiteKey && (
-							<div id="turnstile-widget-signup" />
-						)}
+						{turnstileSiteKey && <div id="turnstile-widget-signup" />}
 
 						<button
 							type="submit"
@@ -419,7 +471,7 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 								<path d="M3.064 7.51A10 10 0 0 1 12 2c2.695 0 4.959.991 6.69 2.605l-2.867 2.868C14.786 6.482 13.468 5.977 12 5.977c-2.605 0-4.81 1.76-5.595 4.123c-.2.6-.314 1.24-.314 1.9s.114 1.3.314 1.9c.786 2.364 2.99 4.123 5.595 4.123c1.345 0 2.49-.355 3.386-.955a4.6 4.6 0 0 0 1.996-3.018H12v-3.868h9.418c.118.654.182 1.336.182 2.045c0 3.046-1.09 5.61-2.982 7.35C16.964 21.105 14.7 22 12 22A9.996 9.996 0 0 1 2 12c0-1.614.386-3.14 1.064-4.49" />
 							</svg>
 						)}
-						{googlePending ? 'Conectando...' : 'Registrate con Google'}
+						{googlePending ? 'Conectando...' : 'Regístrate con Google'}
 					</button>
 
 					<p className="px-8 text-center text-sm text-slate-500 dark:text-slate-400">
