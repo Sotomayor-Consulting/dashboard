@@ -42,7 +42,10 @@ export interface Country {
 	phone_code: string;
 }
 
-export type CompanyTableRow = Omit<Company, 'formation_country_id' | 'tax_clasification'> & {
+export type CompanyTableRow = Omit<
+	Company,
+	'formation_country_id' | 'tax_clasification'
+> & {
 	formation_country: string;
 	tax_clasification: string;
 };
@@ -89,7 +92,11 @@ export interface EmpresaDetail {
 	manager_sci: boolean | null;
 	manager_es_miembro: boolean | null;
 	updated_at: string | null;
-	usuarios?: { nombre: string | null; apellido: string | null; correo: string | null }[];
+	usuarios?: {
+		nombre: string | null;
+		apellido: string | null;
+		correo: string | null;
+	}[];
 	state_id: number;
 }
 
@@ -145,10 +152,7 @@ export interface CompanyAddressItem {
 export type MemberPersonType = 'natural_person' | 'juridical_person';
 
 export type MemberIdentificationType =
-	| 'passport'
-	| 'national_id'
-	| 'driver_licence'
-	| 'ein';
+	'passport' | 'national_id' | 'driver_licence' | 'ein';
 
 export type MemberMaritalStatus =
 	| 'single'
@@ -224,16 +228,14 @@ export interface ActividadItem {
 	category: {
 		id: number;
 		name: string;
-		sector?: { id: number; name: string }
-	}
+		sector?: { id: number; name: string };
+	};
 }
-
 
 export interface PaisItem {
 	id: number;
 	name: string;
 }
-
 
 export interface Usuario {
 	user_id: string;
@@ -244,7 +246,7 @@ export interface Usuario {
 
 export interface PagoPorLeer {
 	user_id: string;
-	servicio_id: string;
+	plan_id: number;
 	amount: number;
 	status: string;
 	created_at: string;
@@ -253,22 +255,23 @@ export interface PagoPorLeer {
 	visto_por_operaciones: boolean;
 	id_pagos: string;
 	servicios?: {
-		id_servicios: string;
+		id: number;
+		slug: string;
 		nombre: string;
-		categoria: string;
-	}
+		categoria: string | null;
+	};
 	usuarios?: {
 		user_id: string;
 		nombre: string;
 		apellido: string;
 		correo: string;
-	}
+	};
 	incorporations?: {
 		estado: string;
 		principal_name: string;
 		tipo_de_negocio: string;
 		id: string;
-	}
+	};
 }
 
 export interface Documento {
@@ -311,7 +314,7 @@ export interface CompanyManagementTypeHealth {
 }
 
 export interface State {
-	id: number,
-	name: String,
-	code: String
+	id: number;
+	name: String;
+	code: String;
 }

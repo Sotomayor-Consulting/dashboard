@@ -38,10 +38,10 @@ export async function getCompanyPageData(
 			actividadesGeneral(supabase),
 			supabase.from('states').select('*'),
 			supabase
-				.from('incorporation_workflow')
-				.select('id')
-				.eq('company_id', companyId)
-				.maybeSingle<{ id: string }>(),
+				.from('companies')
+				.select('incorporation_id')
+				.eq('id', companyId)
+				.maybeSingle<{ incorporation_id: string | null }>(),
 		]);
 
 	return {
@@ -54,6 +54,6 @@ export async function getCompanyPageData(
 		actividades: (actividades ?? []) as unknown as CompanyPageData['actividades'],
 		states: (statesResult.data ?? []) as CompanyPageData['states'],
 		incorporationId:
-			incorporationLookup.data?.id ?? null,
+			incorporationLookup.data?.incorporation_id ?? null,
 	};
 }
