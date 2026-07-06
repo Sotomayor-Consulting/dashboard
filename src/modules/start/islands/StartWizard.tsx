@@ -134,14 +134,24 @@ const STEP = {
 	REVIEW: 3,
 } as const;
 
-const GOOGLE_OAUTH_ACTION = '/api/auth/oauth/google?back=/start&next=/start';
-
 // Mismo tratamiento de inputs que FormSignIn / FormSignUp (flat/open layout)
 const cleanInputClass =
 	'h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:border-[#8c681d] focus-visible:ring-2 focus-visible:ring-[#8c681d]/20 dark:border-input dark:bg-white/10 dark:text-slate-100 dark:placeholder:text-neutral-500 autofill:shadow-[inset_0_0_0_1000px_white] autofill:[font-family:inherit] autofill:[font-size:inherit] dark:autofill:shadow-[inset_0_0_0_1000px_#1a1a1a] dark:autofill:[-webkit-text-fill-color:#f1f5f9] dark:caret-slate-100';
 
 const labelClass =
 	'mb-2 block text-sm font-medium text-slate-900 dark:text-white';
+
+function openOAuthPopup(url: string) {
+	const width = 500;
+	const height = 600;
+	const left = window.screenX + (window.outerWidth - width) / 2;
+	const top = window.screenY + (window.outerHeight - height) / 2;
+	return window.open(
+		url,
+		'oauth-popup',
+		`width=${width},height=${height},left=${left},top=${top},popup=yes`,
+	);
+}
 
 function GoogleIcon() {
 	return (
@@ -296,6 +306,7 @@ export default function StartWizard({
 	const [signUpError, setSignUpError] = React.useState<string | null>(null);
 	const [showRegPassword, setShowRegPassword] = React.useState(false);
 	const [showRegConfirm, setShowRegConfirm] = React.useState(false);
+	const [googlePending, setGooglePending] = React.useState(false);
 
 	const [turnstileToken, setTurnstileToken] = React.useState<string | null>(
 		null,
@@ -303,6 +314,41 @@ export default function StartWizard({
 	const turnstileRequired = !!turnstileSiteKey;
 
 	const hasHydratedDraft = React.useRef(false);
+	const popupRef = React.useRef<Window | null>(null);
+	const popupCheckTimerRef = React.useRef<number | null>(null);
+	const popupTimeoutRef = React.useRef<number | null>(null);
+
+	const clearPopupWatchers = React.useCallback(() => {
+		if (popupCheckTimerRef.current) {
+			window.clearInterval(popupCheckTimerRef.current);
+			popupCheckTimerRef.current = null;
+		}
+		if (popupTimeoutRef.current) {
+			window.clearTimeout(popupTimeoutRef.current);
+			popupTimeoutRef.current = null;
+		}
+		popupRef.current = null;
+	}, []);
+
+	const stopGooglePending = React.useCallback(() => {
+		setGooglePending(false);
+		clearPopupWatchers();
+	}, [clearPopupWatchers]);
+
+	const handleOAuthResult = React.useCallback(
+		(data: unknown) => {
+			if (!data || typeof data !== 'object') return;
+			const result = data as { type?: string; status?: string };
+			if (result.type !== 'oauth-callback') return;
+
+			stopGooglePending();
+
+			if (result.status === 'success') {
+				navigate('/start');
+			}
+		},
+		[stopGooglePending],
+	);
 
 	// ─── Mensajes de estado via query params (?status=&msg=) ─────
 	React.useEffect(() => {
@@ -318,6 +364,34 @@ export default function StartWizard({
 			window.history.replaceState({}, '', newUrl);
 		}
 	}, []);
+
+	React.useEffect(() => {
+		const bc = new BroadcastChannel('oauth-result');
+		bc.onmessage = (event: MessageEvent) => handleOAuthResult(event.data);
+
+		const onStorage = (event: StorageEvent) => {
+			if (event.key !== 'oauth-result' || !event.newValue) return;
+			try {
+				handleOAuthResult(JSON.parse(event.newValue));
+			} catch {
+				stopGooglePending();
+			}
+		};
+		window.addEventListener('storage', onStorage);
+
+		const onMessage = (event: MessageEvent) => {
+			if (event.origin !== window.location.origin) return;
+			handleOAuthResult(event.data);
+		};
+		window.addEventListener('message', onMessage);
+
+		return () => {
+			bc.close();
+			window.removeEventListener('message', onMessage);
+			window.removeEventListener('storage', onStorage);
+			clearPopupWatchers();
+		};
+	}, [clearPopupWatchers, handleOAuthResult, stopGooglePending]);
 
 	// ─── Persistencia del borrador (cookie server-side) ──────────
 	const persistDraft = React.useCallback(
@@ -616,6 +690,52 @@ export default function StartWizard({
 				error instanceof Error ? error.message : 'Error de conexión.',
 			);
 			setIsRegistering(false);
+		}
+	};
+
+	const handleGoogleLogin = async () => {
+		if (googlePending) return;
+		setGooglePending(true);
+
+		const popup = openOAuthPopup('about:blank');
+		if (!popup) {
+			stopGooglePending();
+			return;
+		}
+
+		popupRef.current = popup;
+		popupCheckTimerRef.current = window.setInterval(() => {
+			const currentPopup = popupRef.current;
+			if (!currentPopup) return;
+			try {
+				if (currentPopup.closed) {
+					stopGooglePending();
+				}
+			} catch {
+				// noop
+			}
+		}, 350);
+
+		popupTimeoutRef.current = window.setTimeout(() => {
+			stopGooglePending();
+		}, 2 * 60 * 1000);
+
+		try {
+			const res = await fetch('/api/auth/oauth/popup-url', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ provider: 'google' }),
+			});
+			const json = await res.json();
+			if (json.data?.url) {
+				popup.location.href = json.data.url;
+			} else {
+				popup.close();
+				stopGooglePending();
+			}
+		} catch {
+			popup.close();
+			stopGooglePending();
 		}
 	};
 
@@ -1151,19 +1271,18 @@ export default function StartWizard({
 
 			<SectionDivider label="O continuar con" />
 
-			<form action={GOOGLE_OAUTH_ACTION} method="post">
-				<button
-					type="submit"
-					className={cn(
-						buttonVariants({ variant: 'outline' }),
-						'h-11 w-full rounded-xl',
-					)}
-					disabled={isSigningIn}
+			<button
+				type="button"
+				onClick={handleGoogleLogin}
+				className={cn(
+					buttonVariants({ variant: 'outline' }),
+					'h-11 w-full rounded-xl',
+				)}
+				disabled={isSigningIn || googlePending}
 				>
-					<GoogleIcon />
-					Google
-				</button>
-			</form>
+				{googlePending ? <Spinner data-icon="inline-start" /> : <GoogleIcon />}
+				{googlePending ? 'Conectando...' : 'Google'}
+			</button>
 		</div>
 	);
 
@@ -1282,19 +1401,18 @@ export default function StartWizard({
 
 			<SectionDivider label="O continuar con" />
 
-			<form action={GOOGLE_OAUTH_ACTION} method="post">
-				<button
-					type="submit"
-					className={cn(
-						buttonVariants({ variant: 'outline' }),
-						'h-11 w-full rounded-xl',
-					)}
-					disabled={isRegistering}
+			<button
+				type="button"
+				onClick={handleGoogleLogin}
+				className={cn(
+					buttonVariants({ variant: 'outline' }),
+					'h-11 w-full rounded-xl',
+				)}
+				disabled={isRegistering || googlePending}
 				>
-					<GoogleIcon />
-					Regístrate con Google
-				</button>
-			</form>
+				{googlePending ? <Spinner data-icon="inline-start" /> : <GoogleIcon />}
+				{googlePending ? 'Conectando...' : 'Regístrate con Google'}
+			</button>
 
 			<p className="px-4 text-center text-xs text-slate-500 dark:text-slate-400">
 				Al continuar, aceptas nuestros{' '}

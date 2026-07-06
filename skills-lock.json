@@ -17,6 +17,12 @@
       "sourceType": "github",
       "computedHash": "516bd2154eb843a8240e43d5b285229129853114ad7075a5e141e1c08e408c84"
     },
+    "playwright-cli": {
+      "source": "microsoft/playwright-cli",
+      "sourceType": "github",
+      "skillPath": "skills/playwright-cli/SKILL.md",
+      "computedHash": "39d67000951a05e8ab3c0e802a2dd55d8d6cb51239b30824c0e3b6c070b7d88f"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",

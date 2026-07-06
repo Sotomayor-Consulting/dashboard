@@ -1,0 +1,124 @@
+Reporte de bugs - /sign-in
+URL revisada: http://127.0.0.1:4321/sign-in
+Fecha: 2026-07-06
+
+1. BUG BLOQUEANTE: no se puede iniciar sesion con email y password
+Severidad: Alta
+
+Descripcion:
+Aunque el formulario queda completo y valido, el boton "Iniciar sesion" permanece deshabilitado.
+
+Pasos para reproducir:
+1. Abrir http://127.0.0.1:4321/sign-in
+2. Escribir un correo valido en el campo de email
+3. Escribir una contrasena en el campo de password
+4. Revisar el estado del boton "Iniciar sesion"
+
+Resultado esperado:
+El boton deberia habilitarse para permitir enviar el formulario.
+
+Resultado actual:
+El boton sigue deshabilitado incluso cuando el formulario ya es valido.
+
+Evidencia tecnica:
+- El formulario reporta `form.checkValidity() === true`
+- El boton reporta `submit.disabled === true`
+- La UI depende de `turnstileToken` para habilitar el submit
+- Referencia de codigo: src/modules/auth/islands/FormSignIn.tsx:538
+- Validacion backend relacionada: src/pages/api/auth/sign-in.ts:54
+
+Posible causa:
+El flujo de login depende de un token de Cloudflare Turnstile que no se genera correctamente en esta pantalla.
+
+--------------------------------------------------
+
+2. TURNSTILE NO ENTREGA TOKEN FUNCIONAL
+Severidad: Alta
+
+Descripcion:
+El widget de seguridad aparece montado a nivel DOM, pero no entrega un token usable para completar el login.
+
+Pasos para reproducir:
+1. Abrir http://127.0.0.1:4321/sign-in
+2. Inspeccionar el widget Turnstile y el input `cf-turnstile-response`
+3. Completar email y password
+4. Revisar si el token existe y si el boton de submit se habilita
+
+Resultado esperado:
+Turnstile deberia generar un token valido y permitir continuar con el login.
+
+Resultado actual:
+- El contenedor `#turnstile-widget` existe
+- Solo contiene un input hidden `cf-turnstile-response`
+- El valor del token queda vacio
+- El boton de login nunca se habilita
+
+Errores observados en red/consola:
+- Request 401 a Cloudflare challenge
+- `ERR_NAME_NOT_RESOLVED` contra `brunhild.challenges.cloudflare.com`
+
+Referencia de codigo:
+- Render del widget: src/modules/auth/islands/FormSignIn.tsx:240
+
+Posible impacto:
+Bloquea el login tradicional por email/password.
+
+--------------------------------------------------
+
+3. ERRORES DE CONSOLA EN GOOGLE ONE TAP / FEDCM
+Severidad: Media
+
+Descripcion:
+La pagina carga con errores de consola relacionados con Google One Tap, aunque el boton manual de Google si abre el popup OAuth.
+
+Mensajes observados:
+- `Provider's accounts list is empty.`
+- `[GSI_LOGGER]: FedCM get() rejects with NetworkError: Error retrieving a token.`
+
+Resultado esperado:
+La pagina no deberia generar errores de consola en la carga normal.
+
+Resultado actual:
+La integracion One Tap genera ruido en consola y puede afectar la experiencia local o de QA.
+
+Referencia de codigo:
+- Inicializacion GSI / One Tap: src/modules/auth/islands/FormSignIn.tsx:223
+
+Notas:
+El boton manual "Google" si abre la pestaña de autenticacion correctamente. El problema parece concentrarse en One Tap/FedCM, no en el popup OAuth principal.
+
+--------------------------------------------------
+
+4. POSIBLE PROBLEMA DE ACCESIBILIDAD EN "RECUERDAME"
+Severidad: Media
+
+Descripcion:
+El snapshot accesible muestra dos checkboxes asociados a "Recuerdame", aunque visualmente parece un unico control.
+
+Resultado esperado:
+Debe existir un unico checkbox accesible por control.
+
+Resultado actual:
+Playwright detecta dos nodos checkbox para el mismo campo.
+
+Posible impacto:
+- Confusion para lectores de pantalla
+- Flakiness en automatizacion
+- Ambiguedad en el arbol accesible
+
+Referencia de codigo:
+- Checkbox: src/modules/auth/islands/FormSignIn.tsx:512
+
+--------------------------------------------------
+
+Resumen ejecutivo
+
+- Problema principal: el login por email/password esta bloqueado.
+- Causa mas probable: Turnstile no genera token y el submit depende de ese token.
+- Problemas secundarios: errores de consola por Google One Tap/FedCM y posible duplicidad accesible en el checkbox "Recuerdame".
+
+Archivos de evidencia
+
+- .playwright-cli/page-2026-07-06T20-42-16-576Z.yml
+- sign-in-filled.yml
+- .playwright-cli/page-2026-07-06T20-43-34-062Z.yml
