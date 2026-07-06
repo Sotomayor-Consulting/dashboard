@@ -27,6 +27,10 @@ type RegisterResponse = {
 	error?: string;
 };
 
+interface FormSignUpProps {
+	turnstileSiteKey?: string | undefined;
+}
+
 function openOAuthPopup(url: string) {
 	const width = 500;
 	const height = 600;

@@ -12,6 +12,7 @@ import {
 	jsonSuccess,
 	jsonError,
 } from '@infrastructure/auth';
+import { TURNSTILE_SECRET_KEY } from 'astro:env/server';
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const wantsJson = request.headers
