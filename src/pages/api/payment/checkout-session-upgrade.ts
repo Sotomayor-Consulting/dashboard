@@ -72,21 +72,31 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			);
 		}
 
-		const { data: servicio, error: servicioErr } = await supabaseAdmin
-			.from('servicios')
-			.select('id_servicios, nombre, precio, servicio_activo')
-			.eq('id_servicios', body.servicio.id)
-			.eq('servicio_activo', true)
+		const planIdNum = Number(body.servicio.id);
+		if (!Number.isInteger(planIdNum) || planIdNum <= 0) {
+			return new Response(JSON.stringify({ error: 'servicio.id inválido' }), {
+				status: 400,
+				headers: SECURITY_HEADERS,
+			});
+		}
+		const { data: plan, error: planCatErr } = await supabaseAdmin
+			.schema('catalogs')
+			.from('service_plans')
+			.select('id, slug, name, price')
+			.eq('id', planIdNum)
+			.eq('is_active', true)
 			.single();
 
-		if (servicioErr || !servicio) {
+		if (planCatErr || !plan) {
 			return new Response(
-				JSON.stringify({ error: 'Servicio de upgrade no encontrado o inactivo' }),
+				JSON.stringify({
+					error: 'Servicio de upgrade no encontrado o inactivo',
+				}),
 				{ status: 404, headers: SECURITY_HEADERS },
 			);
 		}
 
-		const baseAmount = Number(servicio.precio);
+		const baseAmount = Number(plan.price);
 		if (!Number.isFinite(baseAmount) || baseAmount <= 0) {
 			return new Response(
 				JSON.stringify({ error: 'Monto inválido para upgrade' }),
@@ -98,7 +108,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		const feeCents = Math.round(baseAmountCents * PROCESSING_FEE_PERCENT);
 
 		const metadata: Record<string, string> = {
-			servicio_id: String(servicio.id_servicios),
+			plan_id: String(plan.id), // id canónico (catalogs.service_plans)
+			plan_slug: String(plan.slug),
 			user_id: String(body.userId),
 			empresa_incorporacion_id: String(body.empresaId),
 			base_amount_cents: String(baseAmountCents),
@@ -113,7 +124,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				price_data: {
 					currency: 'usd',
 					product_data: {
-						name: servicio.nombre ?? 'Upgrade LLC',
+						name: plan.name ?? 'Upgrade LLC',
 					},
 					unit_amount: baseAmountCents,
 				},
@@ -134,7 +145,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 		const session = await stripe.checkout.sessions.create({
 			mode: 'payment',
-			payment_method_types: ['card', 'us_bank_account', 'amazon_pay', 'cashapp'],
+			payment_method_types: [
+				'card',
+				'us_bank_account',
+				'amazon_pay',
+				'cashapp',
+			],
 			line_items: lineItems,
 			client_reference_id: user.id,
 			metadata,
@@ -147,7 +163,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			invoice_creation: { enabled: true, invoice_data: { metadata } },
 			payment_intent_data: {
 				metadata,
-				description: servicio.nombre || 'Upgrade LLC',
+				description: plan.name || 'Upgrade LLC',
 			},
 			success_url: `${PUBLIC_SITE_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
 			cancel_url: `${PUBLIC_SITE_URL}/upgrade`,

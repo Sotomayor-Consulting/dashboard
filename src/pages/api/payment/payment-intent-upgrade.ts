@@ -75,19 +75,29 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			);
 		}
 
-		const { data: servicio, error: servicioError } = await supabaseAdmin
-			.from('servicios')
-			.select('id_servicios, nombre, precio, servicio_activo')
-			.eq('id_servicios', body.servicio.id)
-			.eq('servicio_activo', true)
+		const planIdNum = Number(body.servicio.id);
+		if (!Number.isInteger(planIdNum) || planIdNum <= 0) {
+			return new Response(JSON.stringify({ error: 'servicio.id inválido' }), {
+				status: 400,
+				headers: SECURITY_HEADERS,
+			});
+		}
+		const { data: plan, error: planCatErr } = await supabaseAdmin
+			.schema('catalogs')
+			.from('service_plans')
+			.select('id, slug, name, price')
+			.eq('id', planIdNum)
+			.eq('is_active', true)
 			.single();
 
-		if (servicioError || !servicio) {
+		if (planCatErr || !plan) {
 			log.error('servicio no encontrado o inactivo', {
-					error: servicioError,
-				});
+				error: planCatErr,
+			});
 			return new Response(
-				JSON.stringify({ error: 'Servicio de upgrade no encontrado o inactivo' }),
+				JSON.stringify({
+					error: 'Servicio de upgrade no encontrado o inactivo',
+				}),
 				{
 					status: 404,
 					headers: SECURITY_HEADERS,
@@ -95,12 +105,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			);
 		}
 
-		const upgradeBaseAmount = Number(servicio.precio);
+		const upgradeBaseAmount = Number(plan.price);
 		if (!Number.isFinite(upgradeBaseAmount) || upgradeBaseAmount <= 0) {
-			return new Response(JSON.stringify({ error: 'Monto invalido para upgrade' }), {
-				status: 400,
-				headers: SECURITY_HEADERS,
-			});
+			return new Response(
+				JSON.stringify({ error: 'Monto invalido para upgrade' }),
+				{
+					status: 400,
+					headers: SECURITY_HEADERS,
+				},
+			);
 		}
 
 		const frontendPrice = Number(body.servicio.price);
@@ -123,10 +136,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		const paymentIntent = await stripe.paymentIntents.create({
 			amount: totalAmountCents,
 			currency: 'usd',
-			description: servicio.nombre || 'Pago por Upgrade LLC - Final',
+			description: plan.name || 'Pago por Upgrade LLC - Final',
 			payment_method_types: ['card'],
 			metadata: {
-				servicio_id: String(servicio.id_servicios),
+				plan_id: String(plan.id), // id canónico (catalogs.service_plans)
+				plan_slug: String(plan.slug),
 				user_id: String(body.userId),
 				empresa_incorporacion_id: String(body.empresaId),
 				base_amount_cents: String(baseAmountCents),

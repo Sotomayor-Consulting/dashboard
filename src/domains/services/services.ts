@@ -1,13 +1,23 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('domains.services');
 
+// Catálogo canónico de planes: catalogs.service_plans (schema `catalogs` expuesto
+// en PostgREST). Los alias del select mantienen el shape en español (nombre,
+// precio, descripcion…) que consumen las vistas; `id`/`slug`/`plan_kind` son canónicos.
+const PLAN_SELECT_LEGACY = `id, slug, plan_kind, sort_order,
+	nombre:name, precio:price,
+	descripcion:description, etiqueta:label, categoria:metadata->>categoria,
+	servicio_activo:is_active, created_at`;
+
 export const ListaServiciosGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
-		.from('servicios')
-		.select('*', { count: 'exact' })
-		.order('created_at', { ascending: false });
+		.schema('catalogs')
+		.from('service_plans')
+		.select(PLAN_SELECT_LEGACY)
+		.order('sort_order', { ascending: true });
 	if (error) {
 		log.error('Error fetching todos servicios', { error });
 		throw error;
@@ -16,16 +26,16 @@ export const ListaServiciosGeneral = async (supabase: SupabaseClient) => {
 	return data;
 };
 
-export const ListaServiciosStripe = async (supabase: SupabaseClient) => {
-	const { data, error } = await supabase
-		.from('servicios')
-		.select(
-			`
-		*
-	`,
-		)
-		.eq('servicio_activo', true)
-		.in('id', [1, 2, 3, 4]);
+export const ListaServiciosStripe = async (_supabase: SupabaseClient) => {
+	// supabaseAdmin: el pricing se muestra en rutas públicas (pre-registro) y la
+	// RLS del catálogo es authenticated-only; service_role evita abrir el catálogo a anon.
+	const { data, error } = await supabaseAdmin
+		.schema('catalogs')
+		.from('service_plans')
+		.select(PLAN_SELECT_LEGACY)
+		.eq('is_active', true)
+		.eq('plan_kind', 'base')
+		.order('sort_order', { ascending: true });
 	if (error) {
 		log.error('Error fetching servicios de para pago', { error });
 		throw error;
@@ -35,11 +45,17 @@ export const ListaServiciosStripe = async (supabase: SupabaseClient) => {
 };
 
 export const getServicioUpgrade = async (supabase: SupabaseClient) => {
-	const { data, error } = await supabase.from('servicios').select('id_servicios, nombre, precio').eq('nombre', 'Upgrade').eq('servicio_activo', true).maybeSingle();
+	const { data, error } = await supabase
+		.schema('catalogs')
+		.from('service_plans')
+		.select('id, slug, nombre:name, precio:price')
+		.eq('slug', 'upgrade')
+		.eq('is_active', true)
+		.maybeSingle();
 	if (error) {
 		log.error('Error fetching servicios upgrade para pago', { error });
 		throw error;
 	}
 
 	return data;
-}
+};

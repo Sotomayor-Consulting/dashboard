@@ -9,7 +9,7 @@ export const getPlanContratadoPorEmpresa = async (
 ) => {
 	const { data, error } = await supabase
 		.from('pagos')
-		.select('created_at, servicios:servicio_id ( nombre )')
+		.select('created_at, servicios:service_plans ( nombre:name )')
 		.eq('empresa_incorporacion_id', empresaId)
 		.eq('status', 'succeeded')
 		.order('created_at', { ascending: false })
@@ -21,5 +21,8 @@ export const getPlanContratadoPorEmpresa = async (
 		return null;
 	}
 
-	return data as { created_at: string; servicios?: { nombre?: string | null } } | null;
+	return data as {
+		created_at: string;
+		servicios?: { nombre?: string | null };
+	} | null;
 };

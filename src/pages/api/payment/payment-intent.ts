@@ -79,16 +79,24 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 		const { planId, userId, empresaId, microservicios = [] } = body;
 
-		// ─── 4) Servicio vigente (precio/activo) ─────────
-		const { data: servicio, error: serviciosErr } = await supabaseAdmin
-			.from('servicios')
-			.select('id_servicios, nombre, precio, servicio_activo')
-			.eq('id_servicios', planId)
-			.eq('servicio_activo', true)
+		// ─── 4) Plan vigente (catálogo canónico; planId = catalogs.service_plans.id) ──
+		const planIdNum = Number(planId);
+		if (!Number.isInteger(planIdNum) || planIdNum <= 0) {
+			return new Response(JSON.stringify({ error: 'planId inválido' }), {
+				status: 400,
+				headers: SECURITY_HEADERS,
+			});
+		}
+		const { data: plan, error: planCatErr } = await supabaseAdmin
+			.schema('catalogs')
+			.from('service_plans')
+			.select('id, slug, name, price')
+			.eq('id', planIdNum)
+			.eq('is_active', true)
 			.single();
 
-		if (serviciosErr || !servicio) {
-			log.error('Servicio no encontrado o inactivo', { error: serviciosErr });
+		if (planCatErr || !plan) {
+			log.error('Servicio no encontrado o inactivo', { error: planCatErr });
 			return new Response(
 				JSON.stringify({ error: 'Servicio no encontrado o inactivo' }),
 				{
@@ -98,27 +106,36 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			);
 		}
 
-		// ─── 5) Validar y obtener precios de microservicios desde la BD ──
+		// ─── 5) Validar addons contra el catálogo canónico (uuids legacy → mapping) ──
 		let microserviciosTotal = 0;
 		let microserviciosValidados: Array<{
 			id: string;
 			name: string;
 			price: number;
 		}> = [];
+		const addonServiceIds: number[] = [];
 
 		if (microservicios.length > 0) {
-			const microserviciosIds = microservicios.map((m) => m.id);
+			const microserviciosIds = microservicios.map((m) => Number(m.id));
+			if (microserviciosIds.some((id) => !Number.isInteger(id) || id <= 0)) {
+				return new Response(
+					JSON.stringify({ error: 'Microservicio con id inválido' }),
+					{ status: 400, headers: SECURITY_HEADERS },
+				);
+			}
 			const { data: microserviciosDB, error: microserviciosErr } =
 				await supabaseAdmin
-					.from('micro_servicios')
-					.select('id_micro_servicios, nombre, precio, estado')
-					.in('id_micro_servicios', microserviciosIds)
-					.eq('estado', true);
+					.schema('catalogs')
+					.from('services')
+					.select('id, name, price')
+					.in('id', microserviciosIds)
+					.eq('is_active', true)
+					.eq('sellable_alone', true);
 
 			if (microserviciosErr) {
 				log.error('Error obteniendo microservicios', {
-						error: microserviciosErr,
-					});
+					error: microserviciosErr,
+				});
 				return new Response(
 					JSON.stringify({ error: 'Error validando microservicios' }),
 					{
@@ -130,7 +147,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 			for (const solicitado of microservicios) {
 				const dbItem = microserviciosDB?.find(
-					(db) => db.id_micro_servicios === solicitado.id,
+					(db) => db.id === Number(solicitado.id),
 				);
 				if (!dbItem) {
 					return new Response(
@@ -146,22 +163,23 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 				// Usar el precio de la BD (seguro) en lugar del del frontend
 				microserviciosValidados.push({
-					id: dbItem.id_micro_servicios,
-					name: dbItem.nombre,
-					price: Number(dbItem.precio),
+					id: String(dbItem.id),
+					name: dbItem.name,
+					price: Number(dbItem.price),
 				});
-				microserviciosTotal += Number(dbItem.precio);
+				addonServiceIds.push(dbItem.id);
+				microserviciosTotal += Number(dbItem.price);
 			}
 		}
 
 		// ─── 6) Montos (USD → centavos) + 4.5% fee ──────
-		const planBaseAmount = Number(servicio.precio) + microserviciosTotal;
+		const planBaseAmount = Number(plan.price) + microserviciosTotal;
 		const baseAmountCents = Math.round(planBaseAmount * 100);
 		const feePercent = 0.045;
 		const totalAmountCents = Math.round(baseAmountCents * (1 + feePercent));
 
 		if (!Number.isFinite(totalAmountCents) || totalAmountCents <= 0) {
-			log.error('Monto inválido para servicio', { servicio });
+			log.error('Monto inválido para servicio', { plan });
 			return new Response(
 				JSON.stringify({ error: 'Monto inválido para el servicio' }),
 				{
@@ -173,18 +191,20 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 		// ─── 7) Metadata para Stripe ─────────────────────
 		const metadata: Record<string, string> = {
-			servicio_id: String(servicio.id_servicios),
+			plan_id: String(plan.id), // id canónico (catalogs.service_plans)
+			plan_slug: String(plan.slug),
 			user_id: String(userId),
 			empresa_incorporacion_id: String(empresaId),
 			base_amount_cents: String(baseAmountCents),
 			fee_percent: String(feePercent * 100), // "4.5"
-			plan_base_amount: String(servicio.precio),
+			plan_base_amount: String(plan.price),
 			microservicios_total: String(microserviciosTotal),
 			microservicios_count: String(microserviciosValidados.length),
 		};
 
 		if (microserviciosValidados.length > 0) {
 			metadata.microservicios_exist = 'true';
+			metadata.addon_service_ids = addonServiceIds.join(','); // ids canónicos (services)
 
 			const microserviciosArray = microserviciosValidados.map((m) => ({
 				id: m.id,
@@ -193,24 +213,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			}));
 
 			metadata.microservicios_array = JSON.stringify(microserviciosArray);
-
-			// Compatibilidad legacy (datos separados por comas)
-			metadata.microservicios_ids = microserviciosValidados
-				.map((m) => m.id)
-				.join(',');
-			metadata.microservicios_names = microserviciosValidados
-				.map((m) => m.name)
-				.join(',');
-			metadata.microservicios_prices = microserviciosValidados
-				.map((m) => m.price)
-				.join(',');
 		} else {
 			metadata.microservicios_exist = 'false';
 			metadata.microservicios_array = '[]';
 		}
 
 		// ─── 8) Crear PaymentIntent en Stripe ────────────
-		let description = servicio.nombre ?? 'Servicio LLC';
+		let description = plan.name ?? 'Servicio LLC';
 		if (microserviciosValidados.length > 0) {
 			const microserviciosNames = microserviciosValidados
 				.map((m) => m.name)

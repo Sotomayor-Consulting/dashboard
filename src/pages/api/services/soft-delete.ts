@@ -2,6 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/admin/services/'; // Ajusta esta ruta según tu frontend
@@ -20,10 +21,16 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 	try {
 		// 1) Sesión
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
 		// 2) Verificar que el usuario es admin
-		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
+		const {
+			data: { user: actor },
+			error: userErr,
+		} = await supabase.auth.getUser();
 		if (userErr || !actor) {
 			return redirect(
 				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
@@ -65,18 +72,16 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			);
 		}
 
-		// 4) Preparar payload para actualizar (siguiendo tu patrón)
+		// 4) Payload canónico
 		const payload: Record<string, any> = {
-			servicio_activo,
-			// Nota: en tu endpoint base usas created_at como "updated". Replico el patrón:
-			created_at: new Date().toISOString(),
-			// Si en tu esquema existe updated_at y prefieres usarlo, cambia a:
-			// updated_at: new Date().toISOString(),
+			is_active: servicio_activo,
+			updated_at: new Date().toISOString(),
 		};
 
-		// 5) Actualizar el servicio
-		const { error } = await supabase
-			.from('servicios')
+		// 5) Actualizar el plan (supabaseAdmin: la vista es solo-SELECT para authenticated)
+		const { error } = await supabaseAdmin
+			.schema('catalogs')
+			.from('service_plans')
 			.update(payload)
 			.eq('id', servicioId);
 

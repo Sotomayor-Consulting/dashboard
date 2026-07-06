@@ -72,9 +72,7 @@ async function deliverBusinessEmail(
 	const allRecipients: BusinessEmailRecipient[] = clientRecipient
 		? [clientRecipient, ...operationsRecipients]
 		: operationsRecipients;
-	const recipients = dedupeBusinessRecipients(
-		allRecipients,
-	);
+	const recipients = dedupeBusinessRecipients(allRecipients);
 
 	if (recipients.length === 0) {
 		return {
@@ -191,11 +189,15 @@ export async function sendWorkflowTaskCompletedEmail(
 
 	return deliverBusinessEmail(
 		withNullableField(
-			withNullableField({
-				eventKey: 'workflow.task.completed',
-				caseId: data.incorporation_id as string,
-				taskName: (data.title as string | null) ?? null,
-			}, 'actionUrl', actionUrl),
+			withNullableField(
+				{
+					eventKey: 'workflow.task.completed',
+					caseId: data.incorporation_id as string,
+					taskName: (data.title as string | null) ?? null,
+				},
+				'actionUrl',
+				actionUrl,
+			),
 			'clientEmailOverride',
 			clientEmailOverride,
 		),
@@ -213,10 +215,14 @@ export async function sendDocumentRequestedEmail(input: {
 		withNullableField(
 			withNullableField(
 				withNullableField(
-					withNullableField({
-						eventKey: 'documents.requested',
-						caseId: input.caseId,
-					}, 'actionUrl', input.actionUrl),
+					withNullableField(
+						{
+							eventKey: 'documents.requested',
+							caseId: input.caseId,
+						},
+						'actionUrl',
+						input.actionUrl,
+					),
 					'message',
 					input.message,
 				),
@@ -236,10 +242,14 @@ export async function sendDocumentSharedEmail(input: {
 }): Promise<SendBusinessEmailResult> {
 	return deliverBusinessEmail(
 		withNullableField(
-			withNullableField({
-				eventKey: 'documents.shared',
-				caseId: input.caseId,
-			}, 'actionUrl', input.actionUrl),
+			withNullableField(
+				{
+					eventKey: 'documents.shared',
+					caseId: input.caseId,
+				},
+				'actionUrl',
+				input.actionUrl,
+			),
 			'clientEmailOverride',
 			input.clientEmailOverride,
 		),
@@ -253,10 +263,14 @@ export async function sendIncorporationSubmittedEmail(input: {
 }): Promise<SendBusinessEmailResult> {
 	return deliverBusinessEmail(
 		withNullableField(
-			withNullableField({
-				eventKey: 'incorporation.submitted',
-				caseId: input.caseId,
-			}, 'actionUrl', input.actionUrl),
+			withNullableField(
+				{
+					eventKey: 'incorporation.submitted',
+					caseId: input.caseId,
+				},
+				'actionUrl',
+				input.actionUrl,
+			),
 			'clientEmailOverride',
 			input.clientEmailOverride,
 		),
@@ -270,10 +284,14 @@ export async function sendIncorporationValidatedEmail(input: {
 }): Promise<SendBusinessEmailResult> {
 	return deliverBusinessEmail(
 		withNullableField(
-			withNullableField({
-				eventKey: 'incorporation.validated',
-				caseId: input.caseId,
-			}, 'actionUrl', input.actionUrl),
+			withNullableField(
+				{
+					eventKey: 'incorporation.validated',
+					caseId: input.caseId,
+				},
+				'actionUrl',
+				input.actionUrl,
+			),
 			'clientEmailOverride',
 			input.clientEmailOverride,
 		),
@@ -289,10 +307,14 @@ export async function sendPaymentSucceededEmail(input: {
 	return deliverBusinessEmail(
 		withNullableField(
 			withNullableField(
-				withNullableField({
-					eventKey: 'payment.succeeded',
-					caseId: input.caseId,
-				}, 'actionUrl', input.actionUrl),
+				withNullableField(
+					{
+						eventKey: 'payment.succeeded',
+						caseId: input.caseId,
+					},
+					'actionUrl',
+					input.actionUrl,
+				),
 				'serviceName',
 				input.serviceName,
 			),
@@ -307,7 +329,7 @@ export async function sendPaymentSucceededEmailByPaymentIntent(
 ): Promise<SendBusinessEmailResult> {
 	const { data, error } = await supabaseAdmin
 		.from('pagos')
-		.select('empresa_incorporacion_id, servicios:servicio_id(nombre)')
+		.select('empresa_incorporacion_id, servicios:service_plans(nombre:name)')
 		.eq('stripe_payment_intent_id', paymentIntentId)
 		.order('created_at', { ascending: false })
 		.limit(1)
@@ -348,10 +370,14 @@ export async function sendFormSubmittedEmail(input: {
 }): Promise<SendBusinessEmailResult> {
 	return deliverBusinessEmail(
 		withNullableField(
-			withNullableField({
-				eventKey: 'form.submitted',
-				caseId: input.caseId,
-			}, 'actionUrl', input.actionUrl),
+			withNullableField(
+				{
+					eventKey: 'form.submitted',
+					caseId: input.caseId,
+				},
+				'actionUrl',
+				input.actionUrl,
+			),
 			'clientEmailOverride',
 			input.clientEmailOverride,
 		),
