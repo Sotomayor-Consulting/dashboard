@@ -462,11 +462,11 @@
    ──────────────────────────────────────────────────────────── */
 @layer components {
 	.section-title {
-		@apply text-lg font-semibold text-foreground;
+		@apply text-foreground text-lg font-semibold;
 	}
 
 	.section-description {
-		@apply mt-1 text-sm text-muted-foreground;
+		@apply text-muted-foreground mt-1 text-sm;
 	}
 
 	.section-header {
@@ -474,27 +474,27 @@
 	}
 
 	.flat-card {
-		@apply rounded-lg border border-border;
+		@apply border-border rounded-lg border;
 	}
 
 	.flat-card-padded {
-		@apply rounded-lg border border-border p-4;
+		@apply border-border rounded-lg border p-4;
 	}
 
 	.flat-list {
-		@apply divide-y divide-border rounded-lg border border-border;
+		@apply divide-border border-border divide-y rounded-lg border;
 	}
 
 	.kicker {
-		@apply text-[11px] font-semibold tracking-wider text-muted-foreground uppercase;
+		@apply text-muted-foreground text-[11px] font-semibold tracking-wider uppercase;
 	}
 
 	.stat-value {
-		@apply text-2xl font-bold text-foreground;
+		@apply text-foreground text-2xl font-bold;
 	}
 
 	.stat-label {
-		@apply text-xs text-muted-foreground;
+		@apply text-muted-foreground text-xs;
 	}
 
 	.badge-status {
@@ -502,11 +502,11 @@
 	}
 
 	.btn-primary {
-		@apply inline-flex cursor-pointer items-center justify-center rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-background transition hover:opacity-80;
+		@apply bg-foreground text-background inline-flex cursor-pointer items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition hover:opacity-80;
 	}
 
 	.btn-outline {
-		@apply inline-flex cursor-pointer items-center justify-center rounded-lg border border-border bg-transparent px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-hover;
+		@apply border-border text-foreground hover:bg-hover inline-flex cursor-pointer items-center justify-center rounded-lg border bg-transparent px-4 py-2.5 text-sm font-medium transition;
 	}
 }
 
@@ -644,4 +644,66 @@
 }
 .client-form-shell .cf-scroll::-webkit-scrollbar-thumb:active {
 	background-color: var(--cf-ink-soft);
+}
+
+/* ── Start wizard: transición suave entre pasos ────────────────────
+   Usa la View Transitions API nativa (document.startViewTransition).
+   Crossfade minimalista con un lift vertical mínimo (sin slide lateral):
+   el contenido nuevo se disuelve y asienta, y el contenedor (group) morfa
+   su alto con un easing suave para que no salte entre pasos.
+
+   Durante una transición de paso el JS marca <html data-step-dir="…">;
+   ahí excluimos el root para que SOLO anime el contenido del paso y el
+   resto de la página (botón, dots, marca) no haga ghosting. No afecta a
+   las transiciones de navegación de Astro (que no marcan ese atributo). */
+html[data-step-dir] {
+	view-transition-name: none;
+}
+
+html[data-step-dir]::view-transition-group(start-step) {
+	animation-duration: 0.42s;
+	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html[data-step-dir]::view-transition-old(start-step),
+html[data-step-dir]::view-transition-new(start-step) {
+	animation-duration: 0.42s;
+	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+	animation-fill-mode: both;
+}
+
+html[data-step-dir]::view-transition-old(start-step) {
+	animation-name: start-step-fade-out;
+}
+html[data-step-dir]::view-transition-new(start-step) {
+	animation-name: start-step-fade-in;
+}
+
+@keyframes start-step-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+@keyframes start-step-fade-out {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(-6px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-group(start-step),
+	::view-transition-old(start-step),
+	::view-transition-new(start-step) {
+		animation: none;
+	}
 }
