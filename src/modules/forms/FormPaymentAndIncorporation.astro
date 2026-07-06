@@ -1,15 +1,8 @@
 ---
 import Stripelogo from '@assets/logos/stripe.svg';
+import LogoSCI from '../../icons/Letras_logo_SCI.svg';
 import { Icon } from 'astro-icon/components';
-import { Badge } from '@components/ui/Badge';
-import {
-	Card,
-	CardAction,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@components/ui/Card';
+import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
 import CompanySelect from './islands/CompanySelect.tsx';
 import { getIncorporacionesEnProceso } from '@domains/companies/incorporations';
 import { ListaServiciosStripe } from '@domains/services/services';
@@ -38,7 +31,8 @@ const planDiseno = servicios?.find(
 	(s: { slug: string }) => s.slug === 'diseno',
 );
 
-const basePlans = [planBasico, planBusiness, planEstandar].filter(
+// Los 4 planes en una sola grilla (Diseño incluido como cuarta opción).
+const allPlans = [planBasico, planBusiness, planEstandar, planDiseno].filter(
 	(p): p is NonNullable<typeof planBasico> => Boolean(p),
 );
 
@@ -67,7 +61,22 @@ const featuresByPlan = new Map<string, string[]>([
 			'Solicitud de Exención BE-13.',
 		],
 	],
-	['diseno', ['Planificación y diseño de LLC.']],
+	[
+		'diseno',
+		[
+			'Estado de incorporación ideal (50 jurisdicciones).',
+			'Tratamiento tributario federal óptimo.',
+			'Modelo administrativo y contable a medida.',
+		],
+	],
+]);
+
+// Etiqueta corta de tier por plan (business resalta en dorado).
+const tagByPlan = new Map<string, string>([
+	['basico', 'Esencial'],
+	['business', 'Más popular'],
+	['estandar', 'Completo'],
+	['diseno', 'Upgrade'],
 ]);
 
 const planLeadByPlan = new Map<string, string>([
@@ -80,329 +89,350 @@ const planLeadByPlan = new Map<string, string>([
 	['diseno', 'Ideal para redefinir la estructura de una LLC ya existente.'],
 ]);
 
-const designPlanDetails = [
-	'Estado de incorporación (50 jurisdicciones posibles).',
-	'Tratamiento tributario federal que más le conviene.',
-	'Modelo administrativo y de gestión según su operación.',
-	'Sistema contable más conveniente para su negocio.',
-	'Nivel de confidencialidad aplicable a socios y beneficiarios.',
+const year = new Date().getFullYear();
+
+// Métodos de pago aceptados (glyphs monocromáticos de Remix Icon, offline).
+// Stripe procesa siempre Visa/Mastercard vía tarjeta; añade Amex/PayPal aquí
+// solo si están habilitados en el dashboard de Stripe.
+const paymentMethods = [
+	{ icon: 'ri:visa-fill', label: 'Visa' },
+	{ icon: 'ri:mastercard-fill', label: 'Mastercard' },
 ];
+
+// ─── Tokens de estilo flat/open (consistentes con el start wizard) ──
+const goldLabel =
+	'text-primary-gold text-xs font-semibold tracking-[0.25em] uppercase';
+const heading =
+	'text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl dark:text-white';
+const subtitle = 'text-base leading-7 text-slate-500 dark:text-slate-400';
+// CTA primario: dorado sólido con texto oscuro (alto contraste), micro-lift
+// al hover, scale al pulsar y ring de foco accesible.
+const goldButton =
+	'group inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary-gold px-5 text-sm font-semibold text-primary-black shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:translate-y-0 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary-gold/50 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-60 dark:focus-visible:ring-offset-black';
+// Secundario ghost: solo borde, subordinado al primario.
+const ghostButton =
+	'group inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-transparent px-5 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-60 dark:border-neutral-800 dark:text-slate-200 dark:hover:bg-white/5 dark:focus-visible:ring-neutral-700 dark:focus-visible:ring-offset-black';
+const dashedNote =
+	'rounded-xl border border-dashed border-slate-200 bg-slate-50/60 p-4 text-sm text-slate-500 dark:border-neutral-800 dark:bg-white/[0.02] dark:text-slate-400';
+// El label recibe las variantes peer-checked (borde/ring + check dorado).
+const planCard =
+	'relative block h-full cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 transition-all hover:border-slate-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700 peer-checked:border-[#8c681d] peer-checked:ring-2 peer-checked:ring-[#8c681d]/20 peer-checked:[&_.plan-check]:opacity-100';
 ---
 
-<main id="content" class={userId} data-user-id={userId}>
-	<div class="relative overflow-hidden">
-		<div
-			class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-80 bg-linear-to-b from-amber-100/70 via-transparent to-transparent dark:from-amber-500/10"
+<main id="content" class="flex min-h-dvh flex-col" data-user-id={userId}>
+	<header
+		class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8"
+	>
+		<a
+			href="https://sotomayorconsulting.com/inicio/"
+			class="inline-flex items-center invert dark:invert-0"
+			aria-label="Sotomayor Consulting"
 		>
-		</div>
+			<LogoSCI class="h-6 w-auto" />
+		</a>
+		<ColorModeSwitcher />
+	</header>
 
-		<section
-			id="panel1"
-			class="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center px-4 py-10 sm:px-6 lg:px-8"
-		>
-			<div
-				class="grid w-full gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center"
-			>
-				<div class="space-y-5">
-					<Badge
-						variant="outline"
-						className="px-3 py-1 text-[11px] tracking-[0.24em] uppercase"
-					>
-						Checkout LLC
-					</Badge>
-					<div class="space-y-3">
-						<h1
-							class="text-foreground max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl"
-						>
-							Seleccione la empresa y prepare su proceso de pago.
-						</h1>
-						<p
-							class="text-muted-foreground max-w-2xl text-base leading-7 sm:text-lg"
-						>
-							Elija la incorporación que desea activar y avance a un checkout
-							seguro con Stripe.
-						</p>
-					</div>
-
-					<div class="grid gap-3 sm:grid-cols-3">
-						<div class="bg-background/80 rounded-xl border p-4 shadow-xs">
-							<p
-								class="text-muted-foreground text-xs tracking-[0.2em] uppercase"
-							>
-								Empresas
-							</p>
-							<p class="text-foreground mt-2 text-2xl font-semibold">
-								{empresas?.length ?? 0}
-							</p>
-						</div>
-						<div class="bg-background/80 rounded-xl border p-4 shadow-xs">
-							<p
-								class="text-muted-foreground text-xs tracking-[0.2em] uppercase"
-							>
-								Planes
-							</p>
-							<p class="text-foreground mt-2 text-2xl font-semibold">
-								{basePlans.length + (planDiseno ? 1 : 0)}
-							</p>
-						</div>
-						<div class="bg-background/80 rounded-xl border p-4 shadow-xs">
-							<p
-								class="text-muted-foreground text-xs tracking-[0.2em] uppercase"
-							>
-								Pasarela
-							</p>
-							<div class="mt-3 flex items-center gap-2">
-								<Stripelogo width={70} />
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<Card className="border-border/70 bg-background/95 shadow-2xl">
-					<CardHeader className="space-y-2 border-b pb-5">
-						<CardTitle className="text-xl">Empresa a incorporar</CardTitle>
-						<CardDescription>
-							Seleccione la empresa sobre la cual desea continuar el checkout.
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-5 pt-5">
-						{
-							empresas?.length ? (
-								<>
-									<div class="space-y-2">
-										<label
-											for="empresa-select"
-											class="text-foreground text-sm font-medium"
-										>
-											Empresas disponibles
-										</label>
-										<CompanySelect companies={empresas ?? []} client:load />
-									</div>
-
-									<div class="border-border bg-muted/30 text-muted-foreground rounded-xl border border-dashed p-4 text-sm">
-										Su selección definirá a qué incorporación se vinculará el
-										pago y el flujo posterior del proceso.
-									</div>
-
-									<button
-										id="btn-paso1"
-										type="button"
-										class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-medium transition disabled:pointer-events-none disabled:opacity-50"
-									>
-										Continuar a planes
-									</button>
-								</>
-							) : (
-								<div class="border-border bg-muted/30 text-muted-foreground rounded-xl border border-dashed p-4 text-sm">
-									Aún no tienes ninguna empresa pendiente por pagar.
-								</div>
-							)
-						}
-					</CardContent>
-				</Card>
+	<section id="panel1" class="flex flex-1 flex-col justify-center px-4 py-10">
+		<div class="mx-auto w-full max-w-md">
+			<div class="space-y-2 text-center">
+				<p class={goldLabel}>Paso 01 · de 02</p>
+				<h1 class={heading}>Selecciona tu empresa</h1>
+				<p class={subtitle}>
+					Elige la incorporación que deseas activar y avanza a un checkout
+					seguro con Stripe.
+				</p>
 			</div>
-		</section>
 
-		<section id="panel2" class="hidden px-4 py-10 sm:px-6 lg:px-8">
-			<div class="mx-auto max-w-6xl space-y-10">
-				<div class="mx-auto max-w-3xl text-center">
-					<Badge
-						variant="secondary"
-						className="mb-4 px-3 py-1 text-[11px] tracking-[0.24em] uppercase"
-					>
-						Planes disponibles
-					</Badge>
-					<h2
-						class="text-foreground text-3xl font-semibold tracking-tight sm:text-4xl"
-					>
-						Escoja su plan
-					</h2>
-					<p class="text-muted-foreground mt-3 text-base leading-7 sm:text-lg">
-						Elija la alternativa que mejor se adapta a su estructura y continúe
-						al pago seguro.
-					</p>
-				</div>
-
-				<div class="grid gap-5 lg:grid-cols-3">
-					{
-						basePlans.map((plan, index) => {
-							const features = featuresByPlan.get(plan.slug) ?? [];
-							const lead =
-								planLeadByPlan.get(plan.slug) ?? plan.descripcion ?? '';
-							const isFeatured = plan.slug === 'business';
-
-							return (
-								<div class="relative">
-									<input
-										type="radio"
-										id={`plan-${plan.id}`}
-										name="plan"
-										value={plan.id}
-										class="peer sr-only"
-										required
-										checked={isFeatured}
-										data-price={plan.precio}
-										data-servicio={plan.etiqueta}
-									/>
-									<label
-										for={`plan-${plan.id}`}
-										class="block cursor-pointer peer-checked:[&_.plan-copy]:text-[#a67c28] peer-checked:[&_.plan-feature]:text-[#b4862f] peer-checked:[&_.plan-price]:text-[#c89b3c] peer-checked:[&_[data-slot=card-description]]:text-[#a67c28] peer-checked:[&_[data-slot=card-title]]:text-[#c89b3c]"
-									>
-										<span class="bg-primary text-primary-foreground pointer-events-none absolute top-3 right-3 z-10 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold opacity-0 shadow-sm transition-opacity duration-200 peer-checked:opacity-100">
-											Seleccionado
-										</span>
-										<Card className="h-full border-border/70 bg-background/95 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
-											<CardHeader className="space-y-3 border-b pb-5">
-												<CardAction>
-													{isFeatured ? (
-														<Badge variant="default">Mas popular</Badge>
-													) : (
-														<Badge variant="outline">Plan {index + 1}</Badge>
-													)}
-												</CardAction>
-												<div class="space-y-1 pr-20">
-													<CardTitle className="text-xl">
-														{plan.nombre}
-													</CardTitle>
-													<CardDescription>{lead}</CardDescription>
-												</div>
-												<div class="pt-4">
-													<p class="plan-price text-foreground text-4xl font-semibold tracking-tight transition-colors duration-200">
-														${plan.precio}
-													</p>
-													<p class="plan-copy text-muted-foreground mt-2 text-sm transition-colors duration-200">
-														{plan.descripcion}
-													</p>
-												</div>
-											</CardHeader>
-											<CardContent className="space-y-4 pt-5">
-												<ul class="text-muted-foreground space-y-3 text-sm">
-													{features.map((feature) => (
-														<li class="flex items-start gap-3">
-															<span class="bg-primary/10 text-primary mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full">
-																<Icon name="ri:check-line" class="size-3.5" />
-															</span>
-															<span class="plan-feature text-foreground/85 transition-colors duration-200">
-																{feature}
-															</span>
-														</li>
-													))}
-												</ul>
-											</CardContent>
-										</Card>
-									</label>
-								</div>
-							);
-						})
-					}
-				</div>
-
+			<div class="mt-10 space-y-5">
 				{
-					planDiseno && (
-						<div class="mx-auto max-w-3xl">
-							<input
-								type="radio"
-								id={`plan-${planDiseno.id}`}
-								name="plan"
-								value={planDiseno.id}
-								class="peer sr-only"
-								required
-								data-price={planDiseno.precio}
-								data-servicio={planDiseno.etiqueta}
-							/>
-							<label
-								for={`plan-${planDiseno.id}`}
-								class="block cursor-pointer peer-checked:[&_.plan-copy]:text-[#a67c28] peer-checked:[&_.plan-feature]:text-[#b4862f] peer-checked:[&_.plan-price]:text-[#c89b3c] peer-checked:[&_[data-slot=card-description]]:text-[#a67c28] peer-checked:[&_[data-slot=card-title]]:text-[#c89b3c]"
+					empresas?.length ? (
+						<>
+							<div>
+								<label
+									for="empresa-select"
+									class="mb-2 block text-sm font-medium text-slate-900 dark:text-white"
+								>
+									Empresa a incorporar
+								</label>
+								<CompanySelect companies={empresas ?? []} client:load />
+							</div>
+
+							<p class={dashedNote}>
+								Tu selección definirá a qué incorporación se vinculará el pago y
+								el flujo posterior del proceso.
+							</p>
+
+							<button
+								id="btn-paso1"
+								type="button"
+								class={`w-full ${goldButton}`}
 							>
-								<span class="bg-primary text-primary-foreground pointer-events-none absolute top-3 right-3 z-10 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold opacity-0 shadow-sm transition-opacity duration-200 peer-checked:opacity-100">
-									Seleccionado
+								Continuar a planes
+								<Icon
+									name="ri:arrow-right-line"
+									class="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
+								/>
+							</button>
+
+							<div class="flex items-center justify-center gap-2 text-sm text-slate-400 dark:text-slate-500">
+								<Icon name="ri:lock-2-line" class="size-4" />
+								<span>Pago seguro gestionado por</span>
+								<span class="brightness-0 dark:brightness-0 dark:invert">
+									<Stripelogo width={60} />
 								</span>
-								<Card className="border-border/70 bg-background/95 shadow-lg transition-all duration-200 hover:shadow-xl">
-									<CardHeader className="space-y-3 border-b pb-5">
-										<CardAction>
-											<Badge variant="warning">Upgrade</Badge>
-										</CardAction>
-										<div class="space-y-1 pr-20">
-											<CardTitle className="text-xl">
-												{planDiseno.nombre}
-											</CardTitle>
-											<CardDescription>
-												{planLeadByPlan.get(planDiseno.slug) ??
-													planDiseno.descripcion}
-											</CardDescription>
-										</div>
-										<div class="pt-4">
-											<p class="plan-price text-foreground text-4xl font-semibold tracking-tight transition-colors duration-200">
-												${planDiseno.precio}
-											</p>
-											<p class="plan-copy text-muted-foreground mt-2 text-sm transition-colors duration-200">
-												{planDiseno.descripcion}
-											</p>
-										</div>
-									</CardHeader>
-									<CardContent className="space-y-6 pt-5">
-										<div class="border-border bg-muted/30 text-muted-foreground rounded-xl border border-dashed p-4 text-sm leading-7">
-											<p>
-												No todas las LLC son iguales. Este plan permite diseñar
-												la estructura adecuada según su actividad, residencia
-												fiscal, número de socios y objetivos operativos.
-											</p>
-										</div>
-										<div class="grid gap-3 sm:grid-cols-2">
-											{designPlanDetails.map((item) => (
-												<div class="bg-background text-foreground/85 flex items-start gap-3 rounded-xl border px-4 py-3 text-sm">
-													<span class="bg-primary/10 text-primary mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full">
-														<Icon name="ri:star-smile-line" class="size-3.5" />
-													</span>
-													<span class="plan-feature transition-colors duration-200">
-														{item}
-													</span>
-												</div>
-											))}
-										</div>
-									</CardContent>
-								</Card>
-							</label>
+							</div>
+						</>
+					) : (
+						<div class={dashedNote}>
+							Aún no tienes ninguna empresa pendiente por pagar.
 						</div>
 					)
 				}
+			</div>
+		</div>
+	</section>
 
+	<section id="panel2" class="hidden">
+		<div class="mx-auto max-w-7xl space-y-10 px-4 pt-14 pb-28 sm:px-6 lg:px-8">
+			<div class="mx-auto max-w-2xl space-y-2 text-center">
+				<p class={goldLabel}>Paso 02 · de 02</p>
+				<h2 class={heading}>Escoja su plan</h2>
+				<p class={subtitle}>
+					Elija la alternativa que mejor se adapta a su estructura y continúe al
+					pago seguro.
+				</p>
+			</div>
+
+			<div class="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-4">
+				{
+					allPlans.map((plan) => {
+						const features = featuresByPlan.get(plan.slug) ?? [];
+						const lead =
+							planLeadByPlan.get(plan.slug) ?? plan.descripcion ?? '';
+						const tag = tagByPlan.get(plan.slug) ?? 'Plan';
+						const isFeatured = plan.slug === 'business';
+
+						return (
+							<div
+								class:list={[
+									'relative',
+									isFeatured && 'order-first sm:order-none',
+								]}
+							>
+								<input
+									type="radio"
+									id={`plan-${plan.id}`}
+									name="plan"
+									value={plan.id}
+									class="peer sr-only"
+									required
+									checked={isFeatured}
+									data-price={plan.precio}
+									data-servicio={plan.etiqueta}
+									data-nombre={plan.nombre}
+								/>
+								<label for={`plan-${plan.id}`} class={planCard}>
+									<span class="plan-check bg-primary-gold absolute top-5 right-5 flex size-6 items-center justify-center rounded-full text-white opacity-0 transition-opacity duration-200">
+										<Icon name="ri:check-line" class="size-3.5" />
+									</span>
+
+									{isFeatured ? (
+										<span class="bg-primary-gold text-primary-black inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+											{tag}
+										</span>
+									) : (
+										<span class="inline-flex items-center rounded-full border border-slate-200 px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-slate-400 uppercase dark:border-neutral-800 dark:text-slate-500">
+											{tag}
+										</span>
+									)}
+
+									<h3 class="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
+										{plan.nombre}
+									</h3>
+									<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+										{lead}
+									</p>
+
+									<p class="mt-5 text-3xl font-semibold tracking-tight text-slate-900 tabular-nums dark:text-white">
+										${plan.precio}
+									</p>
+									<p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+										{plan.descripcion}
+									</p>
+
+									<div class="my-5 h-px bg-slate-200 dark:bg-neutral-800" />
+
+									<ul class="space-y-2.5 text-sm">
+										{features.map((feature) => (
+											<li class="flex items-start gap-2.5">
+												<span class="bg-primary-gold/10 text-primary-gold mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full">
+													<Icon name="ri:check-line" class="size-3.5" />
+												</span>
+												<span class="text-slate-600 dark:text-slate-300">
+													{feature}
+												</span>
+											</li>
+										))}
+									</ul>
+								</label>
+							</div>
+						);
+					})
+				}
+			</div>
+
+			<!-- Footer de confianza: seguridad, métodos de pago y copyright -->
+			<footer class="mx-auto max-w-3xl space-y-5 pt-2 text-center">
 				<div
-					class="bg-background/90 space-y-6 rounded-2xl border p-6 shadow-sm"
+					class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500 dark:text-slate-400"
 				>
-					<p
-						id="checkout-status"
-						class="text-muted-foreground text-center text-sm"
-					>
-					</p>
+					<span class="inline-flex items-center gap-1.5">
+						<Icon
+							name="ri:shield-check-fill"
+							class="text-primary-gold size-4"
+						/>
+						Pago cifrado de extremo a extremo
+					</span>
+					<span class="inline-flex items-center gap-1.5">
+						<Icon
+							name="ri:secure-payment-fill"
+							class="text-primary-gold size-4"
+						/>
+						Procesado de forma segura por Stripe
+					</span>
+					<span class="inline-flex items-center gap-1.5">
+						<Icon name="ri:bank-card-fill" class="text-primary-gold size-4" />
+						No almacenamos los datos de tu tarjeta
+					</span>
+				</div>
 
-					<div
-						class="text-muted-foreground flex flex-wrap items-center justify-center gap-3 text-sm"
+				<div class="flex items-center justify-center gap-3">
+					<span class="text-xs text-slate-400 dark:text-slate-500"
+						>Aceptamos</span
 					>
-						<span>Pago seguro gestionado por</span>
-						<Stripelogo width={84} />
-					</div>
-
-					<div class="flex flex-col justify-center gap-3 sm:flex-row">
-						<button
-							type="button"
-							id="btn-atras"
-							class="border-border bg-background text-foreground hover:bg-muted inline-flex h-11 items-center justify-center rounded-xl border px-5 text-sm font-medium transition disabled:pointer-events-none disabled:opacity-50"
-						>
-							Regresar
-						</button>
-						<button
-							type="button"
-							id="btn-paso2"
-							class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-medium transition disabled:pointer-events-none disabled:opacity-50"
-						>
-							Ir a pagar
-						</button>
+					<div class="flex items-center gap-2">
+						{
+							paymentMethods.map((m) => (
+								<span
+									class="inline-flex h-7 w-11 items-center justify-center rounded-md border border-slate-200 dark:border-neutral-800"
+									title={m.label}
+								>
+									<Icon
+										name={m.icon}
+										class="size-5 text-slate-500 dark:text-slate-400"
+									/>
+								</span>
+							))
+						}
 					</div>
 				</div>
+
+				<div class="border-t border-slate-200 pt-5 dark:border-neutral-800">
+					<p class="text-xs text-slate-400 dark:text-slate-500">
+						© {year} Sotomayor Consulting International. Todos los derechos reservados.
+					</p>
+					<div class="mt-2 flex items-center justify-center gap-4 text-xs">
+						<a
+							href="https://sotomayorconsulting.com/inicio/politicas/"
+							class="hover:text-primary-gold text-slate-500 dark:text-slate-400"
+						>
+							Términos de Servicio
+						</a>
+						<span class="text-slate-300 dark:text-neutral-700">·</span>
+						<a
+							href="https://sotomayorconsulting.com/inicio/politicas/"
+							class="hover:text-primary-gold text-slate-500 dark:text-slate-400"
+						>
+							Política de Privacidad
+						</a>
+					</div>
+				</div>
+			</footer>
+		</div>
+
+		<!-- Barra de acción fija: resumen del plan + CTA siempre visible -->
+		<div
+			class="sticky bottom-0 z-30 border-t border-slate-200 bg-white/85 backdrop-blur-md dark:border-neutral-800 dark:bg-black/85"
+		>
+			<div
+				class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
+			>
+				<div class="min-w-0">
+					<p
+						class="text-[11px] tracking-wide text-slate-500 uppercase dark:text-slate-400"
+					>
+						Plan seleccionado
+					</p>
+					<p class="mt-0.5 text-sm">
+						<span
+							id="selected-plan-name"
+							class="font-semibold text-slate-900 dark:text-white"
+						>
+							{planBusiness?.nombre ?? allPlans[0]?.nombre}
+						</span>
+						<span class="text-primary-gold font-semibold tabular-nums">
+							{' · $'}
+							<span id="selected-plan-price">
+								{planBusiness?.precio ?? allPlans[0]?.precio}
+							</span>
+						</span>
+					</p>
+					<p
+						id="checkout-status"
+						class="mt-0.5 text-xs text-slate-500 dark:text-slate-400"
+					>
+					</p>
+				</div>
+
+				<div class="flex items-center gap-3">
+					<div
+						class="mr-1 hidden items-center gap-2 text-slate-400 md:flex dark:text-slate-500"
+					>
+						<Icon name="ri:lock-2-line" class="size-4" />
+						<span class="brightness-0 dark:brightness-0 dark:invert">
+							<Stripelogo width={46} />
+						</span>
+						<span class="h-4 w-px bg-slate-200 dark:bg-neutral-800"></span>
+						{
+							paymentMethods.slice(0, 2).map((m) => (
+								<span
+									class="inline-flex h-6 w-9 items-center justify-center rounded border border-slate-200 dark:border-neutral-800"
+									title={m.label}
+								>
+									<Icon name={m.icon} class="size-4" />
+								</span>
+							))
+						}
+					</div>
+					<button type="button" id="btn-atras" class={ghostButton}>
+						<Icon
+							name="ri:arrow-left-line"
+							class="size-4 transition-transform duration-200 group-hover:-translate-x-0.5"
+						/>
+						Regresar
+					</button>
+					<button
+						type="button"
+						id="btn-paso2"
+						class={`flex-1 sm:flex-none ${goldButton}`}
+					>
+						<span
+							id="pay-spinner"
+							class="hidden size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+							aria-hidden="true"></span>
+						Ir a pagar
+						<span
+							id="pay-arrow"
+							class="inline-flex transition-transform duration-200 group-hover:translate-x-0.5"
+						>
+							<Icon name="ri:arrow-right-line" class="size-4" />
+						</span>
+					</button>
+				</div>
 			</div>
-		</section>
-	</div>
+		</div>
+	</section>
 </main>
 
 <script>
@@ -434,6 +464,30 @@ const designPlanDetails = [
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 		});
 
+		// Mantener el resumen de la barra fija sincronizado con el plan elegido
+		const planRadios =
+			document.querySelectorAll<HTMLInputElement>('input[name="plan"]');
+		const selectedName = document.getElementById('selected-plan-name');
+		const selectedPrice = document.getElementById('selected-plan-price');
+
+		function syncSelectedPlan() {
+			const checked = document.querySelector<HTMLInputElement>(
+				'input[name="plan"]:checked',
+			);
+			if (!checked) return;
+			if (selectedName) {
+				selectedName.textContent = checked.dataset.nombre ?? '';
+			}
+			if (selectedPrice) {
+				selectedPrice.textContent = checked.dataset.price ?? '';
+			}
+		}
+
+		planRadios.forEach((radio) => {
+			radio.addEventListener('change', syncSelectedPlan);
+		});
+		syncSelectedPlan();
+
 		btnPaso2?.addEventListener('click', async () => {
 			const radio = document.querySelector(
 				'input[name="plan"]:checked',
@@ -456,7 +510,12 @@ const designPlanDetails = [
 				return;
 			}
 
+			const paySpinner = document.getElementById('pay-spinner');
+			const payArrow = document.getElementById('pay-arrow');
 			btnPaso2.disabled = true;
+			btnPaso2.setAttribute('aria-busy', 'true');
+			paySpinner?.classList.remove('hidden');
+			payArrow?.classList.add('hidden');
 			if (status) status.textContent = 'Redirigiendo a Stripe...';
 
 			try {
@@ -481,6 +540,9 @@ const designPlanDetails = [
 						'No se pudo iniciar el pago. Intenta nuevamente.';
 				}
 				btnPaso2.disabled = false;
+				btnPaso2.removeAttribute('aria-busy');
+				paySpinner?.classList.add('hidden');
+				payArrow?.classList.remove('hidden');
 			}
 		});
 	}
