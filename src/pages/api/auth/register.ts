@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
+import { TURNSTILE_SECRET_KEY } from 'astro:env/server';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import {
 	AuthService,
@@ -23,7 +24,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 		cookies,
 	});
 	const auth = new AuthService(supabase, cookies);
-	const emailRedirectTo = buildOAuthRedirectUrl(request, PATHS.confirmEmail);
+	const emailRedirectToUrl = new URL(
+		buildOAuthRedirectUrl(request, PATHS.confirmEmail),
+	);
+	emailRedirectToUrl.searchParams.set('next', PATHS.signIn);
+	const emailRedirectTo = emailRedirectToUrl.toString();
 
 	const formData = await request.formData();
 	const email = formData.get('email')?.toString().trim() ?? '';
@@ -37,6 +42,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const turnstileSecret = TURNSTILE_SECRET_KEY;
 	if (turnstileSecret) {
 		if (!turnstileToken) {
+			if (wantsJson) {
+				return jsonError('Verificación de seguridad requerida.', 400);
+			}
+
 			return redirectWithMessage(
 				redirect,
 				'Verificación de seguridad requerida.',
@@ -55,6 +64,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 		);
 		const verifyData = (await verifyRes.json()) as { success: boolean };
 		if (!verifyData.success) {
+			if (wantsJson) {
+				return jsonError(
+					'Verificación de seguridad fallida. Intenta de nuevo.',
+					403,
+				);
+			}
+
 			return redirectWithMessage(
 				redirect,
 				'Verificación de seguridad fallida. Intenta de nuevo.',
