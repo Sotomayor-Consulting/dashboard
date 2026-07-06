@@ -23,9 +23,7 @@ import type {
  *   - awaiting: 'cliente' | 'ops' | 'none' (derivado de assigned_role de la
  *     próxima tarea bloqueante)
  */
-async function loadTasksSummary(
-	incorporationIds: string[],
-): Promise<
+async function loadTasksSummary(incorporationIds: string[]): Promise<
 	Map<
 		string,
 		{
@@ -68,9 +66,9 @@ async function loadTasksSummary(
 		assigned_role: string | null;
 		display_order: number | null;
 		workflow_stage:
-		| { status: string | null; display_order: number | null }
-		| Array<{ status: string | null; display_order: number | null }>
-		| null;
+			| { status: string | null; display_order: number | null }
+			| Array<{ status: string | null; display_order: number | null }>
+			| null;
 	};
 
 	function stageOf(r: Row) {
@@ -200,9 +198,7 @@ export async function listAdminCompanies(
 	if (!empresas) return [];
 
 	// Bulk-load relacionados para no hacer N+1
-	const ids = empresas
-		.map((e: { id: string }) => e.id)
-		.filter(Boolean);
+	const ids = empresas.map((e: { id: string }) => e.id).filter(Boolean);
 
 	const [{ data: pagosRows }, { data: sigLinkRows }, { data: workflowsRows }] =
 		await Promise.all([
@@ -218,15 +214,21 @@ export async function listAdminCompanies(
 				.eq('related_to_type', 'incorporation_case')
 				.eq('relation_purpose', 'signature')
 				.in('related_to_id', ids),
-			supabase
-				.from('incorporation_workflow')
-				.select('id, current_stage')
-				.in('id', ids),
+			supabaseAdmin
+				.schema('workflow')
+				.from('incorporation_workflows')
+				.select(
+					'incorporation_id, current_stage:current_stage_id ( slug, name )',
+				)
+				.in('incorporation_id', ids),
 		]);
 
 	const pagosByEmpresa = new Map<string, Array<{ status: string | null }>>();
 	for (const p of pagosRows ?? []) {
-		const row = p as { empresa_incorporacion_id: string; status: string | null };
+		const row = p as {
+			empresa_incorporacion_id: string;
+			status: string | null;
+		};
 		const arr = pagosByEmpresa.get(row.empresa_incorporacion_id) ?? [];
 		arr.push({ status: row.status });
 		pagosByEmpresa.set(row.empresa_incorporacion_id, arr);
@@ -263,8 +265,17 @@ export async function listAdminCompanies(
 
 	const workflowByInc = new Map<string, string | null>();
 	for (const w of workflowsRows ?? []) {
-		const row = w as { id: string; current_stage: string | null };
-		workflowByInc.set(row.id, row.current_stage);
+		const row = w as unknown as {
+			incorporation_id: string;
+			current_stage:
+				| { slug: string | null; name: string | null }
+				| Array<{ slug: string | null; name: string | null }>
+				| null;
+		};
+		const stage = Array.isArray(row.current_stage)
+			? row.current_stage[0]
+			: row.current_stage;
+		workflowByInc.set(row.incorporation_id, stage?.name ?? null);
 	}
 
 	// Enriquecimiento desde schema `workflow` (requiere service_role).
@@ -283,37 +294,37 @@ export async function listAdminCompanies(
 			updated_at: string | null;
 			user_id: string | null;
 			usuarios:
-			| {
-				user_id: string;
-				nombre: string | null;
-				apellido: string | null;
-				correo: string | null;
-				avatar_url: string | null;
-			}
-			| Array<{
-				user_id: string;
-				nombre: string | null;
-				apellido: string | null;
-				correo: string | null;
-				avatar_url: string | null;
-			}>
-			| null;
+				| {
+						user_id: string;
+						nombre: string | null;
+						apellido: string | null;
+						correo: string | null;
+						avatar_url: string | null;
+				  }
+				| Array<{
+						user_id: string;
+						nombre: string | null;
+						apellido: string | null;
+						correo: string | null;
+						avatar_url: string | null;
+				  }>
+				| null;
 		};
 
 		const usuarioRaw = Array.isArray(e.usuarios) ? e.usuarios[0] : e.usuarios;
 		const client = usuarioRaw
 			? {
-				id: usuarioRaw.user_id,
-				name:
-					[usuarioRaw.nombre, usuarioRaw.apellido]
-						.filter(Boolean)
-						.join(' ')
-						.trim() ||
-					usuarioRaw.correo ||
-					'Sin nombre',
-				email: usuarioRaw.correo ?? '',
-				avatarUrl: getAvatarUrl(usuarioRaw.avatar_url, supabase),
-			}
+					id: usuarioRaw.user_id,
+					name:
+						[usuarioRaw.nombre, usuarioRaw.apellido]
+							.filter(Boolean)
+							.join(' ')
+							.trim() ||
+						usuarioRaw.correo ||
+						'Sin nombre',
+					email: usuarioRaw.correo ?? '',
+					avatarUrl: getAvatarUrl(usuarioRaw.avatar_url, supabase),
+				}
 			: null;
 
 		const progress = Math.round(e.porcentaje_de_incorporacion ?? 0);
@@ -379,17 +390,17 @@ async function loadTasksForIncorporation(
 		completed_at: string | null;
 		display_order: number | null;
 		workflow_stage:
-		| {
-			status: string | null;
-			completed_at: string | null;
-			display_order: number | null;
-		}
-		| Array<{
-			status: string | null;
-			completed_at: string | null;
-			display_order: number | null;
-		}>
-		| null;
+			| {
+					status: string | null;
+					completed_at: string | null;
+					display_order: number | null;
+			  }
+			| Array<{
+					status: string | null;
+					completed_at: string | null;
+					display_order: number | null;
+			  }>
+			| null;
 	};
 
 	const stageOf = (r: Row) =>
@@ -454,7 +465,7 @@ export async function getAdminCompanyDetail(
 		supabase
 			.from('pagos')
 			.select(
-				'id_pagos, amount, status, created_at, servicios:servicio_id ( nombre )',
+				'id_pagos, amount, status, created_at, servicios:service_plans ( nombre:name )',
 			)
 			.eq('empresa_incorporacion_id', empresaId)
 			.order('created_at', { ascending: false }),
@@ -475,11 +486,11 @@ export async function getAdminCompanyDetail(
 			status: string | null;
 			created_at: string | null;
 			servicios:
-			| { nombre: string | null }
-			| Array<{ nombre: string | null }>
-			| null;
+				{ nombre: string | null } | Array<{ nombre: string | null }> | null;
 		};
-		const serv = Array.isArray(row.servicios) ? row.servicios[0] : row.servicios;
+		const serv = Array.isArray(row.servicios)
+			? row.servicios[0]
+			: row.servicios;
 		const statusNorm = (row.status ?? '').toLowerCase();
 		const paymentStatus: PaymentStatus =
 			statusNorm === 'paid' || statusNorm === 'pagado'
