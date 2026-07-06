@@ -2,6 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/admin/services/';
@@ -20,7 +21,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 	try {
 		// 1) Sesión
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
 		// 2) Verificar admin
 		const {
@@ -65,14 +69,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const parsed = activoRaw != null ? parseBoolean(activoRaw) : null;
 		const servicio_activo = parsed === null ? true : parsed; // fuerza TRUE si no se puede parsear
 
-		// 5) Actualizar (mismo patrón que tu endpoint base)
-		const { error } = await supabase
-			.from('servicios')
+		// 5) Actualizar el plan canónico (supabaseAdmin: vista solo-SELECT para authenticated)
+		const { error } = await supabaseAdmin
+			.schema('catalogs')
+			.from('service_plans')
 			.update({
-				servicio_activo,
-				// replico tu patrón de timestamp:
-				created_at: new Date().toISOString(),
-				// si en tu esquema usas updated_at, cámbialo por updated_at
+				is_active: servicio_activo,
+				updated_at: new Date().toISOString(),
 			})
 			.eq('id', servicioId);
 

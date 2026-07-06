@@ -23,24 +23,28 @@ const [empresas, servicios] = await Promise.all([
 	ListaServiciosStripe(supabase),
 ]);
 
+// Los planes se identifican por slug canónico (catalogs.service_plans);
+// el radio manda `plan.id` (int canónico) como planId al checkout.
 const planBasico = servicios?.find(
-	(s: { nombre: string }) => s.nombre === 'Plan Básico',
+	(s: { slug: string }) => s.slug === 'basico',
 );
 const planEstandar = servicios?.find(
-	(s: { nombre: string }) => s.nombre === 'Plan Estándar',
+	(s: { slug: string }) => s.slug === 'estandar',
 );
 const planBusiness = servicios?.find(
-	(s: { nombre: string }) => s.nombre === 'Plan Business',
+	(s: { slug: string }) => s.slug === 'business',
 );
 const planDiseno = servicios?.find(
-	(s: { nombre: string }) => s.nombre === 'Plan Diseño - upgrade',
+	(s: { slug: string }) => s.slug === 'diseno',
 );
 
-const basePlans = [planBasico, planBusiness, planEstandar].filter(Boolean);
+const basePlans = [planBasico, planBusiness, planEstandar].filter(
+	(p): p is NonNullable<typeof planBasico> => Boolean(p),
+);
 
 const featuresByPlan = new Map<string, string[]>([
 	[
-		'Plan Básico',
+		'basico',
 		[
 			'Incorporación de la LLC frente al Estado.',
 			'Obtención del EIN (Número de Identificación Tributaria).',
@@ -48,7 +52,7 @@ const featuresByPlan = new Map<string, string[]>([
 		],
 	],
 	[
-		'Plan Business',
+		'business',
 		[
 			'Planificación y diseño legal - tributario.',
 			'Acompañamiento bancario (Mercury o Relay + Stripe).',
@@ -56,27 +60,24 @@ const featuresByPlan = new Map<string, string[]>([
 		],
 	],
 	[
-		'Plan Estándar',
+		'estandar',
 		[
 			'Elaboración del Acuerdo de Operación.',
 			'Consultas ilimitadas por un año.',
 			'Solicitud de Exención BE-13.',
 		],
 	],
-	['Plan Diseño - upgrade', ['Planificación y diseño de LLC.']],
+	['diseno', ['Planificación y diseño de LLC.']],
 ]);
 
 const planLeadByPlan = new Map<string, string>([
-	['Plan Básico', 'Base esencial para iniciar su incorporación.'],
+	['basico', 'Base esencial para iniciar su incorporación.'],
 	[
-		'Plan Business',
+		'business',
 		'La opción más completa para iniciar con una estructura robusta.',
 	],
-	['Plan Estándar', 'Amplía la cobertura legal y operativa del plan básico.'],
-	[
-		'Plan Diseño - upgrade',
-		'Ideal para redefinir la estructura de una LLC ya existente.',
-	],
+	['estandar', 'Amplía la cobertura legal y operativa del plan básico.'],
+	['diseno', 'Ideal para redefinir la estructura de una LLC ya existente.'],
 ]);
 
 const designPlanDetails = [
@@ -225,18 +226,18 @@ const designPlanDetails = [
 				<div class="grid gap-5 lg:grid-cols-3">
 					{
 						basePlans.map((plan, index) => {
-							const features = featuresByPlan.get(plan.nombre) ?? [];
+							const features = featuresByPlan.get(plan.slug) ?? [];
 							const lead =
-								planLeadByPlan.get(plan.nombre) ?? plan.descripcion ?? '';
-							const isFeatured = plan.nombre === 'Plan Business';
+								planLeadByPlan.get(plan.slug) ?? plan.descripcion ?? '';
+							const isFeatured = plan.slug === 'business';
 
 							return (
 								<div class="relative">
 									<input
 										type="radio"
-										id={plan.id_servicios}
+										id={`plan-${plan.id}`}
 										name="plan"
-										value={plan.id_servicios}
+										value={plan.id}
 										class="peer sr-only"
 										required
 										checked={isFeatured}
@@ -244,7 +245,7 @@ const designPlanDetails = [
 										data-servicio={plan.etiqueta}
 									/>
 									<label
-										for={plan.id_servicios}
+										for={`plan-${plan.id}`}
 										class="block cursor-pointer peer-checked:[&_.plan-copy]:text-[#a67c28] peer-checked:[&_.plan-feature]:text-[#b4862f] peer-checked:[&_.plan-price]:text-[#c89b3c] peer-checked:[&_[data-slot=card-description]]:text-[#a67c28] peer-checked:[&_[data-slot=card-title]]:text-[#c89b3c]"
 									>
 										<span class="bg-primary text-primary-foreground pointer-events-none absolute top-3 right-3 z-10 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold opacity-0 shadow-sm transition-opacity duration-200 peer-checked:opacity-100">
@@ -301,16 +302,16 @@ const designPlanDetails = [
 						<div class="mx-auto max-w-3xl">
 							<input
 								type="radio"
-								id={planDiseno.id_servicios}
+								id={`plan-${planDiseno.id}`}
 								name="plan"
-								value={planDiseno.id_servicios}
+								value={planDiseno.id}
 								class="peer sr-only"
 								required
 								data-price={planDiseno.precio}
 								data-servicio={planDiseno.etiqueta}
 							/>
 							<label
-								for={planDiseno.id_servicios}
+								for={`plan-${planDiseno.id}`}
 								class="block cursor-pointer peer-checked:[&_.plan-copy]:text-[#a67c28] peer-checked:[&_.plan-feature]:text-[#b4862f] peer-checked:[&_.plan-price]:text-[#c89b3c] peer-checked:[&_[data-slot=card-description]]:text-[#a67c28] peer-checked:[&_[data-slot=card-title]]:text-[#c89b3c]"
 							>
 								<span class="bg-primary text-primary-foreground pointer-events-none absolute top-3 right-3 z-10 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold opacity-0 shadow-sm transition-opacity duration-200 peer-checked:opacity-100">
@@ -326,7 +327,7 @@ const designPlanDetails = [
 												{planDiseno.nombre}
 											</CardTitle>
 											<CardDescription>
-												{planLeadByPlan.get(planDiseno.nombre) ??
+												{planLeadByPlan.get(planDiseno.slug) ??
 													planDiseno.descripcion}
 											</CardDescription>
 										</div>

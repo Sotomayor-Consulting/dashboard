@@ -2,6 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/admin/services/'; // Ajusta esta ruta según tu frontend
@@ -11,7 +12,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 	try {
 		// 1) Cliente per-request con contexto de cookies
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
 		// 2) Verificar que el usuario es admin
 		const {
@@ -79,20 +83,27 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			);
 		}
 
-		// 4) Preparar payload para INSERTAR
-		const payload: Record<string, any> = {
-			nombre: nombre,
-			precio: precio,
-			categoria: categoria,
-			servicio_activo: true,
-			descripcion: descripcion,
-			created_at: new Date().toISOString(),
-		};
+		// 4) Slug estable para el plan canónico
+		const slug = nombre
+			.toLowerCase()
+			.normalize('NFD')
+			.replace(/[̀-ͯ]/g, '')
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/(^-|-$)/g, '');
 
-		// 5) INSERTAR el nuevo servicio
-		const { error } = await supabase
-			.from('servicios')
-			.insert(payload)
+		// 5) INSERTAR en el catálogo canónico (supabaseAdmin: el RLS de
+		// catalogs.service_plans es solo-SELECT para authenticated; ya se validó admin)
+		const { error } = await supabaseAdmin
+			.schema('catalogs')
+			.from('service_plans')
+			.insert({
+				slug,
+				name: nombre,
+				price: precio,
+				description: descripcion,
+				metadata: { categoria },
+				is_active: true,
+			})
 			.select();
 
 		if (error) {

@@ -59,13 +59,13 @@ export async function getCompanyIdForIncorporation(
 	incorporationId: string,
 ): Promise<string | null> {
 	const { data, error } = await supabase
-		.from('incorporation_workflow')
-		.select('company_id')
-		.eq('id', incorporationId)
-		.maybeSingle<{ company_id: string | null }>();
+		.from('companies')
+		.select('id')
+		.eq('incorporation_id', incorporationId)
+		.maybeSingle<{ id: string | null }>();
 
 	if (error) throw error;
-	return data?.company_id ?? null;
+	return data?.id ?? null;
 }
 
 export async function createCompanyFromIncorporation(
@@ -101,6 +101,7 @@ export async function createCompanyFromIncorporation(
 		.from('companies')
 		.insert({
 			user_id: incorporation.user_id,
+			incorporation_id: incorporationId,
 			legal_name: incorporation.principal_name,
 			entity_type: incorporation.entity_type ?? 'llc',
 			formation_state_id: incorporation.formation_state_id,
@@ -114,18 +115,6 @@ export async function createCompanyFromIncorporation(
 		.single<{ id: string }>();
 
 	if (companyError) throw companyError;
-
-	const { error: updateError } = await supabase
-		.from('incorporation_workflow')
-		.update({
-			company_id: company.id,
-			updated_at: now,
-			updated_by: actorUserId,
-		})
-		.eq('id', incorporationId)
-		.is('company_id', null);
-
-	if (updateError) throw updateError;
 
 	await recordAuditEvent({
 		entityType: 'company',

@@ -74,36 +74,54 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 		const { planId, userId, empresaId, microservicios = [] } = body;
 
-		// 3) Servicio vigente
-		const { data: servicio, error: servicioErr } = await supabaseAdmin
-			.from('servicios')
-			.select('id_servicios, nombre, precio, servicio_activo')
-			.eq('id_servicios', planId)
-			.eq('servicio_activo', true)
+		// 3) Plan vigente (catálogo canónico; planId = catalogs.service_plans.id)
+		const planIdNum = Number(planId);
+		if (!Number.isInteger(planIdNum) || planIdNum <= 0) {
+			return new Response(JSON.stringify({ error: 'planId inválido' }), {
+				status: 400,
+				headers: SECURITY_HEADERS,
+			});
+		}
+		const { data: plan, error: planCatErr } = await supabaseAdmin
+			.schema('catalogs')
+			.from('service_plans')
+			.select('id, slug, name, price')
+			.eq('id', planIdNum)
+			.eq('is_active', true)
 			.single();
 
-		if (servicioErr || !servicio) {
+		if (planCatErr || !plan) {
 			return new Response(
 				JSON.stringify({ error: 'Servicio no encontrado o inactivo' }),
 				{ status: 404, headers: SECURITY_HEADERS },
 			);
 		}
 
-		// 4) Validar microservicios contra la BD (precios desde BD, no del cliente)
+		// 4) Validar addons contra el catálogo canónico (precios desde BD, no del cliente).
+		//    id = public.services.id (int canónico).
 		let microserviciosTotal = 0;
 		const microserviciosValidados: Array<{
 			id: string;
 			name: string;
 			price: number;
 		}> = [];
+		const addonServiceIds: number[] = [];
 
 		if (microservicios.length > 0) {
-			const ids = microservicios.map((m) => m.id);
+			const ids = microservicios.map((m) => Number(m.id));
+			if (ids.some((id) => !Number.isInteger(id) || id <= 0)) {
+				return new Response(
+					JSON.stringify({ error: 'Microservicio con id inválido' }),
+					{ status: 400, headers: SECURITY_HEADERS },
+				);
+			}
 			const { data: microsDB, error: microsErr } = await supabaseAdmin
-				.from('micro_servicios')
-				.select('id_micro_servicios, nombre, precio, estado')
-				.in('id_micro_servicios', ids)
-				.eq('estado', true);
+				.schema('catalogs')
+				.from('services')
+				.select('id, name, price')
+				.in('id', ids)
+				.eq('is_active', true)
+				.eq('sellable_alone', true);
 
 			if (microsErr) {
 				return new Response(
@@ -113,9 +131,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			}
 
 			for (const sol of microservicios) {
-				const dbItem = microsDB?.find(
-					(db) => db.id_micro_servicios === sol.id,
-				);
+				const dbItem = microsDB?.find((db) => db.id === Number(sol.id));
 				if (!dbItem) {
 					return new Response(
 						JSON.stringify({
@@ -125,16 +141,17 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 					);
 				}
 				microserviciosValidados.push({
-					id: dbItem.id_micro_servicios,
-					name: dbItem.nombre,
-					price: Number(dbItem.precio),
+					id: String(dbItem.id),
+					name: dbItem.name,
+					price: Number(dbItem.price),
 				});
-				microserviciosTotal += Number(dbItem.precio);
+				addonServiceIds.push(dbItem.id);
+				microserviciosTotal += Number(dbItem.price);
 			}
 		}
 
 		// 5) Montos
-		const planBaseAmount = Number(servicio.precio) + microserviciosTotal;
+		const planBaseAmount = Number(plan.price) + microserviciosTotal;
 		const baseAmountCents = Math.round(planBaseAmount * 100);
 		const feePercent = 0.045;
 		const feeCents = Math.round(baseAmountCents * feePercent);
@@ -151,8 +168,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			{
 				price_data: {
 					currency: 'usd',
-					product_data: { name: servicio.nombre ?? 'Servicio LLC' },
-					unit_amount: Math.round(Number(servicio.precio) * 100),
+					product_data: { name: plan.name ?? 'Servicio LLC' },
+					unit_amount: Math.round(Number(plan.price) * 100),
 				},
 				quantity: 1,
 			},
@@ -177,20 +194,22 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			},
 		];
 
-		// 7) Metadata (compatible con tu RPC actual via el PaymentIntent generado)
+		// 7) Metadata (registrar_pago_desde_stripe resuelve el pago por plan_id)
 		const metadata: Record<string, string> = {
-			servicio_id: String(servicio.id_servicios),
+			plan_id: String(plan.id), // id canónico (catalogs.service_plans)
+			plan_slug: String(plan.slug),
 			user_id: String(userId),
 			empresa_incorporacion_id: String(empresaId),
 			base_amount_cents: String(baseAmountCents),
 			fee_percent: String(feePercent * 100),
-			plan_base_amount: String(servicio.precio),
+			plan_base_amount: String(plan.price),
 			microservicios_total: String(microserviciosTotal),
 			microservicios_count: String(microserviciosValidados.length),
 		};
 
 		if (microserviciosValidados.length > 0) {
 			metadata.microservicios_exist = 'true';
+			metadata.addon_service_ids = addonServiceIds.join(','); // ids canónicos (services)
 			metadata.microservicios_array = JSON.stringify(
 				microserviciosValidados.map((m) => ({
 					id: m.id,
@@ -198,15 +217,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 					price: m.price,
 				})),
 			);
-			metadata.microservicios_ids = microserviciosValidados
-				.map((m) => m.id)
-				.join(',');
-			metadata.microservicios_names = microserviciosValidados
-				.map((m) => m.name)
-				.join(',');
-			metadata.microservicios_prices = microserviciosValidados
-				.map((m) => m.price)
-				.join(',');
 		} else {
 			metadata.microservicios_exist = 'false';
 			metadata.microservicios_array = '[]';
@@ -214,23 +224,31 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
 		const session = await stripe.checkout.sessions.create({
 			mode: 'payment',
-			payment_method_types: ['card', 'us_bank_account', 'amazon_pay', 'cashapp'],
+			payment_method_types: [
+				'card',
+				'us_bank_account',
+				'amazon_pay',
+				'cashapp',
+			],
 			line_items: lineItems,
 			client_reference_id: user.id,
 			metadata,
 			allow_promotion_codes: true,
 			custom_text: {
-				submit: { message: 'Iniciaremos tu proceso de incorporación al confirmar el pago.' },
+				submit: {
+					message:
+						'Iniciaremos tu proceso de incorporación al confirmar el pago.',
+				},
 			},
 			invoice_creation: { enabled: true, invoice_data: { metadata } },
 			payment_intent_data: {
 				metadata,
 				description:
 					microserviciosValidados.length > 0
-						? `${servicio.nombre} + ${microserviciosValidados
-							.map((m) => m.name)
-							.join(', ')}`
-						: (servicio.nombre ?? 'Servicio LLC'),
+						? `${plan.name} + ${microserviciosValidados
+								.map((m) => m.name)
+								.join(', ')}`
+						: (plan.name ?? 'Servicio LLC'),
 			},
 			success_url: `${PUBLIC_SITE_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
 			cancel_url: `${PUBLIC_SITE_URL}/payment/cancel`,
