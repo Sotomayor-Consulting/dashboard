@@ -327,13 +327,41 @@ export async function sendPaymentSucceededEmail(input: {
 export async function sendPaymentSucceededEmailByPaymentIntent(
 	paymentIntentId: string,
 ): Promise<SendBusinessEmailResult> {
-	const { data, error } = await supabaseAdmin
-		.from('pagos')
-		.select('empresa_incorporacion_id, servicios:service_plans(nombre:name)')
-		.eq('stripe_payment_intent_id', paymentIntentId)
+	const { data: payment, error } = await supabaseAdmin
+		.schema('orders')
+		.from('payments')
+		.select(
+			`order:order_id!inner (
+			   incorporation_id,
+			   order_lines ( service_plan_id, service_plan_name )
+			 )`,
+		)
+		.eq('provider_transaction_id', paymentIntentId)
 		.order('created_at', { ascending: false })
 		.limit(1)
 		.maybeSingle();
+
+	const order = (
+		payment as unknown as {
+			order?: {
+				incorporation_id: string | null;
+				order_lines?: Array<{
+					service_plan_id: number | null;
+					service_plan_name: string | null;
+				}>;
+			} | null;
+		} | null
+	)?.order;
+	const incorporationId = order?.incorporation_id ?? null;
+	const planLine = order?.order_lines?.find((l) => l.service_plan_id != null);
+	const data = incorporationId
+		? {
+				empresa_incorporacion_id: incorporationId,
+				servicios: {
+					nombre: planLine?.service_plan_name ?? null,
+				},
+			}
+		: null;
 
 	if (error || !data?.empresa_incorporacion_id) {
 		return {

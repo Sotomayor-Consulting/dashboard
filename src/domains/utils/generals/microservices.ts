@@ -11,7 +11,7 @@ export const ListaDeMicroServiciosActivos = async (
 		.schema('catalogs')
 		.from('services')
 		.select(
-			`id, slug, fulfillment_type, nombre:name,
+			`id, slug, nombre:name,
 			precio:price, descripcion:description, icono:icon, etiqueta:label`,
 		)
 		.eq('is_active', true)

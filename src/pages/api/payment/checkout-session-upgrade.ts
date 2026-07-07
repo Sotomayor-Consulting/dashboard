@@ -107,8 +107,68 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		const baseAmountCents = Math.round(baseAmount * 100);
 		const feeCents = Math.round(baseAmountCents * PROCESSING_FEE_PERCENT);
 
+		// Orden de upgrade (pending_payment; el webhook la confirma vía RPC).
+		const { data: anchorLine } = await supabaseAdmin
+			.schema('catalogs')
+			.from('service_plan_lines')
+			.select('service_id, catalogs_services:service_id (name)')
+			.eq('service_plan_id', plan.id)
+			.order('service_id', { ascending: true })
+			.limit(1)
+			.maybeSingle();
+		const anchorServiceId = (anchorLine?.service_id as number | undefined) ?? 7;
+		const anchorServiceName =
+			(anchorLine as { catalogs_services?: { name?: string } } | null)
+				?.catalogs_services?.name ?? (plan.name ?? 'Upgrade LLC');
+
+		let orderId: string | null = null;
+		const { data: order, error: orderErr } = await supabaseAdmin
+			.schema('orders')
+			.from('orders')
+			.insert({
+				user_id: body.userId,
+				incorporation_id: body.empresaId,
+				status: 'pending_payment',
+				currency: 'usd',
+				metadata: {
+					plan_slug: plan.slug,
+					payment_flow: 'upgrade',
+					fee_cents: feeCents,
+				},
+			})
+			.select('id')
+			.single();
+		if (orderErr || !order) {
+			log.error('No se pudo crear la orden de upgrade (se continúa sin order_id)', {
+				error: orderErr,
+				userId: body.userId,
+				planId: plan.id,
+			});
+		} else {
+			orderId = order.id;
+			const { error: lineErr } = await supabaseAdmin
+				.schema('orders')
+				.from('order_lines')
+				.insert({
+					order_id: orderId,
+					service_id: anchorServiceId,
+					service_plan_id: plan.id,
+					service_name: anchorServiceName,
+					service_plan_name: plan.name,
+					unit_price: baseAmount,
+					quantity: 1,
+				});
+			if (lineErr) {
+				log.error('No se pudo crear la order_line de upgrade', {
+					error: lineErr,
+					orderId,
+				});
+			}
+		}
+
 		const metadata: Record<string, string> = {
 			plan_id: String(plan.id), // id canónico (catalogs.service_plans)
+			...(orderId ? { order_id: orderId } : {}),
 			plan_slug: String(plan.slug),
 			user_id: String(body.userId),
 			empresa_incorporacion_id: String(body.empresaId),

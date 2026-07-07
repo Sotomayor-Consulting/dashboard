@@ -97,6 +97,20 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			);
 		}
 
+		// Servicio "ancla" del plan (order_lines.service_id es NOT NULL). Fallback 7.
+		const { data: anchorLine } = await supabaseAdmin
+			.schema('catalogs')
+			.from('service_plan_lines')
+			.select('service_id, catalogs_services:service_id (name)')
+			.eq('service_plan_id', plan.id)
+			.order('service_id', { ascending: true })
+			.limit(1)
+			.maybeSingle();
+		const anchorServiceId = (anchorLine?.service_id as number | undefined) ?? 7;
+		const anchorServiceName =
+			(anchorLine as { catalogs_services?: { name?: string } } | null)
+				?.catalogs_services?.name ?? (plan.name ?? 'Servicio LLC');
+
 		// 4) Validar addons contra el catálogo canónico (precios desde BD, no del cliente).
 		//    id = public.services.id (int canónico).
 		let microserviciosTotal = 0;
@@ -163,6 +177,67 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			);
 		}
 
+		// 5b) Orden (nace en pending_payment; el webhook la confirma vía RPC).
+		//     Una línea del plan (unit_price = plan.price retail) + una línea por addon.
+		//     Si el insert falla no bloqueamos el cobro: la orden es capa de tracking.
+		let orderId: string | null = null;
+		const { data: order, error: orderErr } = await supabaseAdmin
+			.schema('orders')
+			.from('orders')
+			.insert({
+				user_id: userId,
+				incorporation_id: empresaId,
+				status: 'pending_payment',
+				currency: 'usd',
+				metadata: {
+					plan_slug: plan.slug,
+					fee_cents: feeCents,
+					fee_percent: feePercent * 100,
+				},
+			})
+			.select('id')
+			.single();
+
+		if (orderErr || !order) {
+			log.error('No se pudo crear la orden (se continúa sin order_id)', {
+				error: orderErr,
+				userId,
+				planId: plan.id,
+			});
+		} else {
+			orderId = order.id;
+			const orderLines = [
+				{
+					order_id: orderId,
+					service_id: anchorServiceId,
+					service_plan_id: plan.id,
+					service_name: anchorServiceName,
+					service_plan_name: plan.name,
+					unit_price: Number(plan.price),
+					quantity: 1,
+				},
+				...microserviciosValidados.map((m) => ({
+					order_id: orderId,
+					service_id: Number(m.id),
+					service_plan_id: null,
+					service_name: m.name,
+					service_plan_name: null,
+					unit_price: m.price,
+					quantity: 1,
+				})),
+			];
+			const { error: linesErr } = await supabaseAdmin
+				.schema('orders')
+				.from('order_lines')
+				.insert(orderLines);
+			if (linesErr) {
+				log.error('No se pudieron crear las order_lines', {
+					error: linesErr,
+					orderId,
+				});
+			}
+		}
+
 		// 6) line_items: plan + microservicios + fee desglosado
 		const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
 			{
@@ -197,6 +272,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		// 7) Metadata (registrar_pago_desde_stripe resuelve el pago por plan_id)
 		const metadata: Record<string, string> = {
 			plan_id: String(plan.id), // id canónico (catalogs.service_plans)
+			...(orderId ? { order_id: orderId } : {}),
 			plan_slug: String(plan.slug),
 			user_id: String(userId),
 			empresa_incorporacion_id: String(empresaId),
