@@ -1,0 +1,5 @@
+1) Ante el proceso de agendar reunión no aparece el botón de agenda 
+- En el plan upgrade o todo tarea relacionada con agendar una reunión, no aparece el botón de agendar para permitir el avance al siguiente paso. 
+
+2) En la vista admin se pinta de amarillo las tareas a completar posteriores. 
+- Al completarse la primera tarea del workflow, este pinta en verde la tarea completada, pero la tarea a completar siguiente se pinta de amarillo junto al paso siguiente. 
