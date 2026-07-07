@@ -107,7 +107,7 @@ const avatarUrl = getAvatarUrl(usuario?.avatar_url, supabase);
 				missingFields={missingPartnerFields}
 				client:load
 			/>
-			<div class="px-6">
+			<div class="flex h-full min-h-0 w-full flex-col overflow-hidden">
 				<slot />
 			</div>
 		</div>

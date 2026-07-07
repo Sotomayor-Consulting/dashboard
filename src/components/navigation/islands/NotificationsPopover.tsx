@@ -111,10 +111,26 @@ export default function NotificationsPopover({
 				method: 'POST',
 				body: formData,
 				credentials: 'include',
+				headers: {
+					accept: 'application/json',
+					'x-requested-with': 'XMLHttpRequest',
+				},
+				keepalive: true,
 			});
 
 			if (!response.ok) {
 				throw new Error(await response.text());
+			}
+
+			const result = (await response.json()) as {
+				ok?: boolean;
+				error?: string;
+			};
+
+			if (!result.ok) {
+				throw new Error(
+					result.error ?? 'No se pudo actualizar la notificacion',
+				);
 			}
 		} catch (error) {
 			console.error('[notifications] marcar como leida error:', error);
@@ -153,10 +169,26 @@ export default function NotificationsPopover({
 						method: 'POST',
 						body: formData,
 						credentials: 'include',
+						headers: {
+							accept: 'application/json',
+							'x-requested-with': 'XMLHttpRequest',
+						},
+						keepalive: true,
 					});
 
 					if (!response.ok) {
 						throw new Error(await response.text());
+					}
+
+					const result = (await response.json()) as {
+						ok?: boolean;
+						error?: string;
+					};
+
+					if (!result.ok) {
+						throw new Error(
+							result.error ?? 'No se pudo actualizar la notificacion',
+						);
 					}
 				}),
 			);
@@ -176,6 +208,12 @@ export default function NotificationsPopover({
 	}) => {
 		const isPending = pendingIds.includes(notification.id);
 
+		const handleOpenNotification = () => {
+			if (!notification.read_at) {
+				void markAsRead(notification.id);
+			}
+		};
+
 		return (
 			<div className="group/card hover:bg-white-50 flex gap-3 px-4 py-3 transition-colors dark:hover:bg-neutral-900">
 				<div className="relative h-fit shrink-0">
@@ -188,26 +226,31 @@ export default function NotificationsPopover({
 					</Avatar>
 					{!notification.read_at && (
 						<>
-							<span className="absolute -right-0.5 bottom-11 h-3 w-3 animate-ping rounded-full bg-emerald-500 dark:border-gray-950" />
-							<span className="absolute -right-0.5 bottom-11 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-950" />
+							<span className="absolute -right-0.5 bottom-7 h-3 w-3 animate-ping rounded-full bg-emerald-500 dark:border-gray-950" />
+							<span className="absolute -right-0.5 bottom-7 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-950" />
 						</>
 					)}
-					<p className="text-center text-xs text-gray-400">
-						{formatDate(notification.created_at)}
-					</p>
 				</div>
 				<a
-					className="min-w-0 flex-1"
+					className="min-w-0 flex-1 space-y-1"
 					href={notification.action_url ?? undefined}
 					title={notification.action_label ?? undefined}
-					target="_blank"
-					rel="noreferrer noopener"
+					target={notification.action_url ? '_blank' : undefined}
+					rel={notification.action_url ? 'noreferrer noopener' : undefined}
+					onClick={handleOpenNotification}
 				>
-					{notification.title && (
-						<p className="text-xs leading-snug font-semibold text-gray-900 dark:text-white">
-							{notification.title}
+					<div className="flex items-start justify-between gap-3">
+						{notification.title ? (
+							<p className="min-w-0 flex-1 text-xs leading-snug font-semibold text-gray-900 dark:text-white">
+								{notification.title}
+							</p>
+						) : (
+							<span className="flex-1" />
+						)}
+						<p className="shrink-0 pt-0.5 text-[11px] font-medium text-gray-400">
+							{formatDate(notification.created_at)}
 						</p>
-					)}
+					</div>
 					{/* message viene sanitizado desde el servidor (shared/sanitize) */}
 					<div
 						className="[&_a]:text-primary-600 text-xs leading-snug text-gray-600 dark:text-gray-300 [&_a]:underline"
@@ -279,6 +322,7 @@ export default function NotificationsPopover({
 										target="_blank"
 										title={notification.action_label}
 										rel="noreferrer noopener"
+										onClick={handleOpenNotification}
 									/>
 								}
 							>

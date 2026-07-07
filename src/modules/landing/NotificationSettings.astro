@@ -7,7 +7,7 @@
 		<p class="section-description">Configura cómo y cuándo quieres recibir notificaciones.</p>
 	</div>
 
-	<form method="post" action="/api/notifications/update" x-data="{
+	<form method="post" action="/api/notifications/update?back=/notifications" x-data="{
 		channels: { email: true, desktop: false },
 		updates: { weekly: false, product: true, important: true }
 	}">
