@@ -203,9 +203,10 @@ export async function listAdminCompanies(
 	const [{ data: pagosRows }, { data: sigLinkRows }, { data: workflowsRows }] =
 		await Promise.all([
 			supabase
-				.from('pagos')
-				.select('empresa_incorporacion_id, status')
-				.in('empresa_incorporacion_id', ids),
+				.schema('orders')
+				.from('payments')
+				.select('status, order:order_id!inner ( incorporation_id )')
+				.in('order.incorporation_id', ids),
 			// Documentos por firmar → documents.document_links (signature).
 			supabaseAdmin
 				.schema('documents')
@@ -225,13 +226,15 @@ export async function listAdminCompanies(
 
 	const pagosByEmpresa = new Map<string, Array<{ status: string | null }>>();
 	for (const p of pagosRows ?? []) {
-		const row = p as {
-			empresa_incorporacion_id: string;
+		const row = p as unknown as {
 			status: string | null;
+			order: { incorporation_id: string | null } | null;
 		};
-		const arr = pagosByEmpresa.get(row.empresa_incorporacion_id) ?? [];
+		const incId = row.order?.incorporation_id;
+		if (!incId) continue;
+		const arr = pagosByEmpresa.get(incId) ?? [];
 		arr.push({ status: row.status });
-		pagosByEmpresa.set(row.empresa_incorporacion_id, arr);
+		pagosByEmpresa.set(incId, arr);
 	}
 
 	// Pendientes de firma por caso: links 'signature' cuyo documento sigue
@@ -463,11 +466,16 @@ export async function getAdminCompanyDetail(
 
 	const [{ data: pagosRows }, { data: sigLinkRows }] = await Promise.all([
 		supabase
-			.from('pagos')
+			.schema('orders')
+			.from('payments')
 			.select(
-				'id_pagos, amount, status, created_at, servicios:service_plans ( nombre:name )',
+				`id, amount, status, created_at,
+				 order:order_id!inner (
+				   incorporation_id,
+				   order_lines ( service_plan_id, service_plan_name )
+				 )`,
 			)
-			.eq('empresa_incorporacion_id', empresaId)
+			.eq('order.incorporation_id', empresaId)
 			.order('created_at', { ascending: false }),
 		// Documentos por firmar → documents.document_links (signature).
 		supabaseAdmin
@@ -480,17 +488,22 @@ export async function getAdminCompanyDetail(
 	]);
 
 	const payments: AdminCompanyPayment[] = (pagosRows ?? []).map((p) => {
-		const row = p as {
-			id_pagos: string;
+		const row = p as unknown as {
+			id: string;
 			amount: number | null;
 			status: string | null;
 			created_at: string | null;
-			servicios:
-				{ nombre: string | null } | Array<{ nombre: string | null }> | null;
+			order: {
+				order_lines?: Array<{
+					service_plan_id: number | null;
+					service_plan_name: string | null;
+				}>;
+			} | null;
 		};
-		const serv = Array.isArray(row.servicios)
-			? row.servicios[0]
-			: row.servicios;
+		const planLine = row.order?.order_lines?.find(
+			(l) => l.service_plan_id != null,
+		);
+		const serv = { nombre: planLine?.service_plan_name ?? null };
 		const statusNorm = (row.status ?? '').toLowerCase();
 		const paymentStatus: PaymentStatus =
 			statusNorm === 'paid' || statusNorm === 'pagado'
@@ -503,7 +516,7 @@ export async function getAdminCompanyDetail(
 							? 'unpaid'
 							: 'pending';
 		return {
-			id: row.id_pagos,
+			id: row.id,
 			service: serv?.nombre ?? 'Servicio',
 			amount: row.amount ?? 0,
 			status: paymentStatus,

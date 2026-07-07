@@ -117,6 +117,30 @@ export const POST: APIRoute = async ({ request }) => {
 				// Permanente: ack 200 para no entrar en loop de reintentos
 			} else {
 				log.info('pago registrado', { data });
+				// Auditoría inmutable del evento (idempotente por provider_event_id).
+				const paymentId = (data as { id?: string } | null)?.id;
+				if (paymentId) {
+					const { error: evtError } = await supabaseAdmin
+						.schema('orders')
+						.from('payment_events')
+						.upsert(
+							{
+								payment_id: paymentId,
+								provider_event_id: event.id,
+								event_type: event.type,
+								processing_status: 'processed',
+								processed_at: new Date().toISOString(),
+								payload: event as unknown as Record<string, unknown>,
+							},
+							{ onConflict: 'provider_event_id', ignoreDuplicates: true },
+						);
+					if (evtError) {
+						log.error('no se pudo registrar payment_event', {
+							error: evtError,
+							eventId: event.id,
+						});
+					}
+				}
 				await sendPaymentSucceededEmailByPaymentIntent(paymentIntentId).catch(
 					(emailError: unknown) => {
 						log.error('payment email failed', {

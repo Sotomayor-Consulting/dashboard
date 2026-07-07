@@ -25,7 +25,7 @@ import {
 } from '@components/ui/Table';
 
 type PaymentRow = {
-	id: number;
+	id: string;
 	stripePaymentIntentId: string;
 	payerName: string;
 	companyName: string;
@@ -38,11 +38,12 @@ type PaymentRow = {
 };
 
 export interface RawPaymentItem {
-	id_pagos?: number | null;
-	stripe_payment_intent_id?: string | null;
-	amount?: number | null;
+	payment_id?: string | null;
+	order_id?: string | null;
+	provider_transaction_id?: string | null;
+	amount?: number | null; // en dólares
 	status?: string | null;
-	visto_por_operaciones?: boolean | null;
+	seen_by_ops?: boolean | null;
 	created_at?: string | null;
 	usuarios?: {
 		nombre?: string | null;
@@ -73,8 +74,8 @@ function formatDate(value: string) {
 
 function mapPayments(items: RawPaymentItem[]): PaymentRow[] {
 	return items.map((item, index) => ({
-		id: item.id_pagos ?? index,
-		stripePaymentIntentId: item.stripe_payment_intent_id ?? '— sin id —',
+		id: item.order_id ?? String(index),
+		stripePaymentIntentId: item.provider_transaction_id ?? '— sin id —',
 		payerName:
 			`${item.usuarios?.nombre ?? ''} ${item.usuarios?.apellido ?? ''}`.trim(),
 		companyName: item.incorporations?.principal_name ?? '—',
@@ -82,14 +83,14 @@ function mapPayments(items: RawPaymentItem[]): PaymentRow[] {
 		serviceName: item.servicios?.nombre ?? '—',
 		amountLabel:
 			typeof item.amount === 'number'
-				? (item.amount / 100).toLocaleString('en-US', {
+				? item.amount.toLocaleString('en-US', {
 						style: 'currency',
 						currency: 'USD',
 						minimumFractionDigits: 2,
 					})
 				: '—',
 		status: item.status ?? 'unknown',
-		readByOperations: item.visto_por_operaciones === true,
+		readByOperations: item.seen_by_ops === true,
 		createdAt: item.created_at ?? '',
 	}));
 }

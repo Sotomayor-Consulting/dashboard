@@ -57,26 +57,74 @@ export const GET: APIRoute = async ({ params, request, cookies, locals }) => {
 		});
 	}
 
-	const { data: pago, error } = await supabaseAdmin
-		.from('pagos')
+	// pagoId = order_id (orders.orders.id). Se factura el pago de la orden.
+	const { data: payment, error } = await supabaseAdmin
+		.schema('orders')
+		.from('payments')
 		.select(
 			`
-			id_pagos, amount, status, created_at, stripe_payment_intent_id, user_id,
-			usuarios:user_id ( nombre, apellido, correo ),
-			servicios:service_plans ( nombre:name ),
-			incorporations:empresa_incorporacion_id ( principal_name )
+			id, amount, status, created_at, provider_transaction_id,
+			order:order_id!inner (
+				id, user_id, incorporation_id,
+				order_lines ( service_plan_id, service_plan_name )
+			)
 			`,
 		)
-		.eq('id_pagos', pagoId)
+		.eq('order_id', pagoId)
+		.order('created_at', { ascending: false })
+		.limit(1)
 		.maybeSingle();
 
-	if (error || !pago) {
+	if (error || !payment) {
 		log.error('Pago no encontrado', { error, pagoId });
 		return new Response(JSON.stringify({ error: 'Pago no encontrado' }), {
 			status: 404,
 			headers: SECURITY_HEADERS,
 		});
 	}
+
+	const orderRel = (
+		payment as unknown as {
+			order: {
+				id: string;
+				user_id: string;
+				incorporation_id: string | null;
+				order_lines?: Array<{
+					service_plan_id: number | null;
+					service_plan_name: string | null;
+				}>;
+			};
+		}
+	).order;
+
+	// Nombres de usuario/incorporación por lookup (evita embeds cross-schema).
+	const [{ data: usuarioRow }, { data: incRow }] = await Promise.all([
+		supabaseAdmin
+			.from('usuarios')
+			.select('nombre, apellido, correo')
+			.eq('user_id', orderRel.user_id)
+			.maybeSingle(),
+		orderRel.incorporation_id
+			? supabaseAdmin
+					.from('incorporations')
+					.select('principal_name')
+					.eq('id', orderRel.incorporation_id)
+					.maybeSingle()
+			: Promise.resolve({ data: null }),
+	]);
+
+	// Shape compatible con el resto del handler (mínimo cambio downstream)
+	const pago = {
+		id_pagos: (payment as unknown as { id: string }).id,
+		amount: (payment as unknown as { amount: number | null }).amount ?? 0,
+		status: (payment as unknown as { status: string | null }).status ?? '',
+		created_at:
+			(payment as unknown as { created_at: string | null }).created_at ?? '',
+		stripe_payment_intent_id:
+			(payment as unknown as { provider_transaction_id: string | null })
+				.provider_transaction_id ?? '',
+		user_id: orderRel.user_id,
+	};
 
 	const isOwner = pago.user_id === user.id;
 	const isStaff = canManageCompanyData(locals.userRoles ?? []);
@@ -87,15 +135,14 @@ export const GET: APIRoute = async ({ params, request, cookies, locals }) => {
 		});
 	}
 
-	const usuario = Array.isArray(pago.usuarios)
-		? pago.usuarios[0]
-		: pago.usuarios;
-	const servicio = Array.isArray(pago.servicios)
-		? pago.servicios[0]
-		: pago.servicios;
-	const incorporation = Array.isArray(pago.incorporations)
-		? pago.incorporations[0]
-		: pago.incorporations;
+	const usuario = usuarioRow as {
+		nombre?: string | null;
+		apellido?: string | null;
+		correo?: string | null;
+	} | null;
+	const planLine = orderRel.order_lines?.find((l) => l.service_plan_id != null);
+	const servicio = { nombre: planLine?.service_plan_name ?? null };
+	const incorporation = incRow as { principal_name?: string | null } | null;
 
 	const clienteNombre =
 		[usuario?.nombre, usuario?.apellido].filter(Boolean).join(' ').trim() ||
