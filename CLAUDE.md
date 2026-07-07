@@ -85,7 +85,7 @@ src/
 │   ├── companies/            # companies.ts, incorporations.ts, members.ts, managers.ts, active-cookie.ts
 │   ├── documents/            # documents.ts, pending-signature.ts, user-documents.ts, document_dashboard.ts, service.ts, helpers.ts, types.ts, templates/
 │   ├── users/                # users.ts, notifications.ts, billing.ts, menu.ts
-│   ├── payments/             # payments.ts, unread.ts
+│   ├── payments/             # payments.ts, unread.ts (leen schema orders.*)
 │   ├── partners/referrals.ts
 │   ├── forms/                # forms.ts, submittedForms.ts
 │   ├── services/services.ts
@@ -349,6 +349,16 @@ Scripts SQL de Supabase (RLS, schemas, sharing) en `supabase/sql/`:
 - `documents_tables.sql` — schemas de las tablas de documentos
 - `documents_rls.sql` — Row Level Security policies
 - `documents_sharing.sql` — schemas y policies de sharing
+
+### Schemas expuestos en PostgREST
+
+Exposed Schemas (Supabase → Settings → API): `public, graphql_public, documents, workflow, shared, catalogs, meetings, orders`. Un schema nuevo debe agregarse ahí o las queries dan `PGRST106`. Acceso desde código: `supabase.schema('<schema>').from('<tabla>')`.
+
+> **⚠️ Gotcha PostgREST — embeds cross-schema**: los embeds (`select=...,rel:fk(...)`) **no se resuelven cuando el profile de la request es un schema no-`public`** (p.ej. `orders`), aunque exista el FK. Regla: dentro de `orders.*` usar solo embeds **intra-schema**; para datos de `public`/`catalogs` **denormalizar** (ver `order_lines.service_plan_name`/`service_name`) o hacer **lookup + join en JS** (ver `fetchLookups` en `domains/payments/unread.ts`).
+
+### Órdenes y pagos (schema `orders`)
+
+Modelo canónico: `orders.orders` (una por checkout; `pending_payment` → `confirmed`) → `orders.order_lines` (plan + addons; nombres denormalizados) → `orders.payments` (1 orden → N pagos, `amount` en **dólares**, upsert por `provider_transaction_id`) → `orders.payment_events` (auditoría inmutable de eventos Stripe, idempotente por `provider_event_id`). Reemplazó a la tabla plana `public.pagos` (eliminada). Flujo: `checkout-session(.ts)` crea la orden y pasa `order_id` en metadata Stripe → `webhook` llama RPC `registrar_pago_desde_stripe` (confirma orden + upserta pago) e inserta el `payment_event`. El **fulfillment se dispara desde `plan_id`**: triggers en `orders.payments` (`orders.trg_payment_succeeded_workflow`, `orders.trg_payment_set_incorporation_state`) rederivan `incorporation_id` (de la orden) y `plan_id` (de la order_line base) y llaman `workflow.create_workflow_for_incorporation`. RLS: cliente ve lo suyo (`user_id = auth.uid()`); admin/operaciones vía `orders.is_staff()`. "Marcar como leído" = `mark_pago_visto_secure(order_id)` → `orders.orders.seen_by_ops`.
 
 # Project Instructions
 
