@@ -1,4 +1,10 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import {
+	useState,
+	useEffect,
+	useCallback,
+	useRef,
+	type SyntheticEvent,
+} from 'react';
 import { buttonVariants } from '@components/ui/Button';
 import { FieldLabel } from '@components/ui/Field';
 import { Input } from '@components/ui/Input';
@@ -13,6 +19,7 @@ declare const turnstile: {
 		options: Record<string, unknown>,
 	) => string;
 	remove: (widgetId: string) => void;
+	reset: (widgetId: string) => void;
 };
 
 interface FormForgotPasswordProps {
@@ -44,6 +51,17 @@ export default function FormForgotPassword({
 				: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400';
 
 	// ─── Cloudflare Turnstile (explicit render) ─────────
+	const turnstileWidgetIdRef = useRef<string | null>(null);
+
+	// Los tokens de Turnstile son de un solo uso: tras un intento fallido
+	// hay que resetear el widget para obtener un token nuevo.
+	const resetTurnstile = useCallback(() => {
+		setTurnstileToken(null);
+		if (turnstileWidgetIdRef.current && typeof turnstile !== 'undefined') {
+			turnstile.reset(turnstileWidgetIdRef.current);
+		}
+	}, []);
+
 	useEffect(() => {
 		if (!turnstileSiteKey) return;
 
@@ -69,6 +87,7 @@ export default function FormForgotPassword({
 				'expired-callback': () => setTurnstileToken(null),
 				'error-callback': () => setTurnstileToken(null),
 			});
+			turnstileWidgetIdRef.current = widgetId;
 		};
 
 		if (typeof turnstile !== 'undefined') {
@@ -95,10 +114,11 @@ export default function FormForgotPassword({
 			if (widgetId && typeof turnstile !== 'undefined') {
 				turnstile.remove(widgetId);
 			}
+			turnstileWidgetIdRef.current = null;
 		};
 	}, [turnstileSiteKey]);
 
-	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
 		if (turnstileRequired && !turnstileToken) {
@@ -133,6 +153,7 @@ export default function FormForgotPassword({
 				setClientError(
 					payload.error ?? 'No se pudo procesar la solicitud.',
 				);
+				resetTurnstile();
 				return;
 			}
 
@@ -141,8 +162,10 @@ export default function FormForgotPassword({
 					'Si el email está registrado, recibirás un enlace para restablecer tu contraseña.',
 			);
 			form.reset();
+			resetTurnstile();
 		} catch {
 			setClientError('Error de conexión. Inténtalo nuevamente.');
+			resetTurnstile();
 		} finally {
 			setPending(false);
 		}

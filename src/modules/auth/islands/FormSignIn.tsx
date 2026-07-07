@@ -30,6 +30,7 @@ declare const turnstile: {
 		},
 	) => string;
 	remove: (widgetId: string) => void;
+	reset: (widgetId: string) => void;
 };
 
 declare const google: {
@@ -239,6 +240,17 @@ export default function FormSignIn({ turnstileSiteKey }: FormSignInProps) {
 
 	// ─── Cloudflare Turnstile (explicit render) ─────────
 	// Ref: https://developers.cloudflare.com/turnstile/get-started/client-side-rendering
+	const turnstileWidgetIdRef = useRef<string | null>(null);
+
+	// Los tokens de Turnstile son de un solo uso: tras un intento de login
+	// fallido hay que resetear el widget para obtener un token nuevo.
+	const resetTurnstile = useCallback(() => {
+		setTurnstileToken(null);
+		if (turnstileWidgetIdRef.current && typeof turnstile !== 'undefined') {
+			turnstile.reset(turnstileWidgetIdRef.current);
+		}
+	}, []);
+
 	useEffect(() => {
 		if (!turnstileSiteKey) return;
 
@@ -261,6 +273,7 @@ export default function FormSignIn({ turnstileSiteKey }: FormSignInProps) {
 				'expired-callback': () => setTurnstileToken(null),
 				'error-callback': () => setTurnstileToken(null),
 			});
+			turnstileWidgetIdRef.current = widgetId;
 		};
 
 		if (typeof turnstile !== 'undefined') {
@@ -285,6 +298,7 @@ export default function FormSignIn({ turnstileSiteKey }: FormSignInProps) {
 			if (widgetId && typeof turnstile !== 'undefined') {
 				turnstile.remove(widgetId);
 			}
+			turnstileWidgetIdRef.current = null;
 		};
 	}, [turnstileSiteKey]);
 
@@ -365,10 +379,12 @@ export default function FormSignIn({ turnstileSiteKey }: FormSignInProps) {
 			} else {
 				setEmailPending(false);
 				setEmailError(data.error ?? 'Error al iniciar sesión.');
+				resetTurnstile();
 			}
 		} catch {
 			setEmailPending(false);
 			setEmailError('Error de conexión.');
+			resetTurnstile();
 		}
 	};
 

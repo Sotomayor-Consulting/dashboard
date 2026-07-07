@@ -74,18 +74,24 @@ export const POST: APIRoute = async ({ request }) => {
 				break;
 			}
 
-			case 'invoice.paid':
-			case 'invoice_payment.paid': {
+			case 'invoice.paid': {
 				const inv = event.data.object as Stripe.Invoice;
+				let firstPayment = inv.payments?.data?.[0];
+				if (!firstPayment) {
+					const expanded = await stripe.invoices.retrieve(inv.id, {
+						expand: ['payments.data.payment.payment_intent'],
+					});
+					firstPayment = expanded.payments?.data?.[0];
+				}
 				paymentIntentId =
-					typeof (inv as any).payment_intent === 'string'
-						? (inv as any).payment_intent
-						: (inv as any).payment_intent?.id;
+					typeof firstPayment?.payment?.payment_intent === 'string'
+						? firstPayment.payment.payment_intent
+						: (firstPayment?.payment?.payment_intent as any)?.id;
 				if (!paymentIntentId) {
 					log.info('evento sin payment_intent, skip', {
-							eventType: event.type,
-							invoiceId: inv.id,
-						});
+						eventType: event.type,
+						invoiceId: inv.id,
+					});
 				}
 				break;
 			}

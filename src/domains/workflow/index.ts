@@ -192,7 +192,7 @@ export const completeTask = async (
 	supabase: SupabaseClient,
 	taskId: string,
 	userId?: string,
-) => {
+): Promise<{ ok: boolean; error?: string; stage_completed?: boolean }> => {
 	const { data, error } = await supabase.rpc('workflow_complete_task', {
 		p_task_id: taskId,
 		p_user_id: userId ?? null,
@@ -201,13 +201,18 @@ export const completeTask = async (
 		log.error('completeTask', { error });
 		return { ok: false, error: error.message };
 	}
-	return data as { ok: boolean; stage_completed?: boolean };
+	return data as { ok: boolean; error?: string; stage_completed?: boolean };
 };
 
 export const advanceStage = async (
 	supabase: SupabaseClient,
 	workflowId: string,
-) => {
+): Promise<{
+	ok: boolean;
+	error?: string;
+	current_stage_id?: number;
+	workflow_completed?: boolean;
+}> => {
 	const { data, error } = await supabase.rpc('workflow_advance_stage', {
 		p_workflow_id: workflowId,
 	});
@@ -217,6 +222,7 @@ export const advanceStage = async (
 	}
 	return data as {
 		ok: boolean;
+		error?: string;
 		current_stage_id?: number;
 		workflow_completed?: boolean;
 	};
@@ -238,7 +244,8 @@ export const completeTaskAndAdvance = async (
 	workflowCompleted?: boolean;
 }> => {
 	const result = await completeTask(supabase, taskId, userId);
-	if (!result.ok) return { ok: false, error: result.error };
+	if (!result.ok)
+		return { ok: false, error: result.error ?? 'Error desconocido' };
 
 	if (!result.stage_completed) {
 		return { ok: true, stageCompleted: false };

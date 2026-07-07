@@ -3,11 +3,11 @@ import { toast } from 'sonner';
 import type { PartnerRequiredField } from '@domains/users/users';
 
 const FIELD_LABELS: Record<PartnerRequiredField, string> = {
-	direccion_linea1: 'Direccion linea 1',
-	direccion_linea2: 'Direccion linea 2',
-	tipo_identificacion: 'Tipo de identificacion',
-	numero_de_identificacion: 'Numero de identificacion',
-	tipo_persona: 'Tipo de persona',
+	line1: 'Direccion linea 1',
+	line2: 'Direccion linea 2',
+	email: 'Correo electronico',
+	tax_id: 'Numero de identificacion',
+	phone: 'Telefono',
 };
 
 interface BannerToastManagerProps {

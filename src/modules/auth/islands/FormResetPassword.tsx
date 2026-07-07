@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type SyntheticEvent } from 'react';
 import { navigate } from 'astro:transitions/client';
 import { buttonVariants } from '@components/ui/Button';
 import { Field, FieldLabel, FieldDescription } from '@components/ui/Field';
@@ -32,7 +32,7 @@ export default function FormResetPassword({
 	const isPasswordValid = password.length >= 6;
 	const passwordsMatch = password.length > 0 && password === confirmPassword;
 
-	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (event: SyntheticEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
 		if (!isPasswordValid) {

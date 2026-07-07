@@ -1,0 +1,70 @@
+Reporte de bugs - /start/
+Fecha: 2026-07-07
+URL probada: http://127.0.0.1:4321/start/
+Entorno: playwright-cli contra la app local Astro SSR
+
+1) CTA de WhatsApp roto
+Severidad: Alta
+Pasos para reproducir:
+- Abrir `/start/`
+- Inspeccionar o hacer clic en el botón flotante de WhatsApp
+Resultado esperado:
+- El botón debe abrir un enlace real de contacto por WhatsApp
+Resultado actual:
+- El enlace apunta a `/`, por lo que redirige al home del sitio en vez de WhatsApp
+Evidencia:
+- El `href` del enlace en la pagina es `/`
+
+2) El estado de registro queda preseleccionado sin consentimiento del usuario
+Severidad: Alta
+Pasos para reproducir:
+- Abrir `/start/`
+- Avanzar del paso 1 al paso 2
+- No elegir manualmente ningún estado
+- Continuar hasta el paso de revision
+Resultado esperado:
+- El usuario debería elegir explícitamente el estado, o no debería existir un valor precargado silenciosamente
+Resultado actual:
+- El paso 2 carga con `Florida` ya seleccionado y el flujo permite continuar asi
+Impacto:
+- El usuario puede enviar una incorporación con un estado no deseado
+
+3) Campo oculto del estado expuesto como textbox accesible con JSON crudo
+Severidad: Media
+Pasos para reproducir:
+- Ir al paso 2 (`Estado de registro`)
+- Inspeccionar el input extra que se renderiza debajo del combobox
+Resultado esperado:
+- El estado interno no debería aparecer para tecnologías asistivas ni mostrarse como un textbox editable para el usuario
+Resultado actual:
+- Se expone un `INPUT` visible de 1px con el valor `{"id":12,"name":"Florida","code":"FL"}`
+Impacto:
+- Los lectores de pantalla pueden anunciar un campo irrelevante con JSON, generando confusión y ruido
+
+4) Los indicadores de pasos en mobile tienen áreas táctiles demasiado pequeñas
+Severidad: Media
+Pasos para reproducir:
+- Cambiar a viewport mobile (`390x844`)
+- Inspeccionar los indicadores de pasos en la parte superior
+Resultado esperado:
+- Los controles interactivos en mobile deberían tener áreas táctiles cómodas (aprox. `44x44px` o similar)
+Resultado actual:
+- Los botones de pasos se renderizan con áreas cercanas a `8x8px` (el ultimo aprox. `32x8px`)
+Impacto:
+- Es muy difícil tocarlos en pantallas táctiles; problema de accesibilidad y usabilidad
+
+5) El autosave del borrador dispara requests redundantes
+Severidad: Media
+Pasos para reproducir:
+- Completar un recorrido simple del wizard
+- Revisar las requests de red
+Resultado esperado:
+- debería existir una cantidad minima y controlada de guardados del borrador durante el avance
+Resultado actual:
+- En esta prueba se dispararon 5 `POST` exitosos a `/api/incorporations/draft`
+Impacto:
+- Puede generar carga innecesaria en el servidor y posibles condiciones de carrera por guardados duplicados
+
+Notas:
+- La validacion basica del paso de nombres funciono correctamente.
+- El paso final de autenticacion cargo correctamente en desktop y mobile.

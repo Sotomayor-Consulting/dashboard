@@ -1,6 +1,13 @@
 ---
 import Stripelogo from '@assets/logos/stripe.svg';
 import LogoSCI from '../../icons/Letras_logo_SCI.svg';
+import IsotipoSVG from '../../icons/isotipo.svg';
+import VisaLogo from '../../icons/visa.svg';
+import MastercardLogo from '../../icons/mastercard.svg';
+import AmexLogo from '../../icons/amex.svg';
+import DiscoverLogo from '../../icons/discover.svg';
+import DinersLogo from '../../icons/diners.svg';
+import PoweredByStripeBlack from '../../icons/PoweredbyStripe-black.svg';
 import { Icon } from 'astro-icon/components';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
 import CompanySelect from './islands/CompanySelect.tsx';
@@ -31,8 +38,10 @@ const planDiseno = servicios?.find(
 	(s: { slug: string }) => s.slug === 'diseno',
 );
 
-// Los 4 planes en una sola grilla (Diseño incluido como cuarta opción).
-const allPlans = [planBasico, planBusiness, planEstandar, planDiseno].filter(
+// Orden descendente por precio: caro → barato (izq → der).
+// Anclaje de precio (ConversionXL): el plan caro primero hace que los
+// demás se perciban más asequibles y sube la conversión a tiers medios.
+const allPlans = [planBusiness, planEstandar, planDiseno, planBasico].filter(
 	(p): p is NonNullable<typeof planBasico> => Boolean(p),
 );
 
@@ -46,11 +55,11 @@ const featuresByPlan = new Map<string, string[]>([
 		],
 	],
 	[
-		'business',
+		'diseno',
 		[
-			'Planificación y diseño legal - tributario.',
-			'Acompañamiento bancario (Mercury o Relay + Stripe).',
-			'EIN acelerado.',
+			'Estado de incorporación ideal (50 jurisdicciones).',
+			'Tratamiento tributario federal óptimo.',
+			'Modelo administrativo y contable a medida.',
 		],
 	],
 	[
@@ -62,49 +71,40 @@ const featuresByPlan = new Map<string, string[]>([
 		],
 	],
 	[
-		'diseno',
+		'business',
 		[
-			'Estado de incorporación ideal (50 jurisdicciones).',
-			'Tratamiento tributario federal óptimo.',
-			'Modelo administrativo y contable a medida.',
+			'Planificación y diseño legal - tributario.',
+			'Acompañamiento bancario (Mercury o Relay + Stripe).',
+			'EIN acelerado.',
 		],
 	],
 ]);
 
-// Etiqueta corta de tier por plan (business resalta en dorado).
 const tagByPlan = new Map<string, string>([
-	['basico', 'Esencial'],
-	['business', 'Más popular'],
+	['basico', 'Inicial'],
+	['diseno', 'Rediseño'],
 	['estandar', 'Completo'],
-	['diseno', 'Upgrade'],
+	['business', 'Más popular'],
 ]);
 
 const planLeadByPlan = new Map<string, string>([
-	['basico', 'Base esencial para iniciar su incorporación.'],
+	['basico', 'Lo esencial para constituir tu LLC y operar legalmente.'],
+	['diseno', 'Reestructura y optimiza una LLC ya existente.'],
+	['estandar', 'Cobertura legal ampliada con soporte continuo.'],
 	[
 		'business',
-		'La opción más completa para iniciar con una estructura robusta.',
+		'Todo incluido: estructura legal, fiscal y bancaria desde el inicio.',
 	],
-	['estandar', 'Amplía la cobertura legal y operativa del plan básico.'],
-	['diseno', 'Ideal para redefinir la estructura de una LLC ya existente.'],
 ]);
 
 const year = new Date().getFullYear();
-
-// Métodos de pago aceptados (glyphs monocromáticos de Remix Icon, offline).
-// Stripe procesa siempre Visa/Mastercard vía tarjeta; añade Amex/PayPal aquí
-// solo si están habilitados en el dashboard de Stripe.
-const paymentMethods = [
-	{ icon: 'ri:visa-fill', label: 'Visa' },
-	{ icon: 'ri:mastercard-fill', label: 'Mastercard' },
-];
 
 // ─── Tokens de estilo flat/open (consistentes con el start wizard) ──
 const goldLabel =
 	'text-primary-gold text-xs font-semibold tracking-[0.25em] uppercase';
 const heading =
-	'text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl dark:text-white';
-const subtitle = 'text-base leading-7 text-slate-500 dark:text-slate-400';
+	'text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-white';
+const subtitle = 'text-sm leading-6 text-slate-500 dark:text-slate-400';
 // CTA primario: dorado sólido con texto oscuro (alto contraste), micro-lift
 // al hover, scale al pulsar y ring de foco accesible.
 const goldButton =
@@ -116,12 +116,12 @@ const dashedNote =
 	'rounded-xl border border-dashed border-slate-200 bg-slate-50/60 p-4 text-sm text-slate-500 dark:border-neutral-800 dark:bg-white/[0.02] dark:text-slate-400';
 // El label recibe las variantes peer-checked (borde/ring + check dorado).
 const planCard =
-	'relative block h-full cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 transition-all hover:border-slate-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700 peer-checked:border-[#8c681d] peer-checked:ring-2 peer-checked:ring-[#8c681d]/20 peer-checked:[&_.plan-check]:opacity-100';
+	'relative flex h-full flex-col cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 transition-all hover:border-slate-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700 peer-checked:border-[#8c681d] peer-checked:ring-2 peer-checked:ring-[#8c681d]/20 peer-checked:[&_.plan-check]:opacity-100';
 ---
 
 <main id="content" class="flex min-h-dvh flex-col" data-user-id={userId}>
 	<header
-		class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8"
+		class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8"
 	>
 		<a
 			href="https://sotomayorconsulting.com/inicio/"
@@ -168,11 +168,7 @@ const planCard =
 								type="button"
 								class={`w-full ${goldButton}`}
 							>
-								Continuar a planes
-								<Icon
-									name="ri:arrow-right-line"
-									class="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
-								/>
+								Ver planes disponibles
 							</button>
 
 							<div class="flex items-center justify-center gap-2 text-sm text-slate-400 dark:text-slate-500">
@@ -193,8 +189,18 @@ const planCard =
 		</div>
 	</section>
 
-	<section id="panel2" class="hidden">
-		<div class="mx-auto max-w-7xl space-y-10 px-4 pt-14 pb-28 sm:px-6 lg:px-8">
+	<section
+		id="panel2"
+		class="relative flex hidden flex-1 flex-col overflow-hidden"
+	>
+		<IsotipoSVG
+			class="pointer-events-none absolute -right-32 -bottom-28 z-0 hidden w-[600px] max-w-none rotate-6 opacity-[0.04] invert select-none md:block dark:opacity-[0.07] dark:invert-0"
+			style="mask-image: radial-gradient(closest-side, black 55%, transparent);"
+			aria-hidden="true"
+		/>
+		<div
+			class="mx-auto max-w-7xl flex-1 space-y-6 px-4 pt-6 pb-4 sm:px-6 lg:px-8"
+		>
 			<div class="mx-auto max-w-2xl space-y-2 text-center">
 				<p class={goldLabel}>Paso 02 · de 02</p>
 				<h2 class={heading}>Escoja su plan</h2>
@@ -204,7 +210,7 @@ const planCard =
 				</p>
 			</div>
 
-			<div class="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-4">
+			<div class="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-5">
 				{
 					allPlans.map((plan) => {
 						const features = featuresByPlan.get(plan.slug) ?? [];
@@ -214,12 +220,7 @@ const planCard =
 						const isFeatured = plan.slug === 'business';
 
 						return (
-							<div
-								class:list={[
-									'relative',
-									isFeatured && 'order-first sm:order-none',
-								]}
-							>
+							<div class="relative">
 								<input
 									type="radio"
 									id={`plan-${plan.id}`}
@@ -232,38 +233,46 @@ const planCard =
 									data-servicio={plan.etiqueta}
 									data-nombre={plan.nombre}
 								/>
-								<label for={`plan-${plan.id}`} class={planCard}>
-									<span class="plan-check bg-primary-gold absolute top-5 right-5 flex size-6 items-center justify-center rounded-full text-white opacity-0 transition-opacity duration-200">
-										<Icon name="ri:check-line" class="size-3.5" />
-									</span>
-
-									{isFeatured ? (
-										<span class="bg-primary-gold text-primary-black inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
-											{tag}
+								<label
+									for={`plan-${plan.id}`}
+									class:list={[
+										planCard,
+										isFeatured &&
+											'border-primary-gold ring-primary-gold/25 shadow-primary-gold/30 hover:border-primary-gold dark:shadow-primary-gold/10 dark:ring-primary-gold/20 bg-gradient-to-b from-amber-50/70 to-white shadow-xl ring-2 xl:scale-[1.04] dark:from-transparent dark:to-transparent',
+									]}
+								>
+									<div class="flex items-center justify-between">
+										{isFeatured ? (
+											<span class="bg-primary-gold text-primary-black inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+												{tag}
+											</span>
+										) : (
+											<span class="inline-flex items-center rounded-full border border-slate-200 px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-slate-400 uppercase dark:border-neutral-800 dark:text-slate-500">
+												{tag}
+											</span>
+										)}
+										<span class="plan-check bg-primary-gold flex size-6 items-center justify-center rounded-full text-white opacity-0 transition-opacity duration-200">
+											<Icon name="ri:check-line" class="size-3.5" />
 										</span>
-									) : (
-										<span class="inline-flex items-center rounded-full border border-slate-200 px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-slate-400 uppercase dark:border-neutral-800 dark:text-slate-500">
-											{tag}
-										</span>
-									)}
+									</div>
 
-									<h3 class="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
+									<h3 class="mt-4 text-xl font-semibold text-slate-900 dark:text-white">
 										{plan.nombre}
 									</h3>
 									<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
 										{lead}
 									</p>
 
-									<p class="mt-5 text-3xl font-semibold tracking-tight text-slate-900 tabular-nums dark:text-white">
+									<p class="mt-3 text-3xl font-semibold tracking-tight text-slate-900 tabular-nums dark:text-white">
 										${plan.precio}
 									</p>
-									<p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+									<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
 										{plan.descripcion}
 									</p>
 
-									<div class="my-5 h-px bg-slate-200 dark:bg-neutral-800" />
+									<div class="my-3 h-px bg-slate-200 dark:bg-neutral-800" />
 
-									<ul class="space-y-2.5 text-sm">
+									<ul class="space-y-2 text-sm">
 										{features.map((feature) => (
 											<li class="flex items-start gap-2.5">
 												<span class="bg-primary-gold/10 text-primary-gold mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full">
@@ -275,6 +284,20 @@ const planCard =
 											</li>
 										))}
 									</ul>
+
+									<div class="mt-auto pt-4">
+										<button
+											type="button"
+											data-plan-pay={plan.id}
+											class={`w-full ${isFeatured ? goldButton : ghostButton}`}
+										>
+											<span
+												class="pay-spinner hidden size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+												aria-hidden="true"
+											/>
+											<span class="pay-label">Comenzar</span>
+										</button>
+									</div>
 								</label>
 							</div>
 						);
@@ -282,156 +305,73 @@ const planCard =
 				}
 			</div>
 
-			<!-- Footer de confianza: seguridad, métodos de pago y copyright -->
-			<footer class="mx-auto max-w-3xl space-y-5 pt-2 text-center">
-				<div
-					class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500 dark:text-slate-400"
-				>
-					<span class="inline-flex items-center gap-1.5">
-						<Icon
-							name="ri:shield-check-fill"
-							class="text-primary-gold size-4"
-						/>
-						Pago cifrado de extremo a extremo
-					</span>
-					<span class="inline-flex items-center gap-1.5">
-						<Icon
-							name="ri:secure-payment-fill"
-							class="text-primary-gold size-4"
-						/>
-						Procesado de forma segura por Stripe
-					</span>
-					<span class="inline-flex items-center gap-1.5">
-						<Icon name="ri:bank-card-fill" class="text-primary-gold size-4" />
-						No almacenamos los datos de tu tarjeta
-					</span>
-				</div>
+			<p class="mt-3 text-center text-xs text-slate-400 dark:text-slate-500">
+				Los precios no incluyen la tarifa de procesamiento de pagos (4.5%), que
+				se muestra desglosada antes de confirmar tu compra.
+			</p>
 
-				<div class="flex items-center justify-center gap-3">
-					<span class="text-xs text-slate-400 dark:text-slate-500"
-						>Aceptamos</span
-					>
-					<div class="flex items-center gap-2">
-						{
-							paymentMethods.map((m) => (
-								<span
-									class="inline-flex h-7 w-11 items-center justify-center rounded-md border border-slate-200 dark:border-neutral-800"
-									title={m.label}
-								>
-									<Icon
-										name={m.icon}
-										class="size-5 text-slate-500 dark:text-slate-400"
-									/>
-								</span>
-							))
-						}
-					</div>
-				</div>
-
-				<div class="border-t border-slate-200 pt-5 dark:border-neutral-800">
-					<p class="text-xs text-slate-400 dark:text-slate-500">
-						© {year} Sotomayor Consulting International. Todos los derechos reservados.
-					</p>
-					<div class="mt-2 flex items-center justify-center gap-4 text-xs">
-						<a
-							href="https://sotomayorconsulting.com/inicio/politicas/"
-							class="hover:text-primary-gold text-slate-500 dark:text-slate-400"
-						>
-							Términos de Servicio
-						</a>
-						<span class="text-slate-300 dark:text-neutral-700">·</span>
-						<a
-							href="https://sotomayorconsulting.com/inicio/politicas/"
-							class="hover:text-primary-gold text-slate-500 dark:text-slate-400"
-						>
-							Política de Privacidad
-						</a>
-					</div>
-				</div>
-			</footer>
-		</div>
-
-		<!-- Barra de acción fija: resumen del plan + CTA siempre visible -->
-		<div
-			class="sticky bottom-0 z-30 border-t border-slate-200 bg-white/85 backdrop-blur-md dark:border-neutral-800 dark:bg-black/85"
-		>
-			<div
-				class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
+			<p
+				id="checkout-status"
+				class="mt-2 text-center text-xs text-slate-500 dark:text-slate-400"
 			>
-				<div class="min-w-0">
-					<p
-						class="text-[11px] tracking-wide text-slate-500 uppercase dark:text-slate-400"
-					>
-						Plan seleccionado
-					</p>
-					<p class="mt-0.5 text-sm">
-						<span
-							id="selected-plan-name"
-							class="font-semibold text-slate-900 dark:text-white"
-						>
-							{planBusiness?.nombre ?? allPlans[0]?.nombre}
-						</span>
-						<span class="text-primary-gold font-semibold tabular-nums">
-							{' · $'}
-							<span id="selected-plan-price">
-								{planBusiness?.precio ?? allPlans[0]?.precio}
-							</span>
-						</span>
-					</p>
-					<p
-						id="checkout-status"
-						class="mt-0.5 text-xs text-slate-500 dark:text-slate-400"
-					>
-					</p>
-				</div>
+			</p>
 
-				<div class="flex items-center gap-3">
-					<div
-						class="mr-1 hidden items-center gap-2 text-slate-400 md:flex dark:text-slate-500"
-					>
-						<Icon name="ri:lock-2-line" class="size-4" />
-						<span class="brightness-0 dark:brightness-0 dark:invert">
-							<Stripelogo width={46} />
-						</span>
-						<span class="h-4 w-px bg-slate-200 dark:bg-neutral-800"></span>
-						{
-							paymentMethods.slice(0, 2).map((m) => (
-								<span
-									class="inline-flex h-6 w-9 items-center justify-center rounded border border-slate-200 dark:border-neutral-800"
-									title={m.label}
-								>
-									<Icon name={m.icon} class="size-4" />
-								</span>
-							))
-						}
-					</div>
-					<button type="button" id="btn-atras" class={ghostButton}>
-						<Icon
-							name="ri:arrow-left-line"
-							class="size-4 transition-transform duration-200 group-hover:-translate-x-0.5"
-						/>
-						Regresar
-					</button>
-					<button
-						type="button"
-						id="btn-paso2"
-						class={`flex-1 sm:flex-none ${goldButton}`}
-					>
-						<span
-							id="pay-spinner"
-							class="hidden size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-							aria-hidden="true"></span>
-						Ir a pagar
-						<span
-							id="pay-arrow"
-							class="inline-flex transition-transform duration-200 group-hover:translate-x-0.5"
-						>
-							<Icon name="ri:arrow-right-line" class="size-4" />
-						</span>
-					</button>
-				</div>
+			<div class="flex items-center justify-center gap-3 pt-2">
+				<button type="button" id="btn-atras" class={ghostButton}>
+					<Icon
+						name="ri:arrow-left-line"
+						class="size-4 transition-transform duration-200 group-hover:-translate-x-0.5"
+					/>
+					Regresar
+				</button>
 			</div>
 		</div>
+
+		<footer
+			class="border-t border-slate-200 bg-slate-50 px-4 py-4 text-center dark:border-neutral-700 dark:bg-neutral-900"
+		>
+			<div class="mx-auto flex max-w-3xl flex-col items-center gap-4">
+				<div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+					<div
+						class="flex items-center gap-2 text-slate-400 dark:text-slate-500"
+					>
+						<Icon name="ri:lock-2-line" class="size-5" />
+						<span class="brightness-0 dark:brightness-0 dark:invert">
+							<PoweredByStripeBlack width={140} />
+						</span>
+					</div>
+					<span class="hidden h-6 w-px bg-slate-200 sm:block dark:bg-neutral-800"
+					></span>
+					<div class="flex items-center gap-2">
+						<VisaLogo class="h-6 w-auto sm:h-7" aria-label="Visa" />
+						<MastercardLogo class="h-6 w-auto sm:h-7" aria-label="Mastercard" />
+						<DinersLogo class="h-6 w-auto sm:h-7" aria-label="Diners Club" />
+						<AmexLogo class="h-6 w-auto sm:h-7" aria-label="American Express" />
+						<DiscoverLogo class="h-6 w-auto sm:h-7" aria-label="Discover" />
+					</div>
+				</div>
+
+				<div
+					class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs"
+				>
+					<p class="text-slate-400 dark:text-slate-500">
+						© {year} Sotomayor Consulting International.
+					</p>
+					<a
+						href="https://sotomayorconsulting.com/inicio/politicas/"
+						class="hover:text-primary-gold text-slate-500 dark:text-slate-400"
+					>
+						Términos de Servicio
+					</a>
+					<a
+						href="https://sotomayorconsulting.com/inicio/politicas/"
+						class="hover:text-primary-gold text-slate-500 dark:text-slate-400"
+					>
+						Política de Privacidad
+					</a>
+				</div>
+			</div>
+		</footer>
 	</section>
 </main>
 
@@ -445,105 +385,92 @@ const planCard =
 
 		const btnPaso1 = document.getElementById('btn-paso1');
 		const btnAtras = document.getElementById('btn-atras');
-		const btnPaso2 = document.getElementById(
-			'btn-paso2',
-		) as HTMLButtonElement | null;
 		const panel1 = document.getElementById('panel1');
 		const panel2 = document.getElementById('panel2');
 		const status = document.getElementById('checkout-status');
 
-		btnPaso1?.addEventListener('click', () => {
-			panel1?.classList.add('hidden');
-			panel2?.classList.remove('hidden');
-			window.scrollTo({ top: 0, behavior: 'smooth' });
-		});
-
-		btnAtras?.addEventListener('click', () => {
-			panel2?.classList.add('hidden');
-			panel1?.classList.remove('hidden');
-			window.scrollTo({ top: 0, behavior: 'smooth' });
-		});
-
-		// Mantener el resumen de la barra fija sincronizado con el plan elegido
-		const planRadios =
-			document.querySelectorAll<HTMLInputElement>('input[name="plan"]');
-		const selectedName = document.getElementById('selected-plan-name');
-		const selectedPrice = document.getElementById('selected-plan-price');
-
-		function syncSelectedPlan() {
-			const checked = document.querySelector<HTMLInputElement>(
-				'input[name="plan"]:checked',
-			);
-			if (!checked) return;
-			if (selectedName) {
-				selectedName.textContent = checked.dataset.nombre ?? '';
+		// Transición suave entre pasos usando la View Transitions API
+		// (https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API)
+		// con fallback inmediato en navegadores sin soporte.
+		const swapPanels = (hide: HTMLElement | null, show: HTMLElement | null) => {
+			const update = () => {
+				hide?.classList.add('hidden');
+				show?.classList.remove('hidden');
+				window.scrollTo({ top: 0 });
+			};
+			if (document.startViewTransition) {
+				document.startViewTransition(update);
+			} else {
+				update();
 			}
-			if (selectedPrice) {
-				selectedPrice.textContent = checked.dataset.price ?? '';
-			}
-		}
+		};
 
-		planRadios.forEach((radio) => {
-			radio.addEventListener('change', syncSelectedPlan);
-		});
-		syncSelectedPlan();
+		btnPaso1?.addEventListener('click', () => swapPanels(panel1, panel2));
+		btnAtras?.addEventListener('click', () => swapPanels(panel2, panel1));
 
-		btnPaso2?.addEventListener('click', async () => {
-			const radio = document.querySelector(
-				'input[name="plan"]:checked',
-			) as HTMLInputElement | null;
-			if (!radio) {
-				alert('Por favor selecciona un plan antes de continuar.');
-				return;
-			}
+		const payButtons = document.querySelectorAll<HTMLButtonElement>(
+			'button[data-plan-pay]',
+		);
 
-			const empresaSelect = document.getElementById(
-				'empresa-select',
-			) as HTMLSelectElement | null;
-			if (!empresaSelect || !empresaSelect.value) {
-				alert('Por favor selecciona la empresa para la que vas a pagar.');
-				return;
-			}
+		payButtons.forEach((btn) => {
+			btn.addEventListener('click', async (e) => {
+				e.preventDefault();
+				e.stopPropagation();
 
-			if (!userId) {
-				alert('No se detectó tu sesión. Vuelve a iniciar sesión.');
-				return;
-			}
+				const planId = btn.dataset.planPay;
+				if (!planId) return;
 
-			const paySpinner = document.getElementById('pay-spinner');
-			const payArrow = document.getElementById('pay-arrow');
-			btnPaso2.disabled = true;
-			btnPaso2.setAttribute('aria-busy', 'true');
-			paySpinner?.classList.remove('hidden');
-			payArrow?.classList.add('hidden');
-			if (status) status.textContent = 'Redirigiendo a Stripe...';
-
-			try {
-				const res = await fetch('/api/payment/checkout-session', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						planId: radio.value,
-						userId,
-						empresaId: empresaSelect.value,
-					}),
-				});
-				const data = await res.json();
-				if (!res.ok || !data.url) {
-					throw new Error(data.error || 'No se pudo iniciar el pago');
+				const empresaSelect = document.getElementById(
+					'empresa-select',
+				) as HTMLSelectElement | null;
+				if (!empresaSelect || !empresaSelect.value) {
+					alert('Por favor selecciona la empresa para la que vas a pagar.');
+					return;
 				}
-				window.location.href = data.url;
-			} catch (err) {
-				console.error('[checkout]', err);
-				if (status) {
-					status.textContent =
-						'No se pudo iniciar el pago. Intenta nuevamente.';
+
+				if (!userId) {
+					alert('No se detectó tu sesión. Vuelve a iniciar sesión.');
+					return;
 				}
-				btnPaso2.disabled = false;
-				btnPaso2.removeAttribute('aria-busy');
-				paySpinner?.classList.add('hidden');
-				payArrow?.classList.remove('hidden');
-			}
+
+				const spinner = btn.querySelector('.pay-spinner');
+				const arrow = btn.querySelector('.pay-arrow');
+				const label = btn.querySelector('.pay-label');
+				btn.disabled = true;
+				btn.setAttribute('aria-busy', 'true');
+				spinner?.classList.remove('hidden');
+				arrow?.classList.add('hidden');
+				if (label) label.textContent = 'Redirigiendo...';
+				if (status) status.textContent = 'Redirigiendo a Stripe...';
+
+				try {
+					const res = await fetch('/api/payment/checkout-session', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							planId,
+							userId,
+							empresaId: empresaSelect.value,
+						}),
+					});
+					const data = await res.json();
+					if (!res.ok || !data.url) {
+						throw new Error(data.error || 'No se pudo iniciar el pago');
+					}
+					window.location.href = data.url;
+				} catch (err) {
+					console.error('[checkout]', err);
+					if (status) {
+						status.textContent =
+							'No se pudo iniciar el pago. Intenta nuevamente.';
+					}
+					btn.disabled = false;
+					btn.removeAttribute('aria-busy');
+					spinner?.classList.add('hidden');
+					arrow?.classList.remove('hidden');
+					if (label) label.textContent = 'Ir a pagar';
+				}
+			});
 		});
 	}
 
@@ -559,3 +486,31 @@ const planCard =
 
 	document.addEventListener('astro:page-load', initIncorporacionPaymentFlow);
 </script>
+
+<style is:global>
+	/* Transición entre pasos: fade + leve deslizamiento vertical.
+	   Pseudo-elementos estándar de la View Transitions API. */
+	::view-transition-old(root) {
+		animation: 180ms ease-out both step-fade-out;
+	}
+	::view-transition-new(root) {
+		animation: 240ms ease-out both step-fade-in;
+	}
+	@keyframes step-fade-out {
+		to {
+			opacity: 0;
+		}
+	}
+	@keyframes step-fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		::view-transition-old(root),
+		::view-transition-new(root) {
+			animation: none;
+		}
+	}
+</style>
