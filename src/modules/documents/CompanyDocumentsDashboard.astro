@@ -212,16 +212,14 @@ const canUploadForRequest = (status: string) =>
 						Archivos subidos y compartidos de esta empresa.
 					</p>
 
-					<div class="border-border rounded-lg border p-4">
-						<CompanyDocumentsList
-							documents={documents}
-							canUseStaffActions={canUseStaffActions}
-							incorporationCaseId={incorporationCaseId ?? ''}
-							companyUserId={company.user_id}
-							isStaffDashboard={isStaffDashboard}
-							client:load
-						/>
-					</div>
+					<CompanyDocumentsList
+						documents={documents}
+						canUseStaffActions={canUseStaffActions}
+						incorporationCaseId={incorporationCaseId ?? ''}
+						companyUserId={company.user_id}
+						isStaffDashboard={isStaffDashboard}
+						client:load
+					/>
 				</div>
 			</div>
 		)

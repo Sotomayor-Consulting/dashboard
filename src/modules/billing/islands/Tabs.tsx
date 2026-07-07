@@ -5,14 +5,16 @@ import PagosRealizadosTable, {
 
 import CardsHeadOrders from '@modules/billing/islands/CardsHeadOrders';
 import OrdersTable from '@modules/billing/islands/OrdersTable';
+import type { OrderAdminRow } from '@domains/payments/orders';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/Tabs';
 
 interface TabsIconsProps {
 	data: RawPaymentItem[];
+	orders: OrderAdminRow[];
 }
 
-export default function TabsIcons({ data }: TabsIconsProps) {
+export default function TabsIcons({ data, orders }: TabsIconsProps) {
 	return (
 		<Tabs defaultValue="pagos-realizados" className="w-full p-4 shadow-xs">
 			<TabsList
@@ -33,8 +35,8 @@ export default function TabsIcons({ data }: TabsIconsProps) {
 			</TabsContent>
 			<TabsContent value="test" className="pt-6">
 				<div className="flex w-full flex-col">
-					<CardsHeadOrders />
-					<OrdersTable />
+					<CardsHeadOrders data={orders} />
+					<OrdersTable data={orders} />
 				</div>
 			</TabsContent>
 		</Tabs>

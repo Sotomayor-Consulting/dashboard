@@ -1,36 +1,58 @@
 import * as React from 'react';
 import { EyeIcon } from 'lucide-react';
 
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@components/ui/Dialog';
+import { Badge } from '@components/ui/Badge';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@components/ui/DropdownMenu';
-
-export type OrderActionsDropdownOrder = {
-	id: string;
-	producto: string;
-	precio: string;
-	metodoPago: string;
-	cliente: string;
-	empresa: string;
-	realizado: string;
-	stripePaymentIntentId: string;
-	estado: string;
-};
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+} from '@components/ui/Sheet';
+import type { OrderAdminRow } from '@domains/payments/orders';
 
 type Props = {
-	order: OrderActionsDropdownOrder;
+	order: OrderAdminRow;
 };
+
+const STATUS_LABEL: Record<string, string> = {
+	draft: 'Borrador',
+	pending_payment: 'Pago pendiente',
+	confirmed: 'Pagado',
+	canceled: 'Cancelada',
+};
+
+function statusVariant(status: string): 'susess' | 'warning' | 'destructive' {
+	if (status === 'confirmed') return 'susess';
+	if (status === 'canceled') return 'destructive';
+	return 'warning';
+}
+
+function fmtUsd(value: number | null | undefined) {
+	if (typeof value !== 'number') return '—';
+	return value.toLocaleString('en-US', {
+		style: 'currency',
+		currency: 'USD',
+		minimumFractionDigits: 2,
+	});
+}
+
+function fmtDate(value: string | null) {
+	if (!value) return '—';
+	const d = new Date(value);
+	if (Number.isNaN(d.getTime())) return value;
+	return d.toLocaleDateString('es-ES', {
+		year: 'numeric',
+		month: 'short',
+		day: '2-digit',
+	});
+}
 
 function MoreIcon() {
 	return (
@@ -51,8 +73,23 @@ function MoreIcon() {
 	);
 }
 
+function DetailRow({
+	label,
+	value,
+}: {
+	label: string;
+	value: React.ReactNode;
+}) {
+	return (
+		<div>
+			<p className="text-muted-foreground text-xs">{label}</p>
+			<p className="font-medium">{value || '—'}</p>
+		</div>
+	);
+}
+
 export default function OrderActionsDropdown({ order }: Props) {
-	const [detailsOpen, setDetailsOpen] = React.useState(false);
+	const [open, setOpen] = React.useState(false);
 
 	return (
 		<>
@@ -70,68 +107,94 @@ export default function OrderActionsDropdown({ order }: Props) {
 					<span className="sr-only">Abrir menu</span>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-44">
-					<DropdownMenuItem onClick={() => setDetailsOpen(true)}>
+					<DropdownMenuItem onClick={() => setOpen(true)}>
 						<EyeIcon />
 						Ver orden
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 
-			<Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-				<DialogContent className="sm:max-w-lg">
-					<DialogHeader>
-						<DialogTitle>Detalle de la orden</DialogTitle>
-						<DialogDescription>
-							Vista inicial para luego agregar informacion mas especifica.
-						</DialogDescription>
-					</DialogHeader>
+			<Sheet open={open} onOpenChange={setOpen}>
+				<SheetContent side="right" className="w-full sm:max-w-md">
+					<SheetHeader>
+						<SheetTitle>Orden {order.order_number}</SheetTitle>
+						<SheetDescription>
+							Detalle de la orden y desglose de servicios.
+						</SheetDescription>
+					</SheetHeader>
 
-					<div className="grid gap-3 px-5 text-sm">
-						<div className="grid grid-cols-2 gap-3">
-							<div>
-								<p className="text-muted-foreground text-xs">Producto</p>
-								<p className="font-medium">{order.producto}</p>
-							</div>
-							<div>
-								<p className="text-muted-foreground text-xs">Precio</p>
-								<p className="font-medium">{order.precio}</p>
-							</div>
-							<div>
-								<p className="text-muted-foreground text-xs">Metodo de pago</p>
-								<p className="font-medium">{order.metodoPago}</p>
-							</div>
-							<div>
-								<p className="text-muted-foreground text-xs">Realizado</p>
-								<p className="font-medium">{order.realizado}</p>
-							</div>
+					<div className="flex flex-col gap-4 overflow-y-auto px-4 pb-4">
+						<div className="grid grid-cols-2 gap-3 text-sm">
+							<DetailRow label="Cliente" value={order.client_name} />
+							<DetailRow label="Empresa" value={order.incorporation_name} />
+							<DetailRow label="Plan" value={order.plan_name} />
+							<DetailRow
+								label="Estado"
+								value={
+									<Badge variant={statusVariant(order.status)}>
+										{STATUS_LABEL[order.status] ?? order.status}
+									</Badge>
+								}
+							/>
+							<DetailRow
+								label="Pago"
+								value={order.payment_status ?? 'sin pago'}
+							/>
+							<DetailRow label="Realizado" value={fmtDate(order.created_at)} />
 						</div>
 
 						<div>
-							<p className="text-muted-foreground text-xs">Cliente</p>
-							<p className="font-medium">{order.cliente}</p>
-						</div>
-
-						<div>
-							<p className="text-muted-foreground text-xs">Empresa</p>
-							<p className="font-medium">{order.empresa}</p>
-						</div>
-
-						<div>
-							<p className="text-muted-foreground text-xs">
-								Stripe Payment Intent
+							<p className="text-muted-foreground mb-2 text-xs">
+								Desglose de servicios
 							</p>
-							<p className="font-mono text-xs">{order.stripePaymentIntentId}</p>
+							<ul className="divide-border divide-y rounded-md border">
+								{order.lines.length ? (
+									order.lines.map((line, idx) => (
+										<li
+											key={idx}
+											className="flex items-center justify-between gap-2 px-3 py-2 text-sm"
+										>
+											<div className="flex flex-col">
+												<span className="font-medium">
+													{line.service_name ?? '—'}
+												</span>
+												{line.service_plan_name ? (
+													<span className="text-muted-foreground text-xs">
+														{line.service_plan_name}
+													</span>
+												) : null}
+											</div>
+											<div className="flex items-center gap-3">
+												<span className="text-muted-foreground text-xs">
+													x{line.quantity ?? 1}
+												</span>
+												{order.show_prices ? (
+													<span className="font-medium tabular-nums">
+														{fmtUsd(line.unit_price)}
+													</span>
+												) : null}
+											</div>
+										</li>
+									))
+								) : (
+									<li className="text-muted-foreground px-3 py-2 text-sm">
+										Sin líneas
+									</li>
+								)}
+							</ul>
 						</div>
 
-						<div>
-							<p className="text-muted-foreground text-xs">Estado</p>
-							<p className="font-medium">{order.estado}</p>
+						<div className="flex items-center justify-between border-t pt-3">
+							<span className="text-muted-foreground text-sm">
+								Total del plan
+							</span>
+							<span className="text-lg font-semibold tabular-nums">
+								{fmtUsd(order.total)}
+							</span>
 						</div>
 					</div>
-
-					<DialogFooter showCloseButton />
-				</DialogContent>
-			</Dialog>
+				</SheetContent>
+			</Sheet>
 		</>
 	);
 }

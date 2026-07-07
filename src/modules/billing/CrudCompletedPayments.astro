@@ -1,12 +1,16 @@
 ---
 import Alerta from '@components/feedback/Alert.astro';
 import { pagosRealizadosData } from '@domains/payments/unread';
+import { getOrdersForAdmin } from '@domains/payments/orders';
 import Tabs from '@modules/billing/islands/Tabs';
 import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
 
 const supabase = Astro.locals.supabase;
 
-const pagosRealizados = await pagosRealizadosData(supabase);
+const [pagosRealizados, orders] = await Promise.all([
+	pagosRealizadosData(supabase),
+	getOrdersForAdmin(supabase),
+]);
 ---
 
 <Alerta />
@@ -18,6 +22,6 @@ const pagosRealizados = await pagosRealizadosData(supabase);
 			classAlt="px-4 pt-4"
 		/>
 
-		<Tabs data={pagosRealizados ?? []} client:load />
+		<Tabs data={pagosRealizados ?? []} orders={orders ?? []} client:load />
 	</div>
 </div>

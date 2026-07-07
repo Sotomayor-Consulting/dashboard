@@ -32,22 +32,7 @@ export interface OrderAdminRow {
 	lines: OrderLineItem[];
 }
 
-// Lee la vista agregada orders.order_admin_details (joins en SQL, sin embeds
-// cross-schema). RLS: staff ve todas; cliente ve las suyas.
-export async function getOrdersForAdmin(
-	supabase: SupabaseClient,
-): Promise<OrderAdminRow[]> {
-	const { data, error } = await supabase
-		.schema('orders')
-		.from('order_admin_details')
-		.select('*')
-		.order('created_at', { ascending: false });
-
-	if (error) {
-		log.error('Error fetching orders for admin', { error });
-		throw error;
-	}
-
+function mapOrderRows(data: unknown[]): OrderAdminRow[] {
 	return (data ?? []).map((r) => {
 		const row = r as Partial<OrderAdminRow> & { lines?: OrderLineItem[] | null };
 		return {
@@ -72,4 +57,47 @@ export async function getOrdersForAdmin(
 			lines: Array.isArray(row.lines) ? row.lines : [],
 		};
 	});
+}
+
+// Lee la vista agregada orders.order_admin_details (joins en SQL, sin embeds
+// cross-schema). RLS: staff ve todas; cliente ve las suyas.
+export async function getOrdersForAdmin(
+	supabase: SupabaseClient,
+): Promise<OrderAdminRow[]> {
+	const { data, error } = await supabase
+		.schema('orders')
+		.from('order_admin_details')
+		.select('*')
+		.order('created_at', { ascending: false });
+
+	if (error) {
+		log.error('Error fetching orders for admin', { error });
+		throw error;
+	}
+
+	return mapOrderRows(data ?? []);
+}
+
+// Órdenes de una incorporación (vista cliente). RLS security_invoker filtra a
+// las del propio usuario; se ordena por más recientes.
+export async function getOrdersByIncorporation(
+	supabase: SupabaseClient,
+	incorporationId: string,
+): Promise<OrderAdminRow[]> {
+	const { data, error } = await supabase
+		.schema('orders')
+		.from('order_admin_details')
+		.select('*')
+		.eq('incorporation_id', incorporationId)
+		.order('created_at', { ascending: false });
+
+	if (error) {
+		log.error('Error fetching orders by incorporation', {
+			error,
+			incorporationId,
+		});
+		throw error;
+	}
+
+	return mapOrderRows(data ?? []);
 }

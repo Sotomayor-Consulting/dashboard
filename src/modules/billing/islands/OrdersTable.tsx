@@ -14,15 +14,8 @@ import {
 } from '@tanstack/react-table';
 import { EyeIcon, MoreHorizontalIcon } from 'lucide-react';
 
+import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@components/ui/Dialog';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -31,6 +24,13 @@ import {
 } from '@components/ui/DropdownMenu';
 import { Input } from '@components/ui/Input';
 import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+} from '@components/ui/Sheet';
+import {
 	Table,
 	TableBody,
 	TableCell,
@@ -38,99 +38,116 @@ import {
 	TableHeader,
 	TableRow,
 } from '@components/ui/Table';
+import type { OrderAdminRow } from '@domains/payments/orders';
 
-type OrderRow = {
-	id: number;
-	producto: string;
-	precio: string;
-	metodoPago: string;
-	cliente: string;
-	empresa: string;
-	realizado: string;
-	stripePaymentIntentId: string;
-	estado: string;
+interface OrdersTableProps {
+	data: OrderAdminRow[];
+}
+
+const STATUS_LABEL: Record<string, string> = {
+	draft: 'Borrador',
+	pending_payment: 'Pago pendiente',
+	confirmed: 'Confirmada',
+	canceled: 'Cancelada',
 };
 
-const ordersData: OrderRow[] = [
-	{
-		id: 1,
-		producto: 'Incorporacion LLC',
-		precio: '$299.00',
-		metodoPago: 'Tarjeta',
-		cliente: 'Juan Perez',
-		empresa: 'Northwind Ventures LLC',
-		realizado: '28 abr 2026',
-		stripePaymentIntentId: 'pi_3Rt2sAxxxxxx01',
-		estado: 'succeeded',
-	},
-	{
-		id: 2,
-		producto: 'EIN + Operating Agreement',
-		precio: '$149.00',
-		metodoPago: 'Tarjeta',
-		cliente: 'Maria Gomez',
-		empresa: 'Blue Harbor Studio LLC',
-		realizado: '27 abr 2026',
-		stripePaymentIntentId: 'pi_3Rt2sAxxxxxx02',
-		estado: 'succeeded',
-	},
-	{
-		id: 3,
-		producto: 'Registered Agent',
-		precio: '$99.00',
-		metodoPago: 'Tarjeta',
-		cliente: 'Carlos Ruiz',
-		empresa: 'Summit Peak Holding LLC',
-		realizado: '26 abr 2026',
-		stripePaymentIntentId: 'pi_3Rt2sAxxxxxx03',
-		estado: 'succeeded',
-	},
-];
+function statusVariant(status: string): 'susess' | 'warning' | 'destructive' {
+	if (status === 'confirmed') return 'susess';
+	if (status === 'canceled') return 'destructive';
+	return 'warning';
+}
 
-const columns: ColumnDef<OrderRow>[] = [
+function fmtDate(value: string | null) {
+	if (!value) return '—';
+	const d = new Date(value);
+	if (Number.isNaN(d.getTime())) return value;
+	return d.toLocaleDateString('es-ES', {
+		year: 'numeric',
+		month: 'short',
+		day: '2-digit',
+	});
+}
+
+function fmtUsd(value: number | null | undefined) {
+	if (typeof value !== 'number') return '—';
+	return value.toLocaleString('en-US', {
+		style: 'currency',
+		currency: 'USD',
+		minimumFractionDigits: 2,
+	});
+}
+
+const columns: ColumnDef<OrderAdminRow>[] = [
 	{
-		accessorKey: 'producto',
-		header: 'Producto',
+		accessorKey: 'order_number',
+		header: 'Orden',
 		cell: ({ row }) => (
-			<span className="font-medium text-neutral-800 dark:text-neutral-300">
-				{row.original.producto}
+			<span className="font-mono text-xs font-medium text-neutral-800 dark:text-neutral-300">
+				{row.original.order_number}
 			</span>
 		),
 	},
 	{
-		accessorKey: 'precio',
-		header: 'Precio',
-	},
-	{
-		accessorKey: 'metodoPago',
-		header: 'Metodo de pago',
-	},
-	{
-		accessorKey: 'cliente',
+		accessorKey: 'client_name',
 		header: 'Cliente',
+		cell: ({ row }) => <span>{row.original.client_name ?? '—'}</span>,
 	},
 	{
-		accessorKey: 'empresa',
+		accessorKey: 'incorporation_name',
 		header: 'Empresa',
+		cell: ({ row }) => <span>{row.original.incorporation_name ?? '—'}</span>,
 	},
 	{
-		accessorKey: 'realizado',
+		accessorKey: 'plan_name',
+		header: 'Plan',
+		cell: ({ row }) => <span>{row.original.plan_name ?? '—'}</span>,
+	},
+	{
+		id: 'total',
+		header: 'Total',
+		cell: ({ row }) => fmtUsd(row.original.total),
+	},
+	{
+		accessorKey: 'status',
+		header: 'Estado',
+		cell: ({ row }) => (
+			<Badge variant={statusVariant(row.original.status)}>
+				{STATUS_LABEL[row.original.status] ?? row.original.status}
+			</Badge>
+		),
+	},
+	{
+		accessorKey: 'created_at',
 		header: 'Realizado',
+		cell: ({ row }) => <span>{fmtDate(row.original.created_at)}</span>,
 	},
 ];
 
-export default function OrdersTable() {
+function DetailRow({
+	label,
+	value,
+}: {
+	label: string;
+	value: React.ReactNode;
+}) {
+	return (
+		<div>
+			<p className="text-muted-foreground text-xs">{label}</p>
+			<p className="font-medium">{value || '—'}</p>
+		</div>
+	);
+}
+
+export default function OrdersTable({ data }: OrdersTableProps) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[],
 	);
-	const [selectedOrder, setSelectedOrder] = React.useState<OrderRow | null>(
-		null,
-	);
-	const [detailsOpen, setDetailsOpen] = React.useState(false);
+	const [selected, setSelected] = React.useState<OrderAdminRow | null>(null);
+	const [open, setOpen] = React.useState(false);
 
 	const table = useReactTable({
-		data: ordersData,
+		data,
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -138,15 +155,12 @@ export default function OrdersTable() {
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
-		state: {
-			sorting,
-			columnFilters,
-		},
+		state: { sorting, columnFilters },
 	});
 
-	const openDetails = (order: OrderRow) => {
-		setSelectedOrder(order);
-		setDetailsOpen(true);
+	const openDetails = (order: OrderAdminRow) => {
+		setSelected(order);
+		setOpen(true);
 	};
 
 	return (
@@ -154,19 +168,21 @@ export default function OrdersTable() {
 			<div className="mt-6 space-y-4">
 				<div className="flex items-center gap-2">
 					<Input
-						placeholder="Buscar por producto, cliente o empresa..."
+						placeholder="Buscar por cliente, empresa o plan..."
 						value={
-							((table.getColumn('producto')?.getFilterValue() as string) ??
+							((table.getColumn('client_name')?.getFilterValue() as string) ??
 								'') ||
-							((table.getColumn('cliente')?.getFilterValue() as string) ??
+							((table
+								.getColumn('incorporation_name')
+								?.getFilterValue() as string) ??
 								'') ||
-							((table.getColumn('empresa')?.getFilterValue() as string) ?? '')
+							((table.getColumn('plan_name')?.getFilterValue() as string) ?? '')
 						}
 						onChange={(event) => {
 							const value = event.target.value;
-							table.getColumn('producto')?.setFilterValue(value);
-							table.getColumn('cliente')?.setFilterValue(value);
-							table.getColumn('empresa')?.setFilterValue(value);
+							table.getColumn('client_name')?.setFilterValue(value);
+							table.getColumn('incorporation_name')?.setFilterValue(value);
+							table.getColumn('plan_name')?.setFilterValue(value);
 						}}
 						className="max-w-md"
 					/>
@@ -263,67 +279,109 @@ export default function OrdersTable() {
 				</div>
 			</div>
 
-			<Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-				<DialogContent className="sm:max-w-lg">
-					<DialogHeader>
-						<DialogTitle>Detalle de la orden</DialogTitle>
-						<DialogDescription>
-							Vista inicial para luego agregar información mas especifica.
-						</DialogDescription>
-					</DialogHeader>
+			<Sheet open={open} onOpenChange={setOpen}>
+				<SheetContent side="right" className="w-full sm:max-w-md">
+					<SheetHeader>
+						<SheetTitle>Orden {selected?.order_number ?? ''}</SheetTitle>
+						<SheetDescription>
+							Detalle de la orden y desglose de servicios.
+						</SheetDescription>
+					</SheetHeader>
 
-					{selectedOrder ? (
-						<div className="grid gap-3 px-5 text-sm">
-							<div className="grid grid-cols-2 gap-3">
-								<div>
-									<p className="text-muted-foreground text-xs">Producto</p>
-									<p className="font-medium">{selectedOrder.producto}</p>
-								</div>
-								<div>
-									<p className="text-muted-foreground text-xs">Precio</p>
-									<p className="font-medium">{selectedOrder.precio}</p>
-								</div>
-								<div>
-									<p className="text-muted-foreground text-xs">
-										Método de pago
-									</p>
-									<p className="font-medium">{selectedOrder.metodoPago}</p>
-								</div>
-								<div>
-									<p className="text-muted-foreground text-xs">Realizado</p>
-									<p className="font-medium">{selectedOrder.realizado}</p>
-								</div>
+					{selected ? (
+						<div className="flex flex-col gap-4 overflow-y-auto px-4 pb-4">
+							<div className="grid grid-cols-2 gap-3 text-sm">
+								<DetailRow label="Cliente" value={selected.client_name} />
+								<DetailRow
+									label="Empresa"
+									value={selected.incorporation_name}
+								/>
+								<DetailRow label="Plan" value={selected.plan_name} />
+								<DetailRow
+									label="Estado"
+									value={
+										<Badge variant={statusVariant(selected.status)}>
+											{STATUS_LABEL[selected.status] ?? selected.status}
+										</Badge>
+									}
+								/>
+								<DetailRow
+									label="Pago"
+									value={selected.payment_status ?? 'sin pago'}
+								/>
+								<DetailRow
+									label="Realizado"
+									value={fmtDate(selected.created_at)}
+								/>
 							</div>
 
-							<div>
-								<p className="text-muted-foreground text-xs">Cliente</p>
-								<p className="font-medium">{selectedOrder.cliente}</p>
-							</div>
+							<DetailRow
+								label="Stripe Payment Intent"
+								value={
+									<span className="font-mono text-xs break-all">
+										{selected.provider_transaction_id ?? '—'}
+									</span>
+								}
+							/>
 
 							<div>
-								<p className="text-muted-foreground text-xs">Empresa</p>
-								<p className="font-medium">{selectedOrder.empresa}</p>
+								<p className="text-muted-foreground mb-2 text-xs">
+									Desglose de servicios
+								</p>
+								<ul className="divide-border divide-y rounded-md border">
+									{selected.lines.length ? (
+										selected.lines.map((line, idx) => (
+											<li
+												key={idx}
+												className="flex items-center justify-between gap-2 px-3 py-2 text-sm"
+											>
+												<div className="flex flex-col">
+													<span className="font-medium">
+														{line.service_name ?? '—'}
+													</span>
+													{line.service_plan_name ? (
+														<span className="text-muted-foreground text-xs">
+															{line.service_plan_name}
+														</span>
+													) : null}
+												</div>
+												<div className="flex items-center gap-3">
+													<span className="text-muted-foreground text-xs">
+														x{line.quantity ?? 1}
+													</span>
+													{selected.show_prices ? (
+														<span className="font-medium tabular-nums">
+															{fmtUsd(line.unit_price)}
+														</span>
+													) : null}
+												</div>
+											</li>
+										))
+									) : (
+										<li className="text-muted-foreground px-3 py-2 text-sm">
+											Sin líneas
+										</li>
+									)}
+								</ul>
 							</div>
 
-							<div>
+							<div className="flex items-center justify-between border-t pt-3">
+								<span className="text-muted-foreground text-sm">
+									Total del plan
+								</span>
+								<span className="text-lg font-semibold tabular-nums">
+									{fmtUsd(selected.total)}
+								</span>
+							</div>
+							{!selected.show_prices ? (
 								<p className="text-muted-foreground text-xs">
-									Stripe Payment Intent
+									El desglose por servicio no muestra precios.
 								</p>
-								<p className="font-mono text-xs">
-									{selectedOrder.stripePaymentIntentId}
-								</p>
-							</div>
-
-							<div>
-								<p className="text-muted-foreground text-xs">Estado</p>
-								<p className="font-medium">{selectedOrder.estado}</p>
-							</div>
+							) : null}
 						</div>
 					) : null}
-
-					<DialogFooter showCloseButton />
-				</DialogContent>
-			</Dialog>
+				</SheetContent>
+			</Sheet>
 		</>
 	);
 }

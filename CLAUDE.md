@@ -360,6 +360,8 @@ Exposed Schemas (Supabase → Settings → API): `public, graphql_public, docume
 
 Modelo canónico: `orders.orders` (una por checkout; `pending_payment` → `confirmed`) → `orders.order_lines` (plan + addons; nombres denormalizados) → `orders.payments` (1 orden → N pagos, `amount` en **dólares**, upsert por `provider_transaction_id`) → `orders.payment_events` (auditoría inmutable de eventos Stripe, idempotente por `provider_event_id`). Reemplazó a la tabla plana `public.pagos` (eliminada). Flujo: `checkout-session(.ts)` crea la orden y pasa `order_id` en metadata Stripe → `webhook` llama RPC `registrar_pago_desde_stripe` (confirma orden + upserta pago) e inserta el `payment_event`. El **fulfillment se dispara desde `plan_id`**: triggers en `orders.payments` (`orders.trg_payment_succeeded_workflow`, `orders.trg_payment_set_incorporation_state`) rederivan `incorporation_id` (de la orden) y `plan_id` (de la order_line base) y llaman `workflow.create_workflow_for_incorporation`. RLS: cliente ve lo suyo (`user_id = auth.uid()`); admin/operaciones vía `orders.is_staff()`. "Marcar como leído" = `mark_pago_visto_secure(order_id)` → `orders.orders.seen_by_ops`.
 
+Para listados admin se usa la **vista `orders.order_admin_details`** (`security_invoker`, una fila por orden con cliente/empresa/plan/pago + `lines` jsonb del desglose): resuelve los joins cross-schema en SQL (evita el gotcha de embeds) y respeta `catalogs.service_plans.show_prices` (si es `false`, `total` y `unit_price` de las líneas salen nulos). La consume `domains/payments/orders.ts` (`getOrdersForAdmin`) → tab "Órdenes" (`modules/billing/islands/OrdersTable.tsx`, detalle en `Sheet` con lista de servicios).
+
 # Project Instructions
 
 ## Use Context7 by Default
