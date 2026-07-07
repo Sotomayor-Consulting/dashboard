@@ -93,7 +93,10 @@ const data = await getOperationsPanelData(supabase, empresaId, empresaNombre);
 								})
 							)}
 						</div>
-						<StagesOverview stages={data.stages} currentStageId={data.currentStage?.id} />
+						<StagesOverview
+							stages={data.stages}
+							currentStageId={data.currentStage?.id ?? null}
+						/>
 					</div>
 					<aside class="space-y-6">
 						<TeamQueue teamQueue={data.teamQueue} />

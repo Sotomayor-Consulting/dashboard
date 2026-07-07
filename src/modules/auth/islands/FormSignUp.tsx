@@ -1,4 +1,10 @@
-import { useActionState, useState, useEffect, useCallback } from 'react';
+import {
+	useActionState,
+	useState,
+	useEffect,
+	useCallback,
+	useRef,
+} from 'react';
 import { navigate } from 'astro:transitions/client';
 import { Field, FieldLabel, FieldDescription } from '@components/ui/Field';
 import { buttonVariants } from '@components/ui/Button';
@@ -14,6 +20,7 @@ declare const turnstile: {
 		options: Record<string, unknown>,
 	) => string;
 	remove: (widgetId: string) => void;
+	reset: (widgetId: string) => void;
 };
 
 type FormState = { error: string | null };
@@ -64,6 +71,17 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 	}, [handleOAuthMessage]);
 
 	// ─── Cloudflare Turnstile (explicit render) ─────────
+	const turnstileWidgetIdRef = useRef<string | null>(null);
+
+	// Los tokens de Turnstile son de un solo uso: tras un intento de registro
+	// fallido hay que resetear el widget para obtener un token nuevo.
+	const resetTurnstile = useCallback(() => {
+		setTurnstileToken(null);
+		if (turnstileWidgetIdRef.current && typeof turnstile !== 'undefined') {
+			turnstile.reset(turnstileWidgetIdRef.current);
+		}
+	}, []);
+
 	useEffect(() => {
 		if (!turnstileSiteKey) return;
 
@@ -86,6 +104,7 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 				'expired-callback': () => setTurnstileToken(null),
 				'error-callback': () => setTurnstileToken(null),
 			});
+			turnstileWidgetIdRef.current = widgetId;
 		};
 
 		if (typeof turnstile !== 'undefined') {
@@ -110,6 +129,7 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 			if (widgetId && typeof turnstile !== 'undefined') {
 				turnstile.remove(widgetId);
 			}
+			turnstileWidgetIdRef.current = null;
 		};
 	}, [turnstileSiteKey]);
 
@@ -172,6 +192,7 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 				const result = (await response.json()) as RegisterResponse;
 
 				if (!response.ok || !result.ok) {
+					resetTurnstile();
 					return {
 						error:
 							result.error ??
@@ -193,6 +214,7 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 				window.location.href = result.data?.redirect ?? '/';
 				return { error: null };
 			} catch {
+				resetTurnstile();
 				return {
 					error: 'No se pudo procesar el registro. Intenta nuevamente.',
 				};

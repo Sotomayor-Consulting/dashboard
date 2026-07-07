@@ -60,7 +60,7 @@ export default function FeedbackDialog() {
 		if (!next) reset();
 	}
 
-	async function handleSubmit(e: React.FormEvent) {
+	async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
 		e.preventDefault();
 		const trimmed = message.trim();
 		if (!trimmed) {

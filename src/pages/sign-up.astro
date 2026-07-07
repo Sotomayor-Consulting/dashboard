@@ -9,7 +9,7 @@ import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
 	<div class="flex h-full w-full items-center justify-center">
 		<Alerta />
 		<FormSignUp
-			turnstileSiteKey={PUBLIC_TURNSTILE_SITE_KEY}
+			turnstileSiteKey={PUBLIC_TURNSTILE_SITE_KEY ?? null}
 			client:load
 		/>
 	</div>
