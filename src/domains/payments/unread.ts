@@ -3,146 +3,57 @@ import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('domains.payments.unread');
 
-export interface PagoPorLeer {
+const ord = (s: SupabaseClient) => s.schema('orders' as never);
+
+interface OrderAdminRow {
 	id: string;
+	order_number: string;
 	status: string;
-	visto_por_operaciones: boolean;
+	seen_by_ops: boolean;
 	created_at: string;
-	monto: number;
-	moneda: string;
-	usuarios?: {
-		user_id: string;
-		nombre: string;
-		apellido: string;
-	};
-}
-
-export async function getPagosPorLeer(
-	supabase: SupabaseClient,
-	userRole?: string,
-): Promise<{
-	count: number;
-	data: PagoPorLeer[];
-}> {
-	let pagosCount = 0;
-	let pagosData: PagoPorLeer[] = [];
-
-	if (userRole === 'admin') {
-		const { data: pagos } = await supabase
-			.from('pagos')
-			.select(
-				`
-        *,
-        usuarios:usuarios (user_id, nombre, apellido)
-      `,
-			)
-			.eq('status', 'succeeded')
-			.eq('visto_por_operaciones', false)
-			.order('created_at', { ascending: true });
-
-		pagosData = pagos || [];
-		pagosCount = pagos?.length || 0;
-	}
-
-	return { count: pagosCount, data: pagosData };
+	total: number | null;
+	user_id: string;
+	client_name: string | null;
+	client_email: string | null;
+	incorporation_id: string | null;
+	incorporation_name: string | null;
+	plan_slug: string | null;
+	plan_name: string | null;
+	provider_transaction_id: string | null;
+	payment_status: string | null;
+	paid_at: string | null;
 }
 
 export const pagosRealizadosData = async (supabase: SupabaseClient) => {
-	const { data, error } = await supabase
-		.from('pagos')
-		.select(
-			`
-    *,
-    usuarios ( user_id, nombre, apellido, correo ),
-	servicios:service_plans (id, slug, nombre:name, categoria:metadata->>categoria),
-	incorporations (id, principal_name, state)
-  `,
-			{ count: 'exact' },
-		)
+	const { data, error } = await ord(supabase)
+		.from('order_admin_details')
+		.select('*')
 		.order('created_at', { ascending: false });
 
 	if (error) {
-		log.error('Error fetching all pagos data', { error });
+		log.error('Error fetching pagos from order_admin_details', { error });
 		throw error;
 	}
 
-	return data;
-};
+	const rows = (data ?? []) as OrderAdminRow[];
 
-export const pagosRealizadosPorSubir = async (supabase: SupabaseClient) => {
-	const { data, error } = await supabase
-		.from('pagos')
-		.select(
-			`
-    *,
-    usuarios ( user_id, nombre, apellido, correo ),
-	servicios:service_plans (id, slug, nombre:name, categoria:metadata->>categoria),
-	incorporations (id, principal_name, state)
-  `,
-			{ count: 'exact' },
-		)
-		.eq('status', 'succeeded')
-		.order('created_at', { ascending: false });
+	return rows.map((r) => {
+		const [nombre, ...rest] = (r.client_name ?? '').split(' ');
+		const apellido = rest.join(' ');
 
-	if (error) {
-		log.error('Error fetching all pagos data', { error });
-		throw error;
-	}
-
-	return data;
-};
-
-export const pagosRealizadosPorSubirById = async (
-	supabase: SupabaseClient,
-	empresaId: string,
-) => {
-	const { data, error } = await supabase
-		.from('pagos')
-		.select(
-			`
-    *,
-    usuarios ( user_id, nombre, apellido, correo ),
-	servicios:service_plans (id, slug, nombre:name, categoria:metadata->>categoria),
-	incorporations (id, principal_name, state, entity_type)
-  `,
-			{ count: 'exact' },
-		)
-		.eq('status', 'succeeded')
-		.eq('empresa_incorporacion_id', empresaId)
-		.order('created_at', { ascending: false })
-		.limit(1)
-		.maybeSingle();
-
-	if (error) {
-		log.error('Error fetching all pagos data', { error });
-		throw error;
-	}
-
-	return data;
-};
-
-export const pagosPorSubirById = async (
-	supabase: SupabaseClient,
-	empresaId: string,
-) => {
-	const { data, error } = await supabase
-		.from('pagos')
-		.select(
-			`
-    *,
-    usuarios ( user_id, nombre, apellido, correo )
-  `,
-			{ count: 'exact' },
-		)
-		.eq('status', 'succeeded')
-		.eq('empresa_incorporacion_id', empresaId)
-		.order('created_at', { ascending: false })
-		.single();
-
-	if (error) {
-		log.error('Error fetching all pagos data', { error });
-		throw error;
-	}
-
-	return data;
+		return {
+			id_pagos: null,
+			stripe_payment_intent_id: r.provider_transaction_id,
+			amount: r.total != null ? Math.round(r.total * 100) : null,
+			status: r.payment_status ?? r.status,
+			visto_por_operaciones: r.seen_by_ops,
+			created_at: r.created_at,
+			usuarios: { nombre: nombre ?? null, apellido: apellido || null },
+			incorporations: {
+				principal_name: r.incorporation_name,
+				id: r.incorporation_id,
+			},
+			servicios: { nombre: r.plan_name },
+		};
+	});
 };

@@ -1,92 +1,31 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { Image } from 'astro:assets';
-import AppSciLogo from '@assets/brand/isotipo-re.png';
 
 interface Props {
 	empresa: {
 		principal_name: string;
 		tipo_de_negocio: string;
-		porcentaje_de_incorporacion: number;
 		estado_de_incorporacion: string;
-		estado?: string;
+		state?: string;
 		ein?: string | null;
 		numero_ein?: string | null;
 		ein_number?: string | null;
 		tax_id?: string | null;
 		tin?: string | null;
 	};
-	progressPercent?: number;
-	planName?: string;
-	completedStages?: number;
-	totalStages?: number;
-	currentStageName?: string | null;
-	currentStageOrder?: number | null;
-	estimatedCompletion?: string | null;
-	nextStageName?: string | null;
 	upgradeAvailable?: boolean;
 	upgradePrice?: number | null;
+	pendingDocuments?: number;
+	pendingProcesses?: number;
 }
 
 const {
 	empresa,
-	progressPercent = empresa.porcentaje_de_incorporacion,
-	planName = 'Plan Business',
-	completedStages = 0,
-	totalStages = 0,
-	currentStageName = null,
-	currentStageOrder = null,
-	estimatedCompletion = null,
-	nextStageName = null,
 	upgradeAvailable = false,
 	upgradePrice = null,
+	pendingDocuments = 0,
+	pendingProcesses = 0,
 } = Astro.props;
-
-const daysRemaining = (() => {
-	if (!estimatedCompletion) return null;
-	const end = new Date(estimatedCompletion).getTime();
-	if (Number.isNaN(end)) return null;
-	const diff = end - Date.now();
-	return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-})();
-
-const miamiWeekday = new Intl.DateTimeFormat('en-US', {
-	timeZone: 'America/New_York',
-	weekday: 'short',
-}).format(new Date());
-
-const miamiHour = Number(
-	new Intl.DateTimeFormat('en-US', {
-		timeZone: 'America/New_York',
-		hour: '2-digit',
-		hour12: false,
-	}).format(new Date()),
-);
-
-const isBusinessWeekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(
-	miamiWeekday,
-);
-const isAdvisorOnline = isBusinessWeekday && miamiHour >= 8 && miamiHour < 17;
-
-const rawEin =
-	empresa.ein ??
-	empresa.numero_ein ??
-	empresa.ein_number ??
-	empresa.tax_id ??
-	empresa.tin ??
-	null;
-
-const maskedEin = (() => {
-	if (!rawEin) return null;
-	const digits = rawEin.replace(/\D/g, '');
-	if (digits.length >= 4)
-		return `${digits.slice(0, 2)}-${digits.slice(2, 4)}*****`;
-	if (digits.length >= 2) return `${digits.slice(0, 2)}-*****`;
-	return `${rawEin.slice(0, 2)}***`;
-})();
-
-const einDisplayValue =
-	maskedEin ?? (import.meta.env.DEV ? '12-34*****' : null);
 
 const fmtUsd = (n: number | null | undefined) =>
 	typeof n === 'number' && !Number.isNaN(n)
@@ -97,219 +36,67 @@ const fmtUsd = (n: number | null | undefined) =>
 			}).format(n)
 		: null;
 
-const planLabelShort = planName.replace(/^Plan\s+/i, '').trim();
 const upgradePriceLabel = fmtUsd(upgradePrice);
+
 ---
 
 {
 	upgradeAvailable && (
-		<div class="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
-			<div class="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-				<div class="flex items-center gap-3">
-					<Icon name="ri:star-fill" class="h-5 w-5 shrink-0 text-amber-500" />
-					<div class="min-w-0">
-						<p class="text-sm font-medium text-amber-800 dark:text-amber-200">
-							Upgrade disponible — Plan {planLabelShort}
-						</p>
-					</div>
+		<div class="-mx-6 mt-6 bg-amber-50/40 px-6 py-4 dark:bg-amber-500/5">
+			<div class="flex items-center gap-3.5">
+				<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-amber-200 bg-amber-100/80 dark:border-amber-500/30 dark:bg-amber-500/15">
+					<Icon name="ri:arrow-up-circle-line" class="h-4.5 w-4.5 text-amber-600 dark:text-amber-400" />
 				</div>
+				<div class="min-w-0 flex-1">
+					<p class="text-sm font-semibold text-amber-950 dark:text-amber-50">
+						Lleva tu LLC al siguiente nivel
+					</p>
+					<p class="mt-0.5 text-xs text-amber-800/70 dark:text-amber-200/60">
+						Cuenta bancaria, pasarela de cobros, optimización fiscal y más.
+					</p>
+				</div>
+				{upgradePriceLabel && (
+					<div class="shrink-0 text-right">
+						<p class="text-lg font-bold tracking-tight text-amber-950 dark:text-amber-50">{upgradePriceLabel}</p>
+						<p class="text-[11px] text-amber-700/70 dark:text-amber-300/50">pago único</p>
+					</div>
+				)}
 				<a
 					href="/upgrade"
-					class="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+					class="shrink-0 inline-flex items-center rounded-lg bg-primary-gold px-4 py-2.5 text-sm font-semibold text-primary-black transition-all hover:brightness-105 active:scale-[0.98]"
 				>
-					Pagar upgrade
-					{upgradePriceLabel && <span class="opacity-90">· {upgradePriceLabel}</span>}
-					<Icon name="ri:arrow-right-line" class="h-4 w-4" />
+					Desbloquear beneficios
 				</a>
 			</div>
 		</div>
+		<div class="-mx-6 mt-4 border-b border-border" />
 	)
 }
 
-<!-- Company header — flat, no card -->
-<div class="mt-6 mb-6">
-	<div class="mb-1 inline-flex items-center gap-1.5">
-		<Icon name="ri:star-fill" class="h-3.5 w-3.5 text-amber-500" />
-		<span class="text-xs font-semibold tracking-wide text-amber-600 uppercase dark:text-amber-300">
-			{planName}
-		</span>
-	</div>
+<div class="mt-6 mb-2">
 	<h2 class="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
 		{empresa.principal_name}
 	</h2>
-	<div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-		<span class="inline-flex items-center gap-1.5">
-			<Icon name="ri:briefcase-3-line" class="h-4 w-4" />
-			{empresa.tipo_de_negocio || 'No definido'}
-		</span>
-		<span class="inline-flex items-center gap-1.5">
-			<Icon name="ri:map-pin-line" class="h-4 w-4" />
-			{empresa.estado_de_incorporacion}
-		</span>
-		{
-			einDisplayValue && (
-				<span class="inline-flex items-center gap-1.5 rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
-					<Icon name="ri:shield-keyhole-line" class="h-3.5 w-3.5" />
-					EIN: {einDisplayValue}
-					{!maskedEin && import.meta.env.DEV && (
-						<span class="rounded bg-amber-100 px-1 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
-							Demo
-						</span>
-					)}
-				</span>
-			)
-		}
-	</div>
 </div>
 
-<!-- Cards grid -->
-<div class="grid w-full grid-cols-1 gap-4 xl:grid-cols-2">
-	<!-- Progress & current stage card -->
-	<div class="rounded-lg border border-border p-5">
-		<div class="flex items-center justify-between">
-			<span class="text-sm font-medium text-foreground">Progreso de incorporación</span>
-			<span class="text-2xl font-bold text-foreground">{progressPercent}%</span>
+<!-- Inline stats -->
+<div class="-mx-6 mt-4 mb-6 flex flex-wrap gap-6 border-b border-border px-6 pb-6">
+	<div class="flex items-center gap-2.5">
+		<div class="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card">
+			<Icon name="ri:loader-3-line" class="h-4 w-4 text-muted-foreground" />
 		</div>
-		<div class="mt-3 h-2 overflow-hidden rounded-full bg-muted">
-			<div
-				class="h-full rounded-full bg-[#134aed] transition-all"
-				style={`width: ${progressPercent}%`}
-			>
-			</div>
-		</div>
-		<div class="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-			<span>{completedStages} de {totalStages} etapas completadas</span>
-			{
-				nextStageName ? (
-					<span>
-						Siguiente:{' '}
-						<span class="font-semibold text-foreground">{nextStageName}</span>
-					</span>
-				) : daysRemaining !== null ? (
-					<span class="inline-flex items-center gap-1">
-						<Icon name="ri:time-line" class="h-3 w-3" />
-						{daysRemaining} días restantes
-					</span>
-				) : null
-			}
-		</div>
-
-		<div class="mt-4 rounded-lg border border-border bg-muted/30 p-4">
-			<p class="mb-2 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-				Etapa actual
-			</p>
-			<div class="flex items-center gap-3">
-				<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-500/20">
-					<Icon name="ri:time-line" class="h-5 w-5 text-amber-600 dark:text-amber-300" />
-				</div>
-				<div class="min-w-0">
-					<p class="truncate text-sm font-medium text-foreground">
-						{currentStageName || 'Pendiente de iniciar'}
-					</p>
-					<p class="text-xs text-muted-foreground">
-						Etapa {currentStageOrder || '-'} de {totalStages || '-'}
-					</p>
-				</div>
-			</div>
+		<div>
+			<p class="text-lg font-semibold leading-none text-foreground">{pendingProcesses}</p>
+			<p class="text-xs text-muted-foreground">Etapas pendientes</p>
 		</div>
 	</div>
-
-	<!-- Advisor card -->
-	<div class="rounded-lg border border-border p-5">
-		<p class="mb-3 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
-			Tu asesor
-		</p>
-		<div class="flex items-center gap-3">
-			<div class="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-border">
-				<Image
-					src={AppSciLogo}
-					alt="Asesor de incorporación"
-					class="h-10 w-10 rounded-full object-cover"
-				/>
-				<span class="absolute -right-0.5 -bottom-0.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-card">
-					<span
-						class={`absolute inline-flex h-2.5 w-2.5 animate-[ping_2.2s_ease-out_infinite] rounded-full opacity-45 ${isAdvisorOnline ? 'bg-emerald-300' : 'bg-amber-300'}`}
-					></span>
-					<span
-						class={`relative inline-flex h-2.5 w-2.5 rounded-full ${isAdvisorOnline ? 'bg-emerald-500' : 'bg-amber-500'}`}
-					></span>
-				</span>
-			</div>
-			<div class="min-w-0 flex-1">
-				<p class="truncate text-base font-semibold text-foreground">
-					Sotomayor Consulting
-				</p>
-				<div class="flex items-center gap-2 text-xs">
-					<p class="text-muted-foreground">Equipo de soporte</p>
-					<span
-						class={`inline-flex items-center rounded-full px-1.5 py-0.5 font-medium ${
-							isAdvisorOnline
-								? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
-								: 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300'
-						}`}
-					>
-						{isAdvisorOnline ? 'En línea' : 'Offline'}
-					</span>
-				</div>
-			</div>
+	<div class="flex items-center gap-2.5">
+		<div class="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card">
+			<Icon name="ri:file-copy-line" class="h-4 w-4 text-muted-foreground" />
 		</div>
-
-		<div class="mt-4 grid grid-cols-2 gap-2">
-			<button
-				type="button"
-				disabled={!isAdvisorOnline}
-				class={`inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-					isAdvisorOnline
-						? 'border-border bg-card text-foreground hover:bg-muted'
-						: 'pointer-events-none border-border bg-muted text-muted-foreground'
-				}`}
-			>
-				<Icon name="ri:phone-line" class="h-3.5 w-3.5" />
-				Llamar
-			</button>
-			<button
-				type="button"
-				disabled={!isAdvisorOnline}
-				class={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-					isAdvisorOnline
-						? 'bg-sky-500 text-white hover:bg-sky-600'
-						: 'pointer-events-none bg-muted text-muted-foreground'
-				}`}
-			>
-				<Icon name="ri:message-3-line" class="h-3.5 w-3.5" />
-				Chat
-			</button>
-		</div>
-
-		<div class="mt-4 rounded-lg border border-border bg-muted/30 p-3">
-			<p class="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-				<Icon name="ri:calendar-line" class="h-3.5 w-3.5" />
-				Próxima reunión
-			</p>
-			<p class="mt-1 text-sm font-semibold text-foreground">
-				Sin reuniones pendientes
-			</p>
-			<a
-				href="#"
-				class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-sky-600 hover:underline dark:text-sky-300"
-			>
-				Agendar nueva
-				<Icon name="ri:arrow-right-line" class="h-3 w-3" />
-			</a>
-		</div>
-
-		<div class="mt-4 flex items-center justify-between border-t border-border pt-3 text-[11px] text-muted-foreground">
-			<a
-				href="mailto:soporte@sotomayorconsulting.com"
-				class="inline-flex items-center gap-1.5 hover:text-foreground"
-			>
-				<Icon name="ri:mail-line" class="h-3.5 w-3.5" />
-				soporte@sotomayorconsulting.com
-			</a>
-			<span class="inline-flex items-center gap-1.5">
-				<Icon name="ri:time-line" class="h-3.5 w-3.5" />
-				Resp. &lt; 2h
-			</span>
+		<div>
+			<p class="text-lg font-semibold leading-none text-foreground">{pendingDocuments}</p>
+			<p class="text-xs text-muted-foreground">Documentos por firmar</p>
 		</div>
 	</div>
 </div>

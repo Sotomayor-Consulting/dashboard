@@ -9,6 +9,8 @@ import {
 	getDocumentsForIncorporationCase,
 	getDocumentTypesList,
 } from '@domains/documents/document_dashboard';
+import { getDocumentosPorFirmar } from '@domains/documents/pending-signature';
+import SignedPanel from '@modules/companies/components/dashboard-companies/SignedPanel.astro';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { DocumentTypeComboboxField } from '@modules/documents/islands/DocumentTypeComboboxField';
 import CompanyDocumentsList from '@modules/documents/islands/CompanyDocumentsList';
@@ -39,6 +41,7 @@ let company: any = null;
 let requests: any[] = [];
 let documents: any[] = [];
 let documentTypes: any[] = [];
+let porfirmar: any[] = [];
 
 if (!userId) {
 	errorMessage = 'No autenticado';
@@ -52,7 +55,7 @@ if (!userId) {
 	if (!company) {
 		errorMessage = 'Empresa no encontrada';
 	} else {
-		[requests, documents, documentTypes] = await Promise.all([
+		[requests, documents, documentTypes, porfirmar] = await Promise.all([
 			getDocumentRequestsForIncorporationCase(dataClient, incorporationCaseId),
 			getDocumentsForIncorporationCase(
 				supabaseAdmin,
@@ -61,6 +64,7 @@ if (!userId) {
 				userRoles,
 			),
 			getDocumentTypesList(dataClient),
+			getDocumentosPorFirmar(supabase, userId, incorporationCaseId),
 		]);
 	}
 }
@@ -87,6 +91,13 @@ const canUploadForRequest = (status: string) =>
 				{errorMessage}
 			</div>
 		) : (
+			<>
+			{porfirmar.length > 0 && (
+				<div class="my-4">
+					<SignedPanel porfirmar={porfirmar} />
+				</div>
+			)}
+
 			<div class="my-4 grid w-full grid-cols-1 gap-6 xl:grid-cols-2">
 				<div>
 					<h3 class="text-foreground text-lg font-semibold">Solicitudes</h3>
@@ -224,6 +235,7 @@ const canUploadForRequest = (status: string) =>
 					</div>
 				</div>
 			</div>
+			</>
 		)
 	}
 </div>
