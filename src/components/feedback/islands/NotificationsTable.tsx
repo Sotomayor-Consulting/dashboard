@@ -100,8 +100,7 @@ function NotificationDetail({
 						Selecciona una notificación
 					</p>
 					<p className="text-muted-foreground mx-auto max-w-xs text-sm leading-6">
-						La vista de detalle se abre aquí para revisar el contenido completo
-						y sus acciones.
+						Revisa el contenido completo y sus acciones.
 					</p>
 				</div>
 			</div>
@@ -113,7 +112,7 @@ function NotificationDetail({
 	const content = (
 		<div className="space-y-5 p-5">
 			<div className="max-w-3xl rounded-[24px] border border-black/10 bg-neutral-50 px-5 py-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
-				<div className="mb-3 flex items-center gap-2 text-[11px] font-medium tracking-[0.18em] text-muted-foreground uppercase">
+				<div className="text-muted-foreground mb-3 flex items-center gap-2 text-[11px] font-medium tracking-[0.18em] uppercase">
 					<span className="inline-flex h-2 w-2 rounded-full bg-black/30 dark:bg-white/30" />
 					Mensaje
 				</div>
@@ -310,20 +309,17 @@ export default function NotificationsTable({
 	);
 
 	const selectedNotification = React.useMemo(() => {
-		if (!selectedId) return filtered[0] ?? null;
-		return (
-			filtered.find((item) => item.id === selectedId) ?? filtered[0] ?? null
-		);
+		if (!selectedId) return null;
+		return filtered.find((item) => item.id === selectedId) ?? null;
 	}, [filtered, selectedId]);
 
 	React.useEffect(() => {
-		if (!selectedNotification) {
-			setSelectedId(null);
+		if (!selectedId) {
 			return;
 		}
 
-		if (selectedId !== selectedNotification.id) {
-			setSelectedId(selectedNotification.id);
+		if (!selectedNotification) {
+			setSelectedId(null);
 		}
 	}, [selectedId, selectedNotification]);
 
