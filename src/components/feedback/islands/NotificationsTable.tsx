@@ -160,7 +160,7 @@ function NotificationDetail({
 					<div className="flex items-start justify-between gap-4">
 						<div className="space-y-1">
 							<h3 className="text-foreground text-base font-semibold">
-								{notification.title || 'Notificacion'}
+								{notification.title || 'Notificación'}
 							</h3>
 							<p className="text-muted-foreground text-xs tracking-[0.18em] uppercase">
 								{notification.type || 'General'}
