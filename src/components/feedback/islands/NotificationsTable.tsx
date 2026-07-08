@@ -83,9 +83,11 @@ function getInitials(notification: NotificationItem) {
 function NotificationDetail({
 	notification,
 	scrollable = false,
+	onToggleRead,
 }: {
 	notification: NotificationItem | null;
 	scrollable?: boolean;
+	onToggleRead?: (notification: NotificationItem, nextRead: boolean) => void;
 }) {
 	if (!notification) {
 		return (
@@ -110,70 +112,42 @@ function NotificationDetail({
 
 	const content = (
 		<div className="space-y-5 p-5">
-			<div
-				className="text-foreground/80 [&_a]:text-foreground text-sm leading-7 [&_a]:font-medium [&_a]:underline"
-				dangerouslySetInnerHTML={{
-					__html:
-						notification.message ??
-						'No se pudo leer el contenido de la notificacion.',
-				}}
-			/>
-
-			{notification.action_url && (
-				<div className="pt-2">
-					<a
-						className={cn(
-							buttonVariants({ variant: 'outline', size: 'sm' }),
-							'rounded-full',
-						)}
-						href={notification.action_url}
-						target="_blank"
-						rel="noreferrer noopener"
-					>
-						{notification.action_label ?? 'Abrir enlace'}
-						<ExternalLink className="size-4" />
-					</a>
+			<div className="max-w-3xl rounded-[24px] border border-black/10 bg-neutral-50 px-5 py-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+				<div className="mb-3 flex items-center gap-2 text-[11px] font-medium tracking-[0.18em] text-muted-foreground uppercase">
+					<span className="inline-flex h-2 w-2 rounded-full bg-black/30 dark:bg-white/30" />
+					Mensaje
 				</div>
-			)}
+				<div
+					className="text-foreground/80 [&_a]:text-foreground text-sm leading-7 [&_a]:font-medium [&_a]:underline"
+					dangerouslySetInnerHTML={{
+						__html:
+							notification.message ??
+							'No se pudo leer el contenido de la notificación.',
+					}}
+				/>
+
+				{notification.action_url && (
+					<div className="pt-4">
+						<a
+							className={cn(
+								buttonVariants({ variant: 'outline', size: 'sm' }),
+								'gap-2 rounded-full p-4',
+							)}
+							href={notification.action_url}
+							target="_blank"
+							rel="noreferrer noopener"
+						>
+							{notification.action_label ?? 'Abrir enlace'}
+							<ExternalLink className="size-4" />
+						</a>
+					</div>
+				)}
+			</div>
 		</div>
 	);
 
 	return (
 		<div className="bg-background flex h-full min-h-0 flex-col overflow-hidden">
-			<div className="flex items-center gap-2 p-2">
-				{!isRead && (
-					<form
-						action="/api/notifications/update?back=/notifications"
-						method="post"
-					>
-						<input type="hidden" name="estado_lectura" value="true" />
-						<input type="hidden" name="id" value={notification.id} />
-						<Button
-							variant="ghost"
-							size="icon"
-							title="Marcar como leida"
-							type="submit"
-						>
-							<CheckCheck className="size-4" />
-							<span className="sr-only">Marcar como leida</span>
-						</Button>
-					</form>
-				)}
-
-				{notification.action_url && (
-					<a
-						className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
-						href={notification.action_url}
-						target="_blank"
-						rel="noreferrer noopener"
-						title={notification.action_label ?? 'Abrir enlace'}
-					>
-						<ExternalLink className="size-4" />
-						<span className="sr-only">Abrir enlace</span>
-					</a>
-				)}
-			</div>
-
 			<Separator />
 
 			<div className="flex items-start gap-4 p-5">
@@ -202,6 +176,32 @@ function NotificationDetail({
 						{formatDate(notification.created_at)}
 					</p>
 				</div>
+				<div className="flex items-center gap-2 p-2">
+					<Button
+						variant="ghost"
+						size="icon"
+						title={isRead ? 'Marcar como no leída' : 'Marcar como leída'}
+						onClick={() => onToggleRead?.(notification, !isRead)}
+					>
+						<CheckCheck className="size-4" />
+						<span className="sr-only">
+							{isRead ? 'Marcar como no leída' : 'Marcar como leída'}
+						</span>
+					</Button>
+
+					{notification.action_url && (
+						<a
+							className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+							href={notification.action_url}
+							target="_blank"
+							rel="noreferrer noopener"
+							title={notification.action_label ?? 'Abrir enlace'}
+						>
+							<ExternalLink className="size-4" />
+							<span className="sr-only">Abrir enlace</span>
+						</a>
+					)}
+				</div>
 			</div>
 
 			<Separator />
@@ -218,24 +218,29 @@ function NotificationDetail({
 export default function NotificationsTable({
 	notificaciones,
 }: NotificationsTableProps) {
+	const [items, setItems] = React.useState<NotificationItem[]>(notificaciones);
 	const [query, setQuery] = React.useState('');
 	const [filter, setFilter] = React.useState<FilterValue>('all');
 	const [selectedId, setSelectedId] = React.useState<string | null>(null);
 	const [mobileDetailOpen, setMobileDetailOpen] = React.useState(false);
 
-	const stats = React.useMemo(() => {
-		const unread = notificaciones.filter((item) => !item.read_at).length;
-		return {
-			total: notificaciones.length,
-			unread,
-			read: Math.max(0, notificaciones.length - unread),
-		};
+	React.useEffect(() => {
+		setItems(notificaciones);
 	}, [notificaciones]);
+
+	const stats = React.useMemo(() => {
+		const unread = items.filter((item) => !item.read_at).length;
+		return {
+			total: items.length,
+			unread,
+			read: Math.max(0, items.length - unread),
+		};
+	}, [items]);
 
 	const filtered = React.useMemo(() => {
 		const q = query.trim().toLowerCase();
 
-		return notificaciones.filter((item) => {
+		return items.filter((item) => {
 			const searchableText = [
 				item.title,
 				stripHtml(item.message),
@@ -252,7 +257,57 @@ export default function NotificationsTable({
 
 			return true;
 		});
-	}, [filter, notificaciones, query]);
+	}, [filter, items, query]);
+
+	const updateNotificationReadState = React.useCallback(
+		async (notification: NotificationItem, nextRead: boolean) => {
+			const previousItems = items;
+			const nextItems = items.map((item) =>
+				item.id === notification.id
+					? {
+							...item,
+							read_at: nextRead ? new Date().toISOString() : null,
+						}
+					: item,
+			);
+
+			setItems(nextItems);
+
+			try {
+				const formData = new FormData();
+				formData.append('id', notification.id);
+				formData.append('estado_lectura', String(nextRead));
+
+				const response = await fetch(
+					'/api/notifications/update?back=/notifications',
+					{
+						method: 'POST',
+						body: formData,
+						credentials: 'include',
+						headers: {
+							accept: 'application/json',
+							'x-requested-with': 'XMLHttpRequest',
+						},
+					},
+				);
+
+				const result = (await response.json()) as {
+					ok?: boolean;
+					error?: string;
+				};
+
+				if (!response.ok || !result.ok) {
+					throw new Error(
+						result.error ?? 'No se pudo actualizar la notificación',
+					);
+				}
+			} catch (error) {
+				console.error('[notifications] update read state error:', error);
+				setItems(previousItems);
+			}
+		},
+		[items],
+	);
 
 	const selectedNotification = React.useMemo(() => {
 		if (!selectedId) return filtered[0] ?? null;
@@ -275,6 +330,10 @@ export default function NotificationsTable({
 	const handleSelectNotification = (notification: NotificationItem) => {
 		setSelectedId(notification.id);
 
+		if (!notification.read_at) {
+			void updateNotificationReadState(notification, true);
+		}
+
 		if (window.matchMedia('(max-width: 1023px)').matches) {
 			setMobileDetailOpen(true);
 		}
@@ -292,7 +351,7 @@ export default function NotificationsTable({
 							No encontramos notificaciones
 						</p>
 						<p className="text-muted-foreground text-sm">
-							Prueba con otro termino de busqueda o cambia el filtro actual.
+							Prueba con otro termino de búsqueda o cambia el filtro actual.
 						</p>
 					</div>
 				</div>
@@ -301,7 +360,7 @@ export default function NotificationsTable({
 
 		return (
 			<ScrollArea className="h-full">
-				<div className="flex flex-col gap-2 p-4 pt-0">
+				<div className="flex flex-col pt-0">
 					{items.map((notification) => {
 						const isRead = Boolean(notification.read_at);
 						const isActive = selectedNotification?.id === notification.id;
@@ -310,10 +369,10 @@ export default function NotificationsTable({
 							<div
 								key={notification.id}
 								className={cn(
-									'flex items-start gap-2 rounded-xl border p-3 text-left transition-all',
+									'flex items-start gap-1 p-3 text-left transition-all',
 									isActive
-										? 'bg-muted border-border'
-										: 'hover:bg-accent/60 hover:text-accent-foreground border-transparent',
+										? 'border-border bg-neutral-200 dark:bg-white/10'
+										: 'dark:hover:bg-hover hover:text-accent-foreground border-transparent hover:bg-neutral-100',
 								)}
 							>
 								<button
@@ -328,21 +387,21 @@ export default function NotificationsTable({
 									</Avatar>
 
 									<div className="min-w-0 flex-1 space-y-1.5">
-										<div className="flex items-center gap-2">
+										<div className="flex items-center">
 											<div
 												className={cn(
-													'font-medium',
+													'w-4/11 truncate font-medium',
 													!isRead && 'font-semibold',
 												)}
 											>
-												{notification.title || 'Notificacion'}
+												{notification.title || 'Notificación'}
 											</div>
 											{!isRead && (
-												<span className="bg-foreground flex size-2 rounded-full" />
+												<div className="relative mr-2 flex h-3 w-3 items-center justify-center">
+													<span className="absolute -top-1 -left-41 h-2 w-2 animate-ping rounded-full bg-emerald-500 dark:border-gray-950" />
+													<span className="absolute -top-1 -left-41 h-2 w-2 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-950" />
+												</div>
 											)}
-											<div className="text-muted-foreground ml-auto text-xs">
-												{formatDate(notification.created_at)}
-											</div>
 										</div>
 
 										<div className="text-muted-foreground text-xs font-medium tracking-[0.16em] uppercase">
@@ -352,6 +411,9 @@ export default function NotificationsTable({
 										<div className="text-muted-foreground line-clamp-2 text-xs leading-6">
 											{stripHtml(notification.message) ||
 												'Sin contenido disponible.'}
+										</div>
+										<div className="text-muted-foreground ml-auto w-full text-xs">
+											{formatDate(notification.created_at)}
 										</div>
 									</div>
 								</button>
@@ -366,33 +428,14 @@ export default function NotificationsTable({
 										<span className="sr-only">Abrir acciones</span>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end" className="w-48">
-										{!isRead && (
-											<DropdownMenuItem className="p-0 focus:bg-transparent">
-												<form
-													action="/api/notifications/update?back=/notifications"
-													method="post"
-													className="w-full"
-												>
-													<input
-														type="hidden"
-														name="estado_lectura"
-														value="true"
-													/>
-													<input
-														type="hidden"
-														name="id"
-														value={notification.id}
-													/>
-													<button
-														type="submit"
-														className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm"
-													>
-														<CheckCheck className="size-4" />
-														Marcar como leida
-													</button>
-												</form>
-											</DropdownMenuItem>
-										)}
+										<DropdownMenuItem
+											onClick={() =>
+												void updateNotificationReadState(notification, !isRead)
+											}
+										>
+											<CheckCheck className="size-4" />
+											{isRead ? 'Marcar como no leída' : 'Marcar como leída'}
+										</DropdownMenuItem>
 
 										<DropdownMenuItem
 											onClick={() => handleSelectNotification(notification)}
@@ -432,7 +475,7 @@ export default function NotificationsTable({
 							Notificaciones
 						</h2>
 						<p className="text-muted-foreground text-sm">
-							Visualiza toda la actividad en un layout abierto tipo mailbox.
+							Visualiza toda tus notificaciones.
 						</p>
 					</div>
 					<div className="ml-auto hidden items-center gap-2 md:flex">
@@ -442,7 +485,7 @@ export default function NotificationsTable({
 				</div>
 				<Separator />
 
-				<div className="grid min-h-0 flex-1 overflow-hidden xl:grid-cols-[360px_minmax(0,1fr)]">
+				<div className="grid min-h-0 flex-1 overflow-hidden xl:grid-cols-[500px_minmax(0,1fr)]">
 					<div className="flex min-h-0 flex-col border-b xl:border-r xl:border-b-0">
 						<Tabs
 							value={filter}
@@ -456,7 +499,7 @@ export default function NotificationsTable({
 								<TabsList className="ml-auto">
 									<TabsTrigger value="all">Todas</TabsTrigger>
 									<TabsTrigger value="unread">Sin leer</TabsTrigger>
-									<TabsTrigger value="read">Leidas</TabsTrigger>
+									<TabsTrigger value="read">Leídas</TabsTrigger>
 								</TabsList>
 							</div>
 							<Separator />
@@ -486,7 +529,10 @@ export default function NotificationsTable({
 					</div>
 
 					<div className="hidden h-full overflow-hidden xl:block">
-						<NotificationDetail notification={selectedNotification} />
+						<NotificationDetail
+							notification={selectedNotification}
+							onToggleRead={updateNotificationReadState}
+						/>
 					</div>
 				</div>
 			</div>
@@ -497,13 +543,14 @@ export default function NotificationsTable({
 						<DialogTitle>
 							{selectedNotification?.title || 'Detalle de notificacion'}
 						</DialogTitle>
-						<DialogDescription>Detalle de notificacion</DialogDescription>
+						<DialogDescription>Detalle de notificación</DialogDescription>
 					</DialogHeader>
 
 					<div className="max-h-[85vh] overflow-hidden rounded-[inherit]">
 						<NotificationDetail
 							notification={selectedNotification}
 							scrollable
+							onToggleRead={updateNotificationReadState}
 						/>
 					</div>
 

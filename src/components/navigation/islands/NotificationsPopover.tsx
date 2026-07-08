@@ -54,14 +54,14 @@ const formatDate = (value: string) => {
 	const day = 24 * hour;
 
 	if (diffMs < hour) {
-		return `${Math.max(1, Math.floor(diffMs / minute))}m`;
+		return `${Math.max(1, Math.floor(diffMs / minute))} minutos`;
 	}
 
 	if (diffMs < day) {
-		return `${Math.floor(diffMs / hour)}h`;
+		return `${Math.floor(diffMs / hour)} horas`;
 	}
 
-	return `${Math.floor(diffMs / day)}d`;
+	return `${Math.floor(diffMs / day)} días`;
 };
 
 export default function NotificationsPopover({
