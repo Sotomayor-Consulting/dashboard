@@ -1,9 +1,5 @@
 import * as React from 'react';
-import type {
-	ColumnDef,
-	ColumnFiltersState,
-	SortingState,
-} from '@tanstack/react-table';
+import type { ColumnDef, SortingState } from '@tanstack/react-table';
 import {
 	flexRender,
 	getCoreRowModel,
@@ -12,7 +8,7 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
-import { EyeIcon, MoreHorizontalIcon } from 'lucide-react';
+import { EyeIcon, MoreHorizontalIcon, SearchIcon } from 'lucide-react';
 
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
@@ -24,13 +20,6 @@ import {
 } from '@components/ui/DropdownMenu';
 import { Input } from '@components/ui/Input';
 import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle,
-} from '@components/ui/Sheet';
-import {
 	Table,
 	TableBody,
 	TableCell,
@@ -38,153 +27,151 @@ import {
 	TableHeader,
 	TableRow,
 } from '@components/ui/Table';
+import OrderDetailsSheet from '@components/display/orders/OrderDetailsSheet';
+import {
+	ORDER_STATUS_LABEL,
+	formatDate,
+	formatUsd,
+	orderStatusVariant,
+} from '@components/display/orders/order-format';
 import type { OrderAdminRow } from '@domains/payments/orders';
 
 interface OrdersTableProps {
 	data: OrderAdminRow[];
 }
 
-const STATUS_LABEL: Record<string, string> = {
-	draft: 'Borrador',
-	pending_payment: 'Pago pendiente',
-	confirmed: 'Confirmada',
-	canceled: 'Cancelada',
-};
-
-function statusVariant(status: string): 'susess' | 'warning' | 'destructive' {
-	if (status === 'confirmed') return 'susess';
-	if (status === 'canceled') return 'destructive';
-	return 'warning';
-}
-
-function fmtDate(value: string | null) {
-	if (!value) return '—';
-	const d = new Date(value);
-	if (Number.isNaN(d.getTime())) return value;
-	return d.toLocaleDateString('es-ES', {
-		year: 'numeric',
-		month: 'short',
-		day: '2-digit',
-	});
-}
-
-function fmtUsd(value: number | null | undefined) {
-	if (typeof value !== 'number') return '—';
-	return value.toLocaleString('en-US', {
-		style: 'currency',
-		currency: 'USD',
-		minimumFractionDigits: 2,
-	});
-}
-
-const columns: ColumnDef<OrderAdminRow>[] = [
-	{
-		accessorKey: 'order_number',
-		header: 'Orden',
-		cell: ({ row }) => (
-			<span className="font-mono text-xs font-medium text-neutral-800 dark:text-neutral-300">
-				{row.original.order_number}
-			</span>
-		),
-	},
-	{
-		accessorKey: 'client_name',
-		header: 'Cliente',
-		cell: ({ row }) => <span>{row.original.client_name ?? '—'}</span>,
-	},
-	{
-		accessorKey: 'incorporation_name',
-		header: 'Empresa',
-		cell: ({ row }) => <span>{row.original.incorporation_name ?? '—'}</span>,
-	},
-	{
-		accessorKey: 'plan_name',
-		header: 'Plan',
-		cell: ({ row }) => <span>{row.original.plan_name ?? '—'}</span>,
-	},
-	{
-		id: 'total',
-		header: 'Total',
-		cell: ({ row }) => fmtUsd(row.original.total),
-	},
-	{
-		accessorKey: 'status',
-		header: 'Estado',
-		cell: ({ row }) => (
-			<Badge variant={statusVariant(row.original.status)}>
-				{STATUS_LABEL[row.original.status] ?? row.original.status}
-			</Badge>
-		),
-	},
-	{
-		accessorKey: 'created_at',
-		header: 'Realizado',
-		cell: ({ row }) => <span>{fmtDate(row.original.created_at)}</span>,
-	},
-];
-
-function DetailRow({
-	label,
-	value,
-}: {
-	label: string;
-	value: React.ReactNode;
-}) {
-	return (
-		<div>
-			<p className="text-muted-foreground text-xs">{label}</p>
-			<p className="font-medium">{value || '—'}</p>
-		</div>
-	);
-}
+// Campos sobre los que aplica la búsqueda global.
+const SEARCHABLE_FIELDS = [
+	'order_number',
+	'client_name',
+	'incorporation_name',
+	'plan_name',
+] as const;
 
 export default function OrdersTable({ data }: OrdersTableProps) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-		[],
-	);
+	const [globalFilter, setGlobalFilter] = React.useState('');
 	const [selected, setSelected] = React.useState<OrderAdminRow | null>(null);
 	const [open, setOpen] = React.useState(false);
+
+	const openDetails = React.useCallback((order: OrderAdminRow) => {
+		setSelected(order);
+		setOpen(true);
+	}, []);
+
+	const columns = React.useMemo<ColumnDef<OrderAdminRow>[]>(
+		() => [
+			{
+				accessorKey: 'order_number',
+				header: 'Orden',
+				cell: ({ row }) => (
+					<span className="font-mono text-xs font-medium text-neutral-800 dark:text-neutral-300">
+						{row.original.order_number}
+					</span>
+				),
+			},
+			{
+				accessorKey: 'client_name',
+				header: 'Cliente',
+				cell: ({ row }) => <span>{row.original.client_name ?? '—'}</span>,
+			},
+			{
+				accessorKey: 'incorporation_name',
+				header: 'Empresa',
+				cell: ({ row }) => (
+					<span>{row.original.incorporation_name ?? '—'}</span>
+				),
+			},
+			{
+				accessorKey: 'plan_name',
+				header: 'Plan',
+				cell: ({ row }) => <span>{row.original.plan_name ?? '—'}</span>,
+			},
+			{
+				id: 'total',
+				header: 'Total',
+				cell: ({ row }) => formatUsd(row.original.total),
+			},
+			{
+				accessorKey: 'status',
+				header: 'Estado',
+				cell: ({ row }) => (
+					<Badge variant={orderStatusVariant(row.original.status)}>
+						{ORDER_STATUS_LABEL[row.original.status] ?? row.original.status}
+					</Badge>
+				),
+			},
+			{
+				accessorKey: 'created_at',
+				header: 'Realizada',
+				cell: ({ row }) => <span>{formatDate(row.original.created_at)}</span>,
+			},
+			{
+				id: 'actions',
+				header: () => <div className="text-right">Acciones</div>,
+				cell: ({ row }) => (
+					<div className="text-right">
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								render={
+									<Button
+										variant="ghost"
+										size="icon-sm"
+										aria-label="Abrir menú"
+									/>
+								}
+							>
+								<MoreHorizontalIcon />
+								<span className="sr-only">Abrir menú</span>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end" className="w-44">
+								<DropdownMenuItem onClick={() => openDetails(row.original)}>
+									<EyeIcon />
+									Ver orden
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
+				),
+			},
+		],
+		[openDetails],
+	);
 
 	const table = useReactTable({
 		data,
 		columns,
 		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
+		onGlobalFilterChange: setGlobalFilter,
+		globalFilterFn: (row, _columnId, filterValue: string) => {
+			const q = filterValue.trim().toLowerCase();
+			if (!q) return true;
+			return SEARCHABLE_FIELDS.some((field) =>
+				String(row.original[field] ?? '')
+					.toLowerCase()
+					.includes(q),
+			);
+		},
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
-		state: { sorting, columnFilters },
+		state: { sorting, globalFilter },
 	});
-
-	const openDetails = (order: OrderAdminRow) => {
-		setSelected(order);
-		setOpen(true);
-	};
 
 	return (
 		<>
 			<div className="mt-6 space-y-4">
-				<div className="flex items-center gap-2">
+				<div className="relative w-full max-w-sm">
+					<SearchIcon
+						size={16}
+						className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+					/>
 					<Input
-						placeholder="Buscar por cliente, empresa o plan..."
-						value={
-							((table.getColumn('client_name')?.getFilterValue() as string) ??
-								'') ||
-							((table
-								.getColumn('incorporation_name')
-								?.getFilterValue() as string) ??
-								'') ||
-							((table.getColumn('plan_name')?.getFilterValue() as string) ?? '')
-						}
-						onChange={(event) => {
-							const value = event.target.value;
-							table.getColumn('client_name')?.setFilterValue(value);
-							table.getColumn('incorporation_name')?.setFilterValue(value);
-							table.getColumn('plan_name')?.setFilterValue(value);
-						}}
-						className="max-w-md"
+						placeholder="Buscar por orden, cliente, empresa o plan..."
+						value={globalFilter}
+						onChange={(event) => setGlobalFilter(event.target.value)}
+						className="max-w-sm pl-9"
 					/>
 				</div>
 
@@ -203,7 +190,6 @@ export default function OrdersTable({ data }: OrdersTableProps) {
 													)}
 										</TableHead>
 									))}
-									<TableHead className="text-right">Acciones</TableHead>
 								</TableRow>
 							))}
 						</TableHeader>
@@ -219,39 +205,15 @@ export default function OrdersTable({ data }: OrdersTableProps) {
 												)}
 											</TableCell>
 										))}
-										<TableCell className="text-right">
-											<DropdownMenu>
-												<DropdownMenuTrigger
-													render={
-														<Button
-															variant="ghost"
-															size="icon-sm"
-															aria-label="Abrir menu"
-														/>
-													}
-												>
-													<MoreHorizontalIcon />
-													<span className="sr-only">Abrir menu</span>
-												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end" className="w-44">
-													<DropdownMenuItem
-														onClick={() => openDetails(row.original)}
-													>
-														<EyeIcon />
-														Ver orden
-													</DropdownMenuItem>
-												</DropdownMenuContent>
-											</DropdownMenu>
-										</TableCell>
 									</TableRow>
 								))
 							) : (
 								<TableRow>
 									<TableCell
-										colSpan={columns.length + 1}
+										colSpan={columns.length}
 										className="h-16 text-center"
 									>
-										No hay ordenes registradas
+										No hay órdenes registradas
 									</TableCell>
 								</TableRow>
 							)}
@@ -279,109 +241,7 @@ export default function OrdersTable({ data }: OrdersTableProps) {
 				</div>
 			</div>
 
-			<Sheet open={open} onOpenChange={setOpen}>
-				<SheetContent side="right" className="w-full sm:max-w-md">
-					<SheetHeader>
-						<SheetTitle>Orden {selected?.order_number ?? ''}</SheetTitle>
-						<SheetDescription>
-							Detalle de la orden y desglose de servicios.
-						</SheetDescription>
-					</SheetHeader>
-
-					{selected ? (
-						<div className="flex flex-col gap-4 overflow-y-auto px-4 pb-4">
-							<div className="grid grid-cols-2 gap-3 text-sm">
-								<DetailRow label="Cliente" value={selected.client_name} />
-								<DetailRow
-									label="Empresa"
-									value={selected.incorporation_name}
-								/>
-								<DetailRow label="Plan" value={selected.plan_name} />
-								<DetailRow
-									label="Estado"
-									value={
-										<Badge variant={statusVariant(selected.status)}>
-											{STATUS_LABEL[selected.status] ?? selected.status}
-										</Badge>
-									}
-								/>
-								<DetailRow
-									label="Pago"
-									value={selected.payment_status ?? 'sin pago'}
-								/>
-								<DetailRow
-									label="Realizado"
-									value={fmtDate(selected.created_at)}
-								/>
-							</div>
-
-							<DetailRow
-								label="Stripe Payment Intent"
-								value={
-									<span className="font-mono text-xs break-all">
-										{selected.provider_transaction_id ?? '—'}
-									</span>
-								}
-							/>
-
-							<div>
-								<p className="text-muted-foreground mb-2 text-xs">
-									Desglose de servicios
-								</p>
-								<ul className="divide-border divide-y rounded-md border">
-									{selected.lines.length ? (
-										selected.lines.map((line, idx) => (
-											<li
-												key={idx}
-												className="flex items-center justify-between gap-2 px-3 py-2 text-sm"
-											>
-												<div className="flex flex-col">
-													<span className="font-medium">
-														{line.service_name ?? '—'}
-													</span>
-													{line.service_plan_name ? (
-														<span className="text-muted-foreground text-xs">
-															{line.service_plan_name}
-														</span>
-													) : null}
-												</div>
-												<div className="flex items-center gap-3">
-													<span className="text-muted-foreground text-xs">
-														x{line.quantity ?? 1}
-													</span>
-													{selected.show_prices ? (
-														<span className="font-medium tabular-nums">
-															{fmtUsd(line.unit_price)}
-														</span>
-													) : null}
-												</div>
-											</li>
-										))
-									) : (
-										<li className="text-muted-foreground px-3 py-2 text-sm">
-											Sin líneas
-										</li>
-									)}
-								</ul>
-							</div>
-
-							<div className="flex items-center justify-between border-t pt-3">
-								<span className="text-muted-foreground text-sm">
-									Total del plan
-								</span>
-								<span className="text-lg font-semibold tabular-nums">
-									{fmtUsd(selected.total)}
-								</span>
-							</div>
-							{!selected.show_prices ? (
-								<p className="text-muted-foreground text-xs">
-									El desglose por servicio no muestra precios.
-								</p>
-							) : null}
-						</div>
-					) : null}
-				</SheetContent>
-			</Sheet>
+			<OrderDetailsSheet order={selected} open={open} onOpenChange={setOpen} />
 		</>
 	);
 }

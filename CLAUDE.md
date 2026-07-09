@@ -333,6 +333,7 @@ Para los `<script>` con atributos (`define:vars`, `type="module"`, `src=`, etc.)
 
 ## Conventions
 
+- **UI de listados/CRUD**: seguir `docs/ui-conventions.md` (tabla TanStack con filtro global + Sheet de detalle compartido + cards KPI; tokens permitidos y clases prohibidas). Referencia: vistas de órdenes.
 - **Idioma del código y estructura**: 100% inglés a nivel de filepaths, folders, imports, URLs internas y nombres de variables nuevas.
 - **Idioma de UI/UX**: Mensajes al usuario, comentarios, errores friendly y rutas públicas pueden estar en español (es la cara al cliente).
 - **Excepción intencional**: nombres de tablas y columnas en Supabase, y nombres de funciones JS legacy (e.g., `getUsuarioById`, `empresas_incorporaciones`) permanecen en español por compatibilidad con la DB.

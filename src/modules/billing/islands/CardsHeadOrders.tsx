@@ -40,7 +40,7 @@ export default function CardsHeadOrders({ data }: CardsHeadOrdersProps) {
 		<div className="grid h-full w-full grid-cols-1 gap-4 py-2 md:grid-cols-3">
 			<Card className="@container/card">
 				<CardHeader>
-					<CardDescription>Ordenes Pendientes</CardDescription>
+					<CardDescription>Órdenes pendientes</CardDescription>
 					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
 						{pendientes}
 					</CardTitle>
@@ -51,7 +51,7 @@ export default function CardsHeadOrders({ data }: CardsHeadOrdersProps) {
 			</Card>
 			<Card className="@container/card">
 				<CardHeader>
-					<CardDescription>Ordenes Finalizadas</CardDescription>
+					<CardDescription>Órdenes finalizadas</CardDescription>
 					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
 						{finalizadas}
 					</CardTitle>
@@ -62,7 +62,7 @@ export default function CardsHeadOrders({ data }: CardsHeadOrdersProps) {
 			</Card>
 			<Card className="@container/card">
 				<CardHeader>
-					<CardDescription>Servicio Mas vendido</CardDescription>
+					<CardDescription>Servicio más vendido</CardDescription>
 					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
 						{masVendido}
 					</CardTitle>

@@ -25,15 +25,15 @@ export default function TabsIcons({ data, orders }: TabsIconsProps) {
 					<CircleDollarSign />
 					Pagos realizados
 				</TabsTrigger>
-				<TabsTrigger value="test" className="flex-none">
+				<TabsTrigger value="ordenes" className="flex-none">
 					<LayoutList />
-					Ordenes
+					Órdenes
 				</TabsTrigger>
 			</TabsList>
 			<TabsContent value="pagos-realizados" className="">
 				<PagosRealizadosTable data={data} />
 			</TabsContent>
-			<TabsContent value="test" className="pt-6">
+			<TabsContent value="ordenes" className="pt-6">
 				<div className="flex w-full flex-col">
 					<CardsHeadOrders data={orders} />
 					<OrdersTable data={orders} />
