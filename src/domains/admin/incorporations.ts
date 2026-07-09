@@ -66,9 +66,9 @@ async function loadTasksSummary(incorporationIds: string[]): Promise<
 		assigned_role: string | null;
 		display_order: number | null;
 		workflow_stage:
-			| { status: string | null; display_order: number | null }
-			| Array<{ status: string | null; display_order: number | null }>
-			| null;
+		| { status: string | null; display_order: number | null }
+		| Array<{ status: string | null; display_order: number | null }>
+		| null;
 	};
 
 	function stageOf(r: Row) {
@@ -173,7 +173,7 @@ function derivePaymentStatus(
 	if (pagos.length === 0) return 'unpaid';
 	const norm = pagos.map((p) => (p.status ?? '').toLowerCase());
 	if (norm.some((s) => s === 'overdue' || s === 'vencido')) return 'overdue';
-	if (norm.some((s) => s === 'paid' || s === 'pagado')) return 'paid';
+	if (norm.some((s) => s === 'paid' || s === 'pagado' || s === 'succeeded')) return 'paid';
 	return 'pending';
 }
 
@@ -202,11 +202,11 @@ export async function listAdminCompanies(
 
 	const [{ data: pagosRows }, { data: sigLinkRows }, { data: workflowsRows }] =
 		await Promise.all([
-			supabase
-				.schema('orders')
-				.from('payments')
-				.select('status, order:order_id!inner ( incorporation_id )')
-				.in('order.incorporation_id', ids),
+			supabaseAdmin
+				.schema('orders' as never)
+				.from('order_admin_details')
+				.select('incorporation_id, payment_status')
+				.in('incorporation_id', ids),
 			// Documentos por firmar → documents.document_links (signature).
 			supabaseAdmin
 				.schema('documents')
@@ -226,15 +226,14 @@ export async function listAdminCompanies(
 
 	const pagosByEmpresa = new Map<string, Array<{ status: string | null }>>();
 	for (const p of pagosRows ?? []) {
-		const row = p as unknown as {
-			status: string | null;
-			order: { incorporation_id: string | null } | null;
+		const row = p as {
+			incorporation_id: string;
+			payment_status: string | null;
 		};
-		const incId = row.order?.incorporation_id;
-		if (!incId) continue;
-		const arr = pagosByEmpresa.get(incId) ?? [];
-		arr.push({ status: row.status });
-		pagosByEmpresa.set(incId, arr);
+		if (!row.incorporation_id) continue;
+		const arr = pagosByEmpresa.get(row.incorporation_id) ?? [];
+		arr.push({ status: row.payment_status });
+		pagosByEmpresa.set(row.incorporation_id, arr);
 	}
 
 	// Pendientes de firma por caso: links 'signature' cuyo documento sigue
@@ -271,9 +270,9 @@ export async function listAdminCompanies(
 		const row = w as unknown as {
 			incorporation_id: string;
 			current_stage:
-				| { slug: string | null; name: string | null }
-				| Array<{ slug: string | null; name: string | null }>
-				| null;
+			| { slug: string | null; name: string | null }
+			| Array<{ slug: string | null; name: string | null }>
+			| null;
 		};
 		const stage = Array.isArray(row.current_stage)
 			? row.current_stage[0]
@@ -297,37 +296,37 @@ export async function listAdminCompanies(
 			updated_at: string | null;
 			user_id: string | null;
 			usuarios:
-				| {
-						user_id: string;
-						nombre: string | null;
-						apellido: string | null;
-						correo: string | null;
-						avatar_url: string | null;
-				  }
-				| Array<{
-						user_id: string;
-						nombre: string | null;
-						apellido: string | null;
-						correo: string | null;
-						avatar_url: string | null;
-				  }>
-				| null;
+			| {
+				user_id: string;
+				nombre: string | null;
+				apellido: string | null;
+				correo: string | null;
+				avatar_url: string | null;
+			}
+			| Array<{
+				user_id: string;
+				nombre: string | null;
+				apellido: string | null;
+				correo: string | null;
+				avatar_url: string | null;
+			}>
+			| null;
 		};
 
 		const usuarioRaw = Array.isArray(e.usuarios) ? e.usuarios[0] : e.usuarios;
 		const client = usuarioRaw
 			? {
-					id: usuarioRaw.user_id,
-					name:
-						[usuarioRaw.nombre, usuarioRaw.apellido]
-							.filter(Boolean)
-							.join(' ')
-							.trim() ||
-						usuarioRaw.correo ||
-						'Sin nombre',
-					email: usuarioRaw.correo ?? '',
-					avatarUrl: getAvatarUrl(usuarioRaw.avatar_url, supabase),
-				}
+				id: usuarioRaw.user_id,
+				name:
+					[usuarioRaw.nombre, usuarioRaw.apellido]
+						.filter(Boolean)
+						.join(' ')
+						.trim() ||
+					usuarioRaw.correo ||
+					'Sin nombre',
+				email: usuarioRaw.correo ?? '',
+				avatarUrl: getAvatarUrl(usuarioRaw.avatar_url, supabase),
+			}
 			: null;
 
 		const progress = Math.round(e.porcentaje_de_incorporacion ?? 0);
@@ -393,17 +392,17 @@ async function loadTasksForIncorporation(
 		completed_at: string | null;
 		display_order: number | null;
 		workflow_stage:
-			| {
-					status: string | null;
-					completed_at: string | null;
-					display_order: number | null;
-			  }
-			| Array<{
-					status: string | null;
-					completed_at: string | null;
-					display_order: number | null;
-			  }>
-			| null;
+		| {
+			status: string | null;
+			completed_at: string | null;
+			display_order: number | null;
+		}
+		| Array<{
+			status: string | null;
+			completed_at: string | null;
+			display_order: number | null;
+		}>
+		| null;
 	};
 
 	const stageOf = (r: Row) =>
@@ -465,17 +464,11 @@ export async function getAdminCompanyDetail(
 	if (!base) return null;
 
 	const [{ data: pagosRows }, { data: sigLinkRows }] = await Promise.all([
-		supabase
-			.schema('orders')
-			.from('payments')
-			.select(
-				`id, amount, status, created_at,
-				 order:order_id!inner (
-				   incorporation_id,
-				   order_lines ( service_plan_id, service_plan_name )
-				 )`,
-			)
-			.eq('order.incorporation_id', empresaId)
+		supabaseAdmin
+			.schema('orders' as never)
+			.from('order_admin_details')
+			.select('id, total, payment_status, created_at, plan_name')
+			.eq('incorporation_id', empresaId)
 			.order('created_at', { ascending: false }),
 		// Documentos por firmar → documents.document_links (signature).
 		supabaseAdmin
@@ -488,25 +481,16 @@ export async function getAdminCompanyDetail(
 	]);
 
 	const payments: AdminCompanyPayment[] = (pagosRows ?? []).map((p) => {
-		const row = p as unknown as {
+		const row = p as {
 			id: string;
-			amount: number | null;
-			status: string | null;
+			total: number | null;
+			payment_status: string | null;
 			created_at: string | null;
-			order: {
-				order_lines?: Array<{
-					service_plan_id: number | null;
-					service_plan_name: string | null;
-				}>;
-			} | null;
+			plan_name: string | null;
 		};
-		const planLine = row.order?.order_lines?.find(
-			(l) => l.service_plan_id != null,
-		);
-		const serv = { nombre: planLine?.service_plan_name ?? null };
-		const statusNorm = (row.status ?? '').toLowerCase();
+		const statusNorm = (row.payment_status ?? '').toLowerCase();
 		const paymentStatus: PaymentStatus =
-			statusNorm === 'paid' || statusNorm === 'pagado'
+			statusNorm === 'paid' || statusNorm === 'pagado' || statusNorm === 'succeeded'
 				? 'paid'
 				: statusNorm === 'overdue' || statusNorm === 'vencido'
 					? 'overdue'
@@ -517,8 +501,8 @@ export async function getAdminCompanyDetail(
 							: 'pending';
 		return {
 			id: row.id,
-			service: serv?.nombre ?? 'Servicio',
-			amount: row.amount ?? 0,
+			service: row.plan_name ?? 'Servicio',
+			amount: row.total != null ? Math.round(row.total * 100) : 0,
 			status: paymentStatus,
 			chargedAt: row.created_at,
 		};

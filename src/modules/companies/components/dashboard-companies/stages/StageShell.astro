@@ -10,75 +10,130 @@ interface Props {
 }
 
 const { stage, icon, description, formattedDate } = Astro.props;
-const { status } = stage;
+const { status, displayOrder } = stage;
+
+const isDone = status === 'completed';
+const isActive = status === 'in_progress' || status === 'waiting';
+const isPending = status === 'pending';
+
+const hasActions = Astro.slots.has('actions');
+const hasDefault = Astro.slots.has('default');
 ---
 
-<li class="ms-6 mb-7 flex items-start justify-between gap-3 last:mb-0">
-	<div class="min-w-0 flex-1">
-		<span
-			class:list={{
-				'dark:ring-black-900 absolute -inset-s-4 flex h-8 w-8 items-center justify-center rounded-full ring-4 ring-white': true,
-				'bg-success-soft text-fg-success-strong': status === 'completed',
-				'bg-neutral-tertiary text-body': status === 'pending',
-				'stage-pulse bg-[#134aed] text-white': status === 'in_progress',
-				'stage-pulse bg-amber-500 text-white': status === 'waiting',
-			}}
+<details
+	class="stage-shell group"
+	open={isActive || isDone}
+	data-status={status}
+>
+	<summary class="flex cursor-pointer items-center gap-4 px-6 py-5 select-none [&::-webkit-details-marker]:hidden [&::marker]:hidden">
+		<!-- Icon circle -->
+		<div
+			class:list={[
+				'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors',
+				isDone && 'border-emerald-200 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10',
+				status === 'in_progress' && 'border-primary/20 bg-primary/5 dark:border-primary/30 dark:bg-primary/10',
+				status === 'waiting' && 'border-amber-200 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/10',
+				isPending && 'border-border bg-card dark:bg-card',
+			]}
 		>
-			<Icon
-				name={icon}
-				class="text-base"
-			/>
-		</span>
-
-		<h3
-			class:list={{
-				'leading-tight font-semibold': true,
-				'text-fg-success-strong': status === 'completed',
-				'text-gray-800 dark:text-gray-200': status === 'pending',
-				'text-[#134aed]': status === 'in_progress',
-				'text-amber-600 dark:text-amber-400': status === 'waiting',
-			}}
-		>
-			{stage.name}
-		</h3>
-		<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{description}</p>
-
-		<div class="mt-2 flex flex-wrap items-center gap-2">
-			<span
-				class:list={{
-					'inline-flex rounded-md px-2 py-0.5 text-[11px] font-medium': true,
-					'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300':
-						status === 'completed',
-					'bg-blue-50 text-blue-700 dark:bg-blue-900/25 dark:text-blue-300':
-						status === 'in_progress',
-					'bg-amber-50 text-amber-700 dark:bg-amber-900/25 dark:text-amber-300':
-						status === 'waiting',
-					'dark:bg-black-700 bg-gray-100 text-gray-600 dark:text-gray-300':
-						status === 'pending',
-				}}
-			>
-				{STATUS_LABEL[status]}
-			</span>
-			<slot name="actions" />
+			{
+				isDone ? (
+					<Icon name="ri:check-line" class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+				) : (
+					<Icon
+						name={icon}
+						class:list={[
+							'h-5 w-5',
+							status === 'in_progress' && 'text-primary',
+							status === 'waiting' && 'text-amber-600 dark:text-amber-400',
+							isPending && 'text-muted-foreground',
+						]}
+					/>
+				)
+			}
 		</div>
 
-		<slot />
-	</div>
-	{
-		formattedDate && (
-			<div class="dark:bg-black-700 mt-0.5 hidden rounded-md bg-gray-50 px-2 py-1 text-xs text-gray-500 lg:block dark:text-gray-400">
-				{formattedDate}
+		<!-- Title + meta -->
+		<div class="min-w-0 flex-1">
+			<div class="flex items-center gap-2">
+				<h3
+					class:list={[
+						'truncate font-semibold',
+						isPending ? 'text-muted-foreground' : 'text-foreground',
+					]}
+				>
+					{stage.name}
+				</h3>
+				<span
+					class:list={[
+						'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-medium leading-none',
+						isDone && 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300',
+						status === 'in_progress' && 'bg-primary/10 text-primary',
+						status === 'waiting' && 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300',
+						isPending && 'bg-muted text-muted-foreground',
+					]}
+				>
+					{STATUS_LABEL[status]}
+				</span>
 			</div>
-		)
-	}
-</li>
+			{
+				isPending && (
+					<p class="mt-0.5 text-xs text-muted-foreground/60">
+						Etapa {displayOrder}
+					</p>
+				)
+			}
+		</div>
+
+		<!-- Right side -->
+		<div class="flex shrink-0 items-center gap-3">
+			{
+				formattedDate && (
+					<span class="hidden text-xs tabular-nums text-muted-foreground md:block">
+						{formattedDate}
+					</span>
+				)
+			}
+			<Icon
+				name="ri:arrow-down-s-line"
+				class="h-5 w-5 text-muted-foreground/50 transition-transform duration-200 group-open:rotate-180"
+			/>
+		</div>
+	</summary>
+
+	<!-- Expanded content -->
+	<div class="pb-5 pl-21 pr-6">
+		<p class="text-sm leading-relaxed text-muted-foreground">
+			{description}
+		</p>
+
+		{
+			hasActions && (
+				<div class="mt-3 flex flex-wrap items-center gap-2">
+					<slot name="actions" />
+				</div>
+			)
+		}
+
+		{hasDefault && <div class="mt-3"><slot /></div>}
+	</div>
+</details>
 
 <style>
-	.stage-pulse {
-		animation: soft-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-	}
-	@keyframes soft-pulse {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.7; }
+	@supports (interpolate-size: allow-keywords) {
+		.stage-shell {
+			interpolate-size: allow-keywords;
+		}
+		.stage-shell::details-content {
+			height: 0;
+			overflow: clip;
+			transition:
+				height 0.3s ease,
+				content-visibility 0.3s ease allow-discrete;
+		}
+		.stage-shell[open]::details-content {
+			height: auto;
+		}
 	}
 </style>
+

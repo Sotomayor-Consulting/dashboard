@@ -7,9 +7,7 @@ import { getPlanContratadoPorEmpresa } from '@domains/payments/payments';
 import { getServicioUpgrade } from '@domains/services/services';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import Head from '@modules/companies/components/dashboard-companies/DashboardHeader.astro';
-import Gridline2 from '@modules/companies/components/dashboard-companies/StatusGrid.astro';
 import ProcessIncorp from '@modules/companies/components/dashboard-companies/IncorporationProcess.astro';
-import SignedPanel from '@modules/companies/components/dashboard-companies/SignedPanel.astro';
 import ModalDropzone from '@modules/companies/components/dashboard-companies/DropzoneModal.astro';
 import { getClientWorkflowProgress } from '@modules/companies/services/get-client-workflow-progress';
 
@@ -30,14 +28,14 @@ const [
 	empresa,
 	porfirmar,
 	clientWorkflowProgress,
-	planContratado,
+	_planContratado,
 	workflowMeetingRaw,
 	servicioUpgrade,
 ] = await Promise.all([
 	getIncorporacionById(supabase, empresaId, userId),
 	getDocumentosPorFirmar(supabase, userId, empresaId),
 	getClientWorkflowProgress(supabaseAdmin, empresaId),
-	getPlanContratadoPorEmpresa(supabase, empresaId),
+	getPlanContratadoPorEmpresa(supabaseAdmin, empresaId),
 	supabaseAdmin
 		.rpc('get_workflow_meeting', { p_incorporation_id: empresaId })
 		.then((r) => r.data),
@@ -45,12 +43,6 @@ const [
 ]);
 
 const workflowMeeting = workflowMeetingRaw?.found ? workflowMeetingRaw : null;
-
-const rawPlanName = planContratado?.servicios?.nombre ?? 'Plan Business';
-const planName =
-	rawPlanName.trim().toLowerCase() === 'upgrade'
-		? 'Plan Business'
-		: rawPlanName;
 
 if (!empresa) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
@@ -73,17 +65,32 @@ const processProgressPercent =
 		? Math.round((completedStagesCount / totalStagesCount) * 100)
 		: 0;
 
-const nextStage = stages.find((s) => s.status !== 'completed') ?? null;
-const nextStageName = nextStage?.name ?? null;
+// const nextStage = stages.find((s) => s.status !== 'completed') ?? null;
+// const nextStageName = nextStage?.name ?? null;
 
-// Upgrade banner: empresa con estado 'Upgrade' (elegible) + al menos
-// la primera etapa completada. El precio sale del servicio en DB.
-const firstStageCompleted = completedStagesCount >= 1;
-const upgradeAvailable =
-	empresa?.estado === 'Upgrade' && firstStageCompleted && !!servicioUpgrade;
+const upgradeAvailable = empresa?.state === 'Upgrade' && !!servicioUpgrade;
 const upgradePrice = servicioUpgrade?.precio
 	? Number(servicioUpgrade.precio)
 	: null;
+
+let lockedStages: { name: string; slug: string }[] = [];
+if (upgradeAvailable) {
+	const currentSlugs = new Set(stages.map((s) => s.slug));
+	const { data: upgradeStages } = await supabaseAdmin
+		.schema('workflow' as never)
+		.from('workflow_stage_plan_applicability')
+		.select('stage:stage_id(name, slug, display_order)')
+		.eq('plan_id', 5)
+		.order('stage_id', { ascending: true });
+
+	if (upgradeStages) {
+		lockedStages = (upgradeStages as { stage: { name: string; slug: string; display_order: number } }[])
+			.map((r) => r.stage)
+			.filter((s) => !currentSlugs.has(s.slug))
+			.sort((a, b) => a.display_order - b.display_order)
+			.map(({ name, slug }) => ({ name, slug }));
+	}
+}
 
 const tabs = [
 	{
@@ -118,40 +125,22 @@ const tabs = [
 	<div data-tab-panel="general">
 		<Head
 			empresa={empresa}
-			planName={planName}
-			progressPercent={clientWorkflowData?.progressPercent ?? 0}
-			completedStages={completedStagesCount}
-			totalStages={totalStagesCount}
-			currentStageName={clientWorkflowData?.currentStageName ?? ''}
-			currentStageOrder={clientWorkflowData?.stages?.find(
-				(stage) => stage.status === 'in_progress',
-			)?.displayOrder ?? null}
-			estimatedCompletion={clientWorkflowData?.estimatedCompletion ?? null}
-			nextStageName={nextStageName}
 			upgradeAvailable={upgradeAvailable}
 			upgradePrice={upgradePrice}
-		/>
-		<Gridline2
-			empresa={empresa}
-			porfirmar={porfirmarCount}
+			pendingDocuments={porfirmarCount}
 			pendingProcesses={pendingProcessesCount || 0}
 		/>
-		<div
-			class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
-		>
-			<ProcessIncorp
-				stages={stages}
-				completedCount={completedStagesCount}
-				totalCount={totalStagesCount}
-				progressPercent={processProgressPercent}
-				empresaId={empresaId}
-				userId={userId}
-				meeting={workflowMeeting}
-			/>
-			<SignedPanel porfirmar={porfirmar} />
-		</div>
+		<ProcessIncorp
+			stages={stages}
+			completedCount={completedStagesCount}
+			totalCount={totalStagesCount}
+			progressPercent={processProgressPercent}
+			empresaId={empresaId}
+			userId={userId}
+			meeting={workflowMeeting}
+			lockedStages={lockedStages}
+		/>
 	</div>
-
 </div>
 
 <ModalDropzone userId={userId} empresaId={empresaId} />
@@ -163,7 +152,6 @@ const tabs = [
 <script>
 	import './company-dashboard-geo.client.ts';
 </script>
-
 
 <script>
 	document.addEventListener('click', async (e) => {

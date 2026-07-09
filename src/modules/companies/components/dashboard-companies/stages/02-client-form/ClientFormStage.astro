@@ -1,4 +1,5 @@
 ---
+import { Icon } from 'astro-icon/components';
 import StageShell from '../StageShell.astro';
 import { formatStageDate } from '../shared/format-date.ts';
 import type { StageProps } from '../types';
@@ -35,18 +36,22 @@ if (isValidated) displayStage.status = 'completed';
 	formattedDate={formatStageDate(stage.dueAt)}
 >
 	{isSubmitted && (
-		<span
+		<div
 			slot="actions"
-			class="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-3 py-1 text-[12px] font-medium text-amber-700 dark:bg-amber-900/25 dark:text-amber-300"
+			class="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/50 px-3 py-2 text-xs text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-300"
 		>
-			En revisión por operaciones
-		</span>
+			<Icon name="ri:time-line" class="h-4 w-4" />
+			<span class="font-medium">En revisión por operaciones</span>
+		</div>
 	)}
 	{isRejected && form?.rejection_reason && (
 		<div
-			class="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[13px] text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
+			class="mt-2 flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50/50 px-3 py-2.5 dark:border-red-500/20 dark:bg-red-500/5"
 		>
-			<span class="font-medium">Motivo:</span> {form.rejection_reason}
+			<Icon name="ri:error-warning-line" class="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+			<div class="min-w-0 text-sm text-red-700 dark:text-red-300">
+				<span class="font-medium">Motivo:</span> {form.rejection_reason}
+			</div>
 		</div>
 	)}
 	{canFill && (
@@ -54,9 +59,14 @@ if (isValidated) displayStage.status = 'completed';
 			slot="actions"
 			href={`/my-companies/${empresaId}/form`}
 			data-astro-reload
-			class="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1 text-[12px] font-medium text-white transition-colors hover:bg-blue-700"
+			class="group/btn inline-flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
 		>
+			<Icon
+				name={isRejected ? 'ri:edit-line' : 'ri:file-edit-line'}
+				class="h-4 w-4 text-primary"
+			/>
 			{isRejected ? 'Corregir formulario' : 'Llenar formulario'}
+			<Icon name="ri:arrow-right-line" class="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover/btn:translate-x-0.5" />
 		</a>
 	)}
 </StageShell>

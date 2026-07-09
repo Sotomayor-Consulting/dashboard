@@ -1,6 +1,7 @@
 ---
 import LayoutSidebar from '@layouts/LayoutSidebar.astro';
 import CompanyDashboard from '@modules/companies/CompanyDashboard.astro';
+import DashboardSkeleton from '@modules/companies/components/dashboard-companies/DashboardSkeleton.astro';
 import Alerta from '@components/feedback/Alert.astro';
 
 const { incorporationId } = Astro.params;
@@ -8,5 +9,43 @@ const { incorporationId } = Astro.params;
 
 <LayoutSidebar>
 	<Alerta />
-	<CompanyDashboard empresaId={incorporationId} />
+	<div id="dashboard-skeleton">
+		<DashboardSkeleton />
+	</div>
+	<div id="dashboard-content" class="hidden">
+		<CompanyDashboard empresaId={incorporationId} />
+	</div>
 </LayoutSidebar>
+
+<script>
+	function revealContent() {
+		const skeleton = document.getElementById('dashboard-skeleton');
+		const content = document.getElementById('dashboard-content');
+		if (skeleton && content) {
+			skeleton.remove();
+			content.classList.remove('hidden');
+			content.style.animation = 'dashboard-reveal 0.3s ease-out';
+		}
+	}
+
+	if (document.readyState === 'complete') {
+		revealContent();
+	} else {
+		window.addEventListener('load', revealContent, { once: true });
+	}
+
+	document.addEventListener('astro:page-load', revealContent);
+</script>
+
+<style is:global>
+	@keyframes dashboard-reveal {
+		from {
+			opacity: 0;
+			transform: translateY(4px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+</style>

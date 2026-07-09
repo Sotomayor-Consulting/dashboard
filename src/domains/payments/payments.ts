@@ -3,22 +3,17 @@ import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('domains.payments');
 
+const ord = (s: SupabaseClient) => s.schema('orders' as never);
+
 export const getPlanContratadoPorEmpresa = async (
 	supabase: SupabaseClient,
 	empresaId: string,
 ) => {
-	const { data, error } = await supabase
-		.schema('orders')
-		.from('payments')
-		.select(
-			`created_at,
-			 order:order_id!inner (
-			   incorporation_id,
-			   order_lines ( service_plan_id, service_plan_name )
-			 )`,
-		)
-		.eq('status', 'succeeded')
-		.eq('order.incorporation_id', empresaId)
+	const { data, error } = await ord(supabase)
+		.from('order_admin_details')
+		.select('plan_slug, plan_name, payment_status, created_at')
+		.eq('incorporation_id', empresaId)
+		.eq('payment_status', 'succeeded')
 		.order('created_at', { ascending: false })
 		.limit(1)
 		.maybeSingle();
@@ -28,26 +23,10 @@ export const getPlanContratadoPorEmpresa = async (
 		return null;
 	}
 
-	if (!data) return null;
-
-	const order = (
-		data as unknown as {
-			created_at: string;
-			order: {
-				order_lines?: Array<{
-					service_plan_id: number | null;
-					service_plan_name: string | null;
-				}>;
-			};
-		}
-	).order;
-	const planLine = order?.order_lines?.find((l) => l.service_plan_id != null);
-
-	return {
-		created_at: (data as unknown as { created_at: string }).created_at,
-		servicios: { nombre: planLine?.service_plan_name ?? null },
-	} as {
+	return data as {
+		plan_slug: string | null;
+		plan_name: string | null;
+		payment_status: string | null;
 		created_at: string;
-		servicios?: { nombre?: string | null };
-	};
+	} | null;
 };
