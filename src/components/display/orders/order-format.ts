@@ -25,6 +25,9 @@ export function formatUsd(value: number | null | undefined): string {
 	});
 }
 
+// Los timestamps se guardan en UTC en la BD; estos helpers se ejecutan en
+// islands de React (browser), así que toLocale* convierte automáticamente
+// a la zona horaria local del usuario.
 export function formatDate(value: string | null | undefined): string {
 	if (!value) return '—';
 	const d = new Date(value);
@@ -33,5 +36,18 @@ export function formatDate(value: string | null | undefined): string {
 		year: 'numeric',
 		month: 'short',
 		day: '2-digit',
+	});
+}
+
+export function formatDateTime(value: string | null | undefined): string {
+	if (!value) return '—';
+	const d = new Date(value);
+	if (Number.isNaN(d.getTime())) return value;
+	return d.toLocaleString('es-ES', {
+		year: 'numeric',
+		month: 'short',
+		day: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
 	});
 }

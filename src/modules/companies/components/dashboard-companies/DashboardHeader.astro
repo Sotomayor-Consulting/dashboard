@@ -15,6 +15,7 @@ interface Props {
 	};
 	upgradeAvailable?: boolean;
 	upgradePrice?: number | null;
+	hasNoWorkflow?: boolean;
 	pendingDocuments?: number;
 	pendingProcesses?: number;
 }
@@ -23,6 +24,7 @@ const {
 	empresa,
 	upgradeAvailable = false,
 	upgradePrice = null,
+	hasNoWorkflow = false,
 	pendingDocuments = 0,
 	pendingProcesses = 0,
 } = Astro.props;
@@ -37,41 +39,7 @@ const fmtUsd = (n: number | null | undefined) =>
 		: null;
 
 const upgradePriceLabel = fmtUsd(upgradePrice);
-
 ---
-
-{
-	upgradeAvailable && (
-		<div class="-mx-6 mt-6 bg-amber-50/40 px-6 py-4 dark:bg-amber-500/5">
-			<div class="flex items-center gap-3.5">
-				<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-amber-200 bg-amber-100/80 dark:border-amber-500/30 dark:bg-amber-500/15">
-					<Icon name="ri:arrow-up-circle-line" class="h-4.5 w-4.5 text-amber-600 dark:text-amber-400" />
-				</div>
-				<div class="min-w-0 flex-1">
-					<p class="text-sm font-semibold text-amber-950 dark:text-amber-50">
-						Lleva tu LLC al siguiente nivel
-					</p>
-					<p class="mt-0.5 text-xs text-amber-800/70 dark:text-amber-200/60">
-						Cuenta bancaria, pasarela de cobros, optimización fiscal y más.
-					</p>
-				</div>
-				{upgradePriceLabel && (
-					<div class="shrink-0 text-right">
-						<p class="text-lg font-bold tracking-tight text-amber-950 dark:text-amber-50">{upgradePriceLabel}</p>
-						<p class="text-[11px] text-amber-700/70 dark:text-amber-300/50">pago único</p>
-					</div>
-				)}
-				<a
-					href="/upgrade"
-					class="shrink-0 inline-flex items-center rounded-lg bg-primary-gold px-4 py-2.5 text-sm font-semibold text-primary-black transition-all hover:brightness-105 active:scale-[0.98]"
-				>
-					Desbloquear beneficios
-				</a>
-			</div>
-		</div>
-		<div class="-mx-6 mt-4 border-b border-border" />
-	)
-}
 
 <div class="mt-6 mb-2">
 	<h2 class="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
@@ -80,7 +48,7 @@ const upgradePriceLabel = fmtUsd(upgradePrice);
 </div>
 
 <!-- Inline stats -->
-<div class="-mx-6 mt-4 mb-6 flex flex-wrap gap-6 border-b border-border px-6 pb-6">
+<div class="-mx-6 mt-4 mb-6 flex flex-wrap items-center gap-6 border-b border-border px-6 pb-6">
 	<div class="flex items-center gap-2.5">
 		<div class="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card">
 			<Icon name="ri:loader-3-line" class="h-4 w-4 text-muted-foreground" />
@@ -99,4 +67,56 @@ const upgradePriceLabel = fmtUsd(upgradePrice);
 			<p class="text-xs text-muted-foreground">Documentos por firmar</p>
 		</div>
 	</div>
+
+	{hasNoWorkflow && (
+		<a
+			href="/incorporation-and-payment"
+			class="gold-glow-btn ml-auto inline-flex items-center gap-2 rounded-lg bg-primary-gold px-4 py-2 text-sm font-semibold text-primary-black transition-all hover:brightness-105 active:scale-[0.98]"
+		>
+			<Icon name="ri:rocket-line" class="h-4 w-4" />
+			Comenzar incorporación
+		</a>
+	)}
+
+	{upgradeAvailable && !hasNoWorkflow && (
+		<a
+			href="/upgrade"
+			class="gold-glow-btn ml-auto inline-flex items-center gap-2 rounded-lg bg-primary-gold px-4 py-2 text-sm font-semibold text-primary-black transition-all hover:brightness-105 active:scale-[0.98]"
+		>
+			<Icon name="ri:arrow-up-circle-line" class="h-4 w-4" />
+			Upgrade {upgradePriceLabel ? `· ${upgradePriceLabel}` : ''}
+		</a>
+	)}
 </div>
+
+<style>
+	.gold-glow-btn {
+		box-shadow:
+			0 0 16px color-mix(in srgb, var(--color-primary-gold) 50%, transparent),
+			0 0 6px color-mix(in srgb, var(--color-primary-gold) 35%, transparent),
+			inset 0 1px 0 color-mix(in srgb, white 25%, transparent);
+		animation: gold-pulse 3s ease-in-out infinite;
+	}
+
+	.gold-glow-btn:hover {
+		box-shadow:
+			0 0 24px color-mix(in srgb, var(--color-primary-gold) 65%, transparent),
+			0 0 8px color-mix(in srgb, var(--color-primary-gold) 45%, transparent),
+			inset 0 1px 0 color-mix(in srgb, white 25%, transparent);
+	}
+
+	@keyframes gold-pulse {
+		0%, 100% {
+			box-shadow:
+				0 0 16px color-mix(in srgb, var(--color-primary-gold) 50%, transparent),
+				0 0 6px color-mix(in srgb, var(--color-primary-gold) 35%, transparent),
+				inset 0 1px 0 color-mix(in srgb, white 25%, transparent);
+		}
+		50% {
+			box-shadow:
+				0 0 26px color-mix(in srgb, var(--color-primary-gold) 60%, transparent),
+				0 0 10px color-mix(in srgb, var(--color-primary-gold) 45%, transparent),
+				inset 0 1px 0 color-mix(in srgb, white 25%, transparent);
+		}
+	}
+</style>

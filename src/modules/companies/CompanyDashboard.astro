@@ -73,18 +73,21 @@ const upgradePrice = servicioUpgrade?.precio
 	? Number(servicioUpgrade.precio)
 	: null;
 
+const hasNoWorkflow = stages.length === 0;
+
 let lockedStages: { name: string; slug: string }[] = [];
-if (upgradeAvailable) {
+if (upgradeAvailable || hasNoWorkflow) {
+	const targetPlanId = hasNoWorkflow ? 4 : 5;
 	const currentSlugs = new Set(stages.map((s) => s.slug));
-	const { data: upgradeStages } = await supabaseAdmin
+	const { data: catalogStages } = await supabaseAdmin
 		.schema('workflow' as never)
 		.from('workflow_stage_plan_applicability')
 		.select('stage:stage_id(name, slug, display_order)')
-		.eq('plan_id', 5)
+		.eq('plan_id', targetPlanId)
 		.order('stage_id', { ascending: true });
 
-	if (upgradeStages) {
-		lockedStages = (upgradeStages as { stage: { name: string; slug: string; display_order: number } }[])
+	if (catalogStages) {
+		lockedStages = (catalogStages as unknown as { stage: { name: string; slug: string; display_order: number } }[])
 			.map((r) => r.stage)
 			.filter((s) => !currentSlugs.has(s.slug))
 			.sort((a, b) => a.display_order - b.display_order)
@@ -127,6 +130,7 @@ const tabs = [
 			empresa={empresa}
 			upgradeAvailable={upgradeAvailable}
 			upgradePrice={upgradePrice}
+			hasNoWorkflow={hasNoWorkflow}
 			pendingDocuments={porfirmarCount}
 			pendingProcesses={pendingProcessesCount || 0}
 		/>
@@ -139,6 +143,7 @@ const tabs = [
 			userId={userId}
 			meeting={workflowMeeting}
 			lockedStages={lockedStages}
+			hasNoWorkflow={hasNoWorkflow}
 		/>
 	</div>
 </div>

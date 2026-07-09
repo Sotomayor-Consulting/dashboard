@@ -6,7 +6,17 @@ import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import {
+	PROCESSING_FEE_PERCENT,
+	attachStripeSessionToOrder,
+	computeFeeCents,
+	getOrCreatePendingOrder,
+} from '@domains/payments/checkout-orders';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import {
+	checkRateLimit,
+	rateLimitResponse,
+} from '@infrastructure/security/rate-limit';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('checkout-session-upgrade');
@@ -19,10 +29,13 @@ const PUBLIC_SITE_URL =
 	import.meta.env.PUBLIC_SITE_URL ??
 	'http://localhost:4321';
 
-const PROCESSING_FEE_PERCENT = 0.045;
-
 if (!STRIPE_SECRET_KEY) {
 	log.error('Missing STRIPE_SECRET_KEY environment variable.');
+}
+if (import.meta.env.PROD && PUBLIC_SITE_URL.includes('localhost')) {
+	log.error(
+		'PUBLIC_SITE_URL no configurada en producción: los success_url de Stripe apuntarán a localhost.',
+	);
 }
 
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
@@ -49,6 +62,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			status: 401,
 			headers: SECURITY_HEADERS,
 		});
+	}
+
+	if (!checkRateLimit(`checkout:${user.id}`)) {
+		return rateLimitResponse(SECURITY_HEADERS);
 	}
 
 	try {
@@ -105,7 +122,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		}
 
 		const baseAmountCents = Math.round(baseAmount * 100);
-		const feeCents = Math.round(baseAmountCents * PROCESSING_FEE_PERCENT);
+		const feeCents = computeFeeCents(baseAmountCents);
 
 		// Orden de upgrade (pending_payment; el webhook la confirma vía RPC).
 		const { data: anchorLine } = await supabaseAdmin
@@ -121,48 +138,37 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			(anchorLine as { catalogs_services?: { name?: string } } | null)
 				?.catalogs_services?.name ?? (plan.name ?? 'Upgrade LLC');
 
-		let orderId: string | null = null;
-		const { data: order, error: orderErr } = await supabaseAdmin
-			.schema('orders')
-			.from('orders')
-			.insert({
-				user_id: body.userId,
-				incorporation_id: body.empresaId,
-				status: 'pending_payment',
-				currency: 'usd',
-				metadata: {
-					plan_slug: plan.slug,
-					payment_flow: 'upgrade',
-					fee_cents: feeCents,
-				},
-			})
-			.select('id')
-			.single();
-		if (orderErr || !order) {
-			log.error('No se pudo crear la orden de upgrade (se continúa sin order_id)', {
-				error: orderErr,
-				userId: body.userId,
-				planId: plan.id,
-			});
-		} else {
-			orderId = order.id;
-			const { error: lineErr } = await supabaseAdmin
-				.schema('orders')
-				.from('order_lines')
-				.insert({
-					order_id: orderId,
+		// Reutiliza la orden pendiente de upgrade si existe (evita duplicados
+		// cuando el usuario cancela el checkout y reintenta el pago).
+		const pendingOrder = await getOrCreatePendingOrder(supabaseAdmin, {
+			userId: body.userId,
+			incorporationId: body.empresaId,
+			flow: 'upgrade',
+			metadata: {
+				plan_slug: plan.slug,
+				payment_flow: 'upgrade',
+				fee_cents: feeCents,
+			},
+			lines: [
+				{
 					service_id: anchorServiceId,
 					service_plan_id: plan.id,
 					service_name: anchorServiceName,
 					service_plan_name: plan.name,
 					unit_price: baseAmount,
 					quantity: 1,
-				});
-			if (lineErr) {
-				log.error('No se pudo crear la order_line de upgrade', {
-					error: lineErr,
-					orderId,
-				});
+				},
+			],
+		});
+		const orderId = pendingOrder?.orderId ?? null;
+
+		if (pendingOrder?.previousStripeSessionId) {
+			try {
+				await stripe.checkout.sessions.expire(
+					pendingOrder.previousStripeSessionId,
+				);
+			} catch {
+				// Ya expirada/completada — nada que hacer.
 			}
 		}
 
@@ -203,14 +209,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			},
 		];
 
+		// Sin payment_method_types: Stripe muestra dinámicamente los métodos
+		// óptimos (configurables desde el Dashboard, sin cambios de código).
 		const session = await stripe.checkout.sessions.create({
 			mode: 'payment',
-			payment_method_types: [
-				'card',
-				'us_bank_account',
-				'amazon_pay',
-				'cashapp',
-			],
 			line_items: lineItems,
 			client_reference_id: user.id,
 			metadata,
@@ -229,6 +231,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			cancel_url: `${PUBLIC_SITE_URL}/upgrade`,
 			...(user.email ? { customer_email: user.email } : {}),
 		});
+
+		if (orderId) {
+			await attachStripeSessionToOrder(supabaseAdmin, orderId, session.id);
+		}
 
 		if (!session.url) {
 			return new Response(

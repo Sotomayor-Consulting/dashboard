@@ -143,6 +143,16 @@ export const menuItems: MenuItem[] = [
 		group: 'Servicios',
 	},
 	{
+		id: 'client-orders',
+		label: 'Órdenes',
+		href: '/orders/',
+		tooltip: 'Historial de órdenes y pagos',
+		roles: ['cliente', 'partner'],
+		svgname: 'ri:receipt-line',
+		sequence: 175,
+		group: 'Servicios',
+	},
+	{
 		id: 'settings',
 		label: 'Ajustes',
 		href: '/profile/',
