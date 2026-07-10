@@ -99,7 +99,7 @@ export default function AddCompanyDialog({
 
 						<Field>
 							<FieldLabel htmlFor="estado_de">Proceso</FieldLabel>
-							<Select name="estado_de" defaultValue="En proceso">
+							<Select name="estado_de" defaultValue="draft">
 								<SelectTrigger id="estado_de" className="w-full">
 									<SelectValue placeholder="Selecciona un proceso" />
 								</SelectTrigger>

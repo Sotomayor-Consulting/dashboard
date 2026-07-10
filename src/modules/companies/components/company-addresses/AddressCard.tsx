@@ -17,7 +17,7 @@ interface TypeMeta {
 }
 
 const TYPE_MAP: Record<string, TypeMeta> = {
-	operativa: {
+	operational: {
 		label: 'Operativa',
 		icon: 'ri:briefcase-line',
 		chipClass:
@@ -25,21 +25,21 @@ const TYPE_MAP: Record<string, TypeMeta> = {
 		iconClass:
 			'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300',
 	},
-	legal: {
-		label: 'Legal',
-		icon: 'ri:government-line',
-		chipClass:
-			'border border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300',
-		iconClass:
-			'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
-	},
-	fiscal: {
-		label: 'Fiscal',
+	mailing: {
+		label: 'Correspondencia',
 		icon: 'ri:mail-line',
 		chipClass:
 			'border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300',
 		iconClass:
 			'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
+	},
+	ein_request: {
+		label: 'EIN',
+		icon: 'ri:government-line',
+		chipClass:
+			'border border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300',
+		iconClass:
+			'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
 	},
 	other: {
 		label: 'Otra',

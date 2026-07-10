@@ -1,0 +1,115 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { ClientDocumentItem } from '../../services/get-company-client-view-data';
+
+interface Props {
+	documents: ClientDocumentItem[];
+	documentsTotal: number;
+	/** Href del footer "Ver todos" — null para ocultarlo (p.ej. en la vista de lista completa). */
+	allDocumentsHref?: string | null;
+}
+
+const { documents, documentsTotal, allDocumentsHref = null } = Astro.props;
+
+const STATUS_STYLES: Record<string, { label: string; classes: string }> = {
+	approved: {
+		label: 'Aprobado',
+		classes:
+			'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+	},
+	uploaded: {
+		label: 'Subido',
+		classes: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300',
+	},
+	under_review: {
+		label: 'En revisión',
+		classes:
+			'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+	},
+	pending: {
+		label: 'Pendiente',
+		classes: 'bg-muted text-muted-foreground',
+	},
+};
+
+const statusChip = (status: string) =>
+	STATUS_STYLES[status] ?? {
+		label: status,
+		classes: 'bg-muted text-muted-foreground',
+	};
+
+const formatDate = (value: string | null) =>
+	value
+		? new Intl.DateTimeFormat('es-ES', {
+				day: 'numeric',
+				month: 'short',
+				year: 'numeric',
+			}).format(new Date(value))
+		: '—';
+---
+
+<div>
+	<h3 class="text-foreground text-lg font-semibold">Documentos</h3>
+	<p class="text-muted-foreground mt-1 mb-4 text-sm">
+		Documentos de tu empresa disponibles para consulta.
+	</p>
+
+	<div class="border-border rounded-lg border">
+		{
+			documents.length === 0 ? (
+				<div class="flex flex-col items-center gap-2 px-4 py-10 text-center">
+					<Icon
+						name="ri:file-copy-line"
+						class="text-muted-foreground h-6 w-6"
+					/>
+					<p class="text-muted-foreground text-sm">
+						Aún no hay documentos disponibles.
+					</p>
+				</div>
+			) : (
+				<ul role="list" class="divide-border divide-y">
+					{documents.map((d) => (
+						<li class="flex items-center gap-4 px-4 py-3">
+							<div class="bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+								<Icon
+									name="ri:file-text-line"
+									class="text-muted-foreground h-4 w-4"
+								/>
+							</div>
+							<div class="min-w-0 flex-1">
+								<p class="text-foreground truncate text-sm font-medium">
+									{d.title}
+								</p>
+								<p class="text-muted-foreground truncate text-sm">
+									{[d.typeName, formatDate(d.date)].filter(Boolean).join(' · ')}
+								</p>
+							</div>
+							<span
+								class={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusChip(d.status).classes}`}
+							>
+								{statusChip(d.status).label}
+							</span>
+						</li>
+					))}
+				</ul>
+			)
+		}
+
+		{
+			allDocumentsHref && (
+				<div class="border-border border-t p-3">
+					<a
+						href={allDocumentsHref}
+						class="text-foreground hover:bg-muted inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+					>
+						Ver todos los documentos
+						{documentsTotal > 0 && (
+							<span class="text-muted-foreground">({documentsTotal})</span>
+						)}
+						<Icon name="ri:arrow-right-line" class="h-4 w-4" />
+					</a>
+				</div>
+			)
+		}
+	</div>
+</div>

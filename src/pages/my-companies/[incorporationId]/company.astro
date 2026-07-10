@@ -19,7 +19,7 @@ if (!empresa) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
 }
 
-const isIncorporated = empresa.estado === 'Activo';
+const isIncorporated = empresa.state === 'active';
 const estadoMapa = empresa.estado_de_incorporacion ?? '';
 ---
 

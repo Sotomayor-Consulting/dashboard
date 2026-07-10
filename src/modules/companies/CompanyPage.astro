@@ -1,7 +1,10 @@
 ---
 import { getCompanyPageData } from './services/get-company-page-data';
 import CompanyPageHeader from './components/CompanyPageHeader.astro';
-import CompanyPageContent from './islands/CompanyPageContent.tsx';
+import CompanyInfoSection from './islands/company-details/sections/CompanyInfoSection';
+import CompanyAddressesPanel from './islands/CompanyAddressesPanel';
+import CompanyMembersPanel from './islands/CompanyMembersPanel';
+import TabBar from '@components/navigation/TabBar.astro';
 import { canManageCompanyData } from '@shared/roles';
 
 interface Props {
@@ -19,8 +22,6 @@ const canEditDetails = canManageCompanyData(userRoles);
 const trimmedId = companyId?.trim() ?? '';
 const isValidId = UUID_RE.test(trimmedId);
 
-// El query param `from` se usa para construir el botón "volver". Solo aceptamos
-// el shape esperado para no abrir vector de open-redirect.
 const fromRaw = Astro.url.searchParams.get('from') ?? '';
 const incorporationMatch = /^incorporation\/([0-9a-f-]{36})$/i.exec(fromRaw);
 const backHref = incorporationMatch
@@ -39,29 +40,73 @@ const errorMessage = !isValidId
 {
 	errorMessage ? (
 		<div class="mx-5 mt-5">
-			<div class="rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-600 dark:border-gray-700 dark:text-gray-300">
+			<div class="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-sm">
 				{errorMessage}
 			</div>
 		</div>
 	) : data ? (
-		<>
+		<div>
 			<CompanyPageHeader
 				company={data.company}
 				backHref={backHref}
 				backLabel={backLabel}
 			/>
-			<div class="mx-5 my-5">
-				<CompanyPageContent
-					client:load
-					companyId={trimmedId}
-					company={data.company}
-					addresses={data.addresses}
-					companyMembers={data.companyMembers}
-					managementTypeHealth={data.managementTypeHealth}
-					actividades={data.actividades}
-					canEditDetails={canEditDetails}
-				/>
+
+			<TabBar
+				buttons={[
+					{
+						label: 'Información',
+						icon: 'ri:file-edit-line',
+						active: true,
+						kind: 'panel',
+						id: 'informacion',
+					},
+					{
+						label: 'Direcciones',
+						icon: 'ri:map-pin-line',
+						active: false,
+						kind: 'panel',
+						id: 'direcciones',
+					},
+					{
+						label: 'Miembros',
+						icon: 'ri:group-line',
+						active: false,
+						kind: 'panel',
+						id: 'miembros',
+					},
+				]}
+			/>
+
+			<div class="mt-5">
+				<div data-tab-panel="informacion">
+					<CompanyInfoSection
+						client:load
+						company={data.company}
+						managementTypeHealth={data.managementTypeHealth}
+						actividades={data.actividades}
+						canEditDetails={canEditDetails}
+					/>
+				</div>
+
+				<div data-tab-panel="direcciones" hidden>
+					<CompanyAddressesPanel
+						client:load
+						addresses={data.addresses}
+						companyId={trimmedId}
+						canEditDetails={canEditDetails}
+					/>
+				</div>
+
+				<div data-tab-panel="miembros" hidden>
+					<CompanyMembersPanel
+						client:load
+						initialMembers={data.companyMembers}
+						companyId={trimmedId}
+						canEditDetails={canEditDetails}
+					/>
+				</div>
 			</div>
-		</>
+		</div>
 	) : null
 }

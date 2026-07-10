@@ -1,0 +1,87 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { ClientSocioItem } from '../../services/get-company-client-view-data';
+
+interface Props {
+	socios: ClientSocioItem[];
+}
+
+const { socios } = Astro.props;
+
+const roleBadges = (s: ClientSocioItem) => {
+	const badges: { label: string; classes: string }[] = [];
+	if (s.isManager)
+		badges.push({
+			label: 'Manager',
+			classes:
+				'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300',
+		});
+	if (s.isResponsibleParty)
+		badges.push({
+			label: 'Responsable IRS',
+			classes:
+				'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+		});
+	return badges;
+};
+---
+
+<div>
+	<h3 class="text-foreground text-lg font-semibold">Socios</h3>
+	<p class="text-muted-foreground mt-1 mb-4 text-sm">
+		Miembros y managers de la empresa.
+	</p>
+
+	<div class="border-border rounded-lg border">
+		{
+			socios.length === 0 ? (
+				<div class="flex flex-col items-center gap-2 px-4 py-10 text-center">
+					<Icon
+						name="ri:shake-hands-line"
+						class="text-muted-foreground h-6 w-6"
+					/>
+					<p class="text-muted-foreground text-sm">
+						Aún no hay socios registrados.
+					</p>
+				</div>
+			) : (
+				<ul role="list" class="divide-border divide-y">
+					{socios.map((s) => (
+						<li class="flex items-center gap-4 px-4 py-3">
+							<img
+								class="h-9 w-9 shrink-0 rounded-full"
+								src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(s.name)}`}
+								alt={`Avatar de ${s.name}`}
+								loading="lazy"
+							/>
+							<div class="min-w-0 flex-1">
+								<div class="flex flex-wrap items-center gap-2">
+									<p class="text-foreground truncate text-sm font-semibold">
+										{s.name}
+									</p>
+									{roleBadges(s).map((b) => (
+										<span
+											class={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${b.classes}`}
+										>
+											{b.label}
+										</span>
+									))}
+								</div>
+								{s.email && (
+									<p class="text-muted-foreground truncate text-sm">
+										{s.email}
+									</p>
+								)}
+							</div>
+							{s.percentage != null && (
+								<span class="text-foreground shrink-0 text-sm font-semibold">
+									{s.percentage}%
+								</span>
+							)}
+						</li>
+					))}
+				</ul>
+			)
+		}
+	</div>
+</div>

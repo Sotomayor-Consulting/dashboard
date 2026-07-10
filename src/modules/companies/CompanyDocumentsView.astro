@@ -1,0 +1,83 @@
+---
+import TabBar from '@components/navigation/TabBar.astro';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { getDocumentsForCompany } from '@domains/documents/document_dashboard';
+import CompanyDocumentsPanel from './components/dashboard-companies/CompanyDocumentsPanel.astro';
+import type { ClientDocumentItem } from './services/get-company-client-view-data';
+
+interface Props {
+	companyId: string | undefined;
+}
+
+const { companyId } = Astro.props;
+const user = Astro.locals.user;
+const userId = user?.id;
+const supabase = Astro.locals.supabase;
+const userRoles = Astro.locals.userRoles ?? [];
+
+if (!companyId || !userId) {
+	return Astro.redirect('/');
+}
+
+// Ownership vía RLS de companies (dueño o staff).
+const { data: company } = await supabase
+	.from('companies')
+	.select('id, legal_name')
+	.eq('id', companyId)
+	.maybeSingle<{ id: string; legal_name: string | null }>();
+
+if (!company) {
+	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
+}
+
+// Docs de la empresa (documents/{userId}/companies/{companyId}); el dominio
+// aplica visibilidad por shares para no-staff.
+const allDocuments = await getDocumentsForCompany(
+	supabaseAdmin,
+	companyId,
+	userId,
+	userRoles,
+).catch(() => []);
+
+const clientDocs = allDocuments.filter(
+	(d) => d.visibility === 'client_visible',
+);
+
+const documents: ClientDocumentItem[] = clientDocs.map((d) => ({
+	id: d.id,
+	title: d.file_title || d.file_name,
+	typeName: d.document_type?.name ?? null,
+	date: d.uploaded_at ?? d.created_at,
+	status: d.status,
+}));
+
+const tabs = [
+	{
+		id: 'company',
+		label: 'Empresa',
+		icon: 'ri:building-2-line',
+		kind: 'link' as const,
+		link: `/my-companies/company/${companyId}`,
+		active: false,
+	},
+	{
+		id: 'documents',
+		label: 'Documentos',
+		icon: 'ri:file-copy-line',
+		kind: 'panel' as const,
+		active: true,
+	},
+];
+---
+
+<div>
+	<TabBar buttons={tabs} />
+
+	<div data-tab-panel="documents" class="my-4">
+		<CompanyDocumentsPanel
+			documents={documents}
+			documentsTotal={documents.length}
+			allDocumentsHref={null}
+		/>
+	</div>
+</div>

@@ -458,7 +458,7 @@ export default function CompanyMembersCrudSection({
 					<p className="text-muted-foreground text-sm">
 						Se marcará como eliminada la relación de{' '}
 						<strong>
-							{crud.activeRow?.member?.full_name ?? 'esta persona'}
+							{crud.activeRow?.member?.name ?? [crud.activeRow?.member?.first_name, crud.activeRow?.member?.last_name].filter(Boolean).join(' ') ?? 'esta persona'}
 						</strong>{' '}
 						con la empresa. La persona seguirá disponible en el registro
 						maestro.
@@ -628,7 +628,7 @@ function MemberPiiForm({
 		field: K,
 	) => (value: MemberDraft[K]) => void;
 }) {
-	const isEntity = draft.person_type === 'juridical_person';
+	const isEntity = 	draft.person_type === 'entity';
 	return (
 		<FieldGroup className="grid gap-4 md:grid-cols-2">
 			<Field className="md:col-span-2">
@@ -637,7 +637,7 @@ function MemberPiiForm({
 					value={draft.person_type}
 					onValueChange={(value) => {
 						updateDraft('person_type')(value as MemberDraft['person_type']);
-						if (value === 'juridical_person') {
+						if (value === 'entity') {
 							updateDraft('identification_type')('ein');
 						} else {
 							updateDraft('identification_type')('passport');
@@ -649,8 +649,8 @@ function MemberPiiForm({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectGroup>
-							<SelectItem value="natural_person">Persona natural</SelectItem>
-							<SelectItem value="juridical_person">Persona jurídica</SelectItem>
+							<SelectItem value="individual">Persona natural</SelectItem>
+							<SelectItem value="entity">Persona jurídica</SelectItem>
 						</SelectGroup>
 					</SelectContent>
 				</Select>
@@ -702,8 +702,8 @@ function MemberPiiForm({
 					<SelectContent>
 						<SelectGroup>
 							<SelectItem value="passport">Pasaporte</SelectItem>
-							<SelectItem value="national_id">Cédula / ID Nacional</SelectItem>
-							<SelectItem value="driver_licence">Licencia de conducir</SelectItem>
+							<SelectItem value="id">Cédula / ID Nacional</SelectItem>
+							<SelectItem value="drivers_license">Licencia de conducir</SelectItem>
 							<SelectItem value="ein">EIN</SelectItem>
 						</SelectGroup>
 					</SelectContent>

@@ -102,10 +102,10 @@ const firstName =
 // 	.trim();
 const companyName = activeCompany?.nombre || 'tu portal';
 const activeCompanies = empresas.filter(
-	(company) => company.estado === 'Activo',
+	(company) => company.estado === 'active',
 );
 const inProgressCompanies = empresas.filter((company) =>
-	['En proceso', 'Upgrade'].includes(company.estado || ''),
+	['draft', 'upgrade'].includes(company.estado || ''),
 );
 const pendingTasks =
 	notificationsData.totalUnread +
@@ -139,7 +139,7 @@ const activityItems = [
 	})),
 	...empresas.slice(0, 3).map((company) => ({
 		title:
-			company.estado === 'Activo'
+			company.estado === 'active'
 				? `${company.nombre} aprobada`
 				: `${company.nombre} en proceso`,
 		meta: company.estado_de_incorporacion || company.estado || 'Actualizado',

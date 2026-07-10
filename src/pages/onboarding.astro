@@ -39,7 +39,7 @@ if (!empresa && isOdooUser) {
 		.from('incorporations')
 		.insert({
 			user_id: user.id,
-			state: 'En proceso',
+			state: 'draft',
 			porcentaje_de_incorporacion: 1,
 			source: 'odoo',
 			odoo_sale_order_id: odooSaleOrderId,

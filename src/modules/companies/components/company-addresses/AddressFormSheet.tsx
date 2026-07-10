@@ -43,9 +43,9 @@ interface Props {
 }
 
 const TYPE_OPTIONS = [
-	{ value: 'operativa', label: 'Operativa' },
-	{ value: 'legal', label: 'Legal / Registered Agent' },
-	{ value: 'fiscal', label: 'Fiscal / Mailing' },
+	{ value: 'operational', label: 'Operativa' },
+	{ value: 'mailing', label: 'Correspondencia / Mailing' },
+	{ value: 'ein_request', label: 'EIN / IRS' },
 	{ value: 'other', label: 'Otra' },
 ];
 

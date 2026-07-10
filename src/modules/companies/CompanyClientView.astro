@@ -1,0 +1,99 @@
+---
+import TabBar from '@components/navigation/TabBar.astro';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import InformationPanel from './components/dashboard-companies/InformationPanel.astro';
+import CompanySociosPanel from './components/dashboard-companies/CompanySociosPanel.astro';
+import CompanyAddressesPanel from './components/dashboard-companies/CompanyAddressesPanel.astro';
+import CompanyDocumentsPanel from './components/dashboard-companies/CompanyDocumentsPanel.astro';
+import { getCompanyClientViewData } from './services/get-company-client-view-data';
+
+interface Props {
+	companyId: string | undefined;
+}
+
+const { companyId } = Astro.props;
+const user = Astro.locals.user;
+const userId = user?.id;
+const supabase = Astro.locals.supabase;
+
+if (!companyId || !userId) {
+	return Astro.redirect('/');
+}
+
+// Ownership: la empresa debe ser visible para el usuario de la sesión (RLS de
+// companies: dueño o staff). Solo tras este check se usa supabaseAdmin en el
+// agregador (RLS de members/addresses para clientes llega en F4 del plan).
+const { data: ownedCompany } = await supabase
+	.from('companies')
+	.select('id')
+	.eq('id', companyId)
+	.maybeSingle<{ id: string }>();
+
+if (!ownedCompany) {
+	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
+}
+
+const userRoles = Astro.locals.userRoles ?? [];
+const data = await getCompanyClientViewData(supabaseAdmin, companyId, {
+	userId,
+	userRoles,
+});
+
+if (!data.company) {
+	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
+}
+
+const estadoMapa = data.company.formation_state_name;
+const entityType = (data.company.entity_type ?? '').toString().toUpperCase();
+
+const panelData = {
+	principal_name: data.company.legal_name ?? 'Empresa',
+	tipo_de_negocio: entityType || null,
+	estado_de_incorporacion: estadoMapa,
+	created_at: data.company.incorporation_date ?? data.company.created_at,
+	ein: data.company.identification_number,
+	file_number: data.company.filing_number,
+	registered_agent: data.registeredAgentName,
+};
+
+const documentsHref = `/my-companies/company/${companyId}/documents`;
+
+const tabs = [
+	{
+		id: 'company',
+		label: 'Empresa',
+		icon: 'ri:building-2-line',
+		kind: 'panel' as const,
+		active: true,
+	},
+	{
+		id: 'documents',
+		label: 'Documentos',
+		icon: 'ri:file-copy-line',
+		kind: 'link' as const,
+		link: documentsHref,
+		active: false,
+	},
+];
+---
+
+<div>
+	<TabBar buttons={tabs} />
+
+	<div data-tab-panel="company">
+		<InformationPanel empresa={panelData} estadoMapa={estadoMapa} />
+
+		<div class="my-4 grid w-full grid-cols-1 gap-6 xl:grid-cols-2">
+			<CompanySociosPanel socios={data.socios} />
+			<CompanyAddressesPanel addresses={data.addresses} />
+		</div>
+
+		<div class="my-4">
+			<CompanyDocumentsPanel
+				documents={data.documents}
+				documentsTotal={data.documentsTotal}
+				allDocumentsHref={documentsHref}
+			/>
+		</div>
+	</div>
+</div>

@@ -213,8 +213,8 @@ function AddressCard({
 				<p>{address.line1}</p>
 				{address.line2 ? <p>{address.line2}</p> : null}
 				<p className="text-gray-500 dark:text-gray-400">
-					{[address.city, address.state, address.zip].filter(Boolean).join(', ') ||
-						'Sin ciudad/estado/zip'}
+					{[address.city, address.zip].filter(Boolean).join(', ') ||
+						'Sin dirección registrada'}
 				</p>
 			</div>
 		</div>
@@ -243,9 +243,9 @@ function AddressForm({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectGroup>
-							<SelectItem value="tax">Tributaria</SelectItem>
-							<SelectItem value="residence">Residencial</SelectItem>
+							<SelectItem value="residential">Residencial</SelectItem>
 							<SelectItem value="mailing">Correspondencia</SelectItem>
+							<SelectItem value="business">Negocio</SelectItem>
 							<SelectItem value="other">Otra</SelectItem>
 						</SelectGroup>
 					</SelectContent>
@@ -281,14 +281,6 @@ function AddressForm({
 					id="address_city"
 					value={draft.city}
 					onChange={(e) => updateDraft('city')(e.target.value)}
-				/>
-			</Field>
-			<Field>
-				<FieldLabel htmlFor="address_state">Estado</FieldLabel>
-				<Input
-					id="address_state"
-					value={draft.state}
-					onChange={(e) => updateDraft('state')(e.target.value)}
 				/>
 			</Field>
 			<Field className="md:col-span-2">

@@ -1,6 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
-import type { CompanyItem, EntityType, LegalStatus } from '../types';
+import type { CompanyItem } from '../types';
 
 interface Props {
 	company: CompanyItem;
@@ -28,8 +28,8 @@ const STATUS_CLASS: Record<
 	},
 	draft: {
 		label: 'Borrador',
-		cls: 'bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400',
-		dot: 'bg-gray-400',
+		cls: 'bg-muted text-muted-foreground',
+		dot: 'bg-muted-foreground',
 	},
 	pending: {
 		label: 'Pendiente',
@@ -48,8 +48,8 @@ const STATUS_CLASS: Record<
 	},
 	inactive: {
 		label: 'Inactiva',
-		cls: 'bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400',
-		dot: 'bg-gray-400',
+		cls: 'bg-muted text-muted-foreground',
+		dot: 'bg-muted-foreground',
 	},
 	dissolved: {
 		label: 'Disuelta',
@@ -58,23 +58,21 @@ const STATUS_CLASS: Record<
 	},
 };
 
-const entityType = (company.entity_type ?? '').toLowerCase() as EntityType;
-const legalStatus = (company.legal_status ?? 'draft').toLowerCase() as LegalStatus;
+const entityType = (company.entity_type ?? '').toLowerCase();
+const legalStatus = (company.legal_status ?? 'draft').toLowerCase();
 const entityCls =
 	ENTITY_CLASS[entityType] ??
-	'bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400';
+	'bg-muted text-muted-foreground';
 const status =
 	STATUS_CLASS[legalStatus] ?? STATUS_CLASS['draft']!;
 ---
 
-<header
-	class="flex flex-col gap-3 border-b border-gray-200 px-7 pt-6 pb-5 dark:border-gray-800"
->
+<header class="flex flex-col gap-3 border-b border-border px-6 pt-6 pb-5">
 	{
 		backHref && backLabel && (
 			<a
 				href={backHref}
-				class="inline-flex w-fit items-center gap-1.5 text-[12.5px] text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+				class="inline-flex w-fit items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
 			>
 				<Icon name="ri:arrow-left-line" class="h-4 w-4" />
 				{backLabel}
@@ -84,14 +82,10 @@ const status =
 
 	<div class="flex items-end justify-between gap-4">
 		<div class="min-w-0">
-			<p
-				class="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
-			>
+			<p class="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
 				Empresa
 			</p>
-			<h1
-				class="mt-1 truncate text-[22px] font-semibold text-gray-900 dark:text-gray-100"
-			>
+			<h1 class="mt-1 truncate text-2xl font-semibold tracking-tight text-foreground">
 				{company.legal_name ?? 'Sin nombre'}
 			</h1>
 			<div class="mt-2 flex flex-wrap items-center gap-1.5">
@@ -118,7 +112,7 @@ const status =
 				}
 				{
 					company.identification_number && (
-						<span class="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-[10.5px] font-medium text-gray-600 dark:bg-neutral-800 dark:text-gray-400">
+						<span class="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[10.5px] font-medium text-muted-foreground">
 							EIN {company.identification_number}
 						</span>
 					)

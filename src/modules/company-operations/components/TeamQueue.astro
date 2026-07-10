@@ -10,39 +10,37 @@ interface Props {
 const { teamQueue } = Astro.props;
 ---
 
-<div>
+<div class="w-full">
 	<header class="mb-3 flex items-center justify-between">
-		<h4 class="text-sm font-medium text-foreground">
-			Cola del Equipo
-		</h4>
+		<h4 class="text-foreground text-sm font-medium">Cola del Equipo</h4>
 		<span
-			class="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+			class="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[11px] font-medium"
 		>
 			{teamQueue.length} tareas
 		</span>
 	</header>
-	<ul class="divide-y divide-border">
+	<ul
+		class="scrollbar scrollbar-w-2 divide-border max-h-96 w-full divide-y overflow-y-auto pr-1"
+	>
 		{
 			teamQueue.length === 0 && (
-				<li class="py-3 text-center text-xs text-muted-foreground">
+				<li class="text-muted-foreground w-full py-3 text-center text-xs">
 					Sin tareas pendientes para operaciones.
 				</li>
 			)
 		}
 		{
 			teamQueue.map((q) => (
-				<li class="py-3 first:pt-0 last:pb-0">
+				<li class="w-full py-3 first:pt-0 last:pb-0">
 					<div class="flex items-start justify-between gap-2">
-						<p class="text-sm font-medium text-foreground">
-							{q.title}
-						</p>
+						<p class="text-foreground text-sm font-medium">{q.title}</p>
 						<span
 							class={`text-2xs shrink-0 rounded px-1.5 py-0.5 font-semibold ${priorityClass(q.priority)}`}
 						>
 							{priorityLabel(q.priority)}
 						</span>
 					</div>
-					<div class="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
+					<div class="text-muted-foreground mt-1.5 flex items-center justify-between text-xs">
 						<span class="inline-flex items-center gap-1">
 							<Icon name="ri:user-line" class="h-3 w-3" />
 							{q.assignee}
@@ -58,7 +56,7 @@ const { teamQueue } = Astro.props;
 	</ul>
 	<button
 		type="button"
-		class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:border-foreground/30"
+		class="border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition"
 	>
 		Ver cola completa
 		<Icon name="ri:arrow-right-s-line" class="h-3.5 w-3.5" />
