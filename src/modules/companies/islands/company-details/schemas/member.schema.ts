@@ -15,11 +15,11 @@ const numericPreprocess = (value: unknown) => {
 	return value;
 };
 
-export const personTypeSchema = z.enum(['natural_person', 'juridical_person']);
+export const personTypeSchema = z.enum(['individual', 'entity']);
 export const identificationTypeSchema = z.enum([
 	'passport',
-	'national_id',
-	'driver_licence',
+	'id',
+	'drivers_license',
 	'ein',
 ]);
 export const maritalStatusSchema = z.enum([
@@ -56,7 +56,7 @@ export const memberSchema = z
 	})
 	.refine(
 		(value) =>
-			value.person_type === 'juridical_person'
+			value.person_type === 'entity'
 				? !!value.name
 				: !!(value.first_name || value.last_name),
 		{

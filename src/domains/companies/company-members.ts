@@ -3,49 +3,17 @@ import { recordAuditEvent } from '@domains/audit/audit-events';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('domains.company-members');
-import {
-	createMember,
-	MEMBER_COLUMNS,
-	type MemberInput,
-	type MemberRow,
-} from '@domains/members/people';
+import { createMember, type MemberInput } from '@domains/members/people';
+import { MEMBER_COLUMNS } from '@domains/members/types/member';
 import {
 	assertManagerInvariantOnRemoval,
 	assertMemberRoleAllowed,
 } from './rules/management-type.rules';
+import { COMPANY_MEMBER_COLUMNS, type CompanyMemberInput, type CompanyMemberRow } from './types/company-members';
 
-export interface CompanyMemberInput {
-	member_id: string;
-	percentage?: number | null;
-	start_date?: string | null;
-	is_member?: boolean;
-	is_manager?: boolean;
-}
+export type { CompanyMemberInput, CompanyMemberRow };
 
-export interface CompanyMemberRow {
-	id: number;
-	company_id: string;
-	member_id: string;
-	percentage: number | null;
-	start_date: string | null;
-	end_date: string | null;
-	is_member: boolean;
-	is_manager: boolean;
-	is_active: boolean | null;
-	created_at: string;
-	created_by: string | null;
-	updated_at: string | null;
-	updated_by: string | null;
-	deleted_at: string | null;
-	deleted_by: string | null;
-	delete_reason: string | null;
-	member?: MemberRow | null;
-}
-
-const RELATION_COLUMNS =
-	'id, company_id, member_id, percentage, start_date, end_date, is_member, is_manager, is_active, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by, delete_reason';
-
-const SELECT_WITH_MEMBER = `${RELATION_COLUMNS}, member:members ( ${MEMBER_COLUMNS} )`;
+const SELECT_WITH_MEMBER = COMPANY_MEMBER_COLUMNS.WITH_MEMBER(MEMBER_COLUMNS.BASE);
 
 const cleanText = (value: unknown) => {
 	if (typeof value !== 'string') return null;
@@ -106,7 +74,6 @@ export async function listCompanyMembers(
 		.from('company_members')
 		.select(SELECT_WITH_MEMBER)
 		.eq('company_id', companyId)
-		.is('deleted_at', null)
 		.order('created_at', { ascending: true });
 
 	if (error) throw error;
@@ -123,7 +90,6 @@ async function findActiveRelation(
 		.select('id')
 		.eq('company_id', companyId)
 		.eq('member_id', memberId)
-		.is('deleted_at', null)
 		.maybeSingle<{ id: number }>();
 
 	if (error) throw error;
@@ -140,11 +106,10 @@ async function getCompanyMember(
 		.select(SELECT_WITH_MEMBER)
 		.eq('id', memberId)
 		.eq('company_id', companyId)
-		.is('deleted_at', null)
 		.maybeSingle();
 
 	if (error) throw error;
-	return (data as unknown as CompanyMemberRow) ?? null;
+	return (data as unknown as CompanyMemberRow | null) ?? null;
 }
 
 export async function createCompanyMember(
@@ -228,8 +193,7 @@ export async function updateCompanyMember(
 			updated_by: actorUserId,
 		})
 		.eq('id', companyMemberId)
-		.eq('company_id', companyId)
-		.is('deleted_at', null);
+		.eq('company_id', companyId);
 
 	if (error) throw error;
 
@@ -250,39 +214,26 @@ export async function updateCompanyMember(
 	return after;
 }
 
-export async function softDeleteCompanyMember(
+export async function deleteCompanyMember(
 	supabase: SupabaseClient,
 	companyId: string,
 	companyMemberId: number,
 	actorUserId: string,
-	reason: string | null,
-): Promise<CompanyMemberRow> {
+): Promise<void> {
 	const before = await getCompanyMember(supabase, companyId, companyMemberId);
 	if (!before) throw new Error('COMPANY_MEMBER_NOT_FOUND');
 
-	// Regla: si era manager y la empresa es manager-managed, exigir que quede ≥1 manager
 	if (before.is_manager) {
 		await assertManagerInvariantOnRemoval(supabase, companyId, companyMemberId);
 	}
 
-	const deletedAt = new Date().toISOString();
 	const { error } = await supabase
 		.from('company_members')
-		.update({
-			deleted_at: deletedAt,
-			deleted_by: actorUserId,
-			delete_reason: cleanText(reason),
-			is_active: false,
-			updated_at: deletedAt,
-			updated_by: actorUserId,
-		})
+		.delete()
 		.eq('id', companyMemberId)
-		.eq('company_id', companyId)
-		.is('deleted_at', null);
+		.eq('company_id', companyId);
 
 	if (error) throw error;
-
-	const after = { ...before, deleted_at: deletedAt, is_active: false };
 
 	await recordAuditEvent({
 		entityType: 'company_member',
@@ -292,10 +243,7 @@ export async function softDeleteCompanyMember(
 		action: 'soft_delete',
 		changedBy: actorUserId,
 		beforeData: before,
-		afterData: after,
 	});
-
-	return after;
 }
 
 /**

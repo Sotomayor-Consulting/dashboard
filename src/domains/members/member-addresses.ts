@@ -1,7 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { recordAuditEvent } from '@domains/audit/audit-events';
-
-export type MemberAddressType = 'tax' | 'residence' | 'mailing' | 'other';
+import type { MemberAddressType, MemberAddressRow } from '@domains/members/types/member-address';
 
 export interface MemberAddressInput {
 	type?: MemberAddressType;
@@ -9,31 +8,9 @@ export interface MemberAddressInput {
 	line2?: string | null;
 	city?: string | null;
 	state_id?: number | null;
-	state?: string | null;
 	country_id?: number | null;
 	zip?: string | null;
 	is_primary?: boolean;
-}
-
-export interface MemberAddressRow {
-	id: number;
-	member_id: string;
-	type: MemberAddressType;
-	line1: string;
-	line2: string | null;
-	city: string | null;
-	state_id: number | null;
-	state: string | null;
-	country_id: number | null;
-	zip: string | null;
-	is_primary: boolean;
-	created_at: string;
-	created_by: string | null;
-	updated_at: string | null;
-	updated_by: string | null;
-	deleted_at: string | null;
-	deleted_by: string | null;
-	delete_reason: string | null;
 }
 
 const cleanText = (value: unknown) => {
@@ -50,9 +27,9 @@ const cleanNumber = (value: unknown) => {
 };
 
 const ALLOWED_TYPES: MemberAddressType[] = [
-	'tax',
-	'residence',
+	'residential',
 	'mailing',
+	'business',
 	'other',
 ];
 
@@ -61,7 +38,7 @@ const addressPayload = (
 	memberId: string,
 	actorUserId: string,
 ) => {
-	const type = (input.type ?? 'tax') as MemberAddressType;
+	const type = (input.type ?? 'residential') as MemberAddressType;
 	if (!ALLOWED_TYPES.includes(type)) {
 		throw new Error('ADDRESS_TYPE_INVALID');
 	}
@@ -72,7 +49,6 @@ const addressPayload = (
 		line2: cleanText(input.line2),
 		city: cleanText(input.city),
 		state_id: cleanNumber(input.state_id),
-		state: cleanText(input.state),
 		country_id: cleanNumber(input.country_id),
 		zip: cleanText(input.zip),
 		is_primary: input.is_primary ?? false,
@@ -91,7 +67,7 @@ async function assertMemberExists(supabase: SupabaseClient, memberId: string) {
 	if (!data) throw new Error('MEMBER_NOT_FOUND');
 }
 
-async function getActiveAddress(
+async function getAddress(
 	supabase: SupabaseClient,
 	memberId: string,
 	addressId: number,
@@ -101,16 +77,11 @@ async function getActiveAddress(
 		.select('*')
 		.eq('id', addressId)
 		.eq('member_id', memberId)
-		.is('deleted_at', null)
 		.maybeSingle<MemberAddressRow>();
 	if (error) throw error;
 	return data ?? null;
 }
 
-/**
- * Si la nueva direccion se marca primaria, quita el flag de las otras del
- * mismo tipo (manteniendo el unique index).
- */
 async function unsetOtherPrimaries(
 	supabase: SupabaseClient,
 	memberId: string,
@@ -127,8 +98,7 @@ async function unsetOtherPrimaries(
 		})
 		.eq('member_id', memberId)
 		.eq('type', type)
-		.eq('is_primary', true)
-		.is('deleted_at', null);
+		.eq('is_primary', true);
 
 	if (excludeId !== null) {
 		query = query.neq('id', excludeId);
@@ -146,7 +116,6 @@ export async function listMemberAddresses(
 		.from('member_addresses')
 		.select('*')
 		.eq('member_id', memberId)
-		.is('deleted_at', null)
 		.order('is_primary', { ascending: false })
 		.order('created_at', { ascending: true });
 	if (error) throw error;
@@ -164,13 +133,7 @@ export async function createMemberAddress(
 	if (!payload.line1) throw new Error('ADDRESS_LINE1_REQUIRED');
 
 	if (payload.is_primary) {
-		await unsetOtherPrimaries(
-			supabase,
-			memberId,
-			payload.type,
-			null,
-			actorUserId,
-		);
+		await unsetOtherPrimaries(supabase, memberId, payload.type, null, actorUserId);
 	}
 
 	const { data, error } = await supabase
@@ -200,20 +163,14 @@ export async function updateMemberAddress(
 	input: MemberAddressInput,
 	actorUserId: string,
 ) {
-	const before = await getActiveAddress(supabase, memberId, addressId);
+	const before = await getAddress(supabase, memberId, addressId);
 	if (!before) throw new Error('MEMBER_ADDRESS_NOT_FOUND');
 
 	const payload = addressPayload(input, memberId, actorUserId);
 	if (!payload.line1) throw new Error('ADDRESS_LINE1_REQUIRED');
 
 	if (payload.is_primary) {
-		await unsetOtherPrimaries(
-			supabase,
-			memberId,
-			payload.type,
-			addressId,
-			actorUserId,
-		);
+		await unsetOtherPrimaries(supabase, memberId, payload.type, addressId, actorUserId);
 	}
 
 	const { data, error } = await supabase
@@ -221,7 +178,6 @@ export async function updateMemberAddress(
 		.update(payload)
 		.eq('id', addressId)
 		.eq('member_id', memberId)
-		.is('deleted_at', null)
 		.select('*')
 		.single<MemberAddressRow>();
 	if (error) throw error;
@@ -240,29 +196,20 @@ export async function updateMemberAddress(
 	return data;
 }
 
-export async function softDeleteMemberAddress(
+export async function deleteMemberAddress(
 	supabase: SupabaseClient,
 	memberId: string,
 	addressId: number,
 	actorUserId: string,
-	reason: string | null,
 ) {
-	const before = await getActiveAddress(supabase, memberId, addressId);
+	const before = await getAddress(supabase, memberId, addressId);
 	if (!before) throw new Error('MEMBER_ADDRESS_NOT_FOUND');
 
-	const deletedAt = new Date().toISOString();
-	const { data, error } = await supabase
+	const { error } = await supabase
 		.from('member_addresses')
-		.update({
-			deleted_at: deletedAt,
-			deleted_by: actorUserId,
-			delete_reason: cleanText(reason) ?? 'Deleted from member edit',
-			updated_at: deletedAt,
-			updated_by: actorUserId,
-		})
+		.delete()
 		.eq('id', addressId)
-		.select('*')
-		.single<MemberAddressRow>();
+		.eq('member_id', memberId);
 	if (error) throw error;
 
 	await recordAuditEvent({
@@ -273,8 +220,8 @@ export async function softDeleteMemberAddress(
 		action: 'soft_delete',
 		changedBy: actorUserId,
 		beforeData: before,
-		afterData: data,
+		afterData: null,
 	});
 
-	return data;
+	return before;
 }

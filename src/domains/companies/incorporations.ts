@@ -76,7 +76,7 @@ export const getIncorporacionesEnProceso = async (
 				`,
 		)
 		.eq('user_id', userId)
-		.in('state', ['En proceso', 'Upgrade'])
+		.in('state', ['draft', 'upgrade'])
 		.order('updated_at', { ascending: true });
 	if (error) {
 		log.error('Error fetching incorporaciones en proceso por user ID', {
@@ -106,7 +106,7 @@ export const getIncorporacionesUpgrade = async (
 				`,
 		)
 		.eq('user_id', userId)
-		.eq('state', 'Upgrade')
+		.eq('state', 'upgrade')
 		.order('updated_at', { ascending: true });
 	if (error) {
 		log.error('Error fetching incorporaciones en proceso por user ID', {
@@ -174,6 +174,6 @@ export const checkUserIncorporacionesEnProceso = async (
 
 	if (!incorporaciones || incorporaciones.length === 0) return false;
 
-	return incorporaciones.some((c) => c.state === 'En proceso');
+	return incorporaciones.some((c) => c.state === 'draft');
 };
 

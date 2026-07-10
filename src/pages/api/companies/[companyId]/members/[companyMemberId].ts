@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import type { AstroCookies } from 'astro';
 import { json, requireCompanyDataManager } from '@shared/api/company-data';
 import {
-	softDeleteCompanyMember,
+	deleteCompanyMember,
 	updateCompanyMember,
 	type CompanyMemberInput,
 } from '@domains/companies/company-members';
@@ -92,19 +92,14 @@ export const DELETE: APIRoute = async ({ request, cookies, params }) => {
 		const context = await resolveRequestContext(request, cookies, params);
 		if ('error' in context) return context.error;
 
-		const body = (await request.json().catch(() => null)) as
-			| { reason?: string }
-			| null;
-
-		const member = await softDeleteCompanyMember(
+		await deleteCompanyMember(
 			context.supabase,
 			context.companyId,
 			context.companyMemberId,
 			context.user.id,
-			body?.reason ?? null,
 		);
 
-		return json(200, { ok: true, data: member });
+		return json(200, { ok: true });
 	} catch (error) {
 		log.error('delete', { error });
 		if (error instanceof BusinessRuleError) {

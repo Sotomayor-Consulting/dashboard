@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { toast } from 'sonner';
 
-export type MemberAddressType = 'tax' | 'residence' | 'mailing' | 'other';
+export type MemberAddressType = 'residential' | 'mailing' | 'business' | 'other';
 
 export interface MemberAddressItem {
 	id: number;
@@ -11,11 +11,9 @@ export interface MemberAddressItem {
 	line2: string | null;
 	city: string | null;
 	state_id: number | null;
-	state: string | null;
 	country_id: number | null;
 	zip: string | null;
 	is_primary: boolean;
-	deleted_at: string | null;
 }
 
 export interface MemberAddressDraft {
@@ -24,7 +22,6 @@ export interface MemberAddressDraft {
 	line1: string;
 	line2: string;
 	city: string;
-	state: string;
 	state_id: number | null;
 	country_id: number | null;
 	zip: string;
@@ -32,11 +29,10 @@ export interface MemberAddressDraft {
 }
 
 const emptyAddressDraft: MemberAddressDraft = {
-	type: 'tax',
+	type: 'residential',
 	line1: '',
 	line2: '',
 	city: '',
-	state: '',
 	state_id: null,
 	country_id: null,
 	zip: '',
@@ -49,7 +45,6 @@ const toDraft = (address: MemberAddressItem): MemberAddressDraft => ({
 	line1: address.line1,
 	line2: address.line2 ?? '',
 	city: address.city ?? '',
-	state: address.state ?? '',
 	state_id: address.state_id,
 	country_id: address.country_id,
 	zip: address.zip ?? '',
@@ -75,10 +70,6 @@ const requestJson = async <T>(
 	return payload.data as T;
 };
 
-/**
- * Hook para gestionar las direcciones de una persona (member). Las direcciones
- * se comparten entre todas las empresas a las que pertenece.
- */
 export function useMemberAddresses(memberId: string | null) {
 	const [addresses, setAddresses] = React.useState<MemberAddressItem[]>([]);
 	const [isLoading, setIsLoading] = React.useState(false);
@@ -147,7 +138,6 @@ export function useMemberAddresses(memberId: string | null) {
 				setAddresses((prev) =>
 					prev.map((addr) => (addr.id === updated.id ? updated : addr)),
 				);
-				// Si esta marcó is_primary, sincronizar las demás del mismo tipo
 				if (updated.is_primary) {
 					setAddresses((prev) =>
 						prev.map((addr) =>
@@ -191,7 +181,7 @@ export function useMemberAddresses(memberId: string | null) {
 		try {
 			await requestJson(
 				`/api/members/${memberId}/addresses/${addressId}`,
-				{ method: 'DELETE', body: JSON.stringify({ reason: null }) },
+				{ method: 'DELETE' },
 			);
 			setAddresses((prev) => prev.filter((addr) => addr.id !== addressId));
 			toast.success('Dirección eliminada', { id: toastId });

@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-import { listAdminEmpresas } from '@domains/admin/empresas';
+import { listAdminEmpresas } from '@domains/companies/companies';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 
 /**

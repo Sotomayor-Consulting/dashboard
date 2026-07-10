@@ -1,39 +1,5 @@
-// ── Enums / unions ──────────────────────────────────────────────
-export type TaxClasification = 'disregarded_entity' | 'corporation';
-export type Managmentype = 'member-managed' | 'manager-managed';
-export type EntityType = 'llc' | 'lp' | 'c-corp';
-export type LegalStatus =
-	| 'draft'
-	| 'pending_validation'
-	| 'active'
-	| 'inactive'
-	| 'suspended'
-	| 'pending'
-	| 'dissolved';
-
-// ── companies table (legacy) ────────────────────────────────────
-export interface Company {
-	id: string;
-	legal_name: string | null;
-	identification_number: string | null;
-	entity_type: string;
-	formation_state_id: number;
-	formation_country_id: number;
-	tax_clasification: TaxClasification | null;
-	management_type: Managmentype;
-	activity_code_id: number;
-	activity_description: string;
-	activity_service: string;
-	us_source_income: boolean;
-	joint_ownership: boolean;
-	incorporation_date: string | null;
-	irs_email: string;
-	legal_status: string;
-	created_at: string | null;
-	created_by: string;
-	updated_at: string | null;
-	updated_by: string;
-}
+import type { CompanyEntityType, CompanyManagementType, CompanyLegalStatus, CompanyTaxClassification } from "@domains/companies/types/company";
+import type { CompanyAddressType } from "@domains/companies/types/company-address";
 
 export interface Country {
 	id: number;
@@ -41,14 +7,6 @@ export interface Country {
 	name: string;
 	phone_code: string;
 }
-
-export type CompanyTableRow = Omit<
-	Company,
-	'formation_country_id' | 'tax_clasification'
-> & {
-	formation_country: string;
-	tax_clasification: string;
-};
 
 // ── incorporations (CRUD list row) ────────────────────
 export interface CompanyCrudRow {
@@ -135,7 +93,7 @@ export interface CompanyMemberAddressItem {
 export interface CompanyAddressItem {
 	id: number;
 	company_id: string | null;
-	type: string;
+	type: CompanyAddressType;
 	line1: string;
 	line2: string | null;
 	city: string;
@@ -145,14 +103,13 @@ export interface CompanyAddressItem {
 	state_id: number | null;
 	country?: string | null;
 	state?: string | null;
-	deleted_at: string | null;
 }
 
 // ── members (master data) ───────────────────────────────────────
-export type MemberPersonType = 'natural_person' | 'juridical_person';
+export type MemberPersonType = 'individual' | 'entity';
 
 export type MemberIdentificationType =
-	'passport' | 'national_id' | 'driver_licence' | 'ein';
+	'passport' | 'drivers_license' | 'id' | 'ein';
 
 export type MemberMaritalStatus =
 	| 'single'
@@ -167,7 +124,6 @@ export interface MemberItem {
 	id: string;
 	first_name: string | null;
 	last_name: string | null;
-	full_name: string | null;
 	name: string | null;
 	birth_date: string | null;
 	incorporation_date: string | null;
@@ -192,12 +148,11 @@ export interface CompanyMemberItem {
 	member_id: string;
 	percentage: number | null;
 	start_date: string | null;
-	end_date?: string | null;
+	end_date: string | null;
 	is_member: boolean;
 	is_manager: boolean;
 	is_active: boolean | null;
-	created_at?: string;
-	deleted_at: string | null;
+	created_at: string;
 	member: MemberItem | null;
 }
 
@@ -206,18 +161,18 @@ export interface CompanyItem {
 	legal_name: string | null;
 	filing_number: string | null;
 	identification_number: string | null;
-	entity_type: EntityType;
+	entity_type: CompanyEntityType;
 	formation_state_id: number | null;
 	formation_country_id: number | null;
-	tax_clasification: TaxClasification | null;
-	management_type: Managmentype;
+	tax_clasification: CompanyTaxClassification | null;
+	management_type: CompanyManagementType;
 	activity_code_id: number | null;
 	activity_description: string | null;
 	us_source_income?: boolean | null;
 	joint_ownership?: boolean | null;
 	incorporation_date?: string | null;
 	irs_email?: string | null;
-	legal_status: LegalStatus;
+	legal_status: CompanyLegalStatus;
 }
 
 export interface ActividadItem {
@@ -232,52 +187,6 @@ export interface ActividadItem {
 	};
 }
 
-export interface PaisItem {
-	id: number;
-	name: string;
-}
-
-export interface Usuario {
-	user_id: string;
-	nombre: string;
-	apellido: string;
-	correo: string;
-}
-
-export interface PagoPorLeer {
-	user_id: string;
-	plan_id: number;
-	amount: number;
-	status: string;
-	created_at: string;
-	stripe_payment_intent_id: string;
-	empresa_incorporacion_id: string;
-	visto_por_operaciones: boolean;
-	id_pagos: string;
-	servicios?: {
-		id: number;
-		slug: string;
-		nombre: string;
-		categoria: string | null;
-	};
-	usuarios?: {
-		user_id: string;
-		nombre: string;
-		apellido: string;
-		correo: string;
-	};
-	incorporations?: {
-		estado: string;
-		principal_name: string;
-		tipo_de_negocio: string;
-		id: string;
-	};
-}
-
-export interface Documento {
-	name: string;
-}
-
 export interface CompanyDetailData {
 	empresa: EmpresaDetail;
 	company: CompanyItem | null;
@@ -286,7 +195,7 @@ export interface CompanyDetailData {
 	companyMembers: CompanyMemberItem[];
 	managementTypeHealth: CompanyManagementTypeHealth | null;
 	actividades: ActividadItem[];
-	paises: PaisItem[];
+	paises: Country[];
 	state: State[];
 }
 
@@ -308,7 +217,7 @@ export interface CompanyPageData {
 
 export interface CompanyManagementTypeHealth {
 	ok: boolean;
-	managementType: Managmentype | null;
+	managementType: CompanyManagementType | null;
 	managers: number;
 	reason?: string;
 }

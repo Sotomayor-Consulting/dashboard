@@ -1,26 +1,7 @@
+import type { CompanyLegalStatus, CompanyManagementType, CompanyUpdate } from '@domains/companies/types/company';
+
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { recordAuditEvent } from '@domains/audit/audit-events';
-
-type ManagementType = 'member-managed' | 'manager-managed';
-type CompanyStatus = 'draft' | 'pending_validation' | 'pending' | 'active' | 'inactive' | 'suspended' | 'dissolved';
-
-export interface CompanyUpdateInput {
-	legal_name?: string | null;
-	identification_number?: string | null;
-	entity_type?: string | null;
-	formation_state_id?: number | string | null;
-	formation_country_id?: number | string | null;
-	tax_clasification?: string | null;
-	management_type?: string | null;
-	activity_code_id?: number | string | null;
-	activity_description?: string | null;
-	activity_service?: string | null;
-	us_source_income?: boolean | string | null;
-	joint_ownership?: boolean | string | null;
-	incorporation_date?: string | null;
-	irs_email?: string | null;
-	legal_status?: string | null;
-}
 
 
 const cleanText = (value: unknown) => {
@@ -45,7 +26,7 @@ const cleanBoolean = (value: unknown) => {
 	return null;
 };
 
-export const normalizeManagementType = (value: string | null): ManagementType => {
+export const normalizeManagementType = (value: string | null): CompanyManagementType => {
 	const normalized = (value ?? '').toLowerCase();
 	if (normalized.includes('manager')) return 'manager-managed';
 	return 'member-managed';
@@ -72,7 +53,7 @@ export async function createCompanyFromIncorporation(
 	supabase: SupabaseClient,
 	incorporationId: string,
 	actorUserId: string,
-	status: CompanyStatus = 'draft',
+	status: CompanyLegalStatus = 'draft',
 ): Promise<string> {
 	const existingCompanyId = await getCompanyIdForIncorporation(supabase, incorporationId);
 	if (existingCompanyId) return existingCompanyId;
@@ -137,7 +118,7 @@ export async function createCompanyFromIncorporation(
 export async function updateCompanyForIncorporation(
 	supabase: SupabaseClient,
 	incorporationId: string,
-	input: CompanyUpdateInput,
+	input: CompanyUpdate,
 	actorUserId: string,
 ) {
 	const companyId = await getCompanyIdForIncorporation(supabase, incorporationId);
@@ -182,7 +163,7 @@ export async function updateCompanyForIncorporation(
 	return company;
 }
 
-function companyUpdatePayload(input: CompanyUpdateInput) {
+function companyUpdatePayload(input: CompanyUpdate) {
 	const payload: Record<string, unknown> = {};
 
 	const textFields = [
@@ -192,7 +173,6 @@ function companyUpdatePayload(input: CompanyUpdateInput) {
 		'tax_clasification',
 		'management_type',
 		'activity_description',
-		'activity_service',
 		'incorporation_date',
 		'irs_email',
 		'legal_status',

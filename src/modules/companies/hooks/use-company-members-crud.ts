@@ -33,7 +33,7 @@ export interface CompanyMemberRelationDraft {
 }
 
 const emptyMemberDraft: MemberDraft = {
-	person_type: 'natural_person',
+	person_type: 'individual',
 	first_name: '',
 	last_name: '',
 	name: '',
@@ -57,7 +57,7 @@ const emptyRelationDraft: CompanyMemberRelationDraft = {
 };
 
 const memberToDraft = (member: MemberItem | null): MemberDraft => ({
-	person_type: member?.person_type ?? 'natural_person',
+		person_type: member?.person_type ?? 'individual',
 	first_name: member?.first_name ?? '',
 	last_name: member?.last_name ?? '',
 	name: member?.name ?? '',
@@ -152,7 +152,7 @@ export function useCompanyMembersCrud({
 		};
 
 	const hasMemberName =
-		memberDraft.person_type === 'juridical_person'
+		memberDraft.person_type === 'entity'
 			? memberDraft.name.trim().length > 0
 			: memberDraft.first_name.trim().length > 0 ||
 				memberDraft.last_name.trim().length > 0;

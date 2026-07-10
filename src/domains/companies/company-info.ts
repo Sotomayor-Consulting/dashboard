@@ -1,43 +1,41 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { recordAuditEvent } from '@domains/audit/audit-events';
 import { US_COUNTRY_ID } from '@domains/locations/constants';
+import { COMPANY_COLUMNS, type CompanyRow, type CompanyUpdate } from './types/company';
 import { assertManagementTypeChange } from './rules/management-type.rules';
 
-export type ManagementType = 'member-managed' | 'manager-managed';
-export type TaxClassification = 'disregarded_entity' | 'corporation';
-export type CompanyEntityType = 'llc' | 'lp' | 'c-corp';
+export type CompanyInfoInput = Pick<
+	CompanyUpdate,
+	| 'legal_name'
+	| 'filing_number'
+	| 'identification_number'
+	| 'entity_type'
+	| 'formation_country_id'
+	| 'formation_state_id'
+	| 'management_type'
+	| 'tax_clasification'
+	| 'activity_code_id'
+	| 'us_source_income'
+	| 'activity_description'
+>;
 
-export interface CompanyInfoInput {
-	legal_name?: string | null;
-	filing_number?: string | null;
-	identification_number?: string | null;
-	entity_type?: CompanyEntityType;
-	formation_country_id?: number | null;
-	formation_state_id?: number | null;
-	management_type?: ManagementType;
-	tax_clasification?: TaxClassification | null;
-	activity_code_id?: number | null;
-	us_source_income?: boolean | null;
-	activity_description?: string | null;
-}
+export type CompanyInfoRow = Pick<
+	CompanyRow,
+	| 'id'
+	| 'legal_name'
+	| 'filing_number'
+	| 'identification_number'
+	| 'entity_type'
+	| 'formation_country_id'
+	| 'formation_state_id'
+	| 'management_type'
+	| 'tax_clasification'
+	| 'activity_code_id'
+	| 'us_source_income'
+	| 'activity_description'
+>;
 
-export interface CompanyInfoRow {
-	id: string;
-	legal_name: string | null;
-	filing_number: string | null;
-	identification_number: string | null;
-	entity_type: CompanyEntityType;
-	formation_country_id: number | null;
-	formation_state_id: number | null;
-	management_type: ManagementType;
-	tax_clasification: TaxClassification | null;
-	activity_code_id: number | null;
-	us_source_income: boolean | null;
-	activity_description: string | null;
-}
-
-const COLUMNS =
-	'id, legal_name, filing_number, identification_number, entity_type, formation_country_id, formation_state_id, management_type, tax_clasification, activity_code_id, us_source_income, activity_description';
+const COLUMNS = COMPANY_COLUMNS.BASE;
 
 const cleanText = (value: unknown) => {
 	if (typeof value !== 'string') return null;

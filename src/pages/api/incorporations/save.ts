@@ -9,6 +9,26 @@ import { clearIncorporationDraftCookie } from '@shared/incorporation-draft';
 const BACK_PATH = '/';
 const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 
+/**
+ * `incorporations.state` es el enum `incorporation_state` (draft|active|upgrade).
+ * Los drafts guardados en clientes viejos aún pueden traer los valores legacy
+ * en español — se normalizan aquí para no romper el insert.
+ */
+const normalizeIncorporationState = (
+	value: string | undefined,
+): 'draft' | 'active' | 'upgrade' => {
+	switch (value?.trim()) {
+		case 'active':
+		case 'Activo':
+			return 'active';
+		case 'upgrade':
+		case 'Upgrade':
+			return 'upgrade';
+		default:
+			return 'draft';
+	}
+};
+
 const json = (status: number, payload: unknown) =>
 	new Response(JSON.stringify(payload), {
 		status,
@@ -113,7 +133,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 					...new Set(nombres.map((n) => n.trim()).filter(Boolean)),
 				],
 				formation_state_id: formationStateId,
-				state: estado_de?.trim() || 'En proceso',
+				state: normalizeIncorporationState(estado_de),
 				porcentaje_de_incorporacion: 1,
 			},
 		])

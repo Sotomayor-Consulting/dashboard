@@ -1,50 +1,14 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { recordAuditEvent } from '@domains/audit/audit-events';
+import type { MemberRow } from '@domains/members/types/member';
+import type { MemberPersonType, MemberIdentificationType, MemberMaritalStatusType } from '@domains/members/types/member';
+import { MEMBER_COLUMNS as COLUMNS } from '@domains/members/types/member';
 
-export type MemberPersonType = 'natural_person' | 'juridical_person';
-
-export type MemberIdentificationType =
-	| 'passport'
-	| 'national_id'
-	| 'driver_licence'
-	| 'ein';
-
-export type MemberMaritalStatus =
-	| 'single'
-	| 'married'
-	| 'widowed'
-	| 'divorced'
-	| 'legally_separated'
-	| 'civil_union'
-	| 'annulled';
-
-export interface MemberRow {
-	id: string;
-	first_name: string | null;
-	last_name: string | null;
-	full_name: string | null;
-	name: string | null;
-	birth_date: string | null;
-	incorporation_date: string | null;
-	person_type: MemberPersonType;
-	identification_number: string | null;
-	identification_type: MemberIdentificationType;
-	country_nationality_id: number | null;
-	country_residence_id: number | null;
-	country_id: number | null;
-	marital_status: MemberMaritalStatus | null;
-	ssn: string | null;
-	itin: string | null;
-	user_id: string | null;
-	is_member: boolean | null;
-	is_manager: boolean | null;
-	created_at: string;
-}
+const MEMBER_COLUMNS = COLUMNS.BASE;
 
 export interface MemberInput {
 	first_name?: string | null;
 	last_name?: string | null;
-	full_name?: string | null;
 	name?: string | null;
 	birth_date?: string | null;
 	incorporation_date?: string | null;
@@ -54,15 +18,11 @@ export interface MemberInput {
 	country_nationality_id?: number | null;
 	country_residence_id?: number | null;
 	country_id?: number | null;
-	marital_status?: MemberMaritalStatus | null;
+	marital_status?: MemberMaritalStatusType | null;
 	ssn?: string | null;
 	itin?: string | null;
-	is_member?: boolean | null;
-	is_manager?: boolean | null;
 }
 
-export const MEMBER_COLUMNS =
-	'id, first_name, last_name, full_name, name, birth_date, incorporation_date, person_type, identification_number, identification_type, country_nationality_id, country_residence_id, country_id, marital_status, ssn, itin, user_id, is_member, is_manager, created_at';
 
 const cleanText = (value: unknown) => {
 	if (typeof value !== 'string') return null;
@@ -84,34 +44,18 @@ const cleanDate = (value: unknown) => {
 	return Number.isNaN(parsed.getTime()) ? null : text;
 };
 
-const composeFullName = (
-	first: string | null,
-	last: string | null,
-	fallback: string | null,
-) => {
-	const composed = [first, last].filter(Boolean).join(' ').trim();
-	if (composed) return composed;
-	return cleanText(fallback);
-};
-
 const memberPayload = (input: MemberInput) => {
-	const personType: MemberPersonType = input.person_type ?? 'natural_person';
+	const personType: MemberPersonType = input.person_type ?? 'individual';
 	const idType: MemberIdentificationType =
-		input.identification_type ?? (personType === 'juridical_person' ? 'ein' : 'passport');
+		input.identification_type ?? (personType === 'entity' ? 'ein' : 'passport');
 
 	const firstName = cleanText(input.first_name);
 	const lastName = cleanText(input.last_name);
 	const entityName = cleanText(input.name);
 
-	const fullName =
-		personType === 'juridical_person'
-			? entityName
-			: composeFullName(firstName, lastName, input.full_name ?? null);
-
 	return {
 		first_name: firstName,
 		last_name: lastName,
-		full_name: fullName,
 		name: entityName,
 		birth_date: cleanDate(input.birth_date),
 		incorporation_date: cleanDate(input.incorporation_date),
@@ -121,11 +65,9 @@ const memberPayload = (input: MemberInput) => {
 		country_nationality_id: cleanNumber(input.country_nationality_id),
 		country_residence_id: cleanNumber(input.country_residence_id),
 		country_id: cleanNumber(input.country_id),
-		marital_status: (input.marital_status as MemberMaritalStatus) ?? null,
+		marital_status: (input.marital_status as MemberMaritalStatusType) ?? null,
 		ssn: cleanText(input.ssn),
 		itin: cleanText(input.itin),
-		is_member: input.is_member ?? null,
-		is_manager: input.is_manager ?? null,
 	};
 };
 
@@ -137,24 +79,14 @@ export async function searchMembers(
 	options: { query?: string; limit?: number } = {},
 ): Promise<MemberRow[]> {
 	const limit = Math.min(Math.max(options.limit ?? 20, 1), 50);
-	const term = cleanText(options.query);
-
 	let queryBuilder = supabase
 		.from('members')
 		.select(MEMBER_COLUMNS)
 		.order('created_at', { ascending: false })
 		.limit(limit);
-
-	if (term) {
-		const escaped = term.replace(/[%_]/g, (match) => `\\${match}`);
-		queryBuilder = queryBuilder.or(
-			`full_name.ilike.%${escaped}%,first_name.ilike.%${escaped}%,last_name.ilike.%${escaped}%,name.ilike.%${escaped}%,identification_number.ilike.%${escaped}%`,
-		);
-	}
-
 	const { data, error } = await queryBuilder;
 	if (error) throw error;
-	return (data ?? []) as MemberRow[];
+	return data ?? [];
 }
 
 export async function getMemberById(
@@ -180,7 +112,7 @@ export async function createMember(
 	actorUserId: string,
 ): Promise<MemberRow> {
 	const payload = memberPayload(input);
-	if (!payload.full_name) {
+	if (!payload.first_name && !payload.last_name && !payload.name) {
 		throw new Error('MEMBER_FULL_NAME_REQUIRED');
 	}
 
@@ -213,7 +145,7 @@ export async function updateMember(
 	if (!before) throw new Error('MEMBER_NOT_FOUND');
 
 	const payload = memberPayload(input);
-	if (!payload.full_name) {
+	if (!payload.first_name && !payload.last_name && !payload.name) {
 		throw new Error('MEMBER_FULL_NAME_REQUIRED');
 	}
 

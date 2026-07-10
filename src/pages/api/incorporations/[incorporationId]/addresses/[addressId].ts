@@ -2,11 +2,10 @@ import type { APIRoute } from 'astro';
 import { json, requireCompanyDataManager } from '@shared/api/company-data';
 import { getCompanyIdForIncorporation } from '@domains/companies/company-records';
 import {
-	softDeleteCompanyAddress,
+	deleteCompanyAddress,
 	updateCompanyAddress,
 } from '@domains/companies/addresses';
 import {
-	companyAddressDeleteSchema,
 	companyAddressSchema,
 } from '@modules/companies/schemas/company-address.schema';
 import { createLogger } from '@infrastructure/logging';
@@ -100,21 +99,14 @@ export const DELETE: APIRoute = async (context) => {
 		const resolved = await resolveContext(context);
 		if ('error' in resolved) return resolved.error;
 
-		const body = await context.request.json().catch(() => null);
-		const parsed = companyAddressDeleteSchema.safeParse(body ?? {});
-		if (!parsed.success) {
-			return json(400, { ok: false, error: 'INVALID_BODY' });
-		}
-
-		const address = await softDeleteCompanyAddress(
+		await deleteCompanyAddress(
 			resolved.supabase,
 			resolved.companyId,
 			resolved.addressId,
 			resolved.user.id,
-			parsed.data.reason ?? null,
 		);
 
-		return json(200, { ok: true, data: address });
+		return json(200, { ok: true });
 	} catch (error) {
 		log.error('delete', { error });
 		return json(500, {

@@ -2,21 +2,21 @@ import type { MemberItem } from '../../types';
 
 const ID_TYPE_LABEL: Record<string, string> = {
 	passport: 'Pasaporte',
-	national_id: 'Cédula',
-	driver_licence: 'Licencia',
+	id: 'Cédula',
+	drivers_license: 'Licencia',
 	ein: 'EIN',
 };
 
 export function memberDisplayName(member: MemberItem | null) {
 	if (!member) return 'Sin nombre';
-	if (member.person_type === 'juridical_person') {
-		return member.name ?? member.full_name ?? 'Sin razón social';
+	if (member.person_type === 'entity') {
+		return member.name ?? 'Sin razón social';
 	}
 	const composed = [member.first_name, member.last_name]
 		.filter(Boolean)
 		.join(' ')
 		.trim();
-	return composed || member.full_name || 'Sin nombre';
+	return composed || 'Sin nombre';
 }
 
 export function memberIdentification(member: MemberItem | null) {
@@ -27,5 +27,5 @@ export function memberIdentification(member: MemberItem | null) {
 
 export function memberShortType(type?: MemberItem['person_type']) {
 	if (!type) return '—';
-	return type === 'juridical_person' ? 'Jurídica' : 'Natural';
+	return type === 'entity' ? 'Jurídica' : 'Natural';
 }

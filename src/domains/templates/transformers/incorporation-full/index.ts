@@ -43,7 +43,6 @@ async function fetchFullData(incorporationId: string): Promise<FullData> {
 			.from('members')
 			.select('*, company_members!inner(*)')
 			.eq('company_members.company_id', companyId)
-			.is('company_members.deleted_at', null)
 			.eq('company_members.is_active', true);
 
 		if (memberRows) members = memberRows as unknown as Record<string, unknown>[];

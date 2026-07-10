@@ -1,14 +1,21 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { recordAuditEvent } from '@domains/audit/audit-events';
+import type { IncorporationRow } from './types/incorporations';
 
 export interface IncorporationDetailsInput {
-	/** Nombre canónico (opción preferida). */
 	principal_name?: string | null;
-	/** Opciones de nombre consideradas (se deduplica y limpia). */
 	possible_names?: (string | null | undefined)[] | null;
 	tipo_de_negocio?: string | null;
 	state_id?: number | string | null;
 }
+
+type IncorporationDetailsRow = Pick<
+	IncorporationRow,
+	'id' | 'principal_name' | 'possible_names' | 'entity_type' | 'formation_state_id' | 'updated_at'
+>;
+
+const DETAILS_COLUMNS =
+	'id, principal_name, possible_names, entity_type, formation_state_id, updated_at';
 
 const cleanText = (value: unknown) => {
 	if (typeof value !== 'string') return null;
@@ -34,12 +41,9 @@ export async function updateIncorporationDetails(
 ) {
 	const { data: before, error: beforeError } = await supabase
 		.from('incorporations')
-		.select(
-			`id, principal_name, possible_names,
-			entity_type, formation_state_id, updated_at`,
-		)
+		.select(DETAILS_COLUMNS)
 		.eq('id', incorporationId)
-		.maybeSingle();
+		.maybeSingle<IncorporationDetailsRow>();
 
 	if (beforeError) throw beforeError;
 	if (!before) throw new Error('INCORPORATION_NOT_FOUND');
@@ -56,11 +60,8 @@ export async function updateIncorporationDetails(
 			updated_at: new Date().toISOString(),
 		})
 		.eq('id', incorporationId)
-		.select(
-			`id, principal_name, possible_names,
-			entity_type, formation_state_id, updated_at`,
-		)
-		.single();
+		.select(DETAILS_COLUMNS)
+		.single<IncorporationDetailsRow>();
 
 	if (error) throw error;
 
@@ -81,7 +82,6 @@ function incorporationDetailsPayload(input: IncorporationDetailsInput) {
 
 	if (hasOwn(input, 'principal_name'))
 		payload.principal_name = cleanText(input.principal_name);
-	// tipo_de_negocio (input) → entity_type (columna nueva)
 	if (hasOwn(input, 'tipo_de_negocio'))
 		payload.entity_type = cleanText(input.tipo_de_negocio);
 
@@ -95,7 +95,6 @@ function incorporationDetailsPayload(input: IncorporationDetailsInput) {
 		];
 	}
 
-	// state_id (input) → formation_state_id (columna nueva)
 	if (hasOwn(input, 'state_id')) {
 		payload.formation_state_id = cleanNumber(input.state_id);
 	}

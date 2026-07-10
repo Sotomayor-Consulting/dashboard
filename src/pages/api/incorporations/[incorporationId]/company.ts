@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
 import { json, requireCompanyDataManager } from '@shared/api/company-data';
+import type { CompanyUpdate } from '@domains/companies/types/company';
 import {
 	createCompanyFromIncorporation,
 	updateCompanyForIncorporation,
-	type CompanyUpdateInput,
 } from '@domains/companies/company-records';
 import { createLogger } from '@infrastructure/logging';
 
@@ -59,7 +59,7 @@ export const PATCH: APIRoute = async ({ request, cookies, params }) => {
 
 	const body = (await request
 		.json()
-		.catch(() => null)) as CompanyUpdateInput | null;
+		.catch(() => null)) as CompanyUpdate | null;
 	if (!body) {
 		return json(400, { ok: false, error: 'INVALID_BODY' });
 	}

@@ -1,7 +1,7 @@
+import type { CompanyManagementType } from '@domains/companies/types/company';
+
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { BusinessRuleError } from './errors';
-
-export type ManagementType = 'member-managed' | 'manager-managed';
 
 /**
  * Reglas de negocio en torno al `management_type` de la empresa.
@@ -28,8 +28,7 @@ async function countActiveRoles(
 	const { data, error } = await supabase
 		.from('company_members')
 		.select('id, is_manager')
-		.eq('company_id', companyId)
-		.is('deleted_at', null);
+		.eq('company_id', companyId);
 
 	if (error) throw error;
 	const rows = data ?? [];
@@ -42,12 +41,12 @@ async function countActiveRoles(
 async function getCompanyManagementType(
 	supabase: SupabaseClient,
 	companyId: string,
-): Promise<ManagementType | null> {
+): Promise<CompanyManagementType | null> {
 	const { data, error } = await supabase
 		.from('companies')
 		.select('management_type')
 		.eq('id', companyId)
-		.maybeSingle<{ management_type: ManagementType | null }>();
+		.maybeSingle<{ management_type: CompanyManagementType | null }>();
 
 	if (error) throw error;
 	return data?.management_type ?? null;
@@ -75,7 +74,7 @@ export async function assertMemberRoleAllowed(
 }
 
 /**
- * Llamar desde softDeleteCompanyMember / updateCompanyMember ANTES del commit
+ * Llamar desde deleteCompanyMember / updateCompanyMember ANTES del commit
  * cuando la operación PODRÍA dejar la empresa sin managers (delete de un
  * manager o quitar el flag is_manager).
  */
@@ -94,7 +93,6 @@ export async function assertManagerInvariantOnRemoval(
 		.select('id')
 		.eq('company_id', companyId)
 		.eq('is_manager', true)
-		.is('deleted_at', null)
 		.neq('id', removingCompanyMemberId)
 		.limit(1);
 
@@ -114,7 +112,7 @@ export async function assertManagerInvariantOnRemoval(
 export async function assertManagementTypeChange(
 	supabase: SupabaseClient,
 	companyId: string,
-	nextType: ManagementType,
+	nextType: CompanyManagementType,
 ) {
 	const counts = await countActiveRoles(supabase, companyId);
 
@@ -142,7 +140,7 @@ export async function checkManagementTypeHealth(
 	companyId: string,
 ): Promise<{
 	ok: boolean;
-	managementType: ManagementType | null;
+	managementType: CompanyManagementType | null;
 	managers: number;
 	reason?: string;
 }> {

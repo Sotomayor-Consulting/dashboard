@@ -1,16 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getEmpresaById } from '@domains/companies/companies';
+import { COMPANY_COLUMNS, type CompanyRow } from '@domains/companies/types/company';
 import { actividadesGeneral } from '@domains/utils/generals/activities';
 import { PaisesGeneral } from '@domains/utils/generals/countries-list';
 import { listStatesByCountry } from '@domains/locations/states';
 import type { CompanyDetailData } from '../types';
 
-/**
- * Aggregator SSR para `/incorporations/[id]` (tab "Editar datos"). Después del
- * refactor, los datos editables de la empresa (direcciones, miembros, health)
- * viven en `/companies/[companyId]` — este servicio sólo trae lo necesario
- * para el form de incorporación + el bloque read-only "Datos de la empresa".
- */
 export const getCompanyDetailData = async (
 	supabase: SupabaseClient,
 	empresaId: string,
@@ -19,31 +14,25 @@ export const getCompanyDetailData = async (
 		getEmpresaById(supabase, empresaId),
 		actividadesGeneral(supabase),
 		PaisesGeneral(supabase),
-		listStatesByCountry(supabase, 75)
+		listStatesByCountry(supabase, 75),
 	]);
 
 	if (!empresa) return null;
 
-	const companyId = (empresa as { company_id?: string | null }).company_id;
-	const company = companyId
+	const companyId = empresa.company_id;
+	const company: CompanyRow | null = companyId
 		? (
 			await supabase
 				.from('companies')
-				.select(
-					`id, legal_name, filing_number, identification_number, entity_type,
-						 formation_state_id, formation_country_id, management_type,
-						 tax_clasification, activity_code_id, activity_description,
-						 us_source_income, joint_ownership,
-						 incorporation_date, irs_email, legal_status`,
-				)
+				.select(COMPANY_COLUMNS.BASE)
 				.eq('id', companyId)
-				.maybeSingle()
+				.maybeSingle<CompanyRow>()
 		).data
 		: null;
 
 	return {
-		empresa: empresa as CompanyDetailData['empresa'],
-		company: (company as CompanyDetailData['company']) ?? null,
+		empresa: empresa as unknown as CompanyDetailData['empresa'],
+		company: company as unknown as CompanyDetailData['company'] ?? null,
 		socios: [],
 		addresses: [],
 		companyMembers: [],
