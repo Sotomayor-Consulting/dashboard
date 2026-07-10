@@ -11,14 +11,19 @@ interface CompanySelectProps {
 	companies: CompanyOption[];
 	inputId?: string;
 	inputName?: string;
+	defaultValue?: string;
 }
 
 export default function CompanySelect({
 	companies,
 	inputId = 'empresa-select',
 	inputName = 'empresa',
+	defaultValue,
 }: CompanySelectProps) {
-	const initialValue = companies[0]?.id ?? '';
+	const initialValue =
+		(defaultValue && companies.find((c) => c.id === defaultValue)?.id) ||
+		companies[0]?.id ||
+		'';
 	const [value, setValue] = useState(initialValue);
 
 	return (

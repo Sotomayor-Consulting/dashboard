@@ -21,7 +21,7 @@ const [empresa, servicioUpgrade] = await Promise.all([
 	getServicioUpgrade(supabase).catch(() => null),
 ]);
 
-if (!empresa || empresa.state !== 'Upgrade') {
+if (!empresa || empresa.state !== 'upgrade') {
 	return Astro.redirect('/?status=error&msg=Esta empresa no tiene upgrade disponible');
 }
 

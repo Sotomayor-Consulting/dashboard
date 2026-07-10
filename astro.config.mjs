@@ -65,6 +65,9 @@ export default defineConfig({
 	}),
 	vite: {
 		customLogger: logger,
+		server: {
+			allowedHosts: ['.trycloudflare.com'],
+		},
 		plugins: [tailwindcss()],
 		optimizeDeps: {
 			exclude: ['astro/virtual-modules/prefetch.js'],

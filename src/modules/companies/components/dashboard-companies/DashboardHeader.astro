@@ -13,6 +13,7 @@ interface Props {
 		tax_id?: string | null;
 		tin?: string | null;
 	};
+	empresaId?: string;
 	upgradeAvailable?: boolean;
 	upgradePrice?: number | null;
 	hasNoWorkflow?: boolean;
@@ -22,6 +23,7 @@ interface Props {
 
 const {
 	empresa,
+	empresaId = '',
 	upgradeAvailable = false,
 	upgradePrice = null,
 	hasNoWorkflow = false,
@@ -70,7 +72,7 @@ const upgradePriceLabel = fmtUsd(upgradePrice);
 
 	{hasNoWorkflow && (
 		<a
-			href="/incorporation-and-payment"
+			href={empresaId ? `/incorporation-and-payment?empresa=${empresaId}` : '/incorporation-and-payment'}
 			class="gold-glow-btn ml-auto inline-flex items-center gap-2 rounded-lg bg-primary-gold px-4 py-2 text-sm font-semibold text-primary-black transition-all hover:brightness-105 active:scale-[0.98]"
 		>
 			<Icon name="ri:rocket-line" class="h-4 w-4" />

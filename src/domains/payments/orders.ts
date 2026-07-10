@@ -80,15 +80,17 @@ export async function getOrdersForAdmin(
 
 export async function getOrdersByUser(
 	supabase: SupabaseClient,
+	userId: string,
 ): Promise<OrderAdminRow[]> {
 	const { data, error } = await supabase
 		.schema('orders')
 		.from('order_admin_details')
 		.select('*')
+		.eq('user_id', userId)
 		.order('created_at', { ascending: false });
 
 	if (error) {
-		log.error('Error fetching orders for user', { error });
+		log.error('Error fetching orders for user', { error, userId });
 		throw error;
 	}
 

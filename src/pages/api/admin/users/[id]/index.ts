@@ -28,17 +28,26 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
 		return new Response(JSON.stringify({ error: 'Falta id' }), { status: 400 });
 	}
 
-	const user = await getAdminUserDetail(supabase, id);
-	if (!user) {
-		return new Response(JSON.stringify({ error: 'No encontrado' }), {
-			status: 404,
+	try {
+		const user = await getAdminUserDetail(supabase, id);
+		if (!user) {
+			return new Response(JSON.stringify({ error: 'No encontrado' }), {
+				status: 404,
+			});
+		}
+
+		return new Response(JSON.stringify(user), {
+			status: 200,
+			headers: { 'Content-Type': 'application/json' },
+		});
+	} catch (err) {
+		const message = err instanceof Error ? err.message : 'Error desconocido';
+		console.error('GET /api/admin/users/[id] error:', err);
+		return new Response(JSON.stringify({ error: message }), {
+			status: 500,
+			headers: { 'Content-Type': 'application/json' },
 		});
 	}
-
-	return new Response(JSON.stringify(user), {
-		status: 200,
-		headers: { 'Content-Type': 'application/json' },
-	});
 };
 
 /**

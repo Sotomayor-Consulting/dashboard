@@ -420,7 +420,7 @@ export default function StartWizard({
 			nombre_1: nombre1,
 			nombre_2: nombre2,
 			nombre_3: nombre3,
-			estado_de: 'En proceso',
+			estado_de: 'draft',
 			current_step: currentStep,
 		};
 
@@ -570,7 +570,7 @@ export default function StartWizard({
 			formData.set('nombre_1', nombre1);
 			formData.set('nombre_2', nombre2);
 			formData.set('nombre_3', nombre3);
-			formData.set('estado_de', 'En proceso');
+			formData.set('estado_de', 'draft');
 
 			const res = await fetch('/api/incorporations/save', {
 				method: 'POST',

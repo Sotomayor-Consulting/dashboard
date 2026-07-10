@@ -1,0 +1,144 @@
+- generic [active] [ref=f19e1]:
+  - main [ref=f19e2]:
+    - navigation [ref=f19e3]:
+      - generic [ref=f19e4]:
+        - button "Abrir menú de navegación" [ref=f19e6] [cursor=pointer]
+        - generic [ref=f19e10]:
+          - button "Cambiar tema oscuro/claro" [ref=f19e11]
+          - button "13 Ver notificaciones" [ref=f19e16] [cursor=pointer]:
+            - generic [ref=f19e17]: "13"
+            - generic [ref=f19e18]: Ver notificaciones
+    - complementary "Menú de navegación" [ref=f19e19]:
+      - generic [ref=f19e20]:
+        - generic [ref=f19e21]:
+          - button "DeepLabs LLC Florida" [ref=f19e24] [cursor=pointer]:
+            - generic [ref=f19e29]:
+              - generic [ref=f19e30]: DeepLabs LLC
+              - generic [ref=f19e31]: Florida
+          - button "Cerrar menú" [ref=f19e34]
+        - navigation [ref=f19e39]:
+          - list [ref=f19e40]:
+            - listitem [ref=f19e41]:
+              - link "Inicio" [ref=f19e42] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f19e46]:
+              - paragraph [ref=f19e47]: Company
+              - list [ref=f19e48]:
+                - listitem [ref=f19e49]:
+                  - link "Crea una LLC" [ref=f19e50] [cursor=pointer]:
+                    - /url: /start/
+                - listitem [ref=f19e54]:
+                  - link "Incorporación" [ref=f19e55] [cursor=pointer]:
+                    - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/dashboard
+                - listitem [ref=f19e59]:
+                  - link "Empresa" [ref=f19e60] [cursor=pointer]:
+                    - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/company
+                - listitem [ref=f19e64]:
+                  - link "Consultas" [ref=f19e65] [cursor=pointer]:
+                    - /url: /consultations/
+            - listitem [ref=f19e69]:
+              - paragraph [ref=f19e70]: Admin
+              - list [ref=f19e71]:
+                - listitem [ref=f19e72]:
+                  - link "Usuarios" [ref=f19e73] [cursor=pointer]:
+                    - /url: /admin/usuarios
+                - listitem [ref=f19e77]:
+                  - link "Incorporaciones" [ref=f19e78] [cursor=pointer]:
+                    - /url: /admin/incorporaciones
+                - listitem [ref=f19e82]:
+                  - link "Empresas" [ref=f19e83] [cursor=pointer]:
+                    - /url: /admin/empresas
+            - listitem [ref=f19e87]:
+              - paragraph [ref=f19e88]: Servicios
+              - list [ref=f19e89]:
+                - listitem [ref=f19e90]:
+                  - link "Otros servicios" [ref=f19e91] [cursor=pointer]:
+                    - /url: /services/
+                - listitem [ref=f19e95]:
+                  - link "Órdenes" [ref=f19e96] [cursor=pointer]:
+                    - /url: /orders/
+            - listitem [ref=f19e100]:
+              - paragraph [ref=f19e101]: Cuenta
+              - list [ref=f19e102]:
+                - listitem [ref=f19e103]:
+                  - group [ref=f19e104]:
+                    - generic "Ajustes" [ref=f19e105] [cursor=pointer]
+                    - list [ref=f19e111]:
+                      - listitem [ref=f19e112]:
+                        - link "Perfil" [ref=f19e113] [cursor=pointer]:
+                          - /url: /profile/
+                      - listitem [ref=f19e117]:
+                        - link "Facturación" [ref=f19e118] [cursor=pointer]:
+                          - /url: /profile/billing/
+                      - listitem [ref=f19e122]:
+                        - link "Notificaciones" [ref=f19e123] [cursor=pointer]:
+                          - /url: /profile/notifications/
+                      - listitem [ref=f19e127]:
+                        - link "Feedback Beta" [ref=f19e128] [cursor=pointer]:
+                          - /url: /admin/settings/feedback
+          - generic [ref=f19e132]:
+            - button "Feedback Beta" [ref=f19e133]:
+              - generic [ref=f19e136]: Feedback
+              - generic [ref=f19e137]: Beta
+            - link "Ayuda & Soporte" [ref=f19e138] [cursor=pointer]:
+              - /url: mailto:info@sotomayorconsulting.com
+          - generic [ref=f19e144]:
+            - paragraph [ref=f19e145]: Recursos
+            - link "Visita nuestra web" [ref=f19e146] [cursor=pointer]:
+              - /url: https://sotomayorconsulting.com/
+            - link "Términos y condiciones" [ref=f19e150] [cursor=pointer]:
+              - /url: https://sotomayorconsulting.com/inicio/terminos/
+        - group [ref=f19e155]:
+          - generic [ref=f19e156] [cursor=pointer]:
+            - img "Avatar" [ref=f19e157]
+            - generic [ref=f19e158]:
+              - paragraph [ref=f19e159]: Jhon
+              - paragraph [ref=f19e160]: jhondoe@google.com
+    - generic [ref=f19e164]:
+      - generic:
+        - generic:
+          - region "Notifications alt+T"
+      - generic [ref=f19e165]:
+        - navigation "Tabs" [ref=f19e167]:
+          - link "Perfil" [ref=f19e168] [cursor=pointer]:
+            - /url: /profile/
+          - link "Facturación" [ref=f19e171] [cursor=pointer]:
+            - /url: /profile/billing
+          - link "Notificaciones" [ref=f19e174] [cursor=pointer]:
+            - /url: /profile/notifications
+          - link "Seguridad" [ref=f19e177] [cursor=pointer]:
+            - /url: /profile/security
+        - generic [ref=f19e180]:
+          - generic [ref=f19e181]:
+            - heading "Perfil" [level=1] [ref=f19e182]
+            - paragraph [ref=f19e183]: Gestiona tu información personal y cuenta.
+          - generic [ref=f19e184]:
+            - generic [ref=f19e185]:
+              - generic [ref=f19e186]:
+                - heading "Foto de perfil" [level=3] [ref=f19e187]
+                - paragraph [ref=f19e188]: JPG, PNG o WEBP. Máx 5 MB.
+              - generic [ref=f19e191]:
+                - img "Foto de perfil" [ref=f19e193]
+                - generic [ref=f19e194]:
+                  - generic [ref=f19e195] [cursor=pointer]: Seleccionar archivo
+                  - button "Subir" [ref=f19e196] [cursor=pointer]
+            - generic [ref=f19e197]:
+              - generic [ref=f19e198]:
+                - heading "Rol de cuenta" [level=3] [ref=f19e199]
+                - paragraph [ref=f19e200]: Tu correo vinculado a la cuenta.
+              - generic [ref=f19e201]:
+                - paragraph [ref=f19e202]: jhondoe@google.com
+                - link "Promover a cuenta de asociado" [ref=f19e203] [cursor=pointer]:
+                  - /url: /
+            - generic [ref=f19e204]:
+              - generic [ref=f19e205]:
+                - heading "Código de referido" [level=3] [ref=f19e206]
+                - paragraph [ref=f19e207]: Ingresa un código para vincular tu cuenta.
+              - generic [ref=f19e208]:
+                - 'textbox "Ejemplo: 9F2A7C4B" [ref=f19e209]'
+                - button "Canjear" [ref=f19e210] [cursor=pointer]
+  - generic [ref=f19e213]:
+    - button [ref=f19e214]
+    - button [ref=f19e220]
+    - button [ref=f19e224]
+    - button [ref=f19e229]

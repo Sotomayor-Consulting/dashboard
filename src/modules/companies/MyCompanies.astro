@@ -60,19 +60,19 @@ const paths = [
 									</p>
 								</div>
 								<div>
-									{fr.estado === 'En proceso' ? (
+									{fr.estado !== 'active' ? (
 										<span
 											data-popover-target={`tooltip-${fr.id}`}
 											data-popover-placement="bottom-end"
 											class="badge-status bg-muted text-foreground"
 										>
 											<span class="mr-1 h-2 w-2 animate-pulse rounded-full bg-orange-500" />
-											{fr.estado}
+											{fr.estado === 'draft' ? 'En proceso' : 'Upgrade'}
 										</span>
 									) : (
 										<span class="badge-status bg-muted text-foreground">
 											<span class="mr-1 h-2 w-2 animate-pulse rounded-full bg-green-500" />
-											{fr.estado}
+											Activa
 										</span>
 									)}
 								</div>

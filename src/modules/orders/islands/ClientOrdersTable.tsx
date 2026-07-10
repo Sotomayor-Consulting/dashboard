@@ -91,6 +91,7 @@ export default function ClientOrdersTable({ data }: Props) {
 
 	const openDetails = (order: OrderAdminRow) => {
 		setSelected(order);
+		setResumingId(null);
 		setSheetOpen(true);
 	};
 

@@ -1,0 +1,292 @@
+- generic [ref=f13e1]:
+  - main [ref=f13e2]:
+    - navigation [ref=f13e3]:
+      - generic [ref=f13e5]:
+        - navigation [ref=f13e310]:
+          - link [ref=f13e311] [cursor=pointer]:
+            - /url: /orders/
+            - text: Órdenes
+        - generic [ref=f13e9]:
+          - button [ref=f13e312]
+          - button [ref=f13e313] [cursor=pointer]:
+            - generic [ref=f13e16]: "13"
+            - generic [ref=f13e17]: Ver notificaciones
+          - button [ref=f13e314] [cursor=pointer]:
+            - generic [ref=f13e21]: Jhon Doe
+    - complementary [ref=f13e24]:
+      - button [ref=f13e316] [cursor=pointer]:
+        - generic [ref=f13e32]:
+          - generic [ref=f13e33]: DeepLabs LLC
+          - generic [ref=f13e34]: Florida
+      - button [ref=f13e317]:
+        - generic [ref=f13e41]: Search...
+        - generic [ref=f13e42]:
+          - generic [ref=f13e43]: Ctrl
+          - generic [ref=f13e44]: K
+      - navigation [ref=f13e45]:
+        - list [ref=f13e46]:
+          - listitem [ref=f13e47]:
+            - link [ref=f13e318] [cursor=pointer]:
+              - /url: /
+              - generic [ref=f13e51]: Inicio
+          - listitem [ref=f13e52]:
+            - paragraph [ref=f13e53]: Company
+            - list [ref=f13e54]:
+              - listitem [ref=f13e55]:
+                - link [ref=f13e319] [cursor=pointer]:
+                  - /url: /start/
+                  - generic [ref=f13e59]: Crea una LLC
+              - listitem [ref=f13e60]:
+                - link [ref=f13e320] [cursor=pointer]:
+                  - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/dashboard
+                  - generic [ref=f13e64]: Incorporación
+              - listitem [ref=f13e65]:
+                - link [ref=f13e321] [cursor=pointer]:
+                  - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/company
+                  - generic [ref=f13e69]: Empresa
+              - listitem [ref=f13e70]:
+                - link [ref=f13e322] [cursor=pointer]:
+                  - /url: /consultations/
+                  - generic [ref=f13e74]: Consultas
+          - listitem [ref=f13e75]:
+            - paragraph [ref=f13e76]: Admin
+            - list [ref=f13e77]:
+              - listitem [ref=f13e78]:
+                - link [ref=f13e323] [cursor=pointer]:
+                  - /url: /admin/usuarios
+                  - generic [ref=f13e82]: Usuarios
+              - listitem [ref=f13e83]:
+                - link [ref=f13e324] [cursor=pointer]:
+                  - /url: /admin/incorporaciones
+                  - generic [ref=f13e87]: Incorporaciones
+              - listitem [ref=f13e88]:
+                - link [ref=f13e325] [cursor=pointer]:
+                  - /url: /admin/empresas
+                  - generic [ref=f13e92]: Empresas
+          - listitem [ref=f13e93]:
+            - paragraph [ref=f13e94]: Servicios
+            - list [ref=f13e95]:
+              - listitem [ref=f13e96]:
+                - link [ref=f13e326] [cursor=pointer]:
+                  - /url: /services/
+                  - generic [ref=f13e100]: Otros servicios
+              - listitem [ref=f13e101]:
+                - link [ref=f13e327] [cursor=pointer]:
+                  - /url: /orders/
+                  - generic [ref=f13e105]: Órdenes
+          - listitem [ref=f13e106]:
+            - paragraph [ref=f13e107]: Cuenta
+            - list [ref=f13e108]:
+              - listitem [ref=f13e109]:
+                - group [ref=f13e110]:
+                  - generic [ref=f13e328] [cursor=pointer]: Ajustes
+      - navigation [ref=f13e117]:
+        - button [ref=f13e329] [cursor=pointer]:
+          - generic [ref=f13e121]: Feedback
+          - generic [ref=f13e122]: Beta
+        - link [ref=f13e330] [cursor=pointer]:
+          - /url: mailto:info@sotomayorconsulting.com
+          - generic [ref=f13e126]: Ayuda & Soporte
+    - generic [ref=f13e130]:
+      - generic:
+        - generic:
+          - region "Notifications alt+T"
+      - generic [ref=f13e133]:
+        - generic [ref=f13e135]:
+          - paragraph [ref=f13e136]: Mis órdenes
+          - heading [level=1] [ref=f13e331]: Historial de órdenes
+          - paragraph [ref=f13e138]: 13 órdenes · 8 pagadas · 2 pendientes
+        - generic [ref=f13e140]:
+          - textbox [ref=f13e332]:
+            - /placeholder: Buscar por orden, empresa, plan…
+          - generic [ref=f13e143]:
+            - button [ref=f13e333]:
+              - generic [ref=f13e145]: Todas
+              - generic [ref=f13e146]: "13"
+            - button [ref=f13e334]:
+              - generic [ref=f13e148]: Pagadas
+              - generic [ref=f13e149]: "8"
+            - button [ref=f13e335]:
+              - generic [ref=f13e151]: Pendientes
+              - generic [ref=f13e152]: "2"
+        - table [ref=f13e154]:
+          - rowgroup [ref=f13e155]:
+            - row [ref=f13e336]:
+              - columnheader [ref=f13e337]:
+                - button [ref=f13e338]: Orden
+              - columnheader [ref=f13e339]:
+                - button [ref=f13e340]: Empresa
+              - columnheader [ref=f13e341]:
+                - button [ref=f13e342]: Plan
+              - columnheader [ref=f13e343]:
+                - button [ref=f13e344]: Total
+              - columnheader [ref=f13e345]:
+                - button [ref=f13e346]: Estado
+              - columnheader [ref=f13e347]:
+                - button [ref=f13e348]: Fecha
+          - rowgroup [ref=f13e169]:
+            - row [ref=f13e350] [cursor=pointer]:
+              - cell [ref=f13e351]: ORD-2026-000037
+              - cell [ref=f13e352]: TESTEMPRESA
+              - cell [ref=f13e353]: Plan Business
+              - cell [ref=f13e354]: $950.00
+              - cell [ref=f13e355]:
+                - generic [ref=f13e176]: Pago pendiente
+              - cell [ref=f13e356]: 09 jul 2026
+            - row [ref=f13e357] [cursor=pointer]:
+              - cell [ref=f13e358]: ORD-2026-000036
+              - cell [ref=f13e359]: DeepLabs LLC
+              - cell [ref=f13e360]: Plan Business
+              - cell [ref=f13e361]: $950.00
+              - cell [ref=f13e362]:
+                - generic [ref=f13e184]: Pago pendiente
+              - cell [ref=f13e363]: 09 jul 2026
+            - row [ref=f13e364] [cursor=pointer]:
+              - cell [ref=f13e365]: ORD-2026-000035
+              - cell [ref=f13e366]: DeepLabs LLC
+              - cell [ref=f13e367]: Plan Business
+              - cell [ref=f13e368]: $950.00
+              - cell [ref=f13e369]:
+                - generic [ref=f13e192]: Cancelada
+              - cell [ref=f13e370]: 09 jul 2026
+            - row [ref=f13e371] [cursor=pointer]:
+              - cell [ref=f13e372]: ORD-2026-000034
+              - cell [ref=f13e373]: TESTEMPRESA
+              - cell [ref=f13e374]: Plan Diseño - upgrade
+              - cell [ref=f13e375]: $365.75
+              - cell [ref=f13e376]:
+                - generic [ref=f13e200]: Cancelada
+              - cell [ref=f13e377]: 08 jul 2026
+            - row [ref=f13e378] [cursor=pointer]:
+              - cell [ref=f13e379]: ORD-2026-000033
+              - cell [ref=f13e380]: TESTEMPRESA
+              - cell [ref=f13e381]: Plan Diseño - upgrade
+              - cell [ref=f13e382]: $365.75
+              - cell [ref=f13e383]:
+                - generic [ref=f13e208]: Cancelada
+              - cell [ref=f13e384]: 08 jul 2026
+            - row [ref=f13e385] [cursor=pointer]:
+              - cell [ref=f13e386]: ORD-2026-000032
+              - cell [ref=f13e387]: TESTEMPRESA
+              - cell [ref=f13e388]: Plan Diseño - upgrade
+              - cell [ref=f13e389]: $365.75
+              - cell [ref=f13e390]:
+                - generic [ref=f13e216]: Pagada
+              - cell [ref=f13e391]: 08 jul 2026
+            - row [ref=f13e392] [cursor=pointer]:
+              - cell [ref=f13e393]: ORD-2026-000026
+              - cell [ref=f13e394]: COGNITO LLC
+              - cell [ref=f13e395]: Upgrade
+              - cell [ref=f13e396]: $627.00
+              - cell [ref=f13e397]:
+                - generic [ref=f13e224]: Pagada
+              - cell [ref=f13e398]: 09 jun 2026
+            - row [ref=f13e399] [cursor=pointer]:
+              - cell [ref=f13e400]: ORD-2026-000013
+              - cell [ref=f13e401]: Oryx Labs LLC
+              - cell [ref=f13e402]: Plan Business
+              - cell [ref=f13e403]: $992.75
+              - cell [ref=f13e404]:
+                - generic [ref=f13e232]: Pagada
+              - cell [ref=f13e405]: 02 jun 2026
+            - row [ref=f13e406] [cursor=pointer]:
+              - cell [ref=f13e407]: ORD-2026-000002
+              - cell [ref=f13e408]: FOXY LLC
+              - cell [ref=f13e409]: Plan Básico
+              - cell [ref=f13e410]: $365.75
+              - cell [ref=f13e411]:
+                - generic [ref=f13e240]: Pagada
+              - cell [ref=f13e412]: 28 may 2026
+            - row [ref=f13e413] [cursor=pointer]:
+              - cell [ref=f13e414]: ORD-2026-000015
+              - cell [ref=f13e415]: Nuvix LLC
+              - cell [ref=f13e416]: Plan Business
+              - cell [ref=f13e417]: $992.75
+              - cell [ref=f13e418]:
+                - generic [ref=f13e248]: Pagada
+              - cell [ref=f13e419]: 18 may 2026
+            - row [ref=f13e420] [cursor=pointer]:
+              - cell [ref=f13e421]: ORD-2026-000016
+              - cell [ref=f13e422]: ALPHABET EC LLC
+              - cell [ref=f13e423]: Plan Business
+              - cell [ref=f13e424]: $992.75
+              - cell [ref=f13e425]:
+                - generic [ref=f13e256]: Pagada
+              - cell [ref=f13e426]: 14 may 2026
+            - row [ref=f13e427] [cursor=pointer]:
+              - cell [ref=f13e428]: ORD-2026-000007
+              - cell [ref=f13e429]: QATAR AIWAYS LLC
+              - cell [ref=f13e430]: Plan Estándar
+              - cell [ref=f13e431]: $627.00
+              - cell [ref=f13e432]:
+                - generic [ref=f13e264]: Pagada
+              - cell [ref=f13e433]: 13 may 2026
+            - row [ref=f13e434] [cursor=pointer]:
+              - cell [ref=f13e435]: ORD-2026-000024
+              - cell [ref=f13e436]: COGNITO LLC
+              - cell [ref=f13e437]: Plan Diseño - upgrade
+              - cell [ref=f13e438]: $365.75
+              - cell [ref=f13e439]:
+                - generic [ref=f13e272]: Pagada
+              - cell [ref=f13e440]: 05 may 2026
+        - generic [ref=f13e274]:
+          - generic [ref=f13e275]:
+            - generic [ref=f13e276]: Filas por página
+            - combobox [ref=f13e277]:
+              - generic [ref=f13e278]: "20"
+              - img: ▼
+            - textbox [ref=f13e279]: "20"
+          - generic [ref=f13e280]: 1–13 de 13
+          - generic [ref=f13e281]:
+            - button [disabled]: Anterior
+            - button [disabled]: Siguiente
+  - generic [ref=f13e284]:
+    - button [ref=f13e441]:
+      - generic: Menu
+    - button [ref=f13e442]:
+      - generic: Inspect
+    - button [ref=f13e443]:
+      - generic: Audit
+    - button [ref=f13e446]:
+      - generic: Settings
+  - dialog "Orden ORD-2026-000037" [ref=f13e450]:
+    - generic [ref=f13e451]:
+      - heading "Orden ORD-2026-000037" [level=2]
+    - generic [ref=f13e452]:
+      - generic [ref=f13e453]:
+        - paragraph [ref=f13e454]: 09 jul 2026
+        - heading "ORD-2026-000037" [level=2] [ref=f13e455]
+        - generic [ref=f13e456]: Pago pendiente
+        - generic [ref=f13e457]:
+          - generic [ref=f13e458]:
+            - paragraph [ref=f13e459]: Empresa
+            - paragraph [ref=f13e460]: TESTEMPRESA
+          - generic [ref=f13e461]:
+            - paragraph [ref=f13e462]: Plan
+            - paragraph [ref=f13e463]: Plan Business
+          - generic [ref=f13e464]:
+            - paragraph [ref=f13e465]: Cliente
+            - paragraph [ref=f13e466]: Jhon Doe
+      - generic [ref=f13e467]:
+        - paragraph [ref=f13e468]: Servicios incluidos
+        - list [ref=f13e469]:
+          - listitem [ref=f13e470]:
+            - generic [ref=f13e475]:
+              - paragraph [ref=f13e476]: Planificación y diseño legal - tributario.
+              - paragraph [ref=f13e477]: Plan Business
+            - generic [ref=f13e478]: x1
+          - listitem [ref=f13e479]:
+            - generic [ref=f13e484]:
+              - paragraph [ref=f13e485]: Acompañamiento bancario (Mercury o Relay + Stripe).
+              - paragraph [ref=f13e486]: Plan Business
+            - generic [ref=f13e487]: x1
+          - listitem [ref=f13e488]:
+            - generic [ref=f13e493]:
+              - paragraph [ref=f13e494]: EIN acelerado.
+              - paragraph [ref=f13e495]: Plan Business
+            - generic [ref=f13e496]: x1
+      - generic [ref=f13e498]:
+        - generic [ref=f13e499]: Total
+        - generic [ref=f13e500]: $950.00
+      - button "Continuar con el pago" [active] [ref=f13e503]
+    - button "Close" [ref=f13e506]

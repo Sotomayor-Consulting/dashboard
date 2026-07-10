@@ -118,13 +118,13 @@ const inactiveClass =
 <!-- ===== Mobile drawer (< lg) ===== -->
 <aside
 	id="sidebar"
-	class="dark:bg-primary-black fixed top-0 left-0 z-40 h-screen w-60 -translate-x-full overflow-hidden border-r border-gray-200/60 bg-white transition-transform lg:hidden dark:border-gray-700/50"
+	class="dark:bg-primary-black fixed top-0 left-0 z-40 h-dvh w-60 -translate-x-full overflow-hidden border-r border-gray-200/60 bg-white transition-transform duration-300 ease-in-out motion-reduce:transition-none lg:hidden dark:border-gray-700/50"
 	tabindex="-1"
 	aria-label="Menú de navegación"
 >
 	<div class="flex h-full flex-col">
 		<!-- Header: Company switcher + close -->
-		<div class="flex items-start gap-1 pt-3 pr-2">
+		<div class="flex shrink-0 items-start gap-1 pt-3 pr-2">
 			{
 				showCompanySwitcher && (
 					<div class="min-w-0 flex-1">
@@ -200,7 +200,7 @@ const inactiveClass =
 													<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
 													<span class="flex-1">{l.label}</span>
 													<Icon
-														name="ri:arrow-right-s-line"
+														name="ri:arrow-up-s-line"
 														class="sidebar-chevron h-4 w-4 shrink-0 text-gray-400 transition-transform"
 													/>
 												</summary>
@@ -314,7 +314,7 @@ const inactiveClass =
 			</div>
 		</nav>
 
-		<div class="border-t border-gray-200/90 p-3 dark:border-gray-700/80">
+		<div class="shrink-0 border-t border-gray-200/90 p-3 dark:border-gray-700/80">
 			<details class="group">
 				<summary
 					class="flex cursor-pointer list-none items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
@@ -365,8 +365,9 @@ const inactiveClass =
 
 <!-- Mobile backdrop -->
 <div
-	class="fixed inset-0 z-10 hidden bg-gray-900/50 lg:hidden dark:bg-gray-900/90"
+	class="fixed inset-0 z-30 bg-gray-900/50 opacity-0 transition-opacity duration-300 ease-in-out motion-reduce:transition-none lg:hidden dark:bg-gray-900/80 pointer-events-none"
 	id="sidebarBackdrop"
+	aria-hidden="true"
 >
 </div>
 
@@ -663,25 +664,120 @@ const inactiveClass =
 		});
 	}
 
+	function getFocusableElements(container: HTMLElement): HTMLElement[] {
+		return Array.from(
+			container.querySelectorAll<HTMLElement>(
+				'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+			),
+		).filter((el) => el.offsetParent !== null);
+	}
+
+	function handleFocusTrap(e: KeyboardEvent) {
+		const sidebar = document.getElementById('sidebar');
+		if (!sidebar) return;
+		const focusable = getFocusableElements(sidebar);
+		if (focusable.length === 0) return;
+		const first = focusable[0]!;
+		const last = focusable[focusable.length - 1]!;
+		if (e.shiftKey) {
+			if (document.activeElement === first) {
+				e.preventDefault();
+				last.focus();
+			}
+		} else {
+			if (document.activeElement === last) {
+				e.preventDefault();
+				first.focus();
+			}
+		}
+	}
+
+	function handleDrawerKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			closeMobileDrawer();
+			return;
+		}
+		if (e.key === 'Tab') {
+			handleFocusTrap(e);
+		}
+	}
+
+	function openMobileDrawer() {
+		const sidebar = document.getElementById('sidebar');
+		const backdrop = document.getElementById('sidebarBackdrop');
+		if (sidebar) {
+			sidebar.classList.remove('-translate-x-full');
+			sidebar.classList.add('translate-x-0');
+			sidebar.setAttribute('aria-modal', 'true');
+			sidebar.setAttribute('role', 'dialog');
+			const firstFocusable = getFocusableElements(sidebar)[0];
+			if (firstFocusable) requestAnimationFrame(() => firstFocusable.focus());
+		}
+		if (backdrop) {
+			backdrop.classList.remove('pointer-events-none');
+			backdrop.classList.add('pointer-events-auto');
+			backdrop.style.opacity = '1';
+			backdrop.setAttribute('aria-hidden', 'false');
+		}
+		document.body.style.overflow = 'hidden';
+		document.addEventListener('keydown', handleDrawerKeydown);
+	}
+
 	function closeMobileDrawer() {
 		const sidebar = document.getElementById('sidebar');
 		const backdrop = document.getElementById('sidebarBackdrop');
+		const toggleBtn = document.getElementById('toggleSidebarMobile');
 
 		if (sidebar) {
 			sidebar.classList.add('-translate-x-full');
-			sidebar.classList.remove('transform-none');
+			sidebar.classList.remove('translate-x-0');
 			sidebar.removeAttribute('aria-modal');
 			sidebar.removeAttribute('role');
-			const focused = sidebar.querySelector(':focus') as HTMLElement | null;
-			if (focused) focused.blur();
 		}
-		if (backdrop) backdrop.classList.add('hidden');
+		if (backdrop) {
+			backdrop.style.opacity = '0';
+			backdrop.classList.remove('pointer-events-auto');
+			backdrop.classList.add('pointer-events-none');
+			backdrop.setAttribute('aria-hidden', 'true');
+		}
+		document.body.style.overflow = '';
+		document.removeEventListener('keydown', handleDrawerKeydown);
+		if (toggleBtn) {
+			toggleBtn.setAttribute('aria-expanded', 'false');
+			toggleBtn.setAttribute('aria-label', 'Abrir menú de navegación');
+			toggleBtn.focus();
+		}
 		document.querySelectorAll('[drawer-backdrop]').forEach((el) => el.remove());
 	}
 
 	function initSidebar() {
 		closeMobileDrawer();
 		updateActiveLinks();
+
+		const toggleBtn = document.getElementById('toggleSidebarMobile');
+		if (toggleBtn && !toggleBtn.dataset.sidebarBound) {
+			toggleBtn.dataset.sidebarBound = '1';
+			toggleBtn.addEventListener('click', () => {
+				const sidebar = document.getElementById('sidebar');
+				const isOpen = sidebar && !sidebar.classList.contains('-translate-x-full');
+				isOpen ? closeMobileDrawer() : openMobileDrawer();
+				toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+				toggleBtn.setAttribute('aria-label', !isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
+			});
+		}
+
+		const backdrop = document.getElementById('sidebarBackdrop');
+		if (backdrop && !backdrop.dataset.sidebarBound) {
+			backdrop.dataset.sidebarBound = '1';
+			backdrop.addEventListener('click', closeMobileDrawer);
+		}
+
+		document.querySelectorAll<HTMLElement>('[data-drawer-hide="sidebar"]').forEach((el) => {
+			if (el.dataset.sidebarBound) return;
+			el.dataset.sidebarBound = '1';
+			el.addEventListener('click', closeMobileDrawer);
+		});
 	}
 
 	document.addEventListener('astro:page-load', initSidebar);

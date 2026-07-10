@@ -55,11 +55,11 @@ const selectedCompany = routeCompany ?? activeCompany;
 // Derivar datos de banner desde los resultados
 const showBannerEnProceso =
 	incorporaciones?.length > 0 &&
-	incorporaciones.some((c: any) => c.estado === 'En proceso');
+	incorporaciones.some((c: any) => c.state === 'draft');
 
 const showBannerUpgrade =
 	incorporaciones?.length > 0 &&
-	incorporaciones.some((c: any) => c.estado === 'Upgrade');
+	incorporaciones.some((c: any) => c.state === 'upgrade');
 
 /*
 	Toast de validacion partner deshabilitado temporalmente.

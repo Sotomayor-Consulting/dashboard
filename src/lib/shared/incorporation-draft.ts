@@ -10,7 +10,7 @@ export const START_DRAFT_DEFAULT = {
 	nombre_1: '',
 	nombre_2: '',
 	nombre_3: '',
-	estado_de: 'En proceso',
+	estado_de: 'draft',
 	current_step: 0,
 } as const;
 

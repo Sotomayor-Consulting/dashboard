@@ -16,12 +16,12 @@ const { empresa, porfirmar, pendingProcesses = 2 } = Astro.props;
 		<p class="text-xs font-medium text-muted-foreground">Estado de la empresa</p>
 		<div class="mt-2">
 			{
-				empresa?.estado === 'Activo' || false ? (
+				empresa?.estado === 'active' ? (
 					<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
 						<span class="h-1.5 w-1.5 rounded-full bg-emerald-500" />
 						En proceso de incorporación
 					</span>
-				) : empresa?.estado === 'En proceso' || false ? (
+				) : empresa?.estado === 'draft' ? (
 					<span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700 dark:bg-red-500/15 dark:text-red-300">
 						<span class="h-1.5 w-1.5 rounded-full bg-red-500" />
 						Pendiente de pago

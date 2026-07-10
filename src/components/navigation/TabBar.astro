@@ -19,52 +19,59 @@ const { buttons, syncUrl = true } = Astro.props;
 const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 ---
 
-<nav
-	class="-mx-6 flex items-end gap-1 overflow-x-auto border-b border-border px-6 pt-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border"
-	data-tab-strip
-	data-default-panel={defaultPanelId}
-	data-sync-url={syncUrl ? '1' : '0'}
-	aria-label="Tabs"
->
-	{
-		buttons.map((b) => {
-			const kind = b.kind ?? 'link';
-			const baseClass =
-				'inline-flex cursor-pointer items-center gap-2 whitespace-nowrap border-b-[3px] px-3 pb-2 text-sm font-medium transition-colors -mb-px';
-			const activeClass = 'border-primary-gold text-primary-gold';
-			const inactiveClass =
-				'border-transparent text-muted-foreground hover:border-border hover:text-foreground';
+<div class="relative" data-tab-wrapper>
+	<nav
+		class="-mx-6 flex items-end gap-1 overflow-x-auto border-b border-border px-6 pt-3 snap-x snap-mandatory lg:snap-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border max-lg:scrollbar-none"
+		data-tab-strip
+		data-default-panel={defaultPanelId}
+		data-sync-url={syncUrl ? '1' : '0'}
+		aria-label="Tabs"
+	>
+		{
+			buttons.map((b) => {
+				const kind = b.kind ?? 'link';
+				const baseClass =
+					'inline-flex snap-start cursor-pointer items-center gap-2 whitespace-nowrap border-b-[3px] px-3 pb-2 text-sm font-medium transition-colors -mb-px';
+				const activeClass = 'border-primary-gold text-primary-gold';
+				const inactiveClass =
+					'border-transparent text-muted-foreground hover:border-border hover:text-foreground';
 
-			return kind === 'link' ? (
-				<a
-					href={b.link}
-					data-astro-prefetch="load"
-					class:list={[
-						baseClass,
-						b.active ? activeClass : inactiveClass,
-					]}
-					aria-current={b.active ? 'page' : undefined}
-				>
-					<Icon name={b.icon} class="h-5 w-5" />
-					{b.label}
-				</a>
-			) : (
-				<button
-					type="button"
-					data-tab-btn={b.id}
-					class:list={[
-						baseClass,
-						b.active ? activeClass : inactiveClass,
-					]}
-					aria-current={b.active ? 'page' : undefined}
-				>
-					<Icon name={b.icon} class="h-5 w-5" />
-					{b.label}
-				</button>
-			);
-		})
-	}
-</nav>
+				return kind === 'link' ? (
+					<a
+						href={b.link}
+						data-astro-prefetch="load"
+						class:list={[
+							baseClass,
+							b.active ? activeClass : inactiveClass,
+						]}
+						aria-current={b.active ? 'page' : undefined}
+					>
+						<Icon name={b.icon} class="h-5 w-5" />
+						{b.label}
+					</a>
+				) : (
+					<button
+						type="button"
+						data-tab-btn={b.id}
+						class:list={[
+							baseClass,
+							b.active ? activeClass : inactiveClass,
+						]}
+						aria-current={b.active ? 'page' : undefined}
+					>
+						<Icon name={b.icon} class="h-5 w-5" />
+						{b.label}
+					</button>
+				);
+			})
+		}
+	</nav>
+	<div
+		class="pointer-events-none absolute top-0 right-0 bottom-0 w-10 bg-gradient-to-l from-white to-transparent transition-opacity lg:hidden dark:from-[var(--color-primary-black)]"
+		data-tab-fade
+		aria-hidden="true"
+	></div>
+</div>
 
 <script>
 	const ACTIVE_CLASSES = [
@@ -77,6 +84,26 @@ const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 		'hover:border-border',
 		'hover:text-foreground',
 	];
+
+	function initTabFade() {
+		const strip = document.querySelector<HTMLElement>('[data-tab-strip]');
+		const fade = document.querySelector<HTMLElement>('[data-tab-fade]');
+		if (!strip || !fade) return;
+
+		function updateFade() {
+			const atEnd = strip!.scrollLeft + strip!.clientWidth >= strip!.scrollWidth - 4;
+			fade!.style.opacity = atEnd ? '0' : '1';
+		}
+
+		strip.addEventListener('scroll', updateFade, { passive: true });
+		updateFade();
+
+		const active = strip.querySelector<HTMLElement>('[aria-current="page"]');
+		if (active) {
+			active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'instant' });
+			requestAnimationFrame(updateFade);
+		}
+	}
 
 	function initTabBar() {
 		const strip = document.querySelector<HTMLElement>('[data-tab-strip]');
@@ -131,5 +158,9 @@ const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 	}
 
 	initTabBar();
-	document.addEventListener('astro:page-load', initTabBar);
+	initTabFade();
+	document.addEventListener('astro:page-load', () => {
+		initTabBar();
+		initTabFade();
+	});
 </script>

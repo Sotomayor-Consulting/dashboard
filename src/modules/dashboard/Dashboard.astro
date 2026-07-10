@@ -102,10 +102,10 @@ const firstName =
 // 	.trim();
 const companyName = activeCompany?.nombre || 'tu portal';
 const activeCompanies = empresas.filter(
-	(company) => company.estado === 'Activo',
+	(company) => company.estado === 'active',
 );
 const inProgressCompanies = empresas.filter((company) =>
-	['En proceso', 'Upgrade'].includes(company.estado || ''),
+	['draft', 'upgrade'].includes(company.estado || ''),
 );
 const pendingTasks =
 	notificationsData.totalUnread +
@@ -248,7 +248,7 @@ const stats = [
 			stats.map((stat) => (
 				<article class="group relative min-h-36 rounded-lg border border-border p-5 transition hover:border-accent-gold hover:shadow-sm">
 					<div class="flex items-start justify-between gap-4">
-						<p class="kicker tracking-[0.28em]">
+						<p class="kicker tracking-[0.12em] sm:tracking-[0.28em]">
 							{stat.label}
 						</p>
 						<span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground">

@@ -197,6 +197,62 @@ export const POST: APIRoute = async ({ request }) => {
 				break;
 			}
 
+			case 'checkout.session.async_payment_succeeded': {
+				// ACH y otros métodos de notificación diferida: el pago se
+				// confirmó días después del checkout. Procesar igual que un
+				// checkout pagado (el RPC es idempotente por provider_transaction_id).
+				const session = event.data.object as Stripe.Checkout.Session;
+				paymentIntentId =
+					typeof session.payment_intent === 'string'
+						? session.payment_intent
+						: session.payment_intent?.id;
+				invoiceId =
+					typeof session.invoice === 'string'
+						? session.invoice
+						: (session.invoice?.id ?? null);
+				break;
+			}
+
+			case 'checkout.session.async_payment_failed': {
+				// ACH rechazado (fondos insuficientes, cuenta cerrada, etc.).
+				// Revertir la orden a pending_payment para que el usuario pueda
+				// reintentar con otro método de pago.
+				const session = event.data.object as Stripe.Checkout.Session;
+				const orderId = session.metadata?.order_id;
+				if (orderId) {
+					const { stripe_session_id: _drop, ...rest } =
+						((
+							await supabaseAdmin
+								.schema('orders')
+								.from('orders')
+								.select('metadata')
+								.eq('id', orderId)
+								.maybeSingle()
+						).data?.metadata ?? {}) as Record<string, unknown>;
+					await supabaseAdmin
+						.schema('orders')
+						.from('orders')
+						.update({
+							status: 'pending_payment',
+							metadata: {
+								...rest,
+								async_payment_failed_at: new Date().toISOString(),
+								async_payment_failed_event: event.id,
+							},
+						})
+						.eq('id', orderId);
+					log.warn('pago asíncrono fallido (ACH/delayed)', {
+						orderId,
+						sessionId: session.id,
+					});
+				} else {
+					log.warn('async_payment_failed sin order_id', {
+						sessionId: session.id,
+					});
+				}
+				break;
+			}
+
 			case 'checkout.session.expired': {
 				// Carrito abandonado (docs.stripe.com/payments/checkout/abandoned-carts):
 				// limpiar la referencia a la sesión muerta en la orden pendiente para
@@ -255,7 +311,7 @@ export const POST: APIRoute = async ({ request }) => {
 					});
 				if (!isPermanent) {
 					// Solo pedir reintento a Stripe si parece transitorio (timeout, red, etc.)
-					return new Response(`RPC error: ${error.message}`, { status: 500 });
+					return new Response('Processing error', { status: 500 });
 				}
 				// Permanente: ack 200 para no entrar en loop de reintentos
 			} else {
