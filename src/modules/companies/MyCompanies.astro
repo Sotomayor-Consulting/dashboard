@@ -25,13 +25,14 @@ const STATE_LABELS: Record<string, string> = {
 	upgrade: 'Upgrade',
 };
 
-const empresas = empresasRaw?.map((e) => ({
-	...e,
-	tipo_de_negocio: e.entity_type,
-	estado: e.state ?? null,
-	estado_label: STATE_LABELS[e.state ?? ''] ?? (e.state || 'Sin estado'),
-	estado_de_incorporacion: pickStateName(e.formation_state),
-})) ?? null;
+const empresas =
+	empresasRaw?.map((e) => ({
+		...e,
+		tipo_de_negocio: e.entity_type,
+		estado: e.state ?? null,
+		estado_label: STATE_LABELS[e.state ?? ''] ?? (e.state || 'Sin estado'),
+		estado_de_incorporacion: pickStateName(e.formation_state),
+	})) ?? null;
 
 const paths = [
 	{ label: 'Inicio', href: '/' },
@@ -43,7 +44,7 @@ const paths = [
 
 <div class="px-4">
 	<div class="section-header">
-		<h1 class="text-xl font-semibold text-foreground sm:text-2xl">
+		<h1 class="text-foreground text-xl font-semibold sm:text-2xl">
 			Tus incorporaciones
 		</h1>
 	</div>
@@ -51,7 +52,7 @@ const paths = [
 	<div class="mt-2 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 		{
 			(empresas?.length ?? 0) === 0 ? (
-				<div class="col-span-3 flex flex-col items-center rounded-lg border border-dashed border-border p-6 text-center text-muted-foreground">
+				<div class="border-border text-muted-foreground col-span-3 flex flex-col items-center rounded-lg border border-dashed p-6 text-center">
 					<h3 class="mb-5 text-lg font-semibold">
 						No tienes incorporaciones aún
 					</h3>
@@ -59,7 +60,7 @@ const paths = [
 				</div>
 			) : (
 				empresas?.map((fr) => (
-					<div class="flat-card transition-colors hover:bg-muted/50">
+					<div class="flat-card hover:bg-muted/50 transition-colors">
 						<a
 							href={`/my-companies/${fr.id}/dashboard`}
 							class="flex h-full flex-col items-center p-6 md:flex-row"
@@ -72,10 +73,10 @@ const paths = [
 							/>
 							<div class="flex w-full items-center md:p-4">
 								<div class="w-full">
-									<h5 class="mb-2 text-2xl font-bold tracking-tight text-foreground">
+									<h5 class="text-foreground mb-2 text-2xl font-bold tracking-tight">
 										{fr.principal_name} - {fr.tipo_de_negocio}
 									</h5>
-									<p class="mb-6 text-muted-foreground">
+									<p class="text-muted-foreground mb-6">
 										{fr.estado_de_incorporacion}
 									</p>
 								</div>

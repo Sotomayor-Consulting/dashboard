@@ -5,9 +5,9 @@ const dateFormatter = new Intl.DateTimeFormat('es-ES', {
 });
 
 export const formatStageDate = (iso: string | null | undefined): string => {
-	if (!iso) return '-';
+	if (!iso) return '';
 	const date = new Date(iso);
-	if (Number.isNaN(date.getTime())) return '-';
+	if (Number.isNaN(date.getTime())) return '';
 	return dateFormatter.format(date);
 };
 

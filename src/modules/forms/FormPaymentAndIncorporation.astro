@@ -7,11 +7,13 @@ import MastercardLogo from '../../icons/mastercard.svg';
 import AmexLogo from '../../icons/amex.svg';
 import DiscoverLogo from '../../icons/discover.svg';
 import DinersLogo from '../../icons/diners.svg';
+import ApplePayLogo from '../../icons/ApplePay.svg';
+import GooglePayLogo from '../../icons/GooglePay.svg';
 import PoweredByStripeBlack from '../../icons/PoweredbyStripe-black.svg';
 import { Icon } from 'astro-icon/components';
 import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
 import CompanySelect from './islands/CompanySelect.tsx';
-import { getIncorporacionesEnProceso } from '@domains/companies/incorporations';
+import { getIncorporacionesPendientesDePago } from '@domains/companies/incorporations';
 import { ListaServiciosStripe } from '@domains/services/services';
 
 const user = Astro.locals.user;
@@ -19,9 +21,16 @@ const userId = user?.id || '';
 const supabase = Astro.locals.supabase;
 
 const [empresas, servicios] = await Promise.all([
-	getIncorporacionesEnProceso(supabase, userId),
+	getIncorporacionesPendientesDePago(supabase, userId),
 	ListaServiciosStripe(supabase),
 ]);
+
+// Deep-link con contexto: si viene ?empresa=<id> desde el dashboard de una
+// empresa (patrón SaaS: no re-preguntar contexto ya conocido), se salta el
+// selector y se aterriza directo en los planes con la empresa fijada.
+const preselectedId = Astro.url.searchParams.get('empresa');
+const preselected = empresas?.find((e) => e.id === preselectedId) ?? null;
+const skipSelector = Boolean(preselected);
 
 // Los planes se identifican por slug canónico (catalogs.service_plans);
 // el radio manda `plan.id` (int canónico) como planId al checkout.
@@ -119,7 +128,12 @@ const planCard =
 	'relative flex h-full flex-col cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 transition-all hover:border-slate-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700 peer-checked:border-[#8c681d] peer-checked:ring-2 peer-checked:ring-[#8c681d]/20 peer-checked:[&_.plan-check]:opacity-100';
 ---
 
-<main id="content" class="flex min-h-dvh flex-col" data-user-id={userId}>
+<main
+	id="content"
+	class="flex min-h-dvh flex-col"
+	data-user-id={userId}
+	data-skip-selector={skipSelector ? '1' : '0'}
+>
 	<header
 		class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8"
 	>
@@ -133,7 +147,13 @@ const planCard =
 		<ColorModeSwitcher />
 	</header>
 
-	<section id="panel1" class="flex flex-1 flex-col justify-center px-4 py-10">
+	<section
+		id="panel1"
+		class:list={[
+			'flex flex-1 flex-col justify-center px-4 py-10',
+			skipSelector && 'hidden',
+		]}
+	>
 		<div class="mx-auto w-full max-w-md">
 			<div class="space-y-2 text-center">
 				<p class={goldLabel}>Paso 01 · de 02</p>
@@ -155,7 +175,11 @@ const planCard =
 								>
 									Empresa a incorporar
 								</label>
-								<CompanySelect companies={empresas ?? []} client:load />
+								<CompanySelect
+									companies={empresas ?? []}
+									defaultValue={preselected?.id}
+									client:load
+								/>
 							</div>
 
 							<p class={dashedNote}>
@@ -191,7 +215,10 @@ const planCard =
 
 	<section
 		id="panel2"
-		class="relative flex hidden flex-1 flex-col overflow-hidden"
+		class:list={[
+			'relative flex flex-1 flex-col overflow-hidden',
+			!skipSelector && 'hidden',
+		]}
 	>
 		<IsotipoSVG
 			class="pointer-events-none absolute -right-32 -bottom-28 z-0 hidden w-[600px] max-w-none rotate-6 opacity-[0.04] invert select-none md:block dark:opacity-[0.07] dark:invert-0"
@@ -202,15 +229,42 @@ const planCard =
 			class="mx-auto max-w-7xl flex-1 space-y-6 px-4 pt-6 pb-4 sm:px-6 lg:px-8"
 		>
 			<div class="mx-auto max-w-2xl space-y-2 text-center">
-				<p class={goldLabel}>Paso 02 · de 02</p>
+				<p class={goldLabel}>
+					{skipSelector ? 'Activa tu empresa' : 'Paso 02 · de 02'}
+				</p>
 				<h2 class={heading}>Escoja su plan</h2>
 				<p class={subtitle}>
 					Elija la alternativa que mejor se adapta a su estructura y continúe al
 					pago seguro.
 				</p>
+				<div
+					class="inline-flex items-center gap-2 border-b border-slate-200 pb-2 text-sm dark:border-neutral-800"
+				>
+					<Icon name="ri:building-line" class="text-primary-gold size-4" />
+					<span class="text-slate-500 dark:text-slate-400">Pagando para</span>
+					<span
+						id="empresa-chip-name"
+						class="font-semibold text-slate-900 dark:text-white"
+					>
+						{preselected?.principal_name ?? empresas?.[0]?.principal_name ?? ''}
+					</span>
+					{
+						empresas?.length > 1 && (
+							<button
+								type="button"
+								id="btn-cambiar-empresa"
+								class="hover:text-primary-gold text-xs font-medium text-slate-500 underline-offset-2 hover:underline dark:text-slate-400"
+							>
+								Cambiar
+							</button>
+						)
+					}
+				</div>
 			</div>
 
-			<div class="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-5">
+			<div
+				class="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-5"
+			>
 				{
 					allPlans.map((plan) => {
 						const features = featuresByPlan.get(plan.slug) ?? [];
@@ -340,7 +394,8 @@ const planCard =
 							<PoweredByStripeBlack width={140} />
 						</span>
 					</div>
-					<span class="hidden h-6 w-px bg-slate-200 sm:block dark:bg-neutral-800"
+					<span
+						class="hidden h-6 w-px bg-slate-200 sm:block dark:bg-neutral-800"
 					></span>
 					<div class="flex items-center gap-2">
 						<VisaLogo class="h-6 w-auto sm:h-7" aria-label="Visa" />
@@ -348,6 +403,11 @@ const planCard =
 						<DinersLogo class="h-6 w-auto sm:h-7" aria-label="Diners Club" />
 						<AmexLogo class="h-6 w-auto sm:h-7" aria-label="American Express" />
 						<DiscoverLogo class="h-6 w-auto sm:h-7" aria-label="Discover" />
+						<ApplePayLogo class="h-6 w-auto sm:h-7" aria-label="Apple Pay" />
+						<GooglePayLogo
+							class="h-6 w-auto origin-center scale-200 sm:h-7"
+							aria-label="Google Pay"
+						/>
 					</div>
 				</div>
 
@@ -382,12 +442,25 @@ const planCard =
 		root.dataset.paymentFlowInitialized = 'true';
 
 		const userId = root.dataset.userId || '';
+		const skipSelector = root.dataset.skipSelector === '1';
 
 		const btnPaso1 = document.getElementById('btn-paso1');
 		const btnAtras = document.getElementById('btn-atras');
+		const btnCambiar = document.getElementById('btn-cambiar-empresa');
 		const panel1 = document.getElementById('panel1');
 		const panel2 = document.getElementById('panel2');
 		const status = document.getElementById('checkout-status');
+		const chipName = document.getElementById('empresa-chip-name');
+
+		// Sincroniza el chip "Pagando para" con la empresa marcada en el selector.
+		const syncChipName = () => {
+			const selectedLabel = document.querySelector(
+				'[role="radio"][aria-checked="true"] .truncate',
+			);
+			if (chipName && selectedLabel?.textContent) {
+				chipName.textContent = selectedLabel.textContent;
+			}
+		};
 
 		// Transición suave entre pasos usando la View Transitions API
 		// (https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API)
@@ -405,8 +478,20 @@ const planCard =
 			}
 		};
 
-		btnPaso1?.addEventListener('click', () => swapPanels(panel1, panel2));
-		btnAtras?.addEventListener('click', () => swapPanels(panel2, panel1));
+		btnPaso1?.addEventListener('click', () => {
+			syncChipName();
+			swapPanels(panel1, panel2);
+		});
+		// Con deep-link (?empresa=) el paso 1 se saltó: "Regresar" vuelve al
+		// dashboard de origen; sin contexto, vuelve al selector de empresa.
+		btnAtras?.addEventListener('click', () => {
+			if (skipSelector) {
+				history.back();
+			} else {
+				swapPanels(panel2, panel1);
+			}
+		});
+		btnCambiar?.addEventListener('click', () => swapPanels(panel2, panel1));
 
 		const payButtons = document.querySelectorAll<HTMLButtonElement>(
 			'button[data-plan-pay]',

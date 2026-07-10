@@ -1,0 +1,97 @@
+- generic [active] [ref=f20e1]:
+  - main [ref=f20e2]:
+    - navigation [ref=f20e3]:
+      - generic [ref=f20e4]:
+        - button "Abrir menú de navegación" [ref=f20e6] [cursor=pointer]
+        - generic [ref=f20e10]:
+          - button "Cambiar tema oscuro/claro" [ref=f20e11]
+          - button "13 Ver notificaciones" [ref=f20e20] [cursor=pointer]:
+            - generic [ref=f20e21]: "13"
+            - generic [ref=f20e22]: Ver notificaciones
+    - complementary "Menú de navegación" [ref=f20e23]:
+      - generic [ref=f20e24]:
+        - generic [ref=f20e25]:
+          - button "DeepLabs LLC Florida" [ref=f20e28] [cursor=pointer]:
+            - generic [ref=f20e33]:
+              - generic [ref=f20e34]: DeepLabs LLC
+              - generic [ref=f20e35]: Florida
+          - button "Cerrar menú" [ref=f20e38]
+        - navigation [ref=f20e43]:
+          - list [ref=f20e44]:
+            - listitem [ref=f20e45]:
+              - link "Inicio" [ref=f20e46] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f20e50]:
+              - paragraph [ref=f20e51]: Company
+              - list [ref=f20e52]:
+                - listitem [ref=f20e53]:
+                  - link "Crea una LLC" [ref=f20e54] [cursor=pointer]:
+                    - /url: /start/
+                - listitem [ref=f20e58]:
+                  - link "Incorporación" [ref=f20e59] [cursor=pointer]:
+                    - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/dashboard
+                - listitem [ref=f20e63]:
+                  - link "Empresa" [ref=f20e64] [cursor=pointer]:
+                    - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/company
+                - listitem [ref=f20e68]:
+                  - link "Consultas" [ref=f20e69] [cursor=pointer]:
+                    - /url: /consultations/
+            - listitem [ref=f20e73]:
+              - paragraph [ref=f20e74]: Admin
+              - list [ref=f20e75]:
+                - listitem [ref=f20e76]:
+                  - link "Usuarios" [ref=f20e77] [cursor=pointer]:
+                    - /url: /admin/usuarios
+                - listitem [ref=f20e81]:
+                  - link "Incorporaciones" [ref=f20e82] [cursor=pointer]:
+                    - /url: /admin/incorporaciones
+                - listitem [ref=f20e86]:
+                  - link "Empresas" [ref=f20e87] [cursor=pointer]:
+                    - /url: /admin/empresas
+            - listitem [ref=f20e91]:
+              - paragraph [ref=f20e92]: Servicios
+              - list [ref=f20e93]:
+                - listitem [ref=f20e94]:
+                  - link "Otros servicios" [ref=f20e95] [cursor=pointer]:
+                    - /url: /services/
+                - listitem [ref=f20e99]:
+                  - link "Órdenes" [ref=f20e100] [cursor=pointer]:
+                    - /url: /orders/
+            - listitem [ref=f20e104]:
+              - paragraph [ref=f20e105]: Cuenta
+              - list [ref=f20e106]:
+                - listitem [ref=f20e107]:
+                  - group [ref=f20e108]:
+                    - generic "Ajustes" [ref=f20e109] [cursor=pointer]
+          - generic [ref=f20e115]:
+            - button "Feedback Beta" [ref=f20e116]:
+              - generic [ref=f20e119]: Feedback
+              - generic [ref=f20e120]: Beta
+            - link "Ayuda & Soporte" [ref=f20e121] [cursor=pointer]:
+              - /url: mailto:info@sotomayorconsulting.com
+          - generic [ref=f20e127]:
+            - paragraph [ref=f20e128]: Recursos
+            - link "Visita nuestra web" [ref=f20e129] [cursor=pointer]:
+              - /url: https://sotomayorconsulting.com/
+            - link "Términos y condiciones" [ref=f20e133] [cursor=pointer]:
+              - /url: https://sotomayorconsulting.com/inicio/terminos/
+        - group [ref=f20e138]:
+          - generic [ref=f20e139] [cursor=pointer]:
+            - img "Avatar" [ref=f20e140]
+            - generic [ref=f20e141]:
+              - paragraph [ref=f20e142]: Jhon
+              - paragraph [ref=f20e143]: jhondoe@google.com
+    - generic [ref=f20e147]:
+      - generic:
+        - generic:
+          - region "Notifications alt+T"
+      - generic [ref=f20e149]:
+        - heading "Empresa aún no constituida" [level=3] [ref=f20e153]
+        - paragraph [ref=f20e154]: Tu empresa se encuentra en proceso de incorporación. Una vez completado el proceso, aquí podrás ver toda la información de tu empresa constituida.
+        - link "Ver proceso de incorporación" [ref=f20e155] [cursor=pointer]:
+          - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/dashboard
+  - generic [ref=f20e158]:
+    - button [ref=f20e159]
+    - button [ref=f20e165]
+    - button [ref=f20e169]
+    - button [ref=f20e174]

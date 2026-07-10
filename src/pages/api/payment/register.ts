@@ -1,12 +1,15 @@
-// ─── Registrar pago desde Stripe ────────────────────────
-// Requiere autenticación. Llama al RPC registrar_pago_desde_stripe
-// con el paymentIntentId proporcionado.
+// ─── Registrar pago desde Stripe (solo admin) ───────────
+// Herramienta de recuperación manual: llama al RPC registrar_pago_desde_stripe
+// con el paymentIntentId proporcionado. El flujo normal es el webhook; este
+// endpoint queda restringido a admins porque el RPC usa service role y
+// registraría cualquier PaymentIntent sin verificar a quién pertenece.
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { isAdmin } from '@shared/roles';
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+export const POST: APIRoute = async ({ request, cookies, locals }) => {
 	// ─── 1) Autenticación (server-verified via getUser) ──
 	const supabase = createSupabaseServerClient({
 		headers: request.headers,
@@ -25,6 +28,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				headers: SECURITY_HEADERS,
 			},
 		);
+	}
+
+	// ─── 1b) Solo admins ─────────────────────────────────
+	if (!isAdmin(locals.userRoles ?? [])) {
+		return new Response(JSON.stringify({ error: 'No autorizado' }), {
+			status: 403,
+			headers: SECURITY_HEADERS,
+		});
 	}
 
 	try {

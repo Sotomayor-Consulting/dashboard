@@ -1,0 +1,57 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - button "Cambiar tema" [ref=e7]
+        - link "Crear cuenta" [ref=e10] [cursor=pointer]:
+          - /url: /sign-up
+      - generic [ref=e11]:
+        - link [ref=e14] [cursor=pointer]:
+          - /url: https://sotomayorconsulting.com/inicio/
+          - img "Sotomayor Consulting" [ref=e15]
+        - img "Sotomayor Consulting" [ref=e18]
+        - blockquote [ref=e20]:
+          - paragraph [ref=e21]: "\"Las grandes cosas en los negocios nunca las hace una sola persona; las hace un equipo de personas.\""
+          - generic [ref=e22]: "- Steve Jobs"
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - heading "Inicia sesión" [level=1] [ref=e26]
+          - paragraph [ref=e27]: Accede con tu cuenta para continuar.
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: Tu correo
+            - textbox "Tu correo" [disabled]:
+              - /placeholder: correo@ejemplo.com
+              - text: jhondoe@google.com
+          - generic [ref=e32]:
+            - generic [ref=e33]: Tu contraseña
+            - generic [ref=e34]:
+              - textbox "Tu contraseña" [disabled]:
+                - /placeholder: ••••••••
+                - text: doe123**
+              - button "Mostrar" [ref=e36]
+          - generic [ref=e37]:
+            - generic [ref=e38]:
+              - checkbox "Recuérdame" [checked] [ref=e54]
+              - checkbox [checked] [ref=e43]
+              - generic [ref=e44]: Recuérdame
+            - link "Olvidé mi contraseña" [ref=e45] [cursor=pointer]:
+              - /url: /forgot-password
+          - button "Loading Iniciando sesión..." [disabled]:
+            - status "Loading"
+            - text: Iniciando sesión...
+        - generic [ref=e46]: O continuar con
+        - button "Google" [disabled]
+        - paragraph [ref=e51]:
+          - text: Al continuar, aceptas nuestros
+          - link "Términos de Servicio" [ref=e52] [cursor=pointer]:
+            - /url: https://sotomayorconsulting.com/inicio/politicas/
+          - text: y la
+          - link "Política de Privacidad" [ref=e53] [cursor=pointer]:
+            - /url: https://sotomayorconsulting.com/inicio/politicas/
+          - text: .
+  - generic [ref=e60]:
+    - button [ref=e61]
+    - button [ref=e67]
+    - button [ref=e71]
+    - button [ref=e76]

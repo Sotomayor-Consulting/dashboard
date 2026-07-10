@@ -1,0 +1,115 @@
+- generic [active] [ref=f21e1]:
+  - main [ref=f21e2]:
+    - navigation [ref=f21e3]:
+      - generic [ref=f21e4]:
+        - button "Abrir menú de navegación" [ref=f21e6] [cursor=pointer]
+        - generic [ref=f21e10]:
+          - button "Cambiar tema oscuro/claro" [ref=f21e11]
+          - button "13 Ver notificaciones" [ref=f21e20] [cursor=pointer]:
+            - generic [ref=f21e21]: "13"
+            - generic [ref=f21e22]: Ver notificaciones
+    - complementary "Menú de navegación" [ref=f21e23]:
+      - generic [ref=f21e24]:
+        - generic [ref=f21e25]:
+          - button "DeepLabs LLC Florida" [ref=f21e28] [cursor=pointer]:
+            - generic [ref=f21e33]:
+              - generic [ref=f21e34]: DeepLabs LLC
+              - generic [ref=f21e35]: Florida
+          - button "Cerrar menú" [ref=f21e38]
+        - navigation [ref=f21e43]:
+          - list [ref=f21e44]:
+            - listitem [ref=f21e45]:
+              - link "Inicio" [ref=f21e46] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f21e50]:
+              - paragraph [ref=f21e51]: Company
+              - list [ref=f21e52]:
+                - listitem [ref=f21e53]:
+                  - link "Crea una LLC" [ref=f21e54] [cursor=pointer]:
+                    - /url: /start/
+                - listitem [ref=f21e58]:
+                  - link "Incorporación" [ref=f21e59] [cursor=pointer]:
+                    - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/dashboard
+                - listitem [ref=f21e63]:
+                  - link "Empresa" [ref=f21e64] [cursor=pointer]:
+                    - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/company
+                - listitem [ref=f21e68]:
+                  - link "Consultas" [ref=f21e69] [cursor=pointer]:
+                    - /url: /consultations/
+            - listitem [ref=f21e73]:
+              - paragraph [ref=f21e74]: Admin
+              - list [ref=f21e75]:
+                - listitem [ref=f21e76]:
+                  - link "Usuarios" [ref=f21e77] [cursor=pointer]:
+                    - /url: /admin/usuarios
+                - listitem [ref=f21e81]:
+                  - link "Incorporaciones" [ref=f21e82] [cursor=pointer]:
+                    - /url: /admin/incorporaciones
+                - listitem [ref=f21e86]:
+                  - link "Empresas" [ref=f21e87] [cursor=pointer]:
+                    - /url: /admin/empresas
+            - listitem [ref=f21e91]:
+              - paragraph [ref=f21e92]: Servicios
+              - list [ref=f21e93]:
+                - listitem [ref=f21e94]:
+                  - link "Otros servicios" [ref=f21e95] [cursor=pointer]:
+                    - /url: /services/
+                - listitem [ref=f21e99]:
+                  - link "Órdenes" [ref=f21e100] [cursor=pointer]:
+                    - /url: /orders/
+            - listitem [ref=f21e104]:
+              - paragraph [ref=f21e105]: Cuenta
+              - list [ref=f21e106]:
+                - listitem [ref=f21e107]:
+                  - group [ref=f21e108]:
+                    - generic "Ajustes" [ref=f21e109] [cursor=pointer]
+          - generic [ref=f21e115]:
+            - button "Feedback Beta" [ref=f21e116]:
+              - generic [ref=f21e119]: Feedback
+              - generic [ref=f21e120]: Beta
+            - link "Ayuda & Soporte" [ref=f21e121] [cursor=pointer]:
+              - /url: mailto:info@sotomayorconsulting.com
+          - generic [ref=f21e127]:
+            - paragraph [ref=f21e128]: Recursos
+            - link "Visita nuestra web" [ref=f21e129] [cursor=pointer]:
+              - /url: https://sotomayorconsulting.com/
+            - link "Términos y condiciones" [ref=f21e133] [cursor=pointer]:
+              - /url: https://sotomayorconsulting.com/inicio/terminos/
+        - group [ref=f21e138]:
+          - generic [ref=f21e139] [cursor=pointer]:
+            - img "Avatar" [ref=f21e140]
+            - generic [ref=f21e141]:
+              - paragraph [ref=f21e142]: Jhon
+              - paragraph [ref=f21e143]: jhondoe@google.com
+    - generic [ref=f21e147]:
+      - generic:
+        - generic:
+          - region "Notifications alt+T"
+      - generic [ref=f21e148]:
+        - navigation "Tabs" [ref=f21e150]:
+          - link "Perfil" [ref=f21e151] [cursor=pointer]:
+            - /url: /profile/
+          - link "Facturación" [ref=f21e154] [cursor=pointer]:
+            - /url: /profile/billing
+          - link "Notificaciones" [ref=f21e157] [cursor=pointer]:
+            - /url: /profile/notifications
+          - link "Seguridad" [ref=f21e160] [cursor=pointer]:
+            - /url: /profile/security
+        - generic [ref=f21e163]:
+          - generic [ref=f21e164]:
+            - heading "Seguridad" [level=1] [ref=f21e165]
+            - paragraph [ref=f21e166]: Gestiona tu contraseña y la seguridad de tu cuenta.
+          - generic [ref=f21e167]:
+            - generic [ref=f21e169]:
+              - generic [ref=f21e170]:
+                - heading "Contraseña" [level=3] [ref=f21e171]
+                - paragraph [ref=f21e172]: Confirma tu contraseña actual antes de establecer una nueva.
+              - generic [ref=f21e173]:
+                - textbox "Contraseña actual" [ref=f21e175]
+                - textbox "Nueva contraseña" [ref=f21e177]
+            - button "Actualizar contraseña" [ref=f21e179] [cursor=pointer]
+  - generic [ref=f21e182]:
+    - button [ref=f21e183]
+    - button [ref=f21e189]
+    - button [ref=f21e193]
+    - button [ref=f21e201]

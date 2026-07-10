@@ -1,0 +1,222 @@
+- generic [active] [ref=f12e1]:
+  - main [ref=f12e2]:
+    - navigation [ref=f12e3]:
+      - generic [ref=f12e5]:
+        - navigation "Breadcrumb" [ref=f12e7]:
+          - link "Órdenes" [ref=f12e8] [cursor=pointer]:
+            - /url: /orders/
+        - generic [ref=f12e9]:
+          - button "Cambiar tema oscuro/claro" [ref=f12e10]
+          - button "13 Ver notificaciones" [ref=f12e15] [cursor=pointer]:
+            - generic [ref=f12e16]: "13"
+            - generic [ref=f12e17]: Ver notificaciones
+          - button "Avatar Jhon Doe" [ref=f12e19] [cursor=pointer]:
+            - img "Avatar" [ref=f12e20]
+            - generic [ref=f12e21]: Jhon Doe
+    - complementary [ref=f12e24]:
+      - button "DeepLabs LLC Florida" [ref=f12e27] [cursor=pointer]:
+        - generic [ref=f12e32]:
+          - generic [ref=f12e33]: DeepLabs LLC
+          - generic [ref=f12e34]: Florida
+      - button "Abrir búsqueda" [ref=f12e38]:
+        - generic [ref=f12e41]: Search...
+        - generic [ref=f12e42]:
+          - generic [ref=f12e43]: Ctrl
+          - generic [ref=f12e44]: K
+      - navigation [ref=f12e45]:
+        - list [ref=f12e46]:
+          - listitem [ref=f12e47]:
+            - link "Inicio" [ref=f12e48] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=f12e52]:
+            - paragraph [ref=f12e53]: Company
+            - list [ref=f12e54]:
+              - listitem [ref=f12e55]:
+                - link "Crea una LLC" [ref=f12e56] [cursor=pointer]:
+                  - /url: /start/
+              - listitem [ref=f12e60]:
+                - link "Incorporación" [ref=f12e61] [cursor=pointer]:
+                  - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/dashboard
+              - listitem [ref=f12e65]:
+                - link "Empresa" [ref=f12e66] [cursor=pointer]:
+                  - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/company
+              - listitem [ref=f12e70]:
+                - link "Consultas" [ref=f12e71] [cursor=pointer]:
+                  - /url: /consultations/
+          - listitem [ref=f12e75]:
+            - paragraph [ref=f12e76]: Admin
+            - list [ref=f12e77]:
+              - listitem [ref=f12e78]:
+                - link "Usuarios" [ref=f12e79] [cursor=pointer]:
+                  - /url: /admin/usuarios
+              - listitem [ref=f12e83]:
+                - link "Incorporaciones" [ref=f12e84] [cursor=pointer]:
+                  - /url: /admin/incorporaciones
+              - listitem [ref=f12e88]:
+                - link "Empresas" [ref=f12e89] [cursor=pointer]:
+                  - /url: /admin/empresas
+          - listitem [ref=f12e93]:
+            - paragraph [ref=f12e94]: Servicios
+            - list [ref=f12e95]:
+              - listitem [ref=f12e96]:
+                - link "Otros servicios" [ref=f12e97] [cursor=pointer]:
+                  - /url: /services/
+              - listitem [ref=f12e101]:
+                - link "Órdenes" [ref=f12e102] [cursor=pointer]:
+                  - /url: /orders/
+          - listitem [ref=f12e106]:
+            - paragraph [ref=f12e107]: Cuenta
+            - list [ref=f12e108]:
+              - listitem [ref=f12e109]:
+                - group [ref=f12e110]:
+                  - generic "Ajustes" [ref=f12e111] [cursor=pointer]
+      - navigation [ref=f12e117]:
+        - button "Feedback Beta" [ref=f12e118] [cursor=pointer]:
+          - generic [ref=f12e121]: Feedback
+          - generic [ref=f12e122]: Beta
+        - link "Ayuda & Soporte" [ref=f12e123] [cursor=pointer]:
+          - /url: mailto:info@sotomayorconsulting.com
+    - generic [ref=f12e130]:
+      - generic:
+        - generic:
+          - region "Notifications alt+T"
+      - generic [ref=f12e133]:
+        - generic [ref=f12e135]:
+          - paragraph [ref=f12e136]: Mis órdenes
+          - heading "Historial de órdenes" [level=1] [ref=f12e137]
+          - paragraph [ref=f12e138]: 13 órdenes · 8 pagadas · 2 pendientes
+        - generic [ref=f12e140]:
+          - textbox "Buscar por orden, empresa, plan…" [ref=f12e142]
+          - generic [ref=f12e143]:
+            - button "Todas 13" [ref=f12e144]:
+              - generic [ref=f12e145]: Todas
+              - generic [ref=f12e146]: "13"
+            - button "Pagadas 8" [ref=f12e147]:
+              - generic [ref=f12e148]: Pagadas
+              - generic [ref=f12e149]: "8"
+            - button "Pendientes 2" [ref=f12e150]:
+              - generic [ref=f12e151]: Pendientes
+              - generic [ref=f12e152]: "2"
+        - table [ref=f12e154]:
+          - rowgroup [ref=f12e155]:
+            - row [ref=f12e156]:
+              - columnheader [ref=f12e157]:
+                - button "Orden" [ref=f12e158]
+              - columnheader [ref=f12e159]:
+                - button "Empresa" [ref=f12e160]
+              - columnheader [ref=f12e161]:
+                - button "Plan" [ref=f12e162]
+              - columnheader [ref=f12e163]:
+                - button "Total" [ref=f12e164]
+              - columnheader [ref=f12e165]:
+                - button "Estado" [ref=f12e166]
+              - columnheader [ref=f12e167]:
+                - button "Fecha" [ref=f12e168]
+          - rowgroup [ref=f12e169]:
+            - row [ref=f12e170] [cursor=pointer]:
+              - cell "ORD-2026-000037" [ref=f12e171]
+              - cell "TESTEMPRESA" [ref=f12e172]
+              - cell "Plan Business" [ref=f12e173]
+              - cell "$950.00" [ref=f12e174]
+              - cell "Pago pendiente" [ref=f12e175]
+              - cell "09 jul 2026" [ref=f12e177]
+            - row [ref=f12e178] [cursor=pointer]:
+              - cell "ORD-2026-000036" [ref=f12e179]
+              - cell "DeepLabs LLC" [ref=f12e180]
+              - cell "Plan Business" [ref=f12e181]
+              - cell "$950.00" [ref=f12e182]
+              - cell "Pago pendiente" [ref=f12e183]
+              - cell "09 jul 2026" [ref=f12e185]
+            - row [ref=f12e186] [cursor=pointer]:
+              - cell "ORD-2026-000035" [ref=f12e187]
+              - cell "DeepLabs LLC" [ref=f12e188]
+              - cell "Plan Business" [ref=f12e189]
+              - cell "$950.00" [ref=f12e190]
+              - cell "Cancelada" [ref=f12e191]
+              - cell "09 jul 2026" [ref=f12e193]
+            - row [ref=f12e194] [cursor=pointer]:
+              - cell "ORD-2026-000034" [ref=f12e195]
+              - cell "TESTEMPRESA" [ref=f12e196]
+              - cell "Plan Diseño - upgrade" [ref=f12e197]
+              - cell "$365.75" [ref=f12e198]
+              - cell "Cancelada" [ref=f12e199]
+              - cell "08 jul 2026" [ref=f12e201]
+            - row [ref=f12e202] [cursor=pointer]:
+              - cell "ORD-2026-000033" [ref=f12e203]
+              - cell "TESTEMPRESA" [ref=f12e204]
+              - cell "Plan Diseño - upgrade" [ref=f12e205]
+              - cell "$365.75" [ref=f12e206]
+              - cell "Cancelada" [ref=f12e207]
+              - cell "08 jul 2026" [ref=f12e209]
+            - row [ref=f12e210] [cursor=pointer]:
+              - cell "ORD-2026-000032" [ref=f12e211]
+              - cell "TESTEMPRESA" [ref=f12e212]
+              - cell "Plan Diseño - upgrade" [ref=f12e213]
+              - cell "$365.75" [ref=f12e214]
+              - cell "Pagada" [ref=f12e215]
+              - cell "08 jul 2026" [ref=f12e217]
+            - row [ref=f12e218] [cursor=pointer]:
+              - cell "ORD-2026-000026" [ref=f12e219]
+              - cell "COGNITO LLC" [ref=f12e220]
+              - cell "Upgrade" [ref=f12e221]
+              - cell "$627.00" [ref=f12e222]
+              - cell "Pagada" [ref=f12e223]
+              - cell "09 jun 2026" [ref=f12e225]
+            - row [ref=f12e226] [cursor=pointer]:
+              - cell "ORD-2026-000013" [ref=f12e227]
+              - cell "Oryx Labs LLC" [ref=f12e228]
+              - cell "Plan Business" [ref=f12e229]
+              - cell "$992.75" [ref=f12e230]
+              - cell "Pagada" [ref=f12e231]
+              - cell "02 jun 2026" [ref=f12e233]
+            - row [ref=f12e234] [cursor=pointer]:
+              - cell "ORD-2026-000002" [ref=f12e235]
+              - cell "FOXY LLC" [ref=f12e236]
+              - cell "Plan Básico" [ref=f12e237]
+              - cell "$365.75" [ref=f12e238]
+              - cell "Pagada" [ref=f12e239]
+              - cell "28 may 2026" [ref=f12e241]
+            - row [ref=f12e242] [cursor=pointer]:
+              - cell "ORD-2026-000015" [ref=f12e243]
+              - cell "Nuvix LLC" [ref=f12e244]
+              - cell "Plan Business" [ref=f12e245]
+              - cell "$992.75" [ref=f12e246]
+              - cell "Pagada" [ref=f12e247]
+              - cell "18 may 2026" [ref=f12e249]
+            - row [ref=f12e250] [cursor=pointer]:
+              - cell "ORD-2026-000016" [ref=f12e251]
+              - cell "ALPHABET EC LLC" [ref=f12e252]
+              - cell "Plan Business" [ref=f12e253]
+              - cell "$992.75" [ref=f12e254]
+              - cell "Pagada" [ref=f12e255]
+              - cell "14 may 2026" [ref=f12e257]
+            - row [ref=f12e258] [cursor=pointer]:
+              - cell "ORD-2026-000007" [ref=f12e259]
+              - cell "QATAR AIWAYS LLC" [ref=f12e260]
+              - cell "Plan Estándar" [ref=f12e261]
+              - cell "$627.00" [ref=f12e262]
+              - cell "Pagada" [ref=f12e263]
+              - cell "13 may 2026" [ref=f12e265]
+            - row [ref=f12e266] [cursor=pointer]:
+              - cell "ORD-2026-000024" [ref=f12e267]
+              - cell "COGNITO LLC" [ref=f12e268]
+              - cell "Plan Diseño - upgrade" [ref=f12e269]
+              - cell "$365.75" [ref=f12e270]
+              - cell "Pagada" [ref=f12e271]
+              - cell "05 may 2026" [ref=f12e273]
+        - generic [ref=f12e274]:
+          - generic [ref=f12e275]:
+            - generic [ref=f12e276]: Filas por página
+            - combobox [ref=f12e277]:
+              - generic [ref=f12e278]: "20"
+              - img: ▼
+            - textbox [ref=f12e279]: "20"
+          - generic [ref=f12e280]: 1–13 de 13
+          - generic [ref=f12e281]:
+            - button "Anterior" [disabled]
+            - button "Siguiente" [disabled]
+  - generic [ref=f12e284]:
+    - button [ref=f12e285]
+    - button [ref=f12e291]
+    - button [ref=f12e295]
+    - button [ref=f12e300]

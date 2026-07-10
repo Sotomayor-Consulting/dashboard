@@ -63,7 +63,7 @@ export interface AdminCompany {
 	name: string;
 	type: string | null;
 	stateUs: string | null;
-	/** Estado del proceso: 'En proceso', 'Upgrade', etc. */
+	/** Estado del proceso: 'draft', 'active', 'upgrade'. */
 	status: string | null;
 	/** 0..100, redondeado. */
 	progress: number;

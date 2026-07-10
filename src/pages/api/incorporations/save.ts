@@ -79,8 +79,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const nombre_1 = form.get('nombre_1')?.toString() || '';
 		const nombre_2 = form.get('nombre_2')?.toString() || '';
 		const nombre_3 = form.get('nombre_3')?.toString() || '';
-		const estado_de = form.get('estado_de')?.toString();
-
 		// 4) Validaciones - CORREGIDAS
 		if (!tipo_de_empresa) {
 			return respond(400, 'El tipo de empresa es obligatorio');
@@ -125,18 +123,18 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const { data: created, error } = await supabase
 			.from('incorporations')
 			.insert([
-			{
-				user_id: actor.id,
-				entity_type: tipo_de_empresa,
-				principal_name: nombre_1.trim() || null,
-				possible_names: [
-					...new Set(nombres.map((n) => n.trim()).filter(Boolean)),
-				],
-				formation_state_id: formationStateId,
-				state: normalizeIncorporationState(estado_de),
-				porcentaje_de_incorporacion: 1,
-			},
-		])
+				{
+					user_id: actor.id,
+					entity_type: tipo_de_empresa,
+					principal_name: nombre_1.trim() || null,
+					possible_names: [
+						...new Set(nombres.map((n) => n.trim()).filter(Boolean)),
+					],
+					formation_state_id: formationStateId,
+					state: 'draft',
+					porcentaje_de_incorporacion: 1,
+				},
+			])
 			.select('id')
 			.single<{ id: string }>();
 

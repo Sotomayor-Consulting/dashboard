@@ -1,0 +1,166 @@
+- generic [active] [ref=f10e1]:
+  - main [ref=f10e2]:
+    - navigation [ref=f10e3]:
+      - generic [ref=f10e4]:
+        - button "Abrir menú de navegación" [ref=f10e6] [cursor=pointer]
+        - generic [ref=f10e10]:
+          - button "Cambiar tema oscuro/claro" [ref=f10e11]
+          - button "13 Ver notificaciones" [ref=f10e20] [cursor=pointer]:
+            - generic [ref=f10e21]: "13"
+            - generic [ref=f10e22]: Ver notificaciones
+    - complementary "Menú de navegación" [ref=f10e23]:
+      - generic [ref=f10e24]:
+        - generic [ref=f10e25]:
+          - button "DeepLabs LLC Florida" [ref=f10e28] [cursor=pointer]:
+            - generic [ref=f10e33]:
+              - generic [ref=f10e34]: DeepLabs LLC
+              - generic [ref=f10e35]: Florida
+          - button "Cerrar menú" [ref=f10e38]
+        - navigation [ref=f10e43]:
+          - list [ref=f10e44]:
+            - listitem [ref=f10e45]:
+              - link "Inicio" [ref=f10e46] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=f10e50]:
+              - paragraph [ref=f10e51]: Company
+              - list [ref=f10e52]:
+                - listitem [ref=f10e53]:
+                  - link "Crea una LLC" [ref=f10e54] [cursor=pointer]:
+                    - /url: /start/
+                - listitem [ref=f10e58]:
+                  - link "Incorporación" [ref=f10e59] [cursor=pointer]:
+                    - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/dashboard
+                - listitem [ref=f10e63]:
+                  - link "Empresa" [ref=f10e64] [cursor=pointer]:
+                    - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/company
+                - listitem [ref=f10e68]:
+                  - link "Consultas" [ref=f10e69] [cursor=pointer]:
+                    - /url: /consultations/
+            - listitem [ref=f10e73]:
+              - paragraph [ref=f10e74]: Servicios
+              - list [ref=f10e75]:
+                - listitem [ref=f10e76]:
+                  - link "Otros servicios" [ref=f10e77] [cursor=pointer]:
+                    - /url: /services/
+                - listitem [ref=f10e81]:
+                  - link "Órdenes" [ref=f10e82] [cursor=pointer]:
+                    - /url: /orders/
+            - listitem [ref=f10e86]:
+              - paragraph [ref=f10e87]: Cuenta
+              - list [ref=f10e88]:
+                - listitem [ref=f10e89]:
+                  - group [ref=f10e90]:
+                    - generic "Ajustes" [ref=f10e91] [cursor=pointer]
+          - generic [ref=f10e97]:
+            - button "Feedback Beta" [ref=f10e98]:
+              - generic [ref=f10e101]: Feedback
+              - generic [ref=f10e102]: Beta
+            - link "Ayuda & Soporte" [ref=f10e103] [cursor=pointer]:
+              - /url: mailto:info@sotomayorconsulting.com
+          - generic [ref=f10e109]:
+            - paragraph [ref=f10e110]: Recursos
+            - link "Visita nuestra web" [ref=f10e111] [cursor=pointer]:
+              - /url: https://sotomayorconsulting.com/
+            - link "Términos y condiciones" [ref=f10e115] [cursor=pointer]:
+              - /url: https://sotomayorconsulting.com/inicio/terminos/
+        - group [ref=f10e120]:
+          - generic [ref=f10e121] [cursor=pointer]:
+            - img "Avatar" [ref=f10e122]
+            - generic [ref=f10e123]:
+              - paragraph [ref=f10e124]: Jhon
+              - paragraph [ref=f10e125]: jhondoe@google.com
+    - generic [ref=f10e129]:
+      - generic:
+        - generic:
+          - region "Notifications alt+T"
+      - generic [ref=f10e131]:
+        - generic [ref=f10e132]:
+          - generic [ref=f10e133]:
+            - paragraph [ref=f10e134]: Bienvenido de nuevo
+            - heading "Hola, Jhon" [level=1] [ref=f10e135]
+            - paragraph [ref=f10e136]: Aqui tienes un resumen de tu actividad en DeepLabs LLC.
+          - link "Ver mi Empresa" [ref=f10e137] [cursor=pointer]:
+            - /url: /start/
+        - generic [ref=f10e140]:
+          - article [ref=f10e141]:
+            - paragraph [ref=f10e143]: Empresas activas
+            - generic [ref=f10e147]:
+              - paragraph [ref=f10e148]: "0"
+              - paragraph [ref=f10e149]: 8 empresas registradas
+          - article [ref=f10e150]:
+            - paragraph [ref=f10e152]: Tareas pendientes
+            - generic [ref=f10e156]:
+              - paragraph [ref=f10e157]: "13"
+              - paragraph [ref=f10e158]: 13 sin leer
+          - article [ref=f10e159]:
+            - paragraph [ref=f10e161]: Proxima cita
+            - generic [ref=f10e165]:
+              - paragraph [ref=f10e166]: Por agendar
+              - paragraph [ref=f10e167]: Reserva cuando estes listo
+          - article [ref=f10e168]:
+            - paragraph [ref=f10e170]: Documentos
+            - generic [ref=f10e174]:
+              - paragraph [ref=f10e175]: "0"
+              - paragraph [ref=f10e176]: 0 disponibles
+        - generic [ref=f10e177]:
+          - generic [ref=f10e178]:
+            - generic [ref=f10e179]:
+              - heading "Acciones rápidas" [level=2] [ref=f10e180]
+              - link "Ver todo" [ref=f10e181] [cursor=pointer]:
+                - /url: /services
+            - generic [ref=f10e182]:
+              - link "Crea una LLC Constituye una nueva empresa en minutos." [ref=f10e183] [cursor=pointer]:
+                - /url: /start/
+                - generic [ref=f10e187]:
+                  - generic [ref=f10e188]: Crea una LLC
+                  - generic [ref=f10e189]: Constituye una nueva empresa en minutos.
+              - link "Agendar cita Reserva una sesion con un asesor." [ref=f10e192] [cursor=pointer]:
+                - /url: /services
+                - generic [ref=f10e196]:
+                  - generic [ref=f10e197]: Agendar cita
+                  - generic [ref=f10e198]: Reserva una sesion con un asesor.
+              - link "Mi perfil Gestiona tu informacion personal." [ref=f10e201] [cursor=pointer]:
+                - /url: /profile/general
+                - generic [ref=f10e205]:
+                  - generic [ref=f10e206]: Mi perfil
+                  - generic [ref=f10e207]: Gestiona tu informacion personal.
+              - link "Otros servicios Explora todo lo que ofrecemos." [ref=f10e210] [cursor=pointer]:
+                - /url: /services
+                - generic [ref=f10e214]:
+                  - generic [ref=f10e215]: Otros servicios
+                  - generic [ref=f10e216]: Explora todo lo que ofrecemos.
+          - complementary [ref=f10e219]:
+            - generic [ref=f10e220]:
+              - heading "Actividad" [level=2] [ref=f10e221]
+              - generic [ref=f10e222]: Activo
+            - generic [ref=f10e224]:
+              - 'link "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial! Ayer" [ref=f10e225] [cursor=pointer]':
+                - /url: /incorporation-and-payment
+                - generic [ref=f10e229]:
+                  - generic [ref=f10e230]: "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial!"
+                  - generic [ref=f10e231]: Ayer
+              - 'link "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial! Hace 3 dias" [ref=f10e232] [cursor=pointer]':
+                - /url: /incorporation-and-payment
+                - generic [ref=f10e236]:
+                  - generic [ref=f10e237]: "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial!"
+                  - generic [ref=f10e238]: Hace 3 dias
+              - 'link "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial! Hace 4 dias" [ref=f10e239] [cursor=pointer]':
+                - /url: /incorporation-and-payment
+                - generic [ref=f10e243]:
+                  - generic [ref=f10e244]: "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial!"
+                  - generic [ref=f10e245]: Hace 4 dias
+              - link "Tu documento de planificacion y diseno esta listo para revision en Nuvix LLC. Hace 4 dias" [ref=f10e246] [cursor=pointer]:
+                - /url: /my-companies/689270c6-7e40-4829-921e-6c260ede4190/dashboard
+                - generic [ref=f10e250]:
+                  - generic [ref=f10e251]: Tu documento de planificacion y diseno esta listo para revision en Nuvix LLC.
+                  - generic [ref=f10e252]: Hace 4 dias
+              - link "Se compartio un documento de tu caso Nuvix LLC para tu revision. Hace 4 dias" [ref=f10e253] [cursor=pointer]:
+                - /url: /documentos/689270c6-7e40-4829-921e-6c260ede4190
+                - generic [ref=f10e257]:
+                  - generic [ref=f10e258]: Se compartio un documento de tu caso Nuvix LLC para tu revision.
+                  - generic [ref=f10e259]: Hace 4 dias
+  - generic [ref=f10e262]:
+    - button [ref=f10e263]
+    - button [ref=f10e269]
+    - button [ref=f10e273]
+    - button [ref=f10e281]

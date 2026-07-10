@@ -78,6 +78,25 @@ export async function getOrdersForAdmin(
 	return mapOrderRows(data ?? []);
 }
 
+export async function getOrdersByUser(
+	supabase: SupabaseClient,
+	userId: string,
+): Promise<OrderAdminRow[]> {
+	const { data, error } = await supabase
+		.schema('orders')
+		.from('order_admin_details')
+		.select('*')
+		.eq('user_id', userId)
+		.order('created_at', { ascending: false });
+
+	if (error) {
+		log.error('Error fetching orders for user', { error, userId });
+		throw error;
+	}
+
+	return mapOrderRows(data ?? []);
+}
+
 // Órdenes de una incorporación (vista cliente). RLS security_invoker filtra a
 // las del propio usuario; se ordena por más recientes.
 export async function getOrdersByIncorporation(

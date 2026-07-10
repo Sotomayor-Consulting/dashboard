@@ -4,6 +4,7 @@ export const BUSINESS_TYPES = [
 ] as const;
 
 export const PROCESS_STATES = [
-	{ value: 'draft', label: 'En proceso' },
+	{ value: 'draft', label: 'Borrador' },
 	{ value: 'active', label: 'Activo' },
+	{ value: 'upgrade', label: 'Upgrade' },
 ] as const;

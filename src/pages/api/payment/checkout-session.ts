@@ -5,7 +5,17 @@ import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import {
+	PROCESSING_FEE_PERCENT,
+	attachStripeSessionToOrder,
+	computeFeeCents,
+	getOrCreatePendingOrder,
+} from '@domains/payments/checkout-orders';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import {
+	checkRateLimit,
+	rateLimitResponse,
+} from '@infrastructure/security/rate-limit';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('checkout-session');
@@ -20,6 +30,11 @@ const PUBLIC_SITE_URL =
 
 if (!STRIPE_SECRET_KEY) {
 	log.error('Missing STRIPE_SECRET_KEY environment variable.');
+}
+if (import.meta.env.PROD && PUBLIC_SITE_URL.includes('localhost')) {
+	log.error(
+		'PUBLIC_SITE_URL no configurada en producción: los success_url de Stripe apuntarán a localhost.',
+	);
 }
 
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
@@ -47,6 +62,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			status: 401,
 			headers: SECURITY_HEADERS,
 		});
+	}
+
+	if (!checkRateLimit(`checkout:${user.id}`)) {
+		return rateLimitResponse(SECURITY_HEADERS);
 	}
 
 	try {
@@ -167,8 +186,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		// 5) Montos
 		const planBaseAmount = Number(plan.price) + microserviciosTotal;
 		const baseAmountCents = Math.round(planBaseAmount * 100);
-		const feePercent = 0.045;
-		const feeCents = Math.round(baseAmountCents * feePercent);
+		const feePercent = PROCESSING_FEE_PERCENT;
+		const feeCents = computeFeeCents(baseAmountCents);
 
 		if (!Number.isFinite(baseAmountCents) || baseAmountCents <= 0) {
 			return new Response(
@@ -178,37 +197,21 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		}
 
 		// 5b) Orden (nace en pending_payment; el webhook la confirma vía RPC).
-		//     Una línea del plan (unit_price = plan.price retail) + una línea por addon.
-		//     Si el insert falla no bloqueamos el cobro: la orden es capa de tracking.
-		let orderId: string | null = null;
-		const { data: order, error: orderErr } = await supabaseAdmin
-			.schema('orders')
-			.from('orders')
-			.insert({
-				user_id: userId,
-				incorporation_id: empresaId,
-				status: 'pending_payment',
-				currency: 'usd',
-				metadata: {
-					plan_slug: plan.slug,
-					fee_cents: feeCents,
-					fee_percent: feePercent * 100,
-				},
-			})
-			.select('id')
-			.single();
-
-		if (orderErr || !order) {
-			log.error('No se pudo crear la orden (se continúa sin order_id)', {
-				error: orderErr,
-				userId,
-				planId: plan.id,
-			});
-		} else {
-			orderId = order.id;
-			const orderLines = [
+		//     Si ya existe una orden pendiente para esta empresa/usuario se
+		//     reutiliza (reemplazando líneas) — evita órdenes duplicadas cuando
+		//     el usuario cancela el checkout y reintenta el pago.
+		//     Si falla no bloqueamos el cobro: la orden es capa de tracking.
+		const pendingOrder = await getOrCreatePendingOrder(supabaseAdmin, {
+			userId,
+			incorporationId: empresaId,
+			flow: 'incorporation',
+			metadata: {
+				plan_slug: plan.slug,
+				fee_cents: feeCents,
+				fee_percent: feePercent * 100,
+			},
+			lines: [
 				{
-					order_id: orderId,
 					service_id: anchorServiceId,
 					service_plan_id: plan.id,
 					service_name: anchorServiceName,
@@ -217,7 +220,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 					quantity: 1,
 				},
 				...microserviciosValidados.map((m) => ({
-					order_id: orderId,
 					service_id: Number(m.id),
 					service_plan_id: null,
 					service_name: m.name,
@@ -225,16 +227,19 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 					unit_price: m.price,
 					quantity: 1,
 				})),
-			];
-			const { error: linesErr } = await supabaseAdmin
-				.schema('orders')
-				.from('order_lines')
-				.insert(orderLines);
-			if (linesErr) {
-				log.error('No se pudieron crear las order_lines', {
-					error: linesErr,
-					orderId,
-				});
+			],
+		});
+		const orderId = pendingOrder?.orderId ?? null;
+
+		// Expirar la Checkout Session anterior (si sigue abierta) para que solo
+		// exista un checkout activo por orden.
+		if (pendingOrder?.previousStripeSessionId) {
+			try {
+				await stripe.checkout.sessions.expire(
+					pendingOrder.previousStripeSessionId,
+				);
+			} catch {
+				// Ya expirada/completada — nada que hacer.
 			}
 		}
 
@@ -298,14 +303,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			metadata.microservicios_array = '[]';
 		}
 
+		// Sin payment_method_types: Stripe muestra dinámicamente los métodos
+		// óptimos (configurables desde el Dashboard, sin cambios de código).
 		const session = await stripe.checkout.sessions.create({
 			mode: 'payment',
-			payment_method_types: [
-				'card',
-				'us_bank_account',
-				'amazon_pay',
-				'cashapp',
-			],
 			line_items: lineItems,
 			client_reference_id: user.id,
 			metadata,
@@ -330,6 +331,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			cancel_url: `${PUBLIC_SITE_URL}/payment/cancel`,
 			...(user.email ? { customer_email: user.email } : {}),
 		});
+
+		if (orderId) {
+			await attachStripeSessionToOrder(supabaseAdmin, orderId, session.id);
+		}
 
 		if (!session.url) {
 			return new Response(
