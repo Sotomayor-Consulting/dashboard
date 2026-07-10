@@ -1,12 +1,7 @@
 ---
 import { Icon } from 'astro-icon/components';
 import type { OpsStageProps } from '../types';
-import {
-	priorityClass,
-	priorityLabel,
-	taskStatusBadge,
-	taskStatusLabel,
-} from '../../lib/style-helpers';
+import TaskCardsList from '../../components/TaskCardsList.astro';
 import {
 	resolvePlanningMeetingContext,
 	type PlanningMeetingSubstate,
@@ -75,19 +70,20 @@ if (showWizard) {
 	const report = await getReportByIncorporation(supabase, empresaId);
 	hasSavedReport = !!report;
 
-	const [{ data: estados }, { data: empresa }, activitiesRaw] = await Promise.all([
-		supabaseAdmin
-			.from('states')
-			.select('id, name')
-			.eq('country_id', 75)
-			.order('name', { ascending: true }),
-		supabaseAdmin
-			.from('incorporations')
-			.select('formation_state_id')
-			.eq('id', empresaId)
-			.maybeSingle(),
-		actividadesGeneral(supabaseAdmin),
-	]);
+	const [{ data: estados }, { data: empresa }, activitiesRaw] =
+		await Promise.all([
+			supabaseAdmin
+				.from('states')
+				.select('id, name')
+				.eq('country_id', 75)
+				.order('name', { ascending: true }),
+			supabaseAdmin
+				.from('incorporations')
+				.select('formation_state_id')
+				.eq('id', empresaId)
+				.maybeSingle(),
+			actividadesGeneral(supabaseAdmin),
+		]);
 
 	wizardStates = (estados ?? []).map((e: { id: number; name: string }) => ({
 		id: e.id,
@@ -122,80 +118,21 @@ if (showWizard) {
 
 <div class="space-y-4">
 	{/* ─── Task list ─── */}
-	{
-		currentStage.tasks.length > 0 && (
-			<ul class="divide-y divide-border">
-				{currentStage.tasks.map((t) => (
-					<li class="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-						<input
-							type="checkbox"
-							checked={t.status === 'completed'}
-							class="mt-1 h-4 w-4 shrink-0 rounded border-border"
-							disabled
-						/>
-						<div class="min-w-0 flex-1">
-							<div class="flex flex-wrap items-center gap-2">
-								<p
-									class={`text-sm font-medium ${
-										t.status === 'completed'
-											? 'text-muted-foreground line-through'
-											: 'text-foreground'
-									}`}
-								>
-									{t.title}
-								</p>
-								<span
-									class={`text-2xs rounded px-1.5 py-0.5 font-semibold tracking-wide uppercase ${priorityClass(t.priority)}`}
-								>
-									{priorityLabel(t.priority)}
-								</span>
-							</div>
-							<p class="mt-0.5 text-xs text-muted-foreground">
-								{t.description}
-							</p>
-						</div>
-						<div class="flex shrink-0 items-center gap-3">
-							{t.assignee ? (
-								<span class="inline-flex items-center gap-2 text-xs text-muted-foreground">
-									<span class="text-2xs inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted font-semibold text-foreground">
-										{t.assignee.initials}
-									</span>
-									{t.assignee.name}
-								</span>
-							) : (
-								<button
-									type="button"
-									class="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
-								>
-									<Icon name="ri:user-add-line" class="h-3.5 w-3.5" />
-									Asignar
-								</button>
-							)}
-							<span
-								class={`rounded-full px-2 py-0.5 text-[11px] font-medium ${taskStatusBadge(t.status)}`}
-							>
-								{taskStatusLabel(t.status)}
-							</span>
-						</div>
-					</li>
-				))}
-			</ul>
-		)
-	}
+	<TaskCardsList tasks={currentStage.tasks} />
 
 	{/* ─── Contextual stage UI ─── */}
 	{
 		substate === 'schedule_pending' && (
-			<div class="flex items-start gap-3 rounded-lg border border-dashed border-border p-3">
+			<div class="border-border flex items-start gap-3 rounded-lg border border-dashed p-3">
 				<Icon
 					name="ri:calendar-todo-line"
-					class="h-5 w-5 shrink-0 text-muted-foreground"
+					class="text-muted-foreground h-5 w-5 shrink-0"
 				/>
 				<div>
-					<p class="text-sm font-medium text-foreground">
+					<p class="text-foreground text-sm font-medium">
 						Esperando que el cliente agende la reunión
 					</p>
-					<p class="mt-0.5 text-xs text-muted-foreground">
+					<p class="text-muted-foreground mt-0.5 text-xs">
 						El cliente aún no ha agendado su reunión de planificación con un
 						asesor.
 					</p>
@@ -235,26 +172,24 @@ if (showWizard) {
 					class="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400"
 				/>
 				<div class="min-w-0">
-					<p class="text-sm font-medium text-foreground">
+					<p class="text-foreground text-sm font-medium">
 						Informe enviado al cliente
 					</p>
-					<p class="mt-0.5 text-xs text-muted-foreground">
-						El informe de planificación y diseño se generó y está disponible para
-						el cliente. La etapa avanzó al siguiente paso.
+					<p class="text-muted-foreground mt-0.5 text-xs">
+						El informe de planificación y diseño se generó y está disponible
+						para el cliente. La etapa avanzó al siguiente paso.
 					</p>
-					{
-						signedUrl && (
-							<a
-								href={signedUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-300"
-							>
-								<Icon name="ri:external-link-line" class="h-3.5 w-3.5" />
-								Ver informe
-							</a>
-						)
-					}
+					{signedUrl && (
+						<a
+							href={signedUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-300"
+						>
+							<Icon name="ri:external-link-line" class="h-3.5 w-3.5" />
+							Ver informe
+						</a>
+					)}
 				</div>
 			</div>
 		)
