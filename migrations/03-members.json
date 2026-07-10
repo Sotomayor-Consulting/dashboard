@@ -4,14 +4,14 @@
 		"description": "Crear miembros en members, enlazarlos a empresas en company_members, y sus direcciones en member_addresses.",
 		"n8n_flow": "1) INSERT members → capturar member_id → 2) INSERT company_members → 3) INSERT member_addresses",
 		"depends_on": "01-identity + 02-company (user_id y company_id deben existir)",
-		"idempotency": "UPSERT por identification_number (o full_name + birth_date como fallback)",
+		"idempotency": "UPSERT por identification_number (ahora con unique index parcial WHERE identification_number IS NOT NULL). Fallback: hash compuesto first_name+last_name+birth_date como external_id.",
 		"validation": "SUM(company_members.percentage) WHERE company_id = X debe ser 100"
 	},
 	"members": {
 		"_meta": {
 			"target_table": "public.members",
 			"required_on_insert": [],
-			"note": "person_type e identification_type tienen default pero conviene especificarlos. is_member e is_manager son campos directos en members (además de en company_members).",
+			"note": "person_type e identification_type tienen default. is_member e is_manager SOLO van en company_members, NO en members.",
 			"fk_resolve": {
 				"user_id": "UUID del auth.users SI el miembro es también usuario del sistema (puede ser null)",
 				"country_nationality_id": "lookup → public.countries.id",
@@ -20,16 +20,13 @@
 			}
 		},
 		"_helpers": {
-			"_email": "helper para matching/dedup — no se inserta en members",
-			"_us_resident": "helper para lógica — no existe columna en members"
+			"email": "helper para matching/dedup — NO se inserta en members. Resolver desde usuarios.correo vía user_id.",
+			"full_name": "helper de display — compuesto desde first_name + last_name (individual) o name (entity). NO es columna."
 		},
-		"_email": "",
-		"_us_resident": false,
 		"first_name": "",
 		"last_name": "",
-		"full_name": "",
 		"name": null,
-		"person_type": "natural_person",
+		"person_type": "individual",
 		"identification_number": "",
 		"identification_type": "passport",
 		"marital_status": null,
@@ -40,15 +37,13 @@
 		"country_id": null,
 		"ssn": null,
 		"itin": null,
-		"user_id": null,
-		"is_member": true,
-		"is_manager": false
+		"user_id": null
 	},
 	"company_members": {
 		"_meta": {
 			"target_table": "public.company_members",
 			"required_on_insert": ["company_id"],
-			"note": "id es bigint NOT NULL sin default — usar secuencia o proveer manualmente. Si is_irs_responsible del source, setear companies.irs_email con el _email del miembro.",
+			"note": "id es bigint identity (se genera solo). Si is_irs_responsible del source, setear companies.irs_email con el email del miembro (resuelto desde user_id).",
 			"fk_resolve": {
 				"company_id": "UUID de la company (de 02-company)",
 				"member_id": "UUID del member recién insertado",
@@ -69,7 +64,7 @@
 		"_meta": {
 			"target_table": "public.member_addresses",
 			"required_on_insert": ["member_id", "type", "line1"],
-			"note": "id es bigint NOT NULL sin default. is_primary tiene default true.",
+			"note": "id es bigint identity (se genera solo). is_primary default false. No tiene soft-delete (Decisión E del plan modelo).",
 			"fk_resolve": {
 				"member_id": "UUID del member recién insertado",
 				"country_id": "lookup → public.countries.id",
@@ -82,14 +77,13 @@
 		"line2": null,
 		"city": null,
 		"state_id": null,
-		"state": null,
 		"country_id": null,
 		"zip": null,
-		"is_primary": true
+		"is_primary": false
 	},
 	"_enums": {
-		"person_type": ["natural_person", "juridical_person"],
-		"identification_type": ["passport", "national_id", "driver_licence", "ein"],
+		"person_type": ["individual", "entity"],
+		"identification_type": ["passport", "drivers_license", "id", "ein"],
 		"marital_status": [
 			"single",
 			"married",
@@ -99,6 +93,6 @@
 			"civil_union",
 			"annulled"
 		],
-		"address_type": ["residential", "mailing", "business"]
+		"address_type": ["residential", "mailing", "business", "other"]
 	}
 }
