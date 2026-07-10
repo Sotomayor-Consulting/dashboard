@@ -20,7 +20,7 @@ const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 ---
 
 <nav
-	class="-mx-6 flex items-end gap-1 overflow-x-auto border-b border-border px-6 pt-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-border"
+	class="border-border scrollbar-thumb-border -mx-6 flex scrollbar-thin scrollbar-track-transparent items-end gap-1 overflow-x-auto border-b px-6 pt-3"
 	data-tab-strip
 	data-default-panel={defaultPanelId}
 	data-sync-url={syncUrl ? '1' : '0'}
@@ -39,10 +39,7 @@ const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 				<a
 					href={b.link}
 					data-astro-prefetch="load"
-					class:list={[
-						baseClass,
-						b.active ? activeClass : inactiveClass,
-					]}
+					class:list={[baseClass, b.active ? activeClass : inactiveClass]}
 					aria-current={b.active ? 'page' : undefined}
 				>
 					<Icon name={b.icon} class="h-5 w-5" />
@@ -52,10 +49,7 @@ const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 				<button
 					type="button"
 					data-tab-btn={b.id}
-					class:list={[
-						baseClass,
-						b.active ? activeClass : inactiveClass,
-					]}
+					class:list={[baseClass, b.active ? activeClass : inactiveClass]}
 					aria-current={b.active ? 'page' : undefined}
 				>
 					<Icon name={b.icon} class="h-5 w-5" />
@@ -67,10 +61,7 @@ const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 </nav>
 
 <script>
-	const ACTIVE_CLASSES = [
-		'border-primary-gold',
-		'text-primary-gold',
-	];
+	const ACTIVE_CLASSES = ['border-primary-gold', 'text-primary-gold'];
 	const INACTIVE_CLASSES = [
 		'border-transparent',
 		'text-muted-foreground',
@@ -82,12 +73,10 @@ const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 		const strip = document.querySelector<HTMLElement>('[data-tab-strip]');
 		if (!strip) return;
 
-		const buttons =
-			strip.querySelectorAll<HTMLButtonElement>('[data-tab-btn]');
+		const buttons = strip.querySelectorAll<HTMLButtonElement>('[data-tab-btn]');
 		if (buttons.length === 0) return;
 
-		const panels =
-			document.querySelectorAll<HTMLElement>('[data-tab-panel]');
+		const panels = document.querySelectorAll<HTMLElement>('[data-tab-panel]');
 		const defaultPanel = strip.dataset['defaultPanel'] ?? '';
 		const syncUrl = strip.dataset['syncUrl'] !== '0';
 

@@ -68,7 +68,7 @@ const processProgressPercent =
 // const nextStage = stages.find((s) => s.status !== 'completed') ?? null;
 // const nextStageName = nextStage?.name ?? null;
 
-const upgradeAvailable = empresa?.state === 'Upgrade' && !!servicioUpgrade;
+const upgradeAvailable = empresa?.state === 'upgrade' && !!servicioUpgrade;
 const upgradePrice = servicioUpgrade?.precio
 	? Number(servicioUpgrade.precio)
 	: null;

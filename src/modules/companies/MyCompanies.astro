@@ -9,9 +9,29 @@ const user = Astro.locals.user;
 const supabase = Astro.locals.supabase;
 const userId = user?.id;
 
-const empresas = userId
+const empresasRaw = userId
 	? await getEmpresasGenenralById(supabase, userId)
 	: null;
+
+const pickStateName = (v: unknown): string | null => {
+	if (!v) return null;
+	const row = Array.isArray(v) ? v[0] : v;
+	return (row as { name?: string } | null)?.name ?? null;
+};
+
+const STATE_LABELS: Record<string, string> = {
+	draft: 'En proceso',
+	active: 'Activo',
+	upgrade: 'Upgrade',
+};
+
+const empresas = empresasRaw?.map((e) => ({
+	...e,
+	tipo_de_negocio: e.entity_type,
+	estado: e.state ?? null,
+	estado_label: STATE_LABELS[e.state ?? ''] ?? (e.state || 'Sin estado'),
+	estado_de_incorporacion: pickStateName(e.formation_state),
+})) ?? null;
 
 const paths = [
 	{ label: 'Inicio', href: '/' },
@@ -60,19 +80,19 @@ const paths = [
 									</p>
 								</div>
 								<div>
-									{fr.estado === 'En proceso' ? (
+									{fr.estado === 'draft' ? (
 										<span
 											data-popover-target={`tooltip-${fr.id}`}
 											data-popover-placement="bottom-end"
 											class="badge-status bg-muted text-foreground"
 										>
 											<span class="mr-1 h-2 w-2 animate-pulse rounded-full bg-orange-500" />
-											{fr.estado}
+											{fr.estado_label}
 										</span>
 									) : (
 										<span class="badge-status bg-muted text-foreground">
 											<span class="mr-1 h-2 w-2 animate-pulse rounded-full bg-green-500" />
-											{fr.estado}
+											{fr.estado_label}
 										</span>
 									)}
 								</div>
