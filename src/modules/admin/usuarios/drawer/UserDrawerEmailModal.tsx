@@ -154,7 +154,7 @@ export function UserDrawerEmailModal({
 									type="text"
 									value={actionUrl}
 									onChange={(e) => setActionUrl(e.target.value)}
-									placeholder="/my-companies/..."
+									placeholder="/incorporation/..."
 								/>
 							</Field>
 							<Field>

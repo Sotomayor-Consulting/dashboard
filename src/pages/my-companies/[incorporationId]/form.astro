@@ -1,14 +1,6 @@
 ---
-import LayoutCommon from '@layouts/LayoutCommon.astro';
-import ClientForm from '@modules/companies/stages/client-form/ClientForm.astro';
-
-const { incorporationId } = Astro.params;
-
-if (!incorporationId) {
-	return Astro.redirect('/');
-}
+return Astro.redirect(
+	`/incorporation/${Astro.params.incorporationId}/form`,
+	301,
+);
 ---
-
-<LayoutCommon>
-	<ClientForm empresaId={incorporationId} />
-</LayoutCommon>

@@ -1,0 +1,12 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import Alerta from '@components/feedback/Alert.astro';
+import CompanyClientView from '@modules/companies/CompanyClientView.astro';
+
+const { companyId } = Astro.params;
+---
+
+<LayoutSidebar>
+	<Alerta />
+	<CompanyClientView companyId={companyId} />
+</LayoutSidebar>

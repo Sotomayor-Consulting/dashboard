@@ -188,9 +188,11 @@ api/
 - También aplica **CSP y headers de seguridad** a respuestas HTML (no a API/JSON ni redirects).
 - Control de acceso por rol basado en la ruta:
   - `/admin/`, `/users/`, `/forms/`, `/crud/` → solo `admin`
-  - `/incorporations/` → `admin`, `operaciones`
+  - `/admin/incorporations`, `/admin/companies`, `/admin/usuarios` → `admin`, `operaciones`
+  - `/incorporation/`, `/company/` → `cliente`, `partner` (vistas cliente)
   - `/partners/` → solo `partner`
-  - `/services/`, `/my-companies/`, `/profile/`, `/pages/` → multi-rol
+  - `/services/`, `/profile/`, `/pages/` → multi-rol
+  - Legacy (páginas redirect 301): `/my-companies/*` → `/incorporation|/company`, `/incorporations/*` → `/admin/incorporations`, `/companies/[id]` → `/admin/companies/[id]`, `/admin/incorporaciones|empresas` → `/admin/incorporations|companies`
   - Rutas públicas: `/api`, `/_image`, `/start`, `/incorporation-and-payment`, `/test`, `/assets`, `/payment/success`, `/payment/cancel`
   - Rutas auth (redirect a home si ya autenticado): `/sign-in`, `/sign-up`, `/forgot-password`
 - Los roles se obtienen de la tabla `user_roles` con FK a `roles`. Cache in-memory de 5 min para evitar query por request.

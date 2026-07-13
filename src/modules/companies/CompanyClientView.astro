@@ -2,10 +2,10 @@
 import TabBar from '@components/navigation/TabBar.astro';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import InformationPanel from './components/dashboard-companies/InformationPanel.astro';
-import CompanySociosPanel from './components/dashboard-companies/CompanySociosPanel.astro';
 import CompanyAddressesPanel from './components/dashboard-companies/CompanyAddressesPanel.astro';
 import CompanyDocumentsPanel from './components/dashboard-companies/CompanyDocumentsPanel.astro';
 import { getCompanyClientViewData } from './services/get-company-client-view-data';
+import { companyClientTabs } from './company-tabs';
 
 interface Props {
 	companyId: string | undefined;
@@ -56,25 +56,9 @@ const panelData = {
 	registered_agent: data.registeredAgentName,
 };
 
-const documentsHref = `/my-companies/company/${companyId}/documents`;
+const documentsHref = `/company/${companyId}/documents`;
 
-const tabs = [
-	{
-		id: 'company',
-		label: 'Empresa',
-		icon: 'ri:building-2-line',
-		kind: 'panel' as const,
-		active: true,
-	},
-	{
-		id: 'documents',
-		label: 'Documentos',
-		icon: 'ri:file-copy-line',
-		kind: 'link' as const,
-		link: documentsHref,
-		active: false,
-	},
-];
+const tabs = companyClientTabs(companyId, 'company');
 ---
 
 <div>
@@ -83,8 +67,7 @@ const tabs = [
 	<div data-tab-panel="company">
 		<InformationPanel empresa={panelData} estadoMapa={estadoMapa} />
 
-		<div class="my-4 grid w-full grid-cols-1 gap-6 xl:grid-cols-2">
-			<CompanySociosPanel socios={data.socios} />
+		<div class="my-4">
 			<CompanyAddressesPanel addresses={data.addresses} />
 		</div>
 

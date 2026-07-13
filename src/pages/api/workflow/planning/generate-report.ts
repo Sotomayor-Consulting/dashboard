@@ -71,7 +71,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 				recipients: [{ userId: client.userId }],
 				context: {
 					company_name: client.companyName ?? 'tu empresa',
-					action_url: `/my-companies/${incorporationId}/dashboard`,
+					action_url: `/incorporation/${incorporationId}`,
 				},
 			}).catch((err) => {
 				log.error('notification error', { error: err });

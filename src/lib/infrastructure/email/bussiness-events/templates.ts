@@ -49,7 +49,8 @@ export function buildBusinessEmailTemplate(
 	context: BusinessEmailCaseContext,
 ): BusinessEmailTemplateData {
 	const title = buildTitle(context.clientName);
-	const ctaUrl = payload.actionUrl?.trim() || `/my-companies/${context.caseId}/dashboard`;
+	const ctaUrl =
+		payload.actionUrl?.trim() || `/incorporation/${context.caseId}`;
 
 	if (payload.eventKey === 'workflow.task.completed') {
 		const taskName = payload.taskName?.trim() || 'Actualización de tarea';
@@ -58,7 +59,8 @@ export function buildBusinessEmailTemplate(
 		const highlightValue = taskName;
 		const details =
 			'Nuestro equipo ha registrado un nuevo avance en su proceso. Puede revisar el estado actualizado desde su panel.';
-		const ctaNote = 'Para consultar el detalle, ingrese al enlace seguro a continuación.';
+		const ctaNote =
+			'Para consultar el detalle, ingrese al enlace seguro a continuación.';
 		const ctaLabel = 'Ver avance';
 		return {
 			subject: 'Actualización de su proceso de incorporación',
@@ -93,7 +95,8 @@ export function buildBusinessEmailTemplate(
 		const details = payload.message?.trim()
 			? payload.message.trim()
 			: 'Por favor revise el requerimiento y cargue la información solicitada a la brevedad para evitar demoras en su proceso.';
-		const ctaNote = 'Puede atender esta solicitud desde su panel de documentos.';
+		const ctaNote =
+			'Puede atender esta solicitud desde su panel de documentos.';
 		const ctaLabel = 'Subir documento';
 		return {
 			subject: 'Solicitud de documento para su proceso',
@@ -155,7 +158,8 @@ export function buildBusinessEmailTemplate(
 		const highlightValue = context.companyName;
 		const details =
 			'Su información ya fue registrada en nuestros sistemas y nuestro equipo continuara con la siguiente etapa de revision.';
-		const ctaNote = 'Puede dar seguimiento al estado de su solicitud desde el siguiente enlace.';
+		const ctaNote =
+			'Puede dar seguimiento al estado de su solicitud desde el siguiente enlace.';
 		const ctaLabel = 'Ver solicitud';
 		return {
 			subject: 'Hemos recibido su solicitud',
@@ -187,7 +191,8 @@ export function buildBusinessEmailTemplate(
 		const highlightValue = serviceName;
 		const details =
 			'Su pago fue registrado exitosamente y continuaremos con las siguientes etapas de su proceso.';
-		const ctaNote = 'Puede revisar el avance actualizado desde el siguiente acceso.';
+		const ctaNote =
+			'Puede revisar el avance actualizado desde el siguiente acceso.';
 		const ctaLabel = 'Ver avance';
 		return {
 			subject: 'Pago confirmado de su proceso',
@@ -218,7 +223,8 @@ export function buildBusinessEmailTemplate(
 		const highlightValue = 'La información fue recibida correctamente';
 		const details =
 			'Nuestro equipo revisará la información enviada y continuará con el siguiente paso del proceso.';
-		const ctaNote = 'Puede consultar el estado actualizado desde el siguiente acceso.';
+		const ctaNote =
+			'Puede consultar el estado actualizado desde el siguiente acceso.';
 		const ctaLabel = 'Ver solicitud';
 		return {
 			subject: 'Hemos recibido su formulario',
@@ -248,7 +254,8 @@ export function buildBusinessEmailTemplate(
 	const highlightValue = context.companyName;
 	const details =
 		'Su proceso continua avanzando y ya puede revisar la información actualizada desde su panel.';
-	const ctaNote = 'Para consultar el siguiente paso, utilice el siguiente acceso.';
+	const ctaNote =
+		'Para consultar el siguiente paso, utilice el siguiente acceso.';
 	const ctaLabel = 'Ver detalle';
 
 	return {

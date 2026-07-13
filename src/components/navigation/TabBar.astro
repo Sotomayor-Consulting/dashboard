@@ -150,6 +150,16 @@ const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
 				if (id) setTab(id);
 			});
 		});
+
+		// Restaurar tab desde ?tab= (permite enlazar a un panel específico).
+		const requested = new URLSearchParams(window.location.search).get('tab');
+		if (
+			requested &&
+			requested !== defaultPanel &&
+			Array.from(buttons).some((b) => b.dataset['tabBtn'] === requested)
+		) {
+			setTab(requested);
+		}
 	}
 
 	initTabBar();

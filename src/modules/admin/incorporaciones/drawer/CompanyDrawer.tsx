@@ -80,14 +80,17 @@ export function CompanyDrawer({ companyId, onClose }: Props) {
 							<Tabs value={tab} onValueChange={setTab} className="w-full">
 								<TabsList className="!h-auto !w-full !justify-start !gap-1 !rounded-none !border-0 !border-b !border-gray-200 !bg-transparent !p-0 !shadow-none dark:!border-gray-800">
 									<TabsTrigger value="tareas" className={cn(TAB_TRIGGER_CLASS)}>
-									Tareas
-									{data.openTasksCount > 0 && (
-										<span className="ml-1.5 rounded-full bg-indigo-100 px-1.5 text-[10px] font-medium text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300">
-											{data.openTasksCount}
-										</span>
-									)}
-								</TabsTrigger>
-								<TabsTrigger value="documentos" className={cn(TAB_TRIGGER_CLASS)}>
+										Tareas
+										{data.openTasksCount > 0 && (
+											<span className="ml-1.5 rounded-full bg-indigo-100 px-1.5 text-[10px] font-medium text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300">
+												{data.openTasksCount}
+											</span>
+										)}
+									</TabsTrigger>
+									<TabsTrigger
+										value="documentos"
+										className={cn(TAB_TRIGGER_CLASS)}
+									>
 										Documentos
 										{data.pendingDocs > 0 && (
 											<span className="ml-1.5 rounded-full bg-amber-100 px-1.5 text-[10px] font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
@@ -122,7 +125,7 @@ export function CompanyDrawer({ companyId, onClose }: Props) {
 								className="ml-auto gap-1.5"
 								nativeButton={false}
 								render={
-									<a href={`/incorporations/${data.id}`}>
+									<a href={`/admin/incorporations/${data.id}`}>
 										Ir al proceso
 										<Icon icon="ri:arrow-right-line" className="h-4 w-4" />
 									</a>

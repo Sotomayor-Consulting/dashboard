@@ -1,15 +1,6 @@
 ---
-import LayoutSidebar from '@layouts/LayoutSidebar.astro';
-import Alerta from '@components/feedback/Alert.astro';
-import CompanyDocumentsDashboard from '@modules/documents/CompanyDocumentsDashboard.astro';
-
-const { incorporationId } = Astro.params;
+return Astro.redirect(
+	`/admin/incorporations/${Astro.params.incorporationId}/documents`,
+	301,
+);
 ---
-
-<LayoutSidebar>
-	<Alerta />
-	<CompanyDocumentsDashboard
-		incorporationCaseId={incorporationId}
-		dashboardVariant="staff"
-	/>
-</LayoutSidebar>

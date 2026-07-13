@@ -1,5 +1,4 @@
 ---
-// La tabla de incorporaciones se migró a /admin/incorporaciones (rediseño).
-// Mantenemos /incorporations/[id] como vista de detalle del proceso.
-return Astro.redirect('/admin/incorporaciones', 301);
+// Ruta legacy: el listado staff vive en /admin/incorporations.
+return Astro.redirect('/admin/incorporations', 301);
 ---

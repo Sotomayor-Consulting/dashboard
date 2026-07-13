@@ -1,0 +1,49 @@
+---
+import TabBar from '@components/navigation/TabBar.astro';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import CompanySociosPanel from './components/dashboard-companies/CompanySociosPanel.astro';
+import { getCompanyClientViewData } from './services/get-company-client-view-data';
+import { companyClientTabs } from './company-tabs';
+
+interface Props {
+	companyId: string | undefined;
+}
+
+const { companyId } = Astro.props;
+const user = Astro.locals.user;
+const userId = user?.id;
+const supabase = Astro.locals.supabase;
+
+if (!companyId || !userId) {
+	return Astro.redirect('/');
+}
+
+// Ownership vía RLS de companies (dueño o staff).
+const { data: ownedCompany } = await supabase
+	.from('companies')
+	.select('id')
+	.eq('id', companyId)
+	.maybeSingle<{ id: string }>();
+
+if (!ownedCompany) {
+	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
+}
+
+const userRoles = Astro.locals.userRoles ?? [];
+const data = await getCompanyClientViewData(supabaseAdmin, companyId, {
+	userId,
+	userRoles,
+});
+
+if (!data.company) {
+	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
+}
+---
+
+<div>
+	<TabBar buttons={companyClientTabs(companyId, 'members')} />
+
+	<div class="my-4">
+		<CompanySociosPanel socios={data.socios} />
+	</div>
+</div>

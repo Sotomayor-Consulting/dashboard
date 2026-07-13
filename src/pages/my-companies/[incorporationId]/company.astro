@@ -1,63 +1,14 @@
 ---
-import LayoutSidebar from '@layouts/LayoutSidebar.astro';
-import Alerta from '@components/feedback/Alert.astro';
-import InformationPanel from '@modules/companies/components/dashboard-companies/InformationPanel.astro';
-import { getIncorporacionById } from '@domains/companies/incorporations';
+// Ruta legacy: la vista de empresa constituida vive en /company/[companyId].
+// Si la incorporación aún no tiene empresa canónica, volvemos al proceso.
+const { data } = await Astro.locals.supabase
+	.from('companies')
+	.select('id')
+	.eq('incorporation_id', Astro.params.incorporationId ?? '')
+	.maybeSingle<{ id: string }>();
 
-const { incorporationId } = Astro.params;
-const user = Astro.locals.user;
-const userId = user?.id;
-const supabase = Astro.locals.supabase;
-
-if (!incorporationId || !userId) {
-	return Astro.redirect('/');
+if (data?.id) {
+	return Astro.redirect(`/company/${data.id}`);
 }
-
-const empresa = await getIncorporacionById(supabase, incorporationId, userId);
-
-if (!empresa) {
-	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
-}
-
-const isIncorporated = empresa.state === 'active';
-const estadoMapa = empresa.estado_de_incorporacion ?? '';
+return Astro.redirect(`/incorporation/${Astro.params.incorporationId}`);
 ---
-
-<LayoutSidebar>
-	<Alerta />
-	{
-		isIncorporated ? (
-			<InformationPanel empresa={empresa} estadoMapa={estadoMapa} />
-		) : (
-			<div class="flex flex-col items-center justify-center py-20 text-center">
-				<div class="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-					<svg
-						class="h-8 w-8 text-muted-foreground"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						stroke-width="1.5"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21"
-						/>
-					</svg>
-				</div>
-				<h3 class="mt-4 text-lg font-semibold text-foreground">
-					Empresa aún no constituida
-				</h3>
-				<p class="mt-1 max-w-sm text-sm text-muted-foreground">
-					Tu empresa se encuentra en proceso de incorporación. Una vez completado el proceso, aquí podrás ver toda la información de tu empresa constituida.
-				</p>
-				<a
-					href={`/my-companies/${incorporationId}/dashboard`}
-					class="mt-6 inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-				>
-					Ver proceso de incorporación
-				</a>
-			</div>
-		)
-	}
-</LayoutSidebar>

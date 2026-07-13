@@ -2,10 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
-import {
-	DocumentsError,
-	resolveDocumentActor,
-} from '@domains/documents';
+import { DocumentsError, resolveDocumentActor } from '@domains/documents';
 import { uploadPlanningDocument } from '@domains/workflow/stages/planning-meeting-upload';
 import { getClientRecipientForCase } from '@domains/workflow/stages/planning-meeting-recipients';
 import { notifyByEvent } from '@infrastructure/notifications';
@@ -74,7 +71,7 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 				recipients: [{ userId: client.userId }],
 				context: {
 					company_name: client.companyName ?? 'tu empresa',
-					action_url: `/my-companies/${caseId}/dashboard`,
+					action_url: `/incorporation/${caseId}`,
 				},
 			}).catch((err) => {
 				log.error('notification error', { error: err });

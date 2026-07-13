@@ -33,32 +33,36 @@ const showClientOnlyHome =
 	!userRoles.includes('operaciones') &&
 	empresas.length === 0;
 
+// La empresa activa puede ser una incorporación (proceso), una empresa
+// canónica (constituida) o ambas: cada link solo aparece si aplica.
 const dynamicItems: MenuItem[] = [];
 if (isClientOrPartner && activeCompany) {
-	dynamicItems.push(
-		{
+	if (activeCompany.incorporation_id) {
+		dynamicItems.push({
 			id: 'company-incorporation',
 			label: 'Incorporación',
-			href: `/my-companies/${activeCompany.id}/dashboard`,
+			href: `/incorporation/${activeCompany.incorporation_id}`,
 			tooltip: 'Proceso de incorporación',
 			roles: ['cliente', 'partner'],
 			svgname: 'ri:file-list-3-line',
 			sequence: 20,
 			group: 'Company',
 			colors: 'text-cyan-700',
-		},
-		{
+		});
+	}
+	if (activeCompany.company_id) {
+		dynamicItems.push({
 			id: 'company-entity',
 			label: 'Empresa',
-			href: `/my-companies/${activeCompany.id}/company`,
+			href: `/company/${activeCompany.company_id}`,
 			tooltip: 'Tu empresa constituida',
 			roles: ['cliente', 'partner'],
 			svgname: 'ri:building-2-line',
 			sequence: 25,
 			group: 'Company',
 			colors: 'text-cyan-700',
-		},
-	);
+		});
+	}
 }
 
 const visibleMenu = [...menuItems, ...dynamicItems].filter(
@@ -314,13 +318,16 @@ const inactiveClass =
 			</div>
 		</nav>
 
-		<div class="shrink-0 border-t border-gray-200/90 p-3 dark:border-gray-700/80">
+		<div
+			class="shrink-0 border-t border-gray-200/90 p-3 dark:border-gray-700/80"
+		>
 			<details class="group">
 				<summary
 					class="flex cursor-pointer list-none items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
 				>
 					<img
-						src={avatarUrl ?? `https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
+						src={avatarUrl ??
+							`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
 						alt="Avatar"
 						class="h-8 w-8 rounded-full border border-gray-200 object-cover dark:border-gray-700"
 						data-user-avatar
@@ -365,7 +372,7 @@ const inactiveClass =
 
 <!-- Mobile backdrop -->
 <div
-	class="fixed inset-0 z-30 bg-gray-900/50 opacity-0 transition-opacity duration-300 ease-in-out motion-reduce:transition-none lg:hidden dark:bg-gray-900/80 pointer-events-none"
+	class="pointer-events-none fixed inset-0 z-30 bg-gray-900/50 opacity-0 transition-opacity duration-300 ease-in-out motion-reduce:transition-none lg:hidden dark:bg-gray-900/80"
 	id="sidebarBackdrop"
 	aria-hidden="true"
 >
@@ -760,10 +767,14 @@ const inactiveClass =
 			toggleBtn.dataset.sidebarBound = '1';
 			toggleBtn.addEventListener('click', () => {
 				const sidebar = document.getElementById('sidebar');
-				const isOpen = sidebar && !sidebar.classList.contains('-translate-x-full');
+				const isOpen =
+					sidebar && !sidebar.classList.contains('-translate-x-full');
 				isOpen ? closeMobileDrawer() : openMobileDrawer();
 				toggleBtn.setAttribute('aria-expanded', String(!isOpen));
-				toggleBtn.setAttribute('aria-label', !isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
+				toggleBtn.setAttribute(
+					'aria-label',
+					!isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación',
+				);
 			});
 		}
 
@@ -773,11 +784,13 @@ const inactiveClass =
 			backdrop.addEventListener('click', closeMobileDrawer);
 		}
 
-		document.querySelectorAll<HTMLElement>('[data-drawer-hide="sidebar"]').forEach((el) => {
-			if (el.dataset.sidebarBound) return;
-			el.dataset.sidebarBound = '1';
-			el.addEventListener('click', closeMobileDrawer);
-		});
+		document
+			.querySelectorAll<HTMLElement>('[data-drawer-hide="sidebar"]')
+			.forEach((el) => {
+				if (el.dataset.sidebarBound) return;
+				el.dataset.sidebarBound = '1';
+				el.addEventListener('click', closeMobileDrawer);
+			});
 	}
 
 	document.addEventListener('astro:page-load', initSidebar);

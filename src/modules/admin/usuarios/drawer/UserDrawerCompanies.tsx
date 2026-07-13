@@ -27,7 +27,7 @@ export function UserDrawerCompanies({ user }: { user: AdminUserDetail }) {
 					{visible.map((c) => (
 						<a
 							key={c.id}
-							href={`/incorporations/${c.id}`}
+							href={`/admin/incorporations/${c.id}`}
 							className="flex items-center gap-3 rounded-md border border-gray-200 px-3 py-2 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-neutral-900"
 						>
 							<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-gray-100 dark:bg-neutral-800">

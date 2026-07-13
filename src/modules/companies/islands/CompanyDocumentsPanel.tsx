@@ -4,7 +4,12 @@ import { UploadIcon } from 'lucide-react';
 
 import { Button } from '@components/ui/Button';
 import { DropzoneField } from '@components/ui/DropzoneField';
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@components/ui/Field';
+import {
+	Field,
+	FieldDescription,
+	FieldGroup,
+	FieldLabel,
+} from '@components/ui/Field';
 import {
 	Select,
 	SelectContent,
@@ -54,7 +59,7 @@ export default function CompanyDocumentsPanel({
 	// owner y storage path desde ahí). Sin incorporación no hay contexto válido.
 	const canUpload = canEditDetails && !!incorporationId;
 
-	const backPath = `/companies/${companyId}?tab=documentos`;
+	const backPath = `/admin/companies/${companyId}/documents`;
 	const uploadAction = incorporationId
 		? `/api/documents/upload?relatedToType=incorporation_case&relatedToId=${encodeURIComponent(
 				incorporationId,
@@ -115,8 +120,8 @@ export default function CompanyDocumentsPanel({
 					<SheetHeader className="pb-3">
 						<SheetTitle>Subir documento</SheetTitle>
 						<p className="text-muted-foreground text-sm">
-							El documento quedará vinculado a esta empresa y podrás
-							compartirlo con el cliente.
+							El documento quedará vinculado a esta empresa y podrás compartirlo
+							con el cliente.
 						</p>
 					</SheetHeader>
 
