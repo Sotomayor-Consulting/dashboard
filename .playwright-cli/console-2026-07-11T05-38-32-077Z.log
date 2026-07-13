@@ -1,9 +1,0 @@
-[    1132ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Outdated Optimize Dep) @ http://localhost:4321/@id/astro/runtime/client/dev-toolbar/entrypoint.js:0
-[    1193ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:4321/node_modules/.vite/deps/client--C8cioMw.js?v=5111de01:14391
-[    1693ms] [WARNING] Flowbite: Instance with ID sidebar does not exist. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5111de01:94
-[    1693ms] [ERROR] Drawer with id sidebar has not been initialized. Please initialize it using the data-drawer-target attribute. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5111de01:2704
-[    1697ms] [WARNING] Flowbite: Instance with ID sidebar does not exist. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5111de01:94
-[    1697ms] [ERROR] Drawer with id sidebar has not been initialized. Please initialize it using the data-drawer-target attribute. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5111de01:2704
-[    1829ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Outdated Optimize Dep) @ http://localhost:4321/node_modules/.vite/deps/@base-ui_react_menu.js?v=5111de01:0
-[    1856ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Outdated Optimize Dep) @ http://localhost:4321/node_modules/.vite/deps/@base-ui_react_scroll-area.js?v=5111de01:0
-[    2840ms] [ERROR] [astro-island] Error hydrating /src/components/feedback/islands/NotificationsTable.tsx TypeError: Failed to fetch dynamically imported module: http://localhost:4321/src/components/feedback/islands/NotificationsTable.tsx#astro-retry=1783748314911 @ http://localhost:4321/notifications:18154

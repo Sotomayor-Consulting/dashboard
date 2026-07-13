@@ -1,9 +1,0 @@
-[     754ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:4321/node_modules/.vite/deps/client--C8cioMw.js?v=5098c12e:14391
-[    2026ms] [WARNING] Flowbite: Instance with ID popup-modal does not exist. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5098c12e:94
-[    2026ms] [ERROR] Modal with id popup-modal has not been initialized. Please initialize it using the data-modal-target attribute. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5098c12e:2436
-[    2026ms] [WARNING] Flowbite: Instance with ID sidebar does not exist. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5098c12e:94
-[    2026ms] [ERROR] Drawer with id sidebar has not been initialized. Please initialize it using the data-drawer-target attribute. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5098c12e:2704
-[    2051ms] [WARNING] Flowbite: Instance with ID popup-modal does not exist. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5098c12e:94
-[    2051ms] [ERROR] Modal with id popup-modal has not been initialized. Please initialize it using the data-modal-target attribute. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5098c12e:2436
-[    2051ms] [WARNING] Flowbite: Instance with ID sidebar does not exist. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5098c12e:94
-[    2051ms] [ERROR] Drawer with id sidebar has not been initialized. Please initialize it using the data-drawer-target attribute. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5098c12e:2704

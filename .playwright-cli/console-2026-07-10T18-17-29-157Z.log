@@ -1,5 +1,0 @@
-[     718ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:4321/node_modules/.vite/deps/client--C8cioMw.js?v=af937c87:14391
-[     795ms] [WARNING] Flowbite: Instance with ID sidebar does not exist. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=af937c87:94
-[     795ms] [ERROR] Drawer with id sidebar has not been initialized. Please initialize it using the data-drawer-target attribute. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=af937c87:2704
-[     797ms] [WARNING] Flowbite: Instance with ID sidebar does not exist. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=af937c87:94
-[     798ms] [ERROR] Drawer with id sidebar has not been initialized. Please initialize it using the data-drawer-target attribute. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=af937c87:2704

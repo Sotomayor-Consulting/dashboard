@@ -1,9 +1,0 @@
-[   11123ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:4321/node_modules/.vite/deps/client--C8cioMw.js?v=6ac47271:14391
-[   13958ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Outdated Optimize Dep) @ http://localhost:4321/@id/astro/runtime/client/dev-toolbar/entrypoint.js:0
-[   16316ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:4321/node_modules/.vite/deps/client--C8cioMw.js?v=5111de01:14391
-[   17627ms] [ERROR] Provider's accounts list is empty. @ http://localhost:4321/sign-in:0
-[   20216ms] [ERROR] [GSI_LOGGER]: FedCM get() rejects with NetworkError: Error retrieving a token. @ https://accounts.google.com/gsi/client:87
-[   33558ms] [WARNING] Flowbite: Instance with ID sidebar does not exist. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5111de01:94
-[   33559ms] [ERROR] Drawer with id sidebar has not been initialized. Please initialize it using the data-drawer-target attribute. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5111de01:2704
-[   33572ms] [WARNING] Flowbite: Instance with ID sidebar does not exist. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5111de01:94
-[   33572ms] [ERROR] Drawer with id sidebar has not been initialized. Please initialize it using the data-drawer-target attribute. @ http://localhost:4321/node_modules/.vite/deps/flowbite.js?v=5111de01:2704
