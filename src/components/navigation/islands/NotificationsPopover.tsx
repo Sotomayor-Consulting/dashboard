@@ -316,6 +316,7 @@ export default function NotificationsPopover({
 								variant="link"
 								size="sm"
 								className="h-auto gap-1.5 px-2 py-1 text-xs"
+								nativeButton={false}
 								render={
 									<a
 										href={notification.action_url}

@@ -63,7 +63,7 @@ export const getUsuarioPerfilPartner = async (
 		.from('billing_info')
 		.select('line1, line2, email, tax_id, phone')
 		.eq('user_id', userId)
-		.single();
+		.maybeSingle();
 
 	if (error) {
 		log.error('Error fetching usuario perfil partner', { error });
@@ -89,7 +89,7 @@ export const getMissingPartnerFields = async (
 ): Promise<PartnerRequiredField[]> => {
 	const profile = await getUsuarioPerfilPartner(supabase, userId);
 
-	if (!profile) return [];
+	if (!profile) return [...PARTNER_REQUIRED_FIELDS];
 
 	return getMissingFieldsFromProfile(profile);
 };

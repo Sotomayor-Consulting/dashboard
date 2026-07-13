@@ -17,8 +17,8 @@
 		"javascript"
 	],
 	"homepage": "https://dashboard.sotomayorconsulting.com/",
-	"bugs": "https://github.com/themesberg/flowbite-astro-admin-dashboard/issues",
-	"repository": "https://github.com/themesberg/flowbite-astro-admin-dashboard.git",
+	"bugs": "https://github.com/Sotomayor-Consulting/dashboard/issues",
+	"repository": "https://github.com/Sotomayor-Consulting/dashboard.git",
 	"license": "MIT",
 	"author": "Sotomayor Consulting.",
 	"contributors": [

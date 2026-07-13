@@ -2,9 +2,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from './Tooltip';
 import { cn } from '@components/utils';
 
 /**
- * Popover informativo en hover (reemplazo del patrón data-popover de
- * Flowbite): ícono "i" como trigger + card con título y texto.
- * Base UI (Tooltip) hace posicionamiento, flip y accesibilidad.
+ * Popover informativo en hover: ícono "i" como trigger + card con título y texto.
  */
 interface InfoPopoverProps {
 	/** Título de la card */

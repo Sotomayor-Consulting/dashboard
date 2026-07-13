@@ -1,9 +1,6 @@
 import { Tooltip, TooltipTrigger, TooltipContent } from '@components/ui/Tooltip';
 
-/**
- * Badge de estado "draft" con popover explicativo en hover
- * (reemplazo del patrón data-popover de Flowbite en MyCompanies).
- */
+/** Badge de estado "draft" con popover explicativo en hover. */
 interface StatusBadgePopoverProps {
 	estadoLabel: string;
 }

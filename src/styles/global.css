@@ -691,7 +691,7 @@ html[data-step-dir]::view-transition-new(start-step) {
 	}
 }
 
-/* ─── <dialog> nativo (reemplazo de modales/drawers Flowbite) ─── */
+/* ─── <dialog> nativo ─── */
 /* Bloquea el scroll del fondo mientras un dialog modal esté abierto */
 body:has(dialog[open]) {
 	overflow: hidden;

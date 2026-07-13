@@ -66,7 +66,7 @@ export default defineConfig({
 	vite: {
 		customLogger: logger,
 		server: {
-			allowedHosts: ['.trycloudflare.com'],
+			allowedHosts: ['.trycloudflare.com', 'dev.sotomayorconsulting.com'],
 		},
 		plugins: [tailwindcss()],
 		optimizeDeps: {

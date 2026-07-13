@@ -8,10 +8,7 @@ import {
 	DropdownMenuSeparator,
 } from '@components/ui/DropdownMenu';
 
-/**
- * Selector de rango del card de transacciones (reemplazo del
- * data-dropdown-toggle de Flowbite en AnnualMaintenance).
- */
+/** Selector de rango del card de transacciones. */
 const RANGES = [
 	'Yesterday',
 	'Today',
