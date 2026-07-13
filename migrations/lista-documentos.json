@@ -1,0 +1,36 @@
+{
+	"incorporation": {
+		"InformePlanificacion": {}
+	},
+	"company": {
+		"FacturaDeServicioBásico": {},
+		"ConstanciaDeIncorporación": {},
+		"ComprobanteCambioAgenteResidente": {},
+		"CancelaciónMailingServices": {},
+		"AcuerdoDeOperacion": {},
+		"ClientAcknowledgmentLimitedScopeOfServicesAndReleaseOfResponsibility": {},
+		"FormularioSS4": {},
+		"DisclaimerUsoDeDirecciónEnFlorida": {},
+		"ContratoOfficer": {},
+		"documentosFirmados": {
+			"FormularioSS4": {},
+			"OperatingAgreement": {},
+			"ContratoDeOfficer": {},
+			"DisclaimerSobreUsoDeDirecciónComercial": {},
+			"ClientAcknowledgmentLimitedScopeOfServicesAndReleaseOfResponsibility": {}
+		},
+		"SolicitudDeEIN": {},
+		"ReporteFax": {},
+		"DocumentoEIN": {},
+		"EINVerificationLetterCarta147C": {},
+		"RegistroBOIR": {},
+		"CartaBancaria": {},
+		"Formulario8832": {},
+		"CertificadoDeRecepciónForm8832": {}
+	},
+	"members": {
+		"Pasaporte": {},
+		"CertificadoDeExistenciaLegalYCumplimiento": {},
+		"FacturaDeServicioBásico": {}
+	}
+}

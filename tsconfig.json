@@ -4,20 +4,24 @@
 		"module": "ESNext",
 		"moduleResolution": "bundler",
 		"esModuleInterop": true,
-		"jsx": "react-jsx",
-		"jsxImportSource": "react",
 		"paths": {
+			"@layouts/*": ["./src/layouts/*"],
 			"@components/*": ["./src/components/*"],
-			"@assets/*": ["./src/assets/*"],
-			"@styles/*": ["./src/styles/*"],
-			"@lib/*": ["./src/lib/*"],
-			"@lib/auth": ["./src/lib/auth/index.ts"],
-			"@lib/supabase": ["./src/lib/supabase/index.ts"],
-			"@app/*": ["./src/app/*"],
 			"@modules/*": ["./src/modules/*"],
-			"@types/*": ["./src/types/*"],
-			"@services/*": ["./src/services/*"],
-			"@middleware/*": ["./src/middleware/*"]
+			"@domains/*": ["./src/domains/*"],
+			"@infrastructure/*": ["./src/lib/infrastructure/*"],
+			"@integrations/*": ["./src/lib/integrations/*"],
+			"@shared/*": ["./src/lib/shared/*"],
+			"@third-party/*": ["./src/lib/third-party/*"],
+			"@assets/*": ["./src/assets/*"],
+			"@styles/*": ["./src/styles/*"]
 		}
-	}
+	},
+	"exclude": [
+		"dist",
+		"node_modules",
+		"public",
+		"src/lib/third-party/alpinejs",
+		"src/lib/third-party/simple-data-tables"
+	]
 }

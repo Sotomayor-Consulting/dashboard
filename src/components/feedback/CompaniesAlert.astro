@@ -1,0 +1,53 @@
+---
+import { Alert, AlertDescription, AlertTitle } from '@components/ui/Alert';
+import { CheckCircle2, CircleAlert, X } from 'lucide-react';
+---
+
+<Alert
+	id="toast-feedback-2"
+	className="fixed top-20 right-4 z-50 hidden w-[calc(100%-2rem)] max-w-md items-start backdrop-blur-sm"
+	variant="destructive"
+>
+	<div
+		id="toast-icon-wrapper"
+		class="bg-background/80 text-foreground ring-border inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1"
+	>
+		<CheckCircle2 id="toast-icon-success" className="hidden h-4 w-4" />
+		<CircleAlert id="toast-icon-error" className="hidden h-4 w-4" />
+		<span class="sr-only">Estado</span>
+	</div>
+
+	<div class="ms-3 min-w-0 space-y-1">
+		<AlertTitle>Estado de la empresa</AlertTitle>
+		<AlertDescription>
+			<span class="ms-3"></span>
+		</AlertDescription>
+	</div>
+
+	<button
+		type="button"
+		class="text-muted-foreground hover:text-foreground hover:bg-background/80 focus-visible:ring-ring inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors outline-none focus-visible:ring-2"
+		data-dismiss-target="#toast-feedback-2"
+		aria-label="Close"
+	>
+		<span class="sr-only">Cerrar</span>
+		<X className="h-4 w-4" />
+	</button>
+</Alert>
+
+<script is:inline>
+	(function () {
+		const toast = document.getElementById('toast-feedback-2');
+		if (!toast) return;
+
+		const closeBtn = toast.querySelector(
+			'[data-dismiss-target="#toast-feedback-2"]',
+		);
+		if (!closeBtn) return;
+
+		closeBtn.addEventListener('click', () => {
+			toast.classList.add('hidden');
+			toast.classList.remove('grid');
+		});
+	})();
+</script>

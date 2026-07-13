@@ -1,0 +1,626 @@
+---
+import Dropzone from '@components/display/Dropzone.astro';
+import { Icon } from 'astro-icon/components';
+import InfoPopover from '@components/ui/InfoPopover.tsx';
+import PrintContract from '@components/display/PrintContract.astro';
+import { getUsuarioById, getMissingPartnerFields } from '@domains/users/users';
+import { getDocumentosGenerales } from '@domains/documents/documents';
+const user = Astro.locals.user;
+const userRoles = Astro.locals.userRoles || [];
+const UserId = user?.id;
+const supabase = Astro.locals.supabase;
+
+let datosParaReporte = {};
+
+let usuario = UserId ? await getUsuarioById(supabase, UserId) : null;
+
+if (!usuario && Astro.props.data) {
+	usuario = Astro.props.data;
+}
+if (usuario) {
+	datosParaReporte = {
+		nombre: [usuario.nombre, usuario.apellido].join(' '),
+		correoElectronico: usuario.correo,
+		fullAddress: [usuario.direccion_linea1, usuario.direccion_linea2].join(' '),
+		tipoIdentificacion: usuario.tipo_identificacion,
+		numeroIdentificacion: usuario.numero_de_identificacion,
+		tipoPersona: usuario.tipo_persona,
+	};
+}
+
+const documentos = UserId
+	? await getDocumentosGenerales(supabase, UserId)
+	: null;
+
+interface Props {
+	data: object;
+	templateName?: string;
+	reportName?: string;
+}
+
+let perfilCompleto = false;
+const isPartner = userRoles.includes('partner');
+
+if (isPartner && user) {
+	const camposFaltantes = await getMissingPartnerFields(supabase, user.id);
+	perfilCompleto = camposFaltantes.length === 0;
+}
+---
+
+<div class="px-4 pt-6">
+	<div
+		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
+	>
+		<div
+			class="items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:flex sm:p-6 dark:border-gray-700 dark:bg-transparent"
+		>
+			<div class="w-full">
+				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+					Tu código de partner
+				</h3>
+				<div class="w-full">
+					<div class="relative">
+						<label for="npm-install-input" class="sr-only">Label</label>
+						<!-- Cambiado -->
+						<input
+							id="npm-install-input"
+							type="text"
+							class="block w-full rounded-xl border-0 bg-transparent p-0 text-2xl font-bold text-gray-900 sm:text-3xl dark:bg-transparent dark:text-white"
+							value={usuario.codigo_de_partner}
+							disabled
+							readonly
+						/>
+						<button
+							id="npm-install-copy-button"
+							class="bg-primary-gold hover:bg-primary-gold/80 dark:hover:bg-primary-gold/80 dark:bg-primary-gold peer absolute inset-e-2 top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-lg p-2 text-white"
+						>
+							<span id="default-icon">
+								<svg
+									class="h-7 w-7"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="none"
+									viewBox="0 0 24 24"
+									><path
+										stroke="currentColor"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z"
+									></path></svg
+								>
+							</span>
+							<span id="success-icon" class="hidden">
+								<svg
+									class="h-7 w-7"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="none"
+									viewBox="0 0 24 24"
+									><path
+										stroke="currentColor"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 7 2 2 4-4m-5-9v4h4V3h-4Z"
+									></path></svg
+								>
+							</span>
+							<span class="ml-1 hidden md:block">Copiar código</span>
+						</button>
+						<div
+							id="tooltip-copy-npm-install-copy-button"
+							role="tooltip"
+							class="bg-white-50 invisible absolute right-0 bottom-full z-10 mb-2 inline-block rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap text-black opacity-0 shadow-xs transition-opacity duration-300 peer-hover:visible peer-hover:opacity-100 dark:bg-neutral-900 dark:text-white"
+						>
+							<span id="default-tooltip-message">Copiar código de partners</span
+							>
+							<span id="success-tooltip-message" class="hidden">Copiado!</span>
+						</div>
+					</div>
+				</div>
+				<p
+					class="flex items-center text-base font-normal text-gray-500 dark:text-gray-400"
+				>
+					{usuario.correo}
+				</p>
+			</div>
+		</div>
+
+		<div
+			class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-transparent"
+		>
+			<div
+				class="flex items-center justify-between rounded-lg p-4 sm:flex sm:p-6"
+			>
+				<div class="w-full">
+					<div class="flex items-center">
+						<h3
+							class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white"
+						>
+							Estado de tu contrato de partner:
+							<InfoPopover
+								client:load
+								title="Contrato de partner"
+								text={`Si tu estado es "En proceso", significa que hemos recibido tu contrato y esta pendiente de revisión. Te notificaremos una vez que haya sido aprobado.`}
+							/>
+						</h3>
+					</div>
+					<div>
+						{
+							documentos &&
+							Array.isArray(documentos) &&
+							documentos.length > 0 &&
+							documentos.find((d: any) => d.estado)?.estado === 'activo' ? (
+								<span class="me-5 flex w-fit items-center justify-center rounded-full bg-green-100 px-5 py-2 text-lg font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
+									<span class="mr-2 inline-block size-3 rounded-full bg-green-400 dark:bg-green-400" />
+									Activo
+								</span>
+							) : (
+								<span class="dark:bg-primary-gold/50 me-5 flex w-fit items-center justify-center rounded-full bg-yellow-100 px-5 py-2 text-lg font-medium text-yellow-800 dark:text-yellow-300">
+									<span class="mr-2 inline-block size-3 rounded-full bg-yellow-400 dark:bg-yellow-400" />
+									En proceso
+								</span>
+							)
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div
+			class="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-transparent"
+		>
+			<div class="w-full">
+				<h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+					Contrato de partner:
+				</h3>
+				<div class="mt-5 flex flex-col items-center justify-between">
+					<Icon
+						name="ri:file-ai-2-fill"
+						class="text-white-500 mb-3 dark:text-white"
+						width="70"
+						height="70"
+					/>
+				<PrintContract
+					data={datosParaReporte}
+					reportName="CONTRATO DE PARTNERS.pdf"
+					templateId="df9bd92f-4424-46f6-8d47-3721b8c3d9a2"
+				/>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div
+		class="my-4 grid w-full grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3"
+	>
+		<!-- Main widget -->
+		<div
+			class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-transparent"
+		>
+			<div class="mb-4 flex items-center justify-between">
+				<div class="shrink-0">
+					<span
+						class="text-xl leading-none font-bold text-gray-900 sm:text-2xl dark:text-white"
+						>Sube o Actualiza tu contrato</span
+					>
+					<h3 class="text-base font-light text-gray-500 dark:text-gray-400">
+						Contrato de partner
+					</h3>
+				</div>
+			</div>
+
+			<div class="flex w-full flex-col items-center justify-center">
+				{
+					perfilCompleto ? (
+						<>
+							<Dropzone
+								mensaje="Arrastra tu contrato aquí o haz clic para subir."
+								id="ContratoPartner"
+								maxFilesize={5}
+								endpoint="/api/partners/upload-contract"
+							/>
+						</>
+					) : (
+						<div class="dropzone dark:bg-black-900 h-96 w-full cursor-not-allowed rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-6 dark:border-orange-500 dark:hover:bg-neutral-800/80">
+							<div class="flex flex-col text-white">
+								<Icon name="ri:alert-fill" class="h-10 w-10" />
+								<span>
+									Completa tu información de perfil para subir el contrato de
+									partner.
+								</span>
+								<a
+									href="/profile/"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="me-2 mt-5 mb-2 rounded-lg border border-yellow-400 px-5 py-2.5 text-center text-sm font-medium text-yellow-400 hover:bg-yellow-500 hover:text-white focus:ring-4 focus:ring-yellow-300 focus:outline-none dark:border-yellow-300 dark:text-yellow-300 dark:hover:bg-yellow-400 dark:hover:text-white dark:focus:ring-yellow-900"
+								>
+									Ir a mi perfil
+								</a>
+							</div>
+						</div>
+					)
+				}
+			</div>
+		</div>
+		<!--Tabs widget -->
+		<div
+			class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-transparent"
+		>
+			<h3
+				class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white"
+			>
+				Acciones rápidas
+				<InfoPopover
+					client:load
+					label="Ayuda"
+					title="Acciones rápidas"
+					text="Encuentra links a tus documentos completados, bandeja de notificaciones, formularios, email, y descarga plantillas de documentos importantes."
+				/>
+			</h3>
+			<div class="border-t border-gray-200 dark:border-gray-600">
+				<div class="pt-4">
+					<ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+						{
+							[
+								{
+									nombre: 'Mira tus referidos',
+									descripcion:
+										'Encuentra links a tus documentos completados, bandeja de notificaciones, formularios, email, y descarga plantillas de documentos importantes.',
+									link: '/partners/referrals/',
+									icono: 'ri:shake-hands-fill',
+								},
+								{
+									nombre: 'Configura tu perfil',
+									descripcion:
+										'Inicia el proceso para crear una nueva empresa asociada a tu cuenta de partner.',
+									link: '/profile/',
+									icono: 'ri:account-circle-fill',
+								},
+								{
+									nombre: 'Agenda una cita',
+									descripcion:
+										'Contacta a nuestro equipo de soporte para asistencia personalizada con tu cuenta de partner.',
+									link: 'https://zcal.co/t/agendar-asesoria-llc/60min',
+									icono: 'ri:calendar-fill',
+								},
+								{
+									nombre: 'Contacta a soporte',
+									descripcion:
+										'Contacta a nuestro equipo de soporte para asistencia personalizada con tu cuenta de partner.',
+									link: 'mailto:serviciossotomayorcoonsulting.com',
+									icono: 'ri:customer-service-2-fill',
+								},
+							].map((ac) => (
+								<li class="py-3 sm:py-4">
+									<div class="flex items-center justify-between">
+										<div class="flex min-w-0 items-center">
+											<Icon
+												name={ac.icono}
+												class="text-white-500 h-10 w-10 hover:scale-105 dark:text-white"
+											/>
+											<div class="ml-3">
+												<p class="truncate font-medium text-gray-900 dark:text-white">
+													{ac.nombre}
+												</p>
+											</div>
+										</div>
+										<a
+											target="_blank"
+											href={ac.link}
+											class="bg-primary-gold hover:bg-primary-gold/80 dark:bg-primary-gold dark:hover:bg-primary-gold/80 me-2 inline-flex items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-[#323f67]"
+										>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												class="me-2 h-3.5 w-3.5"
+												viewBox="0 0 16 16"
+											>
+												<>
+													<path
+														fill="currentColor"
+														d="M15 1.31a.5.5 0 0 0-.461-.309h-4a.5.5 0 0 0 0 1h2.79l-7.15 7.15a.5.5 0 0 0 .707.707l7.15-7.15v2.79a.5.5 0 0 0 1 0v-4a.5.5 0 0 0-.038-.188z"
+													/>
+													<path
+														fill="currentColor"
+														d="M3.5 3A2.5 2.5 0 0 0 1 5.5v7A2.5 2.5 0 0 0 3.5 15h7a2.5 2.5 0 0 0 2.5-2.5v-5a.5.5 0 0 0-1 0v5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 2 12.5v-7A1.5 1.5 0 0 1 3.5 4h5a.5.5 0 0 0 0-1z"
+													/>
+												</>
+											</svg>
+											ir
+										</a>
+									</div>
+								</li>
+							))
+						}
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div
+		class="my-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-transparent"
+	>
+		<!-- Card header -->
+		<div class="items-center justify-between lg:flex">
+			<div class="mb-4 lg:mb-0">
+				<h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+					Documentos
+				</h3>
+				<span class="text-base font-normal text-gray-500 dark:text-gray-400"
+					>Tu lista de documentos de la empresa</span
+				>
+			</div>
+		</div>
+		<!-- Table -->
+		<div class="mt-6 flex flex-col">
+			<div class="overflow-x-auto rounded-lg">
+				<div class="inline-block min-w-full align-middle">
+					<div class="overflow-hidden shadow sm:rounded-lg">
+						<table
+							class="min-w-full divide-y divide-gray-200 dark:divide-gray-600"
+						>
+							<thead class="bg-gray-50 dark:bg-transparent">
+								<tr>
+									{
+										[
+											'Nombre del documento',
+											'Fecha',
+											'estado del documento',
+											'Ver documento',
+											'Descargar',
+										].map((th) => (
+											<th
+												scope="col"
+												class="p-4 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-white"
+											>
+												{th}
+											</th>
+										))
+									}
+								</tr>
+							</thead>
+							<tbody class="bg-white dark:bg-transparent">
+								<tr>
+									{
+										documentos && documentos.length > 0 ? (
+											documentos.map((documento) => (
+												<tr>
+													<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-900 dark:text-white">
+														<span class="font-semibold">
+															{documento?.nombre_archivo}
+														</span>
+													</td>
+													<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-gray-400">
+														{documento?.created_at}
+													</td>
+													<td class="p-4 whitespace-nowrap">
+														{documento?.estado === 'activo' ? (
+															<span class="dark:bg-black-800 mx-auto mr-2 rounded-md border border-green-100 bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:border-green-500 dark:text-green-400">
+																Completado
+															</span>
+														) : (
+															<span class="dark:bg-black-800 mx-auto mr-2 rounded-md border border-yellow-100 bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:border-yellow-500 dark:text-yellow-400">
+																En proceso
+															</span>
+														)}
+													</td>
+													<td class="p-4 text-sm font-semibold whitespace-nowrap text-gray-900 dark:text-neutral-500">
+														<a
+															href={`/api/partners/contract?user_id=${documento?.user_id}&filename=${documento?.nombre_archivo}`}
+															target="_blank"
+															rel="noopener noreferrer"
+															title="Ver documento"
+														>
+															<svg
+																xmlns="http://www.w3.org/2000/svg"
+																class="transition-colors hover:text-white"
+																width="24"
+																height="24"
+																viewBox="0 0 24 24"
+															>
+																<path
+																	fill="currentColor"
+																	d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"
+																/>
+															</svg>
+														</a>
+													</td>
+													<td class="p-4 text-sm font-normal whitespace-nowrap text-gray-500 dark:text-neutral-500">
+														<a
+															href={`/api/partners/contract?user_id=${documento?.user_id}&filename=${documento?.nombre_archivo}&mode=download`}
+															title="Descargar el documento"
+															target="_blank"
+															download={documento?.nombre_archivo}
+														>
+															<svg
+																class="transition-colors hover:text-white"
+																width="24"
+																height="24"
+																fill="currentColor"
+																viewBox="0 0 24 24"
+																xmlns="http://www.w3.org/2000/svg"
+																aria-hidden="true"
+															>
+																<path
+																	clip-rule="evenodd"
+																	fill-rule="evenodd"
+																	d="M12 2.25a.75.75 0 01.75.75v11.69l3.22-3.22a.75.75 0 111.06 1.06l-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 111.06-1.06l3.22 3.22V3a.75.75 0 01.75-.75zm-9 13.5a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5 1.5V16.5a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V16.5a.75.75 0 01.75-.75z"
+																/>
+															</svg>
+														</a>
+													</td>
+												</tr>
+											))
+										) : (
+											<tr>
+												<td
+													colspan="5"
+													class="p-8 text-center text-gray-500 dark:text-gray-400"
+												>
+													<Icon
+														name="ri:file-copy-2-fill"
+														class="mx-auto h-10 w-10"
+													/>
+													<p class="mt-4 text-lg font-medium">
+														No hay documentos registrados
+													</p>
+													<p class="text-sm">
+														Cuando subas documentos, aparecerán aquí
+													</p>
+												</td>
+											</tr>
+										)
+									}
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script is:inline>
+	// Copiar código de partner al portapapeles (API nativa del navegador)
+	function initPartnerCodeCopy() {
+		const copyButton = document.getElementById('npm-install-copy-button');
+		const inputField = document.getElementById('npm-install-input');
+		if (!copyButton || !inputField || copyButton.dataset.copyBind === '1')
+			return;
+		copyButton.dataset.copyBind = '1';
+
+		const swap = (showSuccess) => {
+			document
+				.getElementById('default-icon')
+				?.classList.toggle('hidden', showSuccess);
+			document
+				.getElementById('success-icon')
+				?.classList.toggle('hidden', !showSuccess);
+			document
+				.getElementById('default-tooltip-message')
+				?.classList.toggle('hidden', showSuccess);
+			document
+				.getElementById('success-tooltip-message')
+				?.classList.toggle('hidden', !showSuccess);
+		};
+
+		copyButton.addEventListener('click', async () => {
+			inputField.select();
+			inputField.setSelectionRange(0, 99999);
+			try {
+				await navigator.clipboard.writeText(inputField.value);
+				swap(true);
+				setTimeout(() => swap(false), 2000);
+			} catch {
+				// Clipboard API no disponible o denegada
+			}
+		});
+	}
+	document.addEventListener('DOMContentLoaded', initPartnerCodeCopy);
+	document.addEventListener('astro:page-load', initPartnerCodeCopy);
+</script>
+
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js" is:inline
+></script>
+<script is:inline>
+	Dropzone.autoDiscover = false;
+</script>
+<script is:inline>
+	function initPartnerDropzone() {
+		if (typeof Dropzone === 'undefined') {
+			console.error('Dropzone no está definido.');
+			return;
+		}
+
+		Dropzone.autoDiscover = false;
+
+		var form = document.getElementById('my-dropzone');
+		var confirmBtn = document.getElementById('btn-confirm-upload');
+		var tempTimeoutId = null;
+
+		if (!form || !confirmBtn) return;
+
+		var dz = new Dropzone(form, {
+			url: form.getAttribute('action'),
+			method: 'post',
+
+			// 👇 IMPORTANTE: mismo nombre que lee tu endpoint: formData.get("contract_file")
+			paramName: 'contract_file',
+
+			autoProcessQueue: false, // ❗ NO subir automáticamente
+			maxFiles: 1,
+			uploadMultiple: false,
+			acceptedFiles: 'application/pdf',
+			maxFilesize: 5, // MB
+
+			addRemoveLinks: true,
+			dictDefaultMessage:
+				'Arrastra aquí tu contrato firmado o haz clic para seleccionar.',
+			dictRemoveFile: 'Eliminar archivo',
+		});
+
+		// Habilitar botón cuando hay archivo
+		dz.on('addedfile', function (file) {
+			// Sólo queremos un archivo
+			if (dz.files.length > 1) {
+				dz.removeFile(dz.files[0]); // elimina el anterior
+			}
+
+			confirmBtn.disabled = false;
+
+			// Limpiar timeout previo si existe
+			if (tempTimeoutId) clearTimeout(tempTimeoutId);
+
+			// Programar expiración en 2 minutos (120000 ms)
+			tempTimeoutId = setTimeout(
+				function () {
+					dz.removeAllFiles(true);
+					confirmBtn.disabled = true;
+					alert('El archivo temporal ha expirado. Vuelve a subir el contrato.');
+				},
+				2 * 60 * 1000,
+			);
+		});
+
+		// Si el usuario elimina el archivo manualmente
+		dz.on('removedfile', function () {
+			confirmBtn.disabled = true;
+			if (tempTimeoutId) clearTimeout(tempTimeoutId);
+		});
+
+		// Botón de "Guardar contrato" → ahora sí hacemos POST
+		confirmBtn.addEventListener('click', function () {
+			if (dz.getQueuedFiles().length === 0) {
+				return;
+			}
+
+			confirmBtn.disabled = true;
+
+			dz.processQueue(); // 🔥 aquí recién se hace el POST al endpoint
+		});
+
+		// Manejo de éxito: seguir la redirección de tu endpoint
+		dz.on('success', function (file) {
+			if (tempTimeoutId) clearTimeout(tempTimeoutId);
+
+			var xhr = file.xhr;
+			if (xhr && xhr.responseURL) {
+				window.location.href = xhr.responseURL;
+			}
+		});
+
+		dz.on('error', function (file, errorMessage) {
+			console.error('Error al subir el contrato:', errorMessage);
+			confirmBtn.disabled = false;
+			if (tempTimeoutId) clearTimeout(tempTimeoutId);
+			alert('Hubo un error al subir el contrato. Intenta de nuevo.');
+		});
+	}
+	document.addEventListener('DOMContentLoaded', initPartnerDropzone);
+	document.addEventListener('astro:page-load', initPartnerDropzone);
+</script>

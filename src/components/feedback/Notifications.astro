@@ -1,0 +1,27 @@
+---
+import Alerta from '@components/feedback/Alert.astro';
+import {
+	getNotificationsGeneralPorId,
+	markAllNotificationsAsRead,
+} from '@domains/users/notifications';
+import NotificationsTable from '@components/feedback/islands/NotificationsTable';
+
+const user = Astro.locals.user;
+const userId = user?.id;
+const supabase = Astro.locals.supabase;
+
+// Se lee la lista ANTES de marcar como leídas: así el render aún distingue
+// cuáles eran nuevas en esta visita, pero el badge queda en cero al salir.
+const notificaciones = userId
+	? await getNotificationsGeneralPorId(supabase, userId)
+	: null;
+
+if (userId && notificaciones?.some((n) => !n.read_at)) {
+	await markAllNotificationsAsRead(supabase, userId);
+}
+---
+
+<section class="h-full w-full">
+	<Alerta />
+	<NotificationsTable notificaciones={notificaciones ?? []} client:load />
+</section>

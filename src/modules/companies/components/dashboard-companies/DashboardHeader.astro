@@ -1,0 +1,124 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	empresa: {
+		principal_name: string;
+		tipo_de_negocio: string;
+		estado_de_incorporacion: string;
+		state?: string;
+		ein?: string | null;
+		numero_ein?: string | null;
+		ein_number?: string | null;
+		tax_id?: string | null;
+		tin?: string | null;
+	};
+	empresaId?: string;
+	upgradeAvailable?: boolean;
+	upgradePrice?: number | null;
+	hasNoWorkflow?: boolean;
+	pendingDocuments?: number;
+	pendingProcesses?: number;
+}
+
+const {
+	empresa,
+	empresaId = '',
+	upgradeAvailable = false,
+	upgradePrice = null,
+	hasNoWorkflow = false,
+	pendingDocuments = 0,
+	pendingProcesses = 0,
+} = Astro.props;
+
+const fmtUsd = (n: number | null | undefined) =>
+	typeof n === 'number' && !Number.isNaN(n)
+		? new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: 'USD',
+				maximumFractionDigits: 0,
+			}).format(n)
+		: null;
+
+const upgradePriceLabel = fmtUsd(upgradePrice);
+---
+
+<div class="mt-6 mb-2">
+	<h2 class="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+		{empresa.principal_name}
+	</h2>
+</div>
+
+<!-- Inline stats -->
+<div class="-mx-6 mt-4 mb-6 flex flex-wrap items-center gap-6 border-b border-border px-6 pb-6">
+	<div class="flex items-center gap-2.5">
+		<div class="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card">
+			<Icon name="ri:loader-3-line" class="h-4 w-4 text-muted-foreground" />
+		</div>
+		<div>
+			<p class="text-lg font-semibold leading-none text-foreground">{pendingProcesses}</p>
+			<p class="text-xs text-muted-foreground">Etapas pendientes</p>
+		</div>
+	</div>
+	<div class="flex items-center gap-2.5">
+		<div class="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card">
+			<Icon name="ri:file-copy-line" class="h-4 w-4 text-muted-foreground" />
+		</div>
+		<div>
+			<p class="text-lg font-semibold leading-none text-foreground">{pendingDocuments}</p>
+			<p class="text-xs text-muted-foreground">Documentos por firmar</p>
+		</div>
+	</div>
+
+	{hasNoWorkflow && (
+		<a
+			href={empresaId ? `/incorporation-and-payment?empresa=${empresaId}` : '/incorporation-and-payment'}
+			class="gold-glow-btn ml-auto inline-flex items-center gap-2 rounded-lg bg-primary-gold px-4 py-2 text-sm font-semibold text-primary-black transition-all hover:brightness-105 active:scale-[0.98]"
+		>
+			<Icon name="ri:rocket-line" class="h-4 w-4" />
+			Comenzar incorporación
+		</a>
+	)}
+
+	{upgradeAvailable && !hasNoWorkflow && (
+		<a
+			href="/upgrade"
+			class="gold-glow-btn ml-auto inline-flex items-center gap-2 rounded-lg bg-primary-gold px-4 py-2 text-sm font-semibold text-primary-black transition-all hover:brightness-105 active:scale-[0.98]"
+		>
+			<Icon name="ri:arrow-up-circle-line" class="h-4 w-4" />
+			Upgrade {upgradePriceLabel ? `· ${upgradePriceLabel}` : ''}
+		</a>
+	)}
+</div>
+
+<style>
+	.gold-glow-btn {
+		box-shadow:
+			0 0 16px color-mix(in srgb, var(--color-primary-gold) 50%, transparent),
+			0 0 6px color-mix(in srgb, var(--color-primary-gold) 35%, transparent),
+			inset 0 1px 0 color-mix(in srgb, white 25%, transparent);
+		animation: gold-pulse 3s ease-in-out infinite;
+	}
+
+	.gold-glow-btn:hover {
+		box-shadow:
+			0 0 24px color-mix(in srgb, var(--color-primary-gold) 65%, transparent),
+			0 0 8px color-mix(in srgb, var(--color-primary-gold) 45%, transparent),
+			inset 0 1px 0 color-mix(in srgb, white 25%, transparent);
+	}
+
+	@keyframes gold-pulse {
+		0%, 100% {
+			box-shadow:
+				0 0 16px color-mix(in srgb, var(--color-primary-gold) 50%, transparent),
+				0 0 6px color-mix(in srgb, var(--color-primary-gold) 35%, transparent),
+				inset 0 1px 0 color-mix(in srgb, white 25%, transparent);
+		}
+		50% {
+			box-shadow:
+				0 0 26px color-mix(in srgb, var(--color-primary-gold) 60%, transparent),
+				0 0 10px color-mix(in srgb, var(--color-primary-gold) 45%, transparent),
+				inset 0 1px 0 color-mix(in srgb, white 25%, transparent);
+		}
+	}
+</style>

@@ -1,0 +1,106 @@
+---
+import { Icon } from 'astro-icon/components';
+import OrderActionsDropdown from './islands/OrderActionsDropdown';
+import { getOrdersByIncorporation } from '@domains/payments/orders';
+import {
+	ORDER_STATUS_LABEL,
+	formatDate,
+	formatUsd,
+} from '@components/display/orders/order-format';
+
+interface Props {
+	incorporationId: string | undefined;
+}
+
+const { incorporationId } = Astro.props;
+const supabase = Astro.locals.supabase;
+
+const orders = incorporationId
+	? await getOrdersByIncorporation(supabase, incorporationId)
+	: [];
+---
+
+<div class="px-4">
+	{
+		orders.length === 0 ? (
+			<div class="flat-card-padded my-4 text-center text-sm font-light">
+				No hay órdenes para esta empresa todavía.
+			</div>
+		) : (
+			<ul class="my-4 space-y-3">
+				{orders.map((order) => {
+					const isPaid = order.status === 'confirmed';
+					const statusLabel = ORDER_STATUS_LABEL[order.status] ?? order.status;
+					const pillClass = [
+						'items-center gap-1.5 rounded-full border px-4 py-1.5',
+						isPaid
+							? 'border-success text-success bg-success/15'
+							: 'border-amber-500 bg-amber-500/10 text-amber-600',
+					].join(' ');
+					const dotClass = [
+						'h-2 w-2 rounded-full',
+						isPaid ? 'bg-success' : 'bg-amber-500',
+					].join(' ');
+					return (
+						<li class="flat-card-padded sm:p-6">
+							<div class="grid grid-cols-2 grid-rows-3 items-center justify-between gap-2 gap-y-6 xl:grid-cols-5 xl:grid-rows-1 xl:gap-6 xl:gap-y-0">
+								<div class="col-start-1 row-start-1 flex min-w-0 flex-1 items-center gap-4">
+									<div class="border-primary/20 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border">
+										<Icon
+											name="ri:contract-line"
+											class="text-primary text-2xl"
+										/>
+									</div>
+									<div class="truncate">
+										<p class="text-foreground text-base font-semibold">
+											{order.client_name ?? 'Cliente'}
+										</p>
+										<p class="text-muted-foreground font-mono text-sm">
+											{order.order_number}
+										</p>
+									</div>
+								</div>
+								<div class="flex flex-col justify-center xl:items-center">
+									<p class="text-foreground text-sm font-medium">
+										{order.plan_name ?? 'Servicio'}
+									</p>
+									<p class="text-primary-gold text-sm">
+										{order.incorporation_name ?? ''}
+									</p>
+								</div>
+								<div class="flex flex-col items-end justify-center xl:items-center">
+									<p class="text-muted-foreground mb-1 text-sm">
+										{formatDate(order.created_at)}
+									</p>
+									<p class="text-muted-foreground text-sm">
+										{order.lines.length} servicio
+										{order.lines.length === 1 ? '' : 's'}
+									</p>
+								</div>
+								<div class="flex flex-col justify-center xl:items-center">
+									<p class="text-primary text-2xl font-bold">
+										{formatUsd(order.total)}
+									</p>
+									<p class="text-muted-foreground text-xs">Precio total</p>
+								</div>
+								<div class="col-start-2 row-start-1 flex justify-end gap-4 xl:col-start-5 xl:row-start-1 xl:items-center">
+									<span class:list={['hidden xl:inline-flex', pillClass]}>
+										<span class={dotClass} />
+										<span class="text-sm font-semibold">{statusLabel}</span>
+									</span>
+									<OrderActionsDropdown order={order} client:visible />
+								</div>
+								<div class="flex items-center justify-end gap-4">
+									<span class:list={['inline-flex xl:hidden', pillClass]}>
+										<span class={dotClass} />
+										<span class="text-sm font-semibold">{statusLabel}</span>
+									</span>
+								</div>
+							</div>
+						</li>
+					);
+				})}
+			</ul>
+		)
+	}
+</div>

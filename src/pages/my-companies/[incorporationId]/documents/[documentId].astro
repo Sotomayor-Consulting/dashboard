@@ -1,0 +1,16 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import Alerta from '@components/feedback/Alert.astro';
+import DocumentDetail from '@modules/documents/DocumentDetail.astro';
+
+const { incorporationId, documentId } = Astro.params;
+---
+
+<LayoutSidebar>
+	<Alerta />
+	<DocumentDetail
+		incorporationCaseId={incorporationId}
+		documentId={documentId}
+		backPath={`/my-companies/${incorporationId}/documents`}
+	/>
+</LayoutSidebar>

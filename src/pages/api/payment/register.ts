@@ -1,13 +1,20 @@
-// src/pages/api/payment/register.ts
-// ─── Registrar pago desde Stripe ────────────────────────
-// Requiere autenticación. Llama al RPC registrar_pago_desde_stripe
-// con el paymentIntentId proporcionado.
+// ─── Registrar pago desde Stripe (solo admin) ───────────
+// Herramienta de recuperación manual: llama al RPC registrar_pago_desde_stripe
+// con el paymentIntentId proporcionado. El flujo normal es el webhook; este
+// endpoint queda restringido a admins porque el RPC usa service role y
+// registraría cualquier PaymentIntent sin verificar a quién pertenece.
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { supabaseAdmin } from '@lib/supabase/admin';
-import { SECURITY_HEADERS } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { isAdmin } from '@shared/roles';
+import Stripe from 'stripe';
 
-export const POST: APIRoute = async ({ request, cookies }) => {
+const STRIPE_SECRET_KEY =
+	process.env.STRIPE_SECRET_KEY ?? import.meta.env.STRIPE_SECRET_KEY;
+const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
+
+export const POST: APIRoute = async ({ request, cookies, locals }) => {
 	// ─── 1) Autenticación (server-verified via getUser) ──
 	const supabase = createSupabaseServerClient({
 		headers: request.headers,
@@ -28,6 +35,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		);
 	}
 
+	// ─── 1b) Solo admins ─────────────────────────────────
+	if (!isAdmin(locals.userRoles ?? [])) {
+		return new Response(JSON.stringify({ error: 'No autorizado' }), {
+			status: 403,
+			headers: SECURITY_HEADERS,
+		});
+	}
+
 	try {
 		// ─── 2) Parsear body ─────────────────────────────
 		const { paymentIntentId } = (await request.json()) as {
@@ -45,9 +60,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		}
 
 		// ─── 3) Registrar pago via RPC (supabaseAdmin) ──
+		// El schema `stripe` (FDW) ya no existe: se recupera el PaymentIntent
+		// de la API de Stripe y se pasa completo como jsonb al RPC.
+		if (!stripe) {
+			return new Response(
+				JSON.stringify({ error: 'Stripe no configurado' }),
+				{ status: 500, headers: SECURITY_HEADERS },
+			);
+		}
+		const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
 		const { data, error } = await supabaseAdmin.rpc(
 			'registrar_pago_desde_stripe',
-			{ p_payment_intent_id: paymentIntentId },
+			{ p_payment_intent: pi as unknown as Record<string, unknown> },
 		);
 
 		if (error) {

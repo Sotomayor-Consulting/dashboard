@@ -1,0 +1,39 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import UserSettings from '@modules/landing/UserSettings.astro';
+import Alerta from '@components/feedback/Alert.astro';
+import TabBar from '@components/navigation/TabBar.astro';
+---
+
+<LayoutSidebar>
+	<Alerta />
+	<TabBar
+		buttons={[
+			{
+				label: 'Perfil',
+				icon: 'ri:user-line',
+				active: false,
+				link: '/profile/',
+			},
+			{
+				label: 'Facturación',
+				icon: 'ri:bank-card-line',
+				active: true,
+				link: '/profile/billing',
+			},
+			{
+				label: 'Notificaciones',
+				icon: 'ri:notification-3-line',
+				active: false,
+				link: '/profile/notifications',
+			},
+			{
+				label: 'Seguridad',
+				icon: 'ri:shield-line',
+				active: false,
+				link: '/profile/security',
+			},
+		]}
+	/>
+	<UserSettings section="billing" />
+</LayoutSidebar>

@@ -1,4 +1,4 @@
-name: Flowbite Admin Dashboard — Continuous Integration
+name: Dashboard — Continuous Integration
 
 on:
   push:

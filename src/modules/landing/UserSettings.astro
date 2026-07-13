@@ -2,74 +2,58 @@
 import PersonalInfoForm from './components/PersonalInfoForm.astro';
 import UserAccountPanel from './components/UserAccountPanel.astro';
 import BillingForm from './components/BillingForm.astro';
-import { getUsuarioById } from '@lib/tablas/users/usuarios';
-import { PaisesGeneral } from '@lib/tablas/utils/generals/paises';
-import { FacturacionbyId } from '@lib/tablas/users/facturacion';
+import { getUsuarioById } from '@domains/users/users';
+import { PaisesGeneral } from '@domains/utils/generals/countries-list';
+import { getAllBillingInfo } from '@domains/users/billing';
 
-// Auth handled by middleware
+interface Props {
+	section?: 'account' | 'general' | 'billing';
+}
+
+const { section = 'account' } = Astro.props as Props;
+
 const user = Astro.locals.user;
 const userId = user?.id ?? '';
 const supabase = Astro.locals.supabase;
 
-const [testRow, paises, facturacion] = await Promise.all([
-	getUsuarioById(supabase, userId),
-	PaisesGeneral(supabase),
-	FacturacionbyId(supabase, userId),
+const sectionTitles: Record<string, string> = {
+	account: 'Perfil',
+	general: 'Información general',
+	billing: 'Datos de facturación',
+};
+
+const sectionDescriptions: Record<string, string> = {
+	account: 'Gestiona tu información personal y cuenta.',
+	general: 'Completa tus datos personales y de contacto.',
+	billing: 'Administra tus datos de facturación.',
+};
+
+const needsUser = section === 'general';
+const needsBilling = section === 'billing';
+const needsPaises = needsUser || needsBilling;
+
+const [testRow, paises, billingAddresses] = await Promise.all([
+	needsUser ? getUsuarioById(supabase, userId) : Promise.resolve(null),
+	needsPaises ? PaisesGeneral(supabase) : Promise.resolve(null),
+	needsBilling ? getAllBillingInfo(supabase, userId) : Promise.resolve([]),
 ]);
 
 const email = user?.email ?? undefined;
 ---
 
-<div class="grid grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4">
-	<div class="col-span-full mb-4 xl:mb-2">
-		<nav class="mb-5 flex" aria-label="Breadcrumb">
-			<ol
-				class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2"
-			>
-				<li class="inline-flex items-center">
-					<a
-						href="/"
-						class="inline-flex items-center text-gray-700 hover:text-[#967432] dark:text-gray-300 dark:hover:text-white"
-					>
-						<svg
-							class="mr-2.5 h-5 w-5"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-							xmlns="http://www.w3.org/2000/svg"
-							><path
-								d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
-							></path></svg
-						>
-						Inicio
-					</a>
-				</li>
-				<li>
-					<div class="flex items-center">
-						<svg
-							class="h-6 w-6 text-gray-400"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-							xmlns="http://www.w3.org/2000/svg"
-							><path
-								fill-rule="evenodd"
-								d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-								clip-rule="evenodd"></path></svg
-						>
-						<span
-							class="ml-1 text-gray-400 md:ml-2 dark:text-gray-500"
-							aria-current="page">Configuración</span
-						>
-					</div>
-				</li>
-			</ol>
-		</nav>
-		<h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-			Configuraciones de usuario
-		</h1>
+<div class="mx-auto max-w-3xl px-4 pt-6 pb-12">
+	<div class="section-header mb-8">
+		<h1 class="section-title text-xl">{sectionTitles[section]}</h1>
+		<p class="section-description">{sectionDescriptions[section]}</p>
 	</div>
-	<UserAccountPanel email={email} />
-	<div class="col-span-2">
+
+	{section === 'account' && <UserAccountPanel email={email} />}
+
+	{section === 'general' && (
 		<PersonalInfoForm usuario={testRow} paises={paises} email={email} />
-		<BillingForm facturacion={facturacion} paises={paises} />
-	</div>
+	)}
+
+	{section === 'billing' && (
+		<BillingForm addresses={billingAddresses ?? []} paises={paises} />
+	)}
 </div>

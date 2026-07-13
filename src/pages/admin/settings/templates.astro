@@ -1,0 +1,18 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import TemplateManager from '@modules/template-manager/TemplateManager.astro';
+
+const userRoles = Astro.locals.userRoles ?? [];
+const allowedRoles = ['admin'];
+const canView = userRoles.some((r) => allowedRoles.includes(r));
+
+if (!canView) {
+	return Astro.redirect('/?status=error&msg=Acceso restringido');
+}
+
+const supabase = Astro.locals.supabase;
+---
+
+<LayoutSidebar>
+	<TemplateManager supabase={supabase} />
+</LayoutSidebar>

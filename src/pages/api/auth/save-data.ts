@@ -1,11 +1,10 @@
-// src/pages/api/auth/save-data.ts
 // ─── Thin handler: Save Data (pre-auth business data) ───
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { AuthService, redirectWithMessage } from '@lib/auth';
-import { safeBack } from '@lib/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { AuthService, redirectWithMessage } from '@infrastructure/auth';
+import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/start/';
 

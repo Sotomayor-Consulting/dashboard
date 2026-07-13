@@ -1,0 +1,54 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { SlaAlert } from '../types';
+
+interface Props {
+	slaAlerts: SlaAlert[];
+}
+
+const { slaAlerts } = Astro.props;
+---
+
+<div>
+	<h4
+		class="mb-3 flex items-center gap-2 text-sm font-medium text-foreground"
+	>
+		<Icon
+			name="ri:alert-line"
+			class="h-4 w-4 text-accent-gold"
+		/>
+		Alertas de SLA
+	</h4>
+	<ul class="divide-y divide-border">
+		{
+			slaAlerts.length === 0 && (
+				<li class="py-3 text-center text-xs text-muted-foreground">
+					Sin alertas de SLA activas.
+				</li>
+			)
+		}
+		{
+			slaAlerts.map((a) => (
+				<li class="py-3 first:pt-0 last:pb-0">
+					<div class="flex items-center justify-between gap-2">
+						<p class="text-sm font-medium text-foreground">
+							{a.stage}
+						</p>
+						<span class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+							{a.remaining}
+						</span>
+					</div>
+					<p class="mt-1 text-xs text-muted-foreground">
+						{a.warning}
+					</p>
+					<div class="mt-2 h-1 overflow-hidden rounded-full bg-muted">
+						<div
+							class="h-full rounded-full bg-accent-gold"
+							style={`width:${a.progress}%`}
+						/>
+					</div>
+				</li>
+			))
+		}
+	</ul>
+</div>

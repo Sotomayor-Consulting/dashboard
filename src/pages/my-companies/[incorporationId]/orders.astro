@@ -1,0 +1,34 @@
+---
+import Tab from '@components/navigation/TabBar.astro';
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import Orderselemet from '@modules/documents/Orders.astro';
+
+const { incorporationId } = Astro.params;
+---
+
+<LayoutSidebar>
+	<Tab
+		buttons={[
+			{
+				label: 'General',
+				icon: 'ri:apps-2-ai-line',
+				active: false,
+				link: `/my-companies/${incorporationId}/dashboard`,
+			},
+			{
+				label: 'Documentos',
+				icon: 'ri:file-copy-line',
+				active: false,
+				link: `/my-companies/${incorporationId}/documents`,
+			},
+			{
+				label: 'Ordenes',
+				icon: 'ri:contract-line',
+				active: true,
+				link: `/my-companies/${incorporationId}/orders`,
+			},
+		]}
+	/>
+
+	<Orderselemet incorporationId={incorporationId} />
+</LayoutSidebar>

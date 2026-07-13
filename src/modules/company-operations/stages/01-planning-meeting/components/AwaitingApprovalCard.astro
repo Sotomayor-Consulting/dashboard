@@ -1,0 +1,43 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { PlanningDesignDocument } from '@domains/workflow/stages/planning-meeting';
+
+interface Props {
+	document: PlanningDesignDocument;
+	signedUrl: string | null;
+}
+
+const { document: doc, signedUrl } = Astro.props;
+---
+
+<div
+	class="rounded-lg border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900/40 dark:bg-blue-900/10"
+>
+	<div class="flex items-start gap-2">
+		<Icon
+			name="ri:hourglass-2-line"
+			class="h-5 w-5 shrink-0 text-blue-600 dark:text-blue-300"
+		/>
+		<div class="min-w-0 flex-1">
+			<p class="text-sm font-semibold text-gray-900 dark:text-white">
+				Esperando aprobación del cliente
+			</p>
+			<p class="mt-0.5 text-xs text-gray-600 dark:text-gray-300">
+				Documento enviado: <strong>{doc.file_title ?? doc.file_name}</strong> · v{doc.version}
+			</p>
+			{
+				signedUrl && (
+					<a
+						href={signedUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="mt-2 inline-flex items-center gap-1.5 rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-blue-700 ring-1 ring-blue-200 hover:bg-blue-50 dark:bg-gray-800 dark:text-blue-300 dark:ring-blue-900/40 dark:hover:bg-blue-900/20"
+					>
+						<Icon name="ri:eye-line" class="h-3.5 w-3.5" />
+						Ver documento
+					</a>
+				)
+			}
+		</div>
+	</div>
+</div>

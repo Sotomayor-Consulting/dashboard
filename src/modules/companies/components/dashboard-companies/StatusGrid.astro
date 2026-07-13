@@ -1,0 +1,68 @@
+---
+interface Props {
+	empresa: {
+		estado: string;
+		updated_at: string;
+	};
+	porfirmar: number;
+	pendingProcesses?: number;
+}
+const { empresa, porfirmar, pendingProcesses = 2 } = Astro.props;
+---
+
+<h3 class="mt-6 mb-4 text-lg font-semibold text-foreground">Resumen</h3>
+<div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+	<div class="rounded-lg border border-border p-4">
+		<p class="text-xs font-medium text-muted-foreground">Estado de la empresa</p>
+		<div class="mt-2">
+			{
+				empresa?.estado === 'active' ? (
+					<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+						<span class="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+						En proceso de incorporación
+					</span>
+				) : empresa?.estado === 'draft' ? (
+					<span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700 dark:bg-red-500/15 dark:text-red-300">
+						<span class="h-1.5 w-1.5 rounded-full bg-red-500" />
+						Pendiente de pago
+					</span>
+				) : (
+					<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+						<span class="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+						Empresa Incorporada
+					</span>
+				)
+			}
+		</div>
+	</div>
+	<div class="rounded-lg border border-border p-4">
+		<p class="text-xs font-medium text-muted-foreground">Procesos pendientes</p>
+		<p class="mt-1 text-2xl font-semibold text-foreground">{pendingProcesses}</p>
+		<p class="mt-1 text-xs text-muted-foreground">
+			Sube los documentos para avanzar tu proceso
+		</p>
+	</div>
+	<div class="rounded-lg border border-border p-4">
+		<p class="text-xs font-medium text-muted-foreground">Documentos</p>
+		<p class="mt-1 text-2xl font-semibold text-foreground">{porfirmar}</p>
+		<p class="mt-1 text-xs text-muted-foreground">
+			Documentos enviados por operaciones y tus uploads
+		</p>
+	</div>
+	<div class="rounded-lg border border-border p-4">
+		<p class="text-xs font-medium text-muted-foreground">Última actualización</p>
+		<p class="mt-1 text-2xl font-semibold text-foreground">
+			{
+				(() => {
+					const date = new Date(empresa.updated_at);
+					const day = date.getDate();
+					const month = date.toLocaleDateString('en-US', {
+						month: 'short',
+					});
+					const year = date.getFullYear();
+					return `${day} ${month}, ${year}`;
+				})()
+			}
+		</p>
+	</div>
+</div>

@@ -1,0 +1,8 @@
+---
+import type { OpsStageProps } from './types';
+import TaskCardsList from '../components/TaskCardsList.astro';
+
+const { currentStage } = Astro.props as OpsStageProps;
+---
+
+<TaskCardsList tasks={currentStage.tasks} />

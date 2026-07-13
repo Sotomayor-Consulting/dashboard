@@ -1,0 +1,63 @@
+{
+	"_meta": {
+		"phase": "F4 — Proceso de incorporación",
+		"description": "Crear el workflow de incorporación y el formulario asociado. Refleja el estado del caso desde las fuentes.",
+		"n8n_flow": "1) INSERT workflow.incorporation_workflows → 2) INSERT workflow.incorporation_forms (opcional)",
+		"depends_on": "02-company (incorporation_id de la company)",
+		"note": "Solo aplica a empresas que pasaron por proceso de incorporación. Empresas ya activas importadas directo pueden no necesitar workflow."
+	},
+	"incorporation_workflows": {
+		"_meta": {
+			"target_table": "workflow.incorporation_workflows",
+			"required_on_insert": ["incorporation_id"],
+			"fk_resolve": {
+				"incorporation_id": "UUID — referencia a la incorporación (companies.incorporation_id o crear uno)"
+			}
+		},
+		"incorporation_id": "{{incorporation_uuid}}",
+		"current_stage_id": null,
+		"status": "completed",
+		"started_at": null,
+		"completed_at": null
+	},
+	"incorporation_forms": {
+		"_meta": {
+			"target_table": "workflow.incorporation_forms",
+			"required_on_insert": ["incorporation_id", "user_id"],
+			"fk_resolve": {
+				"incorporation_id": "mismo UUID que el workflow",
+				"user_id": "UUID del usuario dueño (de 01-identity)"
+			}
+		},
+		"incorporation_id": "{{incorporation_uuid}}",
+		"user_id": "{{user_uuid}}",
+		"workflow_task_id": null,
+		"payload": {},
+		"validated_payload": null,
+		"progress_percent": 100,
+		"current_step": null,
+		"status": "promoted",
+		"submitted_at": null,
+		"validated_by": null,
+		"validated_at": null,
+		"rejection_reason": null,
+		"promoted_at": null
+	},
+	"_enums": {
+		"workflow_status": [
+			"not_started",
+			"in_progress",
+			"completed",
+			"on_hold",
+			"cancelled"
+		],
+		"incorporation_form_status": [
+			"draft",
+			"submitted",
+			"in_review",
+			"validated",
+			"rejected",
+			"promoted"
+		]
+	}
+}

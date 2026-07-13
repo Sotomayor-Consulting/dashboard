@@ -1,0 +1,19 @@
+---
+import { serviciosExtras } from '@domains/utils/generals/microservices';
+import ServicesSection from '@modules/services/islands/ServicesSection';
+
+const supabase = Astro.locals.supabase;
+const servicios = await serviciosExtras(supabase);
+
+const mapped = (servicios ?? []).map((s: any) => ({
+	id: String(s.servicio_ex_id),
+	nombre: s.nombre ?? '',
+	descripcion: s.descripcion ?? '',
+	categoria: s.categoria ?? 'General',
+	link_imagen: s.link_imagen ?? '',
+	link: s.link ?? '#',
+	estado: s.estado ?? 'Activo',
+}));
+---
+
+<ServicesSection services={mapped} client:load />

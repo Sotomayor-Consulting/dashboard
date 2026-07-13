@@ -1,104 +1,101 @@
 ---
 import { Image } from 'astro:assets';
-import { SharedBreadcrumb } from '@components/ui/bread-crumb.tsx';
-import { getEmpresasGenenralById } from '@lib/tablas/companies/empresas';
-import edificioimg from '@assets/edificio-vidrio.avif';
-import imagen from '@assets/g31.avif';
+import { SharedBreadcrumb } from '@components/navigation/BreadcrumbPath';
+import StatusBadgePopover from './islands/StatusBadgePopover.tsx';
+import { getEmpresasGenenralById } from '@domains/companies/companies';
+import edificioimg from '@assets/backgrounds/edificio-vidrio.avif';
+import imagen from '@assets/backgrounds/g31.avif';
 
 const user = Astro.locals.user;
 const supabase = Astro.locals.supabase;
 const userId = user?.id;
 
-const empresas = userId ? await getEmpresasGenenralById(supabase, userId) : null;
+const empresasRaw = userId
+	? await getEmpresasGenenralById(supabase, userId)
+	: null;
 
-const paths = [{ label: 'Inicio', href: '/' }, { label: 'Mis empresas' }];
+const pickStateName = (v: unknown): string | null => {
+	if (!v) return null;
+	const row = Array.isArray(v) ? v[0] : v;
+	return (row as { name?: string } | null)?.name ?? null;
+};
+
+const STATE_LABELS: Record<string, string> = {
+	draft: 'En proceso',
+	active: 'Activo',
+	upgrade: 'Upgrade',
+};
+
+const empresas =
+	empresasRaw?.map((e) => ({
+		...e,
+		tipo_de_negocio: e.entity_type,
+		estado: e.state ?? null,
+		estado_label: STATE_LABELS[e.state ?? ''] ?? (e.state || 'Sin estado'),
+		estado_de_incorporacion: pickStateName(e.formation_state),
+	})) ?? null;
+
+const paths = [
+	{ label: 'Inicio', href: '/' },
+	{ label: 'Mis incorporaciones' },
+];
 ---
 
 <SharedBreadcrumb paths={paths} />
 
 <div class="px-4">
-	<h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-		Tus empresas
-	</h1>
+	<div class="section-header">
+		<h1 class="text-foreground text-xl font-semibold sm:text-2xl">
+			Tus incorporaciones
+		</h1>
+	</div>
 
-	<div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+	<div class="mt-2 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 		{
 			(empresas?.length ?? 0) === 0 ? (
-				<div class="col-span-3 flex flex-col items-center rounded-lg border p-6 text-center text-gray-600 dark:text-gray-300">
-					<h3 class="mb-5 text-lg font-semibold">No tienes empresas aún</h3>
-					<Image
-						src={imagen}
-						alt="Sin empresas"
-						width={400}
-						height={300}
-					/>
+				<div class="border-border text-muted-foreground col-span-3 flex flex-col items-center rounded-lg border border-dashed p-6 text-center">
+					<h3 class="mb-5 text-lg font-semibold">
+						No tienes incorporaciones aún
+					</h3>
+					<Image src={imagen} alt="Sin empresas" width={400} height={300} />
 				</div>
 			) : (
 				empresas?.map((fr) => (
-					<div class="rounded-lg border border-gray-200 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-700 dark:bg-[#28314c] dark:hover:bg-[#101522]">
+					<div class="flat-card hover:bg-muted/50 transition-colors">
 						<a
-							href={`/my-companies/${fr.empresa_incorporacion_id}`}
+							href={`/my-companies/${fr.id}/dashboard`}
 							class="flex h-full flex-col items-center p-6 md:flex-row"
 						>
 							<Image
 								class="mb-4 h-64 w-full rounded-lg object-cover md:mb-0 md:h-auto md:w-48"
 								src={edificioimg}
-								alt={`Imagen empresa ${fr.nombre_1}`}
+								alt={`Imagen empresa ${fr.principal_name}`}
 								loading="eager"
 							/>
 							<div class="flex w-full items-center md:p-4">
 								<div class="w-full">
-									<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-										{fr.nombre_1} - {fr.tipo_de_negocio}
+									<h5 class="text-foreground mb-2 text-2xl font-bold tracking-tight">
+										{fr.principal_name} - {fr.tipo_de_negocio}
 									</h5>
-									<p class="mb-6 text-gray-500 dark:text-gray-400">
+									<p class="text-muted-foreground mb-6">
 										{fr.estado_de_incorporacion}
 									</p>
 								</div>
 								<div>
-									{fr.estado === 'En proceso' ? (
-										<span
-											data-popover-target={`tooltip-${fr.empresa_incorporacion_id}`}
-											data-popover-placement="bottom-end"
-											class="flex w-fit items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-400/20 dark:text-gray-300"
-										>
-											<span class="mr-1 h-2 w-2 animate-pulse rounded-full bg-orange-500" />
-											{fr.estado}
-										</span>
+									{fr.estado === 'draft' ? (
+										<StatusBadgePopover
+											client:load
+											estadoLabel={fr.estado_label}
+										/>
 									) : (
-										<span class="flex w-fit items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-400/20 dark:text-gray-300">
+										<span class="badge-status bg-muted text-foreground">
 											<span class="mr-1 h-2 w-2 animate-pulse rounded-full bg-green-500" />
-											{fr.estado}
+											{fr.estado_label}
 										</span>
 									)}
 								</div>
 							</div>
 						</a>
-						<div
-							data-popover
-							id={`tooltip-${fr.empresa_incorporacion_id}`}
-							role="tooltip"
-							class="invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 bg-white text-sm text-gray-500 opacity-0 shadow-xs transition-opacity duration-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400"
-						>
-							<div class="space-y-2 p-3">
-								<h3 class="font-semibold text-gray-900 dark:text-white">
-									¿Por qué mi empresa está en proceso?
-								</h3>
-								<p>Tu empresa está en proceso por estas razones:</p>
-								<ul class="list-inside list-disc space-y-1">
-									<li>
-										Tu empresa aún no está configurada al 100% y está pendiente
-										el pago para iniciar el proceso de constitución.
-									</li>
-									<li>
-										Tu empresa está en proceso de incorporación legal (si ya
-										iniciaste el proceso de pago). Te informaremos por
-										notificaciones y correo.
-									</li>
-								</ul>
-							</div>
-							<div data-popper-arrow />
-						</div>
 					</div>
 				))
 			)

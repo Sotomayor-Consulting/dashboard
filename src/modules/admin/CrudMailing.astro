@@ -1,12 +1,10 @@
 ---
-import Alerta from '@components/feedback/alertageneral.astro';
-import AvatarCell from '@components/ui/AvatarCell.astro';
+import Alerta from '@components/feedback/Alert.astro';
 import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
-import DataTable from '@components/ui/DataTable.astro';
 import Drawer from '@components/ui/Drawer.astro';
 import DrawerFormActions from '@components/ui/DrawerFormActions.astro';
 import Modal from '@components/ui/Modal.astro';
-import StatusBadge from '@components/ui/StatusBadge.astro';
+import CrudMailingTable from '@modules/admin/islands/CrudMailingTable';
 
 const supabase = Astro.locals.supabase;
 const { data: usuarios } = await supabase
@@ -15,16 +13,7 @@ const { data: usuarios } = await supabase
 		`
     *,
     rol:roles!usuarios_rol_id_fkey ( id, nombre ),
-    estado,
-    usuarios_empresas (
-      empresa_id,
-      rol_en_empresa,
-      joined_at,
-      empresa (
-        nombre,
-        slug
-      )
-    )
+    estado
   `,
 		{ count: 'exact' },
 	)
@@ -38,139 +27,24 @@ const submitBtnClass =
 	'rounded-lg bg-[#8c681d] px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-[#8c681d]/90 focus:ring-4 focus:ring-primary-300 dark:bg-[#134aed] dark:hover:bg-[#134aed]/80 dark:focus:ring-primary-800';
 ---
 
-<script src="@lib/alpinejs/alpine.js"></script>
+<script src="@third-party/alpinejs/alpine.js"></script>
 <div
 	class="dark:bg-black-900 block items-center justify-between border-b border-gray-200 bg-white p-4 sm:flex lg:mt-1.5 dark:border-gray-700"
 >
 	<Alerta />
 	<div class="mb-1 w-full">
-		<CrudPageHeader
-			title="Todos los usuarios"
-			breadcrumbItems={[{ label: 'Mailing', href: '/admin/mailing/' }]}
-		/>
+		<CrudPageHeader title="Todos los usuarios" />
 	</div>
 </div>
 
-<DataTable
-	headers={[
-		'Foto',
-		'Nombre',
-		'Compañía',
-		'Cargo',
-		'País',
-		'Estado',
-		'Rol',
-		'Acciones',
-	]}
-	noRowsMessage="No hay empresas"
->
-	{
-		usuarios?.map((user) => (
-			<tr class="odd:bg-white even:bg-gray-50 hover:bg-gray-100 odd:dark:bg-[#28314c] even:dark:bg-[#384467] dark:hover:bg-[#101522]">
-				<td class="w-4 pl-4">
-					<AvatarCell src={user.avatar_url} name={user.nombre} />
-				</td>
-				<td class="mr-12 flex items-center space-x-6 p-4 whitespace-nowrap">
-					<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-						<div class="text-base font-semibold text-gray-900 dark:text-white">
-							{user.nombre} {user.apellido}
-						</div>
-						<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-							{user.correo}
-						</div>
-					</div>
-				</td>
-				<td class="max-w-sm truncate overflow-hidden p-4 text-base font-normal text-gray-500 xl:max-w-xs dark:text-gray-400">
-					{user.organizacion}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{user.cargo}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					{user.pais?.[0]?.nombre_paises ?? '—'}
-				</td>
-				<td class="p-4 text-base font-medium whitespace-nowrap text-gray-900 dark:text-white">
-					<StatusBadge active={user.estado === 'activo'} label={user.estado} />
-				</td>
-				<td class="p-4 text-base font-normal whitespace-nowrap text-gray-900 dark:text-white">
-					<div class="flex items-center">
-						{user.usuarios_empresas?.[0]?.rol_en_empresa ?? '—'}
-					</div>
-				</td>
-				<td class="relative flex space-x-2 p-4" x-data="{ showTooltip: false }">
-					<button
-						data-modal-target="top-right-modal"
-						data-modal-toggle="top-right-modal"
-						data-user-mail={user.correo}
-						class="block w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none md:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-						type="button"
-					>
-						Enviar correo
-					</button>
-					<button
-						id={`dd-btn-${user.user_id}`}
-						@click="showTooltip = !showTooltip"
-						@click.outside="showTooltip = false"
-						class="dark:bg-black-800 inline-flex items-center rounded-lg bg-white p-2 text-center text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-50 focus:outline-none dark:text-white dark:hover:bg-[#101522] dark:focus:ring-gray-600"
-						type="button"
-						aria-haspopup="true"
-						aria-expanded="false"
-					>
-						<svg
-							class="h-5 w-5"
-							aria-hidden="true"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="currentColor"
-							viewBox="0 0 4 15"
-						>
-							<path d="M3.5 1.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6.041a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 5.959a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-						</svg>
-					</button>
-					<div
-						id={`dd-${user.user_id}`}
-						x-cloak
-						x-show="showTooltip"
-						x-transition
-						class="dark:bg-black-900 absolute right-2 z-20 mt-11 w-44 divide-y divide-gray-100 rounded-lg border border-neutral-300 bg-white shadow-sm dark:divide-gray-600 dark:border-neutral-500"
-						role="menu"
-						aria-labelledby={`dd-btn-${user.user_id}`}
-						data-dropdown-placement="bottom-start"
-					>
-						<ul
-							class="py-2 text-sm text-gray-700 dark:text-gray-200"
-							role="none"
-						>
-							<li>
-								<button
-									type="button"
-									data-open-estado
-									data-user-id={user.user_id}
-									data-user-estado={user.estado || ''}
-									data-user-name={`${user.nombre} ${user.apellido}`.trim()}
-									data-modal-target="updaterol"
-									data-modal-toggle="updaterol"
-									class="block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-									role="menuitem"
-								>
-									Archivar
-								</button>
-							</li>
-						</ul>
-					</div>
-				</td>
-			</tr>
-		))
-	}
-</DataTable>
+<CrudMailingTable usuarios={usuarios ?? []} client:load />
 
 <!-- Send Email Modal -->
-<div
+<dialog
 	id="top-right-modal"
-	data-modal-placement="top-right"
-	tabindex="-1"
-	class="fixed top-0 right-0 left-0 z-50 hidden h-full w-full overflow-x-hidden overflow-y-auto p-4 md:inset-0"
+	class="m-0 ml-auto h-dvh max-h-none w-full max-w-2xl bg-transparent p-4 backdrop:bg-gray-900/50 dark:backdrop:bg-gray-900/80"
 >
-	<div class="relative h-full w-full max-w-2xl">
+	<div class="relative h-full w-full">
 		<div
 			class="relative h-full rounded-lg bg-white shadow-sm dark:bg-[#0e2738]"
 		>
@@ -183,7 +57,7 @@ const submitBtnClass =
 				<button
 					type="button"
 					class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-					data-modal-hide="top-right-modal"
+					data-dialog-hide="top-right-modal"
 				>
 					<svg
 						class="h-3 w-3"
@@ -247,13 +121,13 @@ const submitBtnClass =
 				class="flex items-center space-x-3 rounded-b border-t border-gray-200 p-4 md:p-5 rtl:space-x-reverse dark:border-gray-600"
 			>
 				<button
-					data-modal-hide="top-right-modal"
+					data-dialog-hide="top-right-modal"
 					type="button"
 					class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 					>Enviar correo</button
 				>
 				<button
-					data-modal-hide="top-right-modal"
+					data-dialog-hide="top-right-modal"
 					type="button"
 					class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
 					>Cancelar</button
@@ -261,11 +135,11 @@ const submitBtnClass =
 			</div>
 		</div>
 	</div>
-</div>
+</dialog>
 
 <!-- Update Form Drawer -->
 <Drawer id="drawer-update-product-default" title="Actualizar Formulario">
-	<form action="/api/update/admin-update-forms" method="post">
+	<form action="/api/forms/update" method="post">
 		<div class="space-y-4">
 			<input type="hidden" name="service_id" id="modal_form_id" value="" />
 			<div>
@@ -342,7 +216,7 @@ const submitBtnClass =
 
 <!-- Invite User Modal -->
 <Modal id="add-user-modal" title="Invitar usuario">
-	<form action="/api/update/admin-invite" method="post">
+	<form action="/api/users/invite" method="post">
 		<div class="space-y-6 p-6">
 			<div class="grid gap-6">
 				<div>
@@ -368,7 +242,7 @@ const submitBtnClass =
 
 <!-- Add Role Modal -->
 <Modal id="rol-modal-admin" title="Añadir Rol">
-	<form action="/api/create/admin-new-rol" method="post">
+	<form action="/api/roles/create" method="post">
 		<div class="space-y-6 p-6">
 			<div class="grid gap-6">
 				<div>
@@ -395,13 +269,11 @@ const submitBtnClass =
 </Modal>
 
 <!-- Update Status Modal -->
-<div
+<dialog
 	id="updaterol"
-	tabindex="-1"
-	aria-hidden="true"
-	class="h-modal fixed top-0 right-0 left-0 z-50 hidden w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0 md:h-full"
+	class="m-auto w-full max-w-2xl bg-transparent p-4 backdrop:bg-gray-900/50 dark:backdrop:bg-gray-900/80"
 >
-	<div class="relative h-full w-full max-w-2xl p-4 md:h-auto">
+	<div class="relative w-full">
 		<div
 			class="dark:bg-black-800 relative rounded-lg bg-white p-4 shadow sm:p-5"
 		>
@@ -414,7 +286,7 @@ const submitBtnClass =
 				<button
 					type="button"
 					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-					data-modal-toggle="updaterol"
+					data-dialog-hide="updaterol"
 				>
 					<svg
 						aria-hidden="true"
@@ -431,7 +303,7 @@ const submitBtnClass =
 					<span class="sr-only">Close modal</span>
 				</button>
 			</div>
-			<form action="/api/update/admin-update" method="post" id="updaterolForm">
+			<form action="/api/users/update" method="post" id="updaterolForm">
 				<input type="hidden" name="user_id" id="updaterol_user_id" />
 				<div class="mb-4 grid gap-4">
 					<div>
@@ -448,7 +320,7 @@ const submitBtnClass =
 						Actualizar estado
 					</button>
 					<button
-						data-modal-toggle="updaterol"
+						data-dialog-hide="updaterol"
 						type="button"
 						class="inline-flex items-center rounded-lg border border-red-600 px-5 py-2.5 text-center text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white focus:ring-4 focus:ring-red-300 focus:outline-none dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
 					>
@@ -458,7 +330,7 @@ const submitBtnClass =
 			</form>
 		</div>
 	</div>
-</div>
+</dialog>
 
 <script is:inline>
 	const bindMailingEstadoButtons = () => {
@@ -497,7 +369,7 @@ const submitBtnClass =
 				estadoSel.value = hasOption ? estCur : '';
 
 				const back = getSafeBackPath();
-				form.action = `/api/admin/usuarios/update?back=${encodeURIComponent(back)}`;
+				form.action = `/api/users/update?back=${encodeURIComponent(back)}`;
 			});
 		});
 

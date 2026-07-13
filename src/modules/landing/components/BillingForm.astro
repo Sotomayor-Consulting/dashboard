@@ -1,7 +1,9 @@
 ---
+import { Icon } from 'astro-icon/components';
 import FormPhoneInput from '@components/forms/FormPhoneInput.astro';
 import FormInput from '@components/forms/FormInput.astro';
 import FormSelect from '@components/forms/FormSelect.astro';
+import type { BillingInfoRow } from '@domains/users/billing';
 
 interface PaisRow {
 	id: number;
@@ -10,22 +12,9 @@ interface PaisRow {
 	codigo_telf: string;
 }
 
-interface FacturacionRow {
-	personería?: string | null;
-	nombre_o_razon_social?: string | null;
-	correo?: string | null;
-	telefono?: string | null;
-	direccion_linea_1?: string | null;
-	pais?: string | null;
-	ciudad?: string | null;
-	tipo_de_documento?: string | null;
-	documento_de_identidad?: string | null;
-}
-
 interface Props {
-	facturacion?: FacturacionRow | null | undefined;
+	addresses: (BillingInfoRow & { paises?: { name: string } | null })[];
 	paises?: PaisRow[] | null | undefined;
-	userId?: string | undefined;
 }
 
 type Option = {
@@ -33,117 +22,465 @@ type Option = {
 	label: string;
 };
 
-const personTypeOptions: Option[] = [
-	{ value: 'Natural', label: 'Natural' },
-	{ value: 'Jurídica', label: 'Jurídica' },
-];
-
-const documentTypeOptions: Option[] = [
-	{ value: 'Cédula', label: 'Cédula' },
-	{ value: 'RUC', label: 'RUC' },
-	{ value: 'ID', label: 'ID' },
-	{ value: 'Pasaporte', label: 'Pasaporte' },
-	{ value: 'EIN', label: 'EIN' },
-];
-
-const { facturacion, paises, userId } = Astro.props;
+const { addresses = [], paises } = Astro.props;
+const hasAddresses = addresses.length > 0;
+const canAdd = addresses.length < 3;
 
 const countryOptions: Option[] = (paises ?? []).map((p) => ({
-	value: p.name,
+	value: String(p.id),
 	label: p.name,
 }));
 ---
 
-<div
-	id="datos-facturacion"
-	class="dark:bg-black-800 mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700"
->
-	<h3 class="mb-4 text-xl font-semibold dark:text-white">
-		Datos de facturación
-	</h3>
-	<form method="post" action="/api/update/update-factura">
-		<input type="hidden" value={userId} name="user_id_factura" />
-		<div class="grid grid-cols-6 gap-6">
-			<!-- Personería / Razón Social -->
-			<FormSelect
-				label="Personería"
-				name="tipo_de_persona"
-				value={facturacion?.personería ?? ''}
-				options={personTypeOptions}
-				placeholder="Seleccione el tipo de persona"
-				required
-			/>
-			<FormInput
-				label="Nombre o Razón Social"
-				name="razon_social"
-				value={facturacion?.nombre_o_razon_social ?? ''}
-				placeholder="Ejem. Juan Perez o Comercial Perez S.A."
-				required
-			/>
-			<!-- Correo / Teléfono -->
-			<FormInput
-				label="Correo electrónico para facturación"
-				name="correo_electronico_factura"
-				type="email"
-				value={facturacion?.correo ?? ''}
-				placeholder="ejemplo@gmail.com"
-				required
-			/>
-			<FormPhoneInput
-				label="Número de teléfono"
-				name="telefono"
-				value={facturacion?.telefono ?? ''}
-				initialCountry="us"
-			/>
-			<!-- Dirección (full width) -->
-			<FormInput
-				label="Dirección"
-				name="direccion_factura"
-				value={facturacion?.direccion_linea_1 ?? ''}
-				placeholder="Av. Siempre Viva 123 y Calle Alguna"
-				required
-				class="col-span-6"
-			/>
-			<!-- País / Ciudad -->
-			<FormSelect
-				label="País"
-				name="pais_factura"
-				value={facturacion?.pais ?? ''}
-				options={countryOptions}
-				placeholder="Seleccione un país"
-				required
-			/>
-			<FormInput
-				label="Ciudad"
-				name="ciudad_factura"
-				value={facturacion?.ciudad ?? ''}
-				placeholder="Quito"
-				required
-			/>
-			<FormSelect
-				label="Tipo de documento"
-				name="tipo_de_documento_factura"
-				value={facturacion?.tipo_de_documento ?? ''}
-				options={documentTypeOptions}
-				placeholder="Seleccione un tipo de documento"
-				required
-			/>
-			<FormInput
-				label="Número de identificación"
-				name="documento_de_identidad_factura"
-				value={facturacion?.documento_de_identidad ?? ''}
-				placeholder="1712345678"
-				required
-			/>
-			<!-- Botón guardar -->
-			<div class="sm:col-full col-span-6">
-				<button
-					type="submit"
-					class="focus:ring-primary-300 dark:bg-black-400 dark:hover:bg-black-400/80 bg-black-600 hover:bg-black-500 cursor-pointer rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 dark:focus:ring-[#323f67]"
-				>
-					Guardar
-				</button>
+{
+	hasAddresses && (
+		<div class="mb-8">
+			<div class="mb-4 flex items-center justify-between">
+				<div>
+					<h3 class="text-foreground text-sm font-medium">
+						Direcciones guardadas
+					</h3>
+					<p class="text-muted-foreground mt-0.5 text-sm">
+						{addresses.length} de 3
+					</p>
+				</div>
 			</div>
+
+			<div class="divide-border border-border divide-y rounded-lg border">
+				{addresses.map((addr) => (
+					<div class="hover:bg-hover grid grid-cols-2 grid-rows-[auto_1fr] items-start gap-3 p-4 transition sm:flex">
+						<div class="bg-muted mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
+							<Icon
+								name="ri:map-pin-line"
+								class="text-muted-foreground h-4 w-4"
+							/>
+						</div>
+
+						<div class="col-span-2 col-start-1 row-start-2 min-w-0 flex-1">
+							<div class="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
+								<span class="text-foreground text-sm font-medium">
+									{addr.line1}
+								</span>
+								{addr.is_default && (
+									<span class="badge-status bg-accent-gold/10 text-accent-gold w-fit">
+										Predeterminada
+									</span>
+								)}
+							</div>
+							{addr.line2 && (
+								<p class="text-muted-foreground mt-0.5 text-sm">{addr.line2}</p>
+							)}
+							<p class="text-muted-foreground mt-0.5 text-sm">
+								{[addr.city, addr.paises?.name, addr.zip]
+									.filter(Boolean)
+									.join(', ')}
+							</p>
+							{(addr.email || addr.phone) && (
+								<div class="text-muted-foreground mt-2 flex flex-wrap items-center gap-3 text-sm">
+									{addr.email && (
+										<span class="text- inline-flex items-center gap-1">
+											<Icon name="ri:mail-line" class="h-3.5 w-3.5" />
+											{addr.email}
+										</span>
+									)}
+									{addr.phone && (
+										<span class="inline-flex items-center gap-1">
+											<Icon name="ri:phone-line" class="h-3.5 w-3.5" />
+											{addr.phone}
+										</span>
+									)}
+								</div>
+							)}
+						</div>
+
+						<div class="col-start-2 row-start-1 flex shrink-0 gap-0.5 justify-self-end sm:items-center">
+							<button
+								type="button"
+								class="text-muted-foreground hover:bg-muted hover:text-foreground rounded-md p-1.5 transition"
+								title="Editar dirección"
+								data-edit-billing
+								data-id={addr.id}
+								data-email={addr.email ?? ''}
+								data-phone={addr.phone ?? ''}
+								data-line1={addr.line1}
+								data-line2={addr.line2 ?? ''}
+								data-country-id={String(addr.country_id)}
+								data-city={addr.city}
+								data-zip={addr.zip ?? ''}
+							>
+								<Icon name="ri:pencil-line" class="h-4 w-4" />
+							</button>
+							{!addr.is_default && (
+								<form method="post" action="/api/billing/set-default">
+									<input type="hidden" name="billing_id" value={addr.id} />
+									<button
+										type="submit"
+										class="text-muted-foreground hover:bg-muted hover:text-accent-gold rounded-md p-1.5 transition"
+										title="Establecer como predeterminada"
+									>
+										<Icon name="ri:star-line" class="h-4 w-4" />
+									</button>
+								</form>
+							)}
+							<button
+								type="button"
+								class="text-muted-foreground hover:bg-muted rounded-md p-1.5 transition hover:text-red-500"
+								title="Eliminar dirección"
+								data-delete-billing={addr.id}
+							>
+								<Icon name="ri:delete-bin-line" class="h-4 w-4" />
+							</button>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	)
+}
+
+{
+	hasAddresses && canAdd && (
+		<button
+			type="button"
+			data-toggle-billing-form
+			class="border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed px-4 py-3 text-sm transition"
+		>
+			<Icon name="ri:add-line" class="h-4 w-4" />
+			Agregar dirección
+		</button>
+	)
+}
+
+{
+	hasAddresses && !canAdd && (
+		<p class="text-muted-foreground py-4 text-center text-sm">
+			Has alcanzado el máximo de 3 direcciones.
+		</p>
+	)
+}
+
+<div id="billing-form-wrapper" class:list={[hasAddresses && 'hidden', 'mt-6']}>
+	<div id="billing-form-header" class="mb-4 hidden">
+		<div class="text-foreground flex items-center gap-2 text-sm font-medium">
+			<Icon
+				name="ri:pencil-line"
+				class="text-muted-foreground h-4 w-4"
+				id="bf-icon-edit"
+			/>
+			<Icon
+				name="ri:add-line"
+				class="text-muted-foreground hidden h-4 w-4"
+				id="bf-icon-add"
+			/>
+			<span id="bf-form-label">Editar dirección</span>
+		</div>
+	</div>
+
+	<form id="billing-form" method="post" action="/api/billing/upsert-invoice">
+		<input type="hidden" name="billing_id" id="bf-billing-id" value="" />
+		{!hasAddresses && <input type="hidden" name="is_default" value="true" />}
+
+		<div class="divide-border divide-y">
+			<div
+				class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 first:pt-0 sm:grid-cols-[220px_1fr]"
+			>
+				<div>
+					<h3 class="text-foreground text-sm font-medium">Contacto</h3>
+					<p class="text-muted-foreground mt-1 text-sm">
+						Correo y teléfono de facturación.
+					</p>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<FormInput
+						label=""
+						name="email"
+						id="bf-email"
+						type="email"
+						placeholder="correo@ejemplo.com"
+						class="col-span-1"
+					/>
+					<FormPhoneInput
+						label=""
+						name="phone"
+						id="bf-phone"
+						initialCountry="us"
+						class="col-span-1"
+					/>
+				</div>
+			</div>
+
+			<div
+				class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]"
+			>
+				<div>
+					<h3 class="text-foreground text-sm font-medium">Dirección *</h3>
+					<p class="text-muted-foreground mt-1 text-sm">
+						Ubicación para facturación.
+					</p>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<FormInput
+						label=""
+						name="line1"
+						id="bf-line1"
+						placeholder="Dirección línea 1"
+						required
+						class="col-span-2"
+					/>
+					<FormInput
+						label=""
+						name="line2"
+						id="bf-line2"
+						placeholder="Dirección línea 2"
+						class="col-span-2"
+					/>
+					<FormSelect
+						label=""
+						name="country_id"
+						id="bf-country-id"
+						options={countryOptions}
+						placeholder="País"
+						required
+						class="col-span-1"
+					/>
+					<FormInput
+						label=""
+						name="city"
+						id="bf-city"
+						placeholder="Ciudad"
+						required
+						class="col-span-1"
+					/>
+					<FormInput
+						label=""
+						name="zip"
+						id="bf-zip"
+						placeholder="Código postal"
+						class="col-span-1"
+					/>
+				</div>
+			</div>
+		</div>
+
+		<div class="border-border flex justify-end gap-3 border-t pt-6">
+			{
+				hasAddresses && (
+					<button type="button" data-cancel-billing-form class="btn-outline">
+						Cancelar
+					</button>
+				)
+			}
+			<button type="submit" id="bf-submit" class="btn-primary">
+				{hasAddresses ? 'Guardar dirección' : 'Guardar cambios'}
+			</button>
 		</div>
 	</form>
 </div>
+
+<!-- Delete confirmation dialog -->
+<div id="billing-delete-dialog" class="fixed inset-0 z-50 hidden">
+	<div class="fixed inset-0 bg-black/50" data-delete-backdrop></div>
+	<div class="fixed inset-0 flex items-center justify-center p-4">
+		<div
+			class="border-border bg-card w-full max-w-sm rounded-lg border p-6 shadow-lg"
+		>
+			<div class="mb-4 flex items-center gap-3">
+				<div
+					class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/10"
+				>
+					<Icon name="ri:delete-bin-line" class="h-5 w-5 text-red-500" />
+				</div>
+				<div>
+					<h3 class="text-foreground text-sm font-medium">
+						Eliminar dirección
+					</h3>
+					<p class="text-muted-foreground text-sm">
+						Esta acción no se puede deshacer.
+					</p>
+				</div>
+			</div>
+			<div class="flex justify-end gap-3">
+				<button type="button" data-delete-cancel class="btn-outline">
+					Cancelar
+				</button>
+				<form method="post" action="/api/billing/delete">
+					<input
+						type="hidden"
+						name="billing_id"
+						id="delete-billing-id"
+						value=""
+					/>
+					<button
+						type="submit"
+						class="inline-flex cursor-pointer items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700"
+					>
+						Eliminar
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	function initBillingForm() {
+		const wrapper = document.getElementById('billing-form-wrapper');
+		const form = document.getElementById(
+			'billing-form',
+		) as HTMLFormElement | null;
+		const header = document.getElementById('billing-form-header');
+		const formLabel = document.getElementById('bf-form-label');
+		const iconEdit = document.getElementById('bf-icon-edit');
+		const iconAdd = document.getElementById('bf-icon-add');
+		const submitBtn = document.getElementById('bf-submit');
+		const toggleBtn = document.querySelector('[data-toggle-billing-form]');
+		const cancelBtn = document.querySelector('[data-cancel-billing-form]');
+		const deleteDialog = document.getElementById('billing-delete-dialog');
+		const deleteIdInput = document.getElementById(
+			'delete-billing-id',
+		) as HTMLInputElement | null;
+
+		if (!wrapper || !form) return;
+
+		const isAlwaysVisible = !wrapper.classList.contains('hidden');
+		if (isAlwaysVisible) return;
+
+		function setFormMode(mode: 'add' | 'edit') {
+			if (mode === 'edit') {
+				header?.classList.remove('hidden');
+				iconEdit?.classList.remove('hidden');
+				iconAdd?.classList.add('hidden');
+				if (formLabel) formLabel.textContent = 'Editar dirección';
+				form!.action = '/api/billing/update';
+				if (submitBtn) submitBtn.textContent = 'Guardar cambios';
+			} else {
+				header?.classList.remove('hidden');
+				iconAdd?.classList.remove('hidden');
+				iconEdit?.classList.add('hidden');
+				if (formLabel) formLabel.textContent = 'Nueva dirección';
+				form!.action = '/api/billing/upsert-invoice';
+				if (submitBtn) submitBtn.textContent = 'Guardar dirección';
+			}
+		}
+
+		function showForm(mode: 'add' | 'edit') {
+			wrapper!.classList.remove('hidden');
+			setFormMode(mode);
+			wrapper!.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+
+		function hideForm() {
+			wrapper!.classList.add('hidden');
+			form!.reset();
+			const billingId = document.getElementById(
+				'bf-billing-id',
+			) as HTMLInputElement | null;
+			if (billingId) billingId.value = '';
+			header?.classList.add('hidden');
+			form!.action = '/api/billing/upsert-invoice';
+			if (submitBtn) submitBtn.textContent = 'Guardar dirección';
+		}
+
+		function fillForm(data: Record<string, string>) {
+			const fields = ['email', 'line1', 'line2', 'city', 'zip'] as const;
+			fields.forEach((f) => {
+				const el = document.getElementById(
+					`bf-${f}`,
+				) as HTMLInputElement | null;
+				if (el) el.value = data[f] ?? '';
+			});
+
+			const phoneInput = document.getElementById(
+				'bf-phone',
+			) as HTMLInputElement | null;
+			if (phoneInput && data['phone']) {
+				const iti = (phoneInput as any)._iti;
+				if (iti) {
+					iti.setNumber(data['phone']);
+				} else {
+					phoneInput.value = data['phone'];
+				}
+			}
+
+			const countrySelect = document.getElementById(
+				'bf-country-id',
+			) as HTMLSelectElement | null;
+			if (countrySelect) countrySelect.value = data['country-id'] ?? '';
+
+			const billingId = document.getElementById(
+				'bf-billing-id',
+			) as HTMLInputElement | null;
+			if (billingId) billingId.value = data['id'] ?? '';
+		}
+
+		// Toggle (add) button
+		if (toggleBtn && !toggleBtn.hasAttribute('data-bound')) {
+			toggleBtn.setAttribute('data-bound', '1');
+			toggleBtn.addEventListener('click', () => {
+				if (wrapper!.classList.contains('hidden')) {
+					hideForm();
+					showForm('add');
+				} else {
+					hideForm();
+				}
+			});
+		}
+
+		// Cancel button
+		if (cancelBtn && !cancelBtn.hasAttribute('data-bound')) {
+			cancelBtn.setAttribute('data-bound', '1');
+			cancelBtn.addEventListener('click', () => hideForm());
+		}
+
+		// Edit buttons
+		document
+			.querySelectorAll<HTMLElement>('[data-edit-billing]')
+			.forEach((btn) => {
+				if (btn.hasAttribute('data-bound')) return;
+				btn.setAttribute('data-bound', '1');
+				btn.addEventListener('click', () => {
+					fillForm({
+						id: btn.dataset.id ?? '',
+						email: btn.dataset.email ?? '',
+						phone: btn.dataset.phone ?? '',
+						line1: btn.dataset.line1 ?? '',
+						line2: btn.dataset.line2 ?? '',
+						'country-id': btn.dataset.countryId ?? '',
+						city: btn.dataset.city ?? '',
+						zip: btn.dataset.zip ?? '',
+					});
+					showForm('edit');
+				});
+			});
+
+		// Delete buttons → open confirmation dialog
+		document
+			.querySelectorAll<HTMLElement>('[data-delete-billing]')
+			.forEach((btn) => {
+				if (btn.hasAttribute('data-bound')) return;
+				btn.setAttribute('data-bound', '1');
+				btn.addEventListener('click', () => {
+					if (deleteIdInput)
+						deleteIdInput.value = btn.dataset.deleteBilling ?? '';
+					deleteDialog?.classList.remove('hidden');
+				});
+			});
+
+		// Delete dialog: cancel & backdrop
+		const closeDelete = () => deleteDialog?.classList.add('hidden');
+		const deleteCancelBtn = document.querySelector('[data-delete-cancel]');
+		const deleteBackdrop = document.querySelector('[data-delete-backdrop]');
+
+		if (deleteCancelBtn && !deleteCancelBtn.hasAttribute('data-bound')) {
+			deleteCancelBtn.setAttribute('data-bound', '1');
+			deleteCancelBtn.addEventListener('click', closeDelete);
+		}
+		if (deleteBackdrop && !deleteBackdrop.hasAttribute('data-bound')) {
+			deleteBackdrop.setAttribute('data-bound', '1');
+			deleteBackdrop.addEventListener('click', closeDelete);
+		}
+	}
+
+	initBillingForm();
+	document.addEventListener('astro:page-load', initBillingForm);
+</script>

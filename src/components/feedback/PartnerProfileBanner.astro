@@ -1,0 +1,141 @@
+---
+import type { PartnerRequiredField } from '@domains/users/users';
+
+const FIELD_LABELS: Record<PartnerRequiredField, string> = {
+	line1: 'Dirección línea 1',
+	line2: 'Dirección línea 2',
+	email: 'Correo electrónico',
+	tax_id: 'Número de identificación',
+	phone: 'Teléfono',
+};
+
+// Datos calculados en LayoutSidebar y pasados como props
+const {
+	shouldShowBanner = false,
+	missingFields = [] as PartnerRequiredField[],
+} = Astro.props;
+
+const BANNER_PROPS = {
+	title: 'Completa tu información de perfil para continuar como partner.',
+	btnId: 'dismiss-profile-banner',
+	btnTitle: 'Actualizar Perfil',
+	url: '/profile/',
+};
+
+const typedMissingFields = missingFields as PartnerRequiredField[];
+const missingFieldsText = typedMissingFields
+	.map((f: PartnerRequiredField) => FIELD_LABELS[f] ?? f)
+	.join(', ');
+---
+
+{
+	shouldShowBanner && (
+		<astro-banner btnId={BANNER_PROPS.btnId}>
+			<div
+				id="profile-banner"
+				tabindex="-1"
+				class="animate-fade-in mt-3 flex w-full flex-col justify-between rounded-lg border border-yellow-200 bg-linear-to-r from-yellow-50 to-orange-50 p-4 shadow-xs md:flex-row dark:border-yellow-800 dark:from-yellow-900/20 dark:to-orange-900/20"
+			>
+				<div class="me-4 mb-3 flex flex-col items-start md:mb-0 md:flex-row md:items-center">
+					<div class="mb-2 flex items-center border-yellow-200 md:me-4 md:mb-0 md:border-e md:pe-4 dark:border-yellow-700">
+						<div class="me-2 flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/50">
+							<svg
+								class="h-4 w-4 text-yellow-600 dark:text-yellow-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+							>
+								<path
+									fill-rule="evenodd"
+									d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+									clip-rule="evenodd"
+								/>
+							</svg>
+						</div>
+						<span class="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+							Atención Partner
+						</span>
+					</div>
+					<div>
+						<p class="text-base font-medium text-gray-800 dark:text-gray-200">
+							{BANNER_PROPS.title}
+						</p>
+						{missingFields.length > 0 && (
+							<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+								Campos incompletos:{' '}
+								<span class="font-medium text-yellow-700 dark:text-yellow-400">
+									{missingFieldsText}
+								</span>
+							</p>
+						)}
+					</div>
+				</div>
+				<div class="flex shrink-0 items-center space-x-2">
+					<a
+						href={BANNER_PROPS.url}
+						class="rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-300 focus:outline-none dark:bg-yellow-700 dark:hover:bg-yellow-800 dark:focus:ring-yellow-900"
+					>
+						{BANNER_PROPS.btnTitle}
+					</a>
+					<button
+						id="close-profile-banner"
+						data-dismiss-target="#profile-banner"
+						type="button"
+						class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg p-1.5 text-sm text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+					>
+						<svg
+							class="h-3 w-3"
+							aria-hidden="true"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 14 14"
+						>
+							<path
+								stroke="currentColor"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+							/>
+						</svg>
+						<span class="sr-only">Cerrar banner</span>
+					</button>
+				</div>
+			</div>
+		</astro-banner>
+	)
+}
+
+<script is:inline>
+	if (typeof window !== 'undefined') {
+		function initProfileBanner() {
+			const profileBanner = document.getElementById('profile-banner');
+			const closeBtn = document.getElementById('close-profile-banner');
+
+			if (!profileBanner || !closeBtn) return;
+
+			// Solo oculta el banner en esta carga de página
+			closeBtn.addEventListener('click', () => {
+				profileBanner.style.display = 'none';
+			});
+		}
+		document.addEventListener('DOMContentLoaded', initProfileBanner);
+		document.addEventListener('astro:page-load', initProfileBanner);
+	}
+</script>
+
+<style is:global>
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.animate-fade-in {
+		animation: fade-in 0.5s ease-out forwards;
+	}
+</style>

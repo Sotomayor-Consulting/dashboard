@@ -1,0 +1,784 @@
+---
+import { Icon } from 'astro-icon/components';
+import {
+	menuItems,
+	quickActions,
+	type MenuItem,
+} from '@components/navigation/items';
+import CompanySwitcher from './CompanySwitcher.astro';
+import FeedbackDialog from '@components/feedback/FeedbackDialog.tsx';
+import type { EmpresaSwitcherItem } from '@domains/companies/companies';
+
+interface Props {
+	empresas?: EmpresaSwitcherItem[];
+	activeCompany?: EmpresaSwitcherItem | null;
+	avatarUrl?: string | null;
+}
+
+const { empresas = [], activeCompany = null, avatarUrl = null } = Astro.props;
+
+const userRoles = Astro.locals.userRoles;
+const user = Astro.locals.user;
+const userId = user?.id ?? '';
+const userName = user?.user_metadata?.name ?? user?.email ?? 'Usuario';
+const userEmail = user?.email ?? '';
+
+const isClientOrPartner =
+	userRoles.includes('cliente') || userRoles.includes('partner');
+const showCompanySwitcher =
+	userRoles.includes('cliente') && empresas.length > 0;
+const showClientOnlyHome =
+	userRoles.includes('cliente') &&
+	!userRoles.includes('admin') &&
+	!userRoles.includes('operaciones') &&
+	empresas.length === 0;
+
+const dynamicItems: MenuItem[] = [];
+if (isClientOrPartner && activeCompany) {
+	dynamicItems.push(
+		{
+			id: 'company-incorporation',
+			label: 'Incorporación',
+			href: `/my-companies/${activeCompany.id}/dashboard`,
+			tooltip: 'Proceso de incorporación',
+			roles: ['cliente', 'partner'],
+			svgname: 'ri:file-list-3-line',
+			sequence: 20,
+			group: 'Company',
+			colors: 'text-cyan-700',
+		},
+		{
+			id: 'company-entity',
+			label: 'Empresa',
+			href: `/my-companies/${activeCompany.id}/company`,
+			tooltip: 'Tu empresa constituida',
+			roles: ['cliente', 'partner'],
+			svgname: 'ri:building-2-line',
+			sequence: 25,
+			group: 'Company',
+			colors: 'text-cyan-700',
+		},
+	);
+}
+
+const visibleMenu = [...menuItems, ...dynamicItems].filter(
+	(item) =>
+		!showClientOnlyHome &&
+		((item.roles.includes('all') && userRoles.length > 0) ||
+			item.roles.includes('todos') ||
+			item.roles.some((r) => userRoles.includes(r))),
+);
+
+const sortedMenu = [...visibleMenu]
+	.sort((a, b) => a.sequence - b.sequence)
+	.map((item) => {
+		if (!item.children?.length) return item;
+		const filteredChildren = item.children.filter(
+			(c) => !c.roles || c.roles.some((r) => userRoles.includes(r)),
+		);
+		return { ...item, children: filteredChildren };
+	});
+
+const groupOrder = [
+	'Company',
+	'Partner Hub',
+	'Admin',
+	'Servicios',
+	'Cuenta',
+	'General',
+];
+
+const groupedMenu = sortedMenu.reduce(
+	(acc, item) => {
+		const menuItem = item as typeof item & { group?: string };
+		const groupName = menuItem.group ?? 'General';
+		if (!acc[groupName]) acc[groupName] = [];
+		acc[groupName].push(item);
+		return acc;
+	},
+	{} as Record<string, typeof sortedMenu>,
+);
+
+const visibleGroups = groupOrder
+	.filter((groupName) => groupedMenu[groupName]?.length)
+	.map((groupName) => ({
+		title: groupName,
+		items: groupedMenu[groupName] ?? [],
+	}));
+
+const ruta = Astro.url.pathname;
+
+/* Clases reutilizables */
+const activeClass =
+	'bg-primary-gold/10 text-primary-gold font-medium dark:bg-primary-gold/10 dark:text-primary-gold';
+const inactiveClass =
+	'text-muted-foreground hover:bg-hover hover:text-foreground';
+---
+
+<!-- ===== Mobile drawer (< lg) ===== -->
+<aside
+	id="sidebar"
+	class="dark:bg-primary-black fixed top-0 left-0 z-40 h-dvh w-60 -translate-x-full overflow-hidden border-r border-gray-200/60 bg-white transition-transform duration-300 ease-in-out motion-reduce:transition-none lg:hidden dark:border-gray-700/50"
+	tabindex="-1"
+	aria-label="Menú de navegación"
+>
+	<div class="flex h-full flex-col">
+		<!-- Header: Company switcher + close -->
+		<div class="flex shrink-0 items-start gap-1 pt-3 pr-2">
+			{
+				showCompanySwitcher && (
+					<div class="min-w-0 flex-1">
+						<CompanySwitcher
+							empresas={empresas}
+							activeCompany={activeCompany}
+							id="mobile"
+						/>
+					</div>
+				)
+			}
+			<button
+				type="button"
+				data-drawer-hide="sidebar"
+				aria-controls="sidebar"
+				class="mt-3 flex shrink-0 items-center justify-center rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-white/5 dark:hover:text-gray-200"
+			>
+				<Icon name="ri:close-line" class="h-5 w-5" />
+				<span class="sr-only">Cerrar menú</span>
+			</button>
+		</div>
+		{
+			showCompanySwitcher && (
+				<div class="mx-3 mt-1 mb-1 h-px bg-gray-200/80 dark:bg-gray-700/70" />
+			)
+		}
+
+		<!-- Nav items -->
+		<nav
+			class:list={[
+				'flex-1 overflow-x-hidden overflow-y-auto px-2 py-2',
+				'scrollbar scrollbar-w-1.5 scrollbar-thumb-rounded-full',
+				'scrollbar-thumb-gray-300 scrollbar-track-transparent',
+				'dark:scrollbar-thumb-neutral-700',
+			]}
+		>
+			<ul class="space-y-0.5">
+				<li>
+					<a
+						href="/"
+						data-astro-prefetch
+						class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${ruta === '/' ? activeClass : inactiveClass}`}
+					>
+						<Icon
+							name={showClientOnlyHome ? 'ri:rocket-2-line' : 'ri:home-9-line'}
+							class:list={[
+								'h-5 w-5 shrink-0',
+								showClientOnlyHome && 'rotate-45',
+							]}
+						/>
+						<span>{showClientOnlyHome ? 'Comenzar' : 'Inicio'}</span>
+					</a>
+				</li>
+				{
+					visibleGroups.map((group) => (
+						<li class="mt-1 pt-1">
+							<p class="px-2.5 pt-1 text-[11px] font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500">
+								{group.title}
+							</p>
+							<ul class="mt-1 space-y-0.5">
+								{(group.items ?? []).map((l) =>
+									l.children && l.children.length > 0 ? (
+										<li>
+											<details
+												open={l.children.some(
+													(c) =>
+														ruta === c.href || ruta.startsWith(c.href + '/'),
+												)}
+											>
+												<summary
+													class={`flex cursor-pointer list-none items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${inactiveClass}`}
+												>
+													<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
+													<span class="flex-1">{l.label}</span>
+													<Icon
+														name="ri:arrow-up-s-line"
+														class="sidebar-chevron h-4 w-4 shrink-0 text-gray-400 transition-transform"
+													/>
+												</summary>
+												<ul class="mt-0.5 ml-4 space-y-0.5 border-l border-gray-200 pl-2.5 dark:border-gray-700">
+													{l.children.map((child) => (
+														<li>
+															<a
+																href={child.href}
+																data-astro-prefetch
+																class={`flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[12.5px] font-medium transition-colors ${ruta === child.href ? activeClass : inactiveClass}`}
+															>
+																<Icon
+																	name={child.svgname}
+																	class="h-4 w-4 shrink-0"
+																/>
+																<span>{child.label}</span>
+															</a>
+														</li>
+													))}
+												</ul>
+											</details>
+										</li>
+									) : (
+										<li>
+											<a
+												href={l.href}
+												data-astro-prefetch
+												class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
+											>
+												<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
+												<span>{l.label}</span>
+											</a>
+										</li>
+									),
+								)}
+							</ul>
+						</li>
+					))
+				}
+			</ul>
+
+			<!-- Quick actions (mobile) -->
+			<div
+				class="mt-2 space-y-0.5 border-t border-gray-200/80 pt-2 dark:border-gray-700/70"
+			>
+				{
+					quickActions.map((qa) =>
+						qa.kind === 'dialog' ? (
+							<button
+								type="button"
+								data-quick-action={qa.eventName}
+								class={`flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${inactiveClass}`}
+							>
+								<Icon name={qa.icon} class="h-5 w-5 shrink-0" />
+								<span class="flex-1 text-left">{qa.label}</span>
+								{qa.badge && (
+									<span class="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+										{qa.badge}
+									</span>
+								)}
+							</button>
+						) : (
+							<a
+								href={qa.href}
+								class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${inactiveClass}`}
+							>
+								<Icon name={qa.icon} class="h-5 w-5 shrink-0" />
+								<span class="flex-1">{qa.label}</span>
+								{qa.external && (
+									<Icon
+										name="ri:external-link-line"
+										class="text-muted-foreground/50 h-3 w-3"
+									/>
+								)}
+							</a>
+						),
+					)
+				}
+			</div>
+
+			<!-- Links externos -->
+			<div class="mt-1 space-y-0.5 pt-1.5">
+				<p
+					class="px-2.5 pb-1 text-[11px] font-semibold tracking-wide text-gray-400 uppercase dark:text-gray-500"
+				>
+					Recursos
+				</p>
+				{
+					[
+						{
+							link: 'https://sotomayorconsulting.com/',
+							svgname: 'ri:earth-line',
+							span: 'Visita nuestra web',
+						},
+						{
+							link: 'https://sotomayorconsulting.com/inicio/terminos/',
+							svgname: 'ri:file-list-3-line',
+							span: 'Términos y condiciones',
+						},
+					].map((l) => (
+						<a
+							href={l.link}
+							target="_blank"
+							class={`flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-colors ${inactiveClass}`}
+						>
+							<Icon name={l.svgname} class="h-5 w-5 shrink-0" />
+							<span>{l.span}</span>
+						</a>
+					))
+				}
+			</div>
+		</nav>
+
+		<div class="shrink-0 border-t border-gray-200/90 p-3 dark:border-gray-700/80">
+			<details class="group">
+				<summary
+					class="flex cursor-pointer list-none items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
+				>
+					<img
+						src={avatarUrl ?? `https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
+						alt="Avatar"
+						class="h-8 w-8 rounded-full border border-gray-200 object-cover dark:border-gray-700"
+						data-user-avatar
+					/>
+					<div class="min-w-0 flex-1">
+						<p
+							class="truncate text-sm font-medium text-gray-800 dark:text-gray-100"
+						>
+							{userName}
+						</p>
+						<p class="truncate text-xs text-gray-500 dark:text-gray-400">
+							{userEmail}
+						</p>
+					</div>
+					<Icon
+						name="ri:arrow-right-s-line"
+						class="user-menu-chevron h-4 w-4 text-gray-400 transition-transform"
+					/>
+				</summary>
+				<div class="mt-2 space-y-1 rounded-md p-1.5">
+					<a
+						href="/profile/"
+						class="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+					>
+						<Icon name="ri:user-3-line" class="h-4 w-4" />
+						<span>Mi perfil</span>
+					</a>
+					<form action="/api/auth/sign-out" method="post">
+						<button
+							type="submit"
+							class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+						>
+							<Icon name="ri:logout-box-r-line" class="h-4 w-4" />
+							<span>Cerrar sesión</span>
+						</button>
+					</form>
+				</div>
+			</details>
+		</div>
+	</div>
+</aside>
+
+<!-- Mobile backdrop -->
+<div
+	class="fixed inset-0 z-30 bg-gray-900/50 opacity-0 transition-opacity duration-300 ease-in-out motion-reduce:transition-none lg:hidden dark:bg-gray-900/80 pointer-events-none"
+	id="sidebarBackdrop"
+	aria-hidden="true"
+>
+</div>
+
+<!-- ===== Desktop collapsible sidebar (>= lg) ===== -->
+<aside
+	id="sidebar-desktop"
+	class="dark:bg-primary-black border-border fixed top-0 left-0 z-20 box-border hidden h-screen w-60 flex-col border-r bg-white lg:flex"
+>
+	<!-- Company switcher / Brand area -->
+	<div class="px-3 pt-2 pb-3">
+		{
+			showCompanySwitcher ? (
+				<CompanySwitcher
+					empresas={empresas}
+					activeCompany={activeCompany}
+					id="desktop"
+				/>
+			) : (
+				<a href="/" class="flex items-center gap-2.5">
+					<Icon
+						name="logo-sotomayor-consulting-isotipo"
+						class="block h-7 w-7 shrink-0 dark:hidden"
+						title="Sotomayor Consulting"
+					/>
+					<Icon
+						name="logo-sotomayor-consulting-isotipo-white"
+						class="hidden h-7 w-7 shrink-0 dark:block"
+						title="Sotomayor Consulting"
+					/>
+					<span class="sb-label text-foreground text-sm font-semibold">
+						Sotomayor
+					</span>
+				</a>
+			)
+		}
+	</div>
+
+	<!-- Search trigger -->
+	<div class="px-3 pb-3">
+		<button
+			type="button"
+			class="border-border bg-muted/40 text-muted-foreground hover:bg-hover flex h-9 w-full items-center gap-2.5 rounded-lg border px-3 text-sm transition"
+			data-global-search-trigger
+			aria-label="Abrir búsqueda"
+		>
+			<Icon name="ri:search-line" class="h-4 w-4 shrink-0 opacity-50" />
+			<span class="sb-label flex-1 text-left">Search...</span>
+			<kbd
+				class="sb-label border-border bg-background text-muted-foreground/70 text-2xs inline-flex items-center gap-0.5 rounded border px-1.5 py-0.5 font-mono font-medium select-none"
+				aria-hidden="true"
+			>
+				<span data-global-search-mod>Ctrl</span>
+				<span>K</span>
+			</kbd>
+		</button>
+	</div>
+
+	<nav
+		class:list={[
+			'flex-1 overflow-x-hidden overflow-y-auto px-3 pb-2',
+			'scrollbar scrollbar-w-1.5 scrollbar-thumb-rounded-full',
+			'scrollbar-thumb-gray-300 scrollbar-track-transparent',
+			'dark:scrollbar-thumb-neutral-700',
+		]}
+	>
+		<ul class="space-y-1">
+			<li>
+				<a
+					href="/"
+					data-astro-prefetch
+					class={`sb-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${ruta === '/' ? activeClass : inactiveClass}`}
+					title={showClientOnlyHome ? 'Comenzar' : 'Inicio'}
+				>
+					<Icon
+						name={showClientOnlyHome ? 'ri:rocket-2-line' : 'ri:home-9-line'}
+						class:list={[
+							'h-4.5 w-4.5 shrink-0',
+							showClientOnlyHome && 'rotate-45',
+						]}
+					/>
+					<span class="sb-label whitespace-nowrap">
+						{showClientOnlyHome ? 'Comenzar' : 'Inicio'}
+					</span>
+				</a>
+			</li>
+			{
+				visibleGroups.map((group) => (
+					<li class="mt-3 pt-2">
+						<p class="sb-label text-muted-foreground/60 mb-1.5 px-3 text-[11px] font-semibold tracking-wider uppercase">
+							{group.title}
+						</p>
+						<ul class="space-y-0.5">
+							{(group.items ?? []).map((l) =>
+								l.children && l.children.length > 0 ? (
+									<li>
+										<details
+											open={l.children.some(
+												(c) => ruta === c.href || ruta.startsWith(c.href + '/'),
+											)}
+										>
+											<summary
+												class={`sb-link flex cursor-pointer list-none items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${inactiveClass}`}
+												title={l.label}
+											>
+												<Icon name={l.svgname} class="h-4.5 w-4.5 shrink-0" />
+												<span class="sb-label flex-1 whitespace-nowrap">
+													{l.label}
+												</span>
+												<Icon
+													name="ri:arrow-up-s-line"
+													class="sidebar-chevron sb-label text-muted-foreground/50 h-4 w-4 shrink-0 transition-transform"
+												/>
+											</summary>
+											<ul class="mt-0.5 ml-6.5 space-y-0.5 pl-3">
+												{l.children.map((child) => (
+													<li>
+														<a
+															href={child.href}
+															data-astro-prefetch
+															class={`sb-link flex items-center rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors ${ruta === child.href ? activeClass : inactiveClass}`}
+															title={child.label}
+														>
+															<span class="sb-label whitespace-nowrap">
+																{child.label}
+															</span>
+														</a>
+													</li>
+												))}
+											</ul>
+										</details>
+									</li>
+								) : (
+									<li>
+										<a
+											href={l.href}
+											data-astro-prefetch
+											class={`sb-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${ruta === l.href ? activeClass : inactiveClass}`}
+											title={l.label}
+										>
+											<Icon name={l.svgname} class="h-4.5 w-4.5 shrink-0" />
+											<span class="sb-label whitespace-nowrap">{l.label}</span>
+										</a>
+									</li>
+								),
+							)}
+						</ul>
+					</li>
+				))
+			}
+		</ul>
+	</nav>
+
+	<!-- Quick links -->
+	<nav class="flex flex-col border-t px-3 py-3">
+		{
+			quickActions.map((qa) =>
+				qa.kind === 'dialog' ? (
+					<button
+						type="button"
+						data-quick-action={qa.eventName}
+						class="sb-link text-muted-foreground flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+					>
+						<Icon name={qa.icon} class="h-4.5 w-4.5 shrink-0" />
+						<span class="sb-label whitespace-nowrap">{qa.label}</span>
+						{qa.badge && (
+							<span class="sb-label ml-auto rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+								{qa.badge}
+							</span>
+						)}
+					</button>
+				) : (
+					<a
+						href={qa.href}
+						class="sb-link text-muted-foreground flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+					>
+						<Icon name={qa.icon} class="h-4.5 w-4.5 shrink-0" />
+						<span class="sb-label whitespace-nowrap">{qa.label}</span>
+						{qa.external && (
+							<Icon
+								name="ri:external-link-line"
+								class="sb-label text-muted-foreground/50 ml-auto h-3 w-3"
+							/>
+						)}
+					</a>
+				),
+			)
+		}
+	</nav>
+</aside>
+
+<FeedbackDialog client:idle />
+
+<script>
+	function bindQuickActions() {
+		document
+			.querySelectorAll<HTMLElement>('[data-quick-action]')
+			.forEach((el) => {
+				if (el.dataset.qaBound) return;
+				el.dataset.qaBound = '1';
+				el.addEventListener('click', () => {
+					const evt = el.dataset.quickAction;
+					if (evt) window.dispatchEvent(new CustomEvent(evt));
+				});
+			});
+	}
+
+	bindQuickActions();
+	document.addEventListener('astro:page-load', bindQuickActions);
+</script>
+
+<style is:global>
+	#sidebar details > summary::-webkit-details-marker,
+	#sidebar-desktop details > summary::-webkit-details-marker {
+		display: none;
+	}
+
+	#sidebar details > summary .sidebar-chevron,
+	#sidebar-desktop details > summary .sidebar-chevron {
+		transform: rotate(180deg);
+	}
+	#sidebar details[open] > summary .sidebar-chevron,
+	#sidebar-desktop details[open] > summary .sidebar-chevron {
+		transform: rotate(0deg);
+	}
+
+	/* Submenu slide-down animation */
+	#sidebar details > ul,
+	#sidebar-desktop details > ul {
+		display: grid;
+		grid-template-rows: 0fr;
+		opacity: 0;
+		transition:
+			grid-template-rows 0.25s ease,
+			opacity 0.2s ease;
+		overflow: hidden;
+	}
+	#sidebar details > ul > *,
+	#sidebar-desktop details > ul > * {
+		overflow: hidden;
+	}
+	#sidebar details[open] > ul,
+	#sidebar-desktop details[open] > ul {
+		grid-template-rows: 1fr;
+		opacity: 1;
+	}
+
+	/* Sidebar fixed expanded width */
+	:root {
+		--sb-divider-x: 15rem;
+	}
+	#main-content {
+		margin-left: 15rem;
+	}
+
+	/* ── Mobile: no margin ── */
+	@media (max-width: 1023px) {
+		#main-content {
+			margin-left: 0 !important;
+		}
+	}
+</style>
+
+<script>
+	const ACTIVE_CLASSES = [
+		'bg-primary-gold/10',
+		'text-primary-gold',
+		'font-medium',
+		'dark:bg-primary-gold/10',
+		'dark:text-primary-gold',
+	];
+	const INACTIVE_CLASSES = [
+		'text-muted-foreground',
+		'hover:bg-hover',
+		'hover:text-foreground',
+	];
+
+	function updateActiveLinks() {
+		const currentPath = window.location.pathname;
+		const sidebarLinks = document.querySelectorAll<HTMLAnchorElement>(
+			'#sidebar a[href^="/"]:not([target]), #sidebar-desktop a[href^="/"]:not([target])',
+		);
+
+		sidebarLinks.forEach((link) => {
+			const href = link.getAttribute('href') || '';
+			const isActive = href === currentPath;
+
+			if (isActive) {
+				INACTIVE_CLASSES.forEach((c) => link.classList.remove(c));
+				ACTIVE_CLASSES.forEach((c) => link.classList.add(c));
+			} else {
+				ACTIVE_CLASSES.forEach((c) => link.classList.remove(c));
+				INACTIVE_CLASSES.forEach((c) => link.classList.add(c));
+			}
+		});
+	}
+
+	function getFocusableElements(container: HTMLElement): HTMLElement[] {
+		return Array.from(
+			container.querySelectorAll<HTMLElement>(
+				'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+			),
+		).filter((el) => el.offsetParent !== null);
+	}
+
+	function handleFocusTrap(e: KeyboardEvent) {
+		const sidebar = document.getElementById('sidebar');
+		if (!sidebar) return;
+		const focusable = getFocusableElements(sidebar);
+		if (focusable.length === 0) return;
+		const first = focusable[0]!;
+		const last = focusable[focusable.length - 1]!;
+		if (e.shiftKey) {
+			if (document.activeElement === first) {
+				e.preventDefault();
+				last.focus();
+			}
+		} else {
+			if (document.activeElement === last) {
+				e.preventDefault();
+				first.focus();
+			}
+		}
+	}
+
+	function handleDrawerKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			closeMobileDrawer();
+			return;
+		}
+		if (e.key === 'Tab') {
+			handleFocusTrap(e);
+		}
+	}
+
+	function openMobileDrawer() {
+		const sidebar = document.getElementById('sidebar');
+		const backdrop = document.getElementById('sidebarBackdrop');
+		if (sidebar) {
+			sidebar.classList.remove('-translate-x-full');
+			sidebar.classList.add('translate-x-0');
+			sidebar.setAttribute('aria-modal', 'true');
+			sidebar.setAttribute('role', 'dialog');
+			const firstFocusable = getFocusableElements(sidebar)[0];
+			if (firstFocusable) requestAnimationFrame(() => firstFocusable.focus());
+		}
+		if (backdrop) {
+			backdrop.classList.remove('pointer-events-none');
+			backdrop.classList.add('pointer-events-auto');
+			backdrop.style.opacity = '1';
+			backdrop.setAttribute('aria-hidden', 'false');
+		}
+		document.body.style.overflow = 'hidden';
+		document.addEventListener('keydown', handleDrawerKeydown);
+	}
+
+	function closeMobileDrawer() {
+		const sidebar = document.getElementById('sidebar');
+		const backdrop = document.getElementById('sidebarBackdrop');
+		const toggleBtn = document.getElementById('toggleSidebarMobile');
+
+		if (sidebar) {
+			sidebar.classList.add('-translate-x-full');
+			sidebar.classList.remove('translate-x-0');
+			sidebar.removeAttribute('aria-modal');
+			sidebar.removeAttribute('role');
+		}
+		if (backdrop) {
+			backdrop.style.opacity = '0';
+			backdrop.classList.remove('pointer-events-auto');
+			backdrop.classList.add('pointer-events-none');
+			backdrop.setAttribute('aria-hidden', 'true');
+		}
+		document.body.style.overflow = '';
+		document.removeEventListener('keydown', handleDrawerKeydown);
+		if (toggleBtn) {
+			toggleBtn.setAttribute('aria-expanded', 'false');
+			toggleBtn.setAttribute('aria-label', 'Abrir menú de navegación');
+			toggleBtn.focus();
+		}
+		document.querySelectorAll('[drawer-backdrop]').forEach((el) => el.remove());
+	}
+
+	function initSidebar() {
+		closeMobileDrawer();
+		updateActiveLinks();
+
+		const toggleBtn = document.getElementById('toggleSidebarMobile');
+		if (toggleBtn && !toggleBtn.dataset.sidebarBound) {
+			toggleBtn.dataset.sidebarBound = '1';
+			toggleBtn.addEventListener('click', () => {
+				const sidebar = document.getElementById('sidebar');
+				const isOpen = sidebar && !sidebar.classList.contains('-translate-x-full');
+				isOpen ? closeMobileDrawer() : openMobileDrawer();
+				toggleBtn.setAttribute('aria-expanded', String(!isOpen));
+				toggleBtn.setAttribute('aria-label', !isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
+			});
+		}
+
+		const backdrop = document.getElementById('sidebarBackdrop');
+		if (backdrop && !backdrop.dataset.sidebarBound) {
+			backdrop.dataset.sidebarBound = '1';
+			backdrop.addEventListener('click', closeMobileDrawer);
+		}
+
+		document.querySelectorAll<HTMLElement>('[data-drawer-hide="sidebar"]').forEach((el) => {
+			if (el.dataset.sidebarBound) return;
+			el.dataset.sidebarBound = '1';
+			el.addEventListener('click', closeMobileDrawer);
+		});
+	}
+
+	document.addEventListener('astro:page-load', initSidebar);
+</script>

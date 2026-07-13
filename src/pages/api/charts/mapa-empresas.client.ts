@@ -16,7 +16,10 @@ Chart.register(
 	...registerables,
 );
 
-let chartInstance: Chart | null = null;
+let chartInstance: Chart<
+	'choropleth',
+	{ feature: any; value: number; highlighted: boolean }[]
+> | null = null;
 
 export async function renderizarMapaEstados(
 	containerId: string,
@@ -35,8 +38,8 @@ export async function renderizarMapaEstados(
 	try {
 		// Usa empresaId si existe
 		const url = empresaId
-			? `/api/generales/estado-incorporacion?empresaId=${empresaId}`
-			: '/api/generales/estado-incorporacion';
+			? `/api/incorporations/get-status?empresaId=${empresaId}`
+			: '/api/incorporations/get-status';
 
 		const res = await fetch(url);
 		if (res.ok) {
@@ -76,8 +79,9 @@ export async function renderizarMapaEstados(
 	let nation: any,
 		states: any[] = [];
 	try {
-		nation = topojson.feature(usData, usData.objects.nation).features[0];
-		states = topojson.feature(usData, usData.objects.states).features;
+		nation = (topojson.feature(usData, usData.objects.nation) as any)
+			.features[0];
+		states = (topojson.feature(usData, usData.objects.states) as any).features;
 	} catch (e: any) {
 		console.error('Error en topojson:', e.message);
 		container.innerHTML = `<p style="color:red">Error procesando mapa</p>`;
@@ -141,7 +145,6 @@ export async function renderizarMapaEstados(
 				scales: {
 					projection: {
 						type: 'projection',
-						axis: 'x',
 						projection: 'albersUsa',
 					},
 					color: {
@@ -155,8 +158,8 @@ export async function renderizarMapaEstados(
 				elements: {
 					geoFeature: {
 						borderColor: '#fff',
-						borderWidth: (ctx) => (ctx.raw?.highlighted ? 3 : 1),
-						backgroundColor: (ctx) =>
+						borderWidth: (ctx: any) => (ctx.raw?.highlighted ? 3 : 1),
+						backgroundColor: (ctx: any) =>
 							ctx.raw?.highlighted ? colorDestacado : 'transparent',
 					},
 				},

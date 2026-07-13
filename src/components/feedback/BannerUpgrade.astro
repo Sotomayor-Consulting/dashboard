@@ -1,7 +1,5 @@
 ---
-import { Image } from 'astro:assets';
-import icono from '/src/assets/icono.png';
-import icono2 from '/src/assets/icono-negro.png';
+import { Icon } from 'astro-icon/components';
 
 // Datos calculados en LayoutSidebar y pasados como prop
 const { shouldShowBanner = false } = Astro.props;
@@ -11,7 +9,7 @@ const BANNER_PROPS = {
 		'Tu empresa está en el plan Upgrade, da click aquí para actualizar el plan',
 	btnId: 'dismiss-incorp-banner',
 	btnTitle: 'Actualizar plan',
-	url: '/incorporacion-y-pago',
+	url: '/upgrade',
 };
 ---
 
@@ -28,19 +26,15 @@ const BANNER_PROPS = {
 						href="/"
 						class="me-4 mb-2 hidden items-center border-e border-gray-200 pe-4 md:mb-0 md:flex dark:border-gray-600"
 					>
-						<Image
-							src={icono}
-							width="32"
-							alt="Sotomayor consulting Logo"
-							class="me-2 hidden dark:block"
-							loading="eager"
+						<Icon
+							name="logo-sotomayor-consulting-isotipo"
+							class="block text-3xl dark:hidden"
+							title="Logo Sotomayor Consulting"
 						/>
-						<Image
-							src={icono2}
-							width="32"
-							alt="Sotomayor consulting Logo"
-							class="me-2 block dark:hidden"
-							loading="eager"
+						<Icon
+							name="logo-sotomayor-consulting-isotipo-white"
+							class="mr-3 hidden text-3xl dark:block"
+							title="Logo Sotomayor Consulting"
 						/>
 					</a>
 					<p class="flex items-center text-base font-normal text-black dark:text-white">

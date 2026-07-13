@@ -26,27 +26,28 @@ const {
 } = Astro.props;
 
 const inputClasses = [
-	'block w-full rounded-lg border bg-white-50 p-2.5',
-	'text-black-900 shadow-sm sm:text-sm',
-	'focus:border-black-400',
-	'dark:bg-black-900 dark:text-white',
-	'dark:placeholder-gray-400 dark:focus:border-black-400',
-	disabled && 'cursor-not-allowed',
+	'block w-full rounded-lg border bg-transparent px-3 py-2.5',
+	'text-foreground sm:text-sm',
+	'placeholder:text-muted-foreground',
+	'transition focus:border-accent-gold focus:ring-accent-gold',
+	disabled && 'cursor-not-allowed bg-muted/40',
 	error
 		? 'border-red-500 dark:border-red-500'
-		: 'border-gray-300 dark:border-gray-600',
+		: 'border-border',
 ]
 	.filter(Boolean)
 	.join(' ');
 ---
 
 <div class={wrapperClass}>
-	<label
-		for={id}
-		class="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-	>
-		{label}
-	</label>
+	{label && (
+		<label
+			for={id}
+			class="mb-2 block text-sm font-medium text-foreground"
+		>
+			{label}
+		</label>
+	)}
 	{
 		disabled ? (
 			<label class={inputClasses}>{value}</label>

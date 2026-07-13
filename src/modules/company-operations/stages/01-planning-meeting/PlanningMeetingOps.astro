@@ -1,0 +1,197 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { OpsStageProps } from '../types';
+import TaskCardsList from '../../components/TaskCardsList.astro';
+import {
+	resolvePlanningMeetingContext,
+	type PlanningMeetingSubstate,
+} from '@domains/workflow/stages/planning-meeting';
+import { getReportByIncorporation } from '@domains/workflow/stages/planning-design-report';
+import {
+	createDocumentSignedUrl,
+	resolveDocumentActor,
+	DocumentsError,
+} from '@domains/documents';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import MeetingScheduledOps from './components/MeetingScheduledOps.astro';
+import PlanningReportWizard, {
+	type InitialReport,
+	type ActivityOption,
+} from './islands/PlanningReportWizard.tsx';
+import { actividadesGeneral } from '@domains/utils/generals/activities';
+
+const { currentStage, empresaId } = Astro.props as OpsStageProps;
+const supabase = Astro.locals.supabase;
+const userRoles = Astro.locals.userRoles ?? [];
+
+const context = await resolvePlanningMeetingContext(supabase, {
+	incorporationId: empresaId,
+	stageId: currentStage.id,
+	stageStatus: 'in_progress',
+});
+
+let advisorName: string | null = null;
+if (context.meeting) {
+	const { data } = await supabaseAdmin
+		.schema('meetings')
+		.from('planning_meetings')
+		.select('advisor_id, usuarios:advisor_id(nombre)')
+		.eq('id', context.meeting.id)
+		.maybeSingle();
+	const usuarios = (data as { usuarios?: { nombre?: string | null } } | null)
+		?.usuarios;
+	advisorName = usuarios?.nombre ?? null;
+}
+
+let signedUrl: string | null = null;
+if (context.document) {
+	try {
+		const actor = await resolveDocumentActor(supabase, userRoles);
+		signedUrl = await createDocumentSignedUrl(actor, context.document.id);
+	} catch (err) {
+		if (!(err instanceof DocumentsError)) {
+			console.error('[ops/planning-meeting] signed url error:', err);
+		}
+	}
+}
+
+const substate: PlanningMeetingSubstate = context.substate;
+
+// ─── Datos para el wizard (solo cuando Ops debe llenar el informe) ──────
+let wizardStates: { id: number; name: string }[] = [];
+let wizardActivities: ActivityOption[] = [];
+let wizardInitial: InitialReport | null = null;
+let hasSavedReport = false;
+
+const showWizard =
+	substate === 'awaiting_doc' || substate === 'meeting_scheduled';
+
+if (showWizard) {
+	const report = await getReportByIncorporation(supabase, empresaId);
+	hasSavedReport = !!report;
+
+	const [{ data: estados }, { data: empresa }, activitiesRaw] =
+		await Promise.all([
+			supabaseAdmin
+				.from('states')
+				.select('id, name')
+				.eq('country_id', 75)
+				.order('name', { ascending: true }),
+			supabaseAdmin
+				.from('incorporations')
+				.select('formation_state_id')
+				.eq('id', empresaId)
+				.maybeSingle(),
+			actividadesGeneral(supabaseAdmin),
+		]);
+
+	wizardStates = (estados ?? []).map((e: { id: number; name: string }) => ({
+		id: e.id,
+		name: e.name,
+	}));
+
+	wizardActivities = (activitiesRaw ?? []).map((a: any) => ({
+		id: String(a.id),
+		irs_code: a.irs_code ?? '',
+		name_es: a.name_es ?? '',
+		name_en: a.name_en ?? '',
+	}));
+
+	const prefillStateId =
+		report?.state_id ?? empresa?.formation_state_id ?? null;
+
+	wizardInitial = {
+		stateId: prefillStateId,
+		activityId: report?.activity_id ?? null,
+		confidentiality: report?.confidentiality ?? null,
+		administrationForm: report?.administration_form ?? null,
+		taxTributation: report?.tax_tributation ?? null,
+		accountingMethod: report?.accounting_method ?? null,
+		membersNumber: report?.members_number ?? null,
+		incomeUs: report?.income_us ?? null,
+		designatedManager: report?.designated_manager ?? null,
+		companyDescription: report?.company_description ?? null,
+		meetingResume: report?.meeting_resume ?? null,
+	};
+}
+---
+
+<div class="space-y-4">
+	{/* ─── Task list ─── */}
+	<TaskCardsList tasks={currentStage.tasks} />
+
+	{/* ─── Contextual stage UI ─── */}
+	{
+		substate === 'schedule_pending' && (
+			<div class="border-border flex items-start gap-3 rounded-lg border border-dashed p-3">
+				<Icon
+					name="ri:calendar-todo-line"
+					class="text-muted-foreground h-5 w-5 shrink-0"
+				/>
+				<div>
+					<p class="text-foreground text-sm font-medium">
+						Esperando que el cliente agende la reunión
+					</p>
+					<p class="text-muted-foreground mt-0.5 text-xs">
+						El cliente aún no ha agendado su reunión de planificación con un
+						asesor.
+					</p>
+				</div>
+			</div>
+		)
+	}
+
+	{
+		showWizard && wizardInitial && (
+			<>
+				{context.meeting && (
+					<MeetingScheduledOps
+						scheduledAt={context.meeting.scheduled_at}
+						durationMinutes={context.meeting.duration_minutes}
+						advisorName={advisorName}
+						isPast={substate === 'awaiting_doc'}
+					/>
+				)}
+				<PlanningReportWizard
+					client:load
+					incorporationId={empresaId}
+					states={wizardStates}
+					activities={wizardActivities}
+					initial={wizardInitial}
+					hasSavedReport={hasSavedReport}
+				/>
+			</>
+		)
+	}
+
+	{
+		substate === 'delivered' && (
+			<div class="flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50/50 p-3 dark:border-emerald-900/40 dark:bg-emerald-900/10">
+				<Icon
+					name="ri:checkbox-circle-line"
+					class="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400"
+				/>
+				<div class="min-w-0">
+					<p class="text-foreground text-sm font-medium">
+						Informe enviado al cliente
+					</p>
+					<p class="text-muted-foreground mt-0.5 text-xs">
+						El informe de planificación y diseño se generó y está disponible
+						para el cliente. La etapa avanzó al siguiente paso.
+					</p>
+					{signedUrl && (
+						<a
+							href={signedUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-300"
+						>
+							<Icon name="ri:external-link-line" class="h-3.5 w-3.5" />
+							Ver informe
+						</a>
+					)}
+				</div>
+			</div>
+		)
+	}
+</div>

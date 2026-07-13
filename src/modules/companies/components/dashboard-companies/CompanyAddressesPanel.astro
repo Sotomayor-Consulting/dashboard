@@ -1,0 +1,69 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { ClientAddressItem } from '../../services/get-company-client-view-data';
+
+interface Props {
+	addresses: ClientAddressItem[];
+}
+
+const { addresses } = Astro.props;
+
+const TYPE_LABELS: Record<string, string> = {
+	operational: 'Operativa',
+	mailing: 'Mailing',
+	ein_request: 'EIN',
+	other: 'Otra',
+};
+
+const formatAddress = (a: ClientAddressItem) =>
+	[
+		[a.line1, a.line2].filter(Boolean).join(', '),
+		[a.city, a.stateName, a.zip].filter(Boolean).join(', '),
+		a.countryName,
+	]
+		.filter(Boolean)
+		.join(' · ');
+---
+
+<div>
+	<h3 class="text-foreground text-lg font-semibold">Direcciones</h3>
+	<p class="text-muted-foreground mt-1 mb-4 text-sm">
+		Direcciones registradas de la empresa.
+	</p>
+
+	<div class="border-border rounded-lg border">
+		{
+			addresses.length === 0 ? (
+				<div class="flex flex-col items-center gap-2 px-4 py-10 text-center">
+					<Icon name="ri:map-pin-line" class="text-muted-foreground h-6 w-6" />
+					<p class="text-muted-foreground text-sm">
+						Aún no hay direcciones registradas.
+					</p>
+				</div>
+			) : (
+				<ul role="list" class="divide-border divide-y">
+					{addresses.map((a) => (
+						<li class="flex items-start gap-4 px-4 py-3">
+							<div class="bg-muted mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+								<Icon
+									name="ri:map-pin-2-line"
+									class="text-muted-foreground h-4 w-4"
+								/>
+							</div>
+							<div class="min-w-0 flex-1">
+								<div class="flex flex-wrap items-center gap-2">
+									<span class="bg-muted text-muted-foreground inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium">
+										{TYPE_LABELS[a.type] ?? a.type}
+									</span>
+								</div>
+								<p class="text-foreground mt-1 text-sm font-medium">
+									{formatAddress(a)}
+								</p>
+							</div>
+						</li>
+					))}
+				</ul>
+			)
+		}
+	</div>
+</div>

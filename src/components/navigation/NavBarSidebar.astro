@@ -1,0 +1,392 @@
+---
+import { Icon } from 'astro-icon/components';
+import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
+import GlobalSearch from '@components/navigation/GlobalSearch.astro';
+import logonotificaciones from '@assets/brand/avatar-SCI-iso.png';
+import NotificationsPopover from '@components/navigation/islands/NotificationsPopover';
+import { menuItems } from '@components/navigation/items';
+
+// Datos recibidos desde LayoutSidebar (ya consultados en paralelo)
+const {
+	notificationsData: notifProp,
+	empresas: empresasProp = [],
+	usuario,
+	avatarUrl = null,
+} = Astro.props;
+
+const user = Astro.locals.user;
+const userId = user?.id ?? '';
+const userName = usuario?.nombre
+	? `${usuario.nombre} ${usuario.apellido ?? ''}`.trim()
+	: (user?.user_metadata?.name ?? user?.email ?? 'Usuario');
+
+const { notifications, totalUnread } = notifProp ?? {
+	notifications: [],
+	totalUnread: 0,
+};
+
+const empresasMap = new Map<string, string>(
+	(empresasProp as Array<{ id: string; nombre: string | null }>).map((e) => [
+		e.id,
+		e.nombre ?? 'Sin nombre',
+	]),
+);
+
+const pathname = Astro.url.pathname;
+
+const humanize = (value: string) =>
+	value
+		.replaceAll('-', ' ')
+		.replaceAll('_', ' ')
+		.replace(/\b\w/g, (char: string) => char.toUpperCase());
+
+const isUuid = (value: string) =>
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+		value,
+	);
+
+const segments = pathname.split('/').filter(Boolean);
+
+/**
+ * Resuelve un segmento a un label amigable.
+ * - UUID → nombre de empresa si lo tenemos cargado (sino "Detalle")
+ * - Match con menuItems → su label
+ * - Fallback: humanize(segment)
+ */
+function labelForSegment(segment: string, fullPath: string): string {
+	if (isUuid(segment)) {
+		return empresasMap.get(segment) ?? 'Detalle';
+	}
+	const match = menuItems.find(
+		(item) => item.href === fullPath || item.href === `${fullPath}/`,
+	);
+	if (match) return match.label;
+	return humanize(segment);
+}
+
+/**
+ * Construye breadcrumb max 2 niveles:
+ *  - Solo el path: 1 crumb (label del módulo)
+ *  - Path + sub-páginas: 2 crumbs (módulo + última)
+ *  - Si el path es solo home: 'Inicio'
+ */
+/**
+ * Path aliases: paths legacy o de detalle que apuntan a un módulo del
+ * sidebar diferente. Ej: `/incorporations/[id]` sigue activo como vista
+ * de detalle, pero el módulo en el breadcrumb es "Empresas" (la tabla
+ * nueva en `/admin/empresas`).
+ */
+const PATH_ALIASES: Array<{
+	pathPrefix: string;
+	moduleLabel: string;
+	moduleHref: string;
+}> = [
+	{
+		pathPrefix: '/incorporations/',
+		moduleLabel: 'Incorporaciones',
+		moduleHref: '/admin/incorporaciones',
+	},
+];
+
+const breadcrumbItems = (() => {
+	if (segments.length === 0) {
+		return [{ label: 'Inicio', href: '/' }];
+	}
+
+	// 0) Path alias para rutas legacy/detalle que no aparecen en el sidebar.
+	const alias = PATH_ALIASES.find((a) => pathname.startsWith(a.pathPrefix));
+
+	// 1) Módulo raíz: buscamos el menuItem cuyo href matchee el inicio
+	//    del pathname actual (más específico primero). Esto resuelve casos
+	//    como `/admin/usuarios` → label "Usuarios" (item entero) en lugar
+	//    de pasar por "/admin/" → label "Admin".
+	const firstSegment = segments[0]!;
+	const moduleHref = `/${firstSegment}/`;
+	const sortedItems = [...menuItems].sort(
+		(a, b) => b.href.length - a.href.length,
+	);
+	const matchedItem = sortedItems.find(
+		(item) => item.href !== '/' && pathname.startsWith(item.href),
+	);
+	const moduleLabel =
+		alias?.moduleLabel ?? matchedItem?.label ?? humanize(firstSegment);
+	const moduleAnchorHref = alias?.moduleHref ?? matchedItem?.href ?? moduleHref;
+
+	// Si el item tiene children y la ruta actual matchea uno de ellos,
+	// mostramos 2 crumbs: "Parent > Child".
+	if (matchedItem?.children?.length) {
+		const matchedChild = matchedItem.children.find(
+			(c) => pathname.replace(/\/$/, '') === c.href.replace(/\/$/, ''),
+		);
+		if (matchedChild) {
+			return [
+				{
+					label: moduleLabel,
+					href: matchedItem.children[0]?.href ?? moduleAnchorHref,
+				},
+				{ label: matchedChild.label, href: matchedChild.href },
+			];
+		}
+	}
+
+	// Si el item del sidebar matchea el path COMPLETO (ej. estamos en
+	// `/admin/usuarios` y el item es `/admin/usuarios`), un solo crumb.
+	const matchedItemHrefNoSlash = (matchedItem?.href ?? '').replace(/\/$/, '');
+	const pathnameNoSlash = pathname.replace(/\/$/, '');
+	if (matchedItem && matchedItemHrefNoSlash === pathnameNoSlash) {
+		return [{ label: moduleLabel, href: moduleAnchorHref }];
+	}
+
+	if (segments.length === 1) {
+		return [{ label: moduleLabel, href: moduleAnchorHref }];
+	}
+
+	// 2) Último segmento como página actual. Resolvemos UUIDs a nombre
+	//    real de empresa cuando aplica.
+	const last = segments[segments.length - 1]!;
+	const lastFullPath = `/${segments.join('/')}/`;
+	const lastLabel = labelForSegment(last, lastFullPath);
+
+	// Deduplicar: si el último label ya equivale al label del módulo,
+	// solo devolvemos un crumb.
+	if (lastLabel.toLowerCase().trim() === moduleLabel.toLowerCase().trim()) {
+		return [{ label: moduleLabel, href: moduleAnchorHref }];
+	}
+
+	return [
+		{ label: moduleLabel, href: moduleAnchorHref },
+		{ label: lastLabel, href: lastFullPath },
+	];
+})();
+---
+
+<nav
+	id="navbar-sidebar"
+	class="dark:bg-primary-black border-border fixed top-0 right-0 left-0 z-30 h-14 border-b bg-white lg:left-60"
+>
+	<div class="flex h-full items-center">
+		<!-- Mobile: hamburger + logo -->
+		<div class="flex items-center lg:hidden">
+			<button
+				id="toggleSidebarMobile"
+				aria-controls="sidebar"
+				aria-expanded="false"
+				aria-label="Abrir menú de navegación"
+				class="text-muted-foreground hover:bg-hover hover:text-foreground focus:bg-hover focus:ring-ring cursor-pointer rounded p-2 focus:ring-2"
+			>
+				<svg
+					id="toggleSidebarMobileHamburger"
+					class="h-6 w-6"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+					><path
+						fill-rule="evenodd"
+						d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+						clip-rule="evenodd"></path></svg
+				>
+				<svg
+					id="toggleSidebarMobileClose"
+					class="hidden h-6 w-6"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+					><path
+						fill-rule="evenodd"
+						d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+						clip-rule="evenodd"></path></svg
+				>
+			</button>
+			<a href="/" class="ml-1 hidden md:flex">
+				<Icon
+					name="logo-sotomayor-consulting-isotipo"
+					class="block text-3xl dark:hidden"
+					title="Logo Sotomayor Consulting"
+				/>
+				<Icon
+					name="logo-sotomayor-consulting-isotipo-white"
+					class="mr-3 hidden text-3xl dark:block"
+					title="Logo Sotomayor Consulting"
+				/>
+			</a>
+		</div>
+
+		<!-- Content area: breadcrumb + search + actions -->
+		<div
+			class="flex min-w-0 flex-1 items-center justify-between pr-3 pl-3 lg:pr-5 lg:pl-4"
+		>
+			<div class="hidden min-w-0 items-center pl-4 lg:flex">
+				<nav
+					aria-label="Breadcrumb"
+					class="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
+				>
+					{
+						breadcrumbItems.map((crumb, idx) => (
+							<>
+								{idx > 0 && (
+									<Icon
+										name="ri:arrow-right-s-line"
+										class="h-3.5 w-3.5 shrink-0 text-gray-400"
+									/>
+								)}
+								<a
+									href={crumb.href}
+									class:list={{
+										'truncate transition-colors hover:text-gray-700 dark:hover:text-gray-200': true,
+										'font-semibold text-gray-900 dark:text-white':
+											idx === breadcrumbItems.length - 1,
+									}}
+								>
+									{crumb.label}
+								</a>
+							</>
+						))
+					}
+				</nav>
+			</div>
+			<div
+				class="hidden flex-1 items-center justify-center px-4 md:flex lg:hidden"
+			>
+				<GlobalSearch userRoles={Astro.locals.userRoles ?? []} />
+			</div>
+
+			<div class="flex items-center gap-2">
+				<ColorModeSwitcher />
+				<div id="notificaciones">
+					<NotificationsPopover
+						notifications={notifications}
+						totalUnread={totalUnread}
+						avatarSrc={logonotificaciones.src}
+						client:load
+					/>
+				</div>
+				<div class="relative hidden lg:block" data-user-dropdown>
+					<button
+						type="button"
+						class="hover:bg-hover flex cursor-pointer items-center gap-2 rounded-full py-1 pr-3 pl-1 transition-colors"
+						data-user-dropdown-trigger
+					>
+						<img
+							src={avatarUrl ?? `https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
+							alt="Avatar"
+							class="border-border h-8 w-8 shrink-0 rounded-full border object-cover"
+							data-user-avatar
+						/>
+						<span class="text-foreground text-sm font-medium">{userName}</span>
+						<Icon
+							name="ri:arrow-down-s-line"
+							class="text-muted-foreground h-4 w-4 transition-transform"
+							data-user-dropdown-chevron
+						/>
+					</button>
+
+					<div
+						class="border-border bg-card absolute top-full right-0 z-50 mt-2 hidden w-56 overflow-hidden rounded-lg border shadow-lg"
+						data-user-dropdown-panel
+					>
+						<div class="border-border border-b px-4 py-3">
+							<p class="text-foreground text-sm font-medium">{userName}</p>
+							<p class="text-muted-foreground truncate text-xs">
+								{user?.email ?? ''}
+							</p>
+						</div>
+						<div class="py-1.5">
+							<a
+								href="/profile/"
+								data-astro-prefetch
+								class="text-foreground hover:bg-hover flex items-center gap-3 px-4 py-2 text-sm transition-colors"
+							>
+								<Icon
+									name="ri:user-line"
+									class="text-muted-foreground h-4 w-4"
+								/>
+								Editar perfil
+							</a>
+							<a
+								href="/profile/billing"
+								data-astro-prefetch
+								class="text-foreground hover:bg-hover flex items-center gap-3 px-4 py-2 text-sm transition-colors"
+							>
+								<Icon
+									name="ri:settings-3-line"
+									class="text-muted-foreground h-4 w-4"
+								/>
+								Configuración
+							</a>
+							<a
+								href="mailto:info@sotomayorconsulting.com"
+								class="text-foreground hover:bg-hover flex items-center gap-3 px-4 py-2 text-sm transition-colors"
+							>
+								<Icon
+									name="ri:customer-service-2-line"
+									class="text-muted-foreground h-4 w-4"
+								/>
+								Soporte
+							</a>
+						</div>
+						<div class="border-border border-t py-1.5">
+							<form method="POST" action="/api/auth/sign-out">
+								<button
+									type="submit"
+									class="text-foreground hover:bg-hover flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors"
+								>
+									<Icon
+										name="ri:logout-box-r-line"
+										class="text-muted-foreground h-4 w-4"
+									/>
+									Cerrar sesión
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</nav>
+
+<script>
+	function initUserDropdown() {
+		const dropdown = document.querySelector<HTMLElement>(
+			'[data-user-dropdown]',
+		);
+		if (!dropdown || dropdown.dataset.dropdownInit === '1') return;
+		dropdown.dataset.dropdownInit = '1';
+
+		const trigger = dropdown.querySelector<HTMLButtonElement>(
+			'[data-user-dropdown-trigger]',
+		);
+		const panel = dropdown.querySelector<HTMLElement>(
+			'[data-user-dropdown-panel]',
+		);
+		const chevron = dropdown.querySelector<HTMLElement>(
+			'[data-user-dropdown-chevron]',
+		);
+		if (!trigger || !panel) return;
+
+		const open = () => {
+			panel.classList.remove('hidden');
+			chevron?.classList.add('rotate-180');
+		};
+		const close = () => {
+			panel.classList.add('hidden');
+			chevron?.classList.remove('rotate-180');
+		};
+
+		trigger.addEventListener('click', (e) => {
+			e.stopPropagation();
+			panel.classList.contains('hidden') ? open() : close();
+		});
+
+		document.addEventListener('click', (e) => {
+			if (!dropdown.contains(e.target as Node)) close();
+		});
+
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') close();
+		});
+	}
+
+	initUserDropdown();
+	document.addEventListener('astro:page-load', initUserDropdown);
+</script>

@@ -1,0 +1,601 @@
+---
+import Stripelogo from '@assets/logos/stripe.svg';
+import LogoSCI from '../../icons/Letras_logo_SCI.svg';
+import IsotipoSVG from '../../icons/isotipo.svg';
+import VisaLogo from '../../icons/visa.svg';
+import MastercardLogo from '../../icons/mastercard.svg';
+import AmexLogo from '../../icons/amex.svg';
+import DiscoverLogo from '../../icons/discover.svg';
+import DinersLogo from '../../icons/diners.svg';
+import ApplePayLogo from '../../icons/ApplePay.svg';
+import GooglePayLogo from '../../icons/GooglePay.svg';
+import PoweredByStripeBlack from '../../icons/PoweredbyStripe-black.svg';
+import { Icon } from 'astro-icon/components';
+import ColorModeSwitcher from '@components/display/ColorModeSwitcher.astro';
+import CompanySelect from './islands/CompanySelect.tsx';
+import { getIncorporacionesPendientesDePago } from '@domains/companies/incorporations';
+import { ListaServiciosStripe } from '@domains/services/services';
+
+const user = Astro.locals.user;
+const userId = user?.id || '';
+const supabase = Astro.locals.supabase;
+
+const [empresas, servicios] = await Promise.all([
+	getIncorporacionesPendientesDePago(supabase, userId),
+	ListaServiciosStripe(supabase),
+]);
+
+// Deep-link con contexto: si viene ?empresa=<id> desde el dashboard de una
+// empresa (patrón SaaS: no re-preguntar contexto ya conocido), se salta el
+// selector y se aterriza directo en los planes con la empresa fijada.
+const preselectedId = Astro.url.searchParams.get('empresa');
+const preselected = empresas?.find((e) => e.id === preselectedId) ?? null;
+const skipSelector = Boolean(preselected);
+
+// Los planes se identifican por slug canónico (catalogs.service_plans);
+// el radio manda `plan.id` (int canónico) como planId al checkout.
+const planBasico = servicios?.find(
+	(s: { slug: string }) => s.slug === 'basico',
+);
+const planEstandar = servicios?.find(
+	(s: { slug: string }) => s.slug === 'estandar',
+);
+const planBusiness = servicios?.find(
+	(s: { slug: string }) => s.slug === 'business',
+);
+const planDiseno = servicios?.find(
+	(s: { slug: string }) => s.slug === 'diseno',
+);
+
+// Orden descendente por precio: caro → barato (izq → der).
+// Anclaje de precio (ConversionXL): el plan caro primero hace que los
+// demás se perciban más asequibles y sube la conversión a tiers medios.
+const allPlans = [planBusiness, planEstandar, planDiseno, planBasico].filter(
+	(p): p is NonNullable<typeof planBasico> => Boolean(p),
+);
+
+const featuresByPlan = new Map<string, string[]>([
+	[
+		'basico',
+		[
+			'Incorporación de la LLC frente al Estado.',
+			'Obtención del EIN (Número de Identificación Tributaria).',
+			'Agente Residente por un año.',
+		],
+	],
+	[
+		'diseno',
+		[
+			'Estado de incorporación ideal (50 jurisdicciones).',
+			'Tratamiento tributario federal óptimo.',
+			'Modelo administrativo y contable a medida.',
+		],
+	],
+	[
+		'estandar',
+		[
+			'Elaboración del Acuerdo de Operación.',
+			'Consultas ilimitadas por un año.',
+			'Solicitud de Exención BE-13.',
+		],
+	],
+	[
+		'business',
+		[
+			'Planificación y diseño legal - tributario.',
+			'Acompañamiento bancario (Mercury o Relay + Stripe).',
+			'EIN acelerado.',
+		],
+	],
+]);
+
+const tagByPlan = new Map<string, string>([
+	['basico', 'Inicial'],
+	['diseno', 'Rediseño'],
+	['estandar', 'Completo'],
+	['business', 'Más popular'],
+]);
+
+const planLeadByPlan = new Map<string, string>([
+	['basico', 'Lo esencial para constituir tu LLC y operar legalmente.'],
+	['diseno', 'Reestructura y optimiza una LLC ya existente.'],
+	['estandar', 'Cobertura legal ampliada con soporte continuo.'],
+	[
+		'business',
+		'Todo incluido: estructura legal, fiscal y bancaria desde el inicio.',
+	],
+]);
+
+const year = new Date().getFullYear();
+
+// ─── Tokens de estilo flat/open (consistentes con el start wizard) ──
+const goldLabel =
+	'text-primary-gold text-xs font-semibold tracking-[0.25em] uppercase';
+const heading =
+	'text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl dark:text-white';
+const subtitle = 'text-sm leading-6 text-slate-500 dark:text-slate-400';
+// CTA primario: dorado sólido con texto oscuro (alto contraste), micro-lift
+// al hover, scale al pulsar y ring de foco accesible.
+const goldButton =
+	'group inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary-gold px-5 text-sm font-semibold text-primary-black shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-105 active:translate-y-0 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-primary-gold/50 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-60 dark:focus-visible:ring-offset-black';
+// Secundario ghost: solo borde, subordinado al primario.
+const ghostButton =
+	'group inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-transparent px-5 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-60 dark:border-neutral-800 dark:text-slate-200 dark:hover:bg-white/5 dark:focus-visible:ring-neutral-700 dark:focus-visible:ring-offset-black';
+const dashedNote =
+	'rounded-xl border border-dashed border-slate-200 bg-slate-50/60 p-4 text-sm text-slate-500 dark:border-neutral-800 dark:bg-white/[0.02] dark:text-slate-400';
+// El label recibe las variantes peer-checked (borde/ring + check dorado).
+const planCard =
+	'relative flex h-full flex-col cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 transition-all hover:border-slate-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700 peer-checked:border-[#8c681d] peer-checked:ring-2 peer-checked:ring-[#8c681d]/20 peer-checked:[&_.plan-check]:opacity-100';
+---
+
+<main
+	id="content"
+	class="flex min-h-dvh flex-col"
+	data-user-id={userId}
+	data-skip-selector={skipSelector ? '1' : '0'}
+>
+	<header
+		class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8"
+	>
+		<a
+			href="https://sotomayorconsulting.com/inicio/"
+			class="inline-flex items-center invert dark:invert-0"
+			aria-label="Sotomayor Consulting"
+		>
+			<LogoSCI class="h-6 w-auto" />
+		</a>
+		<ColorModeSwitcher />
+	</header>
+
+	<section
+		id="panel1"
+		class:list={[
+			'flex flex-1 flex-col justify-center px-4 py-10',
+			skipSelector && 'hidden',
+		]}
+	>
+		<div class="mx-auto w-full max-w-md">
+			<div class="space-y-2 text-center">
+				<p class={goldLabel}>Paso 01 · de 02</p>
+				<h1 class={heading}>Selecciona tu empresa</h1>
+				<p class={subtitle}>
+					Elige la incorporación que deseas activar y avanza a un checkout
+					seguro con Stripe.
+				</p>
+			</div>
+
+			<div class="mt-10 space-y-5">
+				{
+					empresas?.length ? (
+						<>
+							<div>
+								<label
+									for="empresa-select"
+									class="mb-2 block text-sm font-medium text-slate-900 dark:text-white"
+								>
+									Empresa a incorporar
+								</label>
+								<CompanySelect
+									companies={empresas ?? []}
+									defaultValue={preselected?.id}
+									client:load
+								/>
+							</div>
+
+							<p class={dashedNote}>
+								Tu selección definirá a qué incorporación se vinculará el pago y
+								el flujo posterior del proceso.
+							</p>
+
+							<button
+								id="btn-paso1"
+								type="button"
+								class={`w-full ${goldButton}`}
+							>
+								Ver planes disponibles
+							</button>
+
+							<div class="flex items-center justify-center gap-2 text-sm text-slate-400 dark:text-slate-500">
+								<Icon name="ri:lock-2-line" class="size-4" />
+								<span>Pago seguro gestionado por</span>
+								<span class="brightness-0 dark:brightness-0 dark:invert">
+									<Stripelogo width={60} />
+								</span>
+							</div>
+						</>
+					) : (
+						<div class={dashedNote}>
+							Aún no tienes ninguna empresa pendiente por pagar.
+						</div>
+					)
+				}
+			</div>
+		</div>
+	</section>
+
+	<section
+		id="panel2"
+		class:list={[
+			'relative flex flex-1 flex-col overflow-hidden',
+			!skipSelector && 'hidden',
+		]}
+	>
+		<IsotipoSVG
+			class="pointer-events-none absolute -right-32 -bottom-28 z-0 hidden w-[600px] max-w-none rotate-6 opacity-[0.04] invert select-none md:block dark:opacity-[0.07] dark:invert-0"
+			style="mask-image: radial-gradient(closest-side, black 55%, transparent);"
+			aria-hidden="true"
+		/>
+		<div
+			class="mx-auto max-w-7xl flex-1 space-y-6 px-4 pt-6 pb-4 sm:px-6 lg:px-8"
+		>
+			<div class="mx-auto max-w-2xl space-y-2 text-center">
+				<p class={goldLabel}>
+					{skipSelector ? 'Activa tu empresa' : 'Paso 02 · de 02'}
+				</p>
+				<h2 class={heading}>Escoja su plan</h2>
+				<p class={subtitle}>
+					Elija la alternativa que mejor se adapta a su estructura y continúe al
+					pago seguro.
+				</p>
+				<div
+					class="inline-flex items-center gap-2 border-b border-slate-200 pb-2 text-sm dark:border-neutral-800"
+				>
+					<Icon name="ri:building-line" class="text-primary-gold size-4" />
+					<span class="text-slate-500 dark:text-slate-400">Pagando para</span>
+					<span
+						id="empresa-chip-name"
+						class="font-semibold text-slate-900 dark:text-white"
+					>
+						{preselected?.principal_name ?? empresas?.[0]?.principal_name ?? ''}
+					</span>
+					{
+						empresas?.length > 1 && (
+							<button
+								type="button"
+								id="btn-cambiar-empresa"
+								class="hover:text-primary-gold text-xs font-medium text-slate-500 underline-offset-2 hover:underline dark:text-slate-400"
+							>
+								Cambiar
+							</button>
+						)
+					}
+				</div>
+			</div>
+
+			<div
+				class="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4 xl:gap-5"
+			>
+				{
+					allPlans.map((plan) => {
+						const features = featuresByPlan.get(plan.slug) ?? [];
+						const lead =
+							planLeadByPlan.get(plan.slug) ?? plan.descripcion ?? '';
+						const tag = tagByPlan.get(plan.slug) ?? 'Plan';
+						const isFeatured = plan.slug === 'business';
+
+						return (
+							<div class="relative">
+								<input
+									type="radio"
+									id={`plan-${plan.id}`}
+									name="plan"
+									value={plan.id}
+									class="peer sr-only"
+									required
+									checked={isFeatured}
+									data-price={plan.precio}
+									data-servicio={plan.etiqueta}
+									data-nombre={plan.nombre}
+								/>
+								<label
+									for={`plan-${plan.id}`}
+									class:list={[
+										planCard,
+										isFeatured &&
+											'border-primary-gold ring-primary-gold/25 shadow-primary-gold/30 hover:border-primary-gold dark:shadow-primary-gold/10 dark:ring-primary-gold/20 bg-gradient-to-b from-amber-50/70 to-white shadow-xl ring-2 xl:scale-[1.04] dark:from-transparent dark:to-transparent',
+									]}
+								>
+									<div class="flex items-center justify-between">
+										{isFeatured ? (
+											<span class="bg-primary-gold text-primary-black inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase">
+												{tag}
+											</span>
+										) : (
+											<span class="inline-flex items-center rounded-full border border-slate-200 px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-slate-400 uppercase dark:border-neutral-800 dark:text-slate-500">
+												{tag}
+											</span>
+										)}
+										<span class="plan-check bg-primary-gold flex size-6 items-center justify-center rounded-full text-white opacity-0 transition-opacity duration-200">
+											<Icon name="ri:check-line" class="size-3.5" />
+										</span>
+									</div>
+
+									<h3 class="mt-4 text-xl font-semibold text-slate-900 dark:text-white">
+										{plan.nombre}
+									</h3>
+									<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+										{lead}
+									</p>
+
+									<p class="mt-3 text-3xl font-semibold tracking-tight text-slate-900 tabular-nums dark:text-white">
+										${plan.precio}
+									</p>
+									<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+										{plan.descripcion}
+									</p>
+
+									<div class="my-3 h-px bg-slate-200 dark:bg-neutral-800" />
+
+									<ul class="space-y-2 text-sm">
+										{features.map((feature) => (
+											<li class="flex items-start gap-2.5">
+												<span class="bg-primary-gold/10 text-primary-gold mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full">
+													<Icon name="ri:check-line" class="size-3.5" />
+												</span>
+												<span class="text-slate-600 dark:text-slate-300">
+													{feature}
+												</span>
+											</li>
+										))}
+									</ul>
+
+									<div class="mt-auto pt-4">
+										<button
+											type="button"
+											data-plan-pay={plan.id}
+											class={`w-full ${isFeatured ? goldButton : ghostButton}`}
+										>
+											<span
+												class="pay-spinner hidden size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+												aria-hidden="true"
+											/>
+											<span class="pay-label">Comenzar</span>
+										</button>
+									</div>
+								</label>
+							</div>
+						);
+					})
+				}
+			</div>
+
+			<p class="mt-3 text-center text-xs text-slate-400 dark:text-slate-500">
+				Los precios no incluyen la tarifa de procesamiento de pagos (4.5%), que
+				se muestra desglosada antes de confirmar tu compra.
+			</p>
+
+			<p
+				id="checkout-status"
+				class="mt-2 text-center text-xs text-slate-500 dark:text-slate-400"
+			>
+			</p>
+
+			<div class="flex items-center justify-center gap-3 pt-2">
+				<button type="button" id="btn-atras" class={ghostButton}>
+					<Icon
+						name="ri:arrow-left-line"
+						class="size-4 transition-transform duration-200 group-hover:-translate-x-0.5"
+					/>
+					Regresar
+				</button>
+			</div>
+		</div>
+
+		<footer
+			class="border-t border-slate-200 bg-slate-50 px-4 py-4 text-center dark:border-neutral-700 dark:bg-neutral-900"
+		>
+			<div class="mx-auto flex max-w-3xl flex-col items-center gap-4">
+				<div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+					<div
+						class="flex items-center gap-2 text-slate-400 dark:text-slate-500"
+					>
+						<Icon name="ri:lock-2-line" class="size-5" />
+						<span class="brightness-0 dark:brightness-0 dark:invert">
+							<PoweredByStripeBlack width={140} />
+						</span>
+					</div>
+					<span
+						class="hidden h-6 w-px bg-slate-200 sm:block dark:bg-neutral-800"
+					></span>
+					<div class="flex items-center gap-2">
+						<VisaLogo class="h-6 w-auto sm:h-7" aria-label="Visa" />
+						<MastercardLogo class="h-6 w-auto sm:h-7" aria-label="Mastercard" />
+						<DinersLogo class="h-6 w-auto sm:h-7" aria-label="Diners Club" />
+						<AmexLogo class="h-6 w-auto sm:h-7" aria-label="American Express" />
+						<DiscoverLogo class="h-6 w-auto sm:h-7" aria-label="Discover" />
+						<ApplePayLogo class="h-6 w-auto sm:h-7" aria-label="Apple Pay" />
+						<GooglePayLogo
+							class="h-6 w-auto sm:h-7"
+							aria-label="Google Pay"
+						/>
+					</div>
+				</div>
+
+				<div
+					class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs"
+				>
+					<p class="text-slate-400 dark:text-slate-500">
+						© {year} Sotomayor Consulting International.
+					</p>
+					<a
+						href="https://sotomayorconsulting.com/inicio/politicas/"
+						class="hover:text-primary-gold text-slate-500 dark:text-slate-400"
+					>
+						Términos de Servicio
+					</a>
+					<a
+						href="https://sotomayorconsulting.com/inicio/politicas/"
+						class="hover:text-primary-gold text-slate-500 dark:text-slate-400"
+					>
+						Política de Privacidad
+					</a>
+				</div>
+			</div>
+		</footer>
+	</section>
+</main>
+
+<script>
+	function initIncorporacionPaymentFlow() {
+		const root = document.getElementById('content');
+		if (!root || root.dataset.paymentFlowInitialized === 'true') return;
+		root.dataset.paymentFlowInitialized = 'true';
+
+		const userId = root.dataset.userId || '';
+		const skipSelector = root.dataset.skipSelector === '1';
+
+		const btnPaso1 = document.getElementById('btn-paso1');
+		const btnAtras = document.getElementById('btn-atras');
+		const btnCambiar = document.getElementById('btn-cambiar-empresa');
+		const panel1 = document.getElementById('panel1');
+		const panel2 = document.getElementById('panel2');
+		const status = document.getElementById('checkout-status');
+		const chipName = document.getElementById('empresa-chip-name');
+
+		// Sincroniza el chip "Pagando para" con la empresa marcada en el selector.
+		const syncChipName = () => {
+			const selectedLabel = document.querySelector(
+				'[role="radio"][aria-checked="true"] .truncate',
+			);
+			if (chipName && selectedLabel?.textContent) {
+				chipName.textContent = selectedLabel.textContent;
+			}
+		};
+
+		// Transición suave entre pasos usando la View Transitions API
+		// (https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API)
+		// con fallback inmediato en navegadores sin soporte.
+		const swapPanels = (hide: HTMLElement | null, show: HTMLElement | null) => {
+			const update = () => {
+				hide?.classList.add('hidden');
+				show?.classList.remove('hidden');
+				window.scrollTo({ top: 0 });
+			};
+			if (document.startViewTransition) {
+				document.startViewTransition(update);
+			} else {
+				update();
+			}
+		};
+
+		btnPaso1?.addEventListener('click', () => {
+			syncChipName();
+			swapPanels(panel1, panel2);
+		});
+		// Con deep-link (?empresa=) el paso 1 se saltó: "Regresar" vuelve al
+		// dashboard de origen; sin contexto, vuelve al selector de empresa.
+		btnAtras?.addEventListener('click', () => {
+			if (skipSelector) {
+				history.back();
+			} else {
+				swapPanels(panel2, panel1);
+			}
+		});
+		btnCambiar?.addEventListener('click', () => swapPanels(panel2, panel1));
+
+		const payButtons = document.querySelectorAll<HTMLButtonElement>(
+			'button[data-plan-pay]',
+		);
+
+		payButtons.forEach((btn) => {
+			btn.addEventListener('click', async (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+
+				const planId = btn.dataset.planPay;
+				if (!planId) return;
+
+				const empresaSelect = document.getElementById(
+					'empresa-select',
+				) as HTMLSelectElement | null;
+				if (!empresaSelect || !empresaSelect.value) {
+					alert('Por favor selecciona la empresa para la que vas a pagar.');
+					return;
+				}
+
+				if (!userId) {
+					alert('No se detectó tu sesión. Vuelve a iniciar sesión.');
+					return;
+				}
+
+				const spinner = btn.querySelector('.pay-spinner');
+				const arrow = btn.querySelector('.pay-arrow');
+				const label = btn.querySelector('.pay-label');
+				btn.disabled = true;
+				btn.setAttribute('aria-busy', 'true');
+				spinner?.classList.remove('hidden');
+				arrow?.classList.add('hidden');
+				if (label) label.textContent = 'Redirigiendo...';
+				if (status) status.textContent = 'Redirigiendo a Stripe...';
+
+				try {
+					const res = await fetch('/api/payment/checkout-session', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							planId,
+							userId,
+							empresaId: empresaSelect.value,
+						}),
+					});
+					const data = await res.json();
+					if (!res.ok || !data.url) {
+						throw new Error(data.error || 'No se pudo iniciar el pago');
+					}
+					window.location.href = data.url;
+				} catch (err) {
+					console.error('[checkout]', err);
+					if (status) {
+						status.textContent =
+							'No se pudo iniciar el pago. Intenta nuevamente.';
+					}
+					btn.disabled = false;
+					btn.removeAttribute('aria-busy');
+					spinner?.classList.add('hidden');
+					arrow?.classList.remove('hidden');
+					if (label) label.textContent = 'Ir a pagar';
+				}
+			});
+		});
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener(
+			'DOMContentLoaded',
+			initIncorporacionPaymentFlow,
+			{ once: true },
+		);
+	} else {
+		initIncorporacionPaymentFlow();
+	}
+
+	document.addEventListener('astro:page-load', initIncorporacionPaymentFlow);
+</script>
+
+<style is:global>
+	/* Transición entre pasos: fade + leve deslizamiento vertical.
+	   Pseudo-elementos estándar de la View Transitions API. */
+	::view-transition-old(root) {
+		animation: 180ms ease-out both step-fade-out;
+	}
+	::view-transition-new(root) {
+		animation: 240ms ease-out both step-fade-in;
+	}
+	@keyframes step-fade-out {
+		to {
+			opacity: 0;
+		}
+	}
+	@keyframes step-fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		::view-transition-old(root),
+		::view-transition-new(root) {
+			animation: none;
+		}
+	}
+</style>

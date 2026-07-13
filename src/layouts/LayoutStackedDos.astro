@@ -1,0 +1,35 @@
+---
+import LayoutCommon from './LayoutCommon.astro';
+import NavBarStacked from '../components/navigation/NavBarStacked.astro';
+---
+
+<LayoutCommon>
+	<NavBarStacked />
+
+	<div
+		class="fondo flex min-h-svh flex-col bg-gray-50 bg-cover bg-center pt-16"
+	>
+		<div
+			id="main-content"
+			class="relative mx-auto h-full min-h-[calc(100svh-4rem)] w-full max-w-screen-2xl"
+		>
+			<div class="px-4 pt-6 2xl:px-0">
+				<slot />
+			</div>
+		</div>
+	</div>
+</LayoutCommon>
+
+<style>
+	html.dark .fondo {
+		background-image: url(/src/assets/backgrounds/edificios-fondo-transparente.avif);
+		background-size: cover;
+		background-position: center;
+	}
+
+	.fondo {
+		background-image: url(/src/assets/backgrounds/edificios-fondo-transparente-blanco.avif);
+		background-size: cover;
+		background-position: center;
+	}
+</style>

@@ -1,0 +1,40 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import Alerta from '@components/feedback/Alert.astro';
+import CompanyDocumentsDashboard from '@modules/documents/CompanyDocumentsDashboard.astro';
+import Tab from '@components/navigation/TabBar.astro';
+
+const { incorporationId } = Astro.params;
+---
+
+<LayoutSidebar>
+	<Alerta />
+	<Tab
+		buttons={[
+			{
+				label: 'General',
+				icon: 'ri:apps-2-ai-line',
+				active: false,
+				link: `/my-companies/${incorporationId}/dashboard`,
+			},
+			{
+				label: 'Documentos',
+				icon: 'ri:file-copy-line',
+				active: true,
+				link: `/my-companies/${incorporationId}/documents`,
+			},
+			{
+				label: 'Ordenes',
+				icon: 'ri:contract-line',
+				active: false,
+				link: `/my-companies/${incorporationId}/orders`,
+			},
+		]}
+	/>
+
+	<CompanyDocumentsDashboard
+		incorporationCaseId={incorporationId}
+		dashboardVariant="client"
+		showQuickUpload={false}
+	/>
+</LayoutSidebar>

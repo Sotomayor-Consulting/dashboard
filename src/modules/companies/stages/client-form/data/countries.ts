@@ -1,0 +1,26 @@
+// Listado hardcoded por ahora. Reemplazar por getCountries() del dominio
+// (ver src/domains/countries.ts) si se quiere centralizar.
+export const COUNTRIES = [
+	'Argentina',
+	'Bolivia',
+	'Brasil',
+	'Chile',
+	'Colombia',
+	'Costa Rica',
+	'Cuba',
+	'Ecuador',
+	'El Salvador',
+	'España',
+	'Estados Unidos',
+	'Guatemala',
+	'Honduras',
+	'México',
+	'Nicaragua',
+	'Panamá',
+	'Paraguay',
+	'Perú',
+	'Puerto Rico',
+	'República Dominicana',
+	'Uruguay',
+	'Venezuela',
+] as const;

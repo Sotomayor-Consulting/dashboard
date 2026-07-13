@@ -1,7 +1,10 @@
-import { apiClient } from '@lib/odoo/axios-odoo-instance';
+import { apiClient } from '@integrations/odoo/axios-odoo-instance';
 import type { APIRoute } from 'astro';
-import { SECURITY_HEADERS } from '@lib/security/headers';
-import { createSupabaseServerClient } from '@lib/supabase';
+import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { createLogger } from '@infrastructure/logging';
+
+const log = createLogger('odoo.test-odoo');
 
 export const GET: APIRoute = async ({ request, cookies }) => {
 	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
@@ -27,8 +30,8 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 				'user_ids',
 			],
 		});
-		console.log('Conexión exitosa a Odoo');
-		console.log('Data:', JSON.stringify(response.data, null, 2));
+		log.info('Conexión exitosa a Odoo');
+		log.debug('Data', { data: response.data });
 		return new Response(JSON.stringify(response.data, null, 2), {
 			status: 200,
 			headers: SECURITY_HEADERS,
@@ -36,7 +39,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 	} catch (error) {
 		const message =
 			error instanceof Error ? error.message : 'Unknown error';
-		console.error('Error al conectar con Odoo:', message);
+		log.error('Error al conectar con Odoo', { message });
 
 		return new Response(
 			JSON.stringify({ error: 'Internal Server Error' }),

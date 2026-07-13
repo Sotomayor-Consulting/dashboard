@@ -1,0 +1,59 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { StateInfo } from './states-data';
+
+interface Props {
+	state: StateInfo;
+}
+
+const { state } = Astro.props;
+
+const pillStyle = `background:${state.color}15;color:${state.color}`;
+---
+
+<div>
+	<h4
+		class="mb-2.5 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"
+	>
+		<Icon
+			name="ri:shield-keyhole-line"
+			class="h-4 w-4"
+			style={`color:${state.color}`}
+		/>
+		Detalles legales
+	</h4>
+	<dl class="space-y-1.5 text-xs">
+		<div class="flex items-center justify-between gap-2">
+			<dt class="text-gray-500 dark:text-gray-400">Privacidad</dt>
+			<dd>
+				<span
+					class="rounded-full px-2 py-0.5 text-[11px] font-medium"
+					style={pillStyle}
+				>
+					{state.legalDetails.privacyLevel}
+				</span>
+			</dd>
+		</div>
+		<div class="flex items-center justify-between gap-2">
+			<dt class="text-gray-500 dark:text-gray-400">Protección activos</dt>
+			<dd>
+				<span
+					class="rounded-full px-2 py-0.5 text-[11px] font-medium"
+					style={pillStyle}
+				>
+					{state.legalDetails.assetProtection}
+				</span>
+			</dd>
+		</div>
+		<div class="flex justify-between gap-2">
+			<dt class="text-gray-500 dark:text-gray-400">Series LLC</dt>
+			<dd class="font-medium text-gray-900 dark:text-white">
+				{state.legalDetails.seriesLLC ? 'Disponible' : 'No disponible'}
+			</dd>
+		</div>
+		<div class="flex justify-between gap-2">
+			<dt class="text-gray-500 dark:text-gray-400">Zona horaria</dt>
+			<dd class="font-medium text-gray-900 dark:text-white">{state.timezone}</dd>
+		</div>
+	</dl>
+</div>

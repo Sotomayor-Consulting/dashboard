@@ -1,0 +1,24 @@
+{
+	"_meta": {
+		"phase": "F6 — Referidos",
+		"description": "Crear relaciones de referido entre partners y clientes.",
+		"n8n_flow": "INSERT referidos",
+		"depends_on": "01-identity (partner_id y referido_id deben existir en auth.users)",
+		"idempotency": "UPSERT por partner_id + referido_id + code"
+	},
+	"referidos": {
+		"_meta": {
+			"target_table": "public.referidos",
+			"required_on_insert": ["partner_id", "referido_id", "code"],
+			"note": "id es bigint con default (secuencia). partner_id es el usuario partner que refirió, referido_id es el cliente referido.",
+			"fk_resolve": {
+				"partner_id": "UUID del usuario partner (debe tener rol 'partner' en user_roles)",
+				"referido_id": "UUID del usuario referido (de 01-identity)"
+			}
+		},
+		"partner_id": "{{partner_uuid}}",
+		"referido_id": "{{referido_uuid}}",
+		"code": "",
+		"source": "migration"
+	}
+}

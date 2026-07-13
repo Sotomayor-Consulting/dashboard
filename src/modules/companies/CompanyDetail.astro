@@ -1,106 +1,148 @@
 ---
-import '@styles/datatables.css';
-import { Icon } from 'astro-icon/components';
-import { getCompanyDetailData } from './services/getCompanyDetailData';
+import { getCompanyDetailData } from './services/get-company-detail-data';
 
-import CompanyHeader from './components/CompanyHeader.astro';
-import CompanyLocation from './components/CompanyLocation.astro';
-import CompanyProgress from './components/CompanyProgress.astro';
-import CompanyInfoCard from './components/CompanyInfoCard.astro';
-import CompanySociosList from './components/CompanySociosList.astro';
-import CompanyAddress from './components/CompanyAddress.astro';
-import CompanyManagersList from './components/CompanyManagersList.astro';
-
+import TabBar from '@components/navigation/TabBar.astro';
 import CompanyEditForm from './components/CompanyEditForm.astro';
-import ActivityModal from './components/ActivityModal.astro';
-import ManagerModal from './components/ManagerModal.astro';
+import CompanyOperationsPanel from '@modules/company-operations/OperationsPanel.astro';
+import type { CompanyDetailData } from './types';
+import {
+	type DocumentDashboardRow,
+	type DocumentRequestDashboardRow,
+	type DocumentTypeLite,
+	getDocumentRequestsForIncorporationCase,
+	getDocumentTypesList,
+	getDocumentsForIncorporationCase,
+} from '@domains/documents/document_dashboard';
+import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import DocumentsTab from './islands/DocumentsTab';
+import { canManageCompanyData, hasAnyRole, ROLE_GROUPS } from '@shared/roles';
+import { getUsStates } from './services/get-us-states';
+import GenerateDocumentsTab from '@components/display/GenerateDocumentsTab';
 
-interface Props {
-	empresaId: string;
-}
-
-const { empresaId } = Astro.props;
+const empresaId = String(Astro.props.empresaId ?? '');
 const supabase = Astro.locals.supabase;
+const user = Astro.locals.user;
+const userId = user?.id;
+const userRoles = Astro.locals.userRoles || [];
+const isStaff = hasAnyRole(userRoles, ROLE_GROUPS.INCORPORATION_ROUTE);
+const canEditDetails = canManageCompanyData(userRoles);
+const backPath = Astro.url.pathname;
+const states_us = await getUsStates(supabaseAdmin);
 
-const data = await getCompanyDetailData(supabase, empresaId);
+let data: CompanyDetailData | null = null;
+let documentRequests: DocumentRequestDashboardRow[] = [];
+let documentTypes: DocumentTypeLite[] = [];
+let documentsNew: DocumentDashboardRow[] = [];
 
-if (!data) {
-	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
+if (empresaId) {
+	data = await getCompanyDetailData(supabase, empresaId);
+	const documentResults: [
+		DocumentRequestDashboardRow[],
+		DocumentTypeLite[],
+		DocumentDashboardRow[],
+	] = await Promise.all([
+		getDocumentRequestsForIncorporationCase(supabaseAdmin, empresaId),
+		getDocumentTypesList(supabaseAdmin),
+		getDocumentsForIncorporationCase(
+			supabaseAdmin,
+			empresaId,
+			userId,
+			userRoles,
+		),
+	]);
+	[documentRequests, documentTypes, documentsNew] = documentResults;
 }
 
-const { empresa, socios, managers, actividades, paises, estados } = data;
-const esMemberManaged = empresa.forma_administracion === 'Member-Managed';
+const empresa = data?.empresa ?? null;
+const company = data?.company ?? null;
+const empresaSafe = empresa as CompanyDetailData['empresa'];
+const errorMessage = !empresaId
+	? 'ID de empresa no valido'
+	: !data
+		? 'No se encontro esta empresa'
+		: '';
+
+const operationsTabs = [
+	{
+		id: 'operations',
+		label: 'Tareas',
+		icon: 'ri:survey-line',
+		kind: 'panel' as const,
+		active: true,
+	},
+	{
+		id: 'contacts',
+		label: 'Ver datos',
+		icon: 'ri:edit-line',
+		kind: 'panel' as const,
+		active: false,
+	},
+	{
+		id: 'documents',
+		label: 'Documentos',
+		icon: 'ri:file-text-line',
+		kind: 'panel' as const,
+		active: false,
+	},
+	{
+		id: 'generate',
+		label: 'Generar documentos',
+		icon: 'ri:file-add-line',
+		kind: 'panel' as const,
+		active: false,
+	},
+];
 ---
 
-<div class="mx-5 mt-5">
-	<div class="mb-4 border-b border-neutral-200 dark:border-[#1f3443]">
-		<ul
-			class="-mb-px flex flex-wrap text-center text-sm font-medium"
-			id="default-tab"
-			data-tabs-toggle="#default-tab-content"
-			role="tablist"
-			data-tabs-active-classes="text-[#8c681d] hover:text-[#8c681d] dark:text-[#8c681d] dark:hover:text-[#8c681d] border-[#8c681d] dark:border-[#8c681d]"
-			data-tabs-inactive-classes="dark:border-transparent text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 border-neutral-100 hover:border-neutral-300 dark:border-neutral-700 dark:hover:text-neutral-300"
-		>
-			{
-				[
-					{
-						id: 'profile-tab',
-						tabs: 'profile',
-						label: 'Datos Generales',
-						icono: 'ri:building-2-fill',
-					},
-					{
-						id: 'contacts-tab',
-						tabs: 'contacts',
-						label: 'Editar datos',
-						icono: 'ri:edit-fill',
-					},
-				].map((i) => (
-					<li class="me-2" role="presentation">
-						<button
-							class="flex items-center gap-2 rounded-t-lg border-b-2 p-4"
-							id={i.id}
-							data-tabs-target={`#${i.tabs}`}
-							type="button"
-							role="tab"
-							aria-controls={i.tabs}
-							aria-selected="false"
-						>
-							<Icon name={i.icono} class="text-lg" />
-							{i.label}
-						</button>
-					</li>
-				))
-			}
-		</ul>
-	</div>
-	<div id="default-tab-content">
-		<div
-			class="grid gap-4 rounded-lg p-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
-			id="profile"
-			role="tabpanel"
-			aria-labelledby="profile-tab"
-		>
-			<CompanyHeader empresa={empresa} />
-			<CompanyLocation empresa={empresa} />
-			<CompanyProgress empresa={empresa} />
-			<CompanyInfoCard empresa={empresa} empresaId={empresaId} />
-			<CompanySociosList socios={socios} />
-			<CompanyAddress empresa={empresa} esMemberManaged={esMemberManaged} />
-			<CompanyManagersList managers={managers} />
+{
+	errorMessage ? (
+		<div class="mx-5 mt-5">
+			<div class="rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-600 dark:border-gray-700 dark:text-gray-300">
+				{errorMessage}
+			</div>
 		</div>
-		<CompanyEditForm
-			empresa={empresa}
-			socios={socios}
-			managers={managers}
-			actividades={actividades}
-			paises={paises}
-			estados={estados}
-		/>
-	</div>
-</div>
-<ActivityModal />
-<ManagerModal empresaId={empresaId} paises={paises} />
+	) : (
+		<>
+			<div>
+				<TabBar buttons={operationsTabs} syncUrl={false} />
 
-<script src="@lib/alpinejs/alpine.js"></script>
+				<div data-tab-panel="operations" class="my-4">
+					<CompanyOperationsPanel
+						empresaId={empresaId}
+						empresaNombre={empresaSafe?.principal_name}
+					/>
+				</div>
+				<div data-tab-panel="contacts" class="my-4" hidden>
+					<CompanyEditForm
+						empresa={empresaSafe}
+						company={company}
+						canEditDetails={canEditDetails}
+						states={states_us}
+					/>
+				</div>
+				<div data-tab-panel="documents" class="my-4" hidden>
+					<DocumentsTab
+						client:load
+						incorporationCaseId={empresaId}
+						backPath={backPath}
+						documentTypes={documentTypes}
+						documents={documentsNew}
+						requests={documentRequests}
+						isStaff={isStaff}
+						sharedWithUserId={empresaSafe?.user_id ?? undefined}
+					/>
+				</div>
+				<div data-tab-panel="generate" class="my-4" hidden>
+					<GenerateDocumentsTab
+						client:load
+						entityType="incorporation_case"
+						entityId={empresaId}
+						{...(company?.id ? { companyId: company.id } : {})}
+					/>
+				</div>
+			</div>
+		</>
+	)
+}
+
+<script src="@third-party/alpinejs/alpine.js"></script>

@@ -1,0 +1,387 @@
+---
+import { getReferidos } from '@domains/partners/referrals';
+import { getCodigoDePartner } from '@domains/partners/referrals';
+import { getAvatarUrl } from '@shared/avatar';
+import InfoPopover from '@components/ui/InfoPopover.tsx';
+import { Icon } from 'astro-icon/components';
+
+const user = Astro.locals.user;
+const UserId = user?.id;
+const supabase = Astro.locals.supabase;
+
+const rows = UserId ? await getReferidos(supabase, UserId) : null;
+const codigo = UserId ? await getCodigoDePartner(supabase, UserId) : null;
+
+const referidosSupabase = (rows ?? []).map((r) => ({
+	name:
+		`${r.referido[0]?.nombre ?? ''} ${r.referido[0]?.apellido ?? ''}`.trim() ||
+		'—',
+	email: r.referido[0]?.correo ?? '—',
+	avatar: getAvatarUrl(r.referido[0]?.avatar_url, supabase),
+	code: r.code,
+	fecha: r.created_at,
+	estado: r.referido[0]?.estado,
+	fuente: 'Supabase',
+}));
+type Referral = {
+	name: string;
+	email?: string | null;
+	create_date?: string;
+	avatar?: string | null;
+	fuente?: string;
+};
+
+let referrals: Referral[] = [];
+let errorMsg = '';
+let loading = true;
+void errorMsg;
+void loading;
+
+try {
+	const apiUrl = new URL('/api/odoo/referrals', Astro.request.url);
+
+	// 2) Pasar las cookies del request actual al endpoint
+	const res = await fetch(apiUrl.toString(), {
+		headers: {
+			cookie: Astro.request.headers.get('cookie') ?? '',
+		},
+	});
+
+	if (!res.ok) {
+		errorMsg = 'Sistema ERP no disponible temporalmente.';
+	} else {
+		const { success, data } = await res.json();
+
+		if (!success) {
+			errorMsg = 'Sistema ERP no disponible temporalmente.';
+		} else {
+			referrals = data ?? [];
+		}
+	}
+} catch (err) {
+	errorMsg = 'No se pudo conectar con el ERP.';
+} finally {
+	loading = false;
+}
+
+// Combinar datos de Odoo y Supabase
+const referidosOdoo = referrals.map((r) => ({
+	name: r.name,
+	email: r.email,
+	avatar: r.avatar || null,
+	fecha: r.create_date,
+	fuente: 'Odoo',
+}));
+
+const referidosCombinados = [...referidosSupabase, ...referidosOdoo].sort(
+	(a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime(),
+);
+---
+
+<div class="flex w-full justify-center px-4 py-6">
+	<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+		{
+			referidosCombinados.length !== 0 ? (
+				<>
+					<div class="self-center rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-transparent">
+						<div class="mb-4 flex items-center justify-between">
+							<div class="shrink-0">
+								<span class="text-xl leading-none font-bold text-gray-900 sm:text-2xl dark:text-white">
+									Referidos
+								</span>
+								<h3 class="text-base font-light text-gray-500 dark:text-gray-400">
+									por dia
+								</h3>
+							</div>
+						</div>
+						<div id="main-chart" />
+
+						<div class="mt-4 flex items-center justify-between border-t border-gray-200 pt-3 sm:pt-6 dark:border-gray-700">
+							<div>
+								<p class="inline-flex items-center rounded-lg p-2 text-center text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+									Últimos 10 días
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-transparent">
+						<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+							Lista de usuarios que referiste
+							<InfoPopover
+									client:load
+									title="Acciones rápidas"
+									text="Accede rápidamente a funciones o herramientas útiles, que te ayudaran a saber tu código de partner, agendar una reunión, o acceder a otros funciones de la plataforma."
+								/>
+						</h3>
+
+						<div class="space-y-2 p-3">
+							<h3 class="font-semibold text-gray-900 dark:text-white">
+								Referidos
+							</h3>
+						</div>
+						<div
+							id="fullWidthTabContent"
+							class="border-t border-gray-200 dark:border-gray-600"
+						>
+							<div
+								class="pt-4"
+								id="about"
+								role="tabpanel"
+								aria-labelledby="about-tab"
+							>
+								<ul
+									role="list"
+									class="divide-y divide-gray-200 dark:divide-gray-700"
+								>
+									{referidosCombinados?.map((r) => (
+										<li class="py-3 sm:py-4">
+											<div class="flex items-center space-x-4">
+												<div class="shrink-0">
+													{!r.avatar || r.avatar === 'NULL' ? (
+														<img
+															class="h-10 w-10 rounded-full"
+															src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${r.name}`}
+															alt={`Avatar de ${r.name}`}
+														/>
+													) : (
+														<img
+															class="h-10 w-10 rounded-full"
+															src={r.avatar}
+															alt={`Avatar de ${r.name}`}
+														/>
+													)}
+												</div>
+												<div class="min-w-0 flex-1">
+													<p class="truncate font-medium text-gray-900 dark:text-white">
+														{r.name}
+													</p>
+													<p class="truncate text-sm text-gray-500 dark:text-gray-400">
+														{r.email}
+													</p>
+												</div>
+											</div>
+										</li>
+									))}
+								</ul>
+							</div>
+						</div>
+					</div>
+				</>
+			) : (
+				<>
+					<div class="w-fit self-center rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700 dark:bg-transparent">
+						<section class="w-fit">
+							<div class="mx-auto w-fit gap-16 px-4 py-8 md:max-w-7xl lg:px-6 lg:py-16">
+								<div class="font-light text-gray-500 sm:text-lg dark:text-gray-400">
+									<h2 class="mb-4 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+										Aún no tienes referidos
+									</h2>
+									<p class="mb-4">
+										¡No te preocupes! Este es el momento ideal para empezar a
+										compartir tu código único de referido. Cada persona que
+										forme su LLC en Estados Unidos a través de tu código te
+										generará una comisión. Piensa en todos los emprendedores,
+										dueños de negocios o inversores que conoces y que podrían
+										beneficiarse de tener una empresa en EE.UU. (acceso a
+										Stripe, PayPal, facilidad para facturar, etc.).
+									</p>
+									<p class="mb-4">
+										<strong>
+											¿Cómo puedes compartir tu código y atraer clientes?
+										</strong>
+										Aquí tienes algunas ideas prácticas:
+									</p>
+
+									<div id="accordion-card" class="mb-5">
+										{[
+											{
+												titulo: 'Redes sociales',
+												parrafo:
+													'Publica en LinkedIn, Instagram o Facebook explicando las ventajas de formar una LLC en EE.UU. (por ejemplo, para vender online, proteger activos o acceder al mercado americano). Incluye tu código en la publicación o en tu biografía.',
+											},
+											{
+												titulo: 'Comunidades de emprendedores',
+												parrafo:
+													'Participa en grupos de Facebook, foros o canales de Slack donde haya personas interesadas en internacionalizar sus negocios. Comparte tu experiencia y ofrece tu código como ayuda.',
+											},
+											{
+												titulo: 'Email marketing',
+												parrafo:
+													' Si ya tienes una lista de contactos (clientes, colegas, seguidores), envía un correo breve contándoles cómo pueden formar su LLC fácilmente y con un beneficio extra al usar tu código.',
+											},
+
+											{
+												titulo: 'Alianzas estratégicas',
+												parrafo:
+													'Conecta con contadores, abogados o asesores de negocios que atiendan a emprendedores. Ofréceles compartir tu código con sus clientes a cambio de una comisión (puedes establecer un acuerdo de referidos).',
+											},
+										].map((l) => (
+											<details name="recomendaciones" class="group">
+												<summary class="text-gray-500 dark:text-gray-400 rounded-lg border-gray-200 dark:border-gray-700 hover:text-gray-900 dark:hover:text-white flex w-full cursor-pointer list-none items-center justify-between gap-3 border bg-white p-5 font-medium shadow-xs group-open:rounded-b-none group-open:shadow-none hover:bg-gray-100 rtl:text-right dark:bg-neutral-950 dark:hover:bg-neutral-900">
+													<span>{l.titulo}</span>
+
+													<Icon
+														name="ri:arrow-up-s-line"
+														class="h-5 w-5 shrink-0 transition-transform group-open:rotate-180"
+													/>
+												</summary>
+												<div class="border-gray-200 dark:border-gray-700 rounded-b-base border border-t-0 shadow-xs">
+													<div class="p-4 md:p-5">
+														<p class="text-gray-500 dark:text-gray-400 mb-2">{l.parrafo}</p>
+													</div>
+												</div>
+											</details>
+										))}
+									</div>
+
+									<p>
+										Recuerda: mientras más personas conozcan los beneficios de
+										tener una LLC en EE.UU., más oportunidades tendrás de ganar
+										comisiones. ¡Empieza hoy mismo a compartir tu código y
+										construye tu red de referidos!
+									</p>
+								</div>
+							</div>
+						</section>
+					</div>
+
+					<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 dark:border-gray-700 dark:bg-transparent">
+						<h3 class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+							Acciones Rápidas
+							<InfoPopover
+								client:load
+								title="Acciones rápidas"
+								text="Accede de forma fácil a herramientas o links."
+							/>
+						</h3>
+
+						<div class="bg-white-50 mb-5 flex flex-col gap-2 rounded-xl p-5 drop-shadow-2xl dark:bg-neutral-950">
+							<div>
+								<h5 class="dark:text-white">Copia tu código de partner:</h5>
+							</div>
+							<div class="w-full">
+								<div class="relative">
+									<label for="copiarCodigo" class="sr-only">
+										Label
+									</label>
+									<input
+										id="copiarCodigo"
+										type="text"
+										class="bg-gray-100 dark:bg-neutral-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-lg focus:ring-[#8c681d]/30 focus:border-[#8c681d] placeholder:text-gray-500 dark:text-gray-400 col-span-6 block w-full border px-3 py-2.5 text-sm shadow-xs dark:bg-black"
+										value={codigo?.codigo_de_partner}
+										disabled
+										readonly
+									/>
+									<button
+										data-copy-to-clipboard-target="copiarCodigo"
+										class="text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-neutral-800 border-gray-400 dark:border-gray-600 hover:bg-gray-200/70 dark:hover:bg-neutral-700/70 hover:text-gray-900 dark:hover:text-white focus:ring-gray-200 dark:focus:ring-neutral-700 active:group absolute inset-e-1.5 top-1/2 flex -translate-y-1/2 items-center rounded border px-3 py-1.5 text-xs leading-5 font-medium focus:ring-4 focus:outline-none dark:bg-neutral-950"
+									>
+										<span id="default-message-codigo">
+											<span class="flex items-center">
+												<svg
+													class="me-1.5 h-4 w-4"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													fill="none"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke="currentColor"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 5h6m-6 4h6M10 3v4h4V3h-4Z"
+													/>
+												</svg>
+												<span class="text-xs font-semibold">Copiar</span>
+											</span>
+										</span>
+										<span id="success-message-codigo" class="hidden">
+											<span class="flex items-center">
+												<svg
+													class="dark:text-primary-gold me-1.5 h-4 w-4"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													fill="none"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke="currentColor"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-6 7 2 2 4-4m-5-9v4h4V3h-4Z"
+													/>
+												</svg>
+												<span class="dark:text-primary-gold text-xs font-semibold">
+													¡Copiado!
+												</span>
+											</span>
+										</span>
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<div
+							class="flex justify-center pt-4"
+							id="about"
+							role="tabpanel"
+							aria-labelledby="about-tab"
+						>
+							<div class="mt-8">
+								<Icon name="waiting-person" width={300} height={300} />
+							</div>
+						</div>
+					</div>
+				</>
+			)
+		}
+	</div>
+</div>
+
+<script>
+	import './dashboard-partners.client.js';
+</script>
+
+<script is:inline>
+	function initCopyButton() {
+		const $defaultMessage = document.getElementById('default-message-codigo');
+		const $successMessage = document.getElementById('success-message-codigo');
+		const copyButton = document.querySelector(
+			'[data-copy-to-clipboard-target="copiarCodigo"]',
+		);
+
+		const showSuccess = () => {
+			if ($defaultMessage) $defaultMessage.classList.add('hidden');
+			if ($successMessage) $successMessage.classList.remove('hidden');
+		};
+
+		const resetToDefault = () => {
+			if ($defaultMessage) $defaultMessage.classList.remove('hidden');
+			if ($successMessage) $successMessage.classList.add('hidden');
+		};
+
+		if (copyButton) {
+			copyButton.addEventListener('click', async () => {
+				const input = document.getElementById('copiarCodigo');
+				if (input) {
+					try {
+						await navigator.clipboard.writeText(input.value);
+						showSuccess();
+						setTimeout(resetToDefault, 2000);
+					} catch (err) {
+						console.error('Failed to copy:', err);
+					}
+				}
+			});
+		}
+	}
+	document.addEventListener('DOMContentLoaded', initCopyButton);
+	document.addEventListener('astro:page-load', initCopyButton);
+</script>

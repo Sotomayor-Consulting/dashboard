@@ -1,0 +1,37 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { StateInfo } from './states-data';
+
+interface Props {
+	state: StateInfo;
+}
+
+const { state } = Astro.props;
+---
+
+<div class="mt-15">
+	<h4
+		class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white"
+	>
+		<Icon
+			name="ri:shield-check-line"
+			class="h-4 w-4"
+			style={`color:${state.color}`}
+		/>
+		Beneficios clave
+	</h4>
+	<ul class="grid gap-1.5">
+		{
+			state.benefits.map((benefit) => (
+				<li class="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-300">
+					<Icon
+						name="ri:check-line"
+						class="mt-0.5 h-3.5 w-3.5 shrink-0"
+						style={`color:${state.color}`}
+					/>
+					<span>{benefit}</span>
+				</li>
+			))
+		}
+	</ul>
+</div>

@@ -1,0 +1,319 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { EmpresaSwitcherItem } from '@domains/companies/companies';
+
+interface Props {
+	empresas: EmpresaSwitcherItem[];
+	activeCompany: EmpresaSwitcherItem | null;
+	id: string;
+}
+
+const { empresas, activeCompany, id } = Astro.props;
+
+const triggerLabel =
+	activeCompany?.nombre ??
+	(empresas.length === 0 ? 'Sin empresa' : 'Selecciona una empresa');
+const triggerSubtitle = activeCompany
+	? activeCompany.estado_de_incorporacion || 'Empresa'
+	: empresas.length === 0
+		? 'Crea tu primera empresa'
+		: 'Elige una empresa';
+const showSearch = empresas.length > 3;
+---
+
+<div
+	class="relative w-full"
+	data-company-switcher
+	data-switcher-id={id}
+>
+	<button
+		type="button"
+		class="dark:bg-primary-black flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border border-gray-200/80 bg-white px-2 py-1.5 text-left transition-all hover:border-gray-300 hover:bg-hover focus:ring-2 focus:ring-gray-300/70 focus:outline-none dark:border-gray-700/80 dark:hover:border-gray-600  dark:focus:ring-gray-600/60"
+		aria-haspopup="listbox"
+		aria-expanded="false"
+		data-switcher-trigger
+	>
+		<span class="flex min-w-0 items-center gap-3">
+			<span
+				class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:border dark:border-gray-700 dark:bg-neutral-900"
+			>
+				<Icon
+					name="ri:building-2-line"
+					class="h-4 w-4 text-gray-700 dark:text-gray-200"
+				/>
+			</span>
+			<span class="min-w-0 flex-1 overflow-hidden">
+				<span
+					class="block w-full truncate text-sm leading-5 font-semibold text-gray-900 dark:text-gray-100"
+				>
+					{triggerLabel}
+				</span>
+				<span
+					class="block w-full truncate text-[12px] leading-4 text-gray-500 dark:text-gray-400"
+				>
+					{triggerSubtitle}
+				</span>
+			</span>
+		</span>
+		<Icon
+			name="ri:arrow-down-s-line"
+			class="h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200 dark:text-gray-500"
+			data-switcher-chevron
+		/>
+	</button>
+
+	<div
+		class="dark:bg-primary-black absolute inset-x-0 top-full z-50 mt-2 hidden w-58 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl shadow-gray-200/70 md:w-70 dark:border-gray-700 dark:shadow-none"
+		data-switcher-panel
+		role="listbox"
+	>
+		{
+			showSearch && (
+				<div class="border-b border-gray-200/90 p-3 dark:border-gray-700/80">
+					<div class="relative">
+						<Icon
+							name="ri:search-line"
+							class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400"
+						/>
+						<input
+							type="text"
+							placeholder="Buscar empresa..."
+							class="w-full rounded-md border border-gray-200 bg-white py-2 pr-3 pl-9 text-sm text-gray-700 transition outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-neutral-900 dark:text-gray-200 dark:focus:border-gray-500 dark:focus:ring-gray-600/40"
+							data-switcher-search
+						/>
+					</div>
+				</div>
+			)
+		}
+
+		{
+			empresas.length > 0 && (
+				<div class="max-h-60 overflow-y-auto py-2" data-switcher-list>
+					<div class="px-3 py-1.5">
+						<span class="text-[11px] font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+							Empresas
+						</span>
+					</div>
+					{empresas.map((e) => {
+						const isActive = activeCompany?.id === e.id;
+						const targetUrl = `/my-companies/${e.id}/dashboard`;
+						return (
+							<button
+								type="button"
+								data-switcher-option
+								data-company-name={e.nombre.toLowerCase()}
+								data-company-id={e.id}
+								data-target-url={targetUrl}
+								data-estado={e.estado ?? ''}
+								class:list={[
+									'mx-2 mb-1 flex w-[calc(100%-1rem)] cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] transition-colors',
+									isActive
+										? 'bg-gray-100 dark:bg-neutral-900'
+										: 'text-gray-700 hover:bg-hover dark:text-gray-200 ',
+								]}
+								role="option"
+								aria-selected={isActive}
+							>
+								<span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-neutral-950">
+									<Icon
+										name="ri:building-4-line"
+										class="h-4 w-4 text-gray-500 dark:text-gray-300"
+									/>
+								</span>
+								<span class="min-w-0 flex-1 overflow-hidden">
+									<span class="block w-full truncate text-xs leading-5 font-medium text-gray-900 dark:text-gray-100">
+										{e.nombre}
+									</span>
+									<span class="block w-full truncate text-[11px] leading-4 text-gray-500 dark:text-gray-400">
+										{e.estado_de_incorporacion ?? 'Sin estado'}
+									</span>
+								</span>
+								{isActive && (
+									<Icon
+										name="ri:check-line"
+										class="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-300"
+									/>
+								)}
+							</button>
+						);
+					})}
+					<p
+						class="hidden py-5 text-center text-xs text-gray-500 dark:text-gray-400"
+						data-switcher-empty
+					>
+						No se encontraron empresas
+					</p>
+				</div>
+			)
+		}
+
+		<div
+			class:list={[
+				'space-y-1 p-2',
+				empresas.length > 0 &&
+					'border-t border-gray-200/90 dark:border-gray-700/80',
+			]}
+		>
+			<a
+				href="/start/"
+				class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-hover hover:text-foreground"
+			>
+				<span
+					class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-neutral-950"
+				>
+					<Icon name="ri:sparkling-line" class="h-4 w-4" />
+				</span>
+				<span class="flex flex-col">
+					<span>Nueva Incorporación</span>
+					<span class="text-[11px] font-normal text-gray-500 dark:text-gray-400"
+						>Crear una nueva empresa</span
+					>
+				</span>
+			</a>
+			<a
+				href="/create-company"
+				class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-hover hover:text-foreground"
+			>
+				<span
+					class="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-neutral-950"
+				>
+					<Icon name="ri:add-line" class="h-4 w-4" />
+				</span>
+				<span class="flex flex-col">
+					<span>Añadir empresa existente</span>
+					<span class="text-[11px] font-normal text-gray-500 dark:text-gray-400"
+						>Vincular empresa registrada</span
+					>
+				</span>
+			</a>
+		</div>
+	</div>
+</div>
+
+<script>
+	async function selectCompany(
+		companyId: string,
+		targetUrl: string,
+		estado: string,
+	) {
+		if (!companyId) return;
+
+		try {
+			const form = new FormData();
+			form.set('company_id', companyId);
+			await fetch('/api/companies/set-active', {
+				method: 'POST',
+				body: form,
+				headers: { Accept: 'application/json' },
+			});
+		} catch (_) {
+			// navegar aunque falle el set-active
+		}
+
+		const destination = estado === 'active' ? targetUrl : '/';
+		window.location.assign(destination);
+	}
+
+	function initCompanySwitcher() {
+		const switchers = document.querySelectorAll<HTMLElement>(
+			'[data-company-switcher]',
+		);
+
+		switchers.forEach((switcher) => {
+			if (switcher.dataset.switcherInit === 'true') return;
+			switcher.dataset.switcherInit = 'true';
+
+			const trigger = switcher.querySelector<HTMLButtonElement>(
+				'[data-switcher-trigger]',
+			);
+			const panel = switcher.querySelector<HTMLElement>(
+				'[data-switcher-panel]',
+			);
+			const chevron = switcher.querySelector<HTMLElement>(
+				'[data-switcher-chevron]',
+			);
+			const searchInput = switcher.querySelector<HTMLInputElement>(
+				'[data-switcher-search]',
+			);
+			const options = Array.from(
+				panel?.querySelectorAll<HTMLButtonElement>('[data-switcher-option]') ??
+					[],
+			);
+			const emptyState = panel?.querySelector<HTMLElement>(
+				'[data-switcher-empty]',
+			);
+			if (!trigger || !panel) return;
+
+			const applyFilter = () => {
+				const query = (searchInput?.value ?? '').toLowerCase().trim();
+				let visibleCount = 0;
+
+				options.forEach((opt) => {
+					const name = opt.dataset.companyName ?? '';
+					const visible = name.includes(query);
+					opt.classList.toggle('hidden', !visible);
+					if (visible) visibleCount += 1;
+				});
+
+				if (emptyState) {
+					emptyState.classList.toggle('hidden', visibleCount > 0);
+				}
+			};
+
+			const close = () => {
+				panel.classList.add('hidden');
+				trigger.setAttribute('aria-expanded', 'false');
+				chevron?.classList.remove('rotate-180');
+				if (searchInput) {
+					searchInput.value = '';
+					applyFilter();
+				}
+			};
+			const open = () => {
+				document
+					.querySelectorAll<HTMLElement>('[data-switcher-panel]')
+					.forEach((p) => p.classList.add('hidden'));
+				panel.classList.remove('hidden');
+				trigger.setAttribute('aria-expanded', 'true');
+				chevron?.classList.add('rotate-180');
+				if (searchInput) searchInput.focus();
+			};
+
+			if (searchInput) {
+				searchInput.addEventListener('input', applyFilter);
+				applyFilter();
+			}
+
+			trigger.addEventListener('click', (ev) => {
+				ev.stopPropagation();
+				if (panel.classList.contains('hidden')) {
+					open();
+				} else {
+					close();
+				}
+			});
+
+			options.forEach((opt) => {
+				opt.addEventListener('click', (ev) => {
+					ev.preventDefault();
+					const companyId = opt.dataset.companyId ?? '';
+					const targetUrl = opt.dataset.targetUrl ?? '/';
+					const estado = opt.dataset.estado ?? '';
+					if (!companyId) return;
+					close();
+					selectCompany(companyId, targetUrl, estado);
+				});
+			});
+
+			document.addEventListener('click', (ev) => {
+				if (!switcher.contains(ev.target as Node)) close();
+			});
+
+			document.addEventListener('keydown', (ev) => {
+				if (ev.key === 'Escape') close();
+			});
+		});
+	}
+
+	document.addEventListener('astro:page-load', initCompanySwitcher);
+</script>

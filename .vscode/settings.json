@@ -51,5 +51,11 @@
 
 	"markdown.extension.toc.levels": "2..6",
 	"cSpell.language": "es-ES",
-	"cSpell.words": ["crud", "dark", "Entregable", "supabase"]
+	"cSpell.words": [
+		"crud",
+		"dark",
+		"Entregable",
+		"supabase"
+	],
+	"js/ts.tsdk.path": "node_modules\\typescript\\lib"
 }

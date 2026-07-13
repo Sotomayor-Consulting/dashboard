@@ -1,0 +1,303 @@
+import * as React from 'react';
+import type {
+	ColumnDef,
+	ColumnFiltersState,
+	SortingState,
+} from '@tanstack/react-table';
+import {
+	flexRender,
+	getCoreRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	useReactTable,
+} from '@tanstack/react-table';
+import { Badge } from '@components/ui/Badge';
+import { Button } from '@components/ui/Button';
+import { Input } from '@components/ui/Input';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@components/ui/Table';
+
+type PaymentRow = {
+	id: string;
+	stripePaymentIntentId: string;
+	payerName: string;
+	companyName: string;
+	companyId: string;
+	serviceName: string;
+	amountLabel: string;
+	status: string;
+	readByOperations: boolean;
+	createdAt: string;
+};
+
+export interface RawPaymentItem {
+	payment_id?: string | null;
+	order_id?: string | null;
+	provider_transaction_id?: string | null;
+	amount?: number | null; // en dólares
+	status?: string | null;
+	seen_by_ops?: boolean | null;
+	created_at?: string | null;
+	usuarios?: {
+		nombre?: string | null;
+		apellido?: string | null;
+	};
+	incorporations?: {
+		principal_name?: string | null;
+		id?: string | null;
+	};
+	servicios?: {
+		nombre?: string | null;
+	};
+}
+
+interface PagosRealizadosTableProps {
+	data: RawPaymentItem[];
+}
+
+function formatDate(value: string) {
+	const date = new Date(value);
+	if (Number.isNaN(date.getTime())) return value;
+	return date.toLocaleDateString('es-ES', {
+		year: 'numeric',
+		month: 'short',
+		day: '2-digit',
+	});
+}
+
+function mapPayments(items: RawPaymentItem[]): PaymentRow[] {
+	return items.map((item, index) => ({
+		id: item.order_id ?? String(index),
+		stripePaymentIntentId: item.provider_transaction_id ?? '— sin id —',
+		payerName:
+			`${item.usuarios?.nombre ?? ''} ${item.usuarios?.apellido ?? ''}`.trim(),
+		companyName: item.incorporations?.principal_name ?? '—',
+		companyId: item.incorporations?.id ?? '—',
+		serviceName: item.servicios?.nombre ?? '—',
+		amountLabel:
+			typeof item.amount === 'number'
+				? item.amount.toLocaleString('en-US', {
+						style: 'currency',
+						currency: 'USD',
+						minimumFractionDigits: 2,
+					})
+				: '—',
+		status: item.status ?? 'unknown',
+		readByOperations: item.seen_by_ops === true,
+		createdAt: item.created_at ?? '',
+	}));
+}
+
+const columns: ColumnDef<PaymentRow>[] = [
+	{
+		accessorKey: 'stripePaymentIntentId',
+		header: 'ID de Stripe',
+		cell: ({ row }) => (
+			<span className="font-medium text-neutral-800 dark:text-neutral-300">
+				{row.original.stripePaymentIntentId}
+			</span>
+		),
+	},
+	{
+		accessorKey: 'payerName',
+		header: 'Pago hecho por',
+		cell: ({ row }) => <span>{row.original.payerName || '—'}</span>,
+	},
+	{
+		accessorKey: 'companyName',
+		header: 'Empresa',
+		cell: ({ row }) => (
+			<div className="flex flex-col">
+				<span>{row.original.companyName}</span>
+				<span className="text-muted-foreground text-xs">
+					{row.original.companyId}
+				</span>
+			</div>
+		),
+	},
+	{
+		accessorKey: 'serviceName',
+		header: 'Servicio',
+	},
+	{
+		accessorKey: 'amountLabel',
+		header: 'Cantidad',
+	},
+	{
+		accessorKey: 'status',
+		header: 'Estado del pago',
+		cell: ({ row }) => {
+			const succeeded = row.original.status === 'succeeded';
+			return (
+				<Badge variant={succeeded ? 'susess' : 'warning'}>
+					{succeeded ? 'Pago exitoso' : 'Error de pago'}
+				</Badge>
+			);
+		},
+	},
+	{
+		accessorKey: 'readByOperations',
+		header: 'Leído',
+		cell: ({ row }) => (
+			<Badge variant={row.original.readByOperations ? 'susess' : 'warning'}>
+				{row.original.readByOperations ? 'Leído' : 'Sin leer'}
+			</Badge>
+		),
+	},
+	{
+		accessorKey: 'createdAt',
+		header: 'Fecha de pago',
+		cell: ({ row }) => <span>{formatDate(row.original.createdAt)}</span>,
+	},
+	{
+		id: 'actions',
+		header: 'Acciones',
+		cell: ({ row }) => {
+			if (row.original.readByOperations) {
+				return (
+					<span className="text-muted-foreground text-xs">Ya marcado</span>
+				);
+			}
+
+			return (
+				<form action="/api/operations/mark-payment-read" method="post">
+					<input type="hidden" name="pago_id" value={row.original.id} />
+					<input type="hidden" name="marcar_como_visto" value="true" />
+					<Button type="submit" variant="outline" size="sm">
+						Marcar como leído
+					</Button>
+				</form>
+			);
+		},
+	},
+];
+
+export default function PagosRealizadosTable({
+	data,
+}: PagosRealizadosTableProps) {
+	const payments = React.useMemo(() => mapPayments(data), [data]);
+	const [sorting, setSorting] = React.useState<SortingState>([]);
+	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+		[],
+	);
+
+	const table = useReactTable({
+		data: payments,
+		columns,
+		onSortingChange: setSorting,
+		onColumnFiltersChange: setColumnFilters,
+		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		state: {
+			sorting,
+			columnFilters,
+		},
+	});
+
+	return (
+		<div className="space-y-4">
+			<div className="relative w-full max-w-sm">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+				>
+					<path
+						fill="currentColor"
+						d="M11 2c4.968 0 9 4.032 9 9s-4.032 9-9 9s-9-4.032-9-9s4.032-9 9-9m0 16c3.867 0 7-3.133 7-7s-3.133-7-7-7s-7 3.133-7 7s3.133 7 7 7m8.485.071l2.829 2.828l-1.415 1.415l-2.828-2.829z"
+					/>
+				</svg>
+				<Input
+					placeholder="Buscar por empresa o servicio..."
+					value={
+						((table.getColumn('companyName')?.getFilterValue() as string) ??
+							'') ||
+						((table.getColumn('serviceName')?.getFilterValue() as string) ?? '')
+					}
+					onChange={(event) => {
+						const value = event.target.value;
+						table.getColumn('companyName')?.setFilterValue(value);
+						table.getColumn('serviceName')?.setFilterValue(value);
+					}}
+					className="max-w-sm pl-9"
+				/>
+			</div>
+
+			<div className="overflow-hidden rounded-md border bg-white dark:bg-neutral-900">
+				<Table>
+					<TableHeader>
+						{table.getHeaderGroups().map((headerGroup) => (
+							<TableRow key={headerGroup.id}>
+								{headerGroup.headers.map((header) => (
+									<TableHead key={header.id}>
+										{header.isPlaceholder
+											? null
+											: flexRender(
+													header.column.columnDef.header,
+													header.getContext(),
+												)}
+									</TableHead>
+								))}
+							</TableRow>
+						))}
+					</TableHeader>
+					<TableBody>
+						{table.getRowModel().rows.length ? (
+							table.getRowModel().rows.map((row) => (
+								<TableRow key={row.id}>
+									{row.getVisibleCells().map((cell) => (
+										<TableCell key={cell.id}>
+											{flexRender(
+												cell.column.columnDef.cell,
+												cell.getContext(),
+											)}
+										</TableCell>
+									))}
+								</TableRow>
+							))
+						) : (
+							<TableRow>
+								<TableCell
+									colSpan={columns.length}
+									className="h-16 text-center"
+								>
+									No hay pagos realizados
+								</TableCell>
+							</TableRow>
+						)}
+					</TableBody>
+				</Table>
+			</div>
+
+			<div className="flex items-center justify-end gap-2">
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => table.previousPage()}
+					disabled={!table.getCanPreviousPage()}
+				>
+					Anterior
+				</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={() => table.nextPage()}
+					disabled={!table.getCanNextPage()}
+				>
+					Siguiente
+				</Button>
+			</div>
+		</div>
+	);
+}

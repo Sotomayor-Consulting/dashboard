@@ -1,0 +1,106 @@
+---
+---
+
+<div class="skeleton-root animate-fade-in">
+	<!-- Tab bar skeleton -->
+	<nav class="-mx-6 flex items-end gap-1 border-b border-border px-6 pt-3">
+		<div class="flex items-center gap-2 border-b-[3px] border-primary-gold/30 px-3 pb-2">
+			<div class="skeleton h-5 w-5 rounded"></div>
+			<div class="skeleton h-4 w-14 rounded"></div>
+		</div>
+		<div class="flex items-center gap-2 border-b-[3px] border-transparent px-3 pb-2">
+			<div class="skeleton h-5 w-5 rounded"></div>
+			<div class="skeleton h-4 w-24 rounded"></div>
+		</div>
+		<div class="flex items-center gap-2 border-b-[3px] border-transparent px-3 pb-2">
+			<div class="skeleton h-5 w-5 rounded"></div>
+			<div class="skeleton h-4 w-16 rounded"></div>
+		</div>
+	</nav>
+
+	<!-- Company name -->
+	<div class="mt-6 mb-2">
+		<div class="skeleton h-9 w-64 rounded-lg"></div>
+	</div>
+
+	<!-- Inline stats -->
+	<div class="-mx-6 mt-4 mb-6 flex gap-6 border-b border-border px-6 pb-6">
+		<div class="flex items-center gap-2.5">
+			<div class="skeleton h-8 w-8 rounded-lg"></div>
+			<div>
+				<div class="skeleton mb-1 h-5 w-6 rounded"></div>
+				<div class="skeleton h-3 w-24 rounded"></div>
+			</div>
+		</div>
+		<div class="flex items-center gap-2.5">
+			<div class="skeleton h-8 w-8 rounded-lg"></div>
+			<div>
+				<div class="skeleton mb-1 h-5 w-6 rounded"></div>
+				<div class="skeleton h-3 w-28 rounded"></div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Process header -->
+	<div class="mb-6 flex items-end justify-between">
+		<div>
+			<div class="skeleton h-7 w-60 rounded-lg"></div>
+			<div class="skeleton mt-2 h-4 w-72 rounded"></div>
+		</div>
+		<div class="flex items-center gap-3">
+			<div class="skeleton h-5 w-12 rounded"></div>
+			<div class="skeleton h-6 w-12 rounded-full"></div>
+		</div>
+	</div>
+
+	<!-- Segmented progress bar -->
+	<div class="mb-8 flex gap-1">
+		{Array.from({ length: 6 }).map(() => (
+			<div class="skeleton h-1.5 flex-1 rounded-full"></div>
+		))}
+	</div>
+
+	<!-- Stage rows -->
+	<div class="-mx-6 divide-y divide-border border-t border-border">
+		{Array.from({ length: 6 }).map((_, i) => (
+			<div class="flex items-center gap-4 px-6 py-5">
+				<div class="skeleton h-11 w-11 shrink-0 rounded-xl"></div>
+				<div class="min-w-0 flex-1">
+					<div class="flex items-center gap-2">
+						<div class:list={['skeleton h-5 rounded', i === 0 ? 'w-56' : i === 1 ? 'w-48' : i === 2 ? 'w-40' : 'w-44']}></div>
+						<div class="skeleton h-4 w-20 rounded-full"></div>
+					</div>
+				</div>
+				<div class="skeleton hidden h-4 w-28 rounded md:block"></div>
+				<div class="skeleton h-5 w-5 rounded"></div>
+			</div>
+		))}
+	</div>
+</div>
+
+<style>
+	.skeleton {
+		background: linear-gradient(
+			90deg,
+			var(--color-muted) 25%,
+			color-mix(in srgb, var(--color-muted) 60%, transparent) 50%,
+			var(--color-muted) 75%
+		);
+		background-size: 200% 100%;
+		animation: shimmer 1.5s ease-in-out infinite;
+	}
+
+	@keyframes shimmer {
+		0% { background-position: 200% 0; }
+		100% { background-position: -200% 0; }
+	}
+
+	.animate-fade-in {
+		animation: fade-in 0.2s ease-out;
+	}
+
+	@keyframes fade-in {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+</style>

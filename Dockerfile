@@ -5,7 +5,7 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # ============================================
 # 2) Etapa de build
@@ -51,22 +51,27 @@ RUN addgroup -g 1001 -S nodejs && \
 
 # Dependencias de producción
 COPY --from=deps /app/package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev && npm cache clean --force
 
 # Artefactos SSR
 COPY --from=builder --chown=astro:nodejs /app/dist ./dist
 COPY --from=builder --chown=astro:nodejs /app/server.mjs ./server.mjs
+COPY --from=builder --chown=astro:nodejs /app/server-wrapper.mjs ./server-wrapper.mjs
+
+# Bootstrap de Vault en runtime (Node 22 ejecuta el source TS directamente)
+COPY --from=builder --chown=astro:nodejs /app/src/lib/infrastructure/vault ./src/lib/infrastructure/vault
+COPY --from=builder --chown=astro:nodejs /app/src/lib/infrastructure/logging ./src/lib/infrastructure/logging
 
 # Templates usados en runtime (carbone, emails)
-COPY --from=builder --chown=astro:nodejs /app/src/templates ./src/templates
+COPY --from=builder --chown=astro:nodejs /app/src/domains/documents/templates ./src/domains/documents/templates
 
 USER astro
 
 EXPOSE 4321
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:4321/ || exit 1
+  CMD wget --no-verbose --tries=1 --spider "http://127.0.0.1:${PORT}/api/health" || exit 1
 
 # dumb-init maneja señales correctamente (SIGTERM, etc.)
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "server.mjs"]
+CMD ["node", "--experimental-strip-types", "server-wrapper.mjs"]

@@ -1,0 +1,267 @@
+---
+import { Icon } from 'astro-icon/components';
+import TrustpilotPill from './components/TrustpilotPill.astro';
+
+interface Props {
+	userName: string;
+}
+
+const { userName } = Astro.props;
+
+const options = [
+	{
+		id: 'crear',
+		eyebrow: 'Opcion 01',
+		title: 'Crea una empresa en EE. UU.',
+		description:
+			'Constituye una LLC o C-Corp en minutos, sin viajar. Incluye EIN, agente registrado y acuerdo operativo.',
+		cta: 'Iniciar Incorporación',
+		href: '/start/',
+		icon: 'ri:sparkling-2-line',
+		recommended: true,
+	},
+	{
+		id: 'vincular',
+		eyebrow: 'Opcion 02',
+		title: 'Ya tengo mi empresa en EE. UU.',
+		description:
+			'Conecta tu empresa existente y deja que nos encarguemos del cumplimiento, impuestos y contabilidad.',
+		cta: 'Disponible próximamente',
+		href: '/my-companies/',
+		icon: 'ri:building-2-line',
+		recommended: false,
+		comingSoon: true,
+	},
+];
+
+const benefits = [
+	{
+		title: 'Hecho para Latinoamerica',
+		description:
+			'Sin SSN ni viaje a EE. UU. Acepta pagos globales y factura en dolares desde el dia uno.',
+		icon: 'ri:flashlight-line',
+	},
+	{
+		title: 'Cumplimiento sin estres',
+		description:
+			'Reportes estatales, agente registrado e impuestos del IRS gestionados por expertos.',
+		icon: 'ri:shield-check-line',
+	},
+	{
+		title: 'Soporte en espanol',
+		description:
+			'Equipo bilingue disponible por WhatsApp en horario de Mexico, Colombia y Argentina.',
+		icon: 'ri:message-2-line',
+	},
+];
+---
+
+<main class="min-h-screen px-4 py-8 sm:px-6 lg:px-10 lg:py-12">
+	<div class="mx-auto w-full max-w-5xl">
+		<header
+			class="mb-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 lg:mb-12 lg:p-10 dark:border-gray-700 dark:bg-transparent"
+		>
+			<p
+				class="mb-4 inline-flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1 text-[11px] font-semibold tracking-wide text-gray-500 uppercase dark:border-gray-600 dark:text-gray-400"
+			>
+				<span class="h-1.5 w-1.5 rounded-full bg-[#8c681d]"></span>
+				Sotomayor Consulting International
+			</p>
+			<h1
+				class="text-3xl leading-tight font-semibold text-gray-900 sm:text-4xl lg:text-5xl dark:text-white"
+			>
+				Bienvenido,
+				<br />
+				<span class="text-gray-500 dark:text-gray-400">{userName}.</span>
+			</h1>
+			<p
+				class="mt-4 max-w-3xl text-sm leading-7 text-gray-600 sm:text-base dark:text-gray-300"
+			>
+				Crea o gestiona tu empresa en Estados Unidos desde Latinoamerica. Elige
+				el camino que mejor se adapte a ti.
+			</p>
+		</header>
+
+		<section aria-labelledby="beneficios" class="mb-12">
+			<div class="mb-8 flex items-center gap-4">
+				<span class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></span>
+				<h2
+					id="beneficios"
+					class="text-[11px] font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400"
+				>
+					ELIGE COMO EMPEZAR
+				</h2>
+				<span class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></span>
+			</div>
+
+			<section
+				aria-label="Elige como empezar"
+				class="mb-12 grid grid-cols-1 gap-4 md:grid-cols-2"
+			>
+				{
+					options.map((option) => (
+						<a
+							href={option.comingSoon ? undefined : option.href}
+							aria-disabled={option.comingSoon ? 'true' : undefined}
+							tabindex={option.comingSoon ? -1 : undefined}
+							class:list={[
+								'group relative overflow-hidden rounded-2xl border bg-white p-6 shadow-sm transition-all duration-200 dark:bg-transparent',
+								option.comingSoon
+									? 'cursor-not-allowed border-dashed border-gray-300 dark:border-gray-600'
+									: 'hover:-translate-y-1 hover:shadow-md',
+								option.recommended &&
+									'border-[#8c681d]/50 dark:border-[#8c681d]/60',
+								!option.recommended &&
+									!option.comingSoon &&
+									'border-gray-200 dark:border-gray-700',
+							]}
+						>
+							{option.recommended && (
+								<span class="text-2xs absolute top-5 right-5 rounded-full border border-[#8c681d]/35 bg-[#8c681d]/10 px-2.5 py-1 font-semibold tracking-wide text-[#8c681d] uppercase dark:border-[#8c681d]/40 dark:text-[#c9ac67]">
+									Recomendado
+								</span>
+							)}
+							{option.comingSoon && (
+								<span class="text-2xs absolute top-5 right-5 inline-flex items-center gap-1 rounded-full border border-gray-300 bg-gray-100 px-2.5 py-1 font-semibold tracking-wide text-gray-600 uppercase dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
+									<Icon name="ri:lock-2-line" class="h-3 w-3" />
+									Próximamente
+								</span>
+							)}
+
+							<div
+								class:list={[
+									'dark:bg-black-900 mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl border bg-gray-50',
+									option.comingSoon
+										? 'border-gray-200 text-gray-400 dark:border-gray-700 dark:text-gray-500'
+										: 'border-gray-200 text-gray-700 dark:border-gray-700 dark:text-gray-200',
+								]}
+							>
+								<Icon name={option.icon} class="h-5 w-5" />
+							</div>
+
+							<p
+								class:list={[
+									'mb-2 text-[11px] font-semibold tracking-[0.16em] uppercase',
+									option.comingSoon
+										? 'text-gray-400 dark:text-gray-500'
+										: 'text-gray-500 dark:text-gray-400',
+								]}
+							>
+								{option.eyebrow}
+							</p>
+							<h2
+								class:list={[
+									'text-xl leading-tight font-semibold lg:text-2xl',
+									option.comingSoon
+										? 'text-gray-500 dark:text-gray-400'
+										: 'text-gray-900 dark:text-white',
+								]}
+							>
+								{option.title}
+							</h2>
+							<p
+								class:list={[
+									'mt-3 text-sm leading-7',
+									option.comingSoon
+										? 'text-gray-500 dark:text-gray-500'
+										: 'text-gray-600 dark:text-gray-300',
+								]}
+							>
+								{option.description}
+							</p>
+
+							<div
+								class:list={[
+									'mt-5 inline-flex items-center gap-2 text-sm font-semibold',
+									option.comingSoon
+										? 'text-gray-400 dark:text-gray-500'
+										: 'text-gray-900 dark:text-gray-100',
+								]}
+							>
+								<span>{option.cta}</span>
+								{option.comingSoon ? (
+									<Icon name="ri:lock-2-line" class="h-4 w-4" />
+								) : (
+									<Icon
+										name="ri:arrow-right-up-line"
+										class="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+									/>
+								)}
+							</div>
+						</a>
+					))
+				}
+			</section>
+
+			<section aria-labelledby="beneficios" class="mb-12">
+				<div class="mb-8 flex items-center gap-4">
+					<span class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></span>
+					<h2
+						id="beneficios"
+						class="text-[11px] font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400"
+					>
+						Lo que valoran nuestros clientes
+					</h2>
+					<span class="h-px flex-1 bg-gray-200 dark:bg-gray-700"></span>
+				</div>
+
+				<div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+					{
+						benefits.map((benefit) => (
+							<div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
+								<Icon name={benefit.icon} class="mb-3 h-5 w-5 text-[#8c681d]" />
+								<h3 class="text-base font-semibold text-gray-900 dark:text-white">
+									{benefit.title}
+								</h3>
+								<p class="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
+									{benefit.description}
+								</p>
+							</div>
+						))
+					}
+				</div>
+			</section>
+
+			<section
+				class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 dark:border-gray-700 dark:bg-transparent"
+			>
+				<div class="mb-4 flex justify-center text-[#8c681d]">
+					{
+						Array.from({ length: 5 }).map(() => (
+							<Icon name="ri:star-fill" class="h-4 w-4" />
+						))
+					}
+				</div>
+				<blockquote
+					class="mx-auto max-w-3xl text-center text-xl leading-relaxed font-medium text-gray-900 sm:text-2xl dark:text-white"
+				>
+					"A pesar de la distancia (soy de Bolivia), Sotomayor Consulting me
+					asesoró como si estuvieran en la oficina de al lado. Por eso y mucho
+					más, totalmente recomendados."
+				</blockquote>
+				<p class="mt-5 text-center text-sm text-gray-600 dark:text-gray-300">
+					<span class="font-semibold text-gray-900 dark:text-white">
+						Vladimir Hurtado Muñoz
+					</span>
+					<span class="mx-2">·</span>
+					Cliente verificado · Bolivia
+				</p>
+				<div class="mt-8 flex justify-center">
+					<TrustpilotPill rating={5} />
+				</div>
+			</section>
+
+			<p class="mt-8 text-center text-xs text-gray-500 dark:text-gray-400">
+				No sabes cual elegir?
+				<a
+					href="https://zcal.co/t/agendar-asesoria-llc/60min"
+					target="_blank"
+					class="ml-1 font-semibold text-gray-900 underline decoration-gray-300 underline-offset-4 hover:text-[#8c681d] dark:text-gray-100 dark:decoration-gray-600"
+				>
+					Agenda una asesoria gratuita con un especialista
+					<Icon name="ri:arrow-right-up-line" class="inline-block h-3 w-3" />
+				</a>
+			</p>
+		</section>
+	</div>
+</main>

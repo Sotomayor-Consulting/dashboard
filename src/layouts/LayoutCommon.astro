@@ -1,0 +1,202 @@
+---
+import pkg from '../../package.json' with { type: 'json' };
+import { url } from '@shared/data';
+import { SITE_TITLE } from '../constants.js';
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+
+const { class: clazz } = Astro.props;
+
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : '';
+---
+
+<!doctype html>
+<html lang="es" class="dark">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{SITE_TITLE} — v{pkg.version}</title>
+
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={pkg.description} />
+		<meta name="" content={pkg.description} />
+		<link
+			rel="icon"
+			type="image/svg+xml"
+			href="/src/assets/brand/avatar-SCI-iso.svg"
+		/>
+
+		{
+			supabaseOrigin && (
+				<>
+					<link rel="preconnect" href={supabaseOrigin} crossorigin />
+					<link rel="dns-prefetch" href={supabaseOrigin} />
+				</>
+			)
+		}
+		<link
+			rel="sitemap"
+			type="application/xml"
+			href={url('sitemap-index.xml')}
+		/>
+
+		<meta name="author" content="Sotomayor Consulting" />
+
+		<script is:inline>
+			if (
+				localStorage.getItem('color-theme') === 'dark' ||
+				(!('color-theme' in localStorage) &&
+					window.matchMedia('(prefers-color-scheme: dark)').matches)
+			) {
+				document.documentElement.classList.add('dark');
+			} else {
+				document.documentElement.classList.remove('dark');
+			}
+
+			// Aplicar modo de sidebar antes del primer pintado para evitar flash
+			(function () {
+				document.documentElement.setAttribute('data-sidebar', 'expanded');
+			})();
+		</script>
+
+		<ClientRouter />
+
+		<!-- Progress bar de navegación -->
+		<style is:global>
+			#nav-progress {
+				position: fixed;
+				top: 0;
+				left: 0;
+				height: 2px;
+				background: #b89329;
+				z-index: 60;
+				width: 0%;
+				opacity: 0;
+				pointer-events: none;
+				transition: none;
+			}
+			:where(.dark) #nav-progress {
+				background: #b89329;
+			}
+			#nav-progress.loading {
+				opacity: 1;
+				animation: nav-progress-grow 8s cubic-bezier(0.2, 0.5, 0, 1) forwards;
+			}
+			#nav-progress.done {
+				width: 100% !important;
+				opacity: 0;
+				transition: opacity 300ms ease-out;
+			}
+			@keyframes nav-progress-grow {
+				0% {
+					width: 0%;
+				}
+				10% {
+					width: 30%;
+				}
+				30% {
+					width: 55%;
+				}
+				50% {
+					width: 70%;
+				}
+				80% {
+					width: 85%;
+				}
+				100% {
+					width: 95%;
+				}
+			}
+		</style>
+	</head>
+	<body
+		class:list={[
+			//
+			clazz,
+			'bg-gray-100 dark:bg-black',
+		]}
+	>
+		<!-- Progress bar de navegación -->
+		<div id="nav-progress"></div>
+		<main transition:animate="fade">
+			<slot />
+		</main>
+	</body>
+</html>
+
+<script>
+	import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
+
+	// ── Progress bar: feedback visual instantáneo durante navegación ──
+	const MIN_PROGRESS_VISIBLE_MS = 220;
+	let progressShownAt = 0;
+	let progressCompleteTimer: ReturnType<typeof setTimeout> | null = null;
+
+	function getProgressBar() {
+		return document.getElementById('nav-progress');
+	}
+
+	// Inicia la barra al comenzar la preparación (fetch de la nueva página)
+	document.addEventListener('astro:before-preparation', () => {
+		const bar = getProgressBar();
+		if (bar) {
+			if (progressCompleteTimer) {
+				clearTimeout(progressCompleteTimer);
+				progressCompleteTimer = null;
+			}
+			bar.classList.remove('done');
+			bar.style.width = '';
+			// Forzar reflow para reiniciar la animación
+			void bar.offsetWidth;
+			bar.classList.add('loading');
+			progressShownAt = performance.now();
+		}
+	});
+
+	// Completa la barra cuando el swap termina
+	document.addEventListener('astro:after-swap', () => {
+		const bar = document.getElementById('nav-progress');
+		if (bar) {
+			const elapsed = performance.now() - progressShownAt;
+			const waitMs = Math.max(0, MIN_PROGRESS_VISIBLE_MS - elapsed);
+
+			progressCompleteTimer = setTimeout(() => {
+				bar.classList.remove('loading');
+				bar.classList.add('done');
+				progressCompleteTimer = null;
+
+				// Limpiar después de la transición de opacidad
+				setTimeout(() => {
+					bar.classList.remove('done');
+					bar.style.width = '0%';
+				}, 350);
+			}, waitMs);
+		}
+	});
+
+	// Preservar atributos del <html> durante View Transitions (dark mode, sidebar)
+	document.addEventListener('astro:before-swap', (e) => {
+		const event = e as TransitionBeforeSwapEvent;
+		const currentHtml = document.documentElement;
+		const newHtml = event.newDocument.documentElement;
+
+		// Preservar clase dark
+		if (currentHtml.classList.contains('dark')) {
+			newHtml.classList.add('dark');
+		} else {
+			newHtml.classList.remove('dark');
+		}
+
+		// Preservar modo de sidebar
+		const sidebarMode = currentHtml.getAttribute('data-sidebar');
+		if (sidebarMode) {
+			newHtml.setAttribute('data-sidebar', sidebarMode);
+		}
+	});
+</script>
+<script>
+	import { initNativeDialogs } from '@shared/native-dialog.client';
+
+	initNativeDialogs();
+</script>

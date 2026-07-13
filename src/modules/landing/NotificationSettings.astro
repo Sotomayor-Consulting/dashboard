@@ -1,0 +1,129 @@
+---
+---
+
+<div class="mx-auto max-w-3xl px-4 pt-6 pb-12">
+	<div class="section-header mb-8">
+		<h1 class="section-title text-xl">Notificaciones</h1>
+		<p class="section-description">Configura cómo y cuándo quieres recibir notificaciones.</p>
+	</div>
+
+	<form method="post" action="/api/notifications/update?back=/notifications" x-data="{
+		channels: { email: true, desktop: false },
+		updates: { weekly: false, product: true, important: true }
+	}">
+		<div class="space-y-10">
+			<!-- Canales de notificación -->
+			<div>
+				<h3 class="text-sm font-medium text-foreground">Canales de notificación</h3>
+				<p class="mt-1 text-sm text-muted-foreground">¿Dónde quieres recibir notificaciones?</p>
+
+				<div class="mt-4 divide-y divide-border rounded-lg border border-border">
+					<!-- Email -->
+					<label class="flex cursor-pointer items-center justify-between px-4 py-4 transition hover:bg-hover">
+						<div>
+							<p class="text-sm font-medium text-foreground">Email</p>
+							<p class="text-sm text-muted-foreground">Recibe un resumen diario por correo.</p>
+						</div>
+						<div class="relative">
+							<input
+								type="checkbox"
+								name="channel_email"
+								class="peer sr-only"
+								x-model="channels.email"
+							/>
+							<div class="h-6 w-11 rounded-full bg-muted peer-checked:bg-accent-gold transition-colors"></div>
+							<div class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></div>
+						</div>
+					</label>
+
+					<!-- Desktop -->
+					<label class="flex cursor-pointer items-center justify-between px-4 py-4 transition hover:bg-hover">
+						<div>
+							<p class="text-sm font-medium text-foreground">Escritorio</p>
+							<p class="text-sm text-muted-foreground">Recibe notificaciones de escritorio.</p>
+						</div>
+						<div class="relative">
+							<input
+								type="checkbox"
+								name="channel_desktop"
+								class="peer sr-only"
+								x-model="channels.desktop"
+							/>
+							<div class="h-6 w-11 rounded-full bg-muted peer-checked:bg-accent-gold transition-colors"></div>
+							<div class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></div>
+						</div>
+					</label>
+				</div>
+			</div>
+
+			<!-- Actualizaciones -->
+			<div>
+				<h3 class="text-sm font-medium text-foreground">Actualizaciones de cuenta</h3>
+				<p class="mt-1 text-sm text-muted-foreground">Recibe actualizaciones sobre tu cuenta y servicios.</p>
+
+				<div class="mt-4 divide-y divide-border rounded-lg border border-border">
+					<!-- Weekly digest -->
+					<label class="flex cursor-pointer items-center justify-between px-4 py-4 transition hover:bg-hover">
+						<div>
+							<p class="text-sm font-medium text-foreground">Resumen semanal</p>
+							<p class="text-sm text-muted-foreground">Recibe un resumen semanal de novedades.</p>
+						</div>
+						<div class="relative">
+							<input
+								type="checkbox"
+								name="update_weekly"
+								class="peer sr-only"
+								x-model="updates.weekly"
+							/>
+							<div class="h-6 w-11 rounded-full bg-muted peer-checked:bg-accent-gold transition-colors"></div>
+							<div class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></div>
+						</div>
+					</label>
+
+					<!-- Product updates -->
+					<label class="flex cursor-pointer items-center justify-between px-4 py-4 transition hover:bg-hover">
+						<div>
+							<p class="text-sm font-medium text-foreground">Actualizaciones de producto</p>
+							<p class="text-sm text-muted-foreground">Recibe un correo mensual con nuevas funcionalidades.</p>
+						</div>
+						<div class="relative">
+							<input
+								type="checkbox"
+								name="update_product"
+								class="peer sr-only"
+								x-model="updates.product"
+							/>
+							<div class="h-6 w-11 rounded-full bg-muted peer-checked:bg-accent-gold transition-colors"></div>
+							<div class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></div>
+						</div>
+					</label>
+
+					<!-- Important updates -->
+					<label class="flex cursor-pointer items-center justify-between px-4 py-4 transition hover:bg-hover">
+						<div>
+							<p class="text-sm font-medium text-foreground">Actualizaciones importantes</p>
+							<p class="text-sm text-muted-foreground">Recibe correos sobre seguridad, mantenimiento y cambios críticos.</p>
+						</div>
+						<div class="relative">
+							<input
+								type="checkbox"
+								name="update_important"
+								class="peer sr-only"
+								x-model="updates.important"
+							/>
+							<div class="h-6 w-11 rounded-full bg-muted peer-checked:bg-accent-gold transition-colors"></div>
+							<div class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></div>
+						</div>
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<!-- Save button -->
+		<div class="flex justify-end border-t border-border pt-6 mt-8">
+			<button type="submit" class="btn-primary">
+				Guardar preferencias
+			</button>
+		</div>
+	</form>
+</div>

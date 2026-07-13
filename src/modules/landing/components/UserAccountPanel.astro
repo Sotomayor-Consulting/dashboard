@@ -10,70 +10,60 @@ interface Props {
 const {
 	email = '',
 	promoteHref = '/',
-	referralAction = '/api/partners_code/code_canje',
+	referralAction = '/api/partners/redeem-code',
 } = Astro.props as Props;
 ---
 
-<div class="col-span-full xl:col-auto">
-	<div
-		class="dark:bg-black-800 mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700"
-	>
-		<div
-			class="items-center sm:flex sm:space-x-4 xl:block xl:space-x-0 2xl:flex 2xl:space-x-4"
-		>
-			<PictureUploader title="Foto de perfil" />
+<div class="divide-y divide-border">
+	<!-- Avatar -->
+	<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 first:pt-0 sm:grid-cols-[220px_1fr]">
+		<div>
+			<h3 class="text-sm font-medium text-foreground">Foto de perfil</h3>
+			<p class="mt-1 text-sm text-muted-foreground">JPG, PNG o WEBP. Máx 5 MB.</p>
+		</div>
+		<div class="flex items-center gap-6">
+			<PictureUploader title="" />
 		</div>
 	</div>
 
-	<div
-		class="dark:bg-black-800 mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700"
-	>
-		<h3 class="mb-4 text-xl font-semibold dark:text-white">Rol de cuenta</h3>
-		<div class="mb-4">
-			<p
-				class="block w-full cursor-not-allowed rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-[#101521] dark:text-white"
-				class="block w-full cursor-not-allowed rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-[#101521] dark:text-white"
-			>
+	<!-- Rol de cuenta -->
+	<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
+		<div>
+			<h3 class="text-sm font-medium text-foreground">Rol de cuenta</h3>
+			<p class="mt-1 text-sm text-muted-foreground">Tu correo vinculado a la cuenta.</p>
+		</div>
+		<div class="space-y-4">
+			<p class="block w-full rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-sm text-foreground">
 				{email}
 			</p>
-		</div>
-
-		<div>
 			<a
 				href={promoteHref}
-				class="focus:ring-primary-300 dark:bg-black-400 dark:hover:bg-black-400/80 bg-black-600 hover:bg-black-500 rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 dark:focus:ring-[#323f67]"
+				class="btn-outline"
 			>
 				Promover a cuenta de asociado
 			</a>
 		</div>
 	</div>
 
-	<div
-		class="dark:bg-black-800 mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 2xl:col-span-2 dark:border-gray-700"
-	>
-		<h3 class="mb-4 text-xl font-semibold dark:text-white">
-			Canjear codigo de Referido
-		</h3>
-
-		<form action={referralAction} method="POST">
-			<div class="mb-4">
-				<input
-					type="text"
-					name="code"
-					class="block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 shadow-sm focus:border-[#8c681d] focus:ring-[#8c681d] sm:text-sm dark:border-gray-600 dark:bg-[#101521] dark:text-white dark:placeholder-gray-400 dark:focus:border-[#8c681d] dark:focus:ring-[#323f67]"
-					class="focus:border-black-600 focus:ring-black-600 dark:focus:border-black-600 block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-gray-900 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-[#101521] dark:text-white dark:placeholder-gray-400 dark:focus:ring-[#323f67]"
-					placeholder="Ejemplo: 9F2A7C4B"
-				/>
-			</div>
-
-			<div>
-				<button
-					type="submit"
-					class="focus:ring-primary-300 dark:bg-black-400 dark:hover:bg-black-400/80 bg-black-600 hover:bg-black-500 cursor-pointer rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 dark:focus:ring-[#323f67]"
-				>
-					Canjear
-				</button>
-			</div>
+	<!-- Código de referido -->
+	<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[220px_1fr]">
+		<div>
+			<h3 class="text-sm font-medium text-foreground">Código de referido</h3>
+			<p class="mt-1 text-sm text-muted-foreground">Ingresa un código para vincular tu cuenta.</p>
+		</div>
+		<form action={referralAction} method="POST" class="space-y-4">
+			<input
+				type="text"
+				name="code"
+				class="block w-full rounded-lg border border-border bg-transparent px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition focus:border-accent-gold focus:ring-accent-gold"
+				placeholder="Ejemplo: 9F2A7C4B"
+			/>
+			<button
+				type="submit"
+				class="btn-primary"
+			>
+				Canjear
+			</button>
 		</form>
 	</div>
 </div>

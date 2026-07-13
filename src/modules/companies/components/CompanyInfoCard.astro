@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import imagenempresa from '@assets/edificios-vista.avif';
+import imagenempresa from '@assets/backgrounds/edificios-vista.avif';
 import type { EmpresaDetail } from '../types';
 
 interface Props {
@@ -12,16 +12,16 @@ const { empresa, empresaId } = Astro.props;
 ---
 
 <div
-	class="dark:bg-black-800 relative col-span-2 flex h-full w-full gap-5 rounded-md bg-neutral-50 dark:text-neutral-300"
+	class="from-black-600 to-black-900 relative col-span-2 flex h-full w-full gap-5 rounded-xl border border-gray-200 bg-white dark:border-neutral-700 dark:bg-transparent dark:text-neutral-300"
 >
 	<Image
 		src={imagenempresa}
 		alt="Edificios"
-		class="hidden h-96 w-full rounded-t-lg object-cover md:block md:h-auto md:w-2/5 md:rounded-none md:rounded-s-lg"
+		class="hidden h-96 w-full rounded-t-xl object-cover md:block md:h-auto md:w-2/5 md:rounded-none md:rounded-s-xl"
 		loading="eager"
 	/>
 	<div
-		class="bg-opacity-10 absolute bottom-4 left-4 hidden h-fit rounded-md border border-neutral-400 bg-[#1f3443] bg-clip-padding p-2 backdrop-blur-md backdrop-filter lg:block"
+		class="bg-opacity-10 absolute bottom-4 left-4 hidden h-fit rounded-md border border-neutral-400 bg-black bg-clip-padding p-2 backdrop-blur-md backdrop-filter lg:block dark:bg-transparent"
 	>
 		<p class="text-sm font-normal text-white">Empresa id:</p>
 		<p class="text-xs font-light text-white">
@@ -36,9 +36,11 @@ const { empresa, empresaId } = Astro.props;
 				Nombres de la compañía
 			</h5>
 			<p
-				class="mb-3 text-3xl font-normal text-neutral-700 dark:text-neutral-400"
+				class="mb-3 text-2xl font-normal text-neutral-700 dark:text-neutral-400"
 			>
-				{empresa.nombre_1}, {empresa.nombre_2}, {empresa.nombre_3}
+				{(empresa.possible_names ?? [empresa.principal_name])
+					.filter(Boolean)
+					.join(', ')}
 			</p>
 		</div>
 		<div class="mt-10 grid grid-cols-1 gap-2 lg:grid-cols-2">
@@ -88,9 +90,7 @@ const { empresa, empresaId } = Astro.props;
 				>
 					Forma de administración
 				</h5>
-				<p
-					class="mb-3 font-normal text-neutral-700 dark:text-neutral-400"
-				>
+				<p class="mb-3 font-normal text-neutral-700 dark:text-neutral-400">
 					{empresa.forma_administracion}
 				</p>
 			</div>

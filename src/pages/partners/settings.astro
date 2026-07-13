@@ -1,0 +1,14 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import Vistapartner from '@modules/partners/PartnersView.astro';
+import { getUsuarioById } from '@domains/users/users';
+const supabase = Astro.locals.supabase;
+
+const user = Astro.locals.user;
+const UserId = user?.id;
+const usuarioData = UserId ? await getUsuarioById(supabase, UserId) : null;
+---
+
+<LayoutSidebar>
+	<Vistapartner data={usuarioData || {}} />
+</LayoutSidebar>

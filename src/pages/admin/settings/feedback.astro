@@ -1,0 +1,20 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import FeedbackList from '@modules/admin/feedback/islands/FeedbackList.tsx';
+import { getBetaFeedbackList } from '@domains/feedback/beta-feedback';
+
+const userRoles = Astro.locals.userRoles ?? [];
+const allowedRoles = ['admin', 'gerencia', 'operaciones'];
+const canView = userRoles.some((r) => allowedRoles.includes(r));
+
+if (!canView) {
+	return Astro.redirect('/?status=error&msg=Acceso restringido');
+}
+
+const supabase = Astro.locals.supabase;
+const feedback = await getBetaFeedbackList(supabase);
+---
+
+<LayoutSidebar>
+	<FeedbackList items={feedback} client:load />
+</LayoutSidebar>

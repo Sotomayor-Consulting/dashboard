@@ -1,12 +1,16 @@
 ---
-import LayoutStacked from '@app/layouts/LayoutStackedDos.astro';
-import FormSignUp from '@modules/auth/FormSignUp.tsx';
-import Alerta from '@components/feedback/alertageneral.astro';
+import LayoutStacked from '@layouts/LayoutSignIn.astro';
+import FormSignUp from '@modules/auth/islands/FormSignUp.tsx';
+import Alerta from '@components/feedback/Alert.astro';
+import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
 ---
 
 <LayoutStacked>
-	<div class="flex items-center">
+	<div class="flex h-full w-full items-center justify-center">
 		<Alerta />
-		<FormSignUp client:load />
+		<FormSignUp
+			turnstileSiteKey={PUBLIC_TURNSTILE_SITE_KEY ?? null}
+			client:load
+		/>
 	</div>
 </LayoutStacked>

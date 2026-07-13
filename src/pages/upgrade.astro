@@ -1,0 +1,100 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import { ACTIVE_COMPANY_COOKIE } from '@shared/cookies';
+import { getIncorporacionById } from '@domains/companies/incorporations';
+import { getServicioUpgrade } from '@domains/services/services';
+
+const user = Astro.locals.user;
+const supabase = Astro.locals.supabase;
+
+if (!user) {
+	return Astro.redirect('/sign-in');
+}
+
+const empresaId = Astro.cookies.get(ACTIVE_COMPANY_COOKIE)?.value;
+if (!empresaId) {
+	return Astro.redirect('/?status=error&msg=No hay empresa activa');
+}
+
+const [empresa, servicioUpgrade] = await Promise.all([
+	getIncorporacionById(supabase, empresaId, user.id),
+	getServicioUpgrade(supabase).catch(() => null),
+]);
+
+if (!empresa || empresa.state !== 'upgrade') {
+	return Astro.redirect('/?status=error&msg=Esta empresa no tiene upgrade disponible');
+}
+
+if (!servicioUpgrade) {
+	return Astro.redirect('/?status=error&msg=Servicio de upgrade no disponible');
+}
+---
+
+<LayoutSidebar>
+	<div class="flex min-h-[60vh] flex-col items-center justify-center p-8">
+		<div id="upgrade-container" class="w-full max-w-md text-center">
+			<div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-500/20">
+				<svg class="h-8 w-8 text-amber-600 dark:text-amber-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+				</svg>
+			</div>
+			<h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
+				Upgrade de {empresa.principal_name}
+			</h1>
+			<p class="mt-2 text-gray-600 dark:text-gray-300">
+				Redirigiendo al pago seguro...
+			</p>
+			<div class="mt-6">
+				<div class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+					<svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+					</svg>
+					Conectando con Stripe...
+				</div>
+			</div>
+			<p id="upgrade-error" class="mt-4 hidden rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400"></p>
+			<a
+				id="upgrade-retry"
+				href="/upgrade"
+				class="mt-4 hidden inline-flex items-center rounded-lg bg-black px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+			>
+				Reintentar
+			</a>
+		</div>
+	</div>
+</LayoutSidebar>
+
+<script is:inline define:vars={{ userId: user.id, empresaId, servicioId: servicioUpgrade.id }}>
+	(async () => {
+		try {
+			const res = await fetch('/api/payment/checkout-session-upgrade', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId,
+					empresaId,
+					servicio: { id: servicioId },
+				}),
+			});
+
+			const data = await res.json();
+
+			if (!res.ok || !data.url) {
+				throw new Error(data.error || 'No se pudo crear la sesión de pago');
+			}
+
+			window.location.href = data.url;
+		} catch (err) {
+			const errorEl = document.getElementById('upgrade-error');
+			const retryEl = document.getElementById('upgrade-retry');
+			if (errorEl) {
+				errorEl.textContent = err.message || 'Error al conectar con el servicio de pagos.';
+				errorEl.classList.remove('hidden');
+			}
+			if (retryEl) {
+				retryEl.classList.remove('hidden');
+			}
+		}
+	})();
+</script>

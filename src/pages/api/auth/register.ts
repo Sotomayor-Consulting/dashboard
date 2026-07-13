@@ -1,15 +1,48 @@
-// src/pages/api/auth/register.ts
 // ─── Thin handler: Register ─────────────────────────────
-import type { APIRoute } from 'astro';
-import { createSupabaseServerClient } from '@lib/supabase';
-import { AuthService, AuthError, PATHS, redirectWithMessage } from '@lib/auth';
+export const prerender = false;
 
-export const POST: APIRoute = async ({ request, cookies, redirect }) => {
+import type { APIRoute } from 'astro';
+import { TURNSTILE_SECRET_KEY } from 'astro:env/server';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import {
+	AuthService,
+	AuthError,
+	PATHS,
+	redirectWithMessage,
+	buildOAuthRedirectUrl,
+	jsonSuccess,
+	jsonError,
+} from '@infrastructure/auth';
+import { checkRateLimit } from '@infrastructure/security/rate-limit';
+
+export const POST: APIRoute = async ({
+	request,
+	cookies,
+	redirect,
+	clientAddress,
+}) => {
+	const wantsJson = request.headers
+		.get('Accept')
+		?.includes('application/json');
+
+	// Anti-abuso: creación masiva de cuentas dispara emails de confirmación
+	if (!checkRateLimit(`register:ip:${clientAddress}`, 5, 3_600_000)) {
+		const msg = 'Demasiados registros desde esta conexión. Intenta más tarde.';
+		return wantsJson
+			? jsonError(msg, 429)
+			: redirectWithMessage(redirect, msg, 'error', PATHS.signUp);
+	}
+
 	const supabase = createSupabaseServerClient({
 		headers: request.headers,
 		cookies,
 	});
 	const auth = new AuthService(supabase, cookies);
+	const emailRedirectToUrl = new URL(
+		buildOAuthRedirectUrl(request, PATHS.confirmEmail),
+	);
+	emailRedirectToUrl.searchParams.set('next', PATHS.signIn);
+	const emailRedirectTo = emailRedirectToUrl.toString();
 
 	const formData = await request.formData();
 	const email = formData.get('email')?.toString().trim() ?? '';
@@ -17,8 +50,58 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	const confirmPassword = formData.get('confirm-password')?.toString() ?? '';
 	const name = formData.get('name')?.toString().trim() ?? '';
 	const lastName = formData.get('last-name')?.toString().trim() ?? '';
+	const turnstileToken = formData.get('cf-turnstile-response')?.toString();
+
+	// ─── Turnstile verification ──────────────────────
+	const turnstileSecret = TURNSTILE_SECRET_KEY;
+	if (turnstileSecret) {
+		if (!turnstileToken) {
+			if (wantsJson) {
+				return jsonError('Verificación de seguridad requerida.', 400);
+			}
+
+			return redirectWithMessage(
+				redirect,
+				'Verificación de seguridad requerida.',
+				'error',
+				PATHS.signUp,
+			);
+		}
+
+		const verifyBody = new URLSearchParams();
+		verifyBody.set('secret', turnstileSecret);
+		verifyBody.set('response', turnstileToken);
+
+		const verifyRes = await fetch(
+			'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+			{ method: 'POST', body: verifyBody },
+		);
+		const verifyData = (await verifyRes.json()) as { success: boolean };
+		if (!verifyData.success) {
+			if (wantsJson) {
+				return jsonError(
+					'Verificación de seguridad fallida. Intenta de nuevo.',
+					403,
+				);
+			}
+
+			return redirectWithMessage(
+				redirect,
+				'Verificación de seguridad fallida. Intenta de nuevo.',
+				'error',
+				PATHS.signUp,
+			);
+		}
+	}
 
 	if (password !== confirmPassword) {
+		if (wantsJson) {
+			return jsonError(
+				'Las contraseñas no coinciden. Por favor, verifica e intenta de nuevo.',
+				400,
+			);
+		}
+
 		return redirectWithMessage(
 			redirect,
 			'Las contraseñas no coinciden. Por favor, verifica e intenta de nuevo. ',
@@ -28,15 +111,38 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 	}
 
 	try {
-		const result = await auth.register({ email, password, name, lastName });
+		const result = await auth.register({
+			email,
+			password,
+			name,
+			lastName,
+			emailRedirectTo,
+		});
 
 		if (result.requiresEmailConfirmation) {
+			if (wantsJson) {
+				return jsonSuccess({
+					requiresEmailConfirmation: true,
+					message:
+						'¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.',
+					redirect: PATHS.signIn,
+				});
+			}
+
 			return redirectWithMessage(
 				redirect,
 				'¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.',
 				'success',
 				PATHS.signIn,
 			);
+		}
+
+		if (wantsJson) {
+			return jsonSuccess({
+				requiresEmailConfirmation: false,
+				message: '¡Registro exitoso! Bienvenido/a.',
+				redirect: PATHS.home,
+			});
 		}
 
 		return redirectWithMessage(
@@ -50,6 +156,11 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 			error instanceof AuthError
 				? error.message
 				: 'Ocurrió un error inesperado. Intenta de nuevo.';
+
+		if (wantsJson) {
+			return jsonError(message, 400);
+		}
+
 		return redirectWithMessage(redirect, message, 'error', PATHS.signUp);
 	}
 };

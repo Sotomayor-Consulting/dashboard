@@ -1,0 +1,10 @@
+---
+import { getOrdersByUser } from '@domains/payments/orders';
+import ClientOrdersTable from './islands/ClientOrdersTable';
+
+const supabase = Astro.locals.supabase;
+const userId = Astro.locals.user?.id ?? '';
+const orders = await getOrdersByUser(supabase, userId);
+---
+
+<ClientOrdersTable data={orders} client:load />

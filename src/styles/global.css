@@ -1,210 +1,220 @@
-@import "tailwindcss";
-@import "flowbite/src/themes/default";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+@import 'intl-tel-input/styles';
 
 @custom-variant dark (&:is(.dark *));
-@plugin "flowbite/plugin";
+@plugin '@tailwindcss/forms';
 
-@source "../../node_modules/flowbite";
-
-@plugin "flowbite-typography";
-
-@plugin "tailwind-scrollbar" {
-  nocompatible: true
+@plugin 'tailwind-scrollbar' {
+	nocompatible: true;
 }
 
-;
-
 @theme {
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+	--color-primary-50: #eff6ff;
+	--color-primary-100: #dbeafe;
+	--color-primary-200: #bfdbfe;
+	--color-primary-300: #93c5fd;
+	--color-primary-400: #60a5fa;
+	--color-primary-500: #3b82f6;
+	--color-primary-600: #2563eb;
+	--color-primary-700: #1d4ed8;
+	--color-primary-800: #1e40af;
+	--color-primary-900: #1e3a8a;
 
-  --color-black-50: #e7f2ff;
-  --color-black-100: #bfddff;
-  --color-black-200: #70beff;
-  --color-black-300: #009eeb;
-  --color-black-400: #0078b7;
-  --color-black-500: #003e6c;
-  --color-black-600: #002142;
-  --color-black-700: #00122c;
-  --color-black-800: #00091e;
-  --color-black-900: #000510;
+	--color-primary-black: #000000;
+	--color-primary-soft: #26537a;
+	--color-primary-gold: #b98d33;
 
-  --color-white-50: #f1f1f1;
-  --color-white-100: #dadada;
-  --color-white-200: #b7b7b7;
-  --color-white-300: #999999;
-  --color-white-400: #7e7e7e;
-  --color-white-500: #656565;
-  --color-white-600: #4d4d4d;
-  --color-white-700: #383838;
-  --color-white-800: #242424;
-  --color-white-900: #000000;
+	--color-black-50: #e7f2ff;
+	--color-black-100: #bfddff;
+	--color-black-200: #70beff;
+	--color-black-300: #009eeb;
+	--color-black-400: #0078b7;
+	--color-black-500: #003e6c;
+	--color-black-600: #002142;
+	--color-black-700: #00122c;
+	--color-black-800: #00091e;
+	--color-black-900: #000510;
 
-  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-body: Inter, ui-sans-serif, system-ui, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	--color-white-50: #f1f1f1;
+	--color-white-100: #dadada;
+	--color-white-200: #b7b7b7;
+	--color-white-300: #999999;
+	--color-white-400: #7e7e7e;
+	--color-white-500: #656565;
+	--color-white-600: #4d4d4d;
+	--color-white-700: #383838;
+	--color-white-800: #242424;
+	--color-white-900: #000000;
 
-  --transition-property-width: width;
-  --text-decoration-active: active;
-  --min-width-kanban: 28rem;
+	--font-sans:
+		Inter, ui-sans-serif, system-ui, -apple-system, system-ui, 'Segoe UI',
+		Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji',
+		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+	--font-body:
+		Inter, ui-sans-serif, system-ui, -apple-system, system-ui, 'Segoe UI',
+		Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji',
+		'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+	--font-mono:
+		ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+		'Courier New', monospace;
+
+	--transition-property-width: width;
+	--text-decoration-active: active;
+	--min-width-kanban: 28rem;
 }
 
 @variant dark (&:where(.dark, .dark *));
 
 [x-cloak] {
-  display: none !important;
+	display: none !important;
+}
+
+/* Global scrollbar style (EasyFiling-like) */
+* {
+	scrollbar-width: none;
+	scrollbar-color: rgba(156, 163, 175, 0.45) transparent;
+}
+
+*::-webkit-scrollbar {
+	width: 1px;
+	height: 1px;
+}
+
+*::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+	background-color: rgba(156, 163, 175, 0.35);
+	border-radius: 9999px;
+	border: 0 solid transparent;
+	background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(107, 114, 128, 0.55);
+}
+
+:where(.dark) * {
+	scrollbar-color: rgba(107, 114, 128, 0.4) transparent;
+}
+
+:where(.dark) *::-webkit-scrollbar-thumb {
+	background-color: rgba(107, 114, 128, 0.4);
+}
+
+:where(.dark) *::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(156, 163, 175, 0.55);
+}
+
+*::-webkit-scrollbar-button {
+	display: none;
+	width: 0;
+	height: 0;
+	-webkit-appearance: none;
+	appearance: none;
+	background: transparent;
+}
+
+*::-webkit-scrollbar-button:single-button,
+*::-webkit-scrollbar-button:double-button,
+*::-webkit-scrollbar-button:start,
+*::-webkit-scrollbar-button:end,
+*::-webkit-scrollbar-button:vertical:increment,
+*::-webkit-scrollbar-button:vertical:decrement,
+*::-webkit-scrollbar-button:horizontal:increment,
+*::-webkit-scrollbar-button:horizontal:decrement {
+	display: none;
+	width: 0;
+	height: 0;
+	-webkit-appearance: none;
+	appearance: none;
+	background: transparent;
 }
 
 @layer utilities {
-  .safelist-justify-evenly {
-    justify-items: stretch;
-  }
+	.safelist-justify-evenly {
+		justify-items: stretch;
+	}
 
-  /* Flowbite modal z-index fix - ensure backdrop is behind modal */
-  .fixed.inset-0.bg-gray-900\/50,
-  .fixed.inset-0.bg-gray-900\/80,
-  [data-modal-backdrop] {
-    z-index: 40 !important;
-  }
-
-  .fixed.top-4.right-0.left-0.z-50,
-  [data-flowbite-modal],
-  [role="dialog"] {
-    z-index: 50 !important;
-  }
 }
 
-/* intl-tel-input global theming */
+/* intl-tel-input global theming (official CSS variables) */
 .iti {
-  --iti-border-color: #d1d5db;
-  --iti-dropdown-bg: #f1f1f1;
-  --iti-hover-color: rgba(0, 0, 0, 0.05);
-  --iti-dialcode-bg: #f9fafb;
-  --iti-path-globe-1x: url('https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/img/globe_light.webp');
-  --iti-path-globe-2x: url('https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/img/globe_light@2x.webp');
-  width: 100%;
+	--iti-border-color: var(--border);
+	--iti-hover-color: var(--hover);
+	--iti-country-selector-bg: var(--card);
+	--iti-path-globe-1x: url('https://cdn.jsdelivr.net/npm/intl-tel-input@29.1.1/dist/img/globe_light.webp');
+	--iti-path-globe-2x: url('https://cdn.jsdelivr.net/npm/intl-tel-input@29.1.1/dist/img/globe_light@2x.webp');
+	width: 100%;
 }
 
+:where(.dark) .iti {
+	--iti-icon-color: #9ca3af;
+	--iti-path-globe-1x: url('https://cdn.jsdelivr.net/npm/intl-tel-input@29.1.1/dist/img/globe_dark.webp');
+	--iti-path-globe-2x: url('https://cdn.jsdelivr.net/npm/intl-tel-input@29.1.1/dist/img/globe_dark@2x.webp');
+}
+
+/* Dropdown list */
 .iti .iti__country-list,
 .iti--container .iti__country-list {
-  background: var(--iti-dropdown-bg);
-  color: inherit;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+	background: var(--popover);
+	color: var(--foreground);
+	border: 1px solid var(--border);
+	font-size: 0.875rem;
+	line-height: 1.25rem;
 }
 
-.iti .iti__country,
-.iti--container .iti__country {
-  background: transparent;
+.iti__search-input {
+	background-color: var(--popover) !important;
+	color: var(--foreground) !important;
 }
 
 .iti .iti__country.iti__highlight,
 .iti--container .iti__country.iti__highlight,
 .iti .iti__country:hover,
 .iti--container .iti__country:hover {
-  background-color: var(--iti-hover-color) !important;
-  color: inherit !important;
-}
-
-.iti--container {
-  --iti-dropdown-bg: #e5e5e5;
-  --iti-hover-color: rgba(0, 0, 0, 0.05);
-}
-
-:where(.dark) .iti {
-  --iti-border-color: #4b5563;
-  --iti-dropdown-bg: #00122c;
-  --iti-hover-color: rgba(255, 255, 255, 0.06);
-  --iti-icon-color: #9ca3af;
-  --iti-dialcode-bg: #101521;
-  --iti-path-globe-1x: url('https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/img/globe_dark.webp');
-  --iti-path-globe-2x: url('https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/25.3.1/img/globe_dark@2x.webp');
-}
-
-:where(.dark) .iti--container {
-  --iti-dropdown-bg: #0b1c35;
-  --iti-hover-color: rgba(255, 255, 255, 0.06);
-}
-
-:where(.dark) .iti__country-list {
-  border: 1px solid #4b5563;
-}
-
-:where(.dark) .iti__search-input {
-  background-color: #0b1c35;
-  color: #fff;
+	background-color: var(--hover) !important;
 }
 
 :where(.dark) .iti__country-name,
 :where(.dark) .iti__dial-code,
 :where(.dark) .iti__selected-dial-code {
-  color: #e5e7eb;
+	color: var(--foreground);
 }
 
-.iti__selected-country {
-  background-color: transparent;
-}
-
-.iti--separate-dial-code .iti__selected-country {
-  background-color: var(--iti-dialcode-bg);
-}
-
-.iti--separate-dial-code .iti__selected-country-primary {
-  background-color: var(--iti-dialcode-bg);
-}
-
-:where(.dark) .iti--separate-dial-code .iti__selected-country {
-  border-right: 1px solid #374151;
-}
-
-.iti__selected-country:hover {
-  background-color: var(--iti-hover-color);
-}
-
-:where(.dark) .iti__country.iti__highlight {
-  background-color: var(--iti-hover-color);
-  color: #e5e7eb;
-}
-
-:where(.dark) .iti--container .iti__country.iti__highlight {
-  background-color: var(--iti-hover-color) !important;
-  color: #e5e7eb !important;
+/* Country selector: round left corners to match input */
+.iti .iti__selected-country-primary {
+	border-radius: 0.5rem 0 0 0.5rem;
 }
 
 .iti,
 .iti input.iti__tel-input,
 .iti .iti__selected-country-primary,
 .iti .iti__selected-dial-code {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 400;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	font-weight: 400;
 }
 
 .iti .iti__selected-dial-code {
-  color: currentColor;
+	color: currentColor;
 }
 
 .iti--separate-dial-code .iti__selected-dial-code {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 400;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	font-weight: 400;
 }
 
 :where(.dark) .iti__search-input:focus {
-  border-color: #60a5fa;
-  outline: none;
-  box-shadow: 0 0 0 1px #60a5fa;
+	border-color: #60a5fa;
+	outline: none;
+	box-shadow: 0 0 0 1px #60a5fa;
 }
 
 /* Prevent browser autofill from breaking phone input theme */
@@ -212,143 +222,497 @@
 .iti-input:-webkit-autofill:hover,
 .iti-input:-webkit-autofill:focus,
 .iti-input:-webkit-autofill:active {
-  -webkit-text-fill-color: #111827;
-  caret-color: #111827;
-  -webkit-box-shadow: 0 0 0 1000px #f9fafb inset;
-  transition: background-color 9999s ease-in-out 0s;
+	-webkit-text-fill-color: #111827;
+	caret-color: #111827;
+	-webkit-box-shadow: 0 0 0 1000px #f9fafb inset;
+	transition: background-color 9999s ease-in-out 0s;
 }
 
 :where(.dark) .iti-input:-webkit-autofill,
 :where(.dark) .iti-input:-webkit-autofill:hover,
 :where(.dark) .iti-input:-webkit-autofill:focus,
 :where(.dark) .iti-input:-webkit-autofill:active {
-  -webkit-text-fill-color: #ffffff;
-  caret-color: #ffffff;
-  -webkit-box-shadow: 0 0 0 1000px #101521 inset;
+	-webkit-text-fill-color: #ffffff;
+	caret-color: #ffffff;
+	-webkit-box-shadow: 0 0 0 1000px #101521 inset;
 }
 
 @theme inline {
-  --font-heading: var(--font-sans);
-  --font-sans: 'Geist Variable', sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+	--font-heading: var(--font-sans);
+	--font-sans: 'Geist Variable', sans-serif;
+	--color-sidebar-ring: var(--sidebar-ring);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar: var(--sidebar);
+	--color-chart-5: var(--chart-5);
+	--color-chart-4: var(--chart-4);
+	--color-chart-3: var(--chart-3);
+	--color-chart-2: var(--chart-2);
+	--color-chart-1: var(--chart-1);
+	--color-ring: var(--ring);
+	--color-input: var(--input);
+	--color-border: var(--border);
+	--color-hover: var(--hover);
+	--color-accent-gold: var(--accent-gold);
+	--color-accent-gold-foreground: var(--accent-gold-foreground);
+	--color-success: var(--success);
+	--color-success-foreground: var(--success-foreground);
+	--color-destructive: var(--destructive);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-accent: var(--accent);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-muted: var(--muted);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-secondary: var(--secondary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary: var(--primary);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-popover: var(--popover);
+	--color-card-foreground: var(--card-foreground);
+	--color-card: var(--card);
+	--color-foreground: var(--foreground);
+	--color-background: var(--background);
+	--radius-sm: calc(var(--radius) * 0.6);
+	--radius-md: calc(var(--radius) * 0.8);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) * 1.4);
+	--radius-2xl: calc(var(--radius) * 1.8);
+	--radius-3xl: calc(var(--radius) * 2.2);
+	--radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * ── Design Tokens (Semantic) ──────────────────────────────────
+ * Paleta corporativa Sotomayor Consulting:
+ *   Azul marino (#003e6c → black-500)  ·  Dorado (#b98d33 → primary-gold)
+ *
+ * Regla: en componentes usar SOLO tokens semánticos
+ *   bg-background, bg-card, text-foreground, text-muted-foreground,
+ *   border-border, bg-accent-gold, etc.
+ * Nunca bg-white/text-black/border-gray-200 directos.
+ * ──────────────────────────────────────────────────────────────
+ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+	/* Surfaces */
+	--background: #ffffff;
+	--foreground: #111827;
+	--card: #ffffff;
+	--card-foreground: #111827;
+	--popover: #ffffff;
+	--popover-foreground: #111827;
+
+	/* Brand */
+	--primary: #003e6c;
+	--primary-foreground: #f9fafb;
+	--accent-gold: #b98d33;
+	--accent-gold-foreground: #ffffff;
+
+	/* Neutrals */
+	--secondary: #f3f4f6;
+	--secondary-foreground: #111827;
+	--muted: #f3f4f6;
+	--muted-foreground: #6b7280;
+	--accent: #f3f4f6;
+	--accent-foreground: #111827;
+
+	/* Feedback */
+	--destructive: oklch(0.577 0.245 27.325);
+	--success: #059669;
+	--success-foreground: #ffffff;
+
+	/* Interactive */
+	--hover: rgba(0, 0, 0, 0.04);
+
+	/* Borders & inputs */
+	--border: #e5e7eb;
+	--input: #e5e7eb;
+	--ring: #9ca3af;
+
+	/* Charts */
+	--chart-1: #003e6c;
+	--chart-2: #b98d33;
+	--chart-3: #26537a;
+	--chart-4: #6b7280;
+	--chart-5: #d1d5db;
+
+	--radius: 0.625rem;
+
+	/* Sidebar */
+	--sidebar: #fafafa;
+	--sidebar-foreground: #111827;
+	--sidebar-primary: #003e6c;
+	--sidebar-primary-foreground: #f9fafb;
+	--sidebar-accent: #f3f4f6;
+	--sidebar-accent-foreground: #111827;
+	--sidebar-border: #e5e7eb;
+	--sidebar-ring: #9ca3af;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+	/* Surfaces */
+	--background: #000000;
+	--foreground: #f9fafb;
+	--card: #0a0a0a;
+	--card-foreground: #f9fafb;
+	--popover: #0a0a0a;
+	--popover-foreground: #f9fafb;
+
+	/* Brand */
+	--primary: #60a5fa;
+	--primary-foreground: #0c1929;
+	--accent-gold: #d4a84b;
+	--accent-gold-foreground: #1a1207;
+
+	/* Neutrals */
+	--secondary: #1f2937;
+	--secondary-foreground: #f9fafb;
+	--muted: #1f2937;
+	--muted-foreground: #9ca3af;
+	--accent: #1f2937;
+	--accent-foreground: #f9fafb;
+
+	/* Feedback */
+	--destructive: oklch(0.704 0.191 22.216);
+	--success: #34d399;
+	--success-foreground: #064e3b;
+
+	/* Interactive */
+	--hover: rgba(255, 255, 255, 0.05);
+
+	/* Borders & inputs */
+	--border: #1f2937;
+	--input: rgba(255, 255, 255, 0.15);
+	--ring: #6b7280;
+
+	/* Charts */
+	--chart-1: #60a5fa;
+	--chart-2: #d4a84b;
+	--chart-3: #93c5fd;
+	--chart-4: #9ca3af;
+	--chart-5: #4b5563;
+
+	/* Sidebar */
+	--sidebar: #111827;
+	--sidebar-foreground: #f9fafb;
+	--sidebar-primary: oklch(0.488 0.243 264.376);
+	--sidebar-primary-foreground: #f9fafb;
+	--sidebar-accent: #1f2937;
+	--sidebar-accent-foreground: #f9fafb;
+	--sidebar-border: rgba(255, 255, 255, 0.1);
+	--sidebar-ring: #6b7280;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
+	* {
+		@apply border-border outline-ring/50;
+	}
 
-  body {
-    @apply bg-background text-foreground;
-  }
+	body {
+		@apply bg-background text-foreground;
+	}
 
-  html {
-    @apply font-sans;
-  }
+	html {
+		@apply font-sans;
+	}
+
+	input:-webkit-autofill,
+	input:-webkit-autofill:hover,
+	input:-webkit-autofill:focus,
+	select:-webkit-autofill,
+	textarea:-webkit-autofill {
+		-webkit-text-fill-color: var(--foreground);
+		-webkit-box-shadow: 0 0 0 1000px var(--background) inset;
+		transition: background-color 5000s ease-in-out 0s;
+	}
+
+	:where(.dark) input:-webkit-autofill,
+	:where(.dark) input:-webkit-autofill:hover,
+	:where(.dark) input:-webkit-autofill:focus,
+	:where(.dark) select:-webkit-autofill,
+	:where(.dark) textarea:-webkit-autofill {
+		-webkit-text-fill-color: #f1f5f9;
+		-webkit-box-shadow: 0 0 0 1000px #1a1a1a inset;
+	}
+}
+
+/* ── Flat/Open Layout — Typography & Card System ────────────
+   Estandariza el patrón: títulos fuera de cards, datos dentro.
+   Inspirado en Vercel, Linear, Shadcn dashboards.
+   ──────────────────────────────────────────────────────────── */
+@layer components {
+	.section-title {
+		@apply text-foreground text-lg font-semibold;
+	}
+
+	.section-description {
+		@apply text-muted-foreground mt-1 text-sm;
+	}
+
+	.section-header {
+		@apply mb-4;
+	}
+
+	.flat-card {
+		@apply border-border rounded-lg border;
+	}
+
+	.flat-card-padded {
+		@apply border-border rounded-lg border p-4;
+	}
+
+	.flat-list {
+		@apply divide-border border-border divide-y rounded-lg border;
+	}
+
+	.kicker {
+		@apply text-muted-foreground text-[11px] font-semibold tracking-wider uppercase;
+	}
+
+	.stat-value {
+		@apply text-foreground text-2xl font-bold;
+	}
+
+	.stat-label {
+		@apply text-muted-foreground text-xs;
+	}
+
+	.badge-status {
+		@apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+	}
+
+	.btn-primary {
+		@apply bg-foreground text-background inline-flex cursor-pointer items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition hover:opacity-80;
+	}
+
+	.btn-outline {
+		@apply border-border text-foreground hover:bg-hover inline-flex cursor-pointer items-center justify-center rounded-lg border bg-transparent px-4 py-2.5 text-sm font-medium transition;
+	}
+}
+
+/* ============================================================
+   Client Form (Incorporation) — Design tokens
+   Scoped a `.client-form-shell` para no afectar el resto de la app.
+   Aplica el sistema visual del handoff:
+     · Geist + Geist Mono
+     · Paleta cálida (#FAFAF9, #EAE8E4)
+     · Acento verde calibrado (oklch 0.58 / 0.13 / 155)
+   ============================================================ */
+.client-form-shell {
+	/* Surfaces — warm neutrals */
+	--cf-bg-page: #fafaf9;
+	--cf-bg-card: #ffffff;
+	--cf-bg-subtle: #f5f5f4;
+	--cf-bg-rail: #fbfaf8;
+	--cf-bg-hover: #f5f5f4;
+
+	/* Lines */
+	--cf-line: #eae8e4;
+	--cf-line-soft: #f1efeb;
+	--cf-line-strong: #d6d3d1;
+
+	/* Text */
+	--cf-ink: #0c0a09;
+	--cf-ink-mute: #57534e;
+	--cf-ink-soft: #8b867f;
+	--cf-ink-faint: #b8b3ab;
+
+	/* Accent — emerald (alineado con success tokens del dashboard) */
+	--cf-accent: #059669;
+	--cf-accent-soft: #ecfdf5;
+	--cf-accent-border: #a7f3d0;
+	--cf-accent-ink: #064e3b;
+
+	/* Status */
+	--cf-danger: #b91c1c;
+	--cf-danger-soft: #fef2f2;
+	--cf-danger-border: #fecaca;
+	--cf-warn: #92400e;
+	--cf-warn-soft: #fef7e6;
+
+	/* Radii */
+	--cf-r1: 6px;
+	--cf-r2: 10px;
+	--cf-r3: 14px;
+
+	/* Shadows */
+	--cf-shadow: 0 1px 0 rgba(15, 15, 15, 0.02), 0 1px 2px rgba(15, 15, 15, 0.04);
+	--cf-shadow-lg:
+		0 1px 0 rgba(15, 15, 15, 0.02), 0 8px 24px rgba(15, 15, 15, 0.06);
+	--cf-shadow-cta:
+		0 1px 0 rgba(0, 0, 0, 0.05), 0 4px 12px oklch(0.58 0.13 155 / 0.25);
+	--cf-shadow-active-card:
+		0 1px 0 rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.04);
+
+	/* Fonts — Inter como estándar formal/corporativo para formularios */
+	--cf-font-sans:
+		'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
+		sans-serif;
+	--cf-font-mono: var(--cf-font-sans);
+
+	/* Aplicamos a la raíz del shell para que herede */
+	font-family: var(--cf-font-sans);
+	color: var(--cf-ink);
+	background: var(--cf-bg-page);
+}
+
+/* Dark mode counterpart — sigue el toggle global `.dark`.
+   Paleta alineada con el dashboard: negro puro + grises neutros + dorado. */
+.dark .client-form-shell {
+	--cf-bg-page: #000000;
+	--cf-bg-card: #111111;
+	--cf-bg-subtle: #1a1a1a;
+	--cf-bg-rail: #0a0a0a;
+	--cf-bg-hover: #1a1a1a;
+
+	--cf-line: #2a2a2a;
+	--cf-line-soft: #1f1f1f;
+	--cf-line-strong: #3f3f3f;
+
+	--cf-ink: #ffffff;
+	--cf-ink-mute: #a1a1aa;
+	--cf-ink-soft: #71717a;
+	--cf-ink-faint: #52525b;
+
+	/* Acento — emerald (alineado con bg-success-soft / fg-success-strong del dashboard) */
+	--cf-accent: #059669;
+	--cf-accent-soft: rgba(5, 150, 105, 0.15);
+	--cf-accent-border: rgba(5, 150, 105, 0.35);
+	--cf-accent-ink: #6ee7b7;
+
+	/* Errores — fondo oscuro con rojo legible */
+	--cf-danger: #fca5a5;
+	--cf-danger-soft: rgba(220, 38, 38, 0.18);
+	--cf-danger-border: rgba(248, 113, 113, 0.35);
+	--cf-warn: #fbbf24;
+	--cf-warn-soft: rgba(217, 119, 6, 0.15);
+}
+
+/* Utilidades font-family que pueden aplicarse con clases tailwind.
+   Se usa la fuente sans (Geist) para un look formal/corporativo:
+   los kickers y labels conservan tracking/uppercase pero sin monospace. */
+.client-form-shell .cf-mono {
+	font-family: var(--cf-font-sans);
+	font-feature-settings: 'tnum' 1;
+}
+
+/* ── Scroll minimalista del panel del formulario ──────────────
+   Barra delgada, sin flechas, con padding interno (scrollbar-gutter)
+   para que el contenido no salte al aparecer/desaparecer la barra.
+   El thumb es sutil y se intensifica al hacer hover. */
+.client-form-shell .cf-scroll {
+	scrollbar-gutter: stable;
+	scrollbar-width: thin; /* Firefox */
+	scrollbar-color: var(--cf-line-strong) transparent; /* Firefox */
+}
+.client-form-shell .cf-scroll::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+.client-form-shell .cf-scroll::-webkit-scrollbar-track {
+	background: transparent;
+}
+.client-form-shell .cf-scroll::-webkit-scrollbar-thumb {
+	background-color: var(--cf-line-strong);
+	border-radius: 9999px;
+	border: 3px solid transparent; /* crea el “padding” alrededor del thumb */
+	background-clip: padding-box;
+	transition: background-color 0.2s ease;
+}
+.client-form-shell .cf-scroll::-webkit-scrollbar-thumb:hover {
+	background-color: var(--cf-ink-faint);
+}
+.client-form-shell .cf-scroll::-webkit-scrollbar-thumb:active {
+	background-color: var(--cf-ink-soft);
+}
+
+/* ── Start wizard: transición suave entre pasos ────────────────────
+   Usa la View Transitions API nativa (document.startViewTransition).
+   Crossfade minimalista con un lift vertical mínimo (sin slide lateral):
+   el contenido nuevo se disuelve y asienta, y el contenedor (group) morfa
+   su alto con un easing suave para que no salte entre pasos.
+
+   Durante una transición de paso el JS marca <html data-step-dir="…">;
+   ahí excluimos el root para que SOLO anime el contenido del paso y el
+   resto de la página (botón, dots, marca) no haga ghosting. No afecta a
+   las transiciones de navegación de Astro (que no marcan ese atributo). */
+html[data-step-dir] {
+	view-transition-name: none;
+}
+
+html[data-step-dir]::view-transition-group(start-step) {
+	animation-duration: 0.42s;
+	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html[data-step-dir]::view-transition-old(start-step),
+html[data-step-dir]::view-transition-new(start-step) {
+	animation-duration: 0.42s;
+	animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+	animation-fill-mode: both;
+}
+
+html[data-step-dir]::view-transition-old(start-step) {
+	animation-name: start-step-fade-out;
+}
+html[data-step-dir]::view-transition-new(start-step) {
+	animation-name: start-step-fade-in;
+}
+
+@keyframes start-step-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+@keyframes start-step-fade-out {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(-6px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-group(start-step),
+	::view-transition-old(start-step),
+	::view-transition-new(start-step) {
+		animation: none;
+	}
+}
+
+/* ─── <dialog> nativo ─── */
+/* Bloquea el scroll del fondo mientras un dialog modal esté abierto */
+body:has(dialog[open]) {
+	overflow: hidden;
+}
+
+/* Drawer lateral derecho: replica el slide de transition-transform */
+dialog.dialog-drawer-right {
+	translate: 100% 0;
+	transition:
+		translate 0.3s ease-out,
+		display 0.3s allow-discrete,
+		overlay 0.3s allow-discrete;
+}
+dialog.dialog-drawer-right[open] {
+	translate: 0 0;
+	@starting-style {
+		translate: 100% 0;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	dialog.dialog-drawer-right {
+		transition: none;
+	}
 }

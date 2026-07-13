@@ -1,0 +1,112 @@
+---
+import { getCompanyPageData } from './services/get-company-page-data';
+import CompanyPageHeader from './components/CompanyPageHeader.astro';
+import CompanyInfoSection from './islands/company-details/sections/CompanyInfoSection';
+import CompanyAddressesPanel from './islands/CompanyAddressesPanel';
+import CompanyMembersPanel from './islands/CompanyMembersPanel';
+import TabBar from '@components/navigation/TabBar.astro';
+import { canManageCompanyData } from '@shared/roles';
+
+interface Props {
+	companyId: string;
+}
+
+const UUID_RE =
+	/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const { companyId } = Astro.props as Props;
+const supabase = Astro.locals.supabase;
+const userRoles = Astro.locals.userRoles || [];
+const canEditDetails = canManageCompanyData(userRoles);
+
+const trimmedId = companyId?.trim() ?? '';
+const isValidId = UUID_RE.test(trimmedId);
+
+const fromRaw = Astro.url.searchParams.get('from') ?? '';
+const incorporationMatch = /^incorporation\/([0-9a-f-]{36})$/i.exec(fromRaw);
+const backHref = incorporationMatch
+	? `/incorporations/${incorporationMatch[1]}`
+	: null;
+const backLabel = backHref ? 'Volver a la incorporación' : null;
+
+const data = isValidId ? await getCompanyPageData(supabase, trimmedId) : null;
+const errorMessage = !isValidId
+	? 'ID de empresa inválido'
+	: !data
+		? 'No se encontró esta empresa'
+		: '';
+---
+
+{
+	errorMessage ? (
+		<div class="mx-5 mt-5">
+			<div class="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-sm">
+				{errorMessage}
+			</div>
+		</div>
+	) : data ? (
+		<div>
+			<CompanyPageHeader
+				company={data.company}
+				backHref={backHref}
+				backLabel={backLabel}
+			/>
+
+			<TabBar
+				buttons={[
+					{
+						label: 'Información',
+						icon: 'ri:file-edit-line',
+						active: true,
+						kind: 'panel',
+						id: 'informacion',
+					},
+					{
+						label: 'Direcciones',
+						icon: 'ri:map-pin-line',
+						active: false,
+						kind: 'panel',
+						id: 'direcciones',
+					},
+					{
+						label: 'Miembros',
+						icon: 'ri:group-line',
+						active: false,
+						kind: 'panel',
+						id: 'miembros',
+					},
+				]}
+			/>
+
+			<div class="mt-5">
+				<div data-tab-panel="informacion">
+					<CompanyInfoSection
+						client:load
+						company={data.company}
+						managementTypeHealth={data.managementTypeHealth}
+						actividades={data.actividades}
+						canEditDetails={canEditDetails}
+					/>
+				</div>
+
+				<div data-tab-panel="direcciones" hidden>
+					<CompanyAddressesPanel
+						client:load
+						addresses={data.addresses}
+						companyId={trimmedId}
+						canEditDetails={canEditDetails}
+					/>
+				</div>
+
+				<div data-tab-panel="miembros" hidden>
+					<CompanyMembersPanel
+						client:load
+						initialMembers={data.companyMembers}
+						companyId={trimmedId}
+						canEditDetails={canEditDetails}
+					/>
+				</div>
+			</div>
+		</div>
+	) : null
+}

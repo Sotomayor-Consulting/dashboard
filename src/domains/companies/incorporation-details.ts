@@ -1,0 +1,103 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { recordAuditEvent } from '@domains/audit/audit-events';
+import type { IncorporationRow } from './types/incorporations';
+
+export interface IncorporationDetailsInput {
+	principal_name?: string | null;
+	possible_names?: (string | null | undefined)[] | null;
+	tipo_de_negocio?: string | null;
+	state_id?: number | string | null;
+}
+
+type IncorporationDetailsRow = Pick<
+	IncorporationRow,
+	'id' | 'principal_name' | 'possible_names' | 'entity_type' | 'formation_state_id' | 'updated_at'
+>;
+
+const DETAILS_COLUMNS =
+	'id, principal_name, possible_names, entity_type, formation_state_id, updated_at';
+
+const cleanText = (value: unknown) => {
+	if (typeof value !== 'string') return null;
+	const trimmed = value.trim();
+	return trimmed ? trimmed : null;
+};
+
+const cleanNumber = (value: unknown) => {
+	if (typeof value === 'number' && Number.isInteger(value)) return value;
+	if (typeof value !== 'string' || value.trim() === '') return null;
+	const parsed = Number(value);
+	return Number.isInteger(parsed) ? parsed : null;
+};
+
+const hasOwn = (input: object, field: string) =>
+	Object.prototype.hasOwnProperty.call(input, field);
+
+export async function updateIncorporationDetails(
+	supabase: SupabaseClient,
+	incorporationId: string,
+	input: IncorporationDetailsInput,
+	actorUserId: string,
+) {
+	const { data: before, error: beforeError } = await supabase
+		.from('incorporations')
+		.select(DETAILS_COLUMNS)
+		.eq('id', incorporationId)
+		.maybeSingle<IncorporationDetailsRow>();
+
+	if (beforeError) throw beforeError;
+	if (!before) throw new Error('INCORPORATION_NOT_FOUND');
+
+	const payload = incorporationDetailsPayload(input);
+	if (!Object.keys(payload).length) {
+		throw new Error('NO_INCORPORATION_FIELDS_TO_UPDATE');
+	}
+
+	const { data: after, error } = await supabase
+		.from('incorporations')
+		.update({
+			...payload,
+			updated_at: new Date().toISOString(),
+		})
+		.eq('id', incorporationId)
+		.select(DETAILS_COLUMNS)
+		.single<IncorporationDetailsRow>();
+
+	if (error) throw error;
+
+	await recordAuditEvent({
+		entityType: 'incorporation',
+		entityId: incorporationId,
+		action: 'update',
+		changedBy: actorUserId,
+		beforeData: before,
+		afterData: after,
+	});
+
+	return after;
+}
+
+function incorporationDetailsPayload(input: IncorporationDetailsInput) {
+	const payload: Record<string, string | number | string[] | null> = {};
+
+	if (hasOwn(input, 'principal_name'))
+		payload.principal_name = cleanText(input.principal_name);
+	if (hasOwn(input, 'tipo_de_negocio'))
+		payload.entity_type = cleanText(input.tipo_de_negocio);
+
+	if (hasOwn(input, 'possible_names')) {
+		payload.possible_names = [
+			...new Set(
+				(input.possible_names ?? [])
+					.map((n) => (typeof n === 'string' ? n.trim() : ''))
+					.filter(Boolean),
+			),
+		];
+	}
+
+	if (hasOwn(input, 'state_id')) {
+		payload.formation_state_id = cleanNumber(input.state_id);
+	}
+
+	return payload;
+}

@@ -1,10 +1,5 @@
 ---
-import LayoutSidebar from '@app/layouts/LayoutSidebar.astro';
-import IncorporationList from '@modules/incorporations/Incorporations.astro';
-
-// Auth handled by middleware
+// La tabla de incorporaciones se migró a /admin/incorporaciones (rediseño).
+// Mantenemos /incorporations/[id] como vista de detalle del proceso.
+return Astro.redirect('/admin/incorporaciones', 301);
 ---
-
-<LayoutSidebar>
-	<IncorporationList />
-</LayoutSidebar>

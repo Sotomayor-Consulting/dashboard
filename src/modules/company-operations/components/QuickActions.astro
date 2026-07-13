@@ -1,0 +1,29 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const actions = [
+	{ icon: 'ri:play-circle-line', label: 'Nueva tarea' },
+	{ icon: 'ri:user-shared-line', label: 'Reasignar' },
+	{ icon: 'ri:error-warning-line', label: 'Reportar' },
+	{ icon: 'ri:calendar-event-line', label: 'Agendar' },
+];
+---
+
+<div>
+	<h4 class="mb-3 text-sm font-medium text-foreground">
+		Acciones Rápidas
+	</h4>
+	<div class="grid grid-cols-2 gap-2">
+		{
+			actions.map((a) => (
+				<button
+					type="button"
+					class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition hover:text-foreground hover:border-foreground/30"
+				>
+					<Icon name={a.icon} class="h-3.5 w-3.5" />
+					{a.label}
+				</button>
+			))
+		}
+	</div>
+</div>

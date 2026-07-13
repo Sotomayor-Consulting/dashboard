@@ -1,0 +1,161 @@
+---
+import { Icon } from 'astro-icon/components';
+
+export interface TabButton {
+	label: string;
+	icon: string;
+	active: boolean;
+	kind?: 'link' | 'panel';
+	link?: string;
+	id?: string;
+}
+
+interface Props {
+	buttons: TabButton[];
+	syncUrl?: boolean;
+}
+
+const { buttons, syncUrl = true } = Astro.props;
+const defaultPanelId = buttons.find((b) => b.kind === 'panel')?.id ?? '';
+---
+
+<div class="relative" data-tab-wrapper>
+	<nav
+		class="border-border scrollbar-thumb-border -mx-6 flex snap-x snap-mandatory scrollbar-thin scrollbar-track-transparent items-end gap-1 overflow-x-auto border-b px-6 pt-3 max-lg:scrollbar-none lg:snap-none"
+		data-tab-strip
+		data-default-panel={defaultPanelId}
+		data-sync-url={syncUrl ? '1' : '0'}
+		aria-label="Tabs"
+	>
+		{
+			buttons.map((b) => {
+				const kind = b.kind ?? 'link';
+				const baseClass =
+					'inline-flex snap-start cursor-pointer items-center gap-2 whitespace-nowrap border-b-[3px] px-3 pb-2 text-sm font-medium transition-colors -mb-px';
+				const activeClass = 'border-primary-gold text-primary-gold';
+				const inactiveClass =
+					'border-transparent text-muted-foreground hover:border-border hover:text-foreground';
+
+				return kind === 'link' ? (
+					<a
+						href={b.link}
+						data-astro-prefetch="load"
+						class:list={[baseClass, b.active ? activeClass : inactiveClass]}
+						aria-current={b.active ? 'page' : undefined}
+					>
+						<Icon name={b.icon} class="h-5 w-5" />
+						{b.label}
+					</a>
+				) : (
+					<button
+						type="button"
+						data-tab-btn={b.id}
+						class:list={[baseClass, b.active ? activeClass : inactiveClass]}
+						aria-current={b.active ? 'page' : undefined}
+					>
+						<Icon name={b.icon} class="h-5 w-5" />
+						{b.label}
+					</button>
+				);
+			})
+		}
+	</nav>
+	<div
+		class="pointer-events-none absolute top-0 right-0 bottom-0 w-10 bg-gradient-to-l from-white to-transparent transition-opacity lg:hidden dark:from-[var(--color-primary-black)]"
+		data-tab-fade
+		aria-hidden="true"
+	>
+	</div>
+</div>
+
+<script>
+	const ACTIVE_CLASSES = ['border-primary-gold', 'text-primary-gold'];
+	const INACTIVE_CLASSES = [
+		'border-transparent',
+		'text-muted-foreground',
+		'hover:border-border',
+		'hover:text-foreground',
+	];
+
+	function initTabFade() {
+		const strip = document.querySelector<HTMLElement>('[data-tab-strip]');
+		const fade = document.querySelector<HTMLElement>('[data-tab-fade]');
+		if (!strip || !fade) return;
+
+		function updateFade() {
+			const atEnd =
+				strip!.scrollLeft + strip!.clientWidth >= strip!.scrollWidth - 4;
+			fade!.style.opacity = atEnd ? '0' : '1';
+		}
+
+		strip.addEventListener('scroll', updateFade, { passive: true });
+		updateFade();
+
+		const active = strip.querySelector<HTMLElement>('[aria-current="page"]');
+		if (active) {
+			active.scrollIntoView({
+				inline: 'center',
+				block: 'nearest',
+				behavior: 'instant',
+			});
+			requestAnimationFrame(updateFade);
+		}
+	}
+
+	function initTabBar() {
+		const strip = document.querySelector<HTMLElement>('[data-tab-strip]');
+		if (!strip) return;
+
+		const buttons = strip.querySelectorAll<HTMLButtonElement>('[data-tab-btn]');
+		if (buttons.length === 0) return;
+
+		const panels = document.querySelectorAll<HTMLElement>('[data-tab-panel]');
+		const defaultPanel = strip.dataset['defaultPanel'] ?? '';
+		const syncUrl = strip.dataset['syncUrl'] !== '0';
+
+		function setTab(id: string) {
+			panels.forEach((p) => {
+				p.hidden = p.dataset['tabPanel'] !== id;
+			});
+			buttons.forEach((b) => {
+				const isActive = b.dataset['tabBtn'] === id;
+				if (isActive) {
+					b.classList.add(...ACTIVE_CLASSES);
+					b.classList.remove(...INACTIVE_CLASSES);
+					b.setAttribute('aria-current', 'page');
+				} else {
+					b.classList.remove(...ACTIVE_CLASSES);
+					b.classList.add(...INACTIVE_CLASSES);
+					b.removeAttribute('aria-current');
+				}
+			});
+
+			if (syncUrl) {
+				const url = new URL(window.location.href);
+				if (id === defaultPanel) url.searchParams.delete('tab');
+				else url.searchParams.set('tab', id);
+				window.history.replaceState({}, '', url.toString());
+			}
+
+			document.dispatchEvent(
+				new CustomEvent('tabbar:change', { detail: { id } }),
+			);
+		}
+
+		buttons.forEach((b) => {
+			if (b.dataset['tabBound']) return;
+			b.dataset['tabBound'] = '1';
+			b.addEventListener('click', () => {
+				const id = b.dataset['tabBtn'];
+				if (id) setTab(id);
+			});
+		});
+	}
+
+	initTabBar();
+	initTabFade();
+	document.addEventListener('astro:page-load', () => {
+		initTabBar();
+		initTabFade();
+	});
+</script>

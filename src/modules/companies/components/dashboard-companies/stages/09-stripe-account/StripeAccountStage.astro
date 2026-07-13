@@ -1,0 +1,14 @@
+---
+import StageShell from '../StageShell.astro';
+import { formatStageDate } from '../shared/format-date.ts';
+import type { StageProps } from '../types';
+
+const { stage } = Astro.props as StageProps;
+---
+
+<StageShell
+	stage={stage}
+	icon="ri:bank-card-line"
+	description="Configuramos y dejamos operativa tu cuenta Stripe empresarial."
+	formattedDate={formatStageDate(stage.dueAt)}
+/>

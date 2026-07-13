@@ -1,0 +1,44 @@
+{
+	"company_id": "",
+	"member_id": "",
+	"email": "",
+	"us_resident": false,
+	"first_name": "",
+	"last_name": "",
+	"name": "",
+	"person_type": "",
+	"identification_number": "",
+	"identification_type": "passport",
+	"marital_status": "",
+	"birth_date": null,
+	"incorporation_date": null,
+	"country_nationality": {
+		"id": "",
+		"name": ""
+	},
+	"country_residence": {
+		"id": "",
+		"name": ""
+	},
+	"country_id": null,
+	"ssn": "",
+	"itin": "",
+	"addresses": [
+		{
+			"type": "residential",
+			"line1": "",
+			"line2": null,
+			"city": null,
+			"state": {
+				"id": null,
+				"name": ""
+			},
+			"country": {
+				"id": null,
+				"name": ""
+			},
+			"zip": null,
+			"is_primary": true
+		}
+	]
+}

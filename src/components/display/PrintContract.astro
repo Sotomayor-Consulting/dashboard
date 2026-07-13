@@ -1,0 +1,105 @@
+---
+import { Icon } from 'astro-icon/components';
+import { getMissingPartnerFields } from '@domains/users/users';
+
+interface Props {
+	data: object | null | undefined;
+	templatePath?: string;
+	reportName?: string;
+	templateId?: string;
+}
+
+const supabase = Astro.locals.supabase;
+
+const { data, templatePath, reportName, templateId } = Astro.props;
+const btnId = `btn-imprimir-${Math.random().toString(36).slice(2, 9)}`;
+
+const user = Astro.locals.user;
+const userRoles = Astro.locals.userRoles || [];
+
+let perfilCompleto = false;
+
+const isPartner = userRoles.includes('partner');
+
+if (isPartner && user) {
+	const camposFaltantes = await getMissingPartnerFields(supabase, user.id);
+	perfilCompleto = camposFaltantes.length === 0;
+}
+---
+
+{
+	perfilCompleto ? (
+		<button
+			id={btnId}
+			class="bg-primary-gold hover:bg-primary-gold/80 me-2 inline-flex cursor-pointer items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-[#323f67]"
+		>
+			<Icon name="ri:download-2-fill" class="me-2" />
+			Descargar contrato
+		</button>
+	) : (
+		<button
+			id="boton-disabled"
+			class="dark:bg-black-400 dark:hover:bg-black-400/80 hover:bg-black-500 bg-black-600 me-2 inline-flex cursor-not-allowed items-center rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-[#323f67]"
+		>
+			<Icon name="ri:spam-2-fill" class="me-2" />
+			Completa los datos para descargar el contrato
+		</button>
+	)
+}
+
+<script
+	define:vars={{ data, templatePath, reportName, templateId }}
+	data-btn-id={btnId}
+	is:inline
+>
+	const currentScript = document.currentScript;
+	const injectedBtnId = currentScript?.getAttribute('data-btn-id');
+	const btn = injectedBtnId ? document.getElementById(injectedBtnId) : null;
+
+	btn?.addEventListener('click', async () => {
+		const originalText = btn.innerText;
+		btn.innerText = 'Generando contrato...';
+		btn.disabled = true;
+
+		const downloadName = `${reportName ?? 'documento'}.pdf`;
+
+		try {
+			let response;
+
+			if (templateId) {
+				response = await fetch(`../../api/templates/${templateId}/fill`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ fieldValues: data }),
+				});
+			} else {
+				response = await fetch('../../api/pdf/generate', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ data, templatePath, reportName }),
+				});
+			}
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				throw new Error(errorText || 'Error en la generación');
+			}
+
+			const blob = await response.blob();
+			const objectUrl = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = objectUrl;
+			a.download = downloadName;
+			document.body.appendChild(a);
+			a.click();
+			window.URL.revokeObjectURL(objectUrl);
+			a.remove();
+		} catch (error) {
+			console.error('Error en el frontend:', error);
+			alert('Hubo un error al generar el PDF. Revisa la consola.');
+		} finally {
+			btn.disabled = false;
+			btn.innerText = originalText;
+		}
+	});
+</script>

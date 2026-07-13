@@ -1,0 +1,23 @@
+---
+import ClientFormWizard from './islands/ClientFormWizard';
+import { getClientFormBootstrapData } from './services/get-client-form-data';
+
+interface Props {
+	empresaId: string;
+}
+
+const { empresaId } = Astro.props;
+const supabase = Astro.locals.supabase;
+
+const { activities, identity, estados, countries } =
+	await getClientFormBootstrapData(supabase, empresaId);
+---
+
+<ClientFormWizard
+	client:only="react"
+	activities={activities}
+	empresaId={empresaId}
+	identity={identity}
+	estados={estados}
+	countries={countries}
+/>

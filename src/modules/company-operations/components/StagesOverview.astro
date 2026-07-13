@@ -1,0 +1,103 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { Stage } from '../types';
+import {
+	stageIcon,
+	stageIconColor,
+	stageRingClass,
+	stageActiveRingClass,
+} from '../lib/style-helpers';
+
+interface Props {
+	stages: Stage[];
+	currentStageId?: string | null;
+}
+
+const { stages, currentStageId } = Astro.props;
+---
+
+<div>
+	<header class="mb-3">
+		<p
+			class="flex items-center gap-2 text-sm font-medium text-foreground"
+		>
+			<Icon
+				name="ri:function-line"
+				class="h-4 w-4 text-accent-gold"
+			/>
+			Vista General de Etapas
+		</p>
+	</header>
+	<div class="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-4">
+		{
+			stages.map((s) => {
+				const isActive = s.id === currentStageId;
+				const baseClass = stageRingClass(s.status);
+				const activeClass = stageActiveRingClass(s.status);
+				return (
+					<article
+						class={`cursor-pointer rounded-lg border p-2.5 transition hover:shadow-sm ${isActive ? activeClass : baseClass}`}
+						data-show-stage={s.id}
+						data-stage-status={s.status}
+						data-base-class={baseClass}
+						data-active-class={activeClass}
+						data-active={isActive ? 'true' : undefined}
+					>
+						<div class="flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
+							<Icon
+								name={stageIcon(s.status)}
+								class={`h-3.5 w-3.5 ${stageIconColor(s.status)}`}
+							/>
+							Etapa {s.order}
+							{s.tasks.length > 0 && (
+								<span class="ml-auto text-[10px]">
+									{s.tasks.filter((t) => t.status === 'completed').length}/{s.tasks.length}
+								</span>
+							)}
+						</div>
+						<p class="mt-1 text-sm font-semibold text-foreground">
+							{s.name}
+						</p>
+						<p class="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
+							<Icon name="ri:time-line" class="h-3 w-3" />
+							SLA: {s.slaHours}h
+						</p>
+					</article>
+				);
+			})
+		}
+	</div>
+</div>
+
+<script is:inline>
+	document.addEventListener('click', function (e) {
+		var card = e.target.closest('[data-show-stage]');
+		if (!card) return;
+		var stageId = card.dataset.showStage;
+		var canvas = document.getElementById('ops-stage-canvas');
+		if (!canvas) return;
+
+		var panels = canvas.querySelectorAll('[data-stage-panel]');
+		panels.forEach(function (p) {
+			p.hidden = p.dataset.stagePanel !== stageId;
+		});
+
+		var allCards = document.querySelectorAll('[data-show-stage]');
+		allCards.forEach(function (c) {
+			var base = c.dataset.baseClass;
+			var active = c.dataset.activeClass;
+			if (!base || !active) return;
+
+			var classes = 'cursor-pointer rounded-lg border p-2.5 transition hover:shadow-sm ';
+			if (c === card) {
+				c.className = classes + active;
+				c.dataset.active = 'true';
+			} else {
+				c.className = classes + base;
+				delete c.dataset.active;
+			}
+		});
+
+		canvas.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+	});
+</script>

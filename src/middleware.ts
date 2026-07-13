@@ -2,20 +2,23 @@
 // ─── Middleware de autenticación y autorización ─────────
 // Valida sesión via @supabase/ssr (getClaims) y aplica control de acceso por rol.
 
-import { createSupabaseServerClient } from '@lib/supabase';
-import { PATHS } from '@lib/auth';
-import type { RouteRoleConfig } from '@lib/roles';
-import { ROLES, extractRoleNames, hasAnyRole } from '@lib/roles';
-import type { UserRoleRow } from '@lib/roles';
+import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { PATHS } from '@infrastructure/auth';
+import type { RouteRoleConfig } from '@shared/roles';
+import {
+	ROLES,
+	ROLE_GROUPS,
+	extractRoleNames,
+	extractTokenRoleNames,
+	hasAnyRole,
+} from '@shared/roles';
+import type { UserRoleRow } from '@shared/roles';
 import type { User } from '@supabase/supabase-js';
-import { SECURITY_HEADERS } from '@lib/security/headers';
-
-// ─── CSRF: Métodos que modifican estado ─────────────────
-const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'DELETE', 'PATCH']);
 
 // ─── CSP: Content-Security-Policy ───────────────────────
 // Construido una sola vez al iniciar el server (las env vars no cambian en runtime).
-const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL ?? '';
+const SUPABASE_URL =
+	process.env.PUBLIC_SUPABASE_URL ?? import.meta.env.PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_HOST = SUPABASE_URL ? new URL(SUPABASE_URL).host : '';
 const SUPABASE_WSS = SUPABASE_HOST ? `wss://${SUPABASE_HOST}` : '';
 
@@ -26,17 +29,17 @@ const CSP_DIRECTIVES = [
 	"default-src 'self'",
 	// Scripts: 'unsafe-inline' necesario por ~35 <script is:inline> + define:vars en Astro
 	// 'unsafe-eval' necesario por Alpine.js (usa new Function() para evaluar x-data, x-show, @click, etc.)
-	`script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://buttons.github.io https://esm.sh https://accounts.google.com`,
-	// Estilos: 'unsafe-inline' necesario por <style> scoped/global de Astro + Flowbite
-	`style-src 'self' 'unsafe-inline' https://fonts.cdnfonts.com https://fonts.googleapis.com`,
+	`script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://challenges.cloudflare.com https://buttons.github.io https://esm.sh https://accounts.google.com https://static.zcal.co`,
+	// Estilos: 'unsafe-inline' necesario por <style> scoped/global de Astro
+	`style-src 'self' 'unsafe-inline' https://fonts.cdnfonts.com https://fonts.googleapis.com  https://accounts.google.com`,
 	// Fuentes
 	`font-src 'self' https://fonts.gstatic.com https://fonts.cdnfonts.com`,
 	// Conexiones: fetch/XHR/WebSocket
-	`connect-src 'self' ${SUPABASE_URL} ${SUPABASE_WSS} https://unpkg.com https://esm.sh https://api.stripe.com https://accounts.google.com`,
+	`connect-src 'self' ${SUPABASE_URL} ${SUPABASE_WSS} https://unpkg.com https://esm.sh https://api.stripe.com https://accounts.google.com https://zcal.co https://static.zcal.co https://api.iconify.design https://api.unisvg.com https://api.simplesvg.com`,
 	// Imágenes
-	`img-src 'self' data: blob: ${SUPABASE_URL} https://dashboard.sotomayorconsulting.com https://sotomayorconsulting.com https://i.imgur.com https://api.dicebear.com`,
+	`img-src 'self' data: blob: ${SUPABASE_URL} https://app.sotomayorconsulting.com https://sotomayorconsulting.com https://i.imgur.com https://api.dicebear.com`,
 	// Iframes (Stripe Elements crea iframes)
-	`frame-src 'self' https://js.stripe.com`,
+	`frame-src 'self' https://js.stripe.com https://accounts.google.com https://challenges.cloudflare.com https://zcal.co`,
 	// Bloquear object/embed (Flash, plugins legacy)
 	"object-src 'none'",
 	// Base URI: solo 'self' (previene <base> injection)
@@ -46,48 +49,6 @@ const CSP_DIRECTIVES = [
 	// Upgrade insecure requests solo en producción (en dev rompe http://localhost)
 	...(IS_PRODUCTION ? ['upgrade-insecure-requests'] : []),
 ].join('; ');
-
-
-/**
- * Validación de origen contra CSRF.
- * Compara el header Origin (o Referer como fallback) con el header Host.
- * Solo aplica a métodos que modifican estado (POST, PUT, DELETE, PATCH).
- * Retorna null si OK, o un Response 403 si el origen no coincide.
- */
-function checkCsrf(request: Request): Response | null {
-	if (!STATE_CHANGING_METHODS.has(request.method)) return null;
-
-	const host = request.headers.get('host');
-	if (!host) return null; // Sin host no podemos validar — defensive, no bloquear
-
-	// Intentar Origin primero, luego Referer como fallback
-	const origin = request.headers.get('origin');
-	const referer = request.headers.get('referer');
-
-	// Si no hay ni Origin ni Referer, el request podría ser legítimo
-	// (ej. server-to-server, herramientas de testing). Solo bloquear
-	// cuando hay un Origin/Referer que NO coincide.
-	const sourceUrl = origin || referer;
-	if (!sourceUrl) return null;
-
-	try {
-		const sourceHost = new URL(sourceUrl).host;
-		if (sourceHost !== host) {
-			return new Response(
-				JSON.stringify({ error: 'Origen no permitido' }),
-				{ status: 403, headers: SECURITY_HEADERS },
-			);
-		}
-	} catch {
-		// URL inválida en Origin/Referer → bloquear
-		return new Response(
-			JSON.stringify({ error: 'Origen no permitido' }),
-			{ status: 403, headers: SECURITY_HEADERS },
-		);
-	}
-
-	return null;
-}
 
 /**
  * Añade CSP y otros headers de seguridad a respuestas HTML.
@@ -107,7 +68,15 @@ function addSecurityHeaders(response: Response, pathname: string): Response {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('X-Frame-Options', 'DENY');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+	response.headers.set(
+		'Permissions-Policy',
+		'camera=(), microphone=(), geolocation=()',
+	);
+	// Permitir que la ventana principal pueda comunicarse con popups OAuth
+	response.headers.set(
+		'Cross-Origin-Opener-Policy',
+		'same-origin-allow-popups',
+	);
 
 	return response;
 }
@@ -121,11 +90,12 @@ const PUBLIC_ROUTES: readonly string[] = [
 	'/api',
 	'/_image',
 	'/start',
-	'/incorporacion-y-pago',
+	'/incorporation-and-payment',
 	'/test',
-	'/playground',
 	'/assets',
 	'/_image',
+	'/payment/success',
+	'/payment/cancel',
 ];
 
 /** Rutas de autenticación (redirigir al dash si ya está logueado) */
@@ -134,6 +104,15 @@ const AUTH_ROUTES: readonly string[] = [
 	'/sign-up',
 	'/forgot-password',
 ];
+
+// Evitar doble cliente Supabase en handlers de auth API que mutan cookies
+// (sign-in/sign-out). Esos handlers ya gestionan su propio ciclo de cookies.
+const AUTH_API_COOKIE_HANDLERS = new Set([
+	'/api/auth/confirm',
+	'/api/auth/register',
+	'/api/auth/sign-in',
+	'/api/auth/sign-out',
+]);
 
 // ─── Configuración de acceso por rol ────────────────────
 // Evaluadas en orden: la primera que coincida decide.
@@ -147,12 +126,17 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		errorMsg: 'Acceso no autorizado',
 	},
 	{
-		path: '/documentos/',
+		path: '/services/',
 		roles: [ROLES.PARTNER, ROLES.CLIENT],
 		errorMsg: 'Acceso no autorizado',
 	},
 	{
-		path: '/servicios/',
+		path: '/orders/',
+		roles: [ROLES.PARTNER, ROLES.CLIENT],
+		errorMsg: 'Acceso no autorizado',
+	},
+	{
+		path: '/consultations/',
 		roles: [ROLES.PARTNER, ROLES.CLIENT],
 		errorMsg: 'Acceso no autorizado',
 	},
@@ -169,19 +153,41 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 	},
 	// Single-rol — admin
 	{
+		path: '/incorporations/',
+		roles: ROLE_GROUPS.INCORPORATION_ROUTE,
+		errorMsg: 'Acceso solo para admins, gerencia y operaciones',
+	},
+	{
 		path: '/companies/',
+		roles: ROLE_GROUPS.INCORPORATION_ROUTE,
+		errorMsg: 'Acceso solo para admins, gerencia y operaciones',
+	},
+	{
+		path: '/users/',
 		roles: [ROLES.ADMIN],
 		errorMsg: 'Acceso solo para admins',
 	},
+	// Excepciones específicas: rutas /admin/* accesibles a operaciones.
+	// IMPORTANTE: deben ir ANTES de /admin/ para que el startsWith no las tape.
 	{
-		path: '/usuarios/',
-		roles: [ROLES.ADMIN],
-		errorMsg: 'Acceso solo para admins',
+		path: '/admin/usuarios',
+		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
+		errorMsg: 'Acceso solo para admins y operaciones',
 	},
 	{
-		path: '/formularios/',
-		roles: [ROLES.ADMIN],
-		errorMsg: 'Acceso solo para admins',
+		path: '/admin/incorporaciones',
+		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
+		errorMsg: 'Acceso solo para admins y operaciones',
+	},
+	{
+		path: '/admin/empresas',
+		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
+		errorMsg: 'Acceso solo para admins y operaciones',
+	},
+	{
+		path: '/admin/settings/feedback',
+		roles: [ROLES.ADMIN, ROLES.GERENCIA, ROLES.OPERACIONES],
+		errorMsg: 'Acceso solo para admins, gerencia y operaciones',
 	},
 	{
 		path: '/admin/',
@@ -200,51 +206,29 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		roles: [ROLES.PARTNER],
 		errorMsg: 'Acceso solo para partners',
 	},
-	{
-		path: '/afiliados/',
-		roles: [ROLES.PARTNER],
-		errorMsg: 'Acceso solo para partners',
-	},
 ];
 
 // ─── Middleware ──────────────────────────────────────────
 
-// Cache in-memory para roles de usuario (evita query a DB en cada request)
-const ROLES_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
-const rolesCache = new Map<string, { roles: string[]; expires: number }>();
-
-async function getUserRoles(
+// Los roles vienen como claim `user_roles` en el JWT, inyectados por el
+// Custom Access Token Hook de Supabase (ver supabase/sql/custom_access_token_hook.sql).
+// Fallback: query a la DB si el claim no existe (hook no activado o token previo).
+async function resolveUserRoles(
 	supabase: ReturnType<typeof createSupabaseServerClient>,
-	userId: string,
+	claims: Record<string, unknown>,
 ): Promise<string[]> {
-	const cached = rolesCache.get(userId);
-	if (cached && cached.expires > Date.now()) {
-		return cached.roles;
+	const fromClaim = claims['user_roles'];
+	if (Array.isArray(fromClaim)) {
+		return extractTokenRoleNames(claims);
 	}
 
-	const { data: usuarioData } = await supabase
+	const userId = claims['sub'] as string;
+	const { data } = await supabase
 		.from('user_roles')
 		.select('rol_id, roles (name)')
 		.eq('user_id', userId);
 
-	const roles = extractRoleNames(
-		(usuarioData as UserRoleRow[] | null) ?? null,
-	);
-
-	rolesCache.set(userId, {
-		roles,
-		expires: Date.now() + ROLES_CACHE_TTL_MS,
-	});
-
-	// Evitar memory leak: limpiar entradas expiradas periódicamente
-	if (rolesCache.size > 1000) {
-		const now = Date.now();
-		for (const [key, val] of rolesCache) {
-			if (val.expires <= now) rolesCache.delete(key);
-		}
-	}
-
-	return roles;
+	return extractRoleNames((data as UserRoleRow[] | null) ?? null);
 }
 
 export function onRequest(context: any, next: any) {
@@ -257,9 +241,9 @@ export function onRequest(context: any, next: any) {
 	);
 
 	return (async () => {
-		// 0) CSRF: Validar origen en métodos que modifican estado
-		const csrfResponse = checkCsrf(context.request);
-		if (csrfResponse) return csrfResponse;
+		if (AUTH_API_COOKIE_HANDLERS.has(pathname)) {
+			return next();
+		}
 
 		// 1) Crear cliente Supabase SSR (per-request)
 		const supabase = createSupabaseServerClient({
@@ -294,7 +278,7 @@ export function onRequest(context: any, next: any) {
 				is_anonymous: claims.is_anonymous ?? false,
 			} as User;
 
-			const userRoles = await getUserRoles(supabase, claims.sub);
+			const userRoles = await resolveUserRoles(supabase, claims);
 
 			context.locals.user = user;
 			context.locals.userRoles = userRoles;
@@ -309,6 +293,18 @@ export function onRequest(context: any, next: any) {
 			return addSecurityHeaders(response, pathname);
 		}
 
+		// 4.5) Invitados sin contraseña: la invitación crea sesión sin password
+		//      (flag must_set_password en user_metadata, seteado por
+		//      /api/users/invite y limpiado por AuthService.resetPassword).
+		//      Forzar /set-password hasta que la definan — evita que naveguen
+		//      la app en un estado desde el que no podrían volver a entrar.
+		if (
+			context.locals.user?.user_metadata?.['must_set_password'] === true &&
+			pathname !== PATHS.setPassword
+		) {
+			return redirect(PATHS.setPassword);
+		}
+
 		// 5) Auth routes: si ya está logueado, redirigir al dashboard
 		const isAuthRoute = AUTH_ROUTES.some((route) => pathname === route);
 		if (isAuthRoute) {
@@ -319,8 +315,17 @@ export function onRequest(context: any, next: any) {
 			return addSecurityHeaders(response, pathname);
 		}
 
-		// 6) Reset password: ruta pública especial (necesita token en URL)
-		if (pathname === PATHS.resetPassword) {
+		// 6) Reset / Set password: rutas especiales accesibles tras el
+		//    callback de invitación / recovery (requieren sesión recién creada).
+		if (
+			pathname === PATHS.resetPassword ||
+			pathname === PATHS.setPassword ||
+			pathname === PATHS.onboarding
+		) {
+			// Onboarding requires a session
+			if (pathname === PATHS.onboarding && !context.locals.user) {
+				return redirect(PATHS.signIn);
+			}
 			const response = await next();
 			return addSecurityHeaders(response, pathname);
 		}

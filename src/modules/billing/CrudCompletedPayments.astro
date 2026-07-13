@@ -1,0 +1,27 @@
+---
+import Alerta from '@components/feedback/Alert.astro';
+import { pagosRealizadosData } from '@domains/payments/unread';
+import { getOrdersForAdmin } from '@domains/payments/orders';
+import Tabs from '@modules/billing/islands/Tabs';
+import CrudPageHeader from '@components/ui/CrudPageHeader.astro';
+
+const supabase = Astro.locals.supabase;
+
+const [pagosRealizados, orders] = await Promise.all([
+	pagosRealizadosData(supabase),
+	getOrdersForAdmin(supabase),
+]);
+---
+
+<Alerta />
+<div class="space-y-4 p-4 lg:p-6">
+	<div class="overflow-hidden">
+		<CrudPageHeader
+			title="Gestiona los pagos y órdenes"
+			descripcion="Pagos y órdenes"
+			classAlt="px-4 pt-4"
+		/>
+
+		<Tabs data={pagosRealizados ?? []} orders={orders ?? []} client:load />
+	</div>
+</div>

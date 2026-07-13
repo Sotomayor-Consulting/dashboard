@@ -1,0 +1,294 @@
+---
+import { Icon } from 'astro-icon/components';
+
+import { IncorporacionesEmpresasBase } from '@domains/companies/incorporations';
+import { pagosRealizadosData } from '@domains/payments/unread';
+import { isAdmin } from '@shared/roles';
+
+const supabase = Astro.locals.supabase;
+const user = Astro.locals.user;
+const userRoles = Astro.locals.userRoles || [];
+const admin = isAdmin(userRoles);
+
+type IncorporacionRow = {
+	id: string;
+	state: string | null;
+	principal_name: string | null;
+	updated_at: string | null;
+	usuarios?: { nombre?: string | null; apellido?: string | null } | null;
+};
+
+type PagoRow = Awaited<ReturnType<typeof pagosRealizadosData>>[number];
+
+let incorporaciones: IncorporacionRow[] = [];
+let pagos: PagoRow[] = [];
+
+const [incResult, pagosResult] = await Promise.allSettled([
+	IncorporacionesEmpresasBase(supabase),
+	pagosRealizadosData(supabase),
+]);
+
+if (incResult.status === 'fulfilled') {
+	incorporaciones = (incResult.value ?? []) as unknown as IncorporacionRow[];
+}
+if (pagosResult.status === 'fulfilled') {
+	pagos = pagosResult.value ?? [];
+}
+
+const enCurso = incorporaciones.filter((i) => i.state === 'active').length;
+const pendientesPago = incorporaciones.filter(
+	(i) => i.state === 'draft',
+).length;
+const upgrades = incorporaciones.filter((i) => i.state === 'upgrade').length;
+const pagosSinRevisar = pagos.filter(
+	(p) => !p.visto_por_operaciones && p.status === 'succeeded',
+).length;
+
+const firstName =
+	user?.user_metadata?.name?.split(' ')?.[0] ||
+	user?.email?.split('@')?.[0] ||
+	'Equipo';
+
+const formatDate = (dateValue?: string | null) => {
+	if (!dateValue) return '';
+	return new Intl.DateTimeFormat('es', {
+		day: 'numeric',
+		month: 'short',
+		hour: '2-digit',
+		minute: '2-digit',
+	}).format(new Date(dateValue));
+};
+
+const formatAmount = (cents: number | null) =>
+	cents == null
+		? '—'
+		: new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: 'USD',
+			}).format(cents / 100);
+
+const stats: {
+	label: string;
+	value: string | number;
+	meta: string;
+	icon: string;
+	href?: string;
+}[] = [
+	{
+		label: 'Pagos sin revisar',
+		value: pagosSinRevisar,
+		meta: pagosSinRevisar > 0 ? 'Requieren tu atención' : 'Todo revisado',
+		icon: 'ri:bank-card-line',
+		...(admin ? { href: '/admin/payments/' } : {}),
+	},
+	{
+		label: 'En incorporación',
+		value: enCurso,
+		meta: 'Empresas con workflow activo',
+		icon: 'ri:loader-4-line',
+		href: '/admin/incorporaciones',
+	},
+	{
+		label: 'Pendientes de pago',
+		value: pendientesPago,
+		meta: 'Aún no inician el proceso',
+		icon: 'ri:time-line',
+		href: '/admin/incorporaciones',
+	},
+	{
+		label: 'Upgrades',
+		value: upgrades,
+		meta: 'Planes de diseño por ampliar',
+		icon: 'ri:arrow-up-circle-line',
+		href: '/admin/incorporaciones',
+	},
+];
+
+const quickActions = [
+	{
+		title: 'Incorporaciones',
+		description: 'Gestiona los procesos de constitución.',
+		href: '/admin/incorporaciones',
+		icon: 'ri:file-list-3-line',
+	},
+	{
+		title: 'Empresas',
+		description: 'Entidades legales constituidas.',
+		href: '/admin/empresas',
+		icon: 'ri:building-2-line',
+	},
+	{
+		title: 'Usuarios',
+		description: 'Cuentas y roles de clientes.',
+		href: '/admin/usuarios',
+		icon: 'ri:group-line',
+	},
+	...(admin
+		? [
+				{
+					title: 'Órdenes',
+					description: 'Verifica y gestiona los pagos.',
+					href: '/admin/payments/',
+					icon: 'ri:shopping-bag-4-line',
+				},
+			]
+		: [
+				{
+					title: 'Mi perfil',
+					description: 'Gestiona tu información personal.',
+					href: '/profile/general',
+					icon: 'ri:user-3-line',
+				},
+			]),
+];
+
+const recentPagos = pagos.slice(0, 6);
+---
+
+<section class="mx-auto w-full max-w-7xl px-2 py-8 sm:px-4 lg:px-6">
+	<header
+		class="flex flex-col gap-5 border-b border-border pb-8 lg:flex-row lg:items-end lg:justify-between"
+	>
+		<div class="min-w-0">
+			<p class="kicker mb-4 tracking-[0.38em]">Panel de operaciones</p>
+			<h1
+				class="text-4xl font-semibold tracking-normal text-foreground sm:text-5xl"
+			>
+				Hola, {firstName}
+			</h1>
+			<p class="mt-4 max-w-2xl text-base text-muted-foreground">
+				Estado actual de las incorporaciones y pagos de los clientes.
+			</p>
+		</div>
+
+		<a
+			href="/admin/incorporaciones"
+			class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-foreground px-5 py-3 text-sm font-semibold text-background shadow-sm transition hover:bg-foreground/90 focus:ring-4 focus:ring-ring focus:outline-none sm:w-auto"
+		>
+			<Icon name="ri:file-list-3-line" class="h-4 w-4" />
+			Ver incorporaciones
+		</a>
+	</header>
+
+	<div class="grid gap-4 py-10 sm:grid-cols-2 xl:grid-cols-4">
+		{
+			stats.map((stat) => {
+				const Tag = stat.href ? 'a' : 'article';
+				return (
+					<Tag
+						href={stat.href}
+						class="group relative block min-h-36 rounded-lg border border-border p-5 transition hover:border-accent-gold hover:shadow-sm"
+					>
+						<div class="flex items-start justify-between gap-4">
+							<p class="kicker tracking-[0.12em] sm:tracking-[0.28em]">
+								{stat.label}
+							</p>
+							<span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground">
+								<Icon name={stat.icon} class="h-4 w-4 text-accent-gold" />
+							</span>
+						</div>
+						<div class="mt-8">
+							<p class="stat-value text-3xl">{stat.value}</p>
+							<p class="stat-label mt-2 text-sm font-medium">{stat.meta}</p>
+						</div>
+					</Tag>
+				);
+			})
+		}
+	</div>
+
+	<div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.9fr)]">
+		<section>
+			<div class="mb-4 flex items-center justify-between gap-4">
+				<h2 class="section-title">Accesos rápidos</h2>
+			</div>
+
+			<div class="grid gap-4 md:grid-cols-2">
+				{
+					quickActions.map((action) => (
+						<a
+							href={action.href}
+							class="group flex min-h-28 items-start gap-4 rounded-lg border border-border p-5 transition hover:-translate-y-0.5 hover:border-accent-gold/50 hover:shadow-sm focus:ring-4 focus:ring-ring focus:outline-none"
+						>
+							<span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg">
+								<Icon name={action.icon} class="h-5 w-5 text-accent-gold" />
+							</span>
+							<span class="min-w-0 flex-1">
+								<span class="block font-semibold text-foreground">
+									{action.title}
+								</span>
+								<span class="mt-1 block text-sm leading-5 text-muted-foreground">
+									{action.description}
+								</span>
+							</span>
+							<Icon
+								name="ri:arrow-right-up-line"
+								class="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:text-foreground"
+							/>
+						</a>
+					))
+				}
+			</div>
+		</section>
+
+		<aside>
+			<div class="mb-4 flex items-center justify-between gap-4">
+				<h2 class="section-title">Últimos pagos</h2>
+				{
+					pagosSinRevisar > 0 && (
+						<span class="badge-status bg-amber-100 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">
+							<span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-amber-500" />
+							{pagosSinRevisar} nuevo{pagosSinRevisar === 1 ? '' : 's'}
+						</span>
+					)
+				}
+			</div>
+
+			<div class="divide-y divide-border">
+				{
+					recentPagos.length > 0 ? (
+						recentPagos.map((pago) => {
+							const cliente = [pago.usuarios?.nombre, pago.usuarios?.apellido]
+								.filter(Boolean)
+								.join(' ');
+							const isNew =
+								!pago.visto_por_operaciones && pago.status === 'succeeded';
+							return (
+								<div class="flex items-start gap-3 py-4">
+									<span
+										class={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${
+											isNew
+												? 'border-amber-200 bg-amber-50 text-amber-600 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-300'
+												: 'border-border bg-card text-muted-foreground'
+										}`}
+									>
+										<Icon name="ri:money-dollar-circle-line" class="h-4 w-4" />
+									</span>
+									<span class="min-w-0 flex-1">
+										<span class="block text-sm font-semibold text-foreground">
+											{formatAmount(pago.amount)} ·{' '}
+											{pago.incorporations?.principal_name ?? 'Sin empresa'}
+										</span>
+										<span class="mt-1 block text-sm text-muted-foreground">
+											{cliente || 'Cliente'} · {pago.servicios?.nombre ?? ''} ·{' '}
+											{formatDate(pago.created_at)}
+										</span>
+									</span>
+									{isNew && (
+										<span class="badge-status shrink-0 bg-amber-100 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">
+											Nuevo
+										</span>
+									)}
+								</div>
+							);
+						})
+					) : (
+						<div class="rounded-lg border border-dashed border-border p-6 text-sm text-muted-foreground">
+							Los pagos de los clientes aparecerán aquí.
+						</div>
+					)
+				}
+			</div>
+		</aside>
+	</div>
+</section>

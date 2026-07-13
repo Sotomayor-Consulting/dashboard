@@ -1,0 +1,172 @@
+---
+import { Icon } from 'astro-icon/components';
+import { listDocumentEvents, resolveDocumentActor } from '@domains/documents';
+import { getDocumentsForIncorporationCase } from '@domains/documents/document_dashboard';
+
+interface Props {
+	incorporationCaseId: string | undefined;
+	documentId: string | undefined;
+	backPath: string;
+}
+
+const { incorporationCaseId, documentId, backPath } = Astro.props;
+const supabase = Astro.locals.supabase;
+const user = Astro.locals.user;
+const userId = user?.id;
+const userRoles = Astro.locals.userRoles || [];
+
+let errorMessage = '';
+let document: any = null;
+let events: any[] = [];
+
+if (!userId) {
+	errorMessage = 'No autenticado';
+} else if (!incorporationCaseId) {
+	errorMessage = 'ID de caso no disponible';
+} else {
+	const documents = await getDocumentsForIncorporationCase(
+		supabase,
+		incorporationCaseId,
+		userId,
+		userRoles,
+	);
+
+	document = documents.find((item) => item.id === documentId);
+
+	if (!document) {
+		errorMessage = 'Documento no encontrado';
+	} else {
+		const actor = await resolveDocumentActor(supabase, userRoles);
+		const eventsResult = await listDocumentEvents(actor, documentId!).catch(
+			() => [],
+		);
+		events = Array.isArray(eventsResult) ? (eventsResult as any[]) : [];
+	}
+}
+---
+
+<div class="px-4 pt-4">
+	{
+		errorMessage ? (
+			<div class="rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-600 dark:border-gray-700 dark:text-gray-300">
+				{errorMessage}
+			</div>
+		) : (
+			<>
+				<div class="mb-4">
+					<a
+						href={backPath}
+						class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
+					>
+						<Icon name="ri:arrow-left-line" class="text-base" />
+						Volver a documentos
+					</a>
+				</div>
+
+				<div class="flat-card-padded p-5">
+					<div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+						<div>
+							<h1 class="text-xl font-semibold text-foreground">
+								{document.file_title ?? document.file_name}
+							</h1>
+							<p class="mt-1 text-sm text-gray-500 dark:text-gray-300">
+								{document.document_type?.name ?? 'Documento'}
+							</p>
+						</div>
+						<button
+							type="button"
+							class="btn-doc-download inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50 dark:border-gray-700 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10"
+							data-document-id={document.id}
+						>
+							<Icon name="ri:download-2-line" class="text-base" />
+							Descargar
+						</button>
+					</div>
+
+					<div class="grid gap-3 md:grid-cols-2">
+						<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+							<p class="text-xs text-gray-500 dark:text-gray-400">Estado</p>
+							<p class="text-sm font-semibold text-gray-900 dark:text-white">
+								{document.status}
+							</p>
+						</div>
+						<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+							<p class="text-xs text-gray-500 dark:text-gray-400">
+								Visibilidad
+							</p>
+							<p class="text-sm font-semibold text-gray-900 dark:text-white">
+								{document.visibility === 'client_visible'
+									? 'Visible cliente'
+									: 'Interno'}
+							</p>
+						</div>
+						<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+							<p class="text-xs text-gray-500 dark:text-gray-400">
+								Fecha de carga
+							</p>
+							<p class="text-sm font-semibold text-gray-900 dark:text-white">
+								{document.uploaded_at ?? '—'}
+							</p>
+						</div>
+						<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+							<p class="text-xs text-gray-500 dark:text-gray-400">Tamaño</p>
+							<p class="text-sm font-semibold text-gray-900 dark:text-white">
+								{document.file_size_bytes ?? '—'} bytes
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="mt-4 rounded-lg border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-[#28314c]">
+					<h2 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">
+						Historial
+					</h2>
+					{events.length === 0 ? (
+						<p class="text-sm text-gray-500 dark:text-gray-300">Sin eventos.</p>
+					) : (
+						<ul class="space-y-2">
+							{events.map((eventItem) => (
+								<li class="rounded-lg border border-gray-200 p-3 text-sm dark:border-gray-700">
+									<p class="font-medium text-gray-900 dark:text-white">
+										{eventItem.event_type}
+									</p>
+									<p class="text-xs text-gray-500 dark:text-gray-400">
+										{eventItem.created_at} · {eventItem.actor_role}
+									</p>
+								</li>
+							))}
+						</ul>
+					)}
+				</div>
+			</>
+		)
+	}
+</div>
+
+<script is:inline>
+	document.addEventListener('click', async (e) => {
+		const target = e.target;
+		if (!(target instanceof HTMLElement)) return;
+
+		const downloadBtn = target.closest('.btn-doc-download');
+		if (!downloadBtn) return;
+
+		const documentId = downloadBtn.dataset.documentId;
+		if (!documentId) return;
+
+		try {
+			const res = await fetch('/api/documents/signed-url', {
+				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ documentId }),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data?.error || 'Error');
+			window.open(data.signedUrl, '_blank');
+		} catch (error) {
+			console.error('Error al descargar documento:', error);
+			alert('No se pudo descargar el documento');
+		}
+	});
+</script>

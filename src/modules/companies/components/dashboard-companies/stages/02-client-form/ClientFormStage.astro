@@ -1,0 +1,72 @@
+---
+import { Icon } from 'astro-icon/components';
+import StageShell from '../StageShell.astro';
+import { formatStageDate } from '../shared/format-date.ts';
+import type { StageProps } from '../types';
+import { getIncorporationForm } from '@domains/workflow/incorporation-forms';
+
+const { stage, empresaId } = Astro.props as StageProps;
+const supabase = Astro.locals.supabase;
+
+const form = await getIncorporationForm(supabase, empresaId);
+const formStatus = form?.status ?? null;
+
+const isSubmitted = formStatus === 'submitted' || formStatus === 'in_review';
+const isValidated = formStatus === 'validated' || formStatus === 'promoted';
+const isRejected = formStatus === 'rejected';
+const canFill = stage.status !== 'completed' && !isSubmitted && !isValidated;
+
+const description = isSubmitted
+	? 'Tu formulario fue enviado y está siendo revisado por nuestro equipo.'
+	: isValidated
+		? 'Los datos del formulario fueron validados exitosamente.'
+		: isRejected
+			? 'Tu formulario requiere correcciones. Revisa los comentarios y reenvíalo.'
+			: 'Completa el formulario inicial con los datos de tu empresa y responsables.';
+
+const displayStage = { ...stage };
+if (isSubmitted) displayStage.status = 'waiting' as any;
+if (isValidated) displayStage.status = 'completed';
+---
+
+<StageShell
+	stage={displayStage}
+	icon="ri:file-list-3-line"
+	description={description}
+	formattedDate={formatStageDate(stage.dueAt)}
+>
+	{isSubmitted && (
+		<div
+			slot="actions"
+			class="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/50 px-3 py-2 text-xs text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-amber-300"
+		>
+			<Icon name="ri:time-line" class="h-4 w-4" />
+			<span class="font-medium">En revisión por operaciones</span>
+		</div>
+	)}
+	{isRejected && form?.rejection_reason && (
+		<div
+			class="mt-2 flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50/50 px-3 py-2.5 dark:border-red-500/20 dark:bg-red-500/5"
+		>
+			<Icon name="ri:error-warning-line" class="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+			<div class="min-w-0 text-sm text-red-700 dark:text-red-300">
+				<span class="font-medium">Motivo:</span> {form.rejection_reason}
+			</div>
+		</div>
+	)}
+	{canFill && (
+		<a
+			slot="actions"
+			href={`/my-companies/${empresaId}/form`}
+			data-astro-reload
+			class="group/btn inline-flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+		>
+			<Icon
+				name={isRejected ? 'ri:edit-line' : 'ri:file-edit-line'}
+				class="h-4 w-4 text-primary"
+			/>
+			{isRejected ? 'Corregir formulario' : 'Llenar formulario'}
+			<Icon name="ri:arrow-right-line" class="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover/btn:translate-x-0.5" />
+		</a>
+	)}
+</StageShell>

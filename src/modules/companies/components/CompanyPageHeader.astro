@@ -1,0 +1,123 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { CompanyItem } from '../types';
+
+interface Props {
+	company: CompanyItem;
+	backHref: string | null;
+	backLabel: string | null;
+}
+
+const { company, backHref, backLabel } = Astro.props;
+
+const ENTITY_CLASS: Record<string, string> = {
+	llc: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300',
+	'c-corp':
+		'bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300',
+	lp: 'bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300',
+};
+
+const STATUS_CLASS: Record<
+	string,
+	{ label: string; cls: string; dot: string }
+> = {
+	active: {
+		label: 'Activa',
+		cls: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400',
+		dot: 'bg-emerald-500',
+	},
+	draft: {
+		label: 'Borrador',
+		cls: 'bg-muted text-muted-foreground',
+		dot: 'bg-muted-foreground',
+	},
+	pending: {
+		label: 'Pendiente',
+		cls: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
+		dot: 'bg-amber-500',
+	},
+	pending_validation: {
+		label: 'Pendiente validación',
+		cls: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
+		dot: 'bg-amber-500',
+	},
+	suspended: {
+		label: 'Suspendida',
+		cls: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
+		dot: 'bg-amber-500',
+	},
+	inactive: {
+		label: 'Inactiva',
+		cls: 'bg-muted text-muted-foreground',
+		dot: 'bg-muted-foreground',
+	},
+	dissolved: {
+		label: 'Disuelta',
+		cls: 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400',
+		dot: 'bg-red-500',
+	},
+};
+
+const entityType = (company.entity_type ?? '').toLowerCase();
+const legalStatus = (company.legal_status ?? 'draft').toLowerCase();
+const entityCls =
+	ENTITY_CLASS[entityType] ??
+	'bg-muted text-muted-foreground';
+const status =
+	STATUS_CLASS[legalStatus] ?? STATUS_CLASS['draft']!;
+---
+
+<header class="flex flex-col gap-3 border-b border-border px-6 pt-6 pb-5">
+	{
+		backHref && backLabel && (
+			<a
+				href={backHref}
+				class="inline-flex w-fit items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+			>
+				<Icon name="ri:arrow-left-line" class="h-4 w-4" />
+				{backLabel}
+			</a>
+		)
+	}
+
+	<div class="flex items-end justify-between gap-4">
+		<div class="min-w-0">
+			<p class="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+				Empresa
+			</p>
+			<h1 class="mt-1 truncate text-2xl font-semibold tracking-tight text-foreground">
+				{company.legal_name ?? 'Sin nombre'}
+			</h1>
+			<div class="mt-2 flex flex-wrap items-center gap-1.5">
+				<span
+					class:list={[
+						'inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[10.5px] font-medium',
+						status.cls,
+					]}
+				>
+					<span class:list={['h-1.5 w-1.5 rounded-full', status.dot]} />
+					{status.label}
+				</span>
+				{
+					entityType && (
+						<span
+							class:list={[
+								'inline-flex items-center rounded-md px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide',
+								entityCls,
+							]}
+						>
+							{entityType.toUpperCase()}
+						</span>
+					)
+				}
+				{
+					company.identification_number && (
+						<span class="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[10.5px] font-medium text-muted-foreground">
+							EIN {company.identification_number}
+						</span>
+					)
+				}
+			</div>
+		</div>
+	</div>
+</header>

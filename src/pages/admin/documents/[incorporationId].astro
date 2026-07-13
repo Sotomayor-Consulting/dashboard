@@ -1,0 +1,15 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import Alerta from '@components/feedback/Alert.astro';
+import CompanyDocumentsDashboard from '@modules/documents/CompanyDocumentsDashboard.astro';
+
+const { incorporationId } = Astro.params;
+if (!incorporationId) {
+	return Astro.redirect('/admin/?status=error&msg=Caso%20invalido');
+}
+---
+
+<LayoutSidebar>
+	<Alerta />
+	<CompanyDocumentsDashboard incorporationCaseId={incorporationId} />
+</LayoutSidebar>

@@ -1,0 +1,23 @@
+---
+import WhatsappBtn from '@components/display/WhatsappBtn.astro';
+import StartWizard from './islands/StartWizard.tsx';
+import { getUsStates } from '@modules/companies/services/get-us-states';
+import { readIncorporationDraftCookie } from '@shared/incorporation-draft';
+import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
+
+const supabase = Astro.locals.supabase;
+const states = await getUsStates(supabase);
+const initialDraft = readIncorporationDraftCookie(Astro.cookies);
+const user = Astro.locals.user;
+---
+
+<WhatsappBtn />
+
+<StartWizard
+	states={states}
+	initialDraft={initialDraft}
+	isAuthenticated={Boolean(user)}
+	userEmail={user?.email}
+	turnstileSiteKey={PUBLIC_TURNSTILE_SITE_KEY}
+	client:load
+/>

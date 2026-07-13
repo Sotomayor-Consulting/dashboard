@@ -1,0 +1,45 @@
+{
+	"user": {
+		"id": null,
+		"first_name": "",
+		"last_name": "",
+		"email": "",
+		"phone": ""
+	},
+	"incoporation": {
+		"posible_names": [],
+		"formation_state_id": null,
+		"state": "active"
+	},
+	"company": {
+		"user_id": null,
+		"incoporation_id": null,
+		"legal_name": "",
+		"entity_type": "llc",
+		"management_type": "member-managed",
+		"legal_status": "draft",
+		"identification_number": null,
+		"filing_number": null,
+		"formation_state_id": null,
+		"formation_country_id": null,
+		"tax_clasification": null,
+		"activity_code_id": null,
+		"activity_description": null,
+		"us_source_income": false,
+		"joint_ownership": false,
+		"incorporation_date": null,
+		"irs_email": null,
+		"addresses": [
+			{
+				"type": "legal",
+				"line1": "",
+				"line2": null,
+				"city": "",
+				"county": null,
+				"state_id": null,
+				"country_id": null,
+				"zip": null
+			}
+		]
+	}
+}

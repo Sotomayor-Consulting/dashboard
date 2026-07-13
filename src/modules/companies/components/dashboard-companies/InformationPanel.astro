@@ -1,0 +1,188 @@
+---
+import { Icon } from 'astro-icon/components';
+import { getStateInfo } from './state-info/states-data';
+import StateQuickStats from './state-info/StateQuickStats.astro';
+import StateBenefits from './state-info/StateBenefits.astro';
+import StateTaxInfo from './state-info/StateTaxInfo.astro';
+import StateLegalDetails from './state-info/StateLegalDetails.astro';
+import StateOfficialLink from './state-info/StateOfficialLink.astro';
+import StatePlate from './state-info/StatePlate.astro';
+
+interface Props {
+	empresa: {
+		principal_name: string;
+		tipo_de_negocio: string | null;
+		estado_de_incorporacion: string;
+		created_at?: string | null;
+		ein?: string | null;
+		numero_ein?: string | null;
+		ein_number?: string | null;
+		file_number?: string | null;
+		registered_agent?: string | null;
+		domicilio_fiscal?: string | null;
+		ano_fiscal?: string | null;
+	};
+	estadoMapa: string;
+}
+
+const { empresa, estadoMapa } = Astro.props;
+
+const stateInfo = getStateInfo(empresa.estado_de_incorporacion);
+
+const rawEin = empresa.ein ?? empresa.numero_ein ?? empresa.ein_number ?? null;
+const maskedEin = (() => {
+	if (!rawEin) return null;
+	const digits = rawEin.replace(/\D/g, '');
+	if (digits.length >= 4)
+		return `${digits.slice(0, 2)}-${digits.slice(2, 4)}*****`;
+	return `${rawEin.slice(0, 2)}***`;
+})();
+
+const fechaConstitucion = empresa.created_at
+	? new Intl.DateTimeFormat('es-ES', {
+			day: 'numeric',
+			month: 'short',
+			year: 'numeric',
+		}).format(new Date(empresa.created_at))
+	: '—';
+
+const tipoEntidadFull =
+	empresa.tipo_de_negocio === 'LLC'
+		? 'Limited Liability Company'
+		: empresa.tipo_de_negocio || '—';
+
+const rows = [
+	{ label: 'Razón social', value: empresa.principal_name, mono: false },
+	{ label: 'Tipo de entidad', value: tipoEntidadFull, mono: false },
+	{
+		label: 'Estado',
+		value: `${empresa.estado_de_incorporacion}, USA`,
+		mono: false,
+	},
+	{ label: 'EIN', value: maskedEin ?? '—', mono: true, copyable: true },
+	{
+		label: 'File Number',
+		value: empresa.file_number ?? '—',
+		mono: true,
+		copyable: !!empresa.file_number,
+	},
+	{ label: 'Fecha de constitución', value: fechaConstitucion, mono: false },
+	{
+		label: 'Año fiscal',
+		value: empresa.ano_fiscal ?? 'Enero – Diciembre',
+		mono: false,
+	},
+	{
+		label: 'Agente registrado',
+		value: empresa.registered_agent ?? 'Sotomayor Registered Agent Inc.',
+		mono: false,
+	},
+	{
+		label: 'Domicilio fiscal',
+		value: empresa.domicilio_fiscal ?? '1209 N Orange St, Wilmington, DE',
+		mono: false,
+	},
+];
+---
+
+<div class="my-4 grid w-full grid-cols-1 gap-6 xl:grid-cols-2">
+	<!-- Datos fiscales y de registro -->
+	<div>
+		<h3 class="text-lg font-semibold text-foreground">
+			Información de la empresa
+		</h3>
+		<p class="mt-1 mb-4 text-sm text-muted-foreground">
+			Datos fiscales y de registro de la empresa.
+		</p>
+
+		<div class="rounded-lg border border-border">
+			<dl class="divide-y divide-border">
+				{
+					rows.map((row) => (
+						<div class="flex items-center justify-between gap-4 px-4 py-3">
+							<dt class="text-sm text-muted-foreground">{row.label}</dt>
+							<dd class="flex items-center gap-2 text-right text-sm font-semibold text-foreground">
+								<span class={row.mono ? 'font-mono' : ''}>
+									{row.value}
+								</span>
+								{row.copyable && (
+									<button
+										type="button"
+										title={`Copiar ${row.label}`}
+										class="inline-flex h-5 w-5 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+									>
+										<Icon
+											name="ri:file-copy-line"
+											class="h-3.5 w-3.5"
+										/>
+									</button>
+								)}
+							</dd>
+						</div>
+					))
+				}
+			</dl>
+		</div>
+
+		<button
+			type="button"
+			class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+		>
+			<Icon name="ri:download-line" class="h-4 w-4" />
+			Descargar Certificate of Formation
+		</button>
+	</div>
+
+	<!-- Estado de incorporación -->
+	<div>
+		<h3 class="text-lg font-semibold text-foreground">
+			Estado de incorporación · {empresa.estado_de_incorporacion}
+		</h3>
+		<p class="mt-1 mb-4 text-sm text-muted-foreground">
+			Jurisdicción donde se está incorporando tu empresa.
+		</p>
+
+		<div class="rounded-lg border border-border">
+			<div class="p-4">
+				<div
+					class="grid gap-6 md:grid-cols-2 md:gap-8 md:divide-x md:divide-border"
+				>
+					<div class="space-y-3 md:pr-2">
+						{stateInfo && <StateBenefits state={stateInfo} />}
+					</div>
+
+					<div class="flex items-center justify-center md:pl-2">
+						{
+							stateInfo ? (
+								<div class="w-full max-w-85">
+									<StatePlate
+										state={stateInfo}
+										estadoMapa={estadoMapa ?? ''}
+									/>
+								</div>
+							) : (
+								<div
+									id="datamap-container"
+									class="flex h-full w-full items-center justify-center"
+									data-estado-mapa={estadoMapa ?? ''}
+								/>
+							)
+						}
+					</div>
+				</div>
+			</div>
+			{
+				stateInfo && (
+					<>
+						<StateQuickStats state={stateInfo} />
+						<div class="grid gap-6 p-4 sm:grid-cols-2">
+							<StateTaxInfo state={stateInfo} />
+							<StateLegalDetails state={stateInfo} />
+						</div>
+						<StateOfficialLink state={stateInfo} />
+					</>
+				)
+			}
+		</div>
+	</div>
+</div>

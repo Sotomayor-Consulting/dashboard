@@ -1,0 +1,72 @@
+{
+	"_meta": {
+		"phase": "F2 — Identidad",
+		"description": "Crear usuario en auth.users (Admin API), perfil en usuarios, y asignar rol cliente en user_roles.",
+		"n8n_flow": "1) HTTP POST /auth/v1/admin/users → capturar uuid → 2) INSERT usuarios → 3) INSERT user_roles",
+		"idempotency": "UPSERT por email (lower+trim). Si el user ya existe, capturar su uuid y actualizar usuarios.",
+		"dedup_key": "lower(trim(email))"
+	},
+	"auth_users": {
+		"_meta": {
+			"endpoint": "POST {{SUPABASE_URL}}/auth/v1/admin/users",
+			"headers": {
+				"Authorization": "Bearer {{SERVICE_ROLE_KEY}}",
+				"apikey": "{{SERVICE_ROLE_KEY}}"
+			},
+			"note": "email_confirm: true evita email de verificación. Sin password → el usuario hará magic-link o invite después."
+		},
+		"body": {
+			"email": "",
+			"email_confirm": true,
+			"user_metadata": {
+				"first_name": "",
+				"last_name": ""
+			}
+		},
+		"response_capture": "$.id → user_uuid"
+	},
+	"usuarios": {
+		"_meta": {
+			"target_table": "public.usuarios",
+			"required_on_insert": ["user_id"],
+			"fk_resolve": "user_id = user_uuid capturado del paso anterior"
+		},
+		"user_id": "{{user_uuid}}",
+		"nombre": "",
+		"apellido": "",
+		"correo": "",
+		"pais_id": null,
+		"ciudad": null,
+		"direccion_linea1": null,
+		"direccion_linea2": null,
+		"codigo_postal": null,
+		"telf": null,
+		"fecha_nacimiento": null,
+		"tipo_identificacion": null,
+		"numero_de_identificacion": null,
+		"tipo_persona": null,
+		"odoo_partner_id": null,
+		"referido_por": null
+	},
+	"user_roles": {
+		"_meta": {
+			"target_table": "public.user_roles",
+			"required_on_insert": ["user_id", "rol_id"],
+			"fk_resolve": "user_id = user_uuid"
+		},
+		"user_id": "{{user_uuid}}",
+		"rol_id": "709d20aa-9725-43cd-9880-ed86aaed22db"
+	},
+	"_enums": {
+		"roles": {
+			"admin": "0c1b668c-867d-4de1-a23b-9db60bd64327",
+			"partner": "ad5a9dcb-d713-4a2c-9e48-7f37b5e3a1f4",
+			"cliente": "709d20aa-9725-43cd-9880-ed86aaed22db",
+			"operaciones": "3feac6f2-a164-4201-9011-6bd311cb2428",
+			"operations": "ebdad351-a654-4cb6-837d-97b1c76a743d",
+			"client": "a8707773-b224-4ec5-8bd4-1ef3f5c15944",
+			"incorporator": "1cc6a347-a545-4c14-995d-f613db59e116",
+			"mailing": "e5e69930-4db8-4c2e-b863-1a3b63b1dd21"
+		}
+	}
+}

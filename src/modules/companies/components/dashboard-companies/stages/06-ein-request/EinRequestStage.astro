@@ -1,0 +1,14 @@
+---
+import StageShell from '../StageShell.astro';
+import { formatStageDate } from '../shared/format-date.ts';
+import type { StageProps } from '../types';
+
+const { stage } = Astro.props as StageProps;
+---
+
+<StageShell
+	stage={stage}
+	icon="ri:profile-line"
+	description="Gestionamos la solicitud del EIN de tu empresa ante el IRS."
+	formattedDate={formatStageDate(stage.dueAt)}
+/>

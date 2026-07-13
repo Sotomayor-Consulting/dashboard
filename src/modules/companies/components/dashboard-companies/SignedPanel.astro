@@ -1,0 +1,73 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+	porfirmar: {
+		nombre: string;
+		storage_path: string;
+		id: string;
+	}[];
+}
+
+const { porfirmar } = Astro.props;
+---
+
+<div>
+	<div class="section-header">
+		<h3 class="section-title">Documentos pendientes a firmar</h3>
+		<p class="section-description">
+			Descarga, firma electrónicamente y sube de nuevo cada documento.
+		</p>
+	</div>
+
+	{
+		porfirmar && porfirmar.length > 0 ? (
+			<div class="flat-list">
+				{porfirmar.map((f) => (
+					<div class="p-4">
+						<div class="flex items-center gap-3">
+							<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
+								<Icon name="ri:quill-pen-line" class="h-4 w-4" />
+							</div>
+							<div class="min-w-0 flex-1">
+								<p
+									class="truncate text-sm font-semibold text-foreground"
+									title={f.nombre}
+								>
+									{f.nombre}
+								</p>
+								<span class="badge-status mt-1 bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+									Pendiente a firmar
+								</span>
+							</div>
+							<div class="flex shrink-0 items-center gap-1.5">
+								<button
+									type="button"
+									class="btn-ver-documento-table inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-muted"
+									data-path={f.storage_path}
+									title="Descargar documento"
+								>
+									<Icon name="ri:download-line" class="h-4 w-4" />
+								</button>
+								<button
+									type="button"
+									id={`btn-${f.id}`}
+									data-file-id={f.id}
+									data-dialog-show="popup-modal"
+									class="btn-upload-firmado inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
+									title="Subir documento firmado"
+								>
+									<Icon name="ri:upload-2-line" class="h-4 w-4" />
+								</button>
+							</div>
+						</div>
+					</div>
+				))}
+			</div>
+		) : (
+			<div class="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+				No hay documentos pendientes por firmar aún.
+			</div>
+		)
+	}
+</div>

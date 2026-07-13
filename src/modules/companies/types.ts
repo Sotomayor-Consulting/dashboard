@@ -1,32 +1,5 @@
-// ── Enums / unions ──────────────────────────────────────────────
-export type TaxClasification = 'disregarded_entity' | 'corporation';
-export type Managmentype = 'member-managed' | 'manager-managed';
-export type EntityLLC = 'llc';
-export type LegalStatus = 'active' | 'inactive' | 'suspended' | 'pending' | 'dissolved';
-
-// ── companies table (legacy) ────────────────────────────────────
-export interface Company {
-	id: string;
-	legal_name: string | null;
-	identification_number: string | null;
-	entity_type: string;
-	formation_state_id: number;
-	formation_country_id: number;
-	tax_clasification: TaxClasification;
-	management_type: Managmentype;
-	activity_code_id: number;
-	activity_description: string;
-	activity_service: string;
-	us_source_income: boolean;
-	joint_ownership: boolean;
-	incorporation_date: string | null;
-	irs_email: string;
-	legal_status: string;
-	created_at: string | null;
-	created_by: string;
-	updated_at: string | null;
-	updated_by: string;
-}
+import type { CompanyEntityType, CompanyManagementType, CompanyLegalStatus, CompanyTaxClassification } from "@domains/companies/types/company";
+import type { CompanyAddressType } from "@domains/companies/types/company-address";
 
 export interface Country {
 	id: number;
@@ -35,35 +8,32 @@ export interface Country {
 	phone_code: string;
 }
 
-export type CompanyTableRow = Omit<Company, 'formation_country_id' | 'tax_clasification'> & {
-	formation_country: string;
-	tax_clasification: string;
-};
-
-// ── empresas_incorporaciones (CRUD list row) ────────────────────
+// ── incorporations (CRUD list row) ────────────────────
 export interface CompanyCrudRow {
-	empresa_incorporacion_id: string;
-	nombre_1: string;
-	tipo_de_negocio: string | null;
+	id: string;
+	principal_name: string;
+	entity_type: string | null;
 	porcentaje_de_incorporacion: number | null;
-	estado_de_incorporacion: string | null;
 	estado: string | null;
 	updated_at: string | null;
 	created_by_name: string;
 }
 
-// ── Detail view types (empresas_incorporaciones + relations) ────
+// ── Detail view types (incorporations + relations) ────
 export interface EmpresaDetail {
-	empresa_incorporacion_id: string;
+	id: string;
+	company_id: string | null;
 	user_id: string;
-	nombre_1: string | null;
-	nombre_2: string | null;
-	nombre_3: string | null;
+	principal_name: string | null;
+	possible_names: string[] | null;
 	tipo_de_negocio: string | null;
 	estado_de_incorporacion: string | null;
 	estado: string | null;
 	porcentaje_de_incorporacion: number | null;
 	actividad: string | null;
+	activity_id: number | null;
+	descripcion_empresa: string | null;
+	activity_description: string | null;
 	forma_tributacion: string | null;
 	forma_administracion: string | null;
 	Obtendra_ingresos_desde_eeuu: boolean | null;
@@ -80,7 +50,12 @@ export interface EmpresaDetail {
 	manager_sci: boolean | null;
 	manager_es_miembro: boolean | null;
 	updated_at: string | null;
-	usuarios?: { nombre: string | null; apellido: string | null; correo: string | null }[];
+	usuarios?: {
+		nombre: string | null;
+		apellido: string | null;
+		correo: string | null;
+	}[];
+	state_id: number;
 }
 
 export interface SocioItem {
@@ -100,41 +75,155 @@ export interface SocioItem {
 	roles: string[] | null;
 }
 
-export interface ManagerItem {
+export interface CompanyMemberAddressItem {
+	id: number;
+	company_member_id: number;
+	type: 'tax' | 'residence' | 'mailing' | 'other';
+	line1: string;
+	line2: string | null;
+	city: string | null;
+	state_id: number | null;
+	state: string | null;
+	country_id: number | null;
+	zip: string | null;
+	is_primary: boolean;
+	deleted_at: string | null;
+}
+
+export interface CompanyAddressItem {
+	id: number;
+	company_id: string | null;
+	type: CompanyAddressType;
+	line1: string;
+	line2: string | null;
+	city: string;
+	county: string | null;
+	zip: string | null;
+	country_id: number;
+	state_id: number | null;
+	country?: string | null;
+	state?: string | null;
+}
+
+// ── members (master data) ───────────────────────────────────────
+export type MemberPersonType = 'individual' | 'entity';
+
+export type MemberIdentificationType =
+	'passport' | 'drivers_license' | 'id' | 'ein';
+
+export type MemberMaritalStatus =
+	| 'single'
+	| 'married'
+	| 'widowed'
+	| 'divorced'
+	| 'legally_separated'
+	| 'civil_union'
+	| 'annulled';
+
+export interface MemberItem {
 	id: string;
-	empresa_incorporacion_id: string;
-	Nombres_manager: string | null;
-	Correo_electronico_manager: string | null;
-	Pais_de_nacionalidad_manager: string | null;
-	residente_fiscal_en_EE_UU_manager: boolean | null;
-	manager_misma_direccion_empresa: boolean | null;
-	Numero_de_pasaporte_manager: string | null;
-	Numero_de_seguro_social_manager: string | null;
-	Numero_de_ITIN_manager: string | null;
-	Direccion_de_planilla_manager: string | null;
+	first_name: string | null;
+	last_name: string | null;
+	name: string | null;
+	birth_date: string | null;
+	incorporation_date: string | null;
+	person_type: MemberPersonType;
+	identification_number: string | null;
+	identification_type: MemberIdentificationType;
+	country_nationality_id: number | null;
+	country_residence_id: number | null;
+	country_id: number | null;
+	marital_status: MemberMaritalStatus | null;
+	ssn: string | null;
+	itin: string | null;
+	user_id: string | null;
+	is_member: boolean | null;
+	is_manager: boolean | null;
+}
+
+// ── company_members (join table: member ↔ company con atributos de relacion) ──
+export interface CompanyMemberItem {
+	id: number;
+	company_id: string;
+	member_id: string;
+	percentage: number | null;
+	start_date: string | null;
+	end_date: string | null;
+	is_member: boolean;
+	is_manager: boolean;
+	is_active: boolean | null;
+	created_at: string;
+	member: MemberItem | null;
+}
+
+export interface CompanyItem {
+	id: string;
+	legal_name: string | null;
+	filing_number: string | null;
+	identification_number: string | null;
+	entity_type: CompanyEntityType;
+	formation_state_id: number | null;
+	formation_country_id: number | null;
+	tax_clasification: CompanyTaxClassification | null;
+	management_type: CompanyManagementType;
+	activity_code_id: number | null;
+	activity_description: string | null;
+	us_source_income?: boolean | null;
+	joint_ownership?: boolean | null;
+	incorporation_date?: string | null;
+	irs_email?: string | null;
+	legal_status: CompanyLegalStatus;
 }
 
 export interface ActividadItem {
 	id: number;
-	Actividad: string;
-}
-
-export interface EstadoItem {
-	id: number;
-	Estado: string;
-	abreviatura: string | null;
-}
-
-export interface PaisItem {
-	id: number;
-	nombre_paises: string;
+	irs_code: string;
+	name_es: string;
+	name_en: string;
+	category: {
+		id: number;
+		name: string;
+		sector?: { id: number; name: string };
+	};
 }
 
 export interface CompanyDetailData {
 	empresa: EmpresaDetail;
+	company: CompanyItem | null;
 	socios: SocioItem[];
-	managers: ManagerItem[];
+	addresses: CompanyAddressItem[];
+	companyMembers: CompanyMemberItem[];
+	managementTypeHealth: CompanyManagementTypeHealth | null;
 	actividades: ActividadItem[];
-	paises: PaisItem[];
-	estados: EstadoItem[];
+	paises: Country[];
+	state: State[];
+}
+
+/**
+ * Datos consumidos por la página `/companies/[companyId]`. A diferencia de
+ * `CompanyDetailData`, no incluye `empresa` (caso de incorporación) — la
+ * empresa real es la entidad principal.
+ */
+export interface CompanyPageData {
+	company: CompanyItem;
+	addresses: CompanyAddressItem[];
+	companyMembers: CompanyMemberItem[];
+	managementTypeHealth: CompanyManagementTypeHealth | null;
+	actividades: ActividadItem[];
+	states: State[];
+	/** UUID del caso de incorporación si esta empresa nació de un proceso. */
+	incorporationId: string | null;
+}
+
+export interface CompanyManagementTypeHealth {
+	ok: boolean;
+	managementType: CompanyManagementType | null;
+	managers: number;
+	reason?: string;
+}
+
+export interface State {
+	id: number;
+	name: String;
+	code: String;
 }

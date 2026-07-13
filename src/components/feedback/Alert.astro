@@ -1,0 +1,103 @@
+---
+import { Alert, AlertDescription, AlertTitle } from '@components/ui/Alert';
+import { CheckCircle2, CircleAlert, TriangleAlert, X } from 'lucide-react';
+
+const status = Astro.url.searchParams.get('status');
+const msg = Astro.url.searchParams.get('msg') || '';
+
+const isSuccess = status === 'success';
+const isWarning = status === 'warning';
+
+const variant = isSuccess ? 'success' : isWarning ? 'default' : 'destructive';
+const title = isSuccess
+	? 'Operacion completada'
+	: isWarning
+		? 'Atencion requerida'
+		: 'No fue posible completar la acción';
+const display = msg ? '' : 'hidden';
+---
+
+<Alert
+	id="toast-feedback"
+	className={`fixed top-20 right-4 z-50 ${display} bg-background/95 w-[calc(100%-2rem)] max-w-md items-start border shadow-2xl backdrop-blur-md`}
+	variant={variant}
+>
+	<div
+		class:list={[
+			'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1',
+			isSuccess &&
+				'bg-emerald-500/10 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:ring-emerald-900/70',
+			isWarning &&
+				'bg-amber-500/10 text-amber-700 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:ring-amber-900/70',
+			!isSuccess &&
+				!isWarning &&
+				'bg-red-500/10 text-red-700 ring-red-200 dark:bg-red-500/15 dark:text-red-300 dark:ring-red-900/70',
+		]}
+	>
+		{
+			isSuccess ? (
+				<CheckCircle2 className="h-4 w-4" />
+			) : isWarning ? (
+				<TriangleAlert className="h-4 w-4" />
+			) : (
+				<CircleAlert className="h-4 w-4" />
+			)
+		}
+		<span class="sr-only">Estado</span>
+	</div>
+
+	<div class="min-w-0 space-y-1">
+		<AlertTitle>{title}</AlertTitle>
+		<AlertDescription>{msg}</AlertDescription>
+	</div>
+
+	<button
+		type="button"
+		class="text-muted-foreground hover:text-foreground hover:bg-background/80 focus-visible:ring-ring inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors outline-none focus-visible:ring-2"
+		data-dismiss-target="#toast-feedback"
+		aria-label="Close"
+	>
+		<span class="sr-only">Cerrar</span>
+		<X className="h-4 w-4" />
+	</button>
+</Alert>
+
+<script is:inline>
+	(function () {
+		const toast = document.getElementById('toast-feedback');
+		if (!toast) return;
+
+		const closeBtn = toast.querySelector(
+			'[data-dismiss-target="#toast-feedback"]',
+		);
+		const hide = () => {
+			toast.classList.add('hidden');
+			toast.classList.remove('grid');
+		};
+
+		if (closeBtn) {
+			closeBtn.addEventListener('click', hide);
+		}
+
+		const params = new URLSearchParams(window.location.search);
+		const hasMsg = params.has('msg');
+
+		if (hasMsg) {
+			toast.classList.remove('hidden');
+			const timer = window.setTimeout(hide, 6000);
+
+			params.delete('msg');
+			params.delete('status');
+			const newUrl = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}${location.hash}`;
+			window.history.replaceState({}, '', newUrl);
+
+			window.addEventListener(
+				'beforeunload',
+				() => window.clearTimeout(timer),
+				{ once: true },
+			);
+		} else {
+			hide();
+		}
+	})();
+</script>

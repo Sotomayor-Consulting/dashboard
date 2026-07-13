@@ -1,0 +1,54 @@
+---
+import Dropzone from '@components/display/DropzoneSigned.astro';
+interface Props {
+	userId: string;
+	empresaId: string;
+}
+const { userId, empresaId } = Astro.props;
+---
+
+<dialog
+	id="popup-modal"
+	class="m-auto w-full max-w-3xl bg-transparent p-4 backdrop:bg-gray-900/50 dark:backdrop:bg-gray-900/80"
+>
+	<div class="relative w-full">
+		<div
+			class="rounded-lg bg-white-50 relative p-4 shadow-sm md:p-6 dark:bg-black"
+		>
+			<button
+				type="button"
+				class="text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white rounded-lg absolute inset-e-2.5 top-3 ms-auto inline-flex h-9 w-9 items-center justify-center bg-transparent text-sm"
+				data-dialog-hide="popup-modal"
+			>
+				<svg
+					class="h-5 w-5"
+					aria-hidden="true"
+					xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					fill="none"
+					viewBox="0 0 24 24"
+					><path
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M6 18 17.94 6M18 18 6.06 6"></path></svg
+				>
+				<span class="sr-only">Close modal</span>
+			</button>
+			<div class="p-4 text-center md:p-5">
+				<Dropzone
+					mensaje="Arrastra el documento pendiente a firmar aquí o haz clic para subir."
+					id="ConFirma"
+					endpoint={`/api/documents/upload-signed?empresaId=${empresaId}&userId=${userId}`}
+				/>
+			</div>
+		</div>
+	</div>
+</dialog>
+
+<script>
+	import { initNativeDialogs } from '@shared/native-dialog.client';
+	initNativeDialogs();
+</script>
