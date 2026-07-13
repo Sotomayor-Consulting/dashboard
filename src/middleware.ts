@@ -293,6 +293,18 @@ export function onRequest(context: any, next: any) {
 			return addSecurityHeaders(response, pathname);
 		}
 
+		// 4.5) Invitados sin contraseña: la invitación crea sesión sin password
+		//      (flag must_set_password en user_metadata, seteado por
+		//      /api/users/invite y limpiado por AuthService.resetPassword).
+		//      Forzar /set-password hasta que la definan — evita que naveguen
+		//      la app en un estado desde el que no podrían volver a entrar.
+		if (
+			context.locals.user?.user_metadata?.['must_set_password'] === true &&
+			pathname !== PATHS.setPassword
+		) {
+			return redirect(PATHS.setPassword);
+		}
+
 		// 5) Auth routes: si ya está logueado, redirigir al dashboard
 		const isAuthRoute = AUTH_ROUTES.some((route) => pathname === route);
 		if (isAuthRoute) {

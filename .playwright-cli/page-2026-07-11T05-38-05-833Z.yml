@@ -1,0 +1,133 @@
+- main [ref=f3e2]:
+  - navigation [ref=f3e3]:
+    - generic [ref=f3e5]:
+      - navigation "Breadcrumb" [ref=f3e7]:
+        - link "My Companies" [ref=f3e8] [cursor=pointer]:
+          - /url: /my-companies/
+        - link "Dashboard" [ref=f3e11] [cursor=pointer]:
+          - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/dashboard/
+      - generic [ref=f3e12]:
+        - button "Cambiar tema oscuro/claro" [ref=f3e13]
+        - button "15 Ver notificaciones" [ref=f3e18] [cursor=pointer]:
+          - generic [ref=f3e19]: "15"
+          - generic [ref=f3e20]: Ver notificaciones
+        - button "Avatar Jhon Doe" [ref=f3e22] [cursor=pointer]:
+          - img "Avatar" [ref=f3e23]
+          - generic [ref=f3e24]: Jhon Doe
+  - complementary [ref=f3e27]:
+    - button "DeepLabs LLC Florida" [ref=f3e30] [cursor=pointer]:
+      - generic [ref=f3e35]:
+        - generic [ref=f3e36]: DeepLabs LLC
+        - generic [ref=f3e37]: Florida
+    - button "Abrir búsqueda" [ref=f3e41]:
+      - generic [ref=f3e44]: Search...
+      - generic [ref=f3e45]:
+        - generic [ref=f3e46]: Ctrl
+        - generic [ref=f3e47]: K
+    - navigation [ref=f3e48]:
+      - list [ref=f3e49]:
+        - listitem [ref=f3e50]:
+          - link "Inicio" [ref=f3e51] [cursor=pointer]:
+            - /url: /
+        - listitem [ref=f3e55]:
+          - paragraph [ref=f3e56]: Company
+          - list [ref=f3e57]:
+            - listitem [ref=f3e58]:
+              - link "Crea una LLC" [ref=f3e59] [cursor=pointer]:
+                - /url: /start/
+            - listitem [ref=f3e63]:
+              - link "Incorporación" [ref=f3e64] [cursor=pointer]:
+                - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/dashboard
+            - listitem [ref=f3e68]:
+              - link "Empresa" [ref=f3e69] [cursor=pointer]:
+                - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/company
+            - listitem [ref=f3e73]:
+              - link "Consultas" [ref=f3e74] [cursor=pointer]:
+                - /url: /consultations/
+        - listitem [ref=f3e78]:
+          - paragraph [ref=f3e79]: Servicios
+          - list [ref=f3e80]:
+            - listitem [ref=f3e81]:
+              - link "Otros servicios" [ref=f3e82] [cursor=pointer]:
+                - /url: /services/
+            - listitem [ref=f3e86]:
+              - link "Órdenes" [ref=f3e87] [cursor=pointer]:
+                - /url: /orders/
+        - listitem [ref=f3e91]:
+          - paragraph [ref=f3e92]: Cuenta
+          - list [ref=f3e93]:
+            - listitem [ref=f3e94]:
+              - group [ref=f3e95]:
+                - generic "Ajustes" [ref=f3e96] [cursor=pointer]
+    - navigation [ref=f3e102]:
+      - button "Feedback Beta" [ref=f3e103] [cursor=pointer]:
+        - generic [ref=f3e106]: Feedback
+        - generic [ref=f3e107]: Beta
+      - link "Ayuda & Soporte" [ref=f3e108] [cursor=pointer]:
+        - /url: mailto:info@sotomayorconsulting.com
+  - generic [ref=f3e115]:
+    - generic:
+      - generic:
+        - region "Notifications alt+T"
+    - generic [ref=f3e118]:
+      - navigation "Tabs" [ref=f3e120]:
+        - button "General" [ref=f3e121] [cursor=pointer]
+        - link "Documentos" [ref=f3e124] [cursor=pointer]:
+          - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/documents
+        - link "Ordenes" [ref=f3e127] [cursor=pointer]:
+          - /url: /my-companies/21a79fde-a632-4f75-8026-f7e8dd140535/orders
+      - generic [ref=f3e130]:
+        - heading "DeepLabs LLC" [level=2] [ref=f3e132]
+        - generic [ref=f3e133]:
+          - generic [ref=f3e138]:
+            - paragraph [ref=f3e139]: "0"
+            - paragraph [ref=f3e140]: Etapas pendientes
+          - generic [ref=f3e145]:
+            - paragraph [ref=f3e146]: "0"
+            - paragraph [ref=f3e147]: Documentos por firmar
+          - link "Comenzar incorporación" [ref=f3e148] [cursor=pointer]:
+            - /url: /incorporation-and-payment?empresa=21a79fde-a632-4f75-8026-f7e8dd140535
+        - generic [ref=f3e151]:
+          - generic [ref=f3e152]:
+            - heading "Proceso de incorporación" [level=2] [ref=f3e153]
+            - paragraph [ref=f3e154]: Activa tu plan para comenzar el proceso de incorporación de tu LLC.
+          - generic [ref=f3e155]:
+            - generic [ref=f3e157]:
+              - generic [ref=f3e158]:
+                - paragraph [ref=f3e163]: Planificación y diseño legal
+                - generic [ref=f3e164]: Por completar
+              - generic [ref=f3e165]:
+                - paragraph [ref=f3e170]: Formulario de incorporación
+                - generic [ref=f3e171]: Por completar
+              - generic [ref=f3e172]:
+                - paragraph [ref=f3e177]: Registro ante el estado
+                - generic [ref=f3e178]: Por completar
+              - generic [ref=f3e179]:
+                - paragraph [ref=f3e184]: Documentos fiscales
+                - generic [ref=f3e185]: Por completar
+              - generic [ref=f3e186]:
+                - paragraph [ref=f3e191]: Firma de documentos
+                - generic [ref=f3e192]: Por completar
+              - generic [ref=f3e193]:
+                - paragraph [ref=f3e198]: Número EIN (Tax ID)
+                - generic [ref=f3e199]: Por completar
+              - generic [ref=f3e200]:
+                - paragraph [ref=f3e205]: Registro BOIR (FinCEN)
+                - generic [ref=f3e206]: Por completar
+              - generic [ref=f3e207]:
+                - paragraph [ref=f3e212]: Cuenta bancaria empresarial
+                - generic [ref=f3e213]: Por completar
+              - generic [ref=f3e214]:
+                - paragraph [ref=f3e219]: Pasarela de pagos (Stripe)
+                - generic [ref=f3e220]: Por completar
+              - generic [ref=f3e221]:
+                - paragraph [ref=f3e226]: Elección tributaria (Form 8832)
+                - generic [ref=f3e227]: Por completar
+              - generic [ref=f3e228]:
+                - paragraph [ref=f3e233]: Reporte BE-13 (BEA)
+                - generic [ref=f3e234]: Por completar
+            - generic [ref=f3e235]:
+              - paragraph [ref=f3e239]: Activa tu incorporación
+              - paragraph [ref=f3e240]: Completa el pago para desbloquear todas las etapas de tu LLC.
+              - link "Comenzar incorporación" [ref=f3e241] [cursor=pointer]:
+                - /url: /incorporation-and-payment?empresa=21a79fde-a632-4f75-8026-f7e8dd140535

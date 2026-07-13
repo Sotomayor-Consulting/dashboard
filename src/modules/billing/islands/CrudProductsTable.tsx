@@ -123,9 +123,7 @@ export default function CrudProductsTable({ data }: CrudProductsTableProps) {
 												data-precio={sr.precio ?? ''}
 												data-categoria={sr.categoria ?? ''}
 												data-descripcion={sr.descripcion ?? ''}
-												data-drawer-target="drawer-update-product-default"
-												data-drawer-show="drawer-update-product-default"
-												data-drawer-placement="right"
+												data-dialog-show="drawer-update-product-default"
 											>
 												Actualizar
 											</Button>
@@ -135,9 +133,7 @@ export default function CrudProductsTable({ data }: CrudProductsTableProps) {
 												size="sm"
 												data-open-estado
 												data-service-id={sr.id}
-												data-drawer-target="drawer-delete-product-default"
-												data-drawer-show="drawer-delete-product-default"
-												data-drawer-placement="right"
+												data-dialog-show="drawer-delete-product-default"
 											>
 												Archivar
 											</Button>
@@ -147,9 +143,7 @@ export default function CrudProductsTable({ data }: CrudProductsTableProps) {
 												size="sm"
 												data-open-desarchivado
 												data-service-id={sr.id}
-												data-drawer-target="desarchivar-menu"
-												data-drawer-show="desarchivar-menu"
-												data-drawer-placement="right"
+												data-dialog-show="desarchivar-menu"
 											>
 												Desarchivar
 											</Button>

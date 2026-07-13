@@ -1,0 +1,370 @@
+- main [ref=f8e2]:
+  - navigation [ref=f8e3]:
+    - generic [ref=f8e5]:
+      - navigation "Breadcrumb" [ref=f8e7]:
+        - link "Ajustes" [ref=f8e8] [cursor=pointer]:
+          - /url: /profile/
+        - link "General" [ref=f8e11] [cursor=pointer]:
+          - /url: /profile/general/
+      - generic [ref=f8e12]:
+        - button "Cambiar tema oscuro/claro" [ref=f8e13]
+        - button "15 Ver notificaciones" [ref=f8e18] [cursor=pointer]:
+          - generic [ref=f8e19]: "15"
+          - generic [ref=f8e20]: Ver notificaciones
+        - button "Avatar Jhon Doe" [ref=f8e22] [cursor=pointer]:
+          - img "Avatar" [ref=f8e23]
+          - generic [ref=f8e24]: Jhon Doe
+  - complementary [ref=f8e27]:
+    - button "Catana Technology Consulting LLC Wyoming" [ref=f8e30] [cursor=pointer]:
+      - generic [ref=f8e35]:
+        - generic [ref=f8e36]: Catana Technology Consulting LLC
+        - generic [ref=f8e37]: Wyoming
+    - button "Abrir búsqueda" [ref=f8e41]:
+      - generic [ref=f8e44]: Search...
+      - generic [ref=f8e45]:
+        - generic [ref=f8e46]: Ctrl
+        - generic [ref=f8e47]: K
+    - navigation [ref=f8e48]:
+      - list [ref=f8e49]:
+        - listitem [ref=f8e50]:
+          - link "Inicio" [ref=f8e51] [cursor=pointer]:
+            - /url: /
+        - listitem [ref=f8e55]:
+          - paragraph [ref=f8e56]: Company
+          - list [ref=f8e57]:
+            - listitem [ref=f8e58]:
+              - link "Crea una LLC" [ref=f8e59] [cursor=pointer]:
+                - /url: /start/
+            - listitem [ref=f8e63]:
+              - link "Incorporación" [ref=f8e64] [cursor=pointer]:
+                - /url: /my-companies/4226c73d-4b18-47db-b279-07e5edcba900/dashboard
+            - listitem [ref=f8e68]:
+              - link "Empresa" [ref=f8e69] [cursor=pointer]:
+                - /url: /my-companies/4226c73d-4b18-47db-b279-07e5edcba900/company
+            - listitem [ref=f8e73]:
+              - link "Consultas" [ref=f8e74] [cursor=pointer]:
+                - /url: /consultations/
+        - listitem [ref=f8e78]:
+          - paragraph [ref=f8e79]: Servicios
+          - list [ref=f8e80]:
+            - listitem [ref=f8e81]:
+              - link "Otros servicios" [ref=f8e82] [cursor=pointer]:
+                - /url: /services/
+            - listitem [ref=f8e86]:
+              - link "Órdenes" [ref=f8e87] [cursor=pointer]:
+                - /url: /orders/
+        - listitem [ref=f8e91]:
+          - paragraph [ref=f8e92]: Cuenta
+          - list [ref=f8e93]:
+            - listitem [ref=f8e94]:
+              - group [ref=f8e95]:
+                - generic "Ajustes" [ref=f8e96] [cursor=pointer]
+    - navigation [ref=f8e102]:
+      - button "Feedback Beta" [ref=f8e103] [cursor=pointer]:
+        - generic [ref=f8e106]: Feedback
+        - generic [ref=f8e107]: Beta
+      - link "Ayuda & Soporte" [ref=f8e108] [cursor=pointer]:
+        - /url: mailto:info@sotomayorconsulting.com
+  - generic [ref=f8e115]:
+    - generic:
+      - generic:
+        - region "Notifications alt+T"
+    - generic [ref=f8e117]:
+      - generic [ref=f8e118]:
+        - heading "Información general" [level=1] [ref=f8e119]
+        - paragraph [ref=f8e120]: Completa tus datos personales y de contacto.
+      - generic [ref=f8e121]:
+        - generic [ref=f8e122]:
+          - generic [ref=f8e123]:
+            - generic [ref=f8e124]:
+              - heading "Nombre *" [level=3] [ref=f8e125]
+              - paragraph [ref=f8e126]: Aparecerá en recibos, facturas y comunicaciones.
+            - generic [ref=f8e127]:
+              - textbox "Nombre" [ref=f8e129]: Jhon
+              - textbox "Apellido" [ref=f8e131]: Doe
+          - generic [ref=f8e132]:
+            - generic [ref=f8e133]:
+              - heading "Email *" [level=3] [ref=f8e134]
+              - paragraph [ref=f8e135]: Usado para inicio de sesión y comunicaciones.
+            - generic [ref=f8e136]: jhondoe@google.com
+          - generic [ref=f8e138]:
+            - generic [ref=f8e139]:
+              - heading "Ubicación" [level=3] [ref=f8e140]
+              - paragraph [ref=f8e141]: País, ciudad y dirección.
+            - generic [ref=f8e142]:
+              - combobox [ref=f8e144]:
+                - option "Seleccione un país" [disabled] [selected]
+                - option "Afganistán"
+                - option "Albania"
+                - option "Alemania"
+                - option "Andorra"
+                - option "Angola"
+                - option "Anguilla"
+                - option "Antártida"
+                - option "Antigua y Barbuda"
+                - option "Antillas Holandesas"
+                - option "Arabia Saudí"
+                - option "Argelia"
+                - option "Argentina"
+                - option "Armenia"
+                - option "Aruba"
+                - option "ARY Macedonia"
+                - option "Australia"
+                - option "Austria"
+                - option "Azerbaiyán"
+                - option "Bahamas"
+                - option "Bahréin"
+                - option "Bangladesh"
+                - option "Barbados"
+                - option "Bélgica"
+                - option "Belice"
+                - option "Benin"
+                - option "Bermudas"
+                - option "Bhután"
+                - option "Bielorrusia"
+                - option "Bolivia"
+                - option "Bosnia y Herzegovina"
+                - option "Botsuana"
+                - option "Brasil"
+                - option "Brunéi"
+                - option "Bulgaria"
+                - option "Burkina Faso"
+                - option "Burundi"
+                - option "Cabo Verde"
+                - option "Camboya"
+                - option "Camerún"
+                - option "Canadá"
+                - option "Chad"
+                - option "Chile"
+                - option "China"
+                - option "Chipre"
+                - option "Ciudad del Vaticano"
+                - option "Colombia"
+                - option "Comoras"
+                - option "Congo"
+                - option "Corea del Norte"
+                - option "Corea del Sur"
+                - option "Costa de Marfil"
+                - option "Costa Rica"
+                - option "Croacia"
+                - option "Cuba"
+                - option "Dinamarca"
+                - option "Dominica"
+                - option "Ecuador"
+                - option "Egipto"
+                - option "El Salvador"
+                - option "Emiratos Árabes Unidos"
+                - option "Eritrea"
+                - option "Eslovaquia"
+                - option "Eslovenia"
+                - option "España"
+                - option "Estados Unidos"
+                - option "Estonia"
+                - option "Etiopía"
+                - option "Filipinas"
+                - option "Finlandia"
+                - option "Fiyi"
+                - option "Francia"
+                - option "Gabón"
+                - option "Gambia"
+                - option "Georgia"
+                - option "Ghana"
+                - option "Gibraltar"
+                - option "Granada"
+                - option "Grecia"
+                - option "Groenlandia"
+                - option "Guadalupe"
+                - option "Guam"
+                - option "Guatemala"
+                - option "Guayana Francesa"
+                - option "Guinea"
+                - option "Guinea Ecuatorial"
+                - option "Guinea-Bissau"
+                - option "Guyana"
+                - option "Haití"
+                - option "Honduras"
+                - option "Hong Kong"
+                - option "Hungría"
+                - option "India"
+                - option "Indonesia"
+                - option "Irán"
+                - option "Iraq"
+                - option "Irlanda"
+                - option "Isla Bouvet"
+                - option "Isla de Navidad"
+                - option "Isla Norfolk"
+                - option "Islandia"
+                - option "Islas Caimán"
+                - option "Islas Cocos"
+                - option "Islas Cook"
+                - option "Islas Feroe"
+                - option "Islas Georgias del Sur y Sandwich del Sur"
+                - option "Islas Gland"
+                - option "Islas Heard y McDonald"
+                - option "Islas Malvinas"
+                - option "Islas Marianas del Norte"
+                - option "Islas Marshall"
+                - option "Islas Pitcairn"
+                - option "Islas Salomón"
+                - option "Islas Turcas y Caicos"
+                - option "Islas ultramarinas de Estados Unidos"
+                - option "Islas Vírgenes Británicas"
+                - option "Islas Vírgenes de los Estados Unidos"
+                - option "Israel"
+                - option "Italia"
+                - option "Jamaica"
+                - option "Japón"
+                - option "Jordania"
+                - option "Kazajstán"
+                - option "Kenia"
+                - option "Kirguistán"
+                - option "Kiribati"
+                - option "Kuwait"
+                - option "Laos"
+                - option "Lesotho"
+                - option "Letonia"
+                - option "Líbano"
+                - option "Liberia"
+                - option "Libia"
+                - option "Liechtenstein"
+                - option "Lituania"
+                - option "Luxemburgo"
+                - option "Macao"
+                - option "Madagascar"
+                - option "Malasia"
+                - option "Malawi"
+                - option "Maldivas"
+                - option "Malí"
+                - option "Malta"
+                - option "Marruecos"
+                - option "Martinica"
+                - option "Mauricio"
+                - option "Mauritania"
+                - option "Mayotte"
+                - option "México"
+                - option "Micronesia"
+                - option "Moldavia"
+                - option "Mónaco"
+                - option "Mongolia"
+                - option "Montserrat"
+                - option "Mozambique"
+                - option "Myanmar"
+                - option "Namibia"
+                - option "Nauru"
+                - option "Nepal"
+                - option "Nicaragua"
+                - option "Níger"
+                - option "Nigeria"
+                - option "Niue"
+                - option "Noruega"
+                - option "Nueva Caledonia"
+                - option "Nueva Zelanda"
+                - option "Omán"
+                - option "Países Bajos"
+                - option "Pakistán"
+                - option "Palau"
+                - option "Palestina"
+                - option "Panamá"
+                - option "Papúa Nueva Guinea"
+                - option "Paraguay"
+                - option "Perú"
+                - option "Polinesia Francesa"
+                - option "Polonia"
+                - option "Portugal"
+                - option "Puerto Rico"
+                - option "Qatar"
+                - option "Reino Unido"
+                - option "República Centroafricana"
+                - option "República Checa"
+                - option "República Democrática del Congo"
+                - option "República Dominicana"
+                - option "Reunión"
+                - option "Ruanda"
+                - option "Rumania"
+                - option "Rusia"
+                - option "Sahara Occidental"
+                - option "Samoa"
+                - option "Samoa Americana"
+                - option "San Cristóbal y Nevis"
+                - option "San Marino"
+                - option "San Pedro y Miquelón"
+                - option "San Vicente y las Granadinas"
+                - option "Santa Helena"
+                - option "Santa Lucía"
+                - option "Santo Tomé y Príncipe"
+                - option "Senegal"
+                - option "Serbia y Montenegro"
+                - option "Seychelles"
+                - option "Sierra Leona"
+                - option "Singapur"
+                - option "Siria"
+                - option "Somalia"
+                - option "Sri Lanka"
+                - option "Suazilandia"
+                - option "Sudáfrica"
+                - option "Sudán"
+                - option "Suecia"
+                - option "Suiza"
+                - option "Surinam"
+                - option "Svalbard y Jan Mayen"
+                - option "Tailandia"
+                - option "Taiwán"
+                - option "Tanzania"
+                - option "Tayikistán"
+                - option "Territorio Británico del Océano Índico"
+                - option "Territorios Australes Franceses"
+                - option "Timor Oriental"
+                - option "Togo"
+                - option "Tokelau"
+                - option "Tonga"
+                - option "Trinidad y Tobago"
+                - option "Túnis"
+                - option "Turkmenistán"
+                - option "Turquía"
+                - option "Tuvalu"
+                - option "Ucrania"
+                - option "Uganda"
+                - option "Uruguay"
+                - option "Uzbekistán"
+                - option "Vanuatu"
+                - option "Venezuela"
+                - option "Vietnam"
+                - option "Wallis y Futuna"
+                - option "Yemen"
+                - option "Yibuti"
+                - option "Zambia"
+                - option "Zimbabue"
+              - textbox "Ciudad" [ref=f8e146]
+              - textbox "Dirección línea 1" [ref=f8e148]
+              - textbox "Dirección línea 2" [ref=f8e150]
+              - textbox "Departamento" [ref=f8e152]
+              - textbox "Código postal" [ref=f8e154]
+          - generic [ref=f8e155]:
+            - generic [ref=f8e156]:
+              - heading "Identificación" [level=3] [ref=f8e157]
+              - paragraph [ref=f8e158]: Tipo y número de documento.
+            - generic [ref=f8e159]:
+              - combobox [ref=f8e161]:
+                - option "Tipo de documento" [disabled] [selected]
+                - option "Cédula"
+                - option "RUC"
+                - option "ID"
+                - option "Pasaporte"
+                - option "EIN"
+              - textbox "Número de identificación" [ref=f8e163]
+              - combobox [ref=f8e165]:
+                - option "Tipo de persona" [disabled] [selected]
+                - option "Natural"
+                - option "Jurídica"
+          - generic [ref=f8e166]:
+            - generic [ref=f8e167]:
+              - heading "Contacto" [level=3] [ref=f8e168]
+              - paragraph [ref=f8e169]: Teléfono y fecha de nacimiento.
+            - generic [ref=f8e170]:
+              - generic [ref=f8e172]:
+                - button "Change country for phone number, currently selected United States (+1)" [ref=f8e174]:
+                  - generic [ref=f8e178]: "+1"
+                - textbox "201-555-0123" [ref=f8e179]
+              - textbox [ref=f8e181]:
+                - /placeholder: Fecha de nacimiento
+        - button "Guardar cambios" [ref=f8e183] [cursor=pointer]

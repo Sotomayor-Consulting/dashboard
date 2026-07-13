@@ -1,5 +1,4 @@
 @import 'tailwindcss';
-@import 'flowbite/src/themes/default';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/geist';
@@ -7,11 +6,7 @@
 @import 'intl-tel-input/styles';
 
 @custom-variant dark (&:is(.dark *));
-@plugin 'flowbite/plugin';
-
-@source '../../node_modules/flowbite';
-
-@plugin 'flowbite-typography';
+@plugin '@tailwindcss/forms';
 
 @plugin 'tailwind-scrollbar' {
 	nocompatible: true;
@@ -146,18 +141,6 @@
 		justify-items: stretch;
 	}
 
-	/* Flowbite modal z-index fix - ensure backdrop is behind modal */
-	.fixed.inset-0.bg-gray-900\/50,
-	.fixed.inset-0.bg-gray-900\/80,
-	[data-modal-backdrop] {
-		z-index: 40 !important;
-	}
-
-	.fixed.top-4.right-0.left-0.z-50,
-	[data-flowbite-modal],
-	[role='dialog'] {
-		z-index: 50 !important;
-	}
 }
 
 /* intl-tel-input global theming (official CSS variables) */
@@ -705,5 +688,31 @@ html[data-step-dir]::view-transition-new(start-step) {
 	::view-transition-old(start-step),
 	::view-transition-new(start-step) {
 		animation: none;
+	}
+}
+
+/* ─── <dialog> nativo (reemplazo de modales/drawers Flowbite) ─── */
+/* Bloquea el scroll del fondo mientras un dialog modal esté abierto */
+body:has(dialog[open]) {
+	overflow: hidden;
+}
+
+/* Drawer lateral derecho: replica el slide de transition-transform */
+dialog.dialog-drawer-right {
+	translate: 100% 0;
+	transition:
+		translate 0.3s ease-out,
+		display 0.3s allow-discrete,
+		overlay 0.3s allow-discrete;
+}
+dialog.dialog-drawer-right[open] {
+	translate: 0 0;
+	@starting-style {
+		translate: 100% 0;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	dialog.dialog-drawer-right {
+		transition: none;
 	}
 }

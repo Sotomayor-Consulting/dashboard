@@ -1,0 +1,5 @@
+[     136ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Outdated Optimize Dep) @ http://localhost:4321/@id/astro/runtime/client/dev-toolbar/entrypoint.js:0
+[     464ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:4321/node_modules/.vite/deps/client--C8cioMw.js?v=ca732b4a:14391
+[     598ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Outdated Optimize Dep) @ http://localhost:4321/node_modules/.vite/deps/@base-ui_react_input.js?v=ca732b4a:0
+[     598ms] [ERROR] Failed to load resource: the server responded with a status of 504 (Outdated Optimize Dep) @ http://localhost:4321/node_modules/.vite/deps/@base-ui_react_checkbox.js?v=ca732b4a:0
+[    1615ms] [ERROR] [astro-island] Error hydrating /src/modules/auth/islands/FormSignIn.tsx TypeError: Failed to fetch dynamically imported module: http://localhost:4321/src/modules/auth/islands/FormSignIn.tsx#astro-retry=1783748953970 @ http://localhost:4321/sign-in:17397

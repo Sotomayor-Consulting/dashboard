@@ -1,6 +1,7 @@
 ---
 import ClientOnboarding from '@modules/onboarding/ClientOnboarding.astro';
 import DashBoard from '@modules/dashboard/Dashboard.astro';
+import OpsDashboard from '@modules/dashboard/OpsDashboard.astro';
 import { getUserWithRole } from '@domains/users/menu';
 import { getEmpresasForSwitcher } from '@domains/companies/companies';
 
@@ -17,6 +18,19 @@ const { roles: userRoles } = userData;
 const userName = user?.user_metadata?.name ?? user?.email ?? 'Usuario';
 const hasCompanies = empresasSwitcher.length > 0;
 const isNewClient = userRoles.includes('cliente') && !hasCompanies;
+
+// El staff (admin/operaciones) ve el panel operativo: incorporaciones en
+// curso y pagos de clientes, no el resumen personal de un cliente.
+const isStaff =
+	userRoles.includes('admin') || userRoles.includes('operaciones');
 ---
 
-{isNewClient ? <ClientOnboarding userName={userName} /> : <DashBoard />}
+{
+	isStaff ? (
+		<OpsDashboard />
+	) : isNewClient ? (
+		<ClientOnboarding userName={userName} />
+	) : (
+		<DashBoard />
+	)
+}

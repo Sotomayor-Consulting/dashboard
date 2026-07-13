@@ -196,9 +196,7 @@ const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : '';
 	});
 </script>
 <script>
-	import { initFlowbite } from 'flowbite';
+	import { initNativeDialogs } from '@shared/native-dialog.client';
 
-	document.addEventListener('astro:page-load', () => {
-		initFlowbite();
-	});
+	initNativeDialogs();
 </script>

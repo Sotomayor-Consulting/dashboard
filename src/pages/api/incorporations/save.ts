@@ -3,31 +3,12 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { safeBack } from '@infrastructure/security/headers';
+import { checkRateLimit } from '@infrastructure/security/rate-limit';
 import { ACTIVE_COMPANY_COOKIE } from '@shared/cookies';
 import { clearIncorporationDraftCookie } from '@shared/incorporation-draft';
 
 const BACK_PATH = '/';
 const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
-
-/**
- * `incorporations.state` es el enum `incorporation_state` (draft|active|upgrade).
- * Los drafts guardados en clientes viejos aún pueden traer los valores legacy
- * en español — se normalizan aquí para no romper el insert.
- */
-const normalizeIncorporationState = (
-	value: string | undefined,
-): 'draft' | 'active' | 'upgrade' => {
-	switch (value?.trim()) {
-		case 'active':
-		case 'Activo':
-			return 'active';
-		case 'upgrade':
-		case 'Upgrade':
-			return 'upgrade';
-		default:
-			return 'draft';
-	}
-};
 
 const json = (status: number, payload: unknown) =>
 	new Response(JSON.stringify(payload), {
@@ -70,6 +51,14 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		} = await supabase.auth.getUser();
 		if (uerr || !actor) {
 			return respond(401, 'No autenticado');
+		}
+
+		// Anti-abuso: evita la creación masiva de incorporaciones draft
+		if (!checkRateLimit(`incorp-save:${actor.id}`, 10, 3_600_000)) {
+			return respond(
+				429,
+				'Has creado demasiadas empresas en poco tiempo. Intenta más tarde.',
+			);
 		}
 
 		// 3) Form data

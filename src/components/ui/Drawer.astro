@@ -1,15 +1,18 @@
 ---
 /**
- * Drawer lateral reutilizable (Flowbite pattern).
- * Wrapper para formularios y contenido que se muestra desde la derecha.
+ * Drawer lateral derecho sobre <dialog> nativo.
+ * El navegador aporta ESC, focus trap, ::backdrop y top layer; el slide
+ * lo hace CSS (.dialog-drawer-right en global.css). Los triggers usan
+ * data-dialog-show/hide (ver native-dialog.client.ts).
  *
  * Uso:
+ * <button data-dialog-show="drawer-create">Abrir</button>
  * <Drawer id="drawer-create" title="Nuevo servicio">
  *   <form>...</form>
  * </Drawer>
  */
 interface Props {
-	/** ID unico del drawer (usado por data-drawer-target) */
+	/** ID unico del drawer (usado por data-dialog-show/hide) */
 	id: string;
 	/** Titulo del drawer */
 	title: string;
@@ -20,15 +23,13 @@ interface Props {
 const { id, title, maxWidth = 'max-w-sm' } = Astro.props;
 ---
 
-<div
+<dialog
 	id={id}
 	class:list={[
-		'dark:bg-black-800 fixed top-0 right-0 z-40 h-screen w-full translate-x-full overflow-y-auto bg-white p-4 transition-transform',
+		'dialog-drawer-right dark:bg-black-800 m-0 ml-auto h-dvh max-h-none w-full overflow-y-auto bg-white p-4 backdrop:bg-gray-900/50 dark:backdrop:bg-gray-900/80',
 		maxWidth,
 	]}
-	tabindex="-1"
 	aria-labelledby={`${id}-label`}
-	aria-hidden="true"
 >
 	<h5
 		id={`${id}-label`}
@@ -38,7 +39,7 @@ const { id, title, maxWidth = 'max-w-sm' } = Astro.props;
 	</h5>
 	<button
 		type="button"
-		data-drawer-dismiss={id}
+		data-dialog-hide={id}
 		aria-controls={id}
 		class="absolute top-2.5 right-2.5 inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
 	>
@@ -57,4 +58,9 @@ const { id, title, maxWidth = 'max-w-sm' } = Astro.props;
 		<span class="sr-only">Cerrar menu</span>
 	</button>
 	<slot />
-</div>
+</dialog>
+
+<script>
+	import { initNativeDialogs } from '@shared/native-dialog.client';
+	initNativeDialogs();
+</script>

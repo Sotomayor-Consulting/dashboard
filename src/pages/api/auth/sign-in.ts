@@ -13,6 +13,11 @@ import {
 	jsonError,
 } from '@infrastructure/auth';
 import { safeBack } from '@infrastructure/security/headers';
+import {
+	checkRateLimit,
+	peekRateLimit,
+	recordHit,
+} from '@infrastructure/security/rate-limit';
 import type { OAuthProvider } from '@infrastructure/auth';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { TURNSTILE_SECRET_KEY } from 'astro:env/server';
@@ -25,7 +30,22 @@ export const GET: APIRoute = async ({ redirect }) => {
 	return redirect(PATHS.signIn);
 };
 
-export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => {
+// Límites anti fuerza-bruta (OWASP Authentication Cheat Sheet):
+// - por IP: frena barridos automatizados desde una misma fuente.
+// - por email: solo cuenta INTENTOS FALLIDOS, para que un atacante rotando
+//   IPs no pueda adivinar la contraseña de una cuenta concreta. Se usa
+//   peek + recordHit para no penalizar logins exitosos.
+const IP_LIMIT = 20; // intentos por minuto por IP
+const FAIL_LIMIT = 5; // fallos por email
+const FAIL_WINDOW_MS = 15 * 60_000;
+
+export const POST: APIRoute = async ({
+	request,
+	cookies,
+	redirect,
+	locals,
+	clientAddress,
+}) => {
 	const formData = await request.formData();
 	const email = formData.get('email')?.toString();
 	const password = formData.get('password')?.toString();
@@ -38,6 +58,27 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
 	const wantsJson = request.headers
 		.get('Accept')
 		?.includes('application/json');
+
+	const emailKey = email?.trim().toLowerCase() ?? '';
+	const tooMany = (msg: string) =>
+		wantsJson
+			? jsonError(msg, 429)
+			: redirectWithMessage(redirect, msg, 'error', PATHS.signIn);
+
+	if (!checkRateLimit(`signin:ip:${clientAddress}`, IP_LIMIT, 60_000)) {
+		log.warn('sign-in rate limited por IP', { ip: clientAddress });
+		return tooMany('Demasiados intentos. Espera un minuto e intenta de nuevo.');
+	}
+	if (
+		!provider &&
+		emailKey &&
+		!peekRateLimit(`signin:fail:${emailKey}`, FAIL_LIMIT, FAIL_WINDOW_MS)
+	) {
+		log.warn('sign-in rate limited por fallos de email', { email: emailKey });
+		return tooMany(
+			'Demasiados intentos fallidos para esta cuenta. Espera 15 minutos o restablece tu contraseña.',
+		);
+	}
 
 	// ─── Turnstile verification ──────────────────────
 	const turnstileSecret = TURNSTILE_SECRET_KEY;
@@ -119,6 +160,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, locals }) => 
 
 		return redirect(next);
 	} catch (error) {
+		// Solo los intentos fallidos consumen el límite por cuenta
+		if (emailKey) recordHit(`signin:fail:${emailKey}`);
+
 		const message =
 			error instanceof AuthError
 				? error.message

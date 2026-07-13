@@ -45,9 +45,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		// 4) Enviar invitación usando el cliente ADMIN (service_role)
 		const redirectTo = `${url.origin}/api/auth/invite-callback`;
 
+		// must_set_password: el middleware fuerza /set-password hasta que el
+		// invitado defina su contraseña (la invitación crea sesión sin password).
 		const { error: inviteError } =
 			await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
 				redirectTo,
+				data: { must_set_password: true },
 			});
 
 		if (inviteError) {

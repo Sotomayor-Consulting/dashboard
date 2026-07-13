@@ -40,13 +40,11 @@ const submitBtnClass =
 <CrudMailingTable usuarios={usuarios ?? []} client:load />
 
 <!-- Send Email Modal -->
-<div
+<dialog
 	id="top-right-modal"
-	data-modal-placement="top-right"
-	tabindex="-1"
-	class="fixed top-0 right-0 left-0 z-50 hidden h-full w-full overflow-x-hidden overflow-y-auto p-4 md:inset-0"
+	class="m-0 ml-auto h-dvh max-h-none w-full max-w-2xl bg-transparent p-4 backdrop:bg-gray-900/50 dark:backdrop:bg-gray-900/80"
 >
-	<div class="relative h-full w-full max-w-2xl">
+	<div class="relative h-full w-full">
 		<div
 			class="relative h-full rounded-lg bg-white shadow-sm dark:bg-[#0e2738]"
 		>
@@ -59,7 +57,7 @@ const submitBtnClass =
 				<button
 					type="button"
 					class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-					data-modal-hide="top-right-modal"
+					data-dialog-hide="top-right-modal"
 				>
 					<svg
 						class="h-3 w-3"
@@ -123,13 +121,13 @@ const submitBtnClass =
 				class="flex items-center space-x-3 rounded-b border-t border-gray-200 p-4 md:p-5 rtl:space-x-reverse dark:border-gray-600"
 			>
 				<button
-					data-modal-hide="top-right-modal"
+					data-dialog-hide="top-right-modal"
 					type="button"
 					class="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 					>Enviar correo</button
 				>
 				<button
-					data-modal-hide="top-right-modal"
+					data-dialog-hide="top-right-modal"
 					type="button"
 					class="ms-3 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-[#101522] dark:hover:text-white dark:focus:ring-gray-700"
 					>Cancelar</button
@@ -137,7 +135,7 @@ const submitBtnClass =
 			</div>
 		</div>
 	</div>
-</div>
+</dialog>
 
 <!-- Update Form Drawer -->
 <Drawer id="drawer-update-product-default" title="Actualizar Formulario">
@@ -271,13 +269,11 @@ const submitBtnClass =
 </Modal>
 
 <!-- Update Status Modal -->
-<div
+<dialog
 	id="updaterol"
-	tabindex="-1"
-	aria-hidden="true"
-	class="h-modal fixed top-0 right-0 left-0 z-50 hidden w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0 md:h-full"
+	class="m-auto w-full max-w-2xl bg-transparent p-4 backdrop:bg-gray-900/50 dark:backdrop:bg-gray-900/80"
 >
-	<div class="relative h-full w-full max-w-2xl p-4 md:h-auto">
+	<div class="relative w-full">
 		<div
 			class="dark:bg-black-800 relative rounded-lg bg-white p-4 shadow sm:p-5"
 		>
@@ -290,7 +286,7 @@ const submitBtnClass =
 				<button
 					type="button"
 					class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-					data-modal-toggle="updaterol"
+					data-dialog-hide="updaterol"
 				>
 					<svg
 						aria-hidden="true"
@@ -324,7 +320,7 @@ const submitBtnClass =
 						Actualizar estado
 					</button>
 					<button
-						data-modal-toggle="updaterol"
+						data-dialog-hide="updaterol"
 						type="button"
 						class="inline-flex items-center rounded-lg border border-red-600 px-5 py-2.5 text-center text-sm font-medium text-red-600 hover:bg-red-600 hover:text-white focus:ring-4 focus:ring-red-300 focus:outline-none dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600 dark:hover:text-white dark:focus:ring-red-900"
 					>
@@ -334,7 +330,7 @@ const submitBtnClass =
 			</form>
 		</div>
 	</div>
-</div>
+</dialog>
 
 <script is:inline>
 	const bindMailingEstadoButtons = () => {

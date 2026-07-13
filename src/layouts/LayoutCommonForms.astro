@@ -66,6 +66,8 @@ const { class: clazz } = Astro.props;
 </html>
 
 <script>
-	import 'flowbite';
+	import { initNativeDialogs } from '@shared/native-dialog.client';
+
+	initNativeDialogs();
 </script>
 

@@ -1,0 +1,101 @@
+- main [ref=f4e2]:
+  - main [ref=f4e3]:
+    - generic [ref=f4e4]:
+      - link "Sotomayor Consulting" [ref=f4e5] [cursor=pointer]:
+        - /url: https://sotomayorconsulting.com/inicio/
+      - button "Cambiar tema oscuro/claro" [ref=f4e105]
+    - generic [ref=f4e108]:
+      - generic [ref=f4e109]:
+        - generic [ref=f4e110]:
+          - paragraph [ref=f4e111]: Activa tu empresa
+          - heading "Escoja su plan" [level=2] [ref=f4e112]
+          - paragraph [ref=f4e113]: Elija la alternativa que mejor se adapta a su estructura y continúe al pago seguro.
+          - generic [ref=f4e114]:
+            - generic [ref=f4e117]: Pagando para
+            - generic [ref=f4e118]: DeepLabs LLC
+            - button "Cambiar" [ref=f4e119]
+        - generic [ref=f4e120]:
+          - generic [ref=f4e121]:
+            - 'radio "Más popular Plan Business Todo incluido: estructura legal, fiscal y bancaria desde el inicio. $950 Estrategia fiscal y legal completa para tu LLC. Ideal para hacer las cosas bien desde el inicio. Planificación y diseño legal - tributario. Acompañamiento bancario (Mercury o Relay + Stripe). EIN acelerado. Comenzar" [checked] [ref=f4e122]'
+            - generic [ref=f4e123] [cursor=pointer]:
+              - generic [ref=f4e124]: Más popular
+              - heading "Plan Business" [level=3] [ref=f4e129]
+              - paragraph [ref=f4e130]: "Todo incluido: estructura legal, fiscal y bancaria desde el inicio."
+              - paragraph [ref=f4e131]: $950
+              - paragraph [ref=f4e132]: Estrategia fiscal y legal completa para tu LLC. Ideal para hacer las cosas bien desde el inicio.
+              - list [ref=f4e134]:
+                - listitem [ref=f4e135]:
+                  - generic [ref=f4e139]: Planificación y diseño legal - tributario.
+                - listitem [ref=f4e140]:
+                  - generic [ref=f4e144]: Acompañamiento bancario (Mercury o Relay + Stripe).
+                - listitem [ref=f4e145]:
+                  - generic [ref=f4e149]: EIN acelerado.
+              - button "Comenzar" [ref=f4e151]
+          - generic [ref=f4e153]:
+            - radio "Completo Plan Estándar Cobertura legal ampliada con soporte continuo. $600 Incluye soporte legal y documentos clave para operar. Elaboración del Acuerdo de Operación. Consultas ilimitadas por un año. Solicitud de Exención BE-13. Comenzar" [ref=f4e154]
+            - generic [ref=f4e155] [cursor=pointer]:
+              - generic [ref=f4e156]: Completo
+              - heading "Plan Estándar" [level=3] [ref=f4e161]
+              - paragraph [ref=f4e162]: Cobertura legal ampliada con soporte continuo.
+              - paragraph [ref=f4e163]: $600
+              - paragraph [ref=f4e164]: Incluye soporte legal y documentos clave para operar.
+              - list [ref=f4e166]:
+                - listitem [ref=f4e167]:
+                  - generic [ref=f4e171]: Elaboración del Acuerdo de Operación.
+                - listitem [ref=f4e172]:
+                  - generic [ref=f4e176]: Consultas ilimitadas por un año.
+                - listitem [ref=f4e177]:
+                  - generic [ref=f4e181]: Solicitud de Exención BE-13.
+              - button "Comenzar" [ref=f4e183]
+          - generic [ref=f4e185]:
+            - radio "Rediseño Plan Diseño - upgrade Reestructura y optimiza una LLC ya existente. $350 Planificación estratégica y de diseño de la LLC, ideal para aquellos que quieren ir paso a paso. Estado de incorporación ideal (50 jurisdicciones). Tratamiento tributario federal óptimo. Modelo administrativo y contable a medida. Comenzar" [ref=f4e186]
+            - generic [ref=f4e187] [cursor=pointer]:
+              - generic [ref=f4e188]: Rediseño
+              - heading "Plan Diseño - upgrade" [level=3] [ref=f4e193]
+              - paragraph [ref=f4e194]: Reestructura y optimiza una LLC ya existente.
+              - paragraph [ref=f4e195]: $350
+              - paragraph [ref=f4e196]: Planificación estratégica y de diseño de la LLC, ideal para aquellos que quieren ir paso a paso.
+              - list [ref=f4e198]:
+                - listitem [ref=f4e199]:
+                  - generic [ref=f4e203]: Estado de incorporación ideal (50 jurisdicciones).
+                - listitem [ref=f4e204]:
+                  - generic [ref=f4e208]: Tratamiento tributario federal óptimo.
+                - listitem [ref=f4e209]:
+                  - generic [ref=f4e213]: Modelo administrativo y contable a medida.
+              - button "Comenzar" [ref=f4e215]
+          - generic [ref=f4e217]:
+            - radio "Inicial Plan Básico Lo esencial para constituir tu LLC y operar legalmente. $350 Constituye tu LLC con lo esencial para operar legalmente. Incorporación de la LLC frente al Estado. Obtención del EIN (Número de Identificación Tributaria). Agente Residente por un año. Comenzar" [ref=f4e218]
+            - generic [ref=f4e219] [cursor=pointer]:
+              - generic [ref=f4e220]: Inicial
+              - heading "Plan Básico" [level=3] [ref=f4e225]
+              - paragraph [ref=f4e226]: Lo esencial para constituir tu LLC y operar legalmente.
+              - paragraph [ref=f4e227]: $350
+              - paragraph [ref=f4e228]: Constituye tu LLC con lo esencial para operar legalmente.
+              - list [ref=f4e230]:
+                - listitem [ref=f4e231]:
+                  - generic [ref=f4e235]: Incorporación de la LLC frente al Estado.
+                - listitem [ref=f4e236]:
+                  - generic [ref=f4e240]: Obtención del EIN (Número de Identificación Tributaria).
+                - listitem [ref=f4e241]:
+                  - generic [ref=f4e245]: Agente Residente por un año.
+              - button "Comenzar" [ref=f4e247]
+        - paragraph [ref=f4e249]: Los precios no incluyen la tarifa de procesamiento de pagos (4.5%), que se muestra desglosada antes de confirmar tu compra.
+        - paragraph
+        - button "Regresar" [ref=f4e251]
+      - generic [ref=f4e255]:
+        - generic [ref=f4e256]:
+          - img "Powered by Stripe - black" [ref=f4e261]
+          - generic [ref=f4e280]:
+            - img "Visa" [ref=f4e281]
+            - img "Mastercard" [ref=f4e289]
+            - img "Diners Club" [ref=f4e295]
+            - img "American Express" [ref=f4e304]
+            - img "Discover" [ref=f4e314]
+            - img "Apple Pay" [ref=f4e324]
+            - img "Google Pay" [ref=f4e336]
+        - generic [ref=f4e349]:
+          - paragraph [ref=f4e350]: © 2026 Sotomayor Consulting International.
+          - link "Términos de Servicio" [ref=f4e351] [cursor=pointer]:
+            - /url: https://sotomayorconsulting.com/inicio/politicas/
+          - link "Política de Privacidad" [ref=f4e352] [cursor=pointer]:
+            - /url: https://sotomayorconsulting.com/inicio/politicas/

@@ -1,0 +1,51 @@
+- main [ref=f17e2]:
+  - generic [ref=f17e5]:
+    - generic [ref=f17e6]:
+      - button "Cambiar tema" [ref=f17e7]
+      - link "Crear cuenta" [ref=f17e10] [cursor=pointer]:
+        - /url: /sign-up
+    - generic [ref=f17e11]:
+      - link [ref=f17e14] [cursor=pointer]:
+        - /url: https://sotomayorconsulting.com/inicio/
+        - img "Sotomayor Consulting" [ref=f17e15]
+      - img "Sotomayor Consulting" [ref=f17e18]
+      - blockquote [ref=f17e20]:
+        - paragraph [ref=f17e21]: "\"Las grandes cosas en los negocios nunca las hace una sola persona; las hace un equipo de personas.\""
+        - generic [ref=f17e22]: "- Steve Jobs"
+    - generic [ref=f17e24]:
+      - generic [ref=f17e25]:
+        - heading "Inicia sesión" [level=1] [ref=f17e26]
+        - paragraph [ref=f17e27]: Accede con tu cuenta para continuar.
+      - generic [ref=f17e28]:
+        - generic [ref=f17e29]:
+          - generic [ref=f17e30]: Tu correo
+          - textbox "Tu correo" [disabled]:
+            - /placeholder: correo@ejemplo.com
+            - text: jhondoe@google.com
+        - generic [ref=f17e32]:
+          - generic [ref=f17e33]: Tu contraseña
+          - generic [ref=f17e34]:
+            - textbox "Tu contraseña" [disabled]:
+              - /placeholder: ••••••••
+              - text: doe123**
+            - button "Mostrar" [ref=f17e36]
+        - generic [ref=f17e37]:
+          - generic [ref=f17e38]:
+            - checkbox "Recuérdame" [checked] [ref=f17e54]
+            - checkbox [checked] [ref=f17e43]
+            - generic [ref=f17e44]: Recuérdame
+          - link "Olvidé mi contraseña" [ref=f17e45] [cursor=pointer]:
+            - /url: /forgot-password
+        - button "Loading Iniciando sesión..." [disabled]:
+          - status "Loading"
+          - text: Iniciando sesión...
+      - generic [ref=f17e46]: O continuar con
+      - button "Google" [disabled]
+      - paragraph [ref=f17e51]:
+        - text: Al continuar, aceptas nuestros
+        - link "Términos de Servicio" [ref=f17e52] [cursor=pointer]:
+          - /url: https://sotomayorconsulting.com/inicio/politicas/
+        - text: y la
+        - link "Política de Privacidad" [ref=f17e53] [cursor=pointer]:
+          - /url: https://sotomayorconsulting.com/inicio/politicas/
+        - text: .

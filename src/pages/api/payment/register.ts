@@ -8,6 +8,11 @@ import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 import { isAdmin } from '@shared/roles';
+import Stripe from 'stripe';
+
+const STRIPE_SECRET_KEY =
+	process.env.STRIPE_SECRET_KEY ?? import.meta.env.STRIPE_SECRET_KEY;
+const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
 
 export const POST: APIRoute = async ({ request, cookies, locals }) => {
 	// ─── 1) Autenticación (server-verified via getUser) ──
@@ -55,9 +60,18 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 		}
 
 		// ─── 3) Registrar pago via RPC (supabaseAdmin) ──
+		// El schema `stripe` (FDW) ya no existe: se recupera el PaymentIntent
+		// de la API de Stripe y se pasa completo como jsonb al RPC.
+		if (!stripe) {
+			return new Response(
+				JSON.stringify({ error: 'Stripe no configurado' }),
+				{ status: 500, headers: SECURITY_HEADERS },
+			);
+		}
+		const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
 		const { data, error } = await supabaseAdmin.rpc(
 			'registrar_pago_desde_stripe',
-			{ p_payment_intent_id: paymentIntentId },
+			{ p_payment_intent: pi as unknown as Record<string, unknown> },
 		);
 
 		if (error) {

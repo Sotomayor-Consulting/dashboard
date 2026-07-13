@@ -130,8 +130,7 @@ export default function CrudMailingTable({ usuarios }: CrudMailingTableProps) {
 													type="button"
 													variant="outline"
 													size="sm"
-													data-modal-target="top-right-modal"
-													data-modal-toggle="top-right-modal"
+													data-dialog-show="top-right-modal"
 													data-user-mail={user.correo ?? ''}
 												>
 													Enviar correo
@@ -144,8 +143,7 @@ export default function CrudMailingTable({ usuarios }: CrudMailingTableProps) {
 													data-user-id={user.user_id}
 													data-user-estado={user.estado || ''}
 													data-user-name={fullName}
-													data-modal-target="updaterol"
-													data-modal-toggle="updaterol"
+													data-dialog-show="updaterol"
 												>
 													Archivar
 												</Button>

@@ -1,0 +1,150 @@
+- main [ref=f19e2]:
+  - navigation [ref=f19e3]:
+    - generic [ref=f19e5]:
+      - navigation "Breadcrumb" [ref=f19e7]:
+        - link "Inicio" [ref=f19e8] [cursor=pointer]:
+          - /url: /
+      - generic [ref=f19e9]:
+        - button "Cambiar tema oscuro/claro" [ref=f19e10]
+        - button "15 Ver notificaciones" [ref=f19e15] [cursor=pointer]:
+          - generic [ref=f19e16]: "15"
+          - generic [ref=f19e17]: Ver notificaciones
+        - button "Avatar Jhon Doe" [ref=f19e19] [cursor=pointer]:
+          - img "Avatar" [ref=f19e20]
+          - generic [ref=f19e21]: Jhon Doe
+  - complementary [ref=f19e24]:
+    - button "Catana Technology Consulting LLC Wyoming" [ref=f19e27] [cursor=pointer]:
+      - generic [ref=f19e32]:
+        - generic [ref=f19e33]: Catana Technology Consulting LLC
+        - generic [ref=f19e34]: Wyoming
+    - button "Abrir búsqueda" [ref=f19e38]:
+      - generic [ref=f19e41]: Search...
+      - generic [ref=f19e42]:
+        - generic [ref=f19e43]: Ctrl
+        - generic [ref=f19e44]: K
+    - navigation [ref=f19e45]:
+      - list [ref=f19e46]:
+        - listitem [ref=f19e47]:
+          - link "Inicio" [ref=f19e48] [cursor=pointer]:
+            - /url: /
+        - listitem [ref=f19e52]:
+          - paragraph [ref=f19e53]: Company
+          - list [ref=f19e54]:
+            - listitem [ref=f19e55]:
+              - link "Crea una LLC" [ref=f19e56] [cursor=pointer]:
+                - /url: /start/
+            - listitem [ref=f19e60]:
+              - link "Incorporación" [ref=f19e61] [cursor=pointer]:
+                - /url: /my-companies/4226c73d-4b18-47db-b279-07e5edcba900/dashboard
+            - listitem [ref=f19e65]:
+              - link "Empresa" [ref=f19e66] [cursor=pointer]:
+                - /url: /my-companies/4226c73d-4b18-47db-b279-07e5edcba900/company
+            - listitem [ref=f19e70]:
+              - link "Consultas" [ref=f19e71] [cursor=pointer]:
+                - /url: /consultations/
+        - listitem [ref=f19e75]:
+          - paragraph [ref=f19e76]: Servicios
+          - list [ref=f19e77]:
+            - listitem [ref=f19e78]:
+              - link "Otros servicios" [ref=f19e79] [cursor=pointer]:
+                - /url: /services/
+            - listitem [ref=f19e83]:
+              - link "Órdenes" [ref=f19e84] [cursor=pointer]:
+                - /url: /orders/
+        - listitem [ref=f19e88]:
+          - paragraph [ref=f19e89]: Cuenta
+          - list [ref=f19e90]:
+            - listitem [ref=f19e91]:
+              - group [ref=f19e92]:
+                - generic "Ajustes" [ref=f19e93] [cursor=pointer]
+    - navigation [ref=f19e99]:
+      - button "Feedback Beta" [ref=f19e100] [cursor=pointer]:
+        - generic [ref=f19e103]: Feedback
+        - generic [ref=f19e104]: Beta
+      - link "Ayuda & Soporte" [ref=f19e105] [cursor=pointer]:
+        - /url: mailto:info@sotomayorconsulting.com
+  - generic [ref=f19e112]:
+    - generic:
+      - generic:
+        - region "Notifications alt+T"
+    - generic [ref=f19e114]:
+      - generic [ref=f19e115]:
+        - generic [ref=f19e116]:
+          - paragraph [ref=f19e117]: Panel de operaciones
+          - heading "Hola, Jhon" [level=1] [ref=f19e118]
+          - paragraph [ref=f19e119]: Estado actual de las incorporaciones y pagos de los clientes.
+        - link "Ver incorporaciones" [ref=f19e120] [cursor=pointer]:
+          - /url: /admin/incorporaciones
+      - generic [ref=f19e123]:
+        - article [ref=f19e124]:
+          - paragraph [ref=f19e126]: Pagos sin revisar
+          - generic [ref=f19e130]:
+            - paragraph [ref=f19e131]: "32"
+            - paragraph [ref=f19e132]: Requieren tu atención
+        - link [ref=f19e133] [cursor=pointer]:
+          - /url: /admin/incorporaciones
+          - paragraph [ref=f19e135]: En incorporación
+          - generic [ref=f19e139]:
+            - paragraph [ref=f19e140]: "7"
+            - paragraph [ref=f19e141]: Empresas con workflow activo
+        - link [ref=f19e142] [cursor=pointer]:
+          - /url: /admin/incorporaciones
+          - paragraph [ref=f19e144]: Pendientes de pago
+          - generic [ref=f19e148]:
+            - paragraph [ref=f19e149]: "1"
+            - paragraph [ref=f19e150]: Aún no inician el proceso
+        - link [ref=f19e151] [cursor=pointer]:
+          - /url: /admin/incorporaciones
+          - paragraph [ref=f19e153]: Upgrades
+          - generic [ref=f19e157]:
+            - paragraph [ref=f19e158]: "1"
+            - paragraph [ref=f19e159]: Planes de diseño por ampliar
+      - generic [ref=f19e160]:
+        - generic [ref=f19e161]:
+          - heading "Accesos rápidos" [level=2] [ref=f19e163]
+          - generic [ref=f19e164]:
+            - link "Incorporaciones Gestiona los procesos de constitución." [ref=f19e165] [cursor=pointer]:
+              - /url: /admin/incorporaciones
+              - generic [ref=f19e169]:
+                - generic [ref=f19e170]: Incorporaciones
+                - generic [ref=f19e171]: Gestiona los procesos de constitución.
+            - link "Empresas Entidades legales constituidas." [ref=f19e174] [cursor=pointer]:
+              - /url: /admin/empresas
+              - generic [ref=f19e178]:
+                - generic [ref=f19e179]: Empresas
+                - generic [ref=f19e180]: Entidades legales constituidas.
+            - link "Usuarios Cuentas y roles de clientes." [ref=f19e183] [cursor=pointer]:
+              - /url: /admin/usuarios
+              - generic [ref=f19e187]:
+                - generic [ref=f19e188]: Usuarios
+                - generic [ref=f19e189]: Cuentas y roles de clientes.
+            - link "Mi perfil Gestiona tu información personal." [ref=f19e192] [cursor=pointer]:
+              - /url: /profile/general
+              - generic [ref=f19e196]:
+                - generic [ref=f19e197]: Mi perfil
+                - generic [ref=f19e198]: Gestiona tu información personal.
+        - complementary [ref=f19e201]:
+          - generic [ref=f19e202]:
+            - heading "Últimos pagos" [level=2] [ref=f19e203]
+            - generic [ref=f19e204]: 32 nuevos
+          - generic [ref=f19e206]:
+            - generic [ref=f19e207]:
+              - generic [ref=f19e211]:
+                - generic [ref=f19e212]: $950.00 · Catana Technology Consulting LLC
+                - generic [ref=f19e213]: Jhon Doe · Plan Business · 10 jul, 23:59
+              - generic [ref=f19e214]: Nuevo
+            - generic [ref=f19e219]:
+              - generic [ref=f19e220]: $600.00 · TESTEMPRESA
+              - generic [ref=f19e221]: Jhon Doe · Upgrade · 10 jul, 16:07
+            - generic [ref=f19e226]:
+              - generic [ref=f19e227]: $950.00 · QATAR AIWAYS LLC
+              - generic [ref=f19e228]: Jhon Doe · Plan Business · 10 jul, 15:46
+            - generic [ref=f19e233]:
+              - generic [ref=f19e234]: $600.00 · Sin empresa
+              - generic [ref=f19e235]: Cliente · Plan Estándar · 10 jul, 09:42
+            - generic [ref=f19e240]:
+              - generic [ref=f19e241]: $600.00 · Sin empresa
+              - generic [ref=f19e242]: Cliente · Plan Estándar · 10 jul, 09:03
+            - generic [ref=f19e247]:
+              - generic [ref=f19e248]: $950.00 · TESTEMPRESA
+              - generic [ref=f19e249]: Jhon Doe · Plan Business · 9 jul, 15:08

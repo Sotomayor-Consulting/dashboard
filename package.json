@@ -6,7 +6,6 @@
 	"keywords": [
 		"tailwind",
 		"tailwind css",
-		"flowbite",
 		"admin dashboard",
 		"dashboard ui",
 		"admin dashboard template",
@@ -42,6 +41,7 @@
 		"@astrojs/react": "6.0.0",
 		"@astrojs/sitemap": "^3.7.3",
 		"@base-ui/react": "^1.6.0",
+		"@floating-ui/dom": "^1.7.6",
 		"@fontsource-variable/caveat": "^5.2.8",
 		"@fontsource-variable/dancing-script": "^5.2.8",
 		"@fontsource-variable/geist": "^5.2.9",
@@ -74,8 +74,6 @@
 		"cmdk": "^1.1.1",
 		"date-fns": "^4.4.0",
 		"dropzone": "6.0.0-beta.2",
-		"flowbite": "^4.0.2",
-		"flowbite-typography": "^1.0.5",
 		"framer-motion": "^12.42.0",
 		"intl-tel-input": "^29.1.1",
 		"lucide-react": "^1.21.0",
@@ -105,6 +103,7 @@
 	"devDependencies": {
 		"@astrojs/check": "0.9.9",
 		"@iconify-json/ri": "^1.2.10",
+		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/vite": "^4.3.0",
 		"@types/dropzone": "^5.7.9",
 		"@types/intl-tel-input": "^18.1.4",

@@ -79,6 +79,27 @@ export const markNotificationAsRead = async (
 	return { success: true, error: null };
 };
 
+/**
+ * Marca TODAS las no leídas del usuario como leídas. Se llama al abrir la
+ * bandeja (patrón inbox estándar): el badge del navbar vuelve a cero y solo
+ * crece con notificaciones nuevas desde la última visita.
+ */
+export const markAllNotificationsAsRead = async (
+	supabase: SupabaseClient,
+	userId: string,
+) => {
+	const { error } = await notificationsTable(supabase)
+		.update({ read_at: new Date().toISOString() })
+		.eq('user_id', userId)
+		.is('read_at', null);
+
+	if (error) {
+		log.error('Error marcando notificaciones como leídas', { error });
+		return { success: false, error };
+	}
+	return { success: true, error: null };
+};
+
 export const getNotificationsGeneral = async (supabase: SupabaseClient) => {
 	const { data, error } = await notificationsTable(supabase)
 		.select(NOTIFICATION_COLUMNS, { count: 'exact' })

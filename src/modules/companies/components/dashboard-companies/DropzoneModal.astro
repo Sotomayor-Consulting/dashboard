@@ -7,19 +7,18 @@ interface Props {
 const { userId, empresaId } = Astro.props;
 ---
 
-<div
+<dialog
 	id="popup-modal"
-	tabindex="-1"
-	class="fixed top-0 right-0 left-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-x-hidden overflow-y-auto md:inset-0"
+	class="m-auto w-full max-w-3xl bg-transparent p-4 backdrop:bg-gray-900/50 dark:backdrop:bg-gray-900/80"
 >
-	<div class="relative max-h-full w-full max-w-3xl p-4">
+	<div class="relative w-full">
 		<div
-			class="rounded-base bg-white-50 relative p-4 shadow-sm md:p-6 dark:bg-black"
+			class="rounded-lg bg-white-50 relative p-4 shadow-sm md:p-6 dark:bg-black"
 		>
 			<button
 				type="button"
-				class="text-body hover:bg-neutral-tertiary hover:text-heading rounded-base absolute inset-e-2.5 top-3 ms-auto inline-flex h-9 w-9 items-center justify-center bg-transparent text-sm"
-				data-modal-hide="popup-modal"
+				class="text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-neutral-700 hover:text-gray-900 dark:hover:text-white rounded-lg absolute inset-e-2.5 top-3 ms-auto inline-flex h-9 w-9 items-center justify-center bg-transparent text-sm"
+				data-dialog-hide="popup-modal"
 			>
 				<svg
 					class="h-5 w-5"
@@ -47,4 +46,9 @@ const { userId, empresaId } = Astro.props;
 			</div>
 		</div>
 	</div>
-</div>
+</dialog>
+
+<script>
+	import { initNativeDialogs } from '@shared/native-dialog.client';
+	initNativeDialogs();
+</script>

@@ -4,6 +4,7 @@ import type { APIRoute } from 'astro';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { checkRateLimit } from '@infrastructure/security/rate-limit';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('documents.upload-signed');
@@ -34,6 +35,14 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		}
 
 		const currentUserId = user.id;
+
+		// Anti-abuso de storage: tope de subidas por usuario autenticado
+		if (!checkRateLimit(`docs-upload:${currentUserId}`, 20, 60_000)) {
+			return redirectWithStatus(
+				'error',
+				'Demasiadas subidas seguidas. Espera un minuto e intenta de nuevo.',
+			);
+		}
 
 		if (!empresaId || !userId) {
 			return redirectWithStatus(

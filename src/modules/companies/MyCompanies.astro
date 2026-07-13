@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { SharedBreadcrumb } from '@components/navigation/BreadcrumbPath';
+import StatusBadgePopover from './islands/StatusBadgePopover.tsx';
 import { getEmpresasGenenralById } from '@domains/companies/companies';
 import edificioimg from '@assets/backgrounds/edificio-vidrio.avif';
 import imagen from '@assets/backgrounds/g31.avif';
@@ -82,14 +83,10 @@ const paths = [
 								</div>
 								<div>
 									{fr.estado === 'draft' ? (
-										<span
-											data-popover-target={`tooltip-${fr.id}`}
-											data-popover-placement="bottom-end"
-											class="badge-status bg-muted text-foreground"
-										>
-											<span class="mr-1 h-2 w-2 animate-pulse rounded-full bg-orange-500" />
-											{fr.estado_label}
-										</span>
+										<StatusBadgePopover
+											client:load
+											estadoLabel={fr.estado_label}
+										/>
 									) : (
 										<span class="badge-status bg-muted text-foreground">
 											<span class="mr-1 h-2 w-2 animate-pulse rounded-full bg-green-500" />
@@ -99,34 +96,6 @@ const paths = [
 								</div>
 							</div>
 						</a>
-						<div
-							data-popover
-							id={`tooltip-${fr.id}`}
-							role="tooltip"
-							class="invisible absolute z-10 inline-block w-72 rounded-lg border border-gray-200 bg-white text-sm text-gray-500 opacity-0 shadow-xs transition-opacity duration-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400"
-						>
-							<div class="space-y-2 p-3">
-								<h3
-									class="font-semibold text-gray-900 dark:text-white"
-									aria-label="¿Por qué mi empresa está en proceso?"
-								>
-									¿Por qué mi empresa está en proceso?
-								</h3>
-								<p>Tu empresa está en proceso por estas razones:</p>
-								<ul class="list-inside list-disc space-y-1">
-									<li>
-										Tu empresa aún no está configurada al 100% y está pendiente
-										el pago para iniciar el proceso de constitución.
-									</li>
-									<li>
-										Tu empresa está en proceso de incorporación legal (si ya
-										iniciaste el proceso de pago). Te informaremos por
-										notificaciones y correo.
-									</li>
-								</ul>
-							</div>
-							<div data-popper-arrow />
-						</div>
 					</div>
 				))
 			)

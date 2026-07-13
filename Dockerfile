@@ -70,7 +70,7 @@ USER astro
 EXPOSE 4321
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider "http://127.0.0.1:${PORT}/sign-in" || exit 1
+  CMD wget --no-verbose --tries=1 --spider "http://127.0.0.1:${PORT}/api/health" || exit 1
 
 # dumb-init maneja señales correctamente (SIGTERM, etc.)
 ENTRYPOINT ["dumb-init", "--"]

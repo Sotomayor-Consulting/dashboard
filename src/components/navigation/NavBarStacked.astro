@@ -91,7 +91,7 @@ const user = Astro.locals.user;
 				}
 
 				<button
-					data-collapse-toggle="mobile-menu"
+					id="mobile-menu-toggle"
 					type="button"
 					class="focus:ring-primary-300 ml-3 inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:text-gray-900 focus:ring-2 focus:outline-none sm:hidden dark:hover:bg-[#101522] dark:hover:text-white"
 					aria-controls="mobile-menu-2"
@@ -186,3 +186,19 @@ const user = Astro.locals.user;
 		</ul>
 	</div>
 </nav>
+
+<script>
+	// Toggle del menú móvil (reemplazo de data-collapse-toggle de Flowbite)
+	function initMobileMenuToggle() {
+		const btn = document.getElementById('mobile-menu-toggle');
+		const menu = document.getElementById('mobile-menu');
+		if (!btn || !menu || btn.dataset.collapseBind === '1') return;
+		btn.dataset.collapseBind = '1';
+		btn.addEventListener('click', () => {
+			const hidden = menu.classList.toggle('hidden');
+			btn.setAttribute('aria-expanded', String(!hidden));
+		});
+	}
+	initMobileMenuToggle();
+	document.addEventListener('astro:page-load', initMobileMenuToggle);
+</script>

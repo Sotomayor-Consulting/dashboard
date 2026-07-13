@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Dashboard SSR para **Sotomayor Consulting** — gestión de LLCs, partners, facturación e incorporaciones. Construido con **Astro 6** en modo SSR (`output: 'server'`) con adapter Node.js standalone, Supabase como backend (auth + DB), Tailwind CSS v4 y Flowbite como UI kit.
+Dashboard SSR para **Sotomayor Consulting** — gestión de LLCs, partners, facturación e incorporaciones. Construido con **Astro 6** en modo SSR (`output: 'server'`) con adapter Node.js standalone, Supabase como backend (auth + DB), Tailwind CSS v4 con shadcn/ui (Base UI) como primitivas de componentes y elementos nativos (`<dialog>`, `<details>`) para overlays.
 
 ## Commands
 
@@ -174,6 +174,7 @@ api/
 ├── documents/        # events, list, request, review, revoke-share, share, signed-url, upload, upload-signed
 ├── payment/          # checkout-session, checkout-session-upgrade, payment-intent, payment-intent-upgrade, register, webhook
 ├── pdf/generate
+├── health/           # index (liveness público), deep (readiness con Bearer HEALTH_CHECK_TOKEN)
 ├── charts/           # odoo-partners, partners-count, mapa-empresas.client
 ├── odoo/             # referrals, test-odoo
 ├── onboarding/complete
@@ -289,8 +290,8 @@ Definidos en `src/lib/shared/roles.ts`: `admin`, `partner`, `cliente`, `operacio
 ### Tailwind CSS v4
 
 No existe `tailwind.config.js`. Toda la config está en `src/styles/global.css` via CSS-first syntax:
-- `@import "tailwindcss"` + `@import "flowbite/src/themes/default"`
-- `@plugin "flowbite/plugin"`, `@plugin "flowbite-typography"`, `@plugin "tailwind-scrollbar"`
+- `@import "tailwindcss"` (sin Flowbite — removido; ver §UI Behaviors)
+- `@plugin "@tailwindcss/forms"`, `@plugin "tailwind-scrollbar"`
 - `@theme {}` define colores custom (primary, black, white) y fonts (Inter)
 - Dark mode usa class strategy: `@variant dark (&:where(.dark, .dark *))`. El `<html>` tiene `class="dark"` por defecto.
 
@@ -329,6 +330,7 @@ Para los `<script>` con atributos (`define:vars`, `type="module"`, `src=`, etc.)
 - `PUBLIC_GOOGLE_CLIENT_ID` — Google One Tap
 - `PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_SECRET_KEY` — Stripe
 - `RENDER_SERVER_URL` — microservicio Carbone
+- `HEALTH_CHECK_TOKEN` — token Bearer para `/api/health/deep` (readiness para Uptime Kuma). Sin configurar, el endpoint responde 401.
 - `LOG_LEVEL` — (opcional) nivel del logger Winston (`error|warn|info|http|verbose|debug|silly`). Default `info` en prod, `debug` en dev.
 
 ## Conventions

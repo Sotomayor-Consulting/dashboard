@@ -11,8 +11,6 @@ const FIELD_LABELS: Record<PartnerRequiredField, string> = {
 };
 
 interface BannerToastManagerProps {
-	showBannerEnProceso: boolean;
-	showBannerUpgrade: boolean;
 	showBannerPartner: boolean;
 	missingFields: PartnerRequiredField[];
 }
@@ -89,8 +87,6 @@ function BannerToastCard({
 }
 
 export default function BannerToastManager({
-	showBannerEnProceso,
-	showBannerUpgrade,
 	showBannerPartner,
 	missingFields,
 }: BannerToastManagerProps) {
@@ -99,23 +95,10 @@ export default function BannerToastManager({
 			.map((field) => FIELD_LABELS[field] ?? field)
 			.join(', ');
 
+		// Los toasts de pago pendiente ('banner-en-proceso') y upgrade se
+		// eliminaron: el estado de pago ahora se comunica dentro del dashboard
+		// de la propia incorporación, no con notificaciones globales.
 		return [
-			{
-				id: 'banner-en-proceso',
-				enabled: showBannerEnProceso,
-				title:
-					'Tu compania esta pendiente a incorporar. Desbloquea sus beneficios.',
-				ctaLabel: 'Continuar al pago',
-				url: '/incorporation-and-payment',
-			},
-			{
-				id: 'banner-upgrade',
-				enabled: showBannerUpgrade,
-				title:
-					'Tu empresa esta en el plan Upgrade, da click aqui para actualizar el plan',
-				ctaLabel: 'Actualizar plan',
-				url: '/upgrade',
-			},
 			{
 				id: 'banner-partner-profile',
 				enabled: showBannerPartner,
@@ -131,12 +114,7 @@ export default function BannerToastManager({
 					'bg-yellow-600 hover:bg-yellow-700 dark:bg-yellow-700 dark:text-white dark:hover:bg-yellow-800',
 			},
 		];
-	}, [
-		missingFields,
-		showBannerEnProceso,
-		showBannerPartner,
-		showBannerUpgrade,
-	]);
+	}, [missingFields, showBannerPartner]);
 
 	useEffect(() => {
 		for (const definition of toasts) {

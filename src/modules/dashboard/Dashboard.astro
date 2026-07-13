@@ -11,6 +11,7 @@ import {
 	getDocumentRequestsForIncorporationCase,
 } from '@domains/documents/document_dashboard';
 import { getNotifications } from '@domains/users/notifications';
+import { getOrdersByUser } from '@domains/payments/orders';
 import { ACTIVE_COMPANY_COOKIE } from '@shared/cookies';
 
 type NotificationRow = {
@@ -35,8 +36,9 @@ let notificationsData: {
 	notifications: [],
 	totalUnread: 0,
 };
+let pendingOrdersCount = 0;
 if (userId) {
-	const [profileResult, companiesResult, notificationsResult] =
+	const [profileResult, companiesResult, notificationsResult, ordersResult] =
 		await Promise.allSettled([
 			supabase
 				.from('usuarios')
@@ -45,6 +47,7 @@ if (userId) {
 				.maybeSingle(),
 			getEmpresasForSwitcher(supabase, userId),
 			getNotifications(supabase, userId),
+			getOrdersByUser(supabase, userId),
 		]);
 
 	if (profileResult.status === 'fulfilled' && !profileResult.value.error) {
@@ -57,6 +60,12 @@ if (userId) {
 
 	if (notificationsResult.status === 'fulfilled') {
 		notificationsData = notificationsResult.value;
+	}
+
+	if (ordersResult.status === 'fulfilled') {
+		pendingOrdersCount = ordersResult.value.filter(
+			(order) => order.status === 'pending_payment',
+		).length;
 	}
 }
 
@@ -122,7 +131,7 @@ const formatRelativeDate = (dateValue?: string | null) => {
 
 	if (diffDays <= 0) return 'Hoy';
 	if (diffDays === 1) return 'Ayer';
-	if (diffDays < 7) return `Hace ${diffDays} dias`;
+	if (diffDays < 7) return `Hace ${diffDays} días`;
 
 	return new Intl.DateTimeFormat('es', {
 		day: 'numeric',
@@ -132,7 +141,7 @@ const formatRelativeDate = (dateValue?: string | null) => {
 
 const activityItems = [
 	...notificationsData.notifications.map((notification) => ({
-		title: notification.message || 'Nueva notificacion',
+		title: notification.message || 'Nueva notificación',
 		meta: formatRelativeDate(notification.created_at),
 		href: notification.action_url || '/notifications',
 		isUnread: !notification.read_at,
@@ -158,14 +167,14 @@ const quickActions = [
 	},
 	{
 		title: 'Agendar cita',
-		description: 'Reserva una sesion con un asesor.',
+		description: 'Reserva una sesión con un asesor.',
 		href: '/services',
 		icon: 'ri:calendar-event-line',
 		tone: 'violet',
 	},
 	{
 		title: 'Mi perfil',
-		description: 'Gestiona tu informacion personal.',
+		description: 'Gestiona tu información personal.',
 		href: '/profile/general',
 		icon: 'ri:user-3-line',
 		tone: 'emerald',
@@ -179,7 +188,13 @@ const quickActions = [
 	},
 ] as const;
 
-const stats = [
+const stats: {
+	label: string;
+	value: string | number;
+	meta: string;
+	icon: string;
+	href?: string;
+}[] = [
 	{
 		label: 'Empresas activas',
 		value: activeCompanies.length,
@@ -188,6 +203,7 @@ const stats = [
 				? '1 empresa registrada'
 				: `${empresas.length} empresas registradas`,
 		icon: 'ri:building-line',
+		href: '/my-companies/',
 	},
 	{
 		label: 'Tareas pendientes',
@@ -197,12 +213,17 @@ const stats = [
 				? `${pendingDocumentRequests} documentos requeridos`
 				: `${notificationsData.totalUnread} sin leer`,
 		icon: 'ri:time-line',
+		href: '/notifications',
 	},
 	{
-		label: 'Proxima cita',
-		value: 'Por agendar',
-		meta: 'Reserva cuando estes listo',
-		icon: 'ri:calendar-line',
+		label: 'Pagos pendientes',
+		value: pendingOrdersCount,
+		meta:
+			pendingOrdersCount > 0
+				? 'Completa el pago en Órdenes'
+				: 'Estás al día',
+		icon: 'ri:bank-card-line',
+		href: '/orders/',
 	},
 	{
 		label: 'Documentos',
@@ -227,7 +248,7 @@ const stats = [
 				Hola, {firstName}
 			</h1>
 			<p class="mt-4 max-w-2xl text-base text-muted-foreground">
-				Aqui tienes un resumen de tu actividad en
+				Aquí tienes un resumen de tu actividad en
 				<span class="font-semibold text-foreground">
 					 {` ${companyName}`}
 				</span>.
@@ -235,36 +256,40 @@ const stats = [
 		</div>
 
 		<a
-			href="/start/"
+			href={activeCompany
+				? `/my-companies/${activeCompany.id}/dashboard`
+				: '/start/'}
 			class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-foreground px-5 py-3 text-sm font-semibold text-background shadow-sm transition hover:bg-foreground/90 focus:ring-4 focus:ring-ring focus:outline-none sm:w-auto"
 		>
 			<Icon name="ri:building-4-line" class="h-4 w-4" />
-			Ver mi Empresa
+			{activeCompany ? 'Ver mi empresa' : 'Crear mi LLC'}
 		</a>
 	</header>
 
 	<div class="grid gap-4 py-10 sm:grid-cols-2 xl:grid-cols-4">
 		{
-			stats.map((stat) => (
-				<article class="group relative min-h-36 rounded-lg border border-border p-5 transition hover:border-accent-gold hover:shadow-sm">
-					<div class="flex items-start justify-between gap-4">
-						<p class="kicker tracking-[0.12em] sm:tracking-[0.28em]">
-							{stat.label}
-						</p>
-						<span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground">
-							<Icon name={stat.icon} class="h-4 w-4 text-accent-gold" />
-						</span>
-					</div>
-					<div class="mt-8">
-						<p class="stat-value text-3xl">
-							{stat.value}
-						</p>
-						<p class="stat-label mt-2 text-sm font-medium">
-							{stat.meta}
-						</p>
-					</div>
-				</article>
-			))
+			stats.map((stat) => {
+				const Tag = stat.href ? 'a' : 'article';
+				return (
+					<Tag
+						href={stat.href}
+						class="group relative block min-h-36 rounded-lg border border-border p-5 transition hover:border-accent-gold hover:shadow-sm"
+					>
+						<div class="flex items-start justify-between gap-4">
+							<p class="kicker tracking-[0.12em] sm:tracking-[0.28em]">
+								{stat.label}
+							</p>
+							<span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground">
+								<Icon name={stat.icon} class="h-4 w-4 text-accent-gold" />
+							</span>
+						</div>
+						<div class="mt-8">
+							<p class="stat-value text-3xl">{stat.value}</p>
+							<p class="stat-label mt-2 text-sm font-medium">{stat.meta}</p>
+						</div>
+					</Tag>
+				);
+			})
 		}
 	</div>
 
@@ -348,7 +373,7 @@ const stats = [
 						))
 					) : (
 						<div class="rounded-lg border border-dashed border-border p-6 text-sm text-muted-foreground">
-							Tu actividad reciente aparecera aqui cuando haya movimientos en tu
+							Tu actividad reciente aparecerá aquí cuando haya movimientos en tu
 							cuenta.
 						</div>
 					)

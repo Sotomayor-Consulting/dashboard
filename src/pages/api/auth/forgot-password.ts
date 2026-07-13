@@ -12,18 +12,39 @@ import {
 	redirectWithMessage,
 } from '@infrastructure/auth';
 import { safeBack } from '@infrastructure/security/headers';
+import { checkRateLimit } from '@infrastructure/security/rate-limit';
 import { TURNSTILE_SECRET_KEY } from 'astro:env/server';
 
 const wantsJson = (request: Request) =>
 	(request.headers.get('accept') ?? '').includes('application/json');
 
-export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
+export const POST: APIRoute = async ({
+	request,
+	cookies,
+	redirect,
+	url,
+	clientAddress,
+}) => {
 	const back = safeBack(url.searchParams.get('back'), PATHS.forgotPassword);
 
 	try {
 		const form = await request.formData();
 		const email = form.get('email')?.toString().trim() ?? '';
 		const turnstileToken = form.get('cf-turnstile-response')?.toString();
+
+		// Anti-abuso de envío de emails (además del límite de Supabase Auth):
+		// protege la cuota SMTP y dificulta la enumeración de cuentas.
+		const HOUR_MS = 3_600_000;
+		if (
+			!checkRateLimit(`forgot:ip:${clientAddress}`, 5, HOUR_MS) ||
+			(email &&
+				!checkRateLimit(`forgot:email:${email.toLowerCase()}`, 3, HOUR_MS))
+		) {
+			const msg = 'Demasiadas solicitudes. Intenta de nuevo en una hora.';
+			return wantsJson(request)
+				? jsonError(msg, 429)
+				: redirectWithMessage(redirect, msg, 'error', back);
+		}
 
 		// ─── Turnstile verification ──────────────────────
 		const turnstileSecret = TURNSTILE_SECRET_KEY;

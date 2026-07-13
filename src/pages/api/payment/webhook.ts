@@ -17,14 +17,24 @@ const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
 
 // Códigos Postgres "permanentes": no tiene sentido reintentar.
 // P0001 = raise exception genérico que usamos para validaciones de negocio.
-// P0002 = no_data_found (PaymentIntent aún no replicado por el FDW puede pasar,
-//          pero si tras varios minutos sigue faltando, es permanente).
 const PERMANENT_PG_CODES = new Set(['P0001']);
 
+// El schema `stripe` (FDW) ya no existe: el RPC recibe el PaymentIntent
+// completo como jsonb, recuperado aquí de la API de Stripe (fuente de verdad).
 async function registrarPago(paymentIntentId: string) {
+	if (!stripe) {
+		return {
+			data: null,
+			error: { message: 'Stripe no configurado' } as {
+				message: string;
+				code?: string;
+			},
+		};
+	}
+	const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
 	const { data, error } = await supabaseAdmin.rpc(
 		'registrar_pago_desde_stripe',
-		{ p_payment_intent_id: paymentIntentId },
+		{ p_payment_intent: pi as unknown as Record<string, unknown> },
 	);
 	return { data, error };
 }

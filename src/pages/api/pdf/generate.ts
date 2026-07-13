@@ -2,6 +2,10 @@ import type { APIRoute } from 'astro';
 import { generatePdf } from '@integrations/carbone';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
+import {
+	checkRateLimit,
+	rateLimitResponse,
+} from '@infrastructure/security/rate-limit';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('pdf.generate');
@@ -22,6 +26,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			headers: SECURITY_HEADERS,
 		});
 	}
+
+	// Generar un PDF levanta Chromium/Carbone: límite estricto por usuario
+	// para que un loop de requests no agote CPU/memoria del contenedor.
+	if (!checkRateLimit(`pdf:${user.id}`, 5, 60_000)) {
+		return rateLimitResponse(SECURITY_HEADERS);
+	}
+
 	try {
 		// 1. Leer JSON del body
 		const rawBody = await request.json().catch(() => ({}));

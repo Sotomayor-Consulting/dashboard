@@ -301,6 +301,9 @@ export class AuthService {
 
 		const { error } = await this.supabase.auth.updateUser({
 			password: newPassword,
+			// Limpia el flag de invitación (el middleware fuerza /set-password
+			// mientras esté en true). Inofensivo para el flujo de recovery.
+			data: { must_set_password: false },
 		});
 
 		if (error) {
@@ -308,6 +311,16 @@ export class AuthService {
 			throw new AuthError(
 				friendlyAuthError(error.message, error.code),
 			);
+		}
+
+		// Re-emitir el JWT: los claims (user_metadata) del token en cookies
+		// quedaron desactualizados; sin esto el middleware seguiría viendo
+		// must_set_password=true hasta el próximo refresh (~1h).
+		const { error: refreshError } = await this.supabase.auth.refreshSession();
+		if (refreshError) {
+			log.warn('refreshSession tras resetPassword falló', {
+				message: refreshError.message,
+			});
 		}
 	}
 

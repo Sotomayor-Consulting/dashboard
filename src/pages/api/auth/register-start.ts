@@ -12,9 +12,23 @@ import {
 	jsonSuccess,
 } from '@infrastructure/auth';
 import { safeBack } from '@infrastructure/security/headers';
+import { checkRateLimit } from '@infrastructure/security/rate-limit';
 
-export const POST: APIRoute = async ({ request, cookies, url }) => {
+export const POST: APIRoute = async ({
+	request,
+	cookies,
+	url,
+	clientAddress,
+}) => {
 	try {
+		// Anti-abuso: creación masiva de cuentas dispara emails de confirmación
+		if (!checkRateLimit(`register:ip:${clientAddress}`, 5, 3_600_000)) {
+			return jsonError(
+				'Demasiados registros desde esta conexión. Intenta más tarde.',
+				429,
+			);
+		}
+
 		const form = await request.formData();
 		const next = safeBack(
 			form.get('next')?.toString() ?? url.searchParams.get('next'),

@@ -11,7 +11,6 @@ import {
 } from '@domains/users/users';
 import { getAvatarUrl } from '@shared/avatar';
 import { getNotifications } from '@domains/users/notifications';
-import { getEstadoIncorporacionByUserId } from '@domains/companies/incorporations';
 import {
 	getEmpresasForSwitcher,
 	resolveActiveCompany,
@@ -25,17 +24,14 @@ const userId = user?.id;
 
 let usuario: any = null;
 let notificationsData: any = { notifications: [], totalUnread: 0 };
-let incorporaciones: any[] = [];
 let empresasSwitcher: EmpresaSwitcherItem[] = [];
 
 if (user && userId) {
-	[usuario, notificationsData, incorporaciones, empresasSwitcher] =
-		await Promise.all([
-			getUsuarioById(supabase, userId),
-			getNotifications(supabase, userId),
-			getEstadoIncorporacionByUserId(supabase, userId),
-			getEmpresasForSwitcher(supabase, userId),
-		]);
+	[usuario, notificationsData, empresasSwitcher] = await Promise.all([
+		getUsuarioById(supabase, userId),
+		getNotifications(supabase, userId),
+		getEmpresasForSwitcher(supabase, userId),
+	]);
 }
 
 const activeCompany = resolveActiveCompany(
@@ -51,15 +47,6 @@ const routeCompany = routeCompanyId
 	? (empresasSwitcher.find((company) => company.id === routeCompanyId) ?? null)
 	: null;
 const selectedCompany = routeCompany ?? activeCompany;
-
-// Derivar datos de banner desde los resultados
-const showBannerEnProceso =
-	incorporaciones?.length > 0 &&
-	incorporaciones.some((c: any) => c.state === 'draft');
-
-const showBannerUpgrade =
-	incorporaciones?.length > 0 &&
-	incorporaciones.some((c: any) => c.state === 'upgrade');
 
 /*
 	Toast de validacion partner deshabilitado temporalmente.
@@ -101,8 +88,6 @@ const avatarUrl = getAvatarUrl(usuario?.avatar_url, supabase);
 				<Toaster client:load />
 			</div>
 			<BannerToastManager
-				showBannerEnProceso={showBannerEnProceso}
-				showBannerUpgrade={showBannerUpgrade}
 				showBannerPartner={showBannerPartner}
 				missingFields={missingPartnerFields}
 				client:load

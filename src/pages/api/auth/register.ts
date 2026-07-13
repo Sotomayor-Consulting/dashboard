@@ -13,11 +13,25 @@ import {
 	jsonSuccess,
 	jsonError,
 } from '@infrastructure/auth';
+import { checkRateLimit } from '@infrastructure/security/rate-limit';
 
-export const POST: APIRoute = async ({ request, cookies, redirect }) => {
+export const POST: APIRoute = async ({
+	request,
+	cookies,
+	redirect,
+	clientAddress,
+}) => {
 	const wantsJson = request.headers
 		.get('Accept')
 		?.includes('application/json');
+
+	// Anti-abuso: creación masiva de cuentas dispara emails de confirmación
+	if (!checkRateLimit(`register:ip:${clientAddress}`, 5, 3_600_000)) {
+		const msg = 'Demasiados registros desde esta conexión. Intenta más tarde.';
+		return wantsJson
+			? jsonError(msg, 429)
+			: redirectWithMessage(redirect, msg, 'error', PATHS.signUp);
+	}
 
 	const supabase = createSupabaseServerClient({
 		headers: request.headers,

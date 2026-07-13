@@ -1,0 +1,157 @@
+- generic [active] [ref=e57]:
+  - main [ref=e58]:
+    - navigation [ref=e59]:
+      - generic [ref=e61]:
+        - navigation "Breadcrumb" [ref=e63]:
+          - link "Inicio" [ref=e64] [cursor=pointer]:
+            - /url: /
+        - generic [ref=e65]:
+          - button "Cambiar tema oscuro/claro" [ref=e66]
+          - button "15 Ver notificaciones" [ref=e71] [cursor=pointer]:
+            - generic [ref=e72]: "15"
+            - generic [ref=e73]: Ver notificaciones
+          - button "Avatar Jhon Doe" [ref=e75] [cursor=pointer]:
+            - img "Avatar" [ref=e76]
+            - generic [ref=e77]: Jhon Doe
+    - complementary [ref=e80]:
+      - button "Catana Technology Consulting LLC Wyoming" [ref=e83] [cursor=pointer]:
+        - generic [ref=e88]:
+          - generic [ref=e89]: Catana Technology Consulting LLC
+          - generic [ref=e90]: Wyoming
+      - button "Abrir búsqueda" [ref=e94]:
+        - generic [ref=e97]: Search...
+        - generic [ref=e98]:
+          - generic [ref=e99]: Ctrl
+          - generic [ref=e100]: K
+      - navigation [ref=e101]:
+        - list [ref=e102]:
+          - listitem [ref=e103]:
+            - link "Inicio" [ref=e104] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e108]:
+            - paragraph [ref=e109]: Company
+            - list [ref=e110]:
+              - listitem [ref=e111]:
+                - link "Crea una LLC" [ref=e112] [cursor=pointer]:
+                  - /url: /start/
+              - listitem [ref=e116]:
+                - link "Incorporación" [ref=e117] [cursor=pointer]:
+                  - /url: /my-companies/4226c73d-4b18-47db-b279-07e5edcba900/dashboard
+              - listitem [ref=e121]:
+                - link "Empresa" [ref=e122] [cursor=pointer]:
+                  - /url: /my-companies/4226c73d-4b18-47db-b279-07e5edcba900/company
+              - listitem [ref=e126]:
+                - link "Consultas" [ref=e127] [cursor=pointer]:
+                  - /url: /consultations/
+          - listitem [ref=e131]:
+            - paragraph [ref=e132]: Servicios
+            - list [ref=e133]:
+              - listitem [ref=e134]:
+                - link "Otros servicios" [ref=e135] [cursor=pointer]:
+                  - /url: /services/
+              - listitem [ref=e139]:
+                - link "Órdenes" [ref=e140] [cursor=pointer]:
+                  - /url: /orders/
+          - listitem [ref=e144]:
+            - paragraph [ref=e145]: Cuenta
+            - list [ref=e146]:
+              - listitem [ref=e147]:
+                - group [ref=e148]:
+                  - generic "Ajustes" [ref=e149] [cursor=pointer]
+      - navigation [ref=e155]:
+        - button "Feedback Beta" [ref=e156] [cursor=pointer]:
+          - generic [ref=e159]: Feedback
+          - generic [ref=e160]: Beta
+        - link "Ayuda & Soporte" [ref=e161] [cursor=pointer]:
+          - /url: mailto:info@sotomayorconsulting.com
+    - generic [ref=e168]:
+      - generic:
+        - generic:
+          - region "Notifications alt+T"
+      - generic [ref=e170]:
+        - generic [ref=e171]:
+          - generic [ref=e172]:
+            - paragraph [ref=e173]: Bienvenido de nuevo
+            - heading "Hola, Jhon" [level=1] [ref=e174]
+            - paragraph [ref=e175]: Aqui tienes un resumen de tu actividad en Catana Technology Consulting LLC.
+          - link "Ver mi Empresa" [ref=e176] [cursor=pointer]:
+            - /url: /start/
+        - generic [ref=e179]:
+          - article [ref=e180]:
+            - paragraph [ref=e182]: Empresas activas
+            - generic [ref=e186]:
+              - paragraph [ref=e187]: "7"
+              - paragraph [ref=e188]: 9 empresas registradas
+          - article [ref=e189]:
+            - paragraph [ref=e191]: Tareas pendientes
+            - generic [ref=e195]:
+              - paragraph [ref=e196]: "17"
+              - paragraph [ref=e197]: 15 sin leer
+          - article [ref=e198]:
+            - paragraph [ref=e200]: Proxima cita
+            - generic [ref=e204]:
+              - paragraph [ref=e205]: Por agendar
+              - paragraph [ref=e206]: Reserva cuando estes listo
+          - article [ref=e207]:
+            - paragraph [ref=e209]: Documentos
+            - generic [ref=e213]:
+              - paragraph [ref=e214]: "0"
+              - paragraph [ref=e215]: 0 disponibles
+        - generic [ref=e216]:
+          - generic [ref=e217]:
+            - generic [ref=e218]:
+              - heading "Acciones rápidas" [level=2] [ref=e219]
+              - link "Ver todo" [ref=e220] [cursor=pointer]:
+                - /url: /services
+            - generic [ref=e221]:
+              - link "Crea una LLC Constituye una nueva empresa en minutos." [ref=e222] [cursor=pointer]:
+                - /url: /start/
+                - generic [ref=e226]:
+                  - generic [ref=e227]: Crea una LLC
+                  - generic [ref=e228]: Constituye una nueva empresa en minutos.
+              - link "Agendar cita Reserva una sesion con un asesor." [ref=e231] [cursor=pointer]:
+                - /url: /services
+                - generic [ref=e235]:
+                  - generic [ref=e236]: Agendar cita
+                  - generic [ref=e237]: Reserva una sesion con un asesor.
+              - link "Mi perfil Gestiona tu informacion personal." [ref=e240] [cursor=pointer]:
+                - /url: /profile/general
+                - generic [ref=e244]:
+                  - generic [ref=e245]: Mi perfil
+                  - generic [ref=e246]: Gestiona tu informacion personal.
+              - link "Otros servicios Explora todo lo que ofrecemos." [ref=e249] [cursor=pointer]:
+                - /url: /services
+                - generic [ref=e253]:
+                  - generic [ref=e254]: Otros servicios
+                  - generic [ref=e255]: Explora todo lo que ofrecemos.
+          - complementary [ref=e258]:
+            - generic [ref=e259]:
+              - heading "Actividad" [level=2] [ref=e260]
+              - generic [ref=e261]: Activo
+            - generic [ref=e263]:
+              - link "Su pago se registró con éxito. Nuestro equipo iniciará el proceso de incorporación en breve. Hoy" [ref=e264] [cursor=pointer]:
+                - /url: /notifications
+                - generic [ref=e268]:
+                  - generic [ref=e269]: Su pago se registró con éxito. Nuestro equipo iniciará el proceso de incorporación en breve.
+                  - generic [ref=e270]: Hoy
+              - 'link "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial! Hoy" [ref=e271] [cursor=pointer]':
+                - /url: /incorporation-and-payment
+                - generic [ref=e275]:
+                  - generic [ref=e276]: "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial!"
+                  - generic [ref=e277]: Hoy
+              - 'link "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial! Ayer" [ref=e278] [cursor=pointer]':
+                - /url: /incorporation-and-payment
+                - generic [ref=e282]:
+                  - generic [ref=e283]: "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial!"
+                  - generic [ref=e284]: Ayer
+              - 'link "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial! Hace 4 dias" [ref=e285] [cursor=pointer]':
+                - /url: /incorporation-and-payment
+                - generic [ref=e289]:
+                  - generic [ref=e290]: "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial!"
+                  - generic [ref=e291]: Hace 4 dias
+              - 'link "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial! Hace 4 dias" [ref=e292] [cursor=pointer]':
+                - /url: /incorporation-and-payment
+                - generic [ref=e296]:
+                  - generic [ref=e297]: "¡Excelente! Tu primer paso para la incorporación está completado. Ahora, el paso decisivo te espera: finaliza la configuración de tu empresa e ingresa los datos relevantes para proceder al pago. ¡Estás a un paso de hacerlo oficial!"
+                  - generic [ref=e298]: Hace 4 dias
+  - generic [ref=e299]: SOTOMAYOR CONSULTING DASHBOARD — v1.0.1

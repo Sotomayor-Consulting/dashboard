@@ -8,6 +8,7 @@ import {
 	uploadDocument,
 } from '@domains/documents';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { checkRateLimit } from '@infrastructure/security/rate-limit';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('documents.upload');
@@ -69,6 +70,15 @@ export const POST: APIRoute = async ({
 
 	if (!relatedToId) {
 		return redirectWithStatus('error', 'Falta relatedToId');
+	}
+
+	// Anti-abuso de storage: tope de subidas por usuario autenticado
+	const rlKey = `docs-upload:${locals.user?.id ?? 'anon'}`;
+	if (!checkRateLimit(rlKey, 20, 60_000)) {
+		return redirectWithStatus(
+			'error',
+			'Demasiadas subidas seguidas. Espera un minuto e intenta de nuevo.',
+		);
 	}
 
 	try {
