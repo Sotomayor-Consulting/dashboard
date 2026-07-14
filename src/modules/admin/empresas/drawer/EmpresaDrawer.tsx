@@ -9,10 +9,7 @@ import { Skeleton } from '@components/ui/Skeleton';
 
 import type { AdminEmpresaDetail } from '@modules/admin/lib/empresa-types';
 import { InitialsAvatar } from '@modules/admin/usuarios/cells/InitialsAvatar';
-import {
-	EntityTypeBadge,
-	LegalStatusBadge,
-} from '../cells/EntityBadge';
+import { EntityTypeBadge, LegalStatusBadge } from '../cells/EntityBadge';
 
 interface Props {
 	empresaId: string | null;
@@ -83,9 +80,13 @@ export function EmpresaDrawer({ empresaId, onClose }: Props) {
 									<p className="mt-0.5 text-[11.5px] text-gray-500 dark:text-gray-400">
 										{data.formationState ?? 'Sin estado'} ·{' '}
 										{data.incorporationDate
-											? format(new Date(data.incorporationDate), 'dd MMM yyyy', {
-													locale: es,
-												})
+											? format(
+													new Date(data.incorporationDate),
+													'dd MMM yyyy',
+													{
+														locale: es,
+													},
+												)
 											: 'Sin fecha'}
 									</p>
 								</div>
@@ -100,7 +101,10 @@ export function EmpresaDrawer({ empresaId, onClose }: Props) {
 							<dl className="grid grid-cols-2 gap-3 text-[12px]">
 								<KV label="EIN" value={data.ein} mono />
 								<KV label="Filing #" value={data.filingNumber} mono />
-								<KV label="Clasificación fiscal" value={data.taxClassification} />
+								<KV
+									label="Clasificación fiscal"
+									value={data.taxClassification}
+								/>
 								<KV label="Tipo de gestión" value={data.managementType} />
 								<KV
 									label="Ingreso fuente US"
@@ -170,7 +174,7 @@ export function EmpresaDrawer({ empresaId, onClose }: Props) {
 													</span>
 												)}
 												{m.percentage !== null && (
-													<span className="font-mono text-[11.5px] tabular-nums text-gray-600 dark:text-gray-300">
+													<span className="font-mono text-[11.5px] text-gray-600 tabular-nums dark:text-gray-300">
 														{m.percentage}%
 													</span>
 												)}
@@ -197,7 +201,9 @@ export function EmpresaDrawer({ empresaId, onClose }: Props) {
 												{a.type ?? 'Dirección'}
 											</p>
 											<p className="mt-1 text-[12px] text-gray-700 dark:text-gray-200">
-												{[a.line1, a.city, a.state, a.zip].filter(Boolean).join(', ')}
+												{[a.line1, a.city, a.state, a.zip]
+													.filter(Boolean)
+													.join(', ')}
 											</p>
 										</div>
 									))}
@@ -213,7 +219,7 @@ export function EmpresaDrawer({ empresaId, onClose }: Props) {
 									size="sm"
 									className="gap-1.5"
 									render={
-										<a href={`/incorporations/${data.incorporationId}`}>
+										<a href={`/admin/incorporations/${data.incorporationId}`}>
 											<Icon icon="ri:file-list-3-line" className="h-4 w-4" />
 											Ver proceso
 										</a>
@@ -224,7 +230,7 @@ export function EmpresaDrawer({ empresaId, onClose }: Props) {
 								size="sm"
 								className="ml-auto gap-1.5"
 								render={
-									<a href={`/companies/${data.id}`}>
+									<a href={`/admin/companies/${data.id}`}>
 										Ir al detalle
 										<Icon icon="ri:arrow-right-line" className="h-4 w-4" />
 									</a>

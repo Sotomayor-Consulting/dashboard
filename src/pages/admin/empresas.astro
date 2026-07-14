@@ -1,16 +1,4 @@
 ---
-import LayoutSidebar from '@layouts/LayoutSidebar.astro';
-import EmpresasPage from '@modules/admin/empresas/EmpresasPage';
-
-const userRoles = Astro.locals.userRoles ?? [];
-const allowedRoles = ['admin', 'operaciones'];
-const canView = userRoles.some((r) => allowedRoles.includes(r));
-
-if (!canView) {
-	return Astro.redirect('/?status=error&msg=Acceso restringido');
-}
+// Ruta legacy: renombrada a /admin/companies.
+return Astro.redirect(`/admin/companies${Astro.url.search}`, 301);
 ---
-
-<LayoutSidebar>
-	<EmpresasPage client:load />
-</LayoutSidebar>

@@ -1,0 +1,16 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import EmpresasPage from '@modules/admin/empresas/EmpresasPage';
+
+const userRoles = Astro.locals.userRoles ?? [];
+const allowedRoles = ['admin', 'operaciones'];
+const canView = userRoles.some((r) => allowedRoles.includes(r));
+
+if (!canView) {
+	return Astro.redirect('/?status=error&msg=Acceso restringido');
+}
+---
+
+<LayoutSidebar>
+	<EmpresasPage client:load />
+</LayoutSidebar>

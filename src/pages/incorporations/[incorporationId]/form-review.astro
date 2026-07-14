@@ -1,12 +1,6 @@
 ---
-import LayoutSidebar from '@layouts/LayoutSidebar.astro';
-import FormReview from '../../../modules/company-operations/stages/02-client-form/FormReview.astro';
-import Alerta from '@components/feedback/Alert.astro';
-
-const { incorporationId } = Astro.params;
+return Astro.redirect(
+	`/admin/incorporations/${Astro.params.incorporationId}/form-review`,
+	301,
+);
 ---
-
-<LayoutSidebar>
-	<Alerta />
-	<FormReview incorporationId={incorporationId} />
-</LayoutSidebar>

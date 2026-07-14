@@ -1,10 +1,4 @@
 ---
-import LayoutSidebar from '@layouts/LayoutSidebar.astro';
-import MyCompanies from '@modules/companies/MyCompanies.astro';
-import Alerta from '@components/feedback/Alert.astro';
+// Ruta legacy: la vista cliente de incorporaciones vive en /incorporation/.
+return Astro.redirect('/incorporation/', 301);
 ---
-
-<LayoutSidebar>
-	<Alerta />
-	<MyCompanies />
-</LayoutSidebar>

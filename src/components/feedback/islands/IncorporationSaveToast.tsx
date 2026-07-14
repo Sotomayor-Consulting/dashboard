@@ -6,7 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from '@components/ui/Alert';
 import { Button } from '@components/ui/Button';
 
 const STORAGE_KEY = 'incorpData';
-const REDIRECT_URL = '/my-companies/';
+const REDIRECT_URL = '/incorporation/';
 const START_URL = '/start/';
 const TOAST_ID = 'incorp-save';
 
@@ -113,9 +113,9 @@ export default function IncorporationSaveToast() {
 						}}
 						{...(redirectTo
 							? {
-								onAction: handleRedirect,
-								actionLabel: 'Ir ahora',
-							}
+									onAction: handleRedirect,
+									actionLabel: 'Ir ahora',
+								}
 							: {})}
 					/>
 				),
@@ -151,7 +151,10 @@ export default function IncorporationSaveToast() {
 
 				const formData = new FormData();
 				formData.append('tipo_de_empresa', data.tipo_de_empresa || '');
-				formData.append('estado_de_empresa', String(data.estado_de_empresa || ''));
+				formData.append(
+					'estado_de_empresa',
+					String(data.estado_de_empresa || ''),
+				);
 				formData.append('nombre_1', data.nombre_1 || '');
 				formData.append('nombre_2', data.nombre_2 || '');
 				formData.append('nombre_3', data.nombre_3 || '');

@@ -385,7 +385,7 @@ export async function sendPaymentSucceededEmailByPaymentIntent(
 
 	return sendPaymentSucceededEmail({
 		caseId: data.empresa_incorporacion_id as string,
-		actionUrl: `/my-companies/${data.empresa_incorporacion_id}/dashboard`,
+		actionUrl: `/incorporation/${data.empresa_incorporacion_id}`,
 		serviceName:
 			(data.servicios as { nombre?: string | null } | null)?.nombre ?? null,
 	});

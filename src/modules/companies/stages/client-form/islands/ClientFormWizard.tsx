@@ -635,7 +635,7 @@ export default function ClientFormWizard({
 							canSubmit={true}
 							isSubmitting={isSubmitting}
 							hidePrev={currentStep === 1}
-							backHref={`/my-companies/${empresaId}/dashboard`}
+							backHref={`/incorporation/${empresaId}`}
 							nextLabel={currentStep === 1 ? 'Comenzar formulario' : undefined}
 						>
 							{rejectionReason && (
@@ -643,13 +643,43 @@ export default function ClientFormWizard({
 									className="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300"
 									role="alert"
 								>
-									<svg className="mt-0.5 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+									<svg
+										className="mt-0.5 shrink-0"
+										width="18"
+										height="18"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
+										<circle cx="12" cy="12" r="10" />
+										<path d="M12 8v4M12 16h.01" />
+									</svg>
 									<div className="min-w-0 flex-1">
 										<p className="font-semibold">Correcciones solicitadas</p>
 										<p className="mt-1">{rejectionReason}</p>
 									</div>
-									<button type="button" onClick={() => setRejectionReason(null)} aria-label="Cerrar" className="-m-1 shrink-0 rounded p-1 opacity-70 hover:opacity-100">
-										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+									<button
+										type="button"
+										onClick={() => setRejectionReason(null)}
+										aria-label="Cerrar"
+										className="-m-1 shrink-0 rounded p-1 opacity-70 hover:opacity-100"
+									>
+										<svg
+											width="14"
+											height="14"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										>
+											<path d="M18 6 6 18M6 6l12 12" />
+										</svg>
 									</button>
 								</div>
 							)}
@@ -676,12 +706,8 @@ export default function ClientFormWizard({
 											countries={countries}
 										/>
 									)}
-									{currentStep === 3 && (
-										<StepMembers countries={countries} />
-									)}
-									{currentStep === 4 && (
-										<StepManager countries={countries} />
-									)}
+									{currentStep === 3 && <StepMembers countries={countries} />}
+									{currentStep === 4 && <StepManager countries={countries} />}
 									{currentStep === 5 && (
 										<StepConfirmation
 											activities={activities}

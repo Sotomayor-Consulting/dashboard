@@ -1,5 +1,10 @@
-import type { CompanyEntityType, CompanyManagementType, CompanyLegalStatus, CompanyTaxClassification } from "@domains/companies/types/company";
-import type { CompanyAddressType } from "@domains/companies/types/company-address";
+import type {
+	CompanyEntityType,
+	CompanyManagementType,
+	CompanyLegalStatus,
+	CompanyTaxClassification,
+} from '@domains/companies/types/company';
+import type { CompanyAddressType } from '@domains/companies/types/company-address';
 
 export interface Country {
 	id: number;
@@ -158,6 +163,7 @@ export interface CompanyMemberItem {
 
 export interface CompanyItem {
 	id: string;
+	user_id: string | null;
 	legal_name: string | null;
 	filing_number: string | null;
 	identification_number: string | null;

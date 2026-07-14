@@ -10,6 +10,7 @@ import Head from '@modules/companies/components/dashboard-companies/DashboardHea
 import ProcessIncorp from '@modules/companies/components/dashboard-companies/IncorporationProcess.astro';
 import ModalDropzone from '@modules/companies/components/dashboard-companies/DropzoneModal.astro';
 import { getClientWorkflowProgress } from '@modules/companies/services/get-client-workflow-progress';
+import { incorporationTabs } from '@modules/companies/incorporation-tabs';
 
 interface Props {
 	empresaId: string | undefined;
@@ -87,7 +88,11 @@ if (upgradeAvailable || hasNoWorkflow) {
 		.order('stage_id', { ascending: true });
 
 	if (catalogStages) {
-		lockedStages = (catalogStages as unknown as { stage: { name: string; slug: string; display_order: number } }[])
+		lockedStages = (
+			catalogStages as unknown as {
+				stage: { name: string; slug: string; display_order: number };
+			}[]
+		)
 			.map((r) => r.stage)
 			.filter((s) => !currentSlugs.has(s.slug))
 			.sort((a, b) => a.display_order - b.display_order)
@@ -95,31 +100,7 @@ if (upgradeAvailable || hasNoWorkflow) {
 	}
 }
 
-const tabs = [
-	{
-		id: 'general',
-		label: 'General',
-		icon: 'ri:apps-2-ai-line',
-		kind: 'panel' as const,
-		active: true,
-	},
-	{
-		id: 'documents',
-		label: 'Documentos',
-		icon: 'ri:file-copy-line',
-		kind: 'link' as const,
-		link: `/my-companies/${empresaId}/documents`,
-		active: false,
-	},
-	{
-		id: 'orders',
-		label: 'Ordenes',
-		icon: 'ri:contract-line',
-		kind: 'link' as const,
-		link: `/my-companies/${empresaId}/orders`,
-		active: false,
-	},
-];
+const tabs = incorporationTabs(empresaId, 'general');
 ---
 
 <div>

@@ -19,13 +19,13 @@ interface Props {
 const { incorporationId } = Astro.props;
 const supabase = Astro.locals.supabase;
 
-if (!incorporationId) return Astro.redirect('/incorporations');
+if (!incorporationId) return Astro.redirect('/admin/incorporations');
 
 const form = await getIncorporationForm(supabase, incorporationId);
-if (!form) return Astro.redirect(`/incorporations/${incorporationId}`);
+if (!form) return Astro.redirect(`/admin/incorporations/${incorporationId}`);
 
 const payload = form.payload as IncorporationFormPayloadV2 | null;
-if (!payload) return Astro.redirect(`/incorporations/${incorporationId}`);
+if (!payload) return Astro.redirect(`/admin/incorporations/${incorporationId}`);
 
 const { data: empresa } = await supabase
 	.from('incorporations')
@@ -36,8 +36,7 @@ const { data: empresa } = await supabase
 const companyName =
 	(empresa as { principal_name?: string } | null)?.principal_name ?? 'Empresa';
 
-const canValidate =
-	form.status === 'submitted' || form.status === 'in_review';
+const canValidate = form.status === 'submitted' || form.status === 'in_review';
 
 const countryName = (
 	c: { name?: string; iso?: string } | string | null | undefined,
@@ -98,8 +97,7 @@ for (const m of members) {
 	memberFiles.push(docs);
 }
 
-const managerFiles: Array<{ passport: FileWithUrl; utility: FileWithUrl }> =
-	[];
+const managerFiles: Array<{ passport: FileWithUrl; utility: FileWithUrl }> = [];
 for (const mg of managers) {
 	managerFiles.push({
 		passport: await resolveFile(mg.documents?.passport),
@@ -117,7 +115,8 @@ const STATUS_LABELS: Record<
 	},
 	submitted: {
 		text: 'Enviado — pendiente de validación',
-		class: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+		class:
+			'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
 	},
 	in_review: {
 		text: 'En revisión',
@@ -125,7 +124,8 @@ const STATUS_LABELS: Record<
 	},
 	validated: {
 		text: 'Validado',
-		class: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+		class:
+			'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
 	},
 	rejected: {
 		text: 'Devuelto con observaciones',
@@ -133,7 +133,8 @@ const STATUS_LABELS: Record<
 	},
 	promoted: {
 		text: 'Promovido',
-		class: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+		class:
+			'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
 	},
 };
 const statusInfo = STATUS_LABELS[form.status] ?? STATUS_LABELS.draft;
@@ -148,7 +149,7 @@ const inputXsCls =
 	<header class="mb-6 flex flex-wrap items-center justify-between gap-4">
 		<div class="min-w-0">
 			<a
-				href={`/incorporations/${incorporationId}`}
+				href={`/admin/incorporations/${incorporationId}`}
 				class="mb-2 inline-flex items-center gap-1 text-xs text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
 			>
 				<Icon name="ri:arrow-left-line" class="h-3.5 w-3.5" />
@@ -178,9 +179,8 @@ const inputXsCls =
 			class="h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400"
 		/>
 		<p class="text-sm text-blue-800 dark:text-blue-200">
-			<span class="font-semibold">Modo edición activo.</span> Los cambios
-			se guardarán y el cliente deberá firmar y aceptar los términos
-			nuevamente.
+			<span class="font-semibold">Modo edición activo.</span> Los cambios se guardarán
+			y el cliente deberá firmar y aceptar los términos nuevamente.
 		</p>
 	</div>
 
@@ -191,10 +191,7 @@ const inputXsCls =
 		<h2
 			class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-950 dark:text-white"
 		>
-			<Icon
-				name="ri:building-4-line"
-				class="h-4.5 w-4.5 text-gray-400"
-			/>
+			<Icon name="ri:building-4-line" class="h-4.5 w-4.5 text-gray-400" />
 			Actividad y configuración
 		</h2>
 		<dl class="grid gap-3 sm:grid-cols-2">
@@ -203,10 +200,25 @@ const inputXsCls =
 					Ingresos de EE. UU.
 				</dt>
 				<dd class="text-sm text-gray-900 dark:text-white">
-					<span class="js-read">{g?.usSourceIncome === true ? 'Sí' : g?.usSourceIncome === false ? 'No' : '—'}</span>
-					<select class={`js-edit hidden ${inputCls}`} data-field="general.usSourceIncome">
-						<option value="true" selected={g?.usSourceIncome === true}>Sí</option>
-						<option value="false" selected={g?.usSourceIncome === false}>No</option>
+					<span class="js-read"
+						>{
+							g?.usSourceIncome === true
+								? 'Sí'
+								: g?.usSourceIncome === false
+									? 'No'
+									: '—'
+						}</span
+					>
+					<select
+						class={`js-edit hidden ${inputCls}`}
+						data-field="general.usSourceIncome"
+					>
+						<option value="true" selected={g?.usSourceIncome === true}
+							>Sí</option
+						>
+						<option value="false" selected={g?.usSourceIncome === false}
+							>No</option
+						>
 					</select>
 				</dd>
 			</div>
@@ -215,7 +227,13 @@ const inputXsCls =
 					Actividad
 				</dt>
 				<dd class="text-sm text-gray-900 dark:text-white">
-					<span class="js-read">{g?.activity?.notListed ? g?.activity?.description : g?.activity?.id || '—'}</span>
+					<span class="js-read"
+						>{
+							g?.activity?.notListed
+								? g?.activity?.description
+								: g?.activity?.id || '—'
+						}</span
+					>
 					<input
 						type="text"
 						class={`js-edit hidden ${inputCls}`}
@@ -243,7 +261,9 @@ const inputXsCls =
 					Descripción IRS
 				</dt>
 				<dd class="text-sm text-gray-900 dark:text-white">
-					<span class="js-read">{g?.activity?.irsActivityDescription || '—'}</span>
+					<span class="js-read"
+						>{g?.activity?.irsActivityDescription || '—'}</span
+					>
 					<input
 						type="text"
 						class={`js-edit hidden ${inputCls}`}
@@ -258,9 +278,20 @@ const inputXsCls =
 				</dt>
 				<dd class="text-sm text-gray-900 dark:text-white">
 					<span class="js-read">{g?.management || '—'}</span>
-					<select class={`js-edit hidden ${inputCls}`} data-field="general.management">
-						<option value="manager-managed" selected={g?.management === 'manager-managed'}>Manager-Managed</option>
-						<option value="member-managed" selected={g?.management === 'member-managed'}>Member-Managed</option>
+					<select
+						class={`js-edit hidden ${inputCls}`}
+						data-field="general.management"
+					>
+						<option
+							value="manager-managed"
+							selected={g?.management === 'manager-managed'}
+							>Manager-Managed</option
+						>
+						<option
+							value="member-managed"
+							selected={g?.management === 'member-managed'}
+							>Member-Managed</option
+						>
 					</select>
 				</dd>
 			</div>
@@ -270,9 +301,17 @@ const inputXsCls =
 				</dt>
 				<dd class="text-sm text-gray-900 dark:text-white">
 					<span class="js-read">{g?.taxation || '—'}</span>
-					<select class={`js-edit hidden ${inputCls}`} data-field="general.taxation">
-						<option value="pass-through" selected={g?.taxation === 'pass-through'}>Pass-Through</option>
-						<option value="corporation" selected={g?.taxation === 'corporation'}>Corporation</option>
+					<select
+						class={`js-edit hidden ${inputCls}`}
+						data-field="general.taxation"
+					>
+						<option
+							value="pass-through"
+							selected={g?.taxation === 'pass-through'}>Pass-Through</option
+						>
+						<option value="corporation" selected={g?.taxation === 'corporation'}
+							>Corporation</option
+						>
 					</select>
 				</dd>
 			</div>
@@ -286,21 +325,42 @@ const inputXsCls =
 		<h2
 			class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-950 dark:text-white"
 		>
-			<Icon
-				name="ri:map-pin-line"
-				class="h-4.5 w-4.5 text-gray-400"
-			/>
+			<Icon name="ri:map-pin-line" class="h-4.5 w-4.5 text-gray-400" />
 			Dirección operativa
 		</h2>
 		<dl class="grid gap-3 sm:grid-cols-2">
 			{
 				[
-					{ label: 'País', field: 'general.operatingAddress.country', value: countryName(addr?.country) },
-					{ label: 'Línea 1', field: 'general.operatingAddress.line1', value: addr?.line1 || '—' },
-					{ label: 'Línea 2', field: 'general.operatingAddress.line2', value: addr?.line2 || '—' },
-					{ label: 'Ciudad', field: 'general.operatingAddress.city', value: addr?.city || '—' },
-					{ label: 'Estado', field: 'general.operatingAddress.state', value: addr?.state || '—' },
-					{ label: 'Código postal', field: 'general.operatingAddress.postalCode', value: addr?.postalCode || '—' },
+					{
+						label: 'País',
+						field: 'general.operatingAddress.country',
+						value: countryName(addr?.country),
+					},
+					{
+						label: 'Línea 1',
+						field: 'general.operatingAddress.line1',
+						value: addr?.line1 || '—',
+					},
+					{
+						label: 'Línea 2',
+						field: 'general.operatingAddress.line2',
+						value: addr?.line2 || '—',
+					},
+					{
+						label: 'Ciudad',
+						field: 'general.operatingAddress.city',
+						value: addr?.city || '—',
+					},
+					{
+						label: 'Estado',
+						field: 'general.operatingAddress.state',
+						value: addr?.state || '—',
+					},
+					{
+						label: 'Código postal',
+						field: 'general.operatingAddress.postalCode',
+						value: addr?.postalCode || '—',
+					},
 				].map(({ label, field, value }) => (
 					<div>
 						<dt class="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -439,16 +499,28 @@ const inputXsCls =
 												class={`js-edit hidden ${inputXsCls}`}
 												data-field={`${pre}.maritalStatus`}
 											>
-												<option value="single" selected={(m as any).maritalStatus === 'single'}>
+												<option
+													value="single"
+													selected={(m as any).maritalStatus === 'single'}
+												>
 													Soltero(a)
 												</option>
-												<option value="married" selected={(m as any).maritalStatus === 'married'}>
+												<option
+													value="married"
+													selected={(m as any).maritalStatus === 'married'}
+												>
 													Casado(a)
 												</option>
-												<option value="divorced" selected={(m as any).maritalStatus === 'divorced'}>
+												<option
+													value="divorced"
+													selected={(m as any).maritalStatus === 'divorced'}
+												>
 													Divorciado(a)
 												</option>
-												<option value="widowed" selected={(m as any).maritalStatus === 'widowed'}>
+												<option
+													value="widowed"
+													selected={(m as any).maritalStatus === 'widowed'}
+												>
 													Viudo(a)
 												</option>
 											</select>
@@ -467,10 +539,16 @@ const inputXsCls =
 												data-field={`${pre}.usTaxResident`}
 												data-type="boolean"
 											>
-												<option value="true" selected={(m as any).usTaxResident}>
+												<option
+													value="true"
+													selected={(m as any).usTaxResident}
+												>
 													Sí
 												</option>
-												<option value="false" selected={!(m as any).usTaxResident}>
+												<option
+													value="false"
+													selected={!(m as any).usTaxResident}
+												>
 													No
 												</option>
 											</select>
@@ -556,7 +634,7 @@ const inputXsCls =
 											.filter(Boolean)
 											.join(', ') || '—'}
 									</span>
-									<div class="js-edit hidden mt-0.5 space-y-1">
+									<div class="js-edit mt-0.5 hidden space-y-1">
 										<input
 											type="text"
 											class={inputXsCls}
@@ -668,9 +746,7 @@ const inputXsCls =
 										Nacionalidad
 									</dt>
 									<dd class="text-gray-900 dark:text-white">
-										<span class="js-read">
-											{countryName(mg.nationality)}
-										</span>
+										<span class="js-read">{countryName(mg.nationality)}</span>
 										<input
 											type="text"
 											class={`js-edit hidden ${inputXsCls}`}
@@ -723,7 +799,7 @@ const inputXsCls =
 														.join(', ') || '—'}
 										</span>
 										{!mg.sameAddressAsCompany && (
-											<div class="js-edit hidden mt-0.5 space-y-1">
+											<div class="js-edit mt-0.5 hidden space-y-1">
 												<input
 													type="text"
 													class={inputXsCls}
@@ -797,10 +873,7 @@ const inputXsCls =
 		<h2
 			class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-950 dark:text-white"
 		>
-			<Icon
-				name="ri:settings-3-line"
-				class="h-4.5 w-4.5 text-gray-400"
-			/>
+			<Icon name="ri:settings-3-line" class="h-4.5 w-4.5 text-gray-400" />
 			Configuración
 		</h2>
 		<dl class="grid gap-3 sm:grid-cols-2">
@@ -809,7 +882,13 @@ const inputXsCls =
 					SCI asigna manager
 				</dt>
 				<dd class="text-sm text-gray-900 dark:text-white">
-					{payload.managers?.sciAssigns === true ? 'Sí' : payload.managers?.sciAssigns === false ? 'No' : '—'}
+					{
+						payload.managers?.sciAssigns === true
+							? 'Sí'
+							: payload.managers?.sciAssigns === false
+								? 'No'
+								: '—'
+					}
 				</dd>
 			</div>
 			<div>
@@ -817,7 +896,13 @@ const inputXsCls =
 					Manager es miembro
 				</dt>
 				<dd class="text-sm text-gray-900 dark:text-white">
-					{payload.managers?.isMember === true ? 'Sí' : payload.managers?.isMember === false ? 'No' : '—'}
+					{
+						payload.managers?.isMember === true
+							? 'Sí'
+							: payload.managers?.isMember === false
+								? 'No'
+								: '—'
+					}
 				</dd>
 			</div>
 			<div>
@@ -844,15 +929,12 @@ const inputXsCls =
 		<h2
 			class="mb-4 flex items-center gap-2 text-base font-semibold text-gray-950 dark:text-white"
 		>
-			<Icon
-				name="ri:quill-pen-line"
-				class="h-4.5 w-4.5 text-gray-400"
-			/>
+			<Icon name="ri:quill-pen-line" class="h-4.5 w-4.5 text-gray-400" />
 			Firma y consentimiento
 		</h2>
 		<p
 			id="edit-signature-warning"
-			class="hidden text-xs italic text-amber-600 dark:text-amber-400"
+			class="hidden text-xs text-amber-600 italic dark:text-amber-400"
 		>
 			La firma y el consentimiento se limpiarán al guardar los cambios. El
 			cliente deberá firmar y aceptar los términos nuevamente.
@@ -876,9 +958,7 @@ const inputXsCls =
 				)
 			}
 			<span class="text-xs text-gray-500 dark:text-gray-400">
-				Términos aceptados: {
-					payload.consent?.acceptedTerms ? '✓ Sí' : '✗ No'
-				}
+				Términos aceptados: {payload.consent?.acceptedTerms ? '✓ Sí' : '✗ No'}
 			</span>
 		</div>
 	</section>
@@ -959,8 +1039,8 @@ const inputXsCls =
 				<div id="actions-edit" class="hidden">
 					<div class="flex flex-wrap items-center justify-between gap-3">
 						<p class="text-sm text-gray-500 dark:text-gray-400">
-							Guarda los cambios para que el cliente revise, firme
-							y acepte los términos.
+							Guarda los cambios para que el cliente revise, firme y acepte los
+							términos.
 						</p>
 						<div class="flex gap-3">
 							<button
@@ -1066,7 +1146,9 @@ const inputXsCls =
 			if (_reviewBusy) return;
 			_reviewBusy = true;
 			const actionBtns = [btnValidate, btnConfirmReject].filter(Boolean);
-			actionBtns.forEach((b) => { b.disabled = true; });
+			actionBtns.forEach((b) => {
+				b.disabled = true;
+			});
 			try {
 				const res = await fetch(
 					`/api/incorporations/${incorporationId}/form/review`,
@@ -1079,7 +1161,7 @@ const inputXsCls =
 				const data = await res.json().catch(() => null);
 				if (res.ok && data?.ok) {
 					window.location.href =
-						`/incorporations/${incorporationId}?status=success&msg=` +
+						`/admin/incorporations/${incorporationId}?status=success&msg=` +
 						encodeURIComponent(
 							decision === 'validate'
 								? 'Formulario validado exitosamente.'
@@ -1092,7 +1174,9 @@ const inputXsCls =
 				alert('Error de conexión. Intenta de nuevo.');
 			} finally {
 				_reviewBusy = false;
-				actionBtns.forEach((b) => { b.disabled = false; });
+				actionBtns.forEach((b) => {
+					b.disabled = false;
+				});
 			}
 		}
 
@@ -1107,8 +1191,7 @@ const inputXsCls =
 		const btnConfirmReject = $('btn-confirm-reject');
 		const reasonInput = $('reject-reason');
 
-		if (btnEdit)
-			btnEdit.addEventListener('click', () => setEditMode(true));
+		if (btnEdit) btnEdit.addEventListener('click', () => setEditMode(true));
 
 		if (btnCancelEdit)
 			btnCancelEdit.addEventListener('click', () => {
@@ -1122,8 +1205,7 @@ const inputXsCls =
 						val = val?.[key];
 					}
 					if (el.dataset.country === 'true') {
-						el.value =
-							typeof val === 'object' ? val?.name || '' : val || '';
+						el.value = typeof val === 'object' ? val?.name || '' : val || '';
 					} else if (el.dataset.type === 'boolean') {
 						el.value = String(!!val);
 					} else {
@@ -1156,7 +1238,7 @@ const inputXsCls =
 					const data = await res.json();
 					if (data?.ok) {
 						window.location.href =
-							`/incorporations/${incorporationId}?status=success&msg=` +
+							`/admin/incorporations/${incorporationId}?status=success&msg=` +
 							encodeURIComponent(
 								'Formulario modificado. El cliente debe firmar y aceptar los términos nuevamente.',
 							);
@@ -1171,11 +1253,7 @@ const inputXsCls =
 
 		if (btnValidate)
 			btnValidate.addEventListener('click', () => {
-				if (
-					confirm(
-						'¿Confirmas que los datos del formulario son correctos?',
-					)
-				) {
+				if (confirm('¿Confirmas que los datos del formulario son correctos?')) {
 					reviewAction('validate');
 				}
 			});

@@ -143,6 +143,38 @@ export async function getDocumentsForIncorporationCase(
 	currentUserId?: string | null,
 	userRoles: string[] = [],
 ): Promise<DocumentDashboardRow[]> {
+	return getDocumentsForRelated(
+		supabase,
+		'incorporation_case',
+		incorporationCaseId,
+		currentUserId,
+		userRoles,
+	);
+}
+
+/** Documentos vinculados directamente a una empresa canónica (`companies`). */
+export async function getDocumentsForCompany(
+	supabase: SupabaseClient,
+	companyId: string,
+	currentUserId?: string | null,
+	userRoles: string[] = [],
+): Promise<DocumentDashboardRow[]> {
+	return getDocumentsForRelated(
+		supabase,
+		'company',
+		companyId,
+		currentUserId,
+		userRoles,
+	);
+}
+
+async function getDocumentsForRelated(
+	supabase: SupabaseClient,
+	relatedToType: 'incorporation_case' | 'company',
+	relatedToId: string,
+	currentUserId?: string | null,
+	userRoles: string[] = [],
+): Promise<DocumentDashboardRow[]> {
 	const documentsDb = supabase.schema('documents');
 	const { data, error } = await documentsDb
 		.from('document_links')
@@ -186,8 +218,8 @@ export async function getDocumentsForIncorporationCase(
 			)
 		`,
 		)
-		.eq('related_to_type', 'incorporation_case')
-		.eq('related_to_id', incorporationCaseId)
+		.eq('related_to_type', relatedToType)
+		.eq('related_to_id', relatedToId)
 		.order('created_at', { ascending: false });
 
 	if (error) {

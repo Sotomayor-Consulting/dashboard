@@ -152,7 +152,9 @@ const activityItems = [
 				? `${company.nombre} aprobada`
 				: `${company.nombre} en proceso`,
 		meta: company.estado_de_incorporacion || company.estado || 'Actualizado',
-		href: `/my-companies/${company.id}/dashboard`,
+		href: company.incorporation_id
+			? `/incorporation/${company.incorporation_id}`
+			: `/company/${company.company_id}`,
 		isUnread: false,
 	})),
 ].slice(0, 5);
@@ -203,7 +205,7 @@ const stats: {
 				? '1 empresa registrada'
 				: `${empresas.length} empresas registradas`,
 		icon: 'ri:building-line',
-		href: '/my-companies/',
+		href: '/incorporation/',
 	},
 	{
 		label: 'Tareas pendientes',
@@ -219,9 +221,7 @@ const stats: {
 		label: 'Pagos pendientes',
 		value: pendingOrdersCount,
 		meta:
-			pendingOrdersCount > 0
-				? 'Completa el pago en Órdenes'
-				: 'Estás al día',
+			pendingOrdersCount > 0 ? 'Completa el pago en Órdenes' : 'Estás al día',
 		icon: 'ri:bank-card-line',
 		href: '/orders/',
 	},
@@ -236,30 +236,30 @@ const stats: {
 
 <section class="mx-auto w-full max-w-7xl px-2 py-8 sm:px-4 lg:px-6">
 	<header
-		class="flex flex-col gap-5 border-b border-border pb-8 lg:flex-row lg:items-end lg:justify-between"
+		class="border-border flex flex-col gap-5 border-b pb-8 lg:flex-row lg:items-end lg:justify-between"
 	>
 		<div class="min-w-0">
-			<p class="kicker mb-4 tracking-[0.38em]">
-				Bienvenido de nuevo
-			</p>
+			<p class="kicker mb-4 tracking-[0.38em]">Bienvenido de nuevo</p>
 			<h1
-				class="text-4xl font-semibold tracking-normal text-foreground sm:text-5xl"
+				class="text-foreground text-4xl font-semibold tracking-normal sm:text-5xl"
 			>
 				Hola, {firstName}
 			</h1>
-			<p class="mt-4 max-w-2xl text-base text-muted-foreground">
+			<p class="text-muted-foreground mt-4 max-w-2xl text-base">
 				Aquí tienes un resumen de tu actividad en
-				<span class="font-semibold text-foreground">
-					 {` ${companyName}`}
+				<span class="text-foreground font-semibold">
+					{` ${companyName}`}
 				</span>.
 			</p>
 		</div>
 
 		<a
 			href={activeCompany
-				? `/my-companies/${activeCompany.id}/dashboard`
+				? activeCompany.incorporation_id
+					? `/incorporation/${activeCompany.incorporation_id}`
+					: `/company/${activeCompany.company_id}`
 				: '/start/'}
-			class="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-foreground px-5 py-3 text-sm font-semibold text-background shadow-sm transition hover:bg-foreground/90 focus:ring-4 focus:ring-ring focus:outline-none sm:w-auto"
+			class="bg-foreground text-background hover:bg-foreground/90 focus:ring-ring inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold shadow-sm transition focus:ring-4 focus:outline-none sm:w-auto"
 		>
 			<Icon name="ri:building-4-line" class="h-4 w-4" />
 			{activeCompany ? 'Ver mi empresa' : 'Crear mi LLC'}
@@ -273,14 +273,14 @@ const stats: {
 				return (
 					<Tag
 						href={stat.href}
-						class="group relative block min-h-36 rounded-lg border border-border p-5 transition hover:border-accent-gold hover:shadow-sm"
+						class="group border-border hover:border-accent-gold relative block min-h-36 rounded-lg border p-5 transition hover:shadow-sm"
 					>
 						<div class="flex items-start justify-between gap-4">
 							<p class="kicker tracking-[0.12em] sm:tracking-[0.28em]">
 								{stat.label}
 							</p>
-							<span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground">
-								<Icon name={stat.icon} class="h-4 w-4 text-accent-gold" />
+							<span class="border-border text-muted-foreground inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border">
+								<Icon name={stat.icon} class="text-accent-gold h-4 w-4" />
 							</span>
 						</div>
 						<div class="mt-8">
@@ -299,7 +299,7 @@ const stats: {
 				<h2 class="section-title">Acciones rápidas</h2>
 				<a
 					href="/services"
-					class="text-sm font-medium text-muted-foreground transition hover:text-foreground"
+					class="text-muted-foreground hover:text-foreground text-sm font-medium transition"
 				>
 					Ver todo
 				</a>
@@ -310,22 +310,22 @@ const stats: {
 					quickActions.map((action) => (
 						<a
 							href={action.href}
-							class="group flex min-h-28 items-start gap-4 rounded-lg border border-border p-5 transition hover:-translate-y-0.5 hover:border-accent-gold/50 hover:shadow-sm focus:ring-4 focus:ring-ring focus:outline-none"
+							class="group border-border hover:border-accent-gold/50 focus:ring-ring flex min-h-28 items-start gap-4 rounded-lg border p-5 transition hover:-translate-y-0.5 hover:shadow-sm focus:ring-4 focus:outline-none"
 						>
 							<span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg">
-								<Icon name={action.icon} class="h-5 w-5 text-accent-gold" />
+								<Icon name={action.icon} class="text-accent-gold h-5 w-5" />
 							</span>
 							<span class="min-w-0 flex-1">
-								<span class="block font-semibold text-foreground">
+								<span class="text-foreground block font-semibold">
 									{action.title}
 								</span>
-								<span class="mt-1 block text-sm leading-5 text-muted-foreground">
+								<span class="text-muted-foreground mt-1 block text-sm leading-5">
 									{action.description}
 								</span>
 							</span>
 							<Icon
 								name="ri:arrow-right-up-line"
-								class="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:text-foreground"
+								class="text-muted-foreground group-hover:text-foreground h-4 w-4 shrink-0 transition"
 							/>
 						</a>
 					))
@@ -344,13 +344,13 @@ const stats: {
 				</span>
 			</div>
 
-			<div class="divide-y divide-border">
+			<div class="divide-border divide-y">
 				{
 					activityItems.length > 0 ? (
 						activityItems.map((item) => (
 							<a
 								href={item.href}
-								class="flex items-start gap-3 py-4 transition hover:bg-muted/50"
+								class="hover:bg-muted/50 flex items-start gap-3 py-4 transition"
 							>
 								<span
 									class={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${
@@ -362,17 +362,17 @@ const stats: {
 									<Icon name="ri:check-line" class="h-4 w-4" />
 								</span>
 								<span class="min-w-0">
-									<span class="block text-sm font-semibold text-foreground">
+									<span class="text-foreground block text-sm font-semibold">
 										{item.title}
 									</span>
-									<span class="mt-1 block text-sm text-muted-foreground">
+									<span class="text-muted-foreground mt-1 block text-sm">
 										{item.meta}
 									</span>
 								</span>
 							</a>
 						))
 					) : (
-						<div class="rounded-lg border border-dashed border-border p-6 text-sm text-muted-foreground">
+						<div class="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-sm">
 							Tu actividad reciente aparecerá aquí cuando haya movimientos en tu
 							cuenta.
 						</div>

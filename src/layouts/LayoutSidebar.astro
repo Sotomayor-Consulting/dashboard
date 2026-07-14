@@ -39,12 +39,16 @@ const activeCompany = resolveActiveCompany(
 	Astro.cookies.get(ACTIVE_COMPANY_COOKIE)?.value,
 );
 
+// Detecta la empresa del contexto por URL: /incorporation/[id] o /company/[id].
 const routeCompanyIdMatch = Astro.url.pathname.match(
-	/^\/my-companies\/([^/]+)\//,
+	/^\/(incorporation|company)\/([^/]+)/,
 );
-const routeCompanyId = routeCompanyIdMatch?.[1];
-const routeCompany = routeCompanyId
-	? (empresasSwitcher.find((company) => company.id === routeCompanyId) ?? null)
+const routeCompany = routeCompanyIdMatch
+	? (empresasSwitcher.find((company) =>
+			routeCompanyIdMatch[1] === 'incorporation'
+				? company.incorporation_id === routeCompanyIdMatch[2]
+				: company.company_id === routeCompanyIdMatch[2],
+		) ?? null)
 	: null;
 const selectedCompany = routeCompany ?? activeCompany;
 

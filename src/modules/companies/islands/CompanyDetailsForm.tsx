@@ -41,7 +41,7 @@ interface Props {
 }
 
 /**
- * Tab "Editar datos" dentro de /incorporations/[id]. Solo contiene el form de
+ * Tab "Editar datos" dentro de /admin/incorporations/[id]. Solo contiene el form de
  * "Registro de incorporación" y un bloque de referencia read-only a la empresa
  * (los datos editables de la empresa real viven en /companies/[companyId]).
  */
@@ -52,7 +52,9 @@ export default function CompanyDetailsForm({
 	states,
 }: Props) {
 	const [companyId, setCompanyId] = React.useState(empresa.company_id ?? null);
-	React.useEffect(() => { setCompanyId(empresa.company_id ?? null); }, [empresa.company_id]);
+	React.useEffect(() => {
+		setCompanyId(empresa.company_id ?? null);
+	}, [empresa.company_id]);
 	const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 	const [isCreateCompanyOpen, setIsCreateCompanyOpen] = React.useState(false);
 	const [isCreatingCompany, setIsCreatingCompany] = React.useState(false);
@@ -166,7 +168,7 @@ export default function CompanyDetailsForm({
 	};
 
 	const companyHref = companyId
-		? `/companies/${companyId}?from=incorporation/${empresa.id}`
+		? `/admin/companies/${companyId}?from=incorporation/${empresa.id}`
 		: null;
 
 	return (
@@ -249,7 +251,9 @@ export default function CompanyDetailsForm({
 										Empresa
 									</p>
 									<h4 className="mt-1 truncate text-base font-semibold text-gray-900 dark:text-gray-100">
-										{company?.legal_name ?? empresa.principal_name ?? 'Sin nombre'}
+										{company?.legal_name ??
+											empresa.principal_name ??
+											'Sin nombre'}
 									</h4>
 									<p className="mt-1 text-[12.5px] text-gray-500 dark:text-gray-400">
 										{company?.entity_type

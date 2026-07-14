@@ -91,7 +91,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'crud-incorporaciones',
 		label: 'Incorporaciones',
-		href: '/admin/incorporaciones',
+		href: '/admin/incorporations',
 		tooltip: 'Procesos de incorporación de LLCs',
 		roles: ['admin', 'operaciones'],
 		svgname: 'ri:file-list-3-line',
@@ -102,7 +102,7 @@ export const menuItems: MenuItem[] = [
 	{
 		id: 'crud-empresas',
 		label: 'Empresas',
-		href: '/admin/empresas',
+		href: '/admin/companies',
 		tooltip: 'Entidades legales constituidas',
 		roles: ['admin', 'operaciones'],
 		svgname: 'ri:building-2-line',
@@ -119,7 +119,7 @@ export const menuItems: MenuItem[] = [
 		svgname: 'ri:function-add-line',
 		sequence: 130,
 		group: 'Admin',
-		colors: 'text-violet-500'
+		colors: 'text-violet-500',
 	},
 	{
 		id: 'menu-vista-de-pagos',

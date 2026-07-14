@@ -26,7 +26,9 @@ function takeOne<T>(v: T | T[] | null | undefined): T | null {
 	return Array.isArray(v) ? (v[0] ?? null) : v;
 }
 
-const pickStateName = (v: { name: string } | { name: string }[] | null | undefined): string | null => {
+const pickStateName = (
+	v: { name: string } | { name: string }[] | null | undefined,
+): string | null => {
 	if (!v) return null;
 	const row = Array.isArray(v) ? v[0] : v;
 	return row?.name ?? null;
@@ -167,6 +169,38 @@ export const getEmpresasForSwitcher = async (
 	return items;
 };
 
+export interface ClientCompanyListItem {
+	id: string;
+	incorporation_id: string | null;
+	legal_name: string | null;
+	entity_type: string | null;
+	legal_status: string | null;
+	formation_state_name: string | null;
+}
+
+/** Empresas canónicas del usuario para el listado cliente `/company/`. */
+export const getCompaniesByUserId = async (
+	supabase: SupabaseClient,
+	userId: string,
+): Promise<ClientCompanyListItem[]> => {
+	const { data, error } = await supabase
+		.from('companies')
+		.select(COMPANY_COLUMNS.WITH_STATE)
+		.eq('user_id', userId)
+		.order('updated_at', { ascending: false });
+
+	if (error || !data) return [];
+
+	return (data as unknown as CompanySwitcherRow[]).map((c) => ({
+		id: c.id,
+		incorporation_id: c.incorporation_id ?? null,
+		legal_name: c.legal_name ?? null,
+		entity_type: c.entity_type ?? null,
+		legal_status: c.legal_status ?? null,
+		formation_state_name: pickStateName(c.formation_state),
+	}));
+};
+
 export const resolveActiveCompany = (
 	empresas: EmpresaSwitcherItem[],
 	cookieValue: string | undefined,
@@ -181,11 +215,15 @@ export const resolveActiveCompany = (
 
 // ── Admin empresa functions ──
 
-interface CompanySwitcherRow
-	extends Pick<
-		CompanyRow,
-		'id' | 'legal_name' | 'entity_type' | 'legal_status' | 'incorporation_id' | 'updated_at'
-	> {
+interface CompanySwitcherRow extends Pick<
+	CompanyRow,
+	| 'id'
+	| 'legal_name'
+	| 'entity_type'
+	| 'legal_status'
+	| 'incorporation_id'
+	| 'updated_at'
+> {
 	formation_state: { name: string } | { name: string }[] | null;
 }
 
@@ -309,7 +347,9 @@ export async function listAdminEmpresas(
 		}
 		return buildAdminEmpresa(
 			row,
-			row.formation_state_id ? (stateMap.get(row.formation_state_id) ?? null) : null,
+			row.formation_state_id
+				? (stateMap.get(row.formation_state_id) ?? null)
+				: null,
 			incorpByCompany.get(row.id) ?? null,
 			owner,
 		);
@@ -345,10 +385,17 @@ export async function getAdminEmpresaDetail(
 			id: number;
 			percentage: number | null;
 			is_manager: boolean | null;
-			member: Array<{ name: string | null; first_name: string | null; last_name: string | null }> | null;
+			member: Array<{
+				name: string | null;
+				first_name: string | null;
+				last_name: string | null;
+			}> | null;
 		};
 		const m = takeOne(r.member);
-		const fullName = m?.name ?? ([m?.first_name, m?.last_name].filter(Boolean).join(' ').trim() || 'Sin nombre');
+		const fullName =
+			m?.name ??
+			([m?.first_name, m?.last_name].filter(Boolean).join(' ').trim() ||
+				'Sin nombre');
 		return {
 			id: String(r.id),
 			fullName,

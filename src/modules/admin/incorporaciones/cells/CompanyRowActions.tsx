@@ -24,7 +24,7 @@ const quickActionClass =
  * - Acciones de gestión (reasignar, archivar) por hacer cuando exista owner_id.
  */
 export function CompanyRowActions({ company }: Props) {
-	const detailUrl = `/incorporations/${company.id}`;
+	const detailUrl = `/admin/incorporations/${company.id}`;
 
 	const handleCopyId = (e: Event | React.MouseEvent) => {
 		e.stopPropagation();

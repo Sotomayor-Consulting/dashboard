@@ -1,0 +1,20 @@
+---
+import LayoutSidebar from '@layouts/LayoutSidebar.astro';
+import Alerta from '@components/feedback/Alert.astro';
+import CompanyDocumentsDashboard from '@modules/documents/CompanyDocumentsDashboard.astro';
+import Tab from '@components/navigation/TabBar.astro';
+import { incorporationTabs } from '@modules/companies/incorporation-tabs';
+
+const { incorporationId } = Astro.params;
+---
+
+<LayoutSidebar>
+	<Alerta />
+	<Tab buttons={incorporationTabs(incorporationId ?? '', 'documents')} />
+
+	<CompanyDocumentsDashboard
+		incorporationCaseId={incorporationId}
+		dashboardVariant="client"
+		showQuickUpload={false}
+	/>
+</LayoutSidebar>

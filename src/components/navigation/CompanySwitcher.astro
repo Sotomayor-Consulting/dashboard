@@ -21,14 +21,10 @@ const triggerSubtitle = activeCompany
 const showSearch = empresas.length > 3;
 ---
 
-<div
-	class="relative w-full"
-	data-company-switcher
-	data-switcher-id={id}
->
+<div class="relative w-full" data-company-switcher data-switcher-id={id}>
 	<button
 		type="button"
-		class="dark:bg-primary-black flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border border-gray-200/80 bg-white px-2 py-1.5 text-left transition-all hover:border-gray-300 hover:bg-hover focus:ring-2 focus:ring-gray-300/70 focus:outline-none dark:border-gray-700/80 dark:hover:border-gray-600  dark:focus:ring-gray-600/60"
+		class="dark:bg-primary-black hover:bg-hover flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border border-gray-200/80 bg-white px-2 py-1.5 text-left transition-all hover:border-gray-300 focus:ring-2 focus:ring-gray-300/70 focus:outline-none dark:border-gray-700/80 dark:hover:border-gray-600 dark:focus:ring-gray-600/60"
 		aria-haspopup="listbox"
 		aria-expanded="false"
 		data-switcher-trigger
@@ -96,7 +92,13 @@ const showSearch = empresas.length > 3;
 					</div>
 					{empresas.map((e) => {
 						const isActive = activeCompany?.id === e.id;
-						const targetUrl = `/my-companies/${e.id}/dashboard`;
+						// Incorporación en proceso → dashboard del proceso;
+						// empresa canónica sin incorporación → vista de empresa.
+						const isIncorporation = Boolean(e.incorporation_id);
+						const targetUrl = isIncorporation
+							? `/incorporation/${e.incorporation_id}`
+							: `/company/${e.company_id}`;
+						const kindLabel = isIncorporation ? 'Incorporación' : 'Empresa';
 						return (
 							<button
 								type="button"
@@ -104,19 +106,24 @@ const showSearch = empresas.length > 3;
 								data-company-name={e.nombre.toLowerCase()}
 								data-company-id={e.id}
 								data-target-url={targetUrl}
+								data-kind={isIncorporation ? 'incorporation' : 'company'}
 								data-estado={e.estado ?? ''}
 								class:list={[
 									'mx-2 mb-1 flex w-[calc(100%-1rem)] cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] transition-colors',
 									isActive
 										? 'bg-gray-100 dark:bg-neutral-900'
-										: 'text-gray-700 hover:bg-hover dark:text-gray-200 ',
+										: 'hover:bg-hover text-gray-700 dark:text-gray-200',
 								]}
 								role="option"
 								aria-selected={isActive}
 							>
 								<span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-neutral-950">
 									<Icon
-										name="ri:building-4-line"
+										name={
+											isIncorporation
+												? 'ri:file-list-3-line'
+												: 'ri:building-4-line'
+										}
 										class="h-4 w-4 text-gray-500 dark:text-gray-300"
 									/>
 								</span>
@@ -125,7 +132,9 @@ const showSearch = empresas.length > 3;
 										{e.nombre}
 									</span>
 									<span class="block w-full truncate text-[11px] leading-4 text-gray-500 dark:text-gray-400">
-										{e.estado_de_incorporacion ?? 'Sin estado'}
+										{[kindLabel, e.estado_de_incorporacion]
+											.filter(Boolean)
+											.join(' · ')}
 									</span>
 								</span>
 								{isActive && (
@@ -156,7 +165,7 @@ const showSearch = empresas.length > 3;
 		>
 			<a
 				href="/start/"
-				class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-hover hover:text-foreground"
+				class="text-muted-foreground hover:bg-hover hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors"
 			>
 				<span
 					class="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-neutral-950"
@@ -171,8 +180,8 @@ const showSearch = empresas.length > 3;
 				</span>
 			</a>
 			<a
-				href="/create-company"
-				class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-hover hover:text-foreground"
+				href="/company/"
+				class="text-muted-foreground hover:bg-hover hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors"
 			>
 				<span
 					class="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-neutral-950"
@@ -195,6 +204,7 @@ const showSearch = empresas.length > 3;
 		companyId: string,
 		targetUrl: string,
 		estado: string,
+		kind: string,
 	) {
 		if (!companyId) return;
 
@@ -210,7 +220,10 @@ const showSearch = empresas.length > 3;
 			// navegar aunque falle el set-active
 		}
 
-		const destination = estado === 'active' ? targetUrl : '/';
+		// Las empresas canónicas siempre navegan a su vista; las incorporaciones
+		// solo cuando están activas (borradores vuelven al home).
+		const destination =
+			kind === 'company' || estado === 'active' ? targetUrl : '/';
 		window.location.assign(destination);
 	}
 
@@ -299,9 +312,10 @@ const showSearch = empresas.length > 3;
 					const companyId = opt.dataset.companyId ?? '';
 					const targetUrl = opt.dataset.targetUrl ?? '/';
 					const estado = opt.dataset.estado ?? '';
+					const kind = opt.dataset.kind ?? 'incorporation';
 					if (!companyId) return;
 					close();
-					selectCompany(companyId, targetUrl, estado);
+					selectCompany(companyId, targetUrl, estado, kind);
 				});
 			});
 

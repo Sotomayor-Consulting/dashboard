@@ -141,6 +141,17 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		errorMsg: 'Acceso no autorizado',
 	},
 	{
+		path: '/incorporation',
+		roles: [ROLES.PARTNER, ROLES.CLIENT],
+		errorMsg: 'Acceso no autorizado',
+	},
+	{
+		path: '/company/',
+		roles: [ROLES.PARTNER, ROLES.CLIENT],
+		errorMsg: 'Acceso no autorizado',
+	},
+	// Legacy (redirects a /incorporation/ y /company/)
+	{
 		path: '/my-companies/',
 		roles: [ROLES.PARTNER, ROLES.CLIENT],
 		errorMsg: 'Acceso no autorizado',
@@ -151,7 +162,7 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		roles: [ROLES.PARTNER, ROLES.CLIENT],
 		errorMsg: 'Acceso no autorizado',
 	},
-	// Single-rol — admin
+	// Single-rol — admin (legacy: redirects a /admin/incorporations|companies)
 	{
 		path: '/incorporations/',
 		roles: ROLE_GROUPS.INCORPORATION_ROUTE,
@@ -174,6 +185,17 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
 		errorMsg: 'Acceso solo para admins y operaciones',
 	},
+	{
+		path: '/admin/incorporations',
+		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
+		errorMsg: 'Acceso solo para admins y operaciones',
+	},
+	{
+		path: '/admin/companies',
+		roles: [ROLES.ADMIN, ROLES.OPERACIONES],
+		errorMsg: 'Acceso solo para admins y operaciones',
+	},
+	// Legacy (redirects a /admin/incorporations|companies)
 	{
 		path: '/admin/incorporaciones',
 		roles: [ROLES.ADMIN, ROLES.OPERACIONES],

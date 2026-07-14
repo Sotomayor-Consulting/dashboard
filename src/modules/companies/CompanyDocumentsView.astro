@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { getDocumentsForCompany } from '@domains/documents/document_dashboard';
 import CompanyDocumentsPanel from './components/dashboard-companies/CompanyDocumentsPanel.astro';
 import type { ClientDocumentItem } from './services/get-company-client-view-data';
+import { companyClientTabs } from './company-tabs';
 
 interface Props {
 	companyId: string | undefined;
@@ -51,23 +52,7 @@ const documents: ClientDocumentItem[] = clientDocs.map((d) => ({
 	status: d.status,
 }));
 
-const tabs = [
-	{
-		id: 'company',
-		label: 'Empresa',
-		icon: 'ri:building-2-line',
-		kind: 'link' as const,
-		link: `/my-companies/company/${companyId}`,
-		active: false,
-	},
-	{
-		id: 'documents',
-		label: 'Documentos',
-		icon: 'ri:file-copy-line',
-		kind: 'panel' as const,
-		active: true,
-	},
-];
+const tabs = companyClientTabs(companyId, 'documents');
 ---
 
 <div>

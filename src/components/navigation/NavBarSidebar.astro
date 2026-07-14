@@ -71,10 +71,8 @@ function labelForSegment(segment: string, fullPath: string): string {
  *  - Si el path es solo home: 'Inicio'
  */
 /**
- * Path aliases: paths legacy o de detalle que apuntan a un módulo del
- * sidebar diferente. Ej: `/incorporations/[id]` sigue activo como vista
- * de detalle, pero el módulo en el breadcrumb es "Empresas" (la tabla
- * nueva en `/admin/empresas`).
+ * Path aliases: paths de detalle que no aparecen como item del sidebar
+ * (los items de cliente son dinámicos) y necesitan un módulo de breadcrumb.
  */
 const PATH_ALIASES: Array<{
 	pathPrefix: string;
@@ -82,9 +80,14 @@ const PATH_ALIASES: Array<{
 	moduleHref: string;
 }> = [
 	{
-		pathPrefix: '/incorporations/',
+		pathPrefix: '/incorporation/',
 		moduleLabel: 'Incorporaciones',
-		moduleHref: '/admin/incorporaciones',
+		moduleHref: '/incorporation/',
+	},
+	{
+		pathPrefix: '/company/',
+		moduleLabel: 'Empresas',
+		moduleHref: '/company/',
 	},
 ];
 
@@ -267,7 +270,8 @@ const breadcrumbItems = (() => {
 						data-user-dropdown-trigger
 					>
 						<img
-							src={avatarUrl ?? `https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
+							src={avatarUrl ??
+								`https://api.dicebear.com/9.x/thumbs/svg?seed=${userId}`}
 							alt="Avatar"
 							class="border-border h-8 w-8 shrink-0 rounded-full border object-cover"
 							data-user-avatar
