@@ -67,6 +67,7 @@ COPY --from=builder --chown=astro:nodejs /app/src/lib/infrastructure/logging ./s
 
 # Templates usados en runtime (carbone, emails)
 COPY --from=builder --chown=astro:nodejs /app/src/domains/documents/templates ./src/domains/documents/templates
+COPY --from=builder --chown=astro:nodejs /app/src/lib/infrastructure/email ./src/lib/infrastructure/email
 
 USER astro
 
