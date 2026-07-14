@@ -141,7 +141,7 @@ const ROLE_ROUTES: RouteRoleConfig[] = [
 		errorMsg: 'Acceso no autorizado',
 	},
 	{
-		path: '/incorporation/',
+		path: '/incorporation',
 		roles: [ROLES.PARTNER, ROLES.CLIENT],
 		errorMsg: 'Acceso no autorizado',
 	},
