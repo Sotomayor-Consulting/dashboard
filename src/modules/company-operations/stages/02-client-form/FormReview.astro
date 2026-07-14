@@ -19,7 +19,7 @@ interface Props {
 const { incorporationId } = Astro.props;
 const supabase = Astro.locals.supabase;
 
-if (!incorporationId) return Astro.redirect('/incorporations');
+if (!incorporationId) return Astro.redirect('/admin/incorporations');
 
 const form = await getIncorporationForm(supabase, incorporationId);
 if (!form) return Astro.redirect(`/admin/incorporations/${incorporationId}`);
