@@ -103,10 +103,10 @@ export default function CompanyDocumentsPanel({
 				) : (
 					<CompanyDocumentsList
 						documents={documents}
-						canUseStaffActions={isStaff}
+						canUseStaffActions={isStaff && !!incorporationId && !!companyOwnerUserId}
 						incorporationCaseId={incorporationId ?? ''}
 						companyUserId={companyOwnerUserId ?? ''}
-						isStaffDashboard={isStaff}
+						isStaffDashboard={isStaff && !!incorporationId && !!companyOwnerUserId}
 					/>
 				)}
 			</div>
