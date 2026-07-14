@@ -1,9 +1,4 @@
-import { readFileSync } from 'node:fs';
-
-const BASE_TEMPLATE_HTML = readFileSync(
-	new URL('./templates/base-email.html', import.meta.url),
-	'utf-8',
-);
+import BASE_TEMPLATE_HTML from './templates/base-email.html?raw';
 
 type TemplateVariables = Record<string, string>;
 
