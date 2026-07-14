@@ -95,7 +95,6 @@ const PUBLIC_ROUTES: readonly string[] = [
 	'/assets',
 	'/_image',
 	'/payment/success',
-	'/payment/cancel',
 ];
 
 /** Rutas de autenticación (redirigir al dash si ya está logueado) */
