@@ -303,6 +303,21 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			metadata.microservicios_array = '[]';
 		}
 
+		// Al cancelar, el usuario vuelve a la página desde la que inició el
+		// checkout (Referer validado same-origin para evitar open redirects).
+		let cancelUrl = `${PUBLIC_SITE_URL}/incorporation-and-payment`;
+		const referer = request.headers.get('referer');
+		if (referer) {
+			try {
+				const refererUrl = new URL(referer);
+				if (refererUrl.origin === new URL(PUBLIC_SITE_URL).origin) {
+					cancelUrl = refererUrl.href;
+				}
+			} catch {
+				// Referer malformado: se mantiene el fallback
+			}
+		}
+
 		// Sin payment_method_types: Stripe muestra dinámicamente los métodos
 		// óptimos (configurables desde el Dashboard, sin cambios de código).
 		const session = await stripe.checkout.sessions.create({
@@ -328,7 +343,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 						: (plan.name ?? 'Servicio LLC'),
 			},
 			success_url: `${PUBLIC_SITE_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-			cancel_url: `${PUBLIC_SITE_URL}/payment/cancel`,
+			cancel_url: cancelUrl,
 			...(user.email ? { customer_email: user.email } : {}),
 		});
 
