@@ -15,6 +15,7 @@ import type { CompanyItem, CompanyPageData } from '../types';
 export async function getCompanyPageData(
 	supabase: SupabaseClient,
 	companyId: string,
+	adminClient?: SupabaseClient,
 ): Promise<CompanyPageData | null> {
 	const { data: company, error: companyError } = await supabase
 		.from('companies')
@@ -27,7 +28,7 @@ export async function getCompanyPageData(
 
 	const [addresses, companyMembers, managementTypeHealth, actividades, statesResult, incorporationLookup] =
 		await Promise.all([
-			listCompanyAddresses(supabase, companyId),
+			listCompanyAddresses(adminClient ?? supabase, companyId),
 			listCompanyMembers(supabase, companyId),
 			checkManagementTypeHealth(supabase, companyId),
 			actividadesGeneral(supabase),

@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import { Icon } from '@iconify/react';
 import { UploadIcon } from 'lucide-react';
 
@@ -25,7 +25,7 @@ import type {
 	DocumentDashboardRow,
 	DocumentTypeLite,
 } from '@domains/documents/document_dashboard';
-import { DocumentTypeComboboxField } from '@modules/documents/islands/DocumentTypeComboboxField';
+import { DocumentTypeSelectField } from '@modules/documents/islands/DocumentTypeSelectField';
 import CompanyDocumentsList from '@modules/documents/islands/CompanyDocumentsList';
 import PanelHeader from '../components/shared/PanelHeader';
 
@@ -143,8 +143,13 @@ export default function CompanyDocumentsPanel({
 								</Field>
 
 								<Field>
-									<FieldLabel>Tipo de documento</FieldLabel>
-									<DocumentTypeComboboxField documentTypes={documentTypes} />
+									<FieldLabel htmlFor="company_doc_type">
+										Tipo de documento
+									</FieldLabel>
+									<DocumentTypeSelectField
+										id="company_doc_type"
+										documentTypes={documentTypes}
+									/>
 								</Field>
 
 								{isStaff && (
@@ -162,10 +167,10 @@ export default function CompanyDocumentsPanel({
 												</SelectTrigger>
 												<SelectContent>
 													<SelectGroup>
-														<SelectItem value="internal_only">
+														<SelectItem value="internal_only" label="Interno">
 															Interno
 														</SelectItem>
-														<SelectItem value="client_visible">
+														<SelectItem value="client_visible" label="Visible para el cliente">
 															Visible para el cliente
 														</SelectItem>
 													</SelectGroup>
@@ -186,8 +191,8 @@ export default function CompanyDocumentsPanel({
 												</SelectTrigger>
 												<SelectContent>
 													<SelectGroup>
-														<SelectItem value="false">No compartir</SelectItem>
-														<SelectItem value="true">
+														<SelectItem value="false" label="No compartir">No compartir</SelectItem>
+														<SelectItem value="true" label="Compartir al subir">
 															Compartir al subir
 														</SelectItem>
 													</SelectGroup>

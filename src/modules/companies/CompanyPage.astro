@@ -1,6 +1,5 @@
 ---
 import { getCompanyPageData } from './services/get-company-page-data';
-import CompanyPageHeader from './components/CompanyPageHeader.astro';
 import CompanyInfoSection from './islands/company-details/sections/CompanyInfoSection';
 import CompanyAddressesPanel from './islands/CompanyAddressesPanel';
 import CompanyMembersPanel from './islands/CompanyMembersPanel';
@@ -36,14 +35,7 @@ const isStaff = hasAnyRole(userRoles, ROLE_GROUPS.INCORPORATION_ROUTE);
 const trimmedId = companyId?.trim() ?? '';
 const isValidId = UUID_RE.test(trimmedId);
 
-const fromRaw = Astro.url.searchParams.get('from') ?? '';
-const incorporationMatch = /^incorporation\/([0-9a-f-]{36})$/i.exec(fromRaw);
-const backHref = incorporationMatch
-	? `/admin/incorporations/${incorporationMatch[1]}`
-	: null;
-const backLabel = backHref ? 'Volver a la incorporación' : null;
-
-const data = isValidId ? await getCompanyPageData(supabase, trimmedId) : null;
+const data = isValidId ? await getCompanyPageData(supabase, trimmedId, supabaseAdmin) : null;
 const errorMessage = !isValidId
 	? 'ID de empresa inválido'
 	: !data
@@ -108,12 +100,6 @@ const tabs: TabButton[] = [
 		</div>
 	) : data ? (
 		<div>
-			<CompanyPageHeader
-				company={data.company}
-				backHref={onGeneral ? backHref : null}
-				backLabel={onGeneral ? backLabel : null}
-			/>
-
 			<TabBar buttons={tabs} />
 
 			<div class="mt-5">
@@ -165,3 +151,4 @@ const tabs: TabButton[] = [
 		</div>
 	) : null
 }
+

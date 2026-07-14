@@ -5,6 +5,7 @@ import type {
 import AddressCard from './company-addresses/AddressCard';
 import AddressCreateCard from './company-addresses/AddressCreateCard';
 import AddressFormSheet from './company-addresses/AddressFormSheet';
+import PanelHeader from './shared/PanelHeader';
 
 interface Props {
 	canEditDetails: boolean;
@@ -50,36 +51,28 @@ export default function CompanyAddressesSection({
 	openCreateAddress,
 	isSaving,
 }: Props) {
-	return (
-		<section className="flex flex-col gap-5">
-			<header className="flex items-end justify-between gap-3">
-				<div className="flex flex-col gap-1">
-					<h3 className="text-lg font-semibold">Direcciones</h3>
-					<p className="text-muted-foreground text-sm">
-						Gestiona las direcciones operativas, legales y fiscales de la
-						empresa.
-					</p>
-				</div>
-				<p className="text-muted-foreground text-[11.5px]">
-					{addresses.length} registrada{addresses.length === 1 ? '' : 's'}
-				</p>
-			</header>
+	const addressMeta = `${addresses.length} registrada${addresses.length === 1 ? '' : 's'}`;
 
-			<div className="grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-				{addresses.map((address) => (
-					<AddressCard
-						key={address.id}
-						address={address}
-						onOpenDetail={openAddressDetail}
+	return (
+		<section className="-mx-6 -mt-5 flex flex-col">
+			<PanelHeader kicker="Empresa" title="Direcciones" meta={addressMeta} />
+
+			<div className="px-7 py-5">
+				<div className="grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+					{addresses.map((address) => (
+						<AddressCard
+							key={address.id}
+							address={address}
+							onOpenDetail={openAddressDetail}
+						/>
+					))}
+					<AddressCreateCard
+						canEditDetails={canEditDetails}
+						onClick={openCreateAddress}
 					/>
-				))}
-				<AddressCreateCard
-					canEditDetails={canEditDetails}
-					onClick={openCreateAddress}
-				/>
+				</div>
 			</div>
 
-			{/* Sheet de edición */}
 			<AddressFormSheet
 				open={isDetailModalOpen}
 				onOpenChange={setIsDetailModalOpen}
@@ -95,7 +88,6 @@ export default function CompanyAddressesSection({
 				isSaving={isSaving}
 			/>
 
-			{/* Sheet de creación */}
 			<AddressFormSheet
 				open={isAddModalOpen}
 				onOpenChange={setIsAddModalOpen}

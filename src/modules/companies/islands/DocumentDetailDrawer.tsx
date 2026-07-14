@@ -14,6 +14,7 @@ import { cn } from '@components/utils';
 import { Icon } from '@iconify/react';
 import { toast } from 'sonner';
 import type { DocumentDashboardRow } from '@domains/documents/document_dashboard';
+import { LEGAL_CATEGORY_LABELS } from '@modules/documents/islands/DocumentTypeSelectField';
 
 interface Props {
 	document: DocumentDashboardRow | null;
@@ -158,18 +159,7 @@ function formatFileSize(bytes: number | null | undefined): string {
 
 function legalCategoryLabel(cat: string | null | undefined): string {
 	if (!cat) return '—';
-	const map: Record<string, string> = {
-		identity: 'Identidad',
-		address: 'Domicilio',
-		corporate: 'Corporativo',
-		tax: 'Fiscal',
-		compliance: 'Cumplimiento',
-		authority: 'Autoridad',
-		banking: 'Bancario',
-		registry: 'Registro',
-		supporting: 'Complementario',
-	};
-	return map[cat] ?? cat;
+	return LEGAL_CATEGORY_LABELS[cat] ?? cat;
 }
 
 // Timestamps from Supabase arrive as ISO 8601 UTC strings (timestamptz).
