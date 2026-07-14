@@ -33,6 +33,8 @@
 		"build": "pnpm check && astro build --force",
 		"dev": "astro dev",
 		"dev:vault": "node scripts/dev-with-vault.mjs",
+		"deploy": "node --experimental-strip-types scripts/deploy.mjs production",
+		"deploy:dev": "node --experimental-strip-types scripts/deploy.mjs development",
 		"preview": "astro preview",
 		"start": "astro dev"
 	},
