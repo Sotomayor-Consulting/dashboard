@@ -4,8 +4,8 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # ============================================
 # 2) Etapa de build
@@ -17,12 +17,16 @@ WORKDIR /app
 ARG PUBLIC_SUPABASE_URL
 ARG PUBLIC_SUPABASE_ANON_KEY
 ARG PUBLIC_STRIPE_PUBLISHABLE_KEY
+ARG PUBLIC_TURNSTILE_SITE_KEY
+ARG PUBLIC_GOOGLE_CLIENT_ID
 ENV PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
 ENV PUBLIC_SUPABASE_ANON_KEY=${PUBLIC_SUPABASE_ANON_KEY}
 ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${PUBLIC_STRIPE_PUBLISHABLE_KEY}
+ENV PUBLIC_TURNSTILE_SITE_KEY=${PUBLIC_TURNSTILE_SITE_KEY}
+ENV PUBLIC_GOOGLE_CLIENT_ID=${PUBLIC_GOOGLE_CLIENT_ID}
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY package*.json ./
+COPY package.json package-lock.json ./
 COPY . .
 
 # Cache-buster: fuerza rebuild por deploy
@@ -49,13 +53,12 @@ RUN apk add --no-cache dumb-init
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S astro -u 1001 -G nodejs
 
-# Dependencias de producción
-COPY --from=deps /app/package*.json ./
-RUN npm install --omit=dev && npm cache clean --force
+# Dependencias de producción (determinísticas con npm ci)
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
 
 # Artefactos SSR
 COPY --from=builder --chown=astro:nodejs /app/dist ./dist
-COPY --from=builder --chown=astro:nodejs /app/server.mjs ./server.mjs
 COPY --from=builder --chown=astro:nodejs /app/server-wrapper.mjs ./server-wrapper.mjs
 
 # Bootstrap de Vault en runtime (Node 22 ejecuta el source TS directamente)

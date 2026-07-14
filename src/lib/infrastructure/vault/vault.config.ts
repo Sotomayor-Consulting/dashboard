@@ -13,11 +13,15 @@ export const APPROLE_CONFIG = {
 	secretId: process.env.VAULT_SECRET_ID,
 } as const;
 
+// Entorno: "production" | "development" (default: production)
+const VAULT_ENV = process.env.VAULT_ENV || 'production';
+
 // Paths de secretos en Vault (KV v2)
 // El prefijo "data" es requerido por KV v2 para lectura via API
 export const SECRET_PATHS = {
-	supabase: 'app-sci/data/production/supabase',
-	smtp: 'app-sci/data/production/smtp',
-	stripe: 'app-sci/data/production/stripe',
-	integrations: 'app-sci/data/production/integrations',
+	public: `app-sci/data/${VAULT_ENV}/public`,
+	supabase: `app-sci/data/${VAULT_ENV}/supabase`,
+	smtp: `app-sci/data/${VAULT_ENV}/smtp`,
+	stripe: `app-sci/data/${VAULT_ENV}/stripe`,
+	integrations: `app-sci/data/${VAULT_ENV}/integrations`,
 } as const;
