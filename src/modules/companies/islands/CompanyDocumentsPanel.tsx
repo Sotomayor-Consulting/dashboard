@@ -4,7 +4,12 @@ import { UploadIcon } from 'lucide-react';
 
 import { Button } from '@components/ui/Button';
 import { DropzoneField } from '@components/ui/DropzoneField';
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@components/ui/Field';
+import {
+	Field,
+	FieldDescription,
+	FieldGroup,
+	FieldLabel,
+} from '@components/ui/Field';
 import {
 	Select,
 	SelectContent,
@@ -25,7 +30,7 @@ import type {
 	DocumentDashboardRow,
 	DocumentTypeLite,
 } from '@domains/documents/document_dashboard';
-import { DocumentTypeSelectField } from '@modules/documents/islands/DocumentTypeSelectField';
+import { DocumentTypeComboboxField } from '@modules/documents/islands/DocumentTypeComboboxField';
 import CompanyDocumentsList from '@modules/documents/islands/CompanyDocumentsList';
 import PanelHeader from '../components/shared/PanelHeader';
 
@@ -115,8 +120,8 @@ export default function CompanyDocumentsPanel({
 					<SheetHeader className="pb-3">
 						<SheetTitle>Subir documento</SheetTitle>
 						<p className="text-muted-foreground text-sm">
-							El documento quedará vinculado a esta empresa y podrás
-							compartirlo con el cliente.
+							El documento quedará vinculado a esta empresa y podrás compartirlo
+							con el cliente.
 						</p>
 					</SheetHeader>
 
@@ -143,13 +148,8 @@ export default function CompanyDocumentsPanel({
 								</Field>
 
 								<Field>
-									<FieldLabel htmlFor="company_doc_type">
-										Tipo de documento
-									</FieldLabel>
-									<DocumentTypeSelectField
-										id="company_doc_type"
-										documentTypes={documentTypes}
-									/>
+									<FieldLabel>Tipo de documento</FieldLabel>
+									<DocumentTypeComboboxField documentTypes={documentTypes} />
 								</Field>
 
 								{isStaff && (
@@ -170,7 +170,10 @@ export default function CompanyDocumentsPanel({
 														<SelectItem value="internal_only" label="Interno">
 															Interno
 														</SelectItem>
-														<SelectItem value="client_visible" label="Visible para el cliente">
+														<SelectItem
+															value="client_visible"
+															label="Visible para el cliente"
+														>
 															Visible para el cliente
 														</SelectItem>
 													</SelectGroup>
@@ -191,7 +194,9 @@ export default function CompanyDocumentsPanel({
 												</SelectTrigger>
 												<SelectContent>
 													<SelectGroup>
-														<SelectItem value="false" label="No compartir">No compartir</SelectItem>
+														<SelectItem value="false" label="No compartir">
+															No compartir
+														</SelectItem>
 														<SelectItem value="true" label="Compartir al subir">
 															Compartir al subir
 														</SelectItem>

@@ -14,7 +14,20 @@ import { cn } from '@components/utils';
 import { Icon } from '@iconify/react';
 import { toast } from 'sonner';
 import type { DocumentDashboardRow } from '@domains/documents/document_dashboard';
-import { LEGAL_CATEGORY_LABELS } from '@modules/documents/islands/DocumentTypeSelectField';
+import {
+	actorRoleLabel,
+	badgeForDocumentStatus,
+	eventTypeIcon,
+	eventTypeLabel,
+	formatDate,
+	formatDateTime,
+	formatFileSize,
+	getMimeBg,
+	getMimeColor,
+	getMimeIcon,
+	legalCategoryLabel,
+	statusLabel,
+} from '@modules/documents/document-ui';
 
 interface Props {
 	document: DocumentDashboardRow | null;
@@ -34,163 +47,6 @@ interface DocumentEvent {
 	actor_name: string | null;
 	notes: string | null;
 	created_at: string;
-}
-
-function getMimeIcon(mime: string | null): string {
-	if (!mime) return 'ri:file-3-line';
-	if (mime === 'application/pdf') return 'ri:file-pdf-2-line';
-	if (mime.includes('word') || mime.includes('document'))
-		return 'ri:file-word-2-line';
-	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'ri:file-excel-2-line';
-	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'ri:file-ppt-2-line';
-	if (mime.startsWith('image/')) return 'ri:image-2-line';
-	if (mime.startsWith('text/')) return 'ri:file-text-line';
-	if (mime.includes('zip') || mime.includes('compressed'))
-		return 'ri:file-zip-line';
-	return 'ri:file-3-line';
-}
-
-function getMimeBg(mime: string | null): string {
-	if (!mime) return 'bg-gray-100 dark:bg-gray-800';
-	if (mime === 'application/pdf') return 'bg-red-100 dark:bg-red-950/40';
-	if (mime.includes('word') || mime.includes('document'))
-		return 'bg-blue-100 dark:bg-blue-950/40';
-	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'bg-emerald-100 dark:bg-emerald-950/40';
-	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'bg-orange-100 dark:bg-orange-950/40';
-	if (mime.startsWith('image/')) return 'bg-purple-100 dark:bg-purple-950/40';
-	if (mime.startsWith('text/')) return 'bg-gray-100 dark:bg-gray-800';
-	return 'bg-gray-100 dark:bg-gray-800';
-}
-
-function getMimeColor(mime: string | null): string {
-	if (!mime) return 'text-gray-500 dark:text-gray-400';
-	if (mime === 'application/pdf') return 'text-red-600 dark:text-red-400';
-	if (mime.includes('word') || mime.includes('document'))
-		return 'text-blue-600 dark:text-blue-400';
-	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'text-emerald-600 dark:text-emerald-400';
-	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'text-orange-600 dark:text-orange-400';
-	if (mime.startsWith('image/')) return 'text-purple-600 dark:text-purple-400';
-	if (mime.startsWith('text/')) return 'text-gray-600 dark:text-gray-400';
-	return 'text-gray-500 dark:text-gray-400';
-}
-
-function statusLabel(status: string): string {
-	const map: Record<string, string> = {
-		pending: 'Pendiente',
-		uploaded: 'Subido',
-		under_review: 'En revisión',
-		approved: 'Aprobado',
-		rejected: 'Rechazado',
-		replaced: 'Reemplazado',
-		expired: 'Vencido',
-		archived: 'Archivado',
-	};
-	return map[status] ?? status;
-}
-
-function badgeVariant(
-	status: string,
-): 'susess' | 'standar' | 'danger' | 'warning' {
-	if (status === 'approved') return 'susess';
-	if (status === 'under_review' || status === 'uploaded') return 'standar';
-	if (status === 'rejected' || status === 'expired') return 'danger';
-	return 'warning';
-}
-
-function eventTypeLabel(type: string): string {
-	const map: Record<string, string> = {
-		uploaded: 'Subido',
-		metadata_updated: 'Metadatos actualizados',
-		visibility_changed: 'Visibilidad cambiada',
-		shared: 'Compartido',
-		share_revoked: 'Acceso revocado',
-		downloaded: 'Descargado',
-		previewed: 'Visualizado',
-		replaced: 'Reemplazado',
-		approved: 'Aprobado',
-		rejected: 'Rechazado',
-		deleted: 'Eliminado',
-		restored: 'Restaurado',
-		access_denied: 'Acceso denegado',
-	};
-	return map[type] ?? type;
-}
-
-function eventTypeIcon(type: string): string {
-	const map: Record<string, string> = {
-		uploaded: 'ri:upload-2-line',
-		metadata_updated: 'ri:edit-line',
-		visibility_changed: 'ri:eye-line',
-		shared: 'ri:share-forward-line',
-		share_revoked: 'ri:forbid-line',
-		downloaded: 'ri:download-2-line',
-		previewed: 'ri:eye-line',
-		replaced: 'ri:refresh-line',
-		approved: 'ri:checkbox-circle-line',
-		rejected: 'ri:close-circle-line',
-		deleted: 'ri:delete-bin-line',
-		restored: 'ri:restart-line',
-		access_denied: 'ri:lock-line',
-	};
-	return map[type] ?? 'ri:information-line';
-}
-
-function actorRoleLabel(role: string): string {
-	const map: Record<string, string> = {
-		admin: 'Administrador',
-		operaciones: 'Equipo de Operaciones',
-		cliente: 'Cliente',
-	};
-	return map[role] ?? role;
-}
-
-function formatFileSize(bytes: number | null | undefined): string {
-	if (!bytes) return '—';
-	if (bytes < 1024) return `${bytes} B`;
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-	return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
-}
-
-function legalCategoryLabel(cat: string | null | undefined): string {
-	if (!cat) return '—';
-	return LEGAL_CATEGORY_LABELS[cat] ?? cat;
-}
-
-// Timestamps from Supabase arrive as ISO 8601 UTC strings (timestamptz).
-// Intl.DateTimeFormat without an explicit timeZone option uses the browser's
-// system timezone automatically — the correct behavior for display.
-const dateFormatter = new Intl.DateTimeFormat('es-ES', {
-	day: '2-digit',
-	month: '2-digit',
-	year: 'numeric',
-});
-
-const dateTimeFormatter = new Intl.DateTimeFormat('es-ES', {
-	day: '2-digit',
-	month: '2-digit',
-	year: 'numeric',
-	hour: '2-digit',
-	minute: '2-digit',
-});
-
-function formatDate(iso: string | null | undefined): string {
-	if (!iso) return '—';
-	const d = new Date(iso);
-	if (Number.isNaN(d.getTime())) return iso;
-	return dateFormatter.format(d);
-}
-
-function formatDateTime(iso: string | null | undefined): string {
-	if (!iso) return '—';
-	const d = new Date(iso);
-	if (Number.isNaN(d.getTime())) return iso;
-	return dateTimeFormatter.format(d);
 }
 
 function MiniStat({ label, value }: { label: string; value: React.ReactNode }) {
@@ -288,8 +144,15 @@ export default function DocumentDetailDrawer({
 		setDownloading(true);
 		try {
 			const url = await fetchSignedUrl(localDocument.id);
-			window.open(url, '_blank');
-		} catch {
+			const a = globalThis.document.createElement('a');
+			a.href = url;
+			a.download = '';
+			a.style.display = 'none';
+			globalThis.document.body.appendChild(a);
+			a.click();
+			globalThis.document.body.removeChild(a);
+		} catch (err) {
+			console.error('[download] signed-url failed', err);
 			toast.error('No se pudo descargar el documento');
 		} finally {
 			setDownloading(false);
@@ -301,8 +164,16 @@ export default function DocumentDetailDrawer({
 		setOpening(true);
 		try {
 			const url = await fetchSignedUrl(localDocument.id);
-			window.open(url, '_blank');
-		} catch {
+			const a = globalThis.document.createElement('a');
+			a.href = url;
+			a.target = '_blank';
+			a.rel = 'noopener noreferrer';
+			a.style.display = 'none';
+			globalThis.document.body.appendChild(a);
+			a.click();
+			globalThis.document.body.removeChild(a);
+		} catch (err) {
+			console.error('[preview] signed-url failed', err);
 			toast.error('No se pudo abrir el documento');
 		} finally {
 			setOpening(false);
@@ -410,7 +281,7 @@ export default function DocumentDetailDrawer({
 						<div className="flex flex-wrap items-center gap-2">
 							{localDocument ? (
 								<Badge
-									variant={badgeVariant(localDocument.status)}
+									variant={badgeForDocumentStatus(localDocument.status)}
 									className="w-fit"
 								>
 									{statusLabel(localDocument.status)}
@@ -430,7 +301,7 @@ export default function DocumentDetailDrawer({
 									/>
 								</div>
 								<div className="min-w-0 flex-1">
-									<SheetTitle className="text-[16px] font-semibold leading-snug text-gray-900 dark:text-gray-100">
+									<SheetTitle className="text-[16px] leading-snug font-semibold text-gray-900 dark:text-gray-100">
 										{localDocument.file_title ?? localDocument.file_name ?? '—'}
 									</SheetTitle>
 									<p className="mt-0.5 text-[11.5px] text-gray-500 dark:text-gray-400">
@@ -671,8 +542,8 @@ export default function DocumentDetailDrawer({
 					)}
 				</section>
 
-				{/* Shares section */}
-				{localDocument && localDocument.shares.length > 0 && (
+				{/* Shares section: quién más tiene acceso — solo relevante para staff */}
+				{isStaff && localDocument && localDocument.shares.length > 0 && (
 					<section className="border-b border-gray-200 px-5 py-5 dark:border-gray-800">
 						<div className="mb-3 flex items-center gap-2">
 							<p className="text-[10px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">

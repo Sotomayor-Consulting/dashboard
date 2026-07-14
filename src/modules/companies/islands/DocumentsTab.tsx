@@ -9,7 +9,6 @@ import {
 	SelectContent,
 	SelectGroup,
 	SelectItem,
-	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from '@components/ui/Select';
@@ -46,6 +45,14 @@ import type {
 	DocumentTypeLite,
 } from '@domains/documents/document_dashboard';
 import DocumentDetailDrawer from './DocumentDetailDrawer';
+import {
+	badgeForDocumentStatus,
+	formatDate,
+	getMimeBg,
+	getMimeColor,
+	getMimeIcon,
+	statusLabel,
+} from '@modules/documents/document-ui';
 
 type SheetMode = 'request' | 'upload' | null;
 type SortField = 'name' | 'type' | 'status' | 'date';
@@ -58,79 +65,6 @@ interface Props {
 	requests: DocumentRequestDashboardRow[];
 	isStaff: boolean;
 	sharedWithUserId?: string;
-}
-
-function getMimeIcon(mime: string | null): string {
-	if (!mime) return 'ri:file-3-line';
-	if (mime === 'application/pdf') return 'ri:file-pdf-2-line';
-	if (mime.includes('word') || mime.includes('document'))
-		return 'ri:file-word-2-line';
-	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'ri:file-excel-2-line';
-	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'ri:file-ppt-2-line';
-	if (mime.startsWith('image/')) return 'ri:image-2-line';
-	if (mime.startsWith('text/')) return 'ri:file-text-line';
-	if (mime.includes('zip') || mime.includes('compressed'))
-		return 'ri:file-zip-line';
-	return 'ri:file-3-line';
-}
-
-function getMimeBg(mime: string | null): string {
-	if (!mime) return 'bg-gray-100 dark:bg-gray-800';
-	if (mime === 'application/pdf') return 'bg-red-100 dark:bg-red-950/40';
-	if (mime.includes('word') || mime.includes('document'))
-		return 'bg-blue-100 dark:bg-blue-950/40';
-	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'bg-emerald-100 dark:bg-emerald-950/40';
-	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'bg-orange-100 dark:bg-orange-950/40';
-	if (mime.startsWith('image/')) return 'bg-purple-100 dark:bg-purple-950/40';
-	return 'bg-gray-100 dark:bg-gray-800';
-}
-
-function getMimeColor(mime: string | null): string {
-	if (!mime) return 'text-gray-500 dark:text-gray-400';
-	if (mime === 'application/pdf') return 'text-red-600 dark:text-red-400';
-	if (mime.includes('word') || mime.includes('document'))
-		return 'text-blue-600 dark:text-blue-400';
-	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'text-emerald-600 dark:text-emerald-400';
-	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'text-orange-600 dark:text-orange-400';
-	if (mime.startsWith('image/')) return 'text-purple-600 dark:text-purple-400';
-	return 'text-gray-500 dark:text-gray-400';
-}
-
-function badgeForDocumentStatus(status: string) {
-	if (status === 'approved') return 'susess';
-	if (status === 'under_review') return 'standar';
-	if (status === 'uploaded') return 'standar';
-	if (status === 'rejected') return 'danger';
-	if (status === 'expired') return 'danger';
-	if (status === 'archived') return 'standar';
-	return 'warning';
-}
-
-function statusLabel(status: string): string {
-	const map: Record<string, string> = {
-		pending: 'Pendiente',
-		uploaded: 'Subido',
-		under_review: 'En revisión',
-		approved: 'Aprobado',
-		rejected: 'Rechazado',
-		replaced: 'Reemplazado',
-		expired: 'Vencido',
-		archived: 'Archivado',
-	};
-	return map[status] ?? status;
-}
-
-function formatDate(value?: string | null) {
-	if (!value) return '—';
-	const date = new Date(value);
-	if (Number.isNaN(date.getTime())) return value;
-	return date.toLocaleDateString('es-ES');
 }
 
 function SortHead({
@@ -180,7 +114,9 @@ export default function DocumentsTab({
 	const closeSheet = () => setSheetMode(null);
 	const displayMode = sheetMode ?? lastMode.current;
 
-	const [docs, setDocs] = React.useState<DocumentDashboardRow[]>(() => documents);
+	const [docs, setDocs] = React.useState<DocumentDashboardRow[]>(
+		() => documents,
+	);
 	const [selectedDocument, setSelectedDocument] =
 		React.useState<DocumentDashboardRow | null>(null);
 	const [sortField, setSortField] = React.useState<SortField>('date');
@@ -321,7 +257,11 @@ export default function DocumentsTab({
 					const newShares = existing
 						? d.shares.map((s) =>
 								s.shared_with_user_id === sharedWithUserId
-									? { ...s, share_status: 'active', shared_at: new Date().toISOString() }
+									? {
+											...s,
+											share_status: 'active',
+											shared_at: new Date().toISOString(),
+										}
 									: s,
 							)
 						: [
@@ -477,38 +417,43 @@ export default function DocumentsTab({
 													onClick={(e) => onDownload(doc.id, e)}
 													className="gap-2"
 												>
-													<Icon
-														icon="ri:download-2-line"
-														className="h-4 w-4"
-													/>
+													<Icon icon="ri:download-2-line" className="h-4 w-4" />
 													Descargar
 												</DropdownMenuItem>
-												{isStaff && (() => {
-													const hasActiveShare = sharedWithUserId
-														? doc.shares.some(
-																(s) =>
-																	s.shared_with_user_id === sharedWithUserId &&
-																	s.share_status === 'active',
-															)
-														: false;
-													return hasActiveShare ? (
-														<DropdownMenuItem
-															onClick={(e) => onRevoke(doc.id, e)}
-															className="gap-2 text-red-600 dark:text-red-400"
-														>
-															<Icon icon="ri:forbid-line" className="h-4 w-4" />
-															Revocar acceso
-														</DropdownMenuItem>
-												) : sharedWithUserId ? (
-														<DropdownMenuItem
-															onClick={(e) => onShare(doc.id, e)}
-															className="gap-2 text-emerald-700 dark:text-emerald-400"
-														>
-															<Icon icon="ri:share-forward-line" className="h-4 w-4" />
-															Compartir
-														</DropdownMenuItem>
-												) : null;
-												})()}
+												{isStaff &&
+													(() => {
+														const hasActiveShare = sharedWithUserId
+															? doc.shares.some(
+																	(s) =>
+																		s.shared_with_user_id ===
+																			sharedWithUserId &&
+																		s.share_status === 'active',
+																)
+															: false;
+														return hasActiveShare ? (
+															<DropdownMenuItem
+																onClick={(e) => onRevoke(doc.id, e)}
+																className="gap-2 text-red-600 dark:text-red-400"
+															>
+																<Icon
+																	icon="ri:forbid-line"
+																	className="h-4 w-4"
+																/>
+																Revocar acceso
+															</DropdownMenuItem>
+														) : sharedWithUserId ? (
+															<DropdownMenuItem
+																onClick={(e) => onShare(doc.id, e)}
+																className="gap-2 text-emerald-700 dark:text-emerald-400"
+															>
+																<Icon
+																	icon="ri:share-forward-line"
+																	className="h-4 w-4"
+																/>
+																Compartir
+															</DropdownMenuItem>
+														) : null;
+													})()}
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</TableCell>
@@ -575,27 +520,10 @@ export default function DocumentsTab({
 								<div className="flex-1 space-y-4 px-4">
 									<FieldGroup className="grid gap-4 md:grid-cols-2">
 										<Field>
-											<FieldLabel htmlFor="documentTypeId">
-												Tipo de documento
-											</FieldLabel>
-											<Select name="documentTypeId" required>
-												<SelectTrigger id="documentTypeId" className="w-full">
-													<SelectValue placeholder="Selecciona un tipo" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectGroup>
-														<SelectLabel>Tipos</SelectLabel>
-														{documentTypes.map((docType) => (
-															<SelectItem
-																key={docType.id}
-																value={String(docType.id)}
-															>
-																{docType.code} - {docType.name}
-															</SelectItem>
-														))}
-													</SelectGroup>
-												</SelectContent>
-											</Select>
+											<FieldLabel>Tipo de documento</FieldLabel>
+											<DocumentTypeComboboxField
+												documentTypes={documentTypes}
+											/>
 										</Field>
 										<Field>
 											<FieldLabel htmlFor="dueDate">Fecha límite</FieldLabel>
@@ -653,9 +581,14 @@ export default function DocumentsTab({
 											</SelectTrigger>
 											<SelectContent>
 												<SelectGroup>
-													<SelectItem value="internal_only">Interno</SelectItem>
-													<SelectItem value="client_visible">
-														Visible cliente
+													<SelectItem value="internal_only" label="Interno">
+														Interno
+													</SelectItem>
+													<SelectItem
+														value="client_visible"
+														label="Visible para el cliente"
+													>
+														Visible para el cliente
 													</SelectItem>
 												</SelectGroup>
 											</SelectContent>
@@ -670,8 +603,13 @@ export default function DocumentsTab({
 											</SelectTrigger>
 											<SelectContent>
 												<SelectGroup>
-													<SelectItem value="false">No compartir</SelectItem>
-													<SelectItem value="true">
+													<SelectItem value="false" label="No compartir">
+														No compartir
+													</SelectItem>
+													<SelectItem
+														value="true"
+														label="Compartir con cliente"
+													>
 														Compartir con cliente
 													</SelectItem>
 												</SelectGroup>

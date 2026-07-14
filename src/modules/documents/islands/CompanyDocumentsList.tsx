@@ -1,6 +1,17 @@
 ﻿import * as React from 'react';
+import type { ColumnDef, SortingState } from '@tanstack/react-table';
+import {
+	flexRender,
+	getCoreRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	useReactTable,
+} from '@tanstack/react-table';
+import { SearchIcon } from 'lucide-react';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
+import { Input } from '@components/ui/Input';
 import {
 	Table,
 	TableBody,
@@ -20,8 +31,14 @@ import { cn } from '@components/utils';
 import { toast } from 'sonner';
 import type { DocumentDashboardRow } from '@domains/documents/document_dashboard';
 import DocumentDetailDrawer from '@modules/companies/islands/DocumentDetailDrawer';
-
-type SortField = 'name' | 'type' | 'status' | 'date';
+import {
+	badgeForDocumentStatus,
+	formatDate,
+	getMimeBg,
+	getMimeColor,
+	getMimeIcon,
+	statusLabel,
+} from '../document-ui';
 
 interface Props {
 	documents: DocumentDashboardRow[];
@@ -31,105 +48,29 @@ interface Props {
 	isStaffDashboard: boolean;
 }
 
-function getMimeIcon(mime: string | null): string {
-	if (!mime) return 'ri:file-3-line';
-	if (mime === 'application/pdf') return 'ri:file-pdf-2-line';
-	if (mime.includes('word') || mime.includes('document'))
-		return 'ri:file-word-2-line';
-	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'ri:file-excel-2-line';
-	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'ri:file-ppt-2-line';
-	if (mime.startsWith('image/')) return 'ri:image-2-line';
-	if (mime.startsWith('text/')) return 'ri:file-text-line';
-	if (mime.includes('zip') || mime.includes('compressed'))
-		return 'ri:file-zip-line';
-	return 'ri:file-3-line';
-}
-
-function getMimeBg(mime: string | null): string {
-	if (!mime) return 'bg-gray-100 dark:bg-gray-800';
-	if (mime === 'application/pdf') return 'bg-red-100 dark:bg-red-950/40';
-	if (mime.includes('word') || mime.includes('document'))
-		return 'bg-blue-100 dark:bg-blue-950/40';
-	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'bg-emerald-100 dark:bg-emerald-950/40';
-	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'bg-orange-100 dark:bg-orange-950/40';
-	if (mime.startsWith('image/')) return 'bg-purple-100 dark:bg-purple-950/40';
-	return 'bg-gray-100 dark:bg-gray-800';
-}
-
-function getMimeColor(mime: string | null): string {
-	if (!mime) return 'text-gray-500 dark:text-gray-400';
-	if (mime === 'application/pdf') return 'text-red-600 dark:text-red-400';
-	if (mime.includes('word') || mime.includes('document'))
-		return 'text-blue-600 dark:text-blue-400';
-	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'text-emerald-600 dark:text-emerald-400';
-	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'text-orange-600 dark:text-orange-400';
-	if (mime.startsWith('image/')) return 'text-purple-600 dark:text-purple-400';
-	return 'text-gray-500 dark:text-gray-400';
-}
-
-function badgeForDocumentStatus(status: string) {
-	if (status === 'approved') return 'susess';
-	if (status === 'under_review' || status === 'uploaded') return 'standar';
-	if (status === 'rejected' || status === 'expired') return 'danger';
-	return 'warning';
-}
-
-function statusLabel(status: string): string {
-	const map: Record<string, string> = {
-		pending: 'Pendiente',
-		uploaded: 'Subido',
-		under_review: 'En revisión',
-		approved: 'Aprobado',
-		rejected: 'Rechazado',
-		replaced: 'Reemplazado',
-		expired: 'Vencido',
-		archived: 'Archivado',
-	};
-	return map[status] ?? status;
-}
-
-function formatDate(value?: string | null) {
-	if (!value) return '—';
-	const d = new Date(value);
-	if (Number.isNaN(d.getTime())) return value;
-	return d.toLocaleDateString('es-ES');
-}
-
-function SortHead({
-	field,
-	activeField,
-	dir,
-	onSort,
-	children,
+function SortableHeader({
+	label,
+	sorted,
+	onClick,
 }: {
-	field: SortField;
-	activeField: SortField;
-	dir: 'asc' | 'desc';
-	onSort: (f: SortField) => void;
-	children: React.ReactNode;
+	label: string;
+	sorted: false | 'asc' | 'desc';
+	onClick: (event: unknown) => void;
 }) {
-	const active = activeField === field;
-	const icon = active
-		? dir === 'asc'
+	const icon = !sorted
+		? 'ri:arrow-up-down-line'
+		: sorted === 'asc'
 			? 'ri:arrow-up-s-line'
-			: 'ri:arrow-down-s-line'
-		: 'ri:arrow-up-down-line';
+			: 'ri:arrow-down-s-line';
 	return (
-		<TableHead
-			onClick={() => onSort(field)}
-			className="cursor-pointer select-none"
+		<button
+			type="button"
+			onClick={onClick}
+			className="flex items-center gap-1 select-none"
 		>
-			<span className="flex items-center gap-1">
-				{children}
-				<Icon icon={icon} className="h-3.5 w-3.5 text-gray-400" />
-			</span>
-		</TableHead>
+			{label}
+			<Icon icon={icon} className="h-3.5 w-3.5 text-gray-400" />
+		</button>
 	);
 }
 
@@ -140,41 +81,15 @@ export default function CompanyDocumentsList({
 	companyUserId,
 	isStaffDashboard,
 }: Props) {
-	const [docs, setDocs] = React.useState<DocumentDashboardRow[]>(() => documents);
+	const [docs, setDocs] = React.useState<DocumentDashboardRow[]>(
+		() => documents,
+	);
 	const [selectedDocument, setSelectedDocument] =
 		React.useState<DocumentDashboardRow | null>(null);
-	const [sortField, setSortField] = React.useState<SortField>('date');
-	const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
-
-	const handleSort = (field: SortField) => {
-		if (sortField === field) {
-			setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
-		} else {
-			setSortField(field);
-			setSortDir('asc');
-		}
-	};
-
-	const sortedDocs = React.useMemo(() => {
-		return [...documents].sort((a, b) => {
-			let va = '';
-			let vb = '';
-			if (sortField === 'name') {
-				va = a.file_title ?? a.file_name;
-				vb = b.file_title ?? b.file_name;
-			} else if (sortField === 'type') {
-				va = a.document_type?.name ?? '';
-				vb = b.document_type?.name ?? '';
-			} else if (sortField === 'status') {
-				va = a.status;
-				vb = b.status;
-			} else {
-				va = a.uploaded_at ?? '';
-				vb = b.uploaded_at ?? '';
-			}
-			return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
-		});
-	}, [docs, sortField, sortDir]);
+	const [sorting, setSorting] = React.useState<SortingState>([
+		{ id: 'uploaded_at', desc: true },
+	]);
+	const [globalFilter, setGlobalFilter] = React.useState('');
 
 	const onDownload = async (documentId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
@@ -187,8 +102,15 @@ export default function CompanyDocumentsList({
 			});
 			const data = await res.json();
 			if (!res.ok) throw new Error(data?.error || 'Error');
-			window.open(data.signedUrl, '_blank');
-		} catch {
+			const a = document.createElement('a');
+			a.href = data.signedUrl;
+			a.download = '';
+			a.style.display = 'none';
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+		} catch (err) {
+			console.error('[download] signed-url failed', err);
 			toast.error('No se pudo descargar el documento');
 		}
 	};
@@ -218,7 +140,11 @@ export default function CompanyDocumentsList({
 					const newShares = existing
 						? d.shares.map((s) =>
 								s.shared_with_user_id === sharedWithUserId
-									? { ...s, share_status: 'active', shared_at: new Date().toISOString() }
+									? {
+											...s,
+											share_status: 'active',
+											shared_at: new Date().toISOString(),
+										}
 									: s,
 							)
 						: [
@@ -272,159 +198,256 @@ export default function CompanyDocumentsList({
 		}
 	};
 
-	if (documents.length === 0) {
-		return (
-			<div className="rounded-lg border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-300">
-				Aún no hay documentos para esta empresa.
-			</div>
-		);
-	}
+	const columns = React.useMemo<ColumnDef<DocumentDashboardRow>[]>(
+		() => [
+			{
+				id: 'icon',
+				header: '',
+				enableSorting: false,
+				cell: ({ row }) => (
+					<div
+						className={cn(
+							'flex h-8 w-8 items-center justify-center rounded-lg',
+							getMimeBg(row.original.mime_type),
+						)}
+					>
+						<Icon
+							icon={getMimeIcon(row.original.mime_type)}
+							className={cn('h-4 w-4', getMimeColor(row.original.mime_type))}
+						/>
+					</div>
+				),
+			},
+			{
+				id: 'name',
+				accessorFn: (row) => row.file_title ?? row.file_name,
+				header: ({ column }) => (
+					<SortableHeader
+						label="Documento"
+						sorted={column.getIsSorted()}
+						onClick={column.getToggleSortingHandler()!}
+					/>
+				),
+				cell: ({ getValue }) => (
+					<span className="block max-w-56 truncate">{getValue<string>()}</span>
+				),
+			},
+			{
+				id: 'type',
+				accessorFn: (row) => row.document_type?.name ?? 'Documento',
+				header: ({ column }) => (
+					<SortableHeader
+						label="Tipo"
+						sorted={column.getIsSorted()}
+						onClick={column.getToggleSortingHandler()!}
+					/>
+				),
+				cell: ({ getValue }) => (
+					<span className="block max-w-36 truncate">{getValue<string>()}</span>
+				),
+			},
+			{
+				accessorKey: 'status',
+				header: ({ column }) => (
+					<SortableHeader
+						label="Estado"
+						sorted={column.getIsSorted()}
+						onClick={column.getToggleSortingHandler()!}
+					/>
+				),
+				cell: ({ row }) => (
+					<Badge variant={badgeForDocumentStatus(row.original.status)}>
+						{statusLabel(row.original.status)}
+					</Badge>
+				),
+			},
+			{
+				accessorKey: 'uploaded_at',
+				header: ({ column }) => (
+					<SortableHeader
+						label="Fecha"
+						sorted={column.getIsSorted()}
+						onClick={column.getToggleSortingHandler()!}
+					/>
+				),
+				cell: ({ row }) => formatDate(row.original.uploaded_at),
+			},
+			{
+				id: 'actions',
+				header: () => <span>Acciones</span>,
+				enableSorting: false,
+				cell: ({ row }) => {
+					const doc = row.original;
+					const hasActiveShare = doc.shares.some(
+						(s) =>
+							s.shared_with_user_id === companyUserId &&
+							s.share_status === 'active',
+					);
+					return (
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								onClick={(e) => e.stopPropagation()}
+								render={
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="h-8 w-8"
+									>
+										<Icon icon="ri:more-2-line" className="h-4 w-4" />
+									</Button>
+								}
+							/>
+							<DropdownMenuContent align="end" className="w-44">
+								<DropdownMenuItem
+									onClick={(e) => onDownload(doc.id, e)}
+									className="gap-2"
+								>
+									<Icon icon="ri:download-2-line" className="h-4 w-4" />
+									Descargar
+								</DropdownMenuItem>
+								{canUseStaffActions &&
+									(hasActiveShare ? (
+										<DropdownMenuItem
+											onClick={(e) => onRevoke(doc.id, companyUserId, e)}
+											className="gap-2 text-red-600 dark:text-red-400"
+										>
+											<Icon icon="ri:forbid-line" className="h-4 w-4" />
+											Revocar acceso
+										</DropdownMenuItem>
+									) : (
+										<DropdownMenuItem
+											onClick={(e) => onShare(doc.id, companyUserId, e)}
+											className="gap-2 text-emerald-700 dark:text-emerald-400"
+										>
+											<Icon icon="ri:share-forward-line" className="h-4 w-4" />
+											Compartir
+										</DropdownMenuItem>
+									))}
+							</DropdownMenuContent>
+						</DropdownMenu>
+					);
+				},
+			},
+		],
+		[canUseStaffActions, companyUserId],
+	);
+
+	const table = useReactTable({
+		data: docs,
+		columns,
+		onSortingChange: setSorting,
+		onGlobalFilterChange: setGlobalFilter,
+		globalFilterFn: (row, _columnId, filterValue: string) => {
+			const q = filterValue.trim().toLowerCase();
+			if (!q) return true;
+			const doc = row.original;
+			const haystack = [
+				doc.file_title ?? doc.file_name,
+				doc.document_type?.name ?? '',
+				statusLabel(doc.status),
+			]
+				.join(' ')
+				.toLowerCase();
+			return haystack.includes(q);
+		},
+		getCoreRowModel: getCoreRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		state: { sorting, globalFilter },
+	});
 
 	return (
 		<>
-			<div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead className="w-10 pr-0" />
-							<SortHead
-								field="name"
-								activeField={sortField}
-								dir={sortDir}
-								onSort={handleSort}
-							>
-								Documento
-							</SortHead>
-							<SortHead
-								field="type"
-								activeField={sortField}
-								dir={sortDir}
-								onSort={handleSort}
-							>
-								Tipo
-							</SortHead>
-							<SortHead
-								field="status"
-								activeField={sortField}
-								dir={sortDir}
-								onSort={handleSort}
-							>
-								Estado
-							</SortHead>
-							<SortHead
-								field="date"
-								activeField={sortField}
-								dir={sortDir}
-								onSort={handleSort}
-							>
-								Fecha
-							</SortHead>
-							<TableHead>Acciones</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{sortedDocs.map((doc) => {
-							const hasActiveShare = doc.shares.some(
-								(s) =>
-									s.shared_with_user_id === companyUserId &&
-									s.share_status === 'active',
-							);
-							return (
-								<TableRow
-									key={doc.id}
-									onClick={() => setSelectedDocument(doc)}
-									className="cursor-pointer"
-								>
-									<TableCell className="w-10 pr-0">
-										<div
-											className={cn(
-												'flex h-8 w-8 items-center justify-center rounded-lg',
-												getMimeBg(doc.mime_type),
-											)}
+			<div className="space-y-4">
+				<div className="relative w-full max-w-sm">
+					<SearchIcon
+						size={16}
+						className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+					/>
+					<Input
+						placeholder="Buscar por nombre, tipo o estado..."
+						value={globalFilter}
+						onChange={(event) => setGlobalFilter(event.target.value)}
+						className="max-w-sm pl-9"
+					/>
+				</div>
+
+				<div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+					<Table>
+						<TableHeader>
+							{table.getHeaderGroups().map((headerGroup) => (
+								<TableRow key={headerGroup.id}>
+									{headerGroup.headers.map((header) => (
+										<TableHead
+											key={header.id}
+											className={header.column.id === 'icon' ? 'w-10 pr-0' : ''}
 										>
-											<Icon
-												icon={getMimeIcon(doc.mime_type)}
-												className={cn('h-4 w-4', getMimeColor(doc.mime_type))}
-											/>
-										</div>
-									</TableCell>
-									<TableCell className="max-w-56 truncate">
-										{doc.file_title ?? doc.file_name}
-									</TableCell>
-									<TableCell className="max-w-36 truncate">
-										{doc.document_type?.name ?? 'Documento'}
-									</TableCell>
-									<TableCell>
-										<Badge variant={badgeForDocumentStatus(doc.status)}>
-											{statusLabel(doc.status)}
-										</Badge>
-									</TableCell>
-									<TableCell>{formatDate(doc.uploaded_at)}</TableCell>
-									<TableCell>
-										<DropdownMenu>
-											<DropdownMenuTrigger
-												onClick={(e) => e.stopPropagation()}
-												render={
-													<Button
-														type="button"
-														variant="ghost"
-														size="icon"
-														className="h-8 w-8"
-													>
-														<Icon icon="ri:more-2-line" className="h-4 w-4" />
-													</Button>
-												}
-											/>
-											<DropdownMenuContent align="end" className="w-44">
-												<DropdownMenuItem
-													onClick={(e) => onDownload(doc.id, e)}
-													className="gap-2"
-												>
-													<Icon
-														icon="ri:download-2-line"
-														className="h-4 w-4"
-													/>
-													Descargar
-												</DropdownMenuItem>
-												{canUseStaffActions && (
-													<>
-														{hasActiveShare ? (
-															<DropdownMenuItem
-																onClick={(e) =>
-																	onRevoke(doc.id, companyUserId, e)
-																}
-																className="gap-2 text-red-600 dark:text-red-400"
-															>
-																<Icon
-																	icon="ri:forbid-line"
-																	className="h-4 w-4"
-																/>
-																Revocar acceso
-															</DropdownMenuItem>
-														) : (
-															<DropdownMenuItem
-																onClick={(e) =>
-																	onShare(doc.id, companyUserId, e)
-																}
-																className="gap-2 text-emerald-700 dark:text-emerald-400"
-															>
-																<Icon
-																	icon="ri:share-forward-line"
-																	className="h-4 w-4"
-																/>
-																Compartir
-															</DropdownMenuItem>
-														)}
-													</>
+											{header.isPlaceholder
+												? null
+												: flexRender(
+														header.column.columnDef.header,
+														header.getContext(),
+													)}
+										</TableHead>
+									))}
+								</TableRow>
+							))}
+						</TableHeader>
+						<TableBody>
+							{table.getRowModel().rows.length ? (
+								table.getRowModel().rows.map((row) => (
+									<TableRow
+										key={row.id}
+										onClick={() => setSelectedDocument(row.original)}
+										className="cursor-pointer"
+									>
+										{row.getVisibleCells().map((cell) => (
+											<TableCell
+												key={cell.id}
+												className={cell.column.id === 'icon' ? 'w-10 pr-0' : ''}
+											>
+												{flexRender(
+													cell.column.columnDef.cell,
+													cell.getContext(),
 												)}
-											</DropdownMenuContent>
-										</DropdownMenu>
+											</TableCell>
+										))}
+									</TableRow>
+								))
+							) : (
+								<TableRow>
+									<TableCell
+										colSpan={columns.length}
+										className="h-16 text-center text-sm text-gray-500 dark:text-gray-300"
+									>
+										Aún no hay documentos para esta empresa.
 									</TableCell>
 								</TableRow>
-							);
-						})}
-					</TableBody>
-				</Table>
+							)}
+						</TableBody>
+					</Table>
+				</div>
+
+				<div className="flex items-center justify-end gap-2">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => table.previousPage()}
+						disabled={!table.getCanPreviousPage()}
+					>
+						Anterior
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => table.nextPage()}
+						disabled={!table.getCanNextPage()}
+					>
+						Siguiente
+					</Button>
+				</div>
 			</div>
 
 			<DocumentDetailDrawer

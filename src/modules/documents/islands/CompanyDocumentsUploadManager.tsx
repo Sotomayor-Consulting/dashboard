@@ -33,6 +33,12 @@ import type {
 } from '@domains/documents/document_dashboard';
 import { DocumentTypeComboboxField } from './DocumentTypeComboboxField';
 import DocumentDetailDrawer from '@modules/companies/islands/DocumentDetailDrawer';
+import {
+	badgeForDocumentStatus,
+	formatDate,
+	getMimeIcon,
+	statusLabel,
+} from '../document-ui';
 
 type SortField = 'name' | 'type' | 'status' | 'date';
 
@@ -44,48 +50,6 @@ type Props = {
 	isStaff?: boolean;
 	sharedWithUserId?: string | undefined;
 };
-
-function getMimeIcon(mime: string | null): string {
-	if (!mime) return 'ri:file-line';
-	if (mime === 'application/pdf') return 'ri:file-pdf-line';
-	if (mime.includes('word') || mime.includes('document'))
-		return 'ri:file-word-line';
-	if (mime.includes('excel') || mime.includes('spreadsheet'))
-		return 'ri:file-excel-line';
-	if (mime.includes('powerpoint') || mime.includes('presentation'))
-		return 'ri:file-ppt-line';
-	if (mime.startsWith('image/')) return 'ri:image-line';
-	if (mime.startsWith('text/')) return 'ri:file-text-line';
-	return 'ri:file-line';
-}
-
-function badgeForDocumentStatus(status: string) {
-	if (status === 'approved') return 'susess';
-	if (status === 'under_review' || status === 'uploaded') return 'standar';
-	if (status === 'rejected' || status === 'expired') return 'danger';
-	return 'warning';
-}
-
-function statusLabel(status: string): string {
-	const map: Record<string, string> = {
-		pending: 'Pendiente',
-		uploaded: 'Subido',
-		under_review: 'En revisión',
-		approved: 'Aprobado',
-		rejected: 'Rechazado',
-		replaced: 'Reemplazado',
-		expired: 'Vencido',
-		archived: 'Archivado',
-	};
-	return map[status] ?? status;
-}
-
-function formatDate(value?: string | null) {
-	if (!value) return '—';
-	const date = new Date(value);
-	if (Number.isNaN(date.getTime())) return value;
-	return date.toLocaleDateString('es-ES');
-}
 
 function SortHead({
 	field,
@@ -238,9 +202,14 @@ export default function CompanyDocumentsUploadManager({
 								</SelectTrigger>
 								<SelectContent>
 									<SelectGroup>
-										<SelectItem value="internal_only">Interno</SelectItem>
-										<SelectItem value="client_visible">
-											Visible cliente
+										<SelectItem value="internal_only" label="Interno">
+											Interno
+										</SelectItem>
+										<SelectItem
+											value="client_visible"
+											label="Visible para el cliente"
+										>
+											Visible para el cliente
 										</SelectItem>
 									</SelectGroup>
 								</SelectContent>
@@ -255,8 +224,12 @@ export default function CompanyDocumentsUploadManager({
 								</SelectTrigger>
 								<SelectContent>
 									<SelectGroup>
-										<SelectItem value="false">No compartir</SelectItem>
-										<SelectItem value="true">Compartir</SelectItem>
+										<SelectItem value="false" label="No compartir">
+											No compartir
+										</SelectItem>
+										<SelectItem value="true" label="Compartir">
+											Compartir
+										</SelectItem>
 									</SelectGroup>
 								</SelectContent>
 							</Select>
@@ -363,10 +336,7 @@ export default function CompanyDocumentsUploadManager({
 													onClick={(e) => onDownload(doc.id, e)}
 													className="gap-2"
 												>
-													<Icon
-														icon="ri:download-2-line"
-														className="h-4 w-4"
-													/>
+													<Icon icon="ri:download-2-line" className="h-4 w-4" />
 													Descargar
 												</DropdownMenuItem>
 												{isStaff && (

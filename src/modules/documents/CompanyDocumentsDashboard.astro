@@ -6,7 +6,7 @@ import {
 } from '@domains/companies/incorporations';
 import {
 	getDocumentRequestsForIncorporationCase,
-	getDocumentsForIncorporationCase,
+	getDocumentsForCompanyView,
 	getDocumentTypesList,
 } from '@domains/documents/document_dashboard';
 import { getDocumentosPorFirmar } from '@domains/documents/pending-signature';
@@ -17,12 +17,14 @@ import CompanyDocumentsList from '@modules/documents/islands/CompanyDocumentsLis
 
 interface Props {
 	incorporationCaseId: string | undefined;
+	companyId?: string | null;
 	showQuickUpload?: boolean;
 	dashboardVariant?: 'client' | 'staff';
 }
 
 const {
 	incorporationCaseId,
+	companyId = null,
 	showQuickUpload = true,
 	dashboardVariant = 'client',
 } = Astro.props;
@@ -57,8 +59,9 @@ if (!userId) {
 	} else {
 		[requests, documents, documentTypes, porfirmar] = await Promise.all([
 			getDocumentRequestsForIncorporationCase(dataClient, incorporationCaseId),
-			getDocumentsForIncorporationCase(
+			getDocumentsForCompanyView(
 				supabaseAdmin,
+				companyId,
 				incorporationCaseId,
 				userId,
 				userRoles,
@@ -92,147 +95,149 @@ const canUploadForRequest = (status: string) =>
 			</div>
 		) : (
 			<>
-			{porfirmar.length > 0 && (
-				<div class="my-4">
-					<SignedPanel porfirmar={porfirmar} />
-				</div>
-			)}
+				{porfirmar.length > 0 && (
+					<div class="my-4">
+						<SignedPanel porfirmar={porfirmar} />
+					</div>
+				)}
 
-			<div class="my-4 grid w-full grid-cols-1 gap-6 xl:grid-cols-2">
-				<div>
-					<h3 class="text-foreground text-lg font-semibold">Solicitudes</h3>
-					<p class="text-muted-foreground mt-1 mb-4 text-sm">
-						Documentos solicitados por el equipo de operaciones.
-					</p>
+				<div class="my-4 grid w-full grid-cols-1 gap-6 xl:grid-cols-2">
+					<div>
+						<h3 class="text-foreground text-lg font-semibold">Solicitudes</h3>
+						<p class="text-muted-foreground mt-1 mb-4 text-sm">
+							Documentos solicitados por el equipo de operaciones.
+						</p>
 
-					{canUseStaffActions && showQuickUpload ? (
-						<div class="border-border bg-muted/30 mb-4 rounded-lg border border-dashed p-4">
-							<h4 class="text-foreground text-sm font-semibold">
-								Subida rápida (Operaciones/Admin)
-							</h4>
-							<form
-								method="post"
-								enctype="multipart/form-data"
-								action={uploadEndpointBase}
-								class="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2"
-							>
-								<input
-									type="file"
-									name="file"
-									required
-									class="text-foreground file:bg-muted file:text-foreground hover:file:bg-muted/80 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:px-3 file:py-2 file:text-sm file:font-medium"
-									accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
-								/>
-								<DocumentTypeComboboxField
-									client:visible
-									documentTypes={documentTypes}
-								/>
-								<select
-									name="visibility"
-									class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-2 text-sm"
+						{canUseStaffActions && showQuickUpload ? (
+							<div class="border-border bg-muted/30 mb-4 rounded-lg border border-dashed p-4">
+								<h4 class="text-foreground text-sm font-semibold">
+									Subida rápida (Operaciones/Admin)
+								</h4>
+								<form
+									method="post"
+									enctype="multipart/form-data"
+									action={uploadEndpointBase}
+									class="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2"
 								>
-									<option value="internal_only">Interno</option>
-									<option value="client_visible">Visible</option>
-								</select>
-								<select
-									name="shareWithClient"
-									class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-2 text-sm"
-								>
-									<option value="false">No compartir</option>
-									<option value="true">Compartir</option>
-								</select>
-								<div class="md:col-span-2">
-									<button
-										type="submit"
-										class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+									<input
+										type="file"
+										name="file"
+										required
+										class="text-foreground file:bg-muted file:text-foreground hover:file:bg-muted/80 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:px-3 file:py-2 file:text-sm file:font-medium"
+										accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
+									/>
+									<DocumentTypeComboboxField
+										client:visible
+										documentTypes={documentTypes}
+									/>
+									<select
+										name="visibility"
+										class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-2 text-sm"
 									>
-										<Icon name="ri:upload-2-line" class="text-base" />
-										Subir documento
-									</button>
-								</div>
-							</form>
-						</div>
-					) : null}
+										<option value="internal_only">Interno</option>
+										<option value="client_visible">Visible</option>
+									</select>
+									<select
+										name="shareWithClient"
+										class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-2 text-sm"
+									>
+										<option value="false">No compartir</option>
+										<option value="true">Compartir</option>
+									</select>
+									<div class="md:col-span-2">
+										<button
+											type="submit"
+											class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+										>
+											<Icon name="ri:upload-2-line" class="text-base" />
+											Subir documento
+										</button>
+									</div>
+								</form>
+							</div>
+						) : null}
 
-					{requests.length === 0 ? (
-						<div class="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
-							No hay solicitudes de documentos para esta empresa.
-						</div>
-					) : (
-						<div class="border-border rounded-lg border">
-							<ul class="divide-border divide-y">
-								{requests.map((request) => (
-									<li class="p-4">
-										<p class="text-foreground text-sm font-semibold">
-											{request.document_type?.name ?? 'Documento requerido'}
-										</p>
-										<p class="text-muted-foreground mt-1 text-xs">
-											Status: {request.status}
-											{request.due_date ? ` · Vence: ${request.due_date}` : ''}
-										</p>
-
-										{canUploadForRequest(request.status) ? (
-											<form
-												method="post"
-												enctype="multipart/form-data"
-												action={`${uploadEndpointBase}&documentRequestId=${encodeURIComponent(request.id)}`}
-												class="mt-3 flex flex-col gap-2"
-											>
-												<input
-													type="file"
-													name="file"
-													required
-													class="block w-full text-sm text-gray-900 file:mr-3 file:ml-0 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200 dark:text-gray-200 dark:file:bg-white/10 dark:file:text-gray-200 dark:hover:file:bg-white/15"
-													accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
-												/>
-												{canUseStaffActions ? (
-													<select
-														name="visibility"
-														class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-1 text-xs"
-													>
-														<option value="internal_only">Interno</option>
-														<option value="client_visible">
-															Visible cliente
-														</option>
-													</select>
-												) : null}
-												<button
-													type="submit"
-													class="inline-flex w-fit items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-												>
-													<Icon name="ri:upload-2-line" class="text-base" />
-													Subir
-												</button>
-											</form>
-										) : (
-											<p class="mt-3 text-xs font-medium text-amber-700 dark:text-amber-300">
-												La solicitud está {request.status}. No se permiten
-												nuevas cargas.
+						{requests.length === 0 ? (
+							<div class="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
+								No hay solicitudes de documentos para esta empresa.
+							</div>
+						) : (
+							<div class="border-border rounded-lg border">
+								<ul class="divide-border divide-y">
+									{requests.map((request) => (
+										<li class="p-4">
+											<p class="text-foreground text-sm font-semibold">
+												{request.document_type?.name ?? 'Documento requerido'}
 											</p>
-										)}
-									</li>
-								))}
-							</ul>
-						</div>
-					)}
-				</div>
+											<p class="text-muted-foreground mt-1 text-xs">
+												Status: {request.status}
+												{request.due_date
+													? ` · Vence: ${request.due_date}`
+													: ''}
+											</p>
 
-				<div>
-					<h3 class="text-foreground text-lg font-semibold">Documentos</h3>
-					<p class="text-muted-foreground mt-1 mb-4 text-sm">
-						Archivos subidos y compartidos de esta empresa.
-					</p>
+											{canUploadForRequest(request.status) ? (
+												<form
+													method="post"
+													enctype="multipart/form-data"
+													action={`${uploadEndpointBase}&documentRequestId=${encodeURIComponent(request.id)}`}
+													class="mt-3 flex flex-col gap-2"
+												>
+													<input
+														type="file"
+														name="file"
+														required
+														class="block w-full text-sm text-gray-900 file:mr-3 file:ml-0 file:rounded-lg file:border-0 file:bg-gray-100 file:px-3 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200 dark:text-gray-200 dark:file:bg-white/10 dark:file:text-gray-200 dark:hover:file:bg-white/15"
+														accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
+													/>
+													{canUseStaffActions ? (
+														<select
+															name="visibility"
+															class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-1 text-xs"
+														>
+															<option value="internal_only">Interno</option>
+															<option value="client_visible">
+																Visible cliente
+															</option>
+														</select>
+													) : null}
+													<button
+														type="submit"
+														class="inline-flex w-fit items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+													>
+														<Icon name="ri:upload-2-line" class="text-base" />
+														Subir
+													</button>
+												</form>
+											) : (
+												<p class="mt-3 text-xs font-medium text-amber-700 dark:text-amber-300">
+													La solicitud está {request.status}. No se permiten
+													nuevas cargas.
+												</p>
+											)}
+										</li>
+									))}
+								</ul>
+							</div>
+						)}
+					</div>
 
-					<CompanyDocumentsList
-						documents={documents}
-						canUseStaffActions={canUseStaffActions}
-						incorporationCaseId={incorporationCaseId ?? ''}
-						companyUserId={company.user_id}
-						isStaffDashboard={isStaffDashboard}
-						client:load
-					/>
+					<div>
+						<h3 class="text-foreground text-lg font-semibold">Documentos</h3>
+						<p class="text-muted-foreground mt-1 mb-4 text-sm">
+							Archivos subidos y compartidos de esta empresa.
+						</p>
+
+						<CompanyDocumentsList
+							documents={documents}
+							canUseStaffActions={canUseStaffActions}
+							incorporationCaseId={incorporationCaseId ?? ''}
+							companyUserId={company.user_id}
+							isStaffDashboard={isStaffDashboard}
+							client:load
+						/>
+					</div>
 				</div>
-			</div>
 			</>
 		)
 	}

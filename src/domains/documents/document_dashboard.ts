@@ -86,7 +86,6 @@ export async function getDocumentRequestsForIncorporationCase(
 				message,
 				is_required,
 				requested_at,
-				deleted_at,
 				document_types:document_type_id (
 					id,
 					code,
@@ -168,6 +167,47 @@ export async function getDocumentsForCompany(
 	);
 }
 
+/**
+ * Documentos de una empresa vistos "de punta a punta": combina los vinculados
+ * al caso de incorporación (`related_to_type = 'incorporation_case'') con los
+ * vinculados directamente a la empresa canónica (`related_to_type = 'company'`).
+ * La mayoría de los documentos importados (facturas, EIN, BOIR, etc.) se
+ * enlazan como `company`, no como `incorporation_case`, así que ambas fuentes
+ * son necesarias para que no falten documentos en el listado.
+ */
+export async function getDocumentsForCompanyView(
+	supabase: SupabaseClient,
+	companyId?: string | null,
+	incorporationCaseId?: string | null,
+	currentUserId?: string | null,
+	userRoles: string[] = [],
+): Promise<DocumentDashboardRow[]> {
+	const [companyDocs, incorporationDocs] = await Promise.all([
+		companyId
+			? getDocumentsForCompany(supabase, companyId, currentUserId, userRoles)
+			: Promise.resolve([]),
+		incorporationCaseId
+			? getDocumentsForIncorporationCase(
+					supabase,
+					incorporationCaseId,
+					currentUserId,
+					userRoles,
+				)
+			: Promise.resolve([]),
+	]);
+
+	const byId = new Map<string, DocumentDashboardRow>();
+	for (const doc of [...companyDocs, ...incorporationDocs]) {
+		byId.set(doc.id, doc);
+	}
+
+	return [...byId.values()].sort((a, b) => {
+		const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+		const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+		return bTime - aTime;
+	});
+}
+
 async function getDocumentsForRelated(
 	supabase: SupabaseClient,
 	relatedToType: 'incorporation_case' | 'company',
@@ -197,7 +237,6 @@ async function getDocumentsForRelated(
 				notes,
 				issue_date,
 				expiry_date,
-				deleted_at,
 				document_shares:document_shares!left (
 					id,
 					shared_with_user_id,
@@ -271,6 +310,12 @@ async function getDocumentsForRelated(
 			const isStaff = userRoles.some((role) => STAFF_ROLES.has(role));
 			if (isStaff) return true;
 			if (!currentUserId) return false;
+			// El usuario siempre ve lo que él mismo subió (p. ej. al responder una
+			// solicitud de documento), sin depender de un share explícito: el
+			// auto-share al subir solo lo dispara staff (ver uploadDocument en
+			// service.ts), así que sin esta excepción el cliente nunca vería sus
+			// propias cargas.
+			if (doc.uploaded_by === currentUserId) return true;
 			if (doc.visibility !== 'client_visible') return false;
 			return doc.shares.some(
 				(share: any) =>

@@ -33,6 +33,10 @@ import {
 } from '../schemas/company-info.schema';
 import { ActivityComboboxField } from '../components/ActivityComboboxField';
 import { ComboboxField } from '../components/ComboboxField';
+import {
+	EntityTypeBadge,
+	LegalStatusBadge,
+} from '@modules/admin/empresas/cells/EntityBadge';
 
 interface Props {
 	company: CompanyItem | null;
@@ -40,52 +44,6 @@ interface Props {
 	actividades: ActividadItem[];
 	canEditDetails: boolean;
 }
-
-const ENTITY_CLASS: Record<string, string> = {
-	llc: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300',
-	'c-corp':
-		'bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300',
-	lp: 'bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300',
-};
-
-const STATUS_META: Record<string, { label: string; cls: string; dot: string }> =
-	{
-		active: {
-			label: 'Activa',
-			cls: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400',
-			dot: 'bg-emerald-500',
-		},
-		draft: {
-			label: 'Borrador',
-			cls: 'bg-muted text-muted-foreground',
-			dot: 'bg-muted-foreground',
-		},
-		pending: {
-			label: 'Pendiente',
-			cls: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
-			dot: 'bg-amber-500',
-		},
-		pending_validation: {
-			label: 'Pendiente validación',
-			cls: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
-			dot: 'bg-amber-500',
-		},
-		suspended: {
-			label: 'Suspendida',
-			cls: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400',
-			dot: 'bg-amber-500',
-		},
-		inactive: {
-			label: 'Inactiva',
-			cls: 'bg-muted text-muted-foreground',
-			dot: 'bg-muted-foreground',
-		},
-		dissolved: {
-			label: 'Disuelta',
-			cls: 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400',
-			dot: 'bg-red-500',
-		},
-	};
 
 const MANAGEMENT_OPTIONS = [
 	{ value: 'member-managed', label: 'Member-Managed' },
@@ -245,12 +203,6 @@ export default function CompanyInfoSection({
 		searchText: s.code ?? '',
 	}));
 
-	const entityType = (company.entity_type ?? '').toLowerCase();
-	const legalStatus = (company.legal_status ?? 'draft').toLowerCase();
-	const entityCls =
-		ENTITY_CLASS[entityType] ?? 'bg-muted text-muted-foreground';
-	const status = STATUS_META[legalStatus] ?? STATUS_META['draft']!;
-
 	return (
 		<section className="-mx-6 -mt-5 flex flex-col">
 			{/* Company identity header */}
@@ -262,24 +214,9 @@ export default function CompanyInfoSection({
 					{company.legal_name ?? 'Sin nombre'}
 				</h2>
 				<div className="mt-2 flex flex-wrap items-center gap-1.5">
-					<span
-						className={cn(
-							'inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[10.5px] font-medium',
-							status.cls,
-						)}
-					>
-						<span className={cn('h-1.5 w-1.5 rounded-full', status.dot)} />
-						{status.label}
-					</span>
-					{entityType && (
-						<span
-							className={cn(
-								'inline-flex items-center rounded-md px-2 py-0.5 text-[10.5px] font-semibold tracking-wide uppercase',
-								entityCls,
-							)}
-						>
-							{entityType.toUpperCase()}
-						</span>
+					<LegalStatusBadge status={company.legal_status ?? 'draft'} />
+					{company.entity_type && (
+						<EntityTypeBadge type={company.entity_type} />
 					)}
 					{company.identification_number && (
 						<span className="bg-muted text-muted-foreground inline-flex items-center rounded-md px-2 py-0.5 text-[10.5px] font-medium">
