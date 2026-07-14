@@ -73,7 +73,7 @@ export default defineConfig({
 		},
 		plugins: [tailwindcss()],
 		optimizeDeps: {
-			exclude: ['astro/virtual-modules/prefetch.js'],
+			exclude: ['astro/virtual-modules/prefetch.js', '@base-ui/react'],
 		},
 		build: {
 			rollupOptions: {
