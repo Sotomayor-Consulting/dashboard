@@ -1,10 +1,15 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import { Icon } from '@iconify/react';
 import { UploadIcon } from 'lucide-react';
 
 import { Button } from '@components/ui/Button';
 import { DropzoneField } from '@components/ui/DropzoneField';
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@components/ui/Field';
+import {
+	Field,
+	FieldDescription,
+	FieldGroup,
+	FieldLabel,
+} from '@components/ui/Field';
 import {
 	Select,
 	SelectContent,
@@ -115,8 +120,8 @@ export default function CompanyDocumentsPanel({
 					<SheetHeader className="pb-3">
 						<SheetTitle>Subir documento</SheetTitle>
 						<p className="text-muted-foreground text-sm">
-							El documento quedará vinculado a esta empresa y podrás
-							compartirlo con el cliente.
+							El documento quedará vinculado a esta empresa y podrás compartirlo
+							con el cliente.
 						</p>
 					</SheetHeader>
 
@@ -162,10 +167,13 @@ export default function CompanyDocumentsPanel({
 												</SelectTrigger>
 												<SelectContent>
 													<SelectGroup>
-														<SelectItem value="internal_only">
+														<SelectItem value="internal_only" label="Interno">
 															Interno
 														</SelectItem>
-														<SelectItem value="client_visible">
+														<SelectItem
+															value="client_visible"
+															label="Visible para el cliente"
+														>
 															Visible para el cliente
 														</SelectItem>
 													</SelectGroup>
@@ -186,8 +194,10 @@ export default function CompanyDocumentsPanel({
 												</SelectTrigger>
 												<SelectContent>
 													<SelectGroup>
-														<SelectItem value="false">No compartir</SelectItem>
-														<SelectItem value="true">
+														<SelectItem value="false" label="No compartir">
+															No compartir
+														</SelectItem>
+														<SelectItem value="true" label="Compartir al subir">
 															Compartir al subir
 														</SelectItem>
 													</SelectGroup>

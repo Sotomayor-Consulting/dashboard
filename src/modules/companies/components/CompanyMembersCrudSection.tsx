@@ -3,18 +3,13 @@ import { Icon } from '@iconify/react';
 import { useLocalStorageState } from '@modules/admin/lib/use-local-storage-state';
 import { Button } from '@components/ui/Button';
 import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from '@components/ui/Command';
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@components/ui/Popover';
+	Combobox,
+	ComboboxContent,
+	ComboboxEmpty,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxList,
+} from '@components/ui/Combobox';
 import {
 	Dialog,
 	DialogContent,
@@ -511,15 +506,6 @@ function MemberPicker({
 	onSwitchToNew: (initialName?: string) => void;
 }) {
 	const { query, setQuery, results, isLoading } = useMembersSearch();
-	const [open, setOpen] = React.useState(false);
-
-	const handleSelect = (memberId: string) => {
-		const member = results.find((m) => m.id === memberId);
-		if (member) {
-			onPickExisting(member);
-			setOpen(false);
-		}
-	};
 
 	return (
 		<Field>
@@ -543,63 +529,45 @@ function MemberPicker({
 					</Button>
 				</div>
 			) : (
-				<Popover open={open} onOpenChange={setOpen}>
-					<PopoverTrigger
-						render={
-							<Button
-								id="member_picker"
-								type="button"
-								variant="outline"
-								aria-expanded={open}
-								className="w-full justify-between font-normal"
-							>
-								<span className="text-muted-foreground truncate">
-									Buscar persona por nombre o identificación...
-								</span>
-								<PlusIcon className="ml-2 size-4 shrink-0 opacity-50" />
-							</Button>
-						}
+				<Combobox
+					items={results}
+					itemToStringValue={(member: MemberItem) => member.id}
+					itemToStringLabel={(member: MemberItem) => displayName(member)}
+					value={null}
+					onValueChange={(member) => {
+						if (member) onPickExisting(member as MemberItem);
+					}}
+					inputValue={query}
+					onInputValueChange={setQuery}
+					filter={null}
+				>
+					<ComboboxInput
+						id="member_picker"
+						placeholder="Buscar persona por nombre o identificación..."
+						className="w-full"
 					/>
-					<PopoverContent
-						className="w-[var(--anchor-width)] p-0"
-						align="start"
-					>
-						<Command shouldFilter={false}>
-							<CommandInput
-								placeholder="Escribe para buscar..."
-								value={query}
-								onValueChange={setQuery}
-							/>
-							<CommandList>
-								<CommandEmpty>
-									{isLoading
-										? 'Buscando...'
-										: query.trim()
-											? 'No hay coincidencias.'
-											: 'Escribe para buscar personas.'}
-								</CommandEmpty>
-								{results.length > 0 ? (
-									<CommandGroup heading="Personas">
-										{results.map((member) => (
-											<CommandItem
-												key={member.id}
-												value={member.id}
-												onSelect={() => handleSelect(member.id)}
-											>
-												<div className="flex flex-col">
-													<span className="text-sm">{displayName(member)}</span>
-													<span className="text-muted-foreground text-xs">
-														{formatIdentification(member)}
-													</span>
-												</div>
-											</CommandItem>
-										))}
-									</CommandGroup>
-								) : null}
-							</CommandList>
-						</Command>
-					</PopoverContent>
-				</Popover>
+					<ComboboxContent>
+						<ComboboxEmpty>
+							{isLoading
+								? 'Buscando...'
+								: query.trim()
+									? 'No hay coincidencias.'
+									: 'Escribe para buscar personas.'}
+						</ComboboxEmpty>
+						<ComboboxList>
+							{(member: MemberItem) => (
+								<ComboboxItem key={member.id} value={member}>
+									<div className="flex flex-col">
+										<span className="text-sm">{displayName(member)}</span>
+										<span className="text-muted-foreground text-xs">
+											{formatIdentification(member)}
+										</span>
+									</div>
+								</ComboboxItem>
+							)}
+						</ComboboxList>
+					</ComboboxContent>
+				</Combobox>
 			)}
 
 			<FieldDescription>
@@ -607,10 +575,7 @@ function MemberPicker({
 				<button
 					type="button"
 					className="text-primary-600 hover:underline"
-					onClick={() => {
-						setOpen(false);
-						onSwitchToNew(query);
-					}}
+					onClick={() => onSwitchToNew(query)}
 				>
 					<PlusIcon className="inline size-3" /> Crear nuevo miembro
 				</button>

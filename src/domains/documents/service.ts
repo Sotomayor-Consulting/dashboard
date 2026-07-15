@@ -52,6 +52,42 @@ function buildStoragePath(
 	return `${ownerUserId}/${input.relatedToType}/${input.relatedToId}/documents/${documentId}-${fileName}`;
 }
 
+/**
+ * Resuelve el case_id (incorporación) de un documento cuando la columna
+ * documents.documents.case_id vino nula — típico de documentos insertados
+ * directamente vía REST API/PostgREST (importaciones externas, p. ej. n8n)
+ * que no la poblaron. Cae a document_links: si hay un link
+ * 'incorporation_case', ese related_to_id ES el case_id; si es 'company',
+ * se resuelve companies.incorporation_id.
+ */
+async function resolveCaseIdForDocument(
+	documentId: string,
+	existingCaseId: string | null,
+): Promise<string | null> {
+	if (existingCaseId) return existingCaseId;
+
+	const { data: links } = await documentsDb
+		.from('document_links')
+		.select('related_to_type, related_to_id')
+		.eq('document_id', documentId);
+
+	for (const link of links ?? []) {
+		if (link.related_to_type === 'incorporation_case') {
+			return link.related_to_id;
+		}
+		if (link.related_to_type === 'company') {
+			const { data: company } = await supabaseAdmin
+				.from('companies')
+				.select('incorporation_id')
+				.eq('id', link.related_to_id)
+				.maybeSingle();
+			if (company?.incorporation_id) return company.incorporation_id;
+		}
+	}
+
+	return null;
+}
+
 async function getCaseOwner(caseId: string): Promise<CaseOwnerRow> {
 	const { data, error } = await supabaseAdmin
 		.from('incorporations')
@@ -560,7 +596,7 @@ export async function createDocumentSignedUrl(
 ): Promise<string> {
 	const { data: doc, error: docErr } = await documentsDb
 		.from('documents')
-		.select('id, bucket_path, deleted_at, visibility, case_id')
+		.select('id, bucket_path, file_name, deleted_at, visibility, case_id')
 		.eq('id', documentId)
 		.maybeSingle();
 
@@ -593,7 +629,9 @@ export async function createDocumentSignedUrl(
 	const bucket = getDocumentsBucket();
 	const { data, error } = await supabaseAdmin.storage
 		.from(bucket)
-		.createSignedUrl(doc.bucket_path, DEFAULT_SIGNED_URL_TTL_SECONDS);
+		.createSignedUrl(doc.bucket_path, DEFAULT_SIGNED_URL_TTL_SECONDS, {
+			download: doc.file_name,
+		});
 
 	if (error) {
 		throw new DocumentsError(500, 'Error generando enlace');
@@ -632,10 +670,15 @@ export async function shareDocumentWithUser(
 		throw new DocumentsError(404, 'Documento no encontrado');
 	}
 
+	const resolvedCaseId = await resolveCaseIdForDocument(documentId, doc.case_id);
+	if (!resolvedCaseId) {
+		throw new DocumentsError(404, 'Caso no encontrado');
+	}
+
 	const { data: caseRow, error: caseErr } = await supabaseAdmin
 		.from('incorporations')
 		.select('id, user_id, principal_name')
-		.eq('id', doc.case_id)
+		.eq('id', resolvedCaseId)
 		.maybeSingle();
 
 	if (caseErr || !caseRow) {
@@ -645,10 +688,14 @@ export async function shareDocumentWithUser(
 	const targetUserId = sharedWithUserId || caseRow.user_id;
 	const now = new Date().toISOString();
 
+	// Además de actualizar visibilidad, autorreparamos documents.case_id si
+	// vino nulo (import externo) para que futuras consultas/shares no vuelvan
+	// a fallar.
 	const { error: updateDocErr } = await documentsDb
 		.from('documents')
 		.update({
 			visibility: 'client_visible',
+			case_id: resolvedCaseId,
 			updated_by: actor.userId,
 			updated_at: now,
 		})
@@ -661,7 +708,7 @@ export async function shareDocumentWithUser(
 	const { error: shareErr } = await documentsDb.from('document_shares').upsert(
 		{
 			document_id: documentId,
-			case_id: doc.case_id,
+			case_id: resolvedCaseId,
 			shared_with_user_id: targetUserId,
 			shared_by_user_id: actor.userId,
 			share_status: 'active',
@@ -679,7 +726,7 @@ export async function shareDocumentWithUser(
 
 	await documentsDb.from('document_events').insert({
 		document_id: documentId,
-		case_id: doc.case_id,
+		case_id: resolvedCaseId,
 		event_type: 'shared',
 		actor_user_id: actor.userId,
 		actor_role: actor.actorRole,
@@ -694,22 +741,22 @@ export async function shareDocumentWithUser(
 		recipients: [{ userId: targetUserId }],
 		context: {
 			case_name: caseRow.principal_name ?? 'tu incorporacion',
-			action_url: `/documentos/${doc.case_id}`,
+			action_url: `/documentos/${resolvedCaseId}`,
 		},
 	});
 
 	await sendDocumentSharedEmail({
-		caseId: doc.case_id,
-		actionUrl: `/documentos/${doc.case_id}`,
+		caseId: resolvedCaseId,
+		actionUrl: `/documentos/${resolvedCaseId}`,
 	}).catch((error) => {
 		console.error('[business-email][documents.shared] manual-share failed', {
-			caseId: doc.case_id,
+			caseId: resolvedCaseId,
 			error: error instanceof Error ? error.message : String(error),
 		});
 	});
 
 	return {
-		caseId: doc.case_id,
+		caseId: resolvedCaseId,
 		sharedWithUserId: targetUserId,
 	};
 }
@@ -733,7 +780,17 @@ export async function revokeDocumentShare(
 		throw new DocumentsError(404, 'Documento no encontrado');
 	}
 
+	const resolvedCaseId = await resolveCaseIdForDocument(documentId, doc.case_id);
 	const now = new Date().toISOString();
+
+	// Autorreparación: mismo caso que en shareDocumentWithUser — documentos
+	// importados vía REST API pueden traer case_id nulo.
+	if (resolvedCaseId && !doc.case_id) {
+		await documentsDb
+			.from('documents')
+			.update({ case_id: resolvedCaseId })
+			.eq('id', documentId);
+	}
 
 	let updateQuery = documentsDb
 		.from('document_shares')
@@ -758,7 +815,7 @@ export async function revokeDocumentShare(
 
 	await documentsDb.from('document_events').insert({
 		document_id: documentId,
-		case_id: doc.case_id,
+		case_id: resolvedCaseId,
 		event_type: 'share_revoked',
 		actor_user_id: actor.userId,
 		actor_role: actor.actorRole,
@@ -778,13 +835,13 @@ export async function revokeDocumentShare(
 			})),
 			context: {
 				case_name: 'tu incorporacion',
-				action_url: `/documentos/${doc.case_id}`,
+				action_url: `/documentos/${resolvedCaseId}`,
 			},
 		});
 	}
 
 	return {
-		caseId: doc.case_id,
+		caseId: resolvedCaseId ?? doc.case_id,
 		revokedCount: revokedRows?.length ?? 0,
 	};
 }

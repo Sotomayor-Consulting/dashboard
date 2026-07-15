@@ -1,9 +1,9 @@
 ---
 import TabBar from '@components/navigation/TabBar.astro';
+import { getDocumentsForCompanyView } from '@domains/documents/document_dashboard';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
-import { getDocumentsForCompany } from '@domains/documents/document_dashboard';
-import CompanyDocumentsPanel from './components/dashboard-companies/CompanyDocumentsPanel.astro';
-import type { ClientDocumentItem } from './services/get-company-client-view-data';
+import CompanyDocumentsDashboard from '@modules/documents/CompanyDocumentsDashboard.astro';
+import CompanyDocumentsList from '@modules/documents/islands/CompanyDocumentsList';
 import { companyClientTabs } from './company-tabs';
 
 interface Props {
@@ -23,34 +23,30 @@ if (!companyId || !userId) {
 // Ownership vía RLS de companies (dueño o staff).
 const { data: company } = await supabase
 	.from('companies')
-	.select('id, legal_name')
+	.select('id, legal_name, incorporation_id')
 	.eq('id', companyId)
-	.maybeSingle<{ id: string; legal_name: string | null }>();
+	.maybeSingle<{
+		id: string;
+		legal_name: string | null;
+		incorporation_id: string | null;
+	}>();
 
 if (!company) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
 }
 
-// Docs de la empresa (documents/{userId}/companies/{companyId}); el dominio
-// aplica visibilidad por shares para no-staff.
-const allDocuments = await getDocumentsForCompany(
-	supabaseAdmin,
-	companyId,
-	userId,
-	userRoles,
-).catch(() => []);
-
-const clientDocs = allDocuments.filter(
-	(d) => d.visibility === 'client_visible',
-);
-
-const documents: ClientDocumentItem[] = clientDocs.map((d) => ({
-	id: d.id,
-	title: d.file_title || d.file_name,
-	typeName: d.document_type?.name ?? null,
-	date: d.uploaded_at ?? d.created_at,
-	status: d.status,
-}));
+// Empresas sin caso de incorporación asociado (legacy o creadas directamente):
+// sin incorporation_id el dashboard completo (solicitudes + por firmar) no
+// aplica, así que mostramos solo la lista de documentos de la empresa.
+const fallbackDocuments = !company.incorporation_id
+	? await getDocumentsForCompanyView(
+			supabaseAdmin,
+			companyId,
+			null,
+			userId,
+			userRoles,
+		).catch(() => [])
+	: [];
 
 const tabs = companyClientTabs(companyId, 'documents');
 ---
@@ -59,10 +55,23 @@ const tabs = companyClientTabs(companyId, 'documents');
 	<TabBar buttons={tabs} />
 
 	<div data-tab-panel="documents" class="my-4">
-		<CompanyDocumentsPanel
-			documents={documents}
-			documentsTotal={documents.length}
-			allDocumentsHref={null}
-		/>
+		{
+			company.incorporation_id ? (
+				<CompanyDocumentsDashboard
+					incorporationCaseId={company.incorporation_id}
+					companyId={companyId}
+					dashboardVariant="client"
+				/>
+			) : (
+				<CompanyDocumentsList
+					documents={fallbackDocuments}
+					canUseStaffActions={false}
+					incorporationCaseId=""
+					companyUserId={userId}
+					isStaffDashboard={false}
+					client:load
+				/>
+			)
+		}
 	</div>
 </div>

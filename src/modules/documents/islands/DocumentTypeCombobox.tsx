@@ -1,21 +1,17 @@
 import * as React from 'react';
-import { Check, ChevronsUpDown } from 'lucide-react';
 
-import { cn } from '@components/utils';
-import { Button } from '@components/ui/Button';
 import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from '@components/ui/Command';
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@components/ui/Popover';
+	Combobox,
+	ComboboxCollection,
+	ComboboxContent,
+	ComboboxEmpty,
+	ComboboxGroup,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxLabel,
+	ComboboxList,
+} from '@components/ui/Combobox';
+import { LEGAL_CATEGORY_LABELS } from '../document-ui';
 
 export type DocumentTypeLite = {
 	id: number;
@@ -26,6 +22,8 @@ export type DocumentTypeLite = {
 	is_active: boolean;
 };
 
+type DocumentTypeGroup = { value: string; items: DocumentTypeLite[] };
+
 type Props = {
 	documentTypes: DocumentTypeLite[];
 	value?: string;
@@ -33,74 +31,63 @@ type Props = {
 	placeholder?: string;
 };
 
+/**
+ * Combobox de tipo de documento: se escribe directamente en el input para
+ * filtrar, agrupado por la categoría legal que viene de la BD
+ * (`documents.document_types.legal_category`).
+ */
 export function DocumentTypeCombobox({
 	documentTypes,
 	value,
 	onChange,
 	placeholder = 'Seleccionar tipo de documento',
 }: Props) {
-	const [open, setOpen] = React.useState(false);
+	const groups = React.useMemo<DocumentTypeGroup[]>(() => {
+		const map = new Map<string, DocumentTypeLite[]>();
+		for (const doc of documentTypes) {
+			const category = doc.legal_category ?? 'other';
+			if (!map.has(category)) map.set(category, []);
+			map.get(category)!.push(doc);
+		}
+		return [...map.entries()].map(([category, items]) => ({
+			value: category,
+			items,
+		}));
+	}, [documentTypes]);
 
-	const selected = documentTypes.find((doc) => String(doc.id) === value);
+	const selected =
+		documentTypes.find((doc) => String(doc.id) === value) ?? null;
 
 	return (
-		<div className="w-full">
-			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger
-					render={
-						<Button
-							type="button"
-							variant="outline"
-							aria-expanded={open}
-							className="w-full justify-between"
-						>
-							{selected ? `${selected.code} - ${selected.name}` : placeholder}
-							<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0" />
-						</Button>
-					}
-				/>
-
-				<PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-					<Command>
-						<CommandInput
-							className="bg-dark w-full focus:outline-hidden"
-							placeholder="Buscar tipo de documento..."
-						/>
-						<CommandList>
-							<CommandEmpty>No se encontraron tipos de documento</CommandEmpty>
-							<CommandGroup>
-								{documentTypes.map((doc) => (
-									<CommandItem
-										key={doc.id}
-										value={`${doc.code} ${doc.name} ${doc.legal_category} ${doc.applies_to}`}
-										onSelect={() => {
-											onChange(String(doc.id));
-											setOpen(false);
-										}}
-									>
-										<Check
-											className={cn(
-												'mr-2 h-4 w-4',
-												value === String(doc.id)
-													? 'opacity-100'
-													: 'opacity-0',
-											)}
-										/>
-										<div className="flex flex-col">
-											<span>
-												{doc.code} - {doc.name}
-											</span>
-											<span className="text-muted-foreground text-xs">
-												{doc.legal_category} · {doc.applies_to}
-											</span>
-										</div>
-									</CommandItem>
-								))}
-							</CommandGroup>
-						</CommandList>
-					</Command>
-				</PopoverContent>
-			</Popover>
-		</div>
+		<Combobox
+			items={groups}
+			itemToStringValue={(item: DocumentTypeLite) => String(item.id)}
+			itemToStringLabel={(item: DocumentTypeLite) => item.name}
+			value={selected}
+			onValueChange={(item) =>
+				onChange(item ? String((item as DocumentTypeLite).id) : '')
+			}
+		>
+			<ComboboxInput placeholder={placeholder} showClear className="w-full" />
+			<ComboboxContent>
+				<ComboboxEmpty>No se encontraron tipos de documento</ComboboxEmpty>
+				<ComboboxList>
+					{(group: DocumentTypeGroup) => (
+						<ComboboxGroup key={group.value} items={group.items}>
+							<ComboboxLabel>
+								{LEGAL_CATEGORY_LABELS[group.value] ?? group.value}
+							</ComboboxLabel>
+							<ComboboxCollection>
+								{(item: DocumentTypeLite) => (
+									<ComboboxItem key={item.id} value={item}>
+										{item.name}
+									</ComboboxItem>
+								)}
+							</ComboboxCollection>
+						</ComboboxGroup>
+					)}
+				</ComboboxList>
+			</ComboboxContent>
+		</Combobox>
 	);
 }

@@ -1,21 +1,21 @@
 ---
 import { getCompanyPageData } from './services/get-company-page-data';
-import CompanyPageHeader from './components/CompanyPageHeader.astro';
 import CompanyInfoSection from './islands/company-details/sections/CompanyInfoSection';
 import CompanyAddressesPanel from './islands/CompanyAddressesPanel';
 import CompanyMembersPanel from './islands/CompanyMembersPanel';
 import CompanyDocumentsCrudPanel from './islands/CompanyDocumentsPanel';
-import TabBar, { type TabButton } from '@components/navigation/TabBar.astro';
+import TabBar from '@components/navigation/TabBar.astro';
+import { companyAdminTabs, type CompanyAdminView } from './company-tabs';
 import { canManageCompanyData, hasAnyRole, ROLE_GROUPS } from '@shared/roles';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import {
 	getDocumentTypesList,
-	getDocumentsForCompany,
+	getDocumentsForCompanyView,
 	type DocumentDashboardRow,
 	type DocumentTypeLite,
 } from '@domains/documents/document_dashboard';
 
-export type CompanyPageView = 'general' | 'members' | 'documents';
+export type CompanyPageView = CompanyAdminView;
 
 interface Props {
 	companyId: string;
@@ -36,14 +36,9 @@ const isStaff = hasAnyRole(userRoles, ROLE_GROUPS.INCORPORATION_ROUTE);
 const trimmedId = companyId?.trim() ?? '';
 const isValidId = UUID_RE.test(trimmedId);
 
-const fromRaw = Astro.url.searchParams.get('from') ?? '';
-const incorporationMatch = /^incorporation\/([0-9a-f-]{36})$/i.exec(fromRaw);
-const backHref = incorporationMatch
-	? `/admin/incorporations/${incorporationMatch[1]}`
+const data = isValidId
+	? await getCompanyPageData(supabase, trimmedId, supabaseAdmin)
 	: null;
-const backLabel = backHref ? 'Volver a la incorporación' : null;
-
-const data = isValidId ? await getCompanyPageData(supabase, trimmedId) : null;
 const errorMessage = !isValidId
 	? 'ID de empresa inválido'
 	: !data
@@ -55,48 +50,19 @@ let documents: DocumentDashboardRow[] = [];
 let documentTypes: DocumentTypeLite[] = [];
 if (view === 'documents' && data && userId) {
 	[documents, documentTypes] = await Promise.all([
-		getDocumentsForCompany(supabaseAdmin, trimmedId, userId, userRoles).catch(
-			() => [],
-		),
+		getDocumentsForCompanyView(
+			supabaseAdmin,
+			trimmedId,
+			data.incorporationId,
+			userId,
+			userRoles,
+		).catch(() => []),
 		getDocumentTypesList(supabaseAdmin),
 	]);
 }
 
-const base = `/admin/companies/${trimmedId}`;
 const onGeneral = view === 'general';
-
-const tabs: TabButton[] = [
-	{
-		label: 'Información',
-		icon: 'ri:file-edit-line',
-		kind: onGeneral ? 'panel' : 'link',
-		id: 'informacion',
-		link: base,
-		active: onGeneral,
-	},
-	{
-		label: 'Direcciones',
-		icon: 'ri:map-pin-line',
-		kind: onGeneral ? 'panel' : 'link',
-		id: 'direcciones',
-		link: `${base}?tab=direcciones`,
-		active: false,
-	},
-	{
-		label: 'Miembros',
-		icon: 'ri:group-line',
-		kind: 'link',
-		link: `${base}/members`,
-		active: view === 'members',
-	},
-	{
-		label: 'Documentos',
-		icon: 'ri:file-copy-line',
-		kind: 'link',
-		link: `${base}/documents`,
-		active: view === 'documents',
-	},
-];
+const tabs = companyAdminTabs(trimmedId, view);
 ---
 
 {
@@ -108,12 +74,6 @@ const tabs: TabButton[] = [
 		</div>
 	) : data ? (
 		<div>
-			<CompanyPageHeader
-				company={data.company}
-				backHref={onGeneral ? backHref : null}
-				backLabel={onGeneral ? backLabel : null}
-			/>
-
 			<TabBar buttons={tabs} />
 
 			<div class="mt-5">

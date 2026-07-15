@@ -3,9 +3,9 @@ import TabBar from '@components/navigation/TabBar.astro';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import InformationPanel from './components/dashboard-companies/InformationPanel.astro';
 import CompanyAddressesPanel from './components/dashboard-companies/CompanyAddressesPanel.astro';
-import CompanyDocumentsPanel from './components/dashboard-companies/CompanyDocumentsPanel.astro';
 import { getCompanyClientViewData } from './services/get-company-client-view-data';
 import { companyClientTabs } from './company-tabs';
+import type { CompanyEntityType } from '@domains/companies/types/company';
 
 interface Props {
 	companyId: string | undefined;
@@ -43,20 +43,15 @@ if (!data.company) {
 	return Astro.redirect('/?status=error&msg=No se encontró esta empresa');
 }
 
-const estadoMapa = data.company.formation_state_name;
-const entityType = (data.company.entity_type ?? '').toString().toUpperCase();
-
 const panelData = {
-	principal_name: data.company.legal_name ?? 'Empresa',
-	tipo_de_negocio: entityType || null,
-	estado_de_incorporacion: estadoMapa,
-	created_at: data.company.incorporation_date ?? data.company.created_at,
-	ein: data.company.identification_number,
-	file_number: data.company.filing_number,
-	registered_agent: data.registeredAgentName,
+	legal_name: data.company.legal_name ?? 'Empresa',
+	entity_type: (data.company.entity_type ?? 'llc') as CompanyEntityType,
+	incorporation_date: data.company.incorporation_date,
+	formation_state_name: data.company.formation_state_name,
+	identification_number: data.company.identification_number,
+	filing_number: data.company.filing_number,
+	created_at: data.company.created_at,
 };
-
-const documentsHref = `/company/${companyId}/documents`;
 
 const tabs = companyClientTabs(companyId, 'company');
 ---
@@ -64,19 +59,8 @@ const tabs = companyClientTabs(companyId, 'company');
 <div>
 	<TabBar buttons={tabs} />
 
-	<div data-tab-panel="company">
-		<InformationPanel empresa={panelData} estadoMapa={estadoMapa} />
-
-		<div class="my-4">
-			<CompanyAddressesPanel addresses={data.addresses} />
-		</div>
-
-		<div class="my-4">
-			<CompanyDocumentsPanel
-				documents={data.documents}
-				documentsTotal={data.documentsTotal}
-				allDocumentsHref={documentsHref}
-			/>
-		</div>
+	<div data-tab-panel="company" class="gird-cols-2">
+		<InformationPanel company={panelData} />
+		<CompanyAddressesPanel addresses={data.addresses} />
 	</div>
 </div>
