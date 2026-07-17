@@ -170,7 +170,7 @@ export interface CompanyItem {
 	entity_type: CompanyEntityType;
 	formation_state_id: number | null;
 	formation_country_id: number | null;
-	tax_clasification: CompanyTaxClassification | null;
+	tax_classification: CompanyTaxClassification | null;
 	management_type: CompanyManagementType;
 	activity_code_id: number | null;
 	activity_description: string | null;

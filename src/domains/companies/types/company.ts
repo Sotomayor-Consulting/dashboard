@@ -11,7 +11,7 @@ export type CompanyLegalStatus =
 export type CompanyTaxClassification = 'disregarded_entity' | 'corporation';
 
 export const COMPANY_COLUMNS = {
-	BASE: 'id, legal_name, entity_type, management_type, legal_status, tax_clasification, identification_number, filing_number, activity_description, us_source_income, joint_ownership, incorporation_date, irs_email, activity_code_id, formation_state_id, formation_country_id, incorporation_id, user_id, created_at, created_by, updated_at, updated_by',
+	BASE: 'id, legal_name, entity_type, management_type, legal_status, tax_classification, identification_number, filing_number, activity_description, us_source_income, joint_ownership, incorporation_date, irs_email, activity_code_id, formation_state_id, formation_country_id, incorporation_id, user_id, created_at, created_by, updated_at, updated_by',
 	WITH_STATE:
 		'id, legal_name, entity_type, legal_status, management_type, incorporation_id, updated_at, formation_state:formation_state_id(name)',
 } as const;
@@ -24,7 +24,7 @@ export interface CompanyRow {
 	entity_type: CompanyEntityType;
 	management_type: CompanyManagementType;
 	legal_status: CompanyLegalStatus;
-	tax_clasification: string | null;
+	tax_classification: string | null;
 	identification_number: string | null;
 	filing_number: string | null;
 	formation_state_id: number | null;

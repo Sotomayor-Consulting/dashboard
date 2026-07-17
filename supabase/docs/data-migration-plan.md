@@ -8,12 +8,12 @@
 
 ## 0. Decisiones tomadas (alcance)
 
-| Decisión | Elección | Implicación |
-|---|---|---|
-| **Esquema destino** | Nuevo esquema normalizado (`companies`, `members`, `company_members`, `workflow.*`, …) | La data migrada **no se verá en la app** hasta repuntar los `.from()` (cutover de código). |
-| **Tipo de migración** | **Carga única (consolidación)** | El dashboard pasa a ser el **sistema de registro**. Las fuentes se congelan/archivan al terminar. |
-| **Tooling** | **n8n** estructura los datos + **CSV** como respaldo/staging (**sin schema nuevo en la DB**) | n8n transforma cada registro a un **contrato JSON** (`migrations/*.json`) y lo carga a las tablas destino. |
-| **Fuentes** | Cognito Forms · Google Sheets / Excel · Odoo | Ver §2 para qué entidad aporta cada una. |
+| Decisión              | Elección                                                                                     | Implicación                                                                                                |
+| --------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Esquema destino**   | Nuevo esquema normalizado (`companies`, `members`, `company_members`, `workflow.*`, …)       | La data migrada **no se verá en la app** hasta repuntar los `.from()` (cutover de código).                 |
+| **Tipo de migración** | **Carga única (consolidación)**                                                              | El dashboard pasa a ser el **sistema de registro**. Las fuentes se congelan/archivan al terminar.          |
+| **Tooling**           | **n8n** estructura los datos + **CSV** como respaldo/staging (**sin schema nuevo en la DB**) | n8n transforma cada registro a un **contrato JSON** (`migrations/*.json`) y lo carga a las tablas destino. |
+| **Fuentes**           | Cognito Forms · Google Sheets / Excel · Odoo                                                 | Ver §2 para qué entidad aporta cada una.                                                                   |
 
 > **Aclaración clave sobre "esquema normalizado":** no todas las entidades tienen aún una tabla nueva en inglés. Las que **sí existen** son `companies`, `members`, `company_members`, `company_addresses`, `member_addresses`, `services`, `service_plans`, `service_plan_lines`, `orders`, `order_lines`, `referidos` (columnas ya normalizadas), y los schemas `workflow.*` / `documents.*` / `meetings.*`. Para **clientes**, **pagos** y **facturación** la tabla de facto sigue siendo `usuarios`, `pagos`, `datos_facturacion` (el [standardization-plan](standardization-plan.md) las renombrará a `user_profiles`/`payments`/`billing_info` después; la **data cargada no se ve afectada por ese rename**). Por eso esta migración carga a esas tablas tal cual existen hoy y queda compatible con la estandarización futura.
 
@@ -30,16 +30,16 @@ Todo el modelo cuelga de un **UUID de usuario**:
 
 ## 2. Matriz fuente → entidad → destino
 
-| Entidad | Cognito Forms | Google Sheets / Excel | Odoo | Tabla(s) destino | Fuente de verdad sugerida |
-|---|---|---|---|---|---|
-| **Cliente / contacto** | Intake (nombre, email, tel, país, ID) | Maestro de clientes | `res.partner` | `auth.users` + `usuarios` (+ `user_roles`=`cliente`) | Sheets (operativa) enriquecida con Odoo email/tel |
-| **Empresa / LLC** | Datos de incorporación (nombres, tipo, estado, actividad, dirección) | Tracking de LLCs | — | `companies` + `company_addresses` | Sheets + Cognito |
-| **Socios / managers** | Sección de miembros del form | Hoja de socios | — | `members` + `company_members` (+ `member_addresses`) | Cognito (detalle) + Sheets |
-| **Proceso de incorporación / estado** | — | Estado del caso (columna "status") | — | `workflow.incorporation_workflows` (+ `incorporation_forms`) | Sheets |
-| **Catálogo de servicios / planes** | — | Lista de precios | `product.template` | `services` + `service_plans` + `service_plan_lines` | Odoo |
-| **Órdenes / pagos / facturas** | — | Tracking de cobros | `sale.order`, `account.move` | `orders` + `order_lines` + `pagos` | Odoo (facturación) + Stripe (`pagos.stripe_*`) |
-| **Referidos / partners** | — | Hoja de referidos | `res.partner.x_referido_id` | `referidos` | Odoo |
-| **Documentos** (opcional, fuera del MVP) | Adjuntos | Links Drive | — | `documents.*` | — |
+| Entidad                                  | Cognito Forms                                                        | Google Sheets / Excel              | Odoo                         | Tabla(s) destino                                             | Fuente de verdad sugerida                         |
+| ---------------------------------------- | -------------------------------------------------------------------- | ---------------------------------- | ---------------------------- | ------------------------------------------------------------ | ------------------------------------------------- |
+| **Cliente / contacto**                   | Intake (nombre, email, tel, país, ID)                                | Maestro de clientes                | `res.partner`                | `auth.users` + `usuarios` (+ `user_roles`=`cliente`)         | Sheets (operativa) enriquecida con Odoo email/tel |
+| **Empresa / LLC**                        | Datos de incorporación (nombres, tipo, estado, actividad, dirección) | Tracking de LLCs                   | —                            | `companies` + `company_addresses`                            | Sheets + Cognito                                  |
+| **Socios / managers**                    | Sección de miembros del form                                         | Hoja de socios                     | —                            | `members` + `company_members` (+ `member_addresses`)         | Cognito (detalle) + Sheets                        |
+| **Proceso de incorporación / estado**    | —                                                                    | Estado del caso (columna "status") | —                            | `workflow.incorporation_workflows` (+ `incorporation_forms`) | Sheets                                            |
+| **Catálogo de servicios / planes**       | —                                                                    | Lista de precios                   | `product.template`           | `services` + `service_plans` + `service_plan_lines`          | Odoo                                              |
+| **Órdenes / pagos / facturas**           | —                                                                    | Tracking de cobros                 | `sale.order`, `account.move` | `orders` + `order_lines` + `pagos`                           | Odoo (facturación) + Stripe (`pagos.stripe_*`)    |
+| **Referidos / partners**                 | —                                                                    | Hoja de referidos                  | `res.partner.x_referido_id`  | `referidos`                                                  | Odoo                                              |
+| **Documentos** (opcional, fuera del MVP) | Adjuntos                                                             | Links Drive                        | —                            | `documents.*`                                                | —                                                 |
 
 > Donde una entidad aparece en varias fuentes, la **fuente de verdad** define qué valor gana en caso de conflicto; las demás solo **enriquecen** campos faltantes.
 
@@ -73,84 +73,88 @@ Todo el modelo cuelga de un **UUID de usuario**:
 
 El contrato actual tiene desajustes contra el esquema real que **harían fallar los inserts**:
 
-| Problema | En el contrato | Correcto en la DB |
-|---|---|---|
-| Typo | `company.magement_type` | `management_type` |
-| Nombre col. | `*_addresses.address_line_1/2` | `line1` / `line2` |
-| Nombre col. | `company_member.date_start/date_end` | `start_date` / `end_date` |
-| Falta `NOT NULL` | `company_addresses.city`, `country_id` | obligatorios |
-| Falta `NOT NULL` | `member_addresses.city`, `is_primary` | obligatorios |
-| Enum vacío `""` | `entity_type`, `management_type`, `legal_status`, `person_type`, `identification_type`, `marital_status` | valor válido o `null` (los `NOT NULL` exigen valor) |
-| Sin columna | `member.email`, `member.us_resident` | mover a bloque `_meta` (matching / helper) |
-| Sin columna | `company_member.is_irs_responsible` | transitorio → setear `companies.irs_email` con el email del miembro responsable |
-| Estructura | `member` / `company_member` como objeto único | **array `members[]`** con `company_member` anidado por miembro |
-| Identidad | sin `user_id` / `created_by` ni FKs | resolver en runtime (encadenar UUID); usar `null`, no `""` |
+| Problema         | En el contrato                                                                                           | Correcto en la DB                                                               |
+| ---------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Typo             | `company.magement_type`                                                                                  | `management_type`                                                               |
+| Nombre col.      | `*_addresses.address_line_1/2`                                                                           | `line1` / `line2`                                                               |
+| Nombre col.      | `company_member.date_start/date_end`                                                                     | `start_date` / `end_date`                                                       |
+| Falta `NOT NULL` | `company_addresses.city`, `country_id`                                                                   | obligatorios                                                                    |
+| Falta `NOT NULL` | `member_addresses.city`, `is_primary`                                                                    | obligatorios                                                                    |
+| Enum vacío `""`  | `entity_type`, `management_type`, `legal_status`, `person_type`, `identification_type`, `marital_status` | valor válido o `null` (los `NOT NULL` exigen valor)                             |
+| Sin columna      | `member.email`, `member.us_resident`                                                                     | mover a bloque `_meta` (matching / helper)                                      |
+| Sin columna      | `company_member.is_irs_responsible`                                                                      | transitorio → setear `companies.irs_email` con el email del miembro responsable |
+| Estructura       | `member` / `company_member` como objeto único                                                            | **array `members[]`** con `company_member` anidado por miembro                  |
+| Identidad        | sin `user_id` / `created_by` ni FKs                                                                      | resolver en runtime (encadenar UUID); usar `null`, no `""`                      |
 
-`tax_clasification` se deja igual: la columna en la DB está realmente escrita así.
+`tax_classification` se deja igual: la columna en la DB está realmente escrita así.
 
 ---
 
 ## 4. Orden de carga (estricto, por dependencias)
 
-| # | Bloque | Depende de | Notas |
-|---|---|---|---|
-| 1 | **Catálogos base** (`countries` 240, `states` 5195, `activity/category/sector`) | — | Ya poblados. Solo **verificar** y construir `dict_country`/`dict_state`. |
-| 2 | **Servicios / planes** (`services`, `service_plans`, `service_plan_lines`) | 1 | Desde `product.template` de Odoo. Conciliar por `odoo_default_code`. |
-| 3 | **Identidad** (`auth.users` → `usuarios` → `user_roles`) | — | **Dedup primero** (dry-run). Genera `id_map(entity='user')`. |
-| 4 | **Empresas** (`companies` + `company_addresses`) | 3 | `user_id` desde `id_map`. |
-| 5 | **Personas** (`members` + `company_members` + `member_addresses`) | 3, 4 | `company_members.percentage` debe sumar 100 por empresa. |
-| 6 | **Proceso** (`workflow.incorporation_workflows` + `incorporation_forms`) | 4 | Estado del caso desde Sheets. |
-| 7 | **Comercial** (`orders` + `order_lines` + `pagos`) | 3, 4, 2 | Conciliar Odoo `sale.order`/`account.move` ↔ Stripe. |
-| 8 | **Referidos** (`referidos`) | 3 | `partner_id` y `referido_id` desde `id_map`. |
-| 9 | **Documentos** (`documents.*`) — *opcional, fase posterior* | 4, 5 | Solo si se migran adjuntos. |
+| #   | Bloque                                                                          | Depende de | Notas                                                                    |
+| --- | ------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------ |
+| 1   | **Catálogos base** (`countries` 240, `states` 5195, `activity/category/sector`) | —          | Ya poblados. Solo **verificar** y construir `dict_country`/`dict_state`. |
+| 2   | **Servicios / planes** (`services`, `service_plans`, `service_plan_lines`)      | 1          | Desde `product.template` de Odoo. Conciliar por `odoo_default_code`.     |
+| 3   | **Identidad** (`auth.users` → `usuarios` → `user_roles`)                        | —          | **Dedup primero** (dry-run). Genera `id_map(entity='user')`.             |
+| 4   | **Empresas** (`companies` + `company_addresses`)                                | 3          | `user_id` desde `id_map`.                                                |
+| 5   | **Personas** (`members` + `company_members` + `member_addresses`)               | 3, 4       | `company_members.percentage` debe sumar 100 por empresa.                 |
+| 6   | **Proceso** (`workflow.incorporation_workflows` + `incorporation_forms`)        | 4          | Estado del caso desde Sheets.                                            |
+| 7   | **Comercial** (`orders` + `order_lines` + `pagos`)                              | 3, 4, 2    | Conciliar Odoo `sale.order`/`account.move` ↔ Stripe.                     |
+| 8   | **Referidos** (`referidos`)                                                     | 3          | `partner_id` y `referido_id` desde `id_map`.                             |
+| 9   | **Documentos** (`documents.*`) — _opcional, fase posterior_                     | 4, 5       | Solo si se migran adjuntos.                                              |
 
 ---
 
 ## 5. Mapeo de campos por entidad (con enums y FKs)
 
 ### 5.1 Cliente → `auth.users` + `usuarios`
-| Destino (`usuarios`) | Origen | Transformación |
-|---|---|---|
-| `user_id` | (generado por Auth Admin API) | `email → uuid` en `id_map` |
-| `correo` | email | `lower(trim())` — **clave natural de dedup** |
-| `nombre` / `apellido` | nombre / apellido | split si viene completo |
-| `pais_id` | país (texto) | `dict_country` → `countries.id` |
-| `telf`, `ciudad`, `direccion_linea1/2`, `codigo_postal` | directos | trim |
-| `tipo_identificacion`, `numero_de_identificacion`, `tipo_persona` | ID del intake | normalizar |
-| `odoo_partner_id` | `res.partner.id` | guardar para trazabilidad |
-| rol | — | insertar `user_roles` con rol `cliente` |
+
+| Destino (`usuarios`)                                              | Origen                        | Transformación                               |
+| ----------------------------------------------------------------- | ----------------------------- | -------------------------------------------- |
+| `user_id`                                                         | (generado por Auth Admin API) | `email → uuid` en `id_map`                   |
+| `correo`                                                          | email                         | `lower(trim())` — **clave natural de dedup** |
+| `nombre` / `apellido`                                             | nombre / apellido             | split si viene completo                      |
+| `pais_id`                                                         | país (texto)                  | `dict_country` → `countries.id`              |
+| `telf`, `ciudad`, `direccion_linea1/2`, `codigo_postal`           | directos                      | trim                                         |
+| `tipo_identificacion`, `numero_de_identificacion`, `tipo_persona` | ID del intake                 | normalizar                                   |
+| `odoo_partner_id`                                                 | `res.partner.id`              | guardar para trazabilidad                    |
+| rol                                                               | —                             | insertar `user_roles` con rol `cliente`      |
 
 ### 5.2 Empresa → `companies` (enums obligatorios)
-| Destino | Origen | Valores permitidos / regla |
-|---|---|---|
-| `legal_name` | nombre elegido (Sheets) o `nombre_1` (Cognito) | trim |
-| `entity_type` *(enum)* | tipo de negocio | **`llc` · `lp` · `c-corp`** |
-| `management_type` *(enum)* | forma administración | **`member-managed` · `manager-managed`** |
-| `legal_status` *(enum)* | estado del caso | **`draft` · `pending_validation` · `pending` · `active` · `inactive` · `suspended` · `dissolved`** |
-| `formation_state_id` | estado EE.UU. | lookup (n8n) → `states.id` |
-| `formation_country_id` | país | lookup (n8n) → `countries.id` |
-| `activity_code_id` | actividad | resolver contra `activity` (IRS) |
-| `activity_description`, `tax_clasification` | directos | texto |
-| `us_source_income`, `joint_ownership` | sí/no | → `boolean` |
-| `incorporation_date` | fecha | → `date` |
-| `identification_number` (EIN), `filing_number` | si existe | texto |
-| `user_id`, `created_by` | cliente dueño | uuid encadenado en runtime (del `user` insertado) |
-| **Direcciones** → `company_addresses` | dirección legal/operativa | `type` ∈ `legal`/`operating`; `city` y `country_id` obligatorios; `country_id`/`state_id` por lookup |
+
+| Destino                                        | Origen                                         | Valores permitidos / regla                                                                           |
+| ---------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `legal_name`                                   | nombre elegido (Sheets) o `nombre_1` (Cognito) | trim                                                                                                 |
+| `entity_type` _(enum)_                         | tipo de negocio                                | **`llc` · `lp` · `c-corp`**                                                                          |
+| `management_type` _(enum)_                     | forma administración                           | **`member-managed` · `manager-managed`**                                                             |
+| `legal_status` _(enum)_                        | estado del caso                                | **`draft` · `pending_validation` · `pending` · `active` · `inactive` · `suspended` · `dissolved`**   |
+| `formation_state_id`                           | estado EE.UU.                                  | lookup (n8n) → `states.id`                                                                           |
+| `formation_country_id`                         | país                                           | lookup (n8n) → `countries.id`                                                                        |
+| `activity_code_id`                             | actividad                                      | resolver contra `activity` (IRS)                                                                     |
+| `activity_description`, `tax_classification`   | directos                                       | texto                                                                                                |
+| `us_source_income`, `joint_ownership`          | sí/no                                          | → `boolean`                                                                                          |
+| `incorporation_date`                           | fecha                                          | → `date`                                                                                             |
+| `identification_number` (EIN), `filing_number` | si existe                                      | texto                                                                                                |
+| `user_id`, `created_by`                        | cliente dueño                                  | uuid encadenado en runtime (del `user` insertado)                                                    |
+| **Direcciones** → `company_addresses`          | dirección legal/operativa                      | `type` ∈ `legal`/`operating`; `city` y `country_id` obligatorios; `country_id`/`state_id` por lookup |
 
 ### 5.3 Persona → `members` + `company_members`
-| Destino (`members`) | Origen | Valores permitidos / regla |
-|---|---|---|
-| `person_type` *(enum)* | natural/jurídica | **`natural_person` · `juridical_person`** |
-| `identification_type` *(enum)* | tipo doc | **`passport` · `national_id` · `driver_licence` · `ein`** |
-| `marital_status` *(enum)* | estado civil | **`single` · `married` · `widowed` · `divorced` · `legally_separated` · `civil_union` · `annulled`** |
-| `first_name`/`last_name`/`full_name` (natural) o `name` (jurídica) | nombre | derivado de `person_type` |
-| `country_nationality_id`, `country_residence_id`, `country_id` | países | lookup (n8n) → `countries.id` |
-| `ssn`, `itin`, `identification_number`, `birth_date` | directos | `birth_date`→`date` |
-| **Relación** → `company_members` | — | `company_id`+`member_id` encadenados en runtime; `start_date`/`end_date` (no `date_*`), `percentage numeric`, `is_member`, `is_manager` |
+
+| Destino (`members`)                                                | Origen           | Valores permitidos / regla                                                                                                              |
+| ------------------------------------------------------------------ | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `person_type` _(enum)_                                             | natural/jurídica | **`natural_person` · `juridical_person`**                                                                                               |
+| `identification_type` _(enum)_                                     | tipo doc         | **`passport` · `national_id` · `driver_licence` · `ein`**                                                                               |
+| `marital_status` _(enum)_                                          | estado civil     | **`single` · `married` · `widowed` · `divorced` · `legally_separated` · `civil_union` · `annulled`**                                    |
+| `first_name`/`last_name`/`full_name` (natural) o `name` (jurídica) | nombre           | derivado de `person_type`                                                                                                               |
+| `country_nationality_id`, `country_residence_id`, `country_id`     | países           | lookup (n8n) → `countries.id`                                                                                                           |
+| `ssn`, `itin`, `identification_number`, `birth_date`               | directos         | `birth_date`→`date`                                                                                                                     |
+| **Relación** → `company_members`                                   | —                | `company_id`+`member_id` encadenados en runtime; `start_date`/`end_date` (no `date_*`), `percentage numeric`, `is_member`, `is_manager` |
 
 > **Regla de integridad:** `SUM(company_members.percentage)` por `company_id` = **100** (gate de validación, §7).
 
 ### 5.4 Comercial → `orders` / `order_lines` / `pagos`
+
 - `pagos`: `user_id`, `servicio_id`, `amount`, `status`, `stripe_payment_intent_id`, `odoo_invoice_id`, `odoo_sale_order_id`, `source`.
 - `orders`: `client_id` (=`id_map`), `order_number` (de Odoo `sale.order.name`), `payment_id` (→`pagos`), `total`, `service_plan_id`.
 - `order_lines`: una por producto de la `sale.order` (`service_id`, `quantity`, `unit_price`, `subtotal`, `total`).
@@ -160,14 +164,15 @@ El contrato actual tiene desajustes contra el esquema real que **harían fallar 
 
 ## 6. Estrategia de identidad y deduplicación
 
-| Entidad | Clave natural (dedup) | Clave secundaria |
-|---|---|---|
-| Cliente | `lower(trim(email))` | teléfono normalizado E.164 |
-| Empresa | `normalize(legal_name)` por dueño | EIN / `filing_number` |
-| Persona | `identification_number` | `lower(full_name)` + `birth_date` |
-| Pago | `stripe_payment_intent_id` o `odoo_invoice_id` | (monto + fecha + cliente) |
+| Entidad | Clave natural (dedup)                          | Clave secundaria                  |
+| ------- | ---------------------------------------------- | --------------------------------- |
+| Cliente | `lower(trim(email))`                           | teléfono normalizado E.164        |
+| Empresa | `normalize(legal_name)` por dueño              | EIN / `filing_number`             |
+| Persona | `identification_number`                        | `lower(full_name)` + `birth_date` |
+| Pago    | `stripe_payment_intent_id` o `odoo_invoice_id` | (monto + fecha + cliente)         |
 
 **Proceso (en n8n / CSV, sin tablas en la DB):**
+
 1. Exportar cada fuente a CSV.
 2. **Matching cruzado** (Odoo email ↔ Cognito email ↔ Sheet email) en n8n → CSV de conciliación con `match_confidence`.
 3. **Dry-run report:** filas únicas, colisiones, sin-email, huérfanos. **Revisión humana** antes de cargar identidad.
@@ -191,34 +196,34 @@ Ejecutar como SQL al final de cada bloque; bloquear avance si fallan:
 
 ## 8. Fases de ejecución (timeline)
 
-| Fase | Entregable | Gate de salida |
-|---|---|---|
-| **F0 — Preparación** | Contrato JSON corregido (§3.1) + tablas de equivalencia en n8n (enum/país/estado) + **export CSV congelado** con fecha de corte | Equivalencias cubren 100% de valores observados |
-| **F1 — Catálogos + servicios** | `services`/`service_plans` conciliados con Odoo | Catálogo completo y con precios |
-| **F2 — Identidad (dry-run → carga)** | Reporte de dedup revisado + `auth.users`/`usuarios`/`user_roles` cargados | 0 huérfanos, 0 emails dup |
-| **F3 — Empresas + personas + direcciones** | `companies`, `members`, `company_members`, `*_addresses` | % suma 100, enums válidos |
-| **F4 — Proceso** | `workflow.incorporation_workflows` con estado por caso | Cada empresa con caso/estado |
-| **F5 — Comercial** | `orders`/`order_lines`/`pagos` + reconciliación Odoo/Stripe | Cuadre de montos |
-| **F6 — Referidos (+ documentos opc.)** | `referidos` | Partners enlazados |
-| **F7 — Cutover + cierre** | Repuntar `.from()` legacy→nuevo, validación final, **congelar fuentes** | App lee el modelo nuevo |
+| Fase                                       | Entregable                                                                                                                      | Gate de salida                                  |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| **F0 — Preparación**                       | Contrato JSON corregido (§3.1) + tablas de equivalencia en n8n (enum/país/estado) + **export CSV congelado** con fecha de corte | Equivalencias cubren 100% de valores observados |
+| **F1 — Catálogos + servicios**             | `services`/`service_plans` conciliados con Odoo                                                                                 | Catálogo completo y con precios                 |
+| **F2 — Identidad (dry-run → carga)**       | Reporte de dedup revisado + `auth.users`/`usuarios`/`user_roles` cargados                                                       | 0 huérfanos, 0 emails dup                       |
+| **F3 — Empresas + personas + direcciones** | `companies`, `members`, `company_members`, `*_addresses`                                                                        | % suma 100, enums válidos                       |
+| **F4 — Proceso**                           | `workflow.incorporation_workflows` con estado por caso                                                                          | Cada empresa con caso/estado                    |
+| **F5 — Comercial**                         | `orders`/`order_lines`/`pagos` + reconciliación Odoo/Stripe                                                                     | Cuadre de montos                                |
+| **F6 — Referidos (+ documentos opc.)**     | `referidos`                                                                                                                     | Partners enlazados                              |
+| **F7 — Cutover + cierre**                  | Repuntar `.from()` legacy→nuevo, validación final, **congelar fuentes**                                                         | App lee el modelo nuevo                         |
 
 ---
 
 ## 9. Riesgos y mitigaciones
 
-| Riesgo | Mitigación |
-|---|---|
-| Clientes sin email → no hay clave de dedup | Regla de fallback (nombre+tel) marcada para revisión manual; no auto-merge |
-| Texto libre no mapea a enum | Tablas de equivalencia exhaustivas en n8n (F0); cast falla ruidosamente, no en silencio |
-| País/estado como texto inconsistente | Lookup con sinónimos en n8n; default a NULL + flag, nunca adivinar |
-| RLS bloquea inserts | Cargar con **service role** (n8n) / `supabaseAdmin`; nunca con anon key |
-| `auth.users` duplicados | Crear vía Admin API; **UPSERT por email** → re-run hace lookup, no recrea |
-| Pagos no cuadran Odoo↔Stripe | `odoo_invoice_id`/`stripe_payment_intent_id` como claves; desvíos a reporte manual |
-| Doble fuente de verdad (Odoo vs Sheets) | Regla explícita en §2; enriquecer, no sobrescribir el campo "dueño" |
-| Tablas destino aún en nombre legacy (clientes/pagos/facturación) | Cargar a la tabla actual; el rename del [standardization-plan](standardization-plan.md) no toca la data |
-| Bug activo `api/billing/upsert-invoice.ts` (`facturacion` no existe) | Corregir a `datos_facturacion` antes del cutover comercial |
-| Pérdida de datos por re-run | Idempotencia vía UPSERT por clave natural; el CSV congelado es la fuente re-importable |
-| Contrato JSON desalineado con el esquema | Aplicar las correcciones de §3.1 antes de construir el workflow |
+| Riesgo                                                               | Mitigación                                                                                              |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Clientes sin email → no hay clave de dedup                           | Regla de fallback (nombre+tel) marcada para revisión manual; no auto-merge                              |
+| Texto libre no mapea a enum                                          | Tablas de equivalencia exhaustivas en n8n (F0); cast falla ruidosamente, no en silencio                 |
+| País/estado como texto inconsistente                                 | Lookup con sinónimos en n8n; default a NULL + flag, nunca adivinar                                      |
+| RLS bloquea inserts                                                  | Cargar con **service role** (n8n) / `supabaseAdmin`; nunca con anon key                                 |
+| `auth.users` duplicados                                              | Crear vía Admin API; **UPSERT por email** → re-run hace lookup, no recrea                               |
+| Pagos no cuadran Odoo↔Stripe                                         | `odoo_invoice_id`/`stripe_payment_intent_id` como claves; desvíos a reporte manual                      |
+| Doble fuente de verdad (Odoo vs Sheets)                              | Regla explícita en §2; enriquecer, no sobrescribir el campo "dueño"                                     |
+| Tablas destino aún en nombre legacy (clientes/pagos/facturación)     | Cargar a la tabla actual; el rename del [standardization-plan](standardization-plan.md) no toca la data |
+| Bug activo `api/billing/upsert-invoice.ts` (`facturacion` no existe) | Corregir a `datos_facturacion` antes del cutover comercial                                              |
+| Pérdida de datos por re-run                                          | Idempotencia vía UPSERT por clave natural; el CSV congelado es la fuente re-importable                  |
+| Contrato JSON desalineado con el esquema                             | Aplicar las correcciones de §3.1 antes de construir el workflow                                         |
 
 ---
 
@@ -255,6 +260,7 @@ Replicar el patrón de escritura de `uploadDocument` ([service.ts:165](src/domai
 - **Fila `documents.documents`** (columnas `NOT NULL` clave): `document_type_id`, `file_name`, `bucket_storage`, `bucket_path`, `file_size_bytes`, `status`, `visibility`, `is_sensitive`, `version=1`, `uploaded_by`. Setear además `mime_type`, `content_hash` (sha256 — para dedup), `case_id` (workflow/incorporación o `null`), `notes` (fuente: `cognito:{field}`).
 
 > Los reads de la app usan `documents.bucket_path` de la fila (no recalculan el path), así que cargar con el esquema nuevo **funciona aunque `buildStoragePath` aún no esté alineado** (ver §11.8).
+
 - **Fila `documents.document_links`** (polimórfica): `related_to_type` + `related_to_id` + `relation_purpose` + `is_primary`. Documentos de empresa → link a `company`; pasaporte/ID/utility de un socio → link adicional a `member`.
 - **Visibilidad (decidida):** los **entregables** se cargan `client_visible` **+ se crea `document_shares`** (activo) para el dueño; el resto entra `internal_only`. Cerrar siempre con un `document_events` `uploaded` (y `shared` para los entregables).
 
@@ -271,6 +277,7 @@ Replicar el patrón de escritura de `uploadDocument` ([service.ts:165](src/domai
 ### 11.4 Pipeline n8n por entrada (idempotente)
 
 Para cada entrada Cognito:
+
 1. Resolver `user_id` + `company_id` (de la data ya migrada).
 2. Reunir binarios: campos de archivo Cognito **+** archivos del folder Drive.
 3. Por cada archivo:
@@ -284,37 +291,37 @@ Para cada entrada Cognito:
 
 ### 11.5 Mapa campo Cognito → tipo de documento
 
-| Slot / campo Cognito | Tipo | `legal_category` | Link | `relation_purpose` |
-|---|---|---|---|---|
-| `FacturaDeServicioBásico` | Comprobante de domicilio (empresa) | `address` | company | `support` |
-| `ArticulosDeIncorporacion` / `ConstanciaDeIncorporación` | Artículos / Certificado de incorporación | `registry` | company | `filing` |
-| `OperatingAgreement` / `AcuerdoDeOperacion` | Operating Agreement | `corporate` | company | `signature` |
-| `FormularioSS4` / `FormSS4` | Form SS-4 | `tax` | company | `filing` |
-| `ContratoDeOfficer` / `ContratoOfficer` | Contrato de officer | `corporate` | company | `signature` |
-| `Disclaimer…` / `ClientAcknowledgment…` | Disclaimer / acknowledgment | `compliance` | company | `signature` |
-| `DocumentoEIN` (CP575) | Confirmación EIN | `tax` | company | `filing` |
-| `EINVerificationLetterCarta147C` | Carta EIN 147C | `authority` | company | `filing` |
-| `RegistroBOIR` / `NotificarBoir` | Presentación BOIR | `compliance` | company | `filing` |
-| `CartaBancaria` | Carta bancaria | `banking` | company | `support` |
-| `ComprobanteDePago` | Comprobante de pago | `supporting` | company | `support` |
-| `Formulario8832` / `CertificadoDeRecepciónForm8832` | Form 8832 | `tax` | company | `filing` |
-| `CumplimientoBEA.ComprobanteDePresentación` | Presentación BEA | `compliance` | company | `filing` |
-| `ComprobanteCambioAgenteResidente` | Cambio de agente residente | `registry` | company | `support` |
-| `InformePlanificacion` | Informe de planificación y diseño | `supporting` | company | `internal_reference` |
-| `Firma.Firma` | Firma | `corporate` | company | `signature` |
-| `Entry.Document12` | PDF snapshot de la entrada | `supporting` | incorporation_case | `internal_reference` |
-| Socio: pasaporte / ID | Pasaporte / documento de identidad | `identity` | member | `kyc` |
-| Socio: utility | Comprobante de domicilio (socio) | `address` | member | `support` |
+| Slot / campo Cognito                                     | Tipo                                     | `legal_category` | Link               | `relation_purpose`   |
+| -------------------------------------------------------- | ---------------------------------------- | ---------------- | ------------------ | -------------------- |
+| `FacturaDeServicioBásico`                                | Comprobante de domicilio (empresa)       | `address`        | company            | `support`            |
+| `ArticulosDeIncorporacion` / `ConstanciaDeIncorporación` | Artículos / Certificado de incorporación | `registry`       | company            | `filing`             |
+| `OperatingAgreement` / `AcuerdoDeOperacion`              | Operating Agreement                      | `corporate`      | company            | `signature`          |
+| `FormularioSS4` / `FormSS4`                              | Form SS-4                                | `tax`            | company            | `filing`             |
+| `ContratoDeOfficer` / `ContratoOfficer`                  | Contrato de officer                      | `corporate`      | company            | `signature`          |
+| `Disclaimer…` / `ClientAcknowledgment…`                  | Disclaimer / acknowledgment              | `compliance`     | company            | `signature`          |
+| `DocumentoEIN` (CP575)                                   | Confirmación EIN                         | `tax`            | company            | `filing`             |
+| `EINVerificationLetterCarta147C`                         | Carta EIN 147C                           | `authority`      | company            | `filing`             |
+| `RegistroBOIR` / `NotificarBoir`                         | Presentación BOIR                        | `compliance`     | company            | `filing`             |
+| `CartaBancaria`                                          | Carta bancaria                           | `banking`        | company            | `support`            |
+| `ComprobanteDePago`                                      | Comprobante de pago                      | `supporting`     | company            | `support`            |
+| `Formulario8832` / `CertificadoDeRecepciónForm8832`      | Form 8832                                | `tax`            | company            | `filing`             |
+| `CumplimientoBEA.ComprobanteDePresentación`              | Presentación BEA                         | `compliance`     | company            | `filing`             |
+| `ComprobanteCambioAgenteResidente`                       | Cambio de agente residente               | `registry`       | company            | `support`            |
+| `InformePlanificacion`                                   | Informe de planificación y diseño        | `supporting`     | company            | `internal_reference` |
+| `Firma.Firma`                                            | Firma                                    | `corporate`      | company            | `signature`          |
+| `Entry.Document12`                                       | PDF snapshot de la entrada               | `supporting`     | incorporation_case | `internal_reference` |
+| Socio: pasaporte / ID                                    | Pasaporte / documento de identidad       | `identity`       | member             | `kyc`                |
+| Socio: utility                                           | Comprobante de domicilio (socio)         | `address`        | member             | `support`            |
 
 ### 11.6 Riesgos específicos de documentos
 
-| Riesgo | Mitigación |
-|---|---|
-| Límite 2 MB del bucket `documents` vs PDFs escaneados | Subir `file_size_limit` antes de migrar (§11.3) |
-| Rate limits / paginación de la Cognito Forms API | Procesar en lotes con reintentos; respetar paginación de entries |
-| Entries sin archivos (ej. #181 `Incomplete`) | Filtrar: solo entries con campos de archivo poblados |
-| Re-run duplica archivos | `content_hash` (sha256) como clave de dedup; `notes` con fuente |
-| `uploaded_by` `NOT NULL` y autor original desconocido | Usuario de servicio "migration" |
+| Riesgo                                                        | Mitigación                                                              |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Límite 2 MB del bucket `documents` vs PDFs escaneados         | Subir `file_size_limit` antes de migrar (§11.3)                         |
+| Rate limits / paginación de la Cognito Forms API              | Procesar en lotes con reintentos; respetar paginación de entries        |
+| Entries sin archivos (ej. #181 `Incomplete`)                  | Filtrar: solo entries con campos de archivo poblados                    |
+| Re-run duplica archivos                                       | `content_hash` (sha256) como clave de dedup; `notes` con fuente         |
+| `uploaded_by` `NOT NULL` y autor original desconocido         | Usuario de servicio "migration"                                         |
 | `case_id` apunta a `empresas_incorporaciones` (modelo actual) | En el nuevo modelo: `null` + apoyarse en `document_links` (polimórfico) |
 
 ### 11.7 Orquestación: empresas y documentos en dos pasadas
@@ -323,11 +330,11 @@ Para cada entrada Cognito:
 
 **Recomendado: dos pasadas desacopladas, no un mega-paso por entry.** Los documentos dependen del `company_id`/`user_id` que produce la carga de empresas, pero acoplarlos al mismo workflow mezcla modos de fallo distintos (rate-limit de Cognito, archivo > límite del bucket) con la carga de datos. Separar da aislamiento de fallos e idempotencia independiente:
 
-| Pasada | Qué hace | Entrada → Salida |
-|---|---|---|
-| **1 · Datos** | Contrato JSON por entry → `user`/`company`/`members`/`company_members` (UPSERT por email) | Emite **CSV de mapeo** `entry_number → user_id, company_id, member_ids[]` (n8n captura el `company_id` del insert) |
-| **2 · Documentos** | Por cada entry **con archivos**: resolver `company_id`/`user_id` del CSV del paso 1 → descargar de Cognito → sha256/dedup → upload al bucket → `insert` `documents` (+`links` +`share` si entregable) | Documentos con `document_type_id` = **placeholder** |
-| **3 · Reclasificación** *(después, cuando exista el catálogo)* | `UPDATE documents SET document_type_id = <real>` según el slot Cognito guardado en `notes`/`file_title` | Sin tocar binarios |
+| Pasada                                                         | Qué hace                                                                                                                                                                                              | Entrada → Salida                                                                                                   |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **1 · Datos**                                                  | Contrato JSON por entry → `user`/`company`/`members`/`company_members` (UPSERT por email)                                                                                                             | Emite **CSV de mapeo** `entry_number → user_id, company_id, member_ids[]` (n8n captura el `company_id` del insert) |
+| **2 · Documentos**                                             | Por cada entry **con archivos**: resolver `company_id`/`user_id` del CSV del paso 1 → descargar de Cognito → sha256/dedup → upload al bucket → `insert` `documents` (+`links` +`share` si entregable) | Documentos con `document_type_id` = **placeholder**                                                                |
+| **3 · Reclasificación** _(después, cuando exista el catálogo)_ | `UPDATE documents SET document_type_id = <real>` según el slot Cognito guardado en `notes`/`file_title`                                                                                               | Sin tocar binarios                                                                                                 |
 
 > **Join entre pasadas:** la clave robusta es el **número de entry de Cognito** (`Entry.Number`). Como `companies` no tiene columna para guardarlo, el **CSV de mapeo** del paso 1 es el puente. Fallback: resolver por `user_id` (email) + `legal_name`.
 
@@ -352,15 +359,16 @@ public-assets (público)                      ├── temp/
 
 **Divergencias vs. la spec actual** (a conciliar):
 
-| Spec actual (`storage-buckets.md`) | Tu diagrama |
-|---|---|
-| `documentos_empresas` (intake) | renombrado → **`incorporation_documents`** |
+| Spec actual (`storage-buckets.md`)                                    | Tu diagrama                                                                                                       |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `documentos_empresas` (intake)                                        | renombrado → **`incorporation_documents`**                                                                        |
 | `documents`: `{userId}/companies/{companyId}/documents/{uuid}-{name}` | **`{user_id}/{companies\|members\|invoices}/{id}/…`** (sin sufijo `/documents/`; agrega `members/` e `invoices/`) |
-| `avatars` (bucket propio) | movido a **`public-assets/avatars/`** |
-| `empresa-logos` (bucket propio) | presumiblemente → **`public-assets/branding/`** |
-| `templates` (bucket privado) | **no aparece** en el diagrama — confirmar si se mantiene aparte |
+| `avatars` (bucket propio)                                             | movido a **`public-assets/avatars/`**                                                                             |
+| `empresa-logos` (bucket propio)                                       | presumiblemente → **`public-assets/branding/`**                                                                   |
+| `templates` (bucket privado)                                          | **no aparece** en el diagrama — confirmar si se mantiene aparte                                                   |
 
 **Alineación de código pendiente** (no bloquea la migración, pero sí las subidas nuevas de la app):
+
 - `buildStoragePath` ([service.ts:35](src/domains/documents/service.ts:35)) genera el path viejo → actualizar al esquema por entidad.
 - `api/users/update-avatar.ts` y `api/companies/update-avatar.ts` apuntan a `avatars`/`empresa-logos` → repuntar a `public-assets`.
 - Actualizar `storage-buckets.md` (fuente de verdad) a esta estructura + crear/renombrar buckets en Supabase con sus límites y `allowed_mime_types`.

@@ -16,8 +16,7 @@
 			"odoo_partner_id": null
 		},
 		"incorporation": {
-			"principal_name"
-			"posible_names": [],
+			"principal_name""posible_names": [],
 			"state_id": null,
 			"state": ""
 		},
@@ -30,7 +29,7 @@
 			"filing_number": null,
 			"formation_state_id": null,
 			"formation_country_id": null,
-			"tax_clasification": null,
+			"tax_classification": null,
 			"activity_code_id": null,
 			"activity_description": null,
 			"us_source_income": false,

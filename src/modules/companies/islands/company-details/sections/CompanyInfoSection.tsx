@@ -65,7 +65,7 @@ type CompanyInfoDefaultsSource = Pick<
 	| 'entity_type'
 	| 'formation_state_id'
 	| 'management_type'
-	| 'tax_clasification'
+	| 'tax_classification'
 	| 'activity_code_id'
 	| 'us_source_income'
 	| 'activity_description'
