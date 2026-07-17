@@ -1,5 +1,7 @@
 nodeLinker: hoisted
 allowBuilds:
+  esbuild: true
+  sharp: true
   supabase: true
 minimumReleaseAgeExclude:
   - astro
