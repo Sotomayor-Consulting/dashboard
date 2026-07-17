@@ -170,7 +170,7 @@ function companyUpdatePayload(input: CompanyUpdate) {
 		'legal_name',
 		'identification_number',
 		'entity_type',
-		'tax_clasification',
+		'tax_classification',
 		'management_type',
 		'activity_description',
 		'incorporation_date',

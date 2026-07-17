@@ -249,7 +249,7 @@ function buildAdminEmpresa(
 		ein: row.identification_number,
 		incorporationDate: row.incorporation_date,
 		legalStatus: (row.legal_status as LegalStatus) ?? 'draft',
-		taxClassification: row.tax_clasification,
+		taxClassification: row.tax_classification,
 		managementType: row.management_type,
 		usSourceIncome: !!row.us_source_income,
 		owner,

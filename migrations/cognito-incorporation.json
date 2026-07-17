@@ -22,7 +22,7 @@
 		"filing_number": null,
 		"formation_state_id": null,
 		"formation_country_id": null,
-		"tax_clasification": null,
+		"tax_classification": null,
 		"activity_code_id": null,
 		"activity_description": null,
 		"us_source_income": false,

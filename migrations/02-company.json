@@ -29,7 +29,7 @@
 		"filing_number": null,
 		"formation_state_id": null,
 		"formation_country_id": null,
-		"tax_clasification": null,
+		"tax_classification": null,
 		"activity_code_id": null,
 		"activity_description": null,
 		"us_source_income": false,
@@ -40,7 +40,12 @@
 	"company_addresses": {
 		"_meta": {
 			"target_table": "public.company_addresses",
-			"required_on_insert": ["type", "line1", "city", "country_id"],
+			"required_on_insert": [
+				"type",
+				"line1",
+				"city",
+				"country_id"
+			],
 			"note": "id es bigint NOT NULL sin default — usar secuencia o proveer manualmente en n8n.",
 			"fk_resolve": {
 				"company_id": "UUID de la company recién insertada",
@@ -59,8 +64,15 @@
 		"zip": null
 	},
 	"_enums": {
-		"entity_type": ["llc", "lp", "c-corp"],
-		"management_type": ["member-managed", "manager-managed"],
+		"entity_type": [
+			"llc",
+			"lp",
+			"c-corp"
+		],
+		"management_type": [
+			"member-managed",
+			"manager-managed"
+		],
 		"legal_status": [
 			"draft",
 			"pending_validation",
@@ -70,6 +82,9 @@
 			"suspended",
 			"dissolved"
 		],
-		"address_type": ["legal", "operating"]
+		"address_type": [
+			"legal",
+			"operating"
+		]
 	}
 }

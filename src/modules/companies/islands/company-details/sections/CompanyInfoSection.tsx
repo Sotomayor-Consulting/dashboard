@@ -65,7 +65,7 @@ type CompanyInfoDefaultsSource = Pick<
 	| 'entity_type'
 	| 'formation_state_id'
 	| 'management_type'
-	| 'tax_clasification'
+	| 'tax_classification'
 	| 'activity_code_id'
 	| 'us_source_income'
 	| 'activity_description'
@@ -84,8 +84,8 @@ function buildDefaults(
 		formation_state_id: company?.formation_state_id ?? null,
 		management_type: (company?.management_type ?? 'manager-managed') as
 			'member-managed' | 'manager-managed',
-		tax_clasification:
-			(company?.tax_clasification as 'disregarded_entity' | 'corporation') ??
+		tax_classification:
+			(company?.tax_classification as 'disregarded_entity' | 'corporation') ??
 			null,
 		activity_code_id: company?.activity_code_id ?? null,
 		us_source_income: company?.us_source_income ?? null,
@@ -377,7 +377,7 @@ export default function CompanyInfoSection({
 							</FieldLabel>
 							<Controller
 								control={form.control}
-								name="tax_clasification"
+								name="tax_classification"
 								render={({ field }) => (
 									<ComboboxField
 										id="company_tax_clasification"

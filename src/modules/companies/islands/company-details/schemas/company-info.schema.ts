@@ -36,7 +36,7 @@ export const companyInfoSchema = z.object({
 	// formation_country_id se infiere en el backend (siempre US para LLC).
 	formation_state_id: nullableNumberSchema,
 	management_type: managementTypeSchema,
-	tax_clasification: z.preprocess(emptyToNull, taxClassificationSchema),
+	tax_classification: z.preprocess(emptyToNull, taxClassificationSchema),
 	activity_code_id: nullableNumberSchema,
 	us_source_income: z.boolean().nullable(),
 	activity_description: z.preprocess(emptyToNull, z.string().nullable()),

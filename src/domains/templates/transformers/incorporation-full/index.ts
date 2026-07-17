@@ -165,7 +165,7 @@ export const incorporationFullTransformer: Transformer = {
 				company_filing_number: 'filing_number',
 				company_identification_number: 'identification_number',
 				company_management_type: 'management_type',
-				company_tax_clasification: 'tax_clasification',
+				company_tax_clasification: 'tax_classification',
 				company_incorporation_date: 'incorporation_date',
 			};
 

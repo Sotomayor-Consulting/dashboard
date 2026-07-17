@@ -13,7 +13,7 @@ export type CompanyInfoInput = Pick<
 	| 'formation_country_id'
 	| 'formation_state_id'
 	| 'management_type'
-	| 'tax_clasification'
+	| 'tax_classification'
 	| 'activity_code_id'
 	| 'us_source_income'
 	| 'activity_description'
@@ -29,7 +29,7 @@ export type CompanyInfoRow = Pick<
 	| 'formation_country_id'
 	| 'formation_state_id'
 	| 'management_type'
-	| 'tax_clasification'
+	| 'tax_classification'
 	| 'activity_code_id'
 	| 'us_source_income'
 	| 'activity_description'
@@ -53,7 +53,7 @@ const buildPayload = (input: CompanyInfoInput) => ({
 	formation_country_id: input.formation_country_id ?? US_COUNTRY_ID,
 	formation_state_id: input.formation_state_id ?? null,
 	management_type: input.management_type,
-	tax_clasification: input.tax_clasification ?? null,
+	tax_classification: input.tax_classification ?? null,
 	activity_code_id: input.activity_code_id ?? null,
 	us_source_income: input.us_source_income ?? null,
 	activity_description: cleanText(input.activity_description),
