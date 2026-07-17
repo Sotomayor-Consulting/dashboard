@@ -121,5 +121,5 @@
 		"supabase": "^2.109.1",
 		"tailwind-scrollbar": "^4.0.2"
 	},
-	"packageManager": "pnpm@11.9.0"
+	"packageManager": "pnpm@11.11.0"
 }

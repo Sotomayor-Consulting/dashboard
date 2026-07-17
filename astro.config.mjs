@@ -74,6 +74,12 @@ export default defineConfig({
 		plugins: [tailwindcss()],
 		optimizeDeps: {
 			exclude: ['astro/virtual-modules/prefetch.js', '@base-ui/react'],
+			// @base-ui/react está excluido, pero su dependencia CJS necesita
+			// la conversión a ESM de Vite o la hidratación de islands falla.
+			include: [
+				'use-sync-external-store/shim',
+				'use-sync-external-store/shim/with-selector',
+			],
 		},
 		build: {
 			rollupOptions: {
