@@ -1,8 +1,8 @@
 nodeLinker: hoisted
 allowBuilds:
   esbuild: true
-  msw: true
   sharp: true
+  supabase: true
 minimumReleaseAgeExclude:
   - astro
   - '@astrojs/markdown-satteri@0.3.2'
