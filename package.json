@@ -33,12 +33,14 @@
 		"build": "pnpm check && astro build --force",
 		"dev": "astro dev",
 		"dev:vault": "node scripts/dev-with-vault.mjs",
+		"deploy": "node --experimental-strip-types scripts/deploy.mjs production",
+		"deploy:dev": "node --experimental-strip-types scripts/deploy.mjs development",
 		"preview": "astro preview",
 		"start": "astro dev"
 	},
 	"dependencies": {
-		"@astrojs/node": "11.0.0",
-		"@astrojs/react": "6.0.0",
+		"@astrojs/node": "11.0.2",
+		"@astrojs/react": "6.0.1",
 		"@astrojs/sitemap": "^3.7.3",
 		"@base-ui/react": "^1.6.0",
 		"@floating-ui/dom": "^1.7.6",
@@ -63,7 +65,7 @@
 		"@types/react-dom": "^19.2.3",
 		"alpinejs": "^3.15.12",
 		"apexcharts": "^5.15.2",
-		"astro": "7.0.3",
+		"astro": "7.1.1",
 		"astro-icon": "^1.1.5",
 		"astro-pagefind": "^2.0.0",
 		"axios": "^1.18.1",
@@ -116,7 +118,8 @@
 		"prettier-plugin-astro": "^0.14.1",
 		"prettier-plugin-tailwindcss": "^0.8.0",
 		"shadcn": "^4.12.0",
+		"supabase": "^2.109.1",
 		"tailwind-scrollbar": "^4.0.2"
 	},
-	"packageManager": "pnpm@11.9.0"
+	"packageManager": "pnpm@11.11.0"
 }

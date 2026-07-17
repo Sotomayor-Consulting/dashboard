@@ -350,10 +350,13 @@ Para los `<script>` con atributos (`define:vars`, `type="module"`, `src=`, etc.)
 
 ## SQL & Database
 
-Scripts SQL de Supabase (RLS, schemas, sharing) en `supabase/sql/`:
-- `documents_tables.sql` — schemas de las tablas de documentos
-- `documents_rls.sql` — Row Level Security policies
-- `documents_sharing.sql` — schemas y policies de sharing
+El schema se versiona con **migraciones del CLI de Supabase** en `supabase/migrations/`:
+- `20260715165654_remote_schema.sql` — baseline completo (public + documents, workflow, shared, catalogs, meetings, orders) generado con `db pull` desde APPSCI-DEVELOPMENT y aplicado a APPSCI-PRODUCTION.
+- Cambios nuevos: `npx supabase migration new <nombre>` → escribir SQL → `npx supabase db push` (el proyecto linkeado es development; para production usar `--db-url` con el pooler `aws-0-us-east-1`).
+- Los proyectos: `ceuofnjslxjoqtqxbfqt` (APPSCI-DEVELOPMENT, sa-east-1) y `yloxnmkuxlyspxwpizjf` (APPSCI-PRODUCTION, us-east-1). Passwords de DB en `.env` (`PASSWORD_DB` / `PASSWORD_PROD_DB`, no committeadas).
+- Los puertos locales del CLI están en 55xxx (config.toml) porque Windows reserva el rango 54267–54366.
+
+Scripts históricos pre-migraciones en `supabase/sql/legacy/` (solo referencia, no aplicar).
 
 ### Schemas expuestos en PostgREST
 
