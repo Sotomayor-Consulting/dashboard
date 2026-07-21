@@ -383,7 +383,7 @@ const inactiveClass =
 	id="sidebar-desktop"
 	class="dark:bg-primary-black border-border fixed top-0 left-0 z-20 box-border hidden h-screen w-60 flex-col border-r bg-white lg:flex"
 >
-	<!-- Company switcher / Brand area -->
+	<!-- Company switcher / Search area -->
 	<div class="px-3 pt-2 pb-3">
 		{
 			showCompanySwitcher ? (
@@ -393,43 +393,24 @@ const inactiveClass =
 					id="desktop"
 				/>
 			) : (
-				<a href="/" class="flex items-center gap-2.5">
-					<Icon
-						name="logo-sotomayor-consulting-isotipo"
-						class="block h-7 w-7 shrink-0 dark:hidden"
-						title="Sotomayor Consulting"
-					/>
-					<Icon
-						name="logo-sotomayor-consulting-isotipo-white"
-						class="hidden h-7 w-7 shrink-0 dark:block"
-						title="Sotomayor Consulting"
-					/>
-					<span class="sb-label text-foreground text-sm font-semibold">
-						Sotomayor
-					</span>
-				</a>
+				<button
+					type="button"
+					class="border-border bg-muted/40 text-muted-foreground hover:bg-hover flex h-9 w-full items-center gap-2.5 rounded-lg border px-3 text-sm transition"
+					data-global-search-trigger
+					aria-label="Abrir búsqueda"
+				>
+					<Icon name="ri:search-line" class="h-4 w-4 shrink-0 opacity-50" />
+					<span class="sb-label flex-1 text-left">Search...</span>
+					<kbd
+						class="sb-label border-border bg-background text-muted-foreground/70 text-2xs inline-flex items-center gap-0.5 rounded border px-1.5 py-0.5 font-mono font-medium select-none"
+						aria-hidden="true"
+					>
+						<span data-global-search-mod>Ctrl</span>
+						<span>K</span>
+					</kbd>
+				</button>
 			)
 		}
-	</div>
-
-	<!-- Search trigger -->
-	<div class="px-3 pb-3">
-		<button
-			type="button"
-			class="border-border bg-muted/40 text-muted-foreground hover:bg-hover flex h-9 w-full items-center gap-2.5 rounded-lg border px-3 text-sm transition"
-			data-global-search-trigger
-			aria-label="Abrir búsqueda"
-		>
-			<Icon name="ri:search-line" class="h-4 w-4 shrink-0 opacity-50" />
-			<span class="sb-label flex-1 text-left">Search...</span>
-			<kbd
-				class="sb-label border-border bg-background text-muted-foreground/70 text-2xs inline-flex items-center gap-0.5 rounded border px-1.5 py-0.5 font-mono font-medium select-none"
-				aria-hidden="true"
-			>
-				<span data-global-search-mod>Ctrl</span>
-				<span>K</span>
-			</kbd>
-		</button>
 	</div>
 
 	<nav
