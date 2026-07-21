@@ -55,16 +55,16 @@ export default function CompanyDocumentsPanel({
 }: Props) {
 	const [isUploadOpen, setIsUploadOpen] = React.useState(false);
 
-	// El upload se hace contra el caso de incorporación (el backend resuelve
-	// owner y storage path desde ahí). Sin incorporación no hay contexto válido.
-	const canUpload = canEditDetails && !!incorporationId;
+	const canUpload = canEditDetails;
 
-	const backPath = `/companies/${companyId}?tab=documentos`;
+	const backPath = `/admin/companies/${companyId}/documents`;
 	const uploadAction = incorporationId
 		? `/api/documents/upload?relatedToType=incorporation_case&relatedToId=${encodeURIComponent(
 				incorporationId,
 			)}&back=${encodeURIComponent(backPath)}`
-		: '';
+		: `/api/documents/upload?relatedToType=company&relatedToId=${encodeURIComponent(
+				companyId,
+			)}&back=${encodeURIComponent(backPath)}`;
 
 	return (
 		<section className="-mx-6 -my-5 flex flex-col">
