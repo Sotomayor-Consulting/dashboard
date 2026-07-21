@@ -133,6 +133,7 @@ const planCard =
 	class="flex min-h-dvh flex-col"
 	data-user-id={userId}
 	data-skip-selector={skipSelector ? '1' : '0'}
+	data-preselected-id={preselected?.id ?? ''}
 >
 	<header
 		class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8"
@@ -443,6 +444,7 @@ const planCard =
 
 		const userId = root.dataset.userId || '';
 		const skipSelector = root.dataset.skipSelector === '1';
+		const preselectedId = root.dataset.preselectedId || '';
 
 		const btnPaso1 = document.getElementById('btn-paso1');
 		const btnAtras = document.getElementById('btn-atras');
@@ -484,9 +486,14 @@ const planCard =
 		});
 		// Con deep-link (?empresa=) el paso 1 se saltó: "Regresar" vuelve al
 		// dashboard de origen; sin contexto, vuelve al selector de empresa.
+		// Navegación explícita (no history.back()): tras cancelar en Stripe el
+		// historial queda [dashboard, planes, stripe, planes] y back() llevaría
+		// de vuelta al checkout cancelado.
 		btnAtras?.addEventListener('click', () => {
-			if (skipSelector) {
-				history.back();
+			if (skipSelector && preselectedId) {
+				window.location.href = `/incorporation/${preselectedId}`;
+			} else if (skipSelector) {
+				window.location.href = '/incorporation';
 			} else {
 				swapPanels(panel2, panel1);
 			}
