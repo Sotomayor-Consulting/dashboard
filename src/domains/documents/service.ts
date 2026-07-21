@@ -110,14 +110,36 @@ async function getCaseOwner(caseId: string): Promise<CaseOwnerRow> {
 	};
 }
 
+async function getCompanyOwner(companyId: string): Promise<CaseOwnerRow> {
+	const { data, error } = await supabaseAdmin
+		.from('companies')
+		.select('id, user_id, legal_name, incorporation_id')
+		.eq('id', companyId)
+		.maybeSingle();
+
+	if (error) {
+		throw new DocumentsError(500, 'Error verificando acceso');
+	}
+
+	if (!data) {
+		throw new DocumentsError(404, 'Empresa no encontrada');
+	}
+
+	return {
+		caseId: data.incorporation_id ?? null,
+		ownerUserId: data.user_id,
+		caseName: data.legal_name ?? null,
+	};
+}
+
 async function resolveCaseOwnerFromInput(
 	input: UploadDocumentInput,
 ): Promise<CaseOwnerRow> {
-	if (
-		input.relatedToType === 'incorporation_case' ||
-		input.relatedToType === 'company'
-	) {
+	if (input.relatedToType === 'incorporation_case') {
 		return getCaseOwner(input.relatedToId);
+	}
+	if (input.relatedToType === 'company') {
+		return getCompanyOwner(input.relatedToId);
 	}
 
 	if (!input.caseId) {
@@ -135,8 +157,11 @@ async function resolveCaseOwnerFromContext(
 	relatedToId: string,
 	caseId?: string | null,
 ): Promise<CaseOwnerRow> {
-	if (relatedToType === 'incorporation_case' || relatedToType === 'company') {
+	if (relatedToType === 'incorporation_case') {
 		return getCaseOwner(relatedToId);
+	}
+	if (relatedToType === 'company') {
+		return getCompanyOwner(relatedToId);
 	}
 
 	if (!caseId) {
@@ -368,20 +393,24 @@ export async function uploadDocument(
 			eventKey: 'documents.shared',
 			recipients: [{ userId: targetUserId }],
 			context: {
-				case_name: context.caseName ?? 'tu incorporacion',
-				action_url: `/documentos/${context.caseId}`,
+				case_name: context.caseName ?? 'tu empresa',
+				action_url: context.caseId
+					? `/documentos/${context.caseId}`
+					: `/admin/companies/${input.relatedToId}/documents`,
 			},
 		});
 
-		await sendDocumentSharedEmail({
-			caseId: context.caseId,
-			actionUrl: `/documentos/${context.caseId}`,
-		}).catch((error) => {
-			console.error('[business-email][documents.shared] auto-share failed', {
+		if (context.caseId) {
+			await sendDocumentSharedEmail({
 				caseId: context.caseId,
-				error: error instanceof Error ? error.message : String(error),
+				actionUrl: `/documentos/${context.caseId}`,
+			}).catch((error) => {
+				console.error('[business-email][documents.shared] auto-share failed', {
+					caseId: context.caseId,
+					error: error instanceof Error ? error.message : String(error),
+				});
 			});
-		});
+		}
 	}
 
 	return {
@@ -446,17 +475,19 @@ export async function createDocumentRequest(
 		throw new DocumentsError(500, 'No se pudo enlazar la solicitud');
 	}
 
-	await sendDocumentRequestedEmail({
-		caseId: context.caseId,
-		actionUrl: `/documentos/${context.caseId}`,
-		message: input.message ?? null,
-		dueDate: input.dueDate ?? null,
-	}).catch((error) => {
-		console.error('[business-email][documents.requested] failed', {
+	if (context.caseId) {
+		await sendDocumentRequestedEmail({
 			caseId: context.caseId,
-			error: error instanceof Error ? error.message : String(error),
+			actionUrl: `/documentos/${context.caseId}`,
+			message: input.message ?? null,
+			dueDate: input.dueDate ?? null,
+		}).catch((error) => {
+			console.error('[business-email][documents.requested] failed', {
+				caseId: context.caseId,
+				error: error instanceof Error ? error.message : String(error),
+			});
 		});
-	});
+	}
 
 	return {
 		requestId,

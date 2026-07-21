@@ -20,7 +20,7 @@ export interface DocumentActor {
 }
 
 export interface CaseOwnerRow {
-	caseId: string;
+	caseId: string | null;
 	ownerUserId: string;
 	caseName: string | null;
 }
@@ -39,7 +39,7 @@ export interface UploadDocumentInput {
 
 export interface UploadDocumentResult {
 	documentId: string;
-	caseId: string;
+	caseId: string | null;
 	ownerUserId: string;
 	caseName: string | null;
 }
@@ -57,7 +57,7 @@ export interface CreateDocumentRequestInput {
 
 export interface CreateDocumentRequestResult {
 	requestId: string;
-	caseId: string;
+	caseId: string | null;
 }
 
 export class DocumentsError extends Error {
