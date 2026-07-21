@@ -8,16 +8,8 @@ import { US_COUNTRY_ID } from '@domains/locations/constants';
 import { useLocations } from '../../../hooks/use-locations';
 
 import { Button } from '@components/ui/Button';
-import {
-	Field,
-	FieldContent,
-	FieldDescription,
-	FieldGroup,
-	FieldLabel,
-	FieldTitle,
-} from '@components/ui/Field';
+import { Field, FieldLabel } from '@components/ui/Field';
 import { Input } from '@components/ui/Input';
-import { Switch } from '@components/ui/Switch';
 import { Textarea } from '@components/ui/Textarea';
 import { cn } from '@components/utils';
 
@@ -33,10 +25,6 @@ import {
 } from '../schemas/company-info.schema';
 import { ActivityComboboxField } from '../components/ActivityComboboxField';
 import { ComboboxField } from '../components/ComboboxField';
-import {
-	EntityTypeBadge,
-	LegalStatusBadge,
-} from '@modules/admin/empresas/cells/EntityBadge';
 
 interface Props {
 	company: CompanyItem | null;
@@ -55,6 +43,11 @@ const ENTITY_TYPE_OPTIONS = [{ value: 'llc', label: 'LLC' }];
 const TAX_OPTIONS = [
 	{ value: 'disregarded_entity', label: 'Entidad de paso' },
 	{ value: 'corporation', label: 'LLC como Corporación' },
+];
+
+const US_INCOME_OPTIONS = [
+	{ value: 'yes', label: 'Sí' },
+	{ value: 'no', label: 'No' },
 ];
 
 type CompanyInfoDefaultsSource = Pick<
@@ -78,8 +71,6 @@ function buildDefaults(
 		legal_name: company?.legal_name ?? null,
 		filing_number: company?.filing_number ?? null,
 		identification_number: company?.identification_number ?? null,
-		// Solo soportamos LLC en este formulario (el enum DB tiene lp y c-corp
-		// pero el schema lo restringe a llc deliberadamente).
 		entity_type: 'llc' as const,
 		formation_state_id: company?.formation_state_id ?? null,
 		management_type: (company?.management_type ?? 'manager-managed') as
@@ -94,31 +85,6 @@ function buildDefaults(
 }
 
 type CompanyInfoApiResponse = CompanyInfoFormOutput & { id: string };
-
-// ────────────────────────────────────────────────────────────────
-// Sub-section header
-// ────────────────────────────────────────────────────────────────
-function SectionHeader({
-	icon,
-	title,
-	description,
-}: {
-	icon: string;
-	title: string;
-	description: string;
-}) {
-	return (
-		<header className="flex flex-col gap-1 border-b border-gray-200 pb-3 dark:border-gray-700">
-			<div className="flex items-center gap-2">
-				<Icon icon={icon} className="text-muted-foreground size-4 shrink-0" />
-				<h4 className="text-sm font-semibold tracking-tight">{title}</h4>
-			</div>
-			<p className="text-muted-foreground text-[12px]">{description}</p>
-		</header>
-	);
-}
-
-// ────────────────────────────────────────────────────────────────
 
 export default function CompanyInfoSection({
 	company,
@@ -193,8 +159,6 @@ export default function CompanyInfoSection({
 		);
 	}
 
-	// La jurisdicción de incorporación siempre es US (id=75). Usamos el caché
-	// global de `useLocations` para no consultar a Supabase cada vez.
 	const { states: usStates, isLoadingStates } = useLocations(US_COUNTRY_ID);
 
 	const stateOptions = usStates.map((s) => ({
@@ -205,33 +169,21 @@ export default function CompanyInfoSection({
 
 	return (
 		<section className="-mx-6 -mt-5 flex flex-col">
-			{/* Company identity header */}
 			<header className="border-border border-b px-7 pt-6 pb-5">
-				<p className="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
-					Empresa
-				</p>
-				<h2 className="mt-1 text-[22px] font-semibold text-gray-900 dark:text-gray-100">
+				<h1 className="text-foreground text-xl font-semibold">
 					{company.legal_name ?? 'Sin nombre'}
-				</h2>
-				<div className="mt-2 flex flex-wrap items-center gap-1.5">
-					<LegalStatusBadge status={company.legal_status ?? 'draft'} />
-					{company.entity_type && (
-						<EntityTypeBadge type={company.entity_type} />
-					)}
-					{company.identification_number && (
-						<span className="bg-muted text-muted-foreground inline-flex items-center rounded-md px-2 py-0.5 text-[10.5px] font-medium">
-							EIN {company.identification_number}
-						</span>
-					)}
-				</div>
+				</h1>
+				<p className="text-muted-foreground mt-1 text-sm">
+					Información general de la empresa.
+				</p>
 			</header>
 
 			<form
 				onSubmit={form.handleSubmit(onSubmit)}
-				className="flex flex-col gap-6 px-7 py-5"
+				className="px-7 py-5"
 			>
 				{managementTypeHealth && !managementTypeHealth.ok && (
-					<div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
+					<div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200">
 						<p className="font-medium">
 							Inconsistencia en la administración actual
 						</p>
@@ -239,244 +191,262 @@ export default function CompanyInfoSection({
 					</div>
 				)}
 
-				{/* ─────────────── Sección 1: Identidad legal ─────────────── */}
-				<section className="flex flex-col gap-4">
-					<SectionHeader
-						icon="ri:bank-line"
-						title="Identidad legal"
-						description="Cómo se identifica la entidad ante el estado y la IRS."
-					/>
-					<FieldGroup className="grid gap-4 md:grid-cols-2">
-						<Field data-disabled={!canEditDetails}>
-							<FieldLabel htmlFor="company_legal_name">Nombre legal</FieldLabel>
-							<Input
-								id="company_legal_name"
-								{...form.register('legal_name')}
-								disabled={!canEditDetails}
-							/>
-							<FieldDescription>
-								Ingrese el nombre oficial de la empresa
-							</FieldDescription>
-						</Field>
-						<Field data-disabled={!canEditDetails}>
-							<FieldLabel htmlFor="filing_number">
-								Número de expediente
-							</FieldLabel>
-							<Input
-								id="filing_number"
-								{...form.register('filing_number')}
-								disabled={!canEditDetails}
-							/>
-							<FieldDescription>
-								Identificador estatal del expediente
-							</FieldDescription>
-						</Field>
-						<Field data-disabled={!canEditDetails} className="md:col-span-2">
-							<FieldLabel htmlFor="company_identification_number">
-								Número de identificación (EIN)
-							</FieldLabel>
-							<Input
-								id="company_identification_number"
-								{...form.register('identification_number')}
-								disabled={!canEditDetails}
-							/>
-							<FieldDescription>EIN asignado por la IRS</FieldDescription>
-						</Field>
-					</FieldGroup>
-				</section>
+				<div className="divide-border -mx-7 divide-y">
+					{/* Identidad legal */}
+					<div className="grid grid-cols-1 gap-x-8 gap-y-4 px-7 py-8 first:pt-0 sm:grid-cols-[220px_1fr]">
+						<div>
+							<div className="flex items-center gap-2">
+								<Icon icon="ri:bank-line" className="text-muted-foreground size-4 shrink-0" />
+								<h3 className="text-foreground text-sm font-medium">
+									Identidad legal
+								</h3>
+							</div>
+							<p className="text-muted-foreground mt-1 text-sm">
+								Cómo se identifica la entidad ante el estado y la IRS.
+							</p>
+						</div>
+						<div className="grid grid-cols-2 gap-4">
+							<Field data-disabled={!canEditDetails}>
+								<FieldLabel htmlFor="company_legal_name">
+									Nombre legal
+								</FieldLabel>
+								<Input
+									id="company_legal_name"
+									{...form.register('legal_name')}
+									disabled={!canEditDetails}
+								/>
+							</Field>
+							<Field data-disabled={!canEditDetails}>
+								<FieldLabel htmlFor="filing_number">
+									Número de expediente
+								</FieldLabel>
+								<Input
+									id="filing_number"
+									{...form.register('filing_number')}
+									disabled={!canEditDetails}
+								/>
+							</Field>
+							<Field data-disabled={!canEditDetails} className="col-span-2">
+								<FieldLabel htmlFor="company_identification_number">
+									Número de identificación (EIN)
+								</FieldLabel>
+								<Input
+									id="company_identification_number"
+									{...form.register('identification_number')}
+									disabled={!canEditDetails}
+								/>
+							</Field>
+						</div>
+					</div>
 
-				{/* ─────────────── Sección 2: Jurisdicción y estructura ─────────────── */}
-				<section className="flex flex-col gap-4">
-					<SectionHeader
-						icon="ri:government-line"
-						title="Jurisdicción y estructura"
-						description="Dónde se incorpora la empresa y cómo se administra y tributa."
-					/>
-					<FieldGroup className="grid gap-4 md:grid-cols-2">
-						<Field>
-							<FieldLabel htmlFor="company_formation_state">
-								Jurisdicción (US)
-							</FieldLabel>
-							<Controller
-								control={form.control}
-								name="formation_state_id"
-								render={({ field }) => (
-									<ComboboxField
-										id="company_formation_state"
-										options={stateOptions}
-										value={field.value === null ? null : String(field.value)}
-										onChange={(value) =>
-											field.onChange(value === null ? null : Number(value))
-										}
-										placeholder={
-											isLoadingStates
-												? 'Cargando estados…'
-												: 'Seleccione la jurisdicción'
-										}
-										allowClear
-										disabled={!canEditDetails || isLoadingStates}
-									/>
-								)}
-							/>
-							<FieldDescription>
-								Estado donde se incorpora la LLC (siempre dentro de EE.UU.).
-							</FieldDescription>
-						</Field>
-
-						<Field>
-							<FieldLabel htmlFor="company_entity_type">
-								Tipo de entidad
-							</FieldLabel>
-							<Controller
-								control={form.control}
-								name="entity_type"
-								render={({ field }) => (
-									<ComboboxField
-										id="company_entity_type"
-										options={ENTITY_TYPE_OPTIONS}
-										value={field.value}
-										onChange={(value) => field.onChange(value ?? 'llc')}
-										placeholder="Seleccione tipo"
-										disabled={!canEditDetails}
-									/>
-								)}
-							/>
-						</Field>
-
-						<Field>
-							<FieldLabel htmlFor="company_management_type">
-								Forma de administrar
-							</FieldLabel>
-							<Controller
-								control={form.control}
-								name="management_type"
-								render={({ field }) => (
-									<ComboboxField
-										id="company_management_type"
-										options={MANAGEMENT_OPTIONS}
-										value={field.value}
-										onChange={(value) =>
-											field.onChange(
-												(value as 'member-managed' | 'manager-managed') ??
-													'manager-managed',
-											)
-										}
-										placeholder="Seleccione"
-										disabled={!canEditDetails}
-									/>
-								)}
-							/>
-							<FieldDescription>
-								Define quién toma las decisiones operativas.
-							</FieldDescription>
-						</Field>
-
-						<Field>
-							<FieldLabel htmlFor="company_tax_classification">
-								Forma de tributación
-							</FieldLabel>
-							<Controller
-								control={form.control}
-								name="tax_classification"
-								render={({ field }) => (
-									<ComboboxField
-										id="company_tax_classification"
-										options={TAX_OPTIONS}
-										value={(field.value as string | null) ?? null}
-										onChange={(value) =>
-											field.onChange(
-												value === null
-													? null
-													: (value as 'disregarded_entity' | 'corporation'),
-											)
-										}
-										placeholder="Clasificación tributaria"
-										allowClear
-										disabled={!canEditDetails}
-									/>
-								)}
-							/>
-							<FieldDescription>
-								Cómo declara impuestos la entidad ante la IRS.
-							</FieldDescription>
-						</Field>
-					</FieldGroup>
-				</section>
-
-				{/* ─────────────── Sección 3: Actividad económica ─────────────── */}
-				<section className="flex flex-col gap-4">
-					<SectionHeader
-						icon="ri:briefcase-line"
-						title="Actividad económica"
-						description="A qué se dedica la empresa y si genera ingresos en EE.UU."
-					/>
-					<FieldGroup className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto]">
-						<Field>
-							<FieldLabel htmlFor="company_activity_code">
-								Actividad (código IRS)
-							</FieldLabel>
-							<Controller
-								control={form.control}
-								name="activity_code_id"
-								render={({ field }) => (
-									<ActivityComboboxField
-										activities={actividades}
-										value={(field.value as number | null) ?? null}
-										onChange={(activityId) => field.onChange(activityId)}
-										placeholder="Seleccione la actividad"
-										allowClear
-										disabled={!canEditDetails}
-									/>
-								)}
-							/>
-							<FieldDescription>
-								Busca por código IRS, nombre o categoría.
-							</FieldDescription>
-						</Field>
-						<FieldLabel htmlFor="income_us" className="self-start">
-							<Field orientation="horizontal" className="min-w-[260px]">
-								<FieldContent>
-									<FieldTitle>Ingresos en EE.UU.</FieldTitle>
-									<FieldDescription>
-										¿Genera ingresos de fuente americana?
-									</FieldDescription>
-								</FieldContent>
+					{/* Jurisdicción y estructura */}
+					<div className="grid grid-cols-1 gap-x-8 gap-y-4 px-7 py-8 sm:grid-cols-[220px_1fr]">
+						<div>
+							<div className="flex items-center gap-2">
+								<Icon icon="ri:government-line" className="text-muted-foreground size-4 shrink-0" />
+								<h3 className="text-foreground text-sm font-medium">
+									Jurisdicción y estructura
+								</h3>
+							</div>
+							<p className="text-muted-foreground mt-1 text-sm">
+								Dónde se incorpora y cómo se administra y tributa.
+							</p>
+						</div>
+						<div className="grid grid-cols-2 gap-4">
+							<Field>
+								<FieldLabel htmlFor="company_formation_state">
+									Jurisdicción (US)
+								</FieldLabel>
 								<Controller
 									control={form.control}
-									name="us_source_income"
+									name="formation_state_id"
 									render={({ field }) => (
-										<Switch
-											id="income_us"
-											checked={Boolean(field.value)}
-											onCheckedChange={(value) =>
-												field.onChange(value === true)
+										<ComboboxField
+											id="company_formation_state"
+											options={stateOptions}
+											value={
+												field.value === null ? null : String(field.value)
 											}
+											onChange={(value) =>
+												field.onChange(
+													value === null ? null : Number(value),
+												)
+											}
+											placeholder={
+												isLoadingStates
+													? 'Cargando estados…'
+													: 'Seleccione la jurisdicción'
+											}
+											allowClear
+											disabled={!canEditDetails || isLoadingStates}
+										/>
+									)}
+								/>
+							</Field>
+
+							<Field>
+								<FieldLabel htmlFor="company_entity_type">
+									Tipo de entidad
+								</FieldLabel>
+								<Controller
+									control={form.control}
+									name="entity_type"
+									render={({ field }) => (
+										<ComboboxField
+											id="company_entity_type"
+											options={ENTITY_TYPE_OPTIONS}
+											value={field.value}
+											onChange={(value) => field.onChange(value ?? 'llc')}
+											placeholder="Seleccione tipo"
 											disabled={!canEditDetails}
 										/>
 									)}
 								/>
 							</Field>
-						</FieldLabel>
-					</FieldGroup>
 
-					<Field>
-						<FieldLabel htmlFor="company_activity_description">
-							Descripción de la actividad
-						</FieldLabel>
-						<Textarea
-							id="company_activity_description"
-							placeholder="Ej: Venta de artículos por internet"
-							{...form.register('activity_description')}
-							disabled={!canEditDetails}
-							rows={3}
-						/>
-						<FieldDescription>
-							Detalle del giro real del negocio (texto libre).
-						</FieldDescription>
-					</Field>
-				</section>
+							<Field>
+								<FieldLabel htmlFor="company_management_type">
+									Forma de administrar
+								</FieldLabel>
+								<Controller
+									control={form.control}
+									name="management_type"
+									render={({ field }) => (
+										<ComboboxField
+											id="company_management_type"
+											options={MANAGEMENT_OPTIONS}
+											value={field.value}
+											onChange={(value) =>
+												field.onChange(
+													(value as
+														| 'member-managed'
+														| 'manager-managed') ??
+														'manager-managed',
+												)
+											}
+											placeholder="Seleccione"
+											disabled={!canEditDetails}
+										/>
+									)}
+								/>
+							</Field>
 
-				{/* ─────────────── Banner sticky de cambios sin guardar ─────────────── */}
+							<Field>
+								<FieldLabel htmlFor="company_tax_classification">
+									Forma de tributación
+								</FieldLabel>
+								<Controller
+									control={form.control}
+									name="tax_classification"
+									render={({ field }) => (
+										<ComboboxField
+											id="company_tax_classification"
+											options={TAX_OPTIONS}
+											value={(field.value as string | null) ?? null}
+											onChange={(value) =>
+												field.onChange(
+													value === null
+														? null
+														: (value as
+																| 'disregarded_entity'
+																| 'corporation'),
+												)
+											}
+											placeholder="Clasificación tributaria"
+											allowClear
+											disabled={!canEditDetails}
+										/>
+									)}
+								/>
+							</Field>
+						</div>
+					</div>
+
+					{/* Actividad económica */}
+					<div className="grid grid-cols-1 gap-x-8 gap-y-4 px-7 py-8 sm:grid-cols-[220px_1fr]">
+						<div>
+							<div className="flex items-center gap-2">
+								<Icon icon="ri:briefcase-line" className="text-muted-foreground size-4 shrink-0" />
+								<h3 className="text-foreground text-sm font-medium">
+									Actividad económica
+								</h3>
+							</div>
+							<p className="text-muted-foreground mt-1 text-sm">
+								A qué se dedica y si genera ingresos en EE.UU.
+							</p>
+						</div>
+						<div className="flex flex-col gap-4">
+							<Field>
+								<FieldLabel htmlFor="company_activity_code">
+									Actividad (código IRS)
+								</FieldLabel>
+								<Controller
+									control={form.control}
+									name="activity_code_id"
+									render={({ field }) => (
+										<ActivityComboboxField
+											activities={actividades}
+											value={(field.value as number | null) ?? null}
+											onChange={(activityId) =>
+												field.onChange(activityId)
+											}
+											placeholder="Seleccione la actividad"
+											allowClear
+											disabled={!canEditDetails}
+										/>
+									)}
+								/>
+							</Field>
+
+							<Field>
+								<FieldLabel htmlFor="income_us">
+									Ingresos en EE.UU.
+								</FieldLabel>
+								<Controller
+									control={form.control}
+									name="us_source_income"
+									render={({ field }) => (
+										<ComboboxField
+											id="income_us"
+											options={US_INCOME_OPTIONS}
+											value={
+												field.value === null
+													? null
+													: field.value
+														? 'yes'
+														: 'no'
+											}
+											onChange={(value) =>
+												field.onChange(
+													value === null
+														? null
+														: value === 'yes',
+												)
+											}
+											placeholder="Seleccione"
+											disabled={!canEditDetails}
+										/>
+									)}
+								/>
+							</Field>
+
+							<Field>
+								<FieldLabel htmlFor="company_activity_description">
+									Descripción de la actividad
+								</FieldLabel>
+								<Textarea
+									id="company_activity_description"
+									placeholder="Ej: Venta de artículos por internet"
+									{...form.register('activity_description')}
+									disabled={!canEditDetails}
+									rows={3}
+								/>
+							</Field>
+						</div>
+					</div>
+				</div>
+
+				{/* Banner sticky de cambios sin guardar */}
 				<div
 					className={cn(
 						'sticky bottom-0 -mx-7 mt-2 transition-all duration-200',
@@ -490,7 +460,8 @@ export default function CompanyInfoSection({
 							<div className="flex items-center gap-2 text-amber-900 dark:text-amber-200">
 								<Icon icon="ri:alert-line" className="size-4 shrink-0" />
 								<p className="text-[13px] font-medium">
-									Tienes cambios sin guardar en la información de la empresa.
+									Tienes cambios sin guardar en la información de la
+									empresa.
 								</p>
 							</div>
 							<div className="flex items-center gap-2">
