@@ -26,7 +26,7 @@ const formatAddress = (a: ClientAddressItem) =>
 ---
 
 <div class="mt-5">
-	<header class="border-border -mx-6 border-b px-6 py-2">
+	<header class="border-border border-b py-2">
 		<p
 			class="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
 		>
@@ -34,7 +34,7 @@ const formatAddress = (a: ClientAddressItem) =>
 		</p>
 	</header>
 
-	<div class="-mx-6">
+	<div>
 		{
 			addresses.length === 0 ? (
 				<div class="flex flex-col items-center gap-2 px-4 py-10 text-center">
@@ -46,7 +46,7 @@ const formatAddress = (a: ClientAddressItem) =>
 			) : (
 				<ul role="list" class="divide-border divide-y">
 					{addresses.map((a) => (
-						<li class="flex items-start gap-4 px-6 py-3">
+						<li class="flex items-start gap-4 py-3">
 							<div class="bg-muted mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
 								<Icon
 									name="ri:map-pin-2-line"

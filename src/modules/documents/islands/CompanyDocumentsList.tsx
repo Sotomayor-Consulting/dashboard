@@ -1,7 +1,6 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import type { ColumnDef, SortingState } from '@tanstack/react-table';
 import {
-	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
@@ -12,14 +11,6 @@ import { SearchIcon } from 'lucide-react';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
 import { Input } from '@components/ui/Input';
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@components/ui/Table';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -46,32 +37,6 @@ interface Props {
 	incorporationCaseId: string;
 	companyUserId: string;
 	isStaffDashboard: boolean;
-}
-
-function SortableHeader({
-	label,
-	sorted,
-	onClick,
-}: {
-	label: string;
-	sorted: false | 'asc' | 'desc';
-	onClick: (event: unknown) => void;
-}) {
-	const icon = !sorted
-		? 'ri:arrow-up-down-line'
-		: sorted === 'asc'
-			? 'ri:arrow-up-s-line'
-			: 'ri:arrow-down-s-line';
-	return (
-		<button
-			type="button"
-			onClick={onClick}
-			className="flex items-center gap-1 select-none"
-		>
-			{label}
-			<Icon icon={icon} className="h-3.5 w-3.5 text-gray-400" />
-		</button>
-	);
 }
 
 export default function CompanyDocumentsList({
@@ -201,60 +166,46 @@ export default function CompanyDocumentsList({
 	const columns = React.useMemo<ColumnDef<DocumentDashboardRow>[]>(
 		() => [
 			{
-				id: 'icon',
-				header: '',
-				enableSorting: false,
-				cell: ({ row }) => (
-					<div
-						className={cn(
-							'flex h-8 w-8 items-center justify-center rounded-lg',
-							getMimeBg(row.original.mime_type),
-						)}
-					>
-						<Icon
-							icon={getMimeIcon(row.original.mime_type)}
-							className={cn('h-4 w-4', getMimeColor(row.original.mime_type))}
-						/>
-					</div>
-				),
-			},
-			{
-				id: 'name',
+				id: 'document',
 				accessorFn: (row) => row.file_title ?? row.file_name,
-				header: ({ column }) => (
-					<SortableHeader
-						label="Documento"
-						sorted={column.getIsSorted()}
-						onClick={column.getToggleSortingHandler()!}
-					/>
-				),
-				cell: ({ getValue }) => (
-					<span className="block max-w-56 truncate">{getValue<string>()}</span>
-				),
-			},
-			{
-				id: 'type',
-				accessorFn: (row) => row.document_type?.name ?? 'Documento',
-				header: ({ column }) => (
-					<SortableHeader
-						label="Tipo"
-						sorted={column.getIsSorted()}
-						onClick={column.getToggleSortingHandler()!}
-					/>
-				),
-				cell: ({ getValue }) => (
-					<span className="block max-w-36 truncate">{getValue<string>()}</span>
-				),
+				header: 'Documento',
+				cell: ({ row }) => {
+					const doc = row.original;
+					const name = doc.file_title ?? doc.file_name;
+					const typeName = doc.document_type?.name;
+					return (
+						<div className="flex items-center gap-3">
+							<div
+								className={cn(
+									'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+									getMimeBg(doc.mime_type),
+								)}
+							>
+								<Icon
+									icon={getMimeIcon(doc.mime_type)}
+									className={cn(
+										'h-4.5 w-4.5',
+										getMimeColor(doc.mime_type),
+									)}
+								/>
+							</div>
+							<div className="min-w-0">
+								<p className="text-foreground truncate text-sm font-medium">
+									{name}
+								</p>
+								{typeName && (
+									<p className="text-muted-foreground truncate text-xs">
+										{typeName}
+									</p>
+								)}
+							</div>
+						</div>
+					);
+				},
 			},
 			{
 				accessorKey: 'status',
-				header: ({ column }) => (
-					<SortableHeader
-						label="Estado"
-						sorted={column.getIsSorted()}
-						onClick={column.getToggleSortingHandler()!}
-					/>
-				),
+				header: 'Estado',
 				cell: ({ row }) => (
 					<Badge variant={badgeForDocumentStatus(row.original.status)}>
 						{statusLabel(row.original.status)}
@@ -263,18 +214,16 @@ export default function CompanyDocumentsList({
 			},
 			{
 				accessorKey: 'uploaded_at',
-				header: ({ column }) => (
-					<SortableHeader
-						label="Fecha"
-						sorted={column.getIsSorted()}
-						onClick={column.getToggleSortingHandler()!}
-					/>
+				header: 'Fecha',
+				cell: ({ row }) => (
+					<span className="text-muted-foreground text-sm">
+						{formatDate(row.original.uploaded_at)}
+					</span>
 				),
-				cell: ({ row }) => formatDate(row.original.uploaded_at),
 			},
 			{
 				id: 'actions',
-				header: () => <span>Acciones</span>,
+				header: '',
 				enableSorting: false,
 				cell: ({ row }) => {
 					const doc = row.original;
@@ -320,7 +269,10 @@ export default function CompanyDocumentsList({
 											onClick={(e) => onShare(doc.id, companyUserId, e)}
 											className="gap-2 text-emerald-700 dark:text-emerald-400"
 										>
-											<Icon icon="ri:share-forward-line" className="h-4 w-4" />
+											<Icon
+												icon="ri:share-forward-line"
+												className="h-4 w-4"
+											/>
 											Compartir
 										</DropdownMenuItem>
 									))}
@@ -333,9 +285,12 @@ export default function CompanyDocumentsList({
 		[canUseStaffActions, companyUserId],
 	);
 
+	const [isTransitioning, setIsTransitioning] = React.useState(false);
+
 	const table = useReactTable({
 		data: docs,
 		columns,
+		initialState: { pagination: { pageSize: 5 } },
 		onSortingChange: setSorting,
 		onGlobalFilterChange: setGlobalFilter,
 		globalFilterFn: (row, _columnId, filterValue: string) => {
@@ -358,10 +313,19 @@ export default function CompanyDocumentsList({
 		state: { sorting, globalFilter },
 	});
 
+	const changePage = (direction: 'prev' | 'next') => {
+		setIsTransitioning(true);
+		setTimeout(() => {
+			if (direction === 'next') table.nextPage();
+			else table.previousPage();
+			setIsTransitioning(false);
+		}, 150);
+	};
+
 	return (
 		<>
-			<div className="space-y-4">
-				<div className="relative w-full max-w-sm">
+			<div className="space-y-3">
+				<div className="relative w-full">
 					<SearchIcon
 						size={16}
 						className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
@@ -370,84 +334,190 @@ export default function CompanyDocumentsList({
 						placeholder="Buscar por nombre, tipo o estado..."
 						value={globalFilter}
 						onChange={(event) => setGlobalFilter(event.target.value)}
-						className="max-w-sm pl-9"
+						className="pl-9"
 					/>
 				</div>
 
-				<div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-					<Table>
-						<TableHeader>
-							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow key={headerGroup.id}>
-									{headerGroup.headers.map((header) => (
-										<TableHead
-											key={header.id}
-											className={header.column.id === 'icon' ? 'w-10 pr-0' : ''}
-										>
-											{header.isPlaceholder
-												? null
-												: flexRender(
-														header.column.columnDef.header,
-														header.getContext(),
-													)}
-										</TableHead>
-									))}
-								</TableRow>
-							))}
-						</TableHeader>
-						<TableBody>
-							{table.getRowModel().rows.length ? (
-								table.getRowModel().rows.map((row) => (
-									<TableRow
-										key={row.id}
-										onClick={() => setSelectedDocument(row.original)}
-										className="cursor-pointer"
-									>
-										{row.getVisibleCells().map((cell) => (
-											<TableCell
-												key={cell.id}
-												className={cell.column.id === 'icon' ? 'w-10 pr-0' : ''}
-											>
-												{flexRender(
-													cell.column.columnDef.cell,
-													cell.getContext(),
-												)}
-											</TableCell>
-										))}
-									</TableRow>
-								))
-							) : (
-								<TableRow>
-									<TableCell
-										colSpan={columns.length}
-										className="h-16 text-center text-sm text-gray-500 dark:text-gray-300"
-									>
-										Aún no hay documentos para esta empresa.
-									</TableCell>
-								</TableRow>
-							)}
-						</TableBody>
-					</Table>
-				</div>
+				{table.getRowModel().rows.length === 0 ? (
+					<div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-gray-200 py-10 text-center dark:border-gray-700">
+						<Icon
+							icon="ri:file-text-line"
+							className="text-muted-foreground h-8 w-8"
+						/>
+						<p className="text-muted-foreground text-sm">
+							{globalFilter
+								? 'No se encontraron documentos con ese criterio.'
+								: 'Aún no hay documentos para esta empresa.'}
+						</p>
+					</div>
+				) : (
+					<ul
+						className={cn(
+							'divide-border divide-y transition-opacity duration-200 ease-in-out',
+							isTransitioning ? 'opacity-0' : 'opacity-100',
+						)}
+					>
+						{table.getRowModel().rows.map((row) => {
+							const doc = row.original;
+							const name = doc.file_title ?? doc.file_name;
+							const typeName = doc.document_type?.name;
+							const hasActiveShare = doc.shares.some(
+								(s) =>
+									s.shared_with_user_id === companyUserId &&
+									s.share_status === 'active',
+							);
 
-				<div className="flex items-center justify-end gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.previousPage()}
-						disabled={!table.getCanPreviousPage()}
-					>
-						Anterior
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.nextPage()}
-						disabled={!table.getCanNextPage()}
-					>
-						Siguiente
-					</Button>
-				</div>
+							return (
+								<li
+									key={row.id}
+									onClick={() => setSelectedDocument(doc)}
+									className="hover:bg-muted/40 flex cursor-pointer items-center gap-4 py-3 transition-colors"
+								>
+									{/* Icon */}
+									<div
+										className={cn(
+											'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+											getMimeBg(doc.mime_type),
+										)}
+									>
+										<Icon
+											icon={getMimeIcon(doc.mime_type)}
+											className={cn(
+												'h-5 w-5',
+												getMimeColor(doc.mime_type),
+											)}
+										/>
+									</div>
+
+									{/* Name + type */}
+									<div className="min-w-0 flex-1">
+										<p className="text-foreground truncate text-sm font-medium">
+											{name}
+										</p>
+										<div className="text-muted-foreground mt-0.5 flex flex-wrap items-center gap-2 text-xs">
+											{typeName && <span>{typeName}</span>}
+											{typeName && (
+												<span className="text-border">·</span>
+											)}
+											<span>{formatDate(doc.uploaded_at)}</span>
+										</div>
+									</div>
+
+									{/* Status badge */}
+									<Badge
+										variant={badgeForDocumentStatus(doc.status)}
+										className="shrink-0"
+									>
+										{statusLabel(doc.status)}
+									</Badge>
+
+									{/* Actions */}
+									<div className="flex shrink-0 items-center gap-1">
+										<button
+											type="button"
+											onClick={(e) => onDownload(doc.id, e)}
+											className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors"
+											title="Descargar"
+										>
+											<Icon
+												icon="ri:download-2-line"
+												className="h-4 w-4"
+											/>
+										</button>
+										{canUseStaffActions && (
+											<DropdownMenu>
+												<DropdownMenuTrigger
+													onClick={(e) => e.stopPropagation()}
+													render={
+														<button
+															type="button"
+															className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors"
+														>
+															<Icon
+																icon="ri:more-2-line"
+																className="h-4 w-4"
+															/>
+														</button>
+													}
+												/>
+												<DropdownMenuContent
+													align="end"
+													className="w-44"
+												>
+													{hasActiveShare ? (
+														<DropdownMenuItem
+															onClick={(e) =>
+																onRevoke(
+																	doc.id,
+																	companyUserId,
+																	e,
+																)
+															}
+															className="gap-2 text-red-600 dark:text-red-400"
+														>
+															<Icon
+																icon="ri:forbid-line"
+																className="h-4 w-4"
+															/>
+															Revocar acceso
+														</DropdownMenuItem>
+													) : (
+														<DropdownMenuItem
+															onClick={(e) =>
+																onShare(
+																	doc.id,
+																	companyUserId,
+																	e,
+																)
+															}
+															className="gap-2 text-emerald-700 dark:text-emerald-400"
+														>
+															<Icon
+																icon="ri:share-forward-line"
+																className="h-4 w-4"
+															/>
+															Compartir
+														</DropdownMenuItem>
+													)}
+												</DropdownMenuContent>
+											</DropdownMenu>
+										)}
+									</div>
+								</li>
+							);
+						})}
+					</ul>
+				)}
+
+				{/* Pagination */}
+				{(table.getCanPreviousPage() || table.getCanNextPage()) && (
+					<div className="flex items-center justify-between border-t border-border pt-3">
+						<p className="text-muted-foreground text-xs">
+							Página {table.getState().pagination.pageIndex + 1} de{' '}
+							{table.getPageCount()} ·{' '}
+							{table.getFilteredRowModel().rows.length} documento
+							{table.getFilteredRowModel().rows.length === 1 ? '' : 's'}
+						</p>
+						<div className="flex items-center gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => changePage('prev')}
+								disabled={!table.getCanPreviousPage() || isTransitioning}
+							>
+								Anterior
+							</Button>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => changePage('next')}
+								disabled={!table.getCanNextPage() || isTransitioning}
+							>
+								Siguiente
+							</Button>
+						</div>
+					</div>
+				)}
 			</div>
 
 			<DocumentDetailDrawer

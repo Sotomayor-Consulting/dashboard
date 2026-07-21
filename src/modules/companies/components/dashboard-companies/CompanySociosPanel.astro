@@ -27,61 +27,80 @@ const roleBadges = (s: ClientSocioItem) => {
 ---
 
 <div>
-	<h3 class="text-foreground text-lg font-semibold">Socios</h3>
-	<p class="text-muted-foreground mt-1 mb-4 text-sm">
-		Miembros y managers de la empresa.
-	</p>
+	<header class="border-border border-b pb-4">
+		<h1 class="text-foreground text-xl font-semibold">Miembros</h1>
+		<p class="text-muted-foreground mt-1 text-sm">
+			Socios, managers y representantes de la empresa.
+		</p>
+	</header>
 
-	<div class="border-border rounded-lg border">
-		{
-			socios.length === 0 ? (
-				<div class="flex flex-col items-center gap-2 px-4 py-10 text-center">
+	<div class="divide-border divide-y">
+		<!-- Lista de socios -->
+		<div class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[180px_1fr]">
+			<div>
+				<div class="flex items-center gap-2">
 					<Icon
-						name="ri:shake-hands-line"
-						class="text-muted-foreground h-6 w-6"
+						name="ri:team-line"
+						class="text-muted-foreground h-5 w-5 shrink-0"
 					/>
-					<p class="text-muted-foreground text-sm">
-						Aún no hay socios registrados.
-					</p>
+					<h3 class="text-foreground text-sm font-medium">Socios</h3>
 				</div>
-			) : (
-				<ul role="list" class="divide-border divide-y">
-					{socios.map((s) => (
-						<li class="flex items-center gap-4 px-4 py-3">
-							<img
-								class="h-9 w-9 shrink-0 rounded-full"
-								src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(s.name)}`}
-								alt={`Avatar de ${s.name}`}
-								loading="lazy"
+				<p class="text-muted-foreground mt-1 text-sm">
+					Miembros y su participación en la empresa.
+				</p>
+			</div>
+			<div>
+				{
+					socios.length === 0 ? (
+						<div class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-gray-200 py-10 text-center dark:border-gray-700">
+							<Icon
+								name="ri:shake-hands-line"
+								class="text-muted-foreground h-8 w-8"
 							/>
-							<div class="min-w-0 flex-1">
-								<div class="flex flex-wrap items-center gap-2">
-									<p class="text-foreground truncate text-sm font-semibold">
-										{s.name}
-									</p>
-									{roleBadges(s).map((b) => (
-										<span
-											class={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${b.classes}`}
-										>
-											{b.label}
+							<p class="text-muted-foreground text-sm">
+								Aún no hay socios registrados.
+							</p>
+						</div>
+					) : (
+						<ul role="list" class="divide-border divide-y">
+							{socios.map((s) => (
+								<li class="flex items-center gap-4 py-3">
+									<img
+										class="h-10 w-10 shrink-0 rounded-full"
+										src={`https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(s.name)}`}
+										alt={`Avatar de ${s.name}`}
+										loading="lazy"
+									/>
+									<div class="min-w-0 flex-1">
+										<div class="flex flex-wrap items-center gap-2">
+											<p class="text-foreground truncate text-sm font-medium">
+												{s.name}
+											</p>
+											{roleBadges(s).map((b) => (
+												<span
+													class={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${b.classes}`}
+												>
+													{b.label}
+												</span>
+											))}
+										</div>
+										{s.email && (
+											<p class="text-muted-foreground mt-0.5 truncate text-sm">
+												{s.email}
+											</p>
+										)}
+									</div>
+									{s.percentage != null && (
+										<span class="bg-muted text-foreground shrink-0 rounded-full px-2.5 py-1 text-sm font-semibold">
+											{s.percentage}%
 										</span>
-									))}
-								</div>
-								{s.email && (
-									<p class="text-muted-foreground truncate text-sm">
-										{s.email}
-									</p>
-								)}
-							</div>
-							{s.percentage != null && (
-								<span class="text-foreground shrink-0 text-sm font-semibold">
-									{s.percentage}%
-								</span>
-							)}
-						</li>
-					))}
-				</ul>
-			)
-		}
+									)}
+								</li>
+							))}
+						</ul>
+					)
+				}
+			</div>
+		</div>
 	</div>
 </div>

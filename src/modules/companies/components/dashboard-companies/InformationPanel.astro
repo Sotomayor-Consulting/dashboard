@@ -1,12 +1,5 @@
 ---
 import { Icon } from 'astro-icon/components';
-// import { getStateInfo } from './state-info/states-data';
-// import StateQuickStats from './state-info/StateQuickStats.astro';
-// import StateBenefits from './state-info/StateBenefits.astro';
-// import StateTaxInfo from './state-info/StateTaxInfo.astro';
-// import StateLegalDetails from './state-info/StateLegalDetails.astro';
-// import StateOfficialLink from './state-info/StateOfficialLink.astro';
-// import StatePlate from './state-info/StatePlate.astro';
 import type { CompanyRow } from '@domains/companies/types/company';
 
 interface Props {
@@ -24,8 +17,6 @@ interface Props {
 }
 
 const { company } = Astro.props;
-
-// const stateInfo = getStateInfo(company.formation_state_id);
 
 const rawEin = company.identification_number ?? null;
 
@@ -49,73 +40,287 @@ const tipoEntidadFull =
 	company.entity_type === 'llc'
 		? 'Limited Liability Company'
 		: company.entity_type || '—';
-
-const rows = [
-	{ label: 'Tipo de entidad', value: tipoEntidadFull, mono: false },
-	{
-		label: 'Estado',
-		value: `${company.formation_state_name}, USA`,
-		mono: false,
-	},
-	{ label: 'EIN', value: maskedEin ?? '—', mono: true, copyable: true },
-	{
-		label: 'File Number',
-		value: company.filing_number ?? '—',
-		mono: true,
-		copyable: !!company.filing_number,
-	},
-	{ label: 'Fecha de constitución', value: fechaConstitucion, mono: false },
-	{
-		label: 'Año fiscal',
-		value: 'Enero – Diciembre',
-		mono: false,
-	},
-	{
-		label: 'Agente Residente',
-		value: 'Sotomayor Consulting International',
-		mono: false,
-	},
-];
 ---
 
-<div class="mt-2 grid w-full">
-	<!-- Datos fiscales y de registro -->
-	<div>
-		<header class="border-border -mx-6 border-b px-6 py-2">
-			<p
-				class="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400"
-			>
-				Empresa
-			</p>
-			<h2
-				class="mt-1 text-[22px] font-semibold text-gray-900 dark:text-gray-100"
-			>
-				{company.legal_name ?? 'Sin nombre'}
-			</h2>
-		</header>
+<div class="grid w-full">
+	<header class="border-border border-b pb-4">
+		<h1 class="text-foreground text-xl font-semibold">
+			{company.legal_name ?? 'Sin nombre'}
+		</h1>
+		<p class="text-muted-foreground mt-1 text-sm">
+			Información general de la empresa.
+		</p>
+	</header>
 
-		<div class="-mx-6">
-			<dl class="divide-border divide-y">
-				{
-					rows.map((row) => (
-						<div class="flex items-center justify-between gap-4 px-6 py-3">
-							<dt class="text-muted-foreground text-sm">{row.label}</dt>
-							<dd class="text-foreground flex items-center gap-2 text-right text-sm font-semibold">
-								<span class={row.mono ? 'font-mono' : ''}>{row.value}</span>
-								{row.copyable && (
-									<button
-										type="button"
-										title={`Copiar ${row.label}`}
-										class="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-5 w-5 items-center justify-center rounded transition-colors"
-									>
-										<Icon name="ri:file-copy-line" class="h-3.5 w-3.5" />
-									</button>
-								)}
-							</dd>
-						</div>
-					))
-				}
+	<div class="divide-border divide-y">
+		<!-- Datos de registro -->
+		<div
+			class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 first:pt-6 sm:grid-cols-[180px_1fr]"
+		>
+			<div>
+				<div class="flex items-center gap-2">
+					<Icon
+						name="ri:bank-line"
+						class="text-muted-foreground h-5 w-5 shrink-0"
+					/>
+					<h3 class="text-foreground text-sm font-medium">Registro</h3>
+				</div>
+				<p class="text-muted-foreground mt-1 text-sm">
+					Datos de constitución y tipo de entidad.
+				</p>
+			</div>
+			<dl class="grid grid-cols-2 gap-x-6 gap-y-4">
+				<div>
+					<dt class="text-muted-foreground text-sm">Tipo de entidad</dt>
+					<dd class="text-foreground mt-1 text-sm font-medium">
+						{tipoEntidadFull}
+					</dd>
+				</div>
+				<div>
+					<dt class="text-muted-foreground text-sm">Estado</dt>
+					<dd class="text-foreground mt-1 text-sm font-medium">
+						{company.formation_state_name
+							? `${company.formation_state_name}, USA`
+							: '—'}
+					</dd>
+				</div>
+				<div>
+					<dt class="text-muted-foreground text-sm">Fecha de constitución</dt>
+					<dd class="text-foreground mt-1 text-sm font-medium">
+						{fechaConstitucion}
+					</dd>
+				</div>
+				<div>
+					<dt class="text-muted-foreground text-sm">Año fiscal</dt>
+					<dd class="text-foreground mt-1 text-sm font-medium">
+						Enero – Diciembre
+					</dd>
+				</div>
+			</dl>
+		</div>
+
+		<!-- Identificación fiscal -->
+		<div
+			class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[180px_1fr]"
+		>
+			<div>
+				<div class="flex items-center gap-2">
+					<Icon
+						name="ri:fingerprint-line"
+						class="text-muted-foreground h-5 w-5 shrink-0"
+					/>
+					<h3 class="text-foreground text-sm font-medium">Identificación</h3>
+				</div>
+				<p class="text-muted-foreground mt-1 text-sm">
+					Números de identificación fiscal y expediente.
+				</p>
+			</div>
+			<dl class="grid grid-cols-2 gap-x-6 gap-y-4">
+				<div>
+					<dt class="text-muted-foreground text-sm">EIN</dt>
+					<dd class="mt-1 flex items-center gap-2">
+						{
+							rawEin ? (
+								<span
+									class="text-foreground text-sm font-medium font-mono"
+									id="ein-display"
+									data-masked={maskedEin}
+									data-revealed="false"
+								>
+									{maskedEin}
+								</span>
+								<button
+									type="button"
+									id="ein-toggle"
+									title="Mostrar EIN"
+									class="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-6 w-6 items-center justify-center rounded transition-colors"
+								>
+									<Icon
+										name="ri:eye-line"
+										class="h-4 w-4"
+										id="ein-icon-show"
+									/>
+									<Icon
+										name="ri:eye-off-line"
+										class="hidden h-4 w-4"
+										id="ein-icon-hide"
+									/>
+								</button>
+								<button
+									type="button"
+									id="ein-copy"
+									title="Copiar EIN"
+									class="hidden text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-6 w-6 items-center justify-center rounded transition-colors"
+								>
+									<Icon
+										name="ri:file-copy-line"
+										class="h-3.5 w-3.5"
+										id="ein-copy-icon"
+									/>
+									<Icon
+										name="ri:check-line"
+										class="hidden h-3.5 w-3.5 text-green-600"
+										id="ein-check-icon"
+									/>
+								</button>
+							) : (
+								<span class="text-foreground text-sm font-medium">—</span>
+							)
+						}
+					</dd>
+				</div>
+				<div>
+					<dt class="text-muted-foreground text-sm">File Number</dt>
+					<dd class="mt-1 flex items-center gap-2">
+						<span class="text-foreground text-sm font-medium font-mono"
+							>{company.filing_number ?? '—'}</span
+						>
+						{
+							company.filing_number && (
+								<button
+									type="button"
+									title="Copiar File Number"
+									class="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-6 w-6 items-center justify-center rounded transition-colors"
+									data-copy-value={company.filing_number}
+									data-copy-btn
+								>
+									<Icon
+										name="ri:file-copy-line"
+										class="h-3.5 w-3.5"
+										data-copy-default
+									/>
+									<Icon
+										name="ri:check-line"
+										class="hidden h-3.5 w-3.5 text-green-600"
+										data-copy-success
+									/>
+								</button>
+							)
+						}
+					</dd>
+				</div>
+			</dl>
+		</div>
+
+		<!-- Agente residente -->
+		<div
+			class="grid grid-cols-1 gap-x-8 gap-y-4 py-8 sm:grid-cols-[180px_1fr]"
+		>
+			<div>
+				<div class="flex items-center gap-2">
+					<Icon
+						name="ri:shield-user-line"
+						class="text-muted-foreground h-5 w-5 shrink-0"
+					/>
+					<h3 class="text-foreground text-sm font-medium">Representación</h3>
+				</div>
+				<p class="text-muted-foreground mt-1 text-sm">
+					Agente residente designado.
+				</p>
+			</div>
+			<dl>
+				<div>
+					<dt class="text-muted-foreground text-sm">Agente Residente</dt>
+					<dd class="text-foreground mt-1 text-sm font-medium">
+						Sotomayor Consulting International
+					</dd>
+				</div>
 			</dl>
 		</div>
 	</div>
 </div>
+
+<script is:inline define:vars={{ rawEin }}>
+	function initCompanyInfoPanel() {
+		// ── EIN toggle (show/hide + copy) ──
+		const einToggle = document.getElementById('ein-toggle');
+		const einDisplay = document.getElementById('ein-display');
+		const einCopy = document.getElementById('ein-copy');
+
+		if (
+			einToggle &&
+			einDisplay &&
+			einToggle.dataset.bound !== '1'
+		) {
+			einToggle.dataset.bound = '1';
+			const masked = einDisplay.dataset.masked || '';
+
+			einToggle.addEventListener('click', () => {
+				const isRevealed = einDisplay.dataset.revealed === 'true';
+				const nextState = !isRevealed;
+
+				einDisplay.textContent = nextState ? rawEin : masked;
+				einDisplay.dataset.revealed = String(nextState);
+
+				einToggle.title = nextState ? 'Ocultar EIN' : 'Mostrar EIN';
+
+				document
+					.getElementById('ein-icon-show')
+					?.classList.toggle('hidden', nextState);
+				document
+					.getElementById('ein-icon-hide')
+					?.classList.toggle('hidden', !nextState);
+
+				if (einCopy) einCopy.classList.toggle('hidden', !nextState);
+			});
+		}
+
+		if (einCopy && einCopy.dataset.bound !== '1') {
+			einCopy.dataset.bound = '1';
+
+			einCopy.addEventListener('click', async () => {
+				if (!einDisplay || einDisplay.dataset.revealed !== 'true') return;
+
+				try {
+					await navigator.clipboard.writeText(rawEin);
+
+					const defaultIcon = document.getElementById('ein-copy-icon');
+					const successIcon = document.getElementById('ein-check-icon');
+
+					if (defaultIcon) defaultIcon.classList.add('hidden');
+					if (successIcon) successIcon.classList.remove('hidden');
+
+					setTimeout(() => {
+						if (defaultIcon) defaultIcon.classList.remove('hidden');
+						if (successIcon) successIcon.classList.add('hidden');
+					}, 2000);
+				} catch {
+					// Clipboard API no disponible o permiso denegado
+				}
+			});
+		}
+
+		// ── Generic copy buttons (File Number, etc.) ──
+		document
+			.querySelectorAll('[data-copy-btn]')
+			.forEach((btn) => {
+				if (btn.dataset.bound === '1') return;
+				btn.dataset.bound = '1';
+
+				btn.addEventListener('click', async () => {
+					const value = btn.dataset.copyValue;
+					if (!value) return;
+
+					try {
+						await navigator.clipboard.writeText(value);
+
+						const defaultIcon = btn.querySelector('[data-copy-default]');
+						const successIcon = btn.querySelector('[data-copy-success]');
+
+						if (defaultIcon) defaultIcon.classList.add('hidden');
+						if (successIcon) successIcon.classList.remove('hidden');
+
+						setTimeout(() => {
+							if (defaultIcon) defaultIcon.classList.remove('hidden');
+							if (successIcon) successIcon.classList.add('hidden');
+						}, 2000);
+					} catch {
+						// Clipboard API no disponible o permiso denegado
+					}
+				});
+			});
+	}
+
+	initCompanyInfoPanel();
+	document.addEventListener('astro:page-load', initCompanyInfoPanel);
+</script>
