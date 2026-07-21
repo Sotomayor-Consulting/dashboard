@@ -54,7 +54,7 @@ const tabs = companyClientTabs(companyId, 'documents');
 <div>
 	<TabBar buttons={tabs} />
 
-	<div data-tab-panel="documents" class="my-4">
+	<div data-tab-panel="documents" class="mx-auto max-w-5xl px-4 pt-6 pb-12">
 		{
 			company.incorporation_id ? (
 				<CompanyDocumentsDashboard
