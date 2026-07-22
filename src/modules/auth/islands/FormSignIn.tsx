@@ -415,7 +415,7 @@ export default function FormSignIn({ turnstileSiteKey }: FormSignInProps) {
 							toggle();
 						}
 					}}
-					className="text-slate-500 hover:text-slate-700 dark:text-white dark:hover:text-slate-300"
+					className="rounded-lg p-3 text-slate-500 hover:text-slate-700 dark:text-white dark:hover:text-slate-300"
 					aria-label="Cambiar tema"
 				>
 					<svg className="hidden size-5 dark:block" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="M6.34 17.66l-1.41 1.41" /><path d="M19.07 4.93l-1.41 1.41" /></svg>
@@ -423,7 +423,7 @@ export default function FormSignIn({ turnstileSiteKey }: FormSignInProps) {
 				</button>
 				<a
 					href="/sign-up"
-					className="hidden text-sm font-medium text-slate-500 no-underline hover:underline md:inline-flex dark:text-white"
+					className="hidden py-2 text-sm font-medium text-slate-500 no-underline hover:underline md:inline-flex dark:text-white"
 				>
 					Crear cuenta
 				</a>
@@ -535,7 +535,7 @@ export default function FormSignIn({ turnstileSiteKey }: FormSignInProps) {
 							</label>
 							<a
 								href="/forgot-password"
-								className="ml-auto text-sm text-slate-500 no-underline hover:underline dark:text-white"
+								className="ml-auto py-3 text-sm text-slate-500 no-underline hover:underline dark:text-white"
 							>
 								Olvidé mi contraseña
 							</a>
@@ -596,14 +596,14 @@ export default function FormSignIn({ turnstileSiteKey }: FormSignInProps) {
 						Al continuar, aceptas nuestros{' '}
 						<a
 							href="https://sotomayorconsulting.com/inicio/politicas/"
-							className="hover:text-primary underline underline-offset-4"
+							className="hover:text-primary inline-block py-3 underline underline-offset-4"
 						>
 							Términos de Servicio
 						</a>{' '}
 						y la{' '}
 						<a
 							href="https://sotomayorconsulting.com/inicio/politicas/"
-							className="hover:text-primary underline underline-offset-4"
+							className="hover:text-primary inline-block py-3 underline underline-offset-4"
 						>
 							Política de Privacidad
 						</a>

@@ -244,7 +244,7 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 							toggle();
 						}
 					}}
-					className="text-slate-500 hover:text-slate-700 dark:text-white dark:hover:text-slate-300"
+					className="rounded-lg p-3 text-slate-500 hover:text-slate-700 dark:text-white dark:hover:text-slate-300"
 					aria-label="Cambiar tema"
 				>
 					<svg
@@ -280,7 +280,7 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 				</button>
 				<a
 					href="/sign-in"
-					className="hidden text-sm font-medium text-slate-500 no-underline hover:underline md:inline-flex dark:text-white"
+					className="hidden py-2 text-sm font-medium text-slate-500 no-underline hover:underline md:inline-flex dark:text-white"
 				>
 					Inicia sesión
 				</a>
@@ -503,7 +503,7 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 					<p className="px-8 text-center text-sm text-slate-500 dark:text-slate-400">
 						<a
 							href="/sign-in"
-							className="text-sm text-slate-500 no-underline hover:underline dark:text-white"
+							className="inline-block py-3 text-sm text-slate-500 no-underline hover:underline dark:text-white"
 						>
 							¿Ya tienes una cuenta? Inicia sesión
 						</a>
@@ -513,14 +513,14 @@ export default function FormSignUp({ turnstileSiteKey }: FormSignUpProps) {
 						Al continuar, aceptas nuestros{' '}
 						<a
 							href="https://sotomayorconsulting.com/inicio/politicas/"
-							className="hover:text-primary underline underline-offset-4"
+							className="hover:text-primary inline-block py-3 underline underline-offset-4"
 						>
 							Términos de Servicio
 						</a>{' '}
 						y la{' '}
 						<a
 							href="https://sotomayorconsulting.com/inicio/politicas/"
-							className="hover:text-primary underline underline-offset-4"
+							className="hover:text-primary inline-block py-3 underline underline-offset-4"
 						>
 							Política de Privacidad
 						</a>
