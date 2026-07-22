@@ -37,7 +37,7 @@ const showClientOnlyHome =
 // canónica (constituida) o ambas: cada link solo aparece si aplica.
 const dynamicItems: MenuItem[] = [];
 if (isClientOrPartner && activeCompany) {
-	if (activeCompany.incorporation_id) {
+	if (activeCompany.incorporation_id && !activeCompany.company_id) {
 		dynamicItems.push({
 			id: 'company-incorporation',
 			label: 'Incorporación',
