@@ -1,13 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import {
-	BellIcon,
-	CheckCheck,
-	Eye,
-	ChevronRight,
-	EllipsisVertical,
-} from 'lucide-react';
+import { BellIcon, CheckCheck, InboxIcon, X } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/Avatar';
 import { Badge } from '@components/ui/Badge';
@@ -17,7 +11,6 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@components/ui/Popover';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/Tabs';
 
 interface NotificationItem {
 	id: string;
@@ -36,33 +29,45 @@ interface NotificationsPopoverProps {
 	avatarSrc: string;
 }
 
-const formatDate = (value: string) => {
+const formatRelative = (value: string) => {
 	const date = new Date(value);
-
-	if (Number.isNaN(date.getTime())) {
-		return '';
-	}
+	if (Number.isNaN(date.getTime())) return '';
 
 	const diffMs = Date.now() - date.getTime();
+	if (diffMs < 0) return 'ahora';
 
-	if (diffMs < 0) {
-		return '0m';
-	}
-
-	const minute = 60 * 1000;
+	const minute = 60_000;
 	const hour = 60 * minute;
 	const day = 24 * hour;
 
-	if (diffMs < hour) {
-		return `${Math.max(1, Math.floor(diffMs / minute))} minutos`;
-	}
+	if (diffMs < minute) return 'ahora';
+	if (diffMs < hour) return `${Math.max(1, Math.floor(diffMs / minute))} min`;
+	if (diffMs < day) return `${Math.floor(diffMs / hour)}h`;
+	if (diffMs < 2 * day) return 'ayer';
+	if (diffMs < 7 * day) return `${Math.floor(diffMs / day)}d`;
 
-	if (diffMs < day) {
-		return `${Math.floor(diffMs / hour)} horas`;
-	}
-
-	return `${Math.floor(diffMs / day)} días`;
+	return new Intl.DateTimeFormat('es', {
+		day: 'numeric',
+		month: 'short',
+	}).format(date);
 };
+
+const CATEGORY_LABELS: Record<string, string> = {
+	'admin.custom': 'Administración',
+	'documents.shared': 'Documentos',
+	'documents.share_revoked': 'Documentos',
+	'workflow.stage.completed': 'Progreso',
+	'workflow.task.assigned': 'Tarea asignada',
+	'workflow.planning.doc_uploaded': 'Documentos',
+	'workflow.planning.doc_approved': 'Documentos',
+	'workflow.planning.doc_rejected': 'Documentos',
+};
+
+const formatCategory = (type?: string) =>
+	(type && CATEGORY_LABELS[type]) || 'Actualización';
+
+const isGenericTitle = (title?: string) =>
+	!title || title === 'Notificación' || title === 'Notificacion';
 
 export default function NotificationsPopover({
 	notifications,
@@ -71,7 +76,8 @@ export default function NotificationsPopover({
 }: NotificationsPopoverProps) {
 	const [items, setItems] = useState(notifications);
 	const [unreadCount, setUnreadCount] = useState(totalUnread);
-	const [pendingIds, setPendingIds] = useState<string[]>([]);
+	const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
 		setItems(notifications);
@@ -80,27 +86,20 @@ export default function NotificationsPopover({
 		setUnreadCount(totalUnread);
 	}, [totalUnread]);
 
-	const unreadItems = useMemo(
-		() => items.filter((notification) => !notification.read_at),
-		[items],
-	);
+	const unreadItems = useMemo(() => items.filter((n) => !n.read_at), [items]);
 
 	const markAsRead = async (id: string) => {
-		if (!id || pendingIds.includes(id)) return;
+		if (!id || pendingIds.has(id)) return;
 
 		const previousItems = items;
 		const previousCount = unreadCount;
 
-		setPendingIds((current) => [...current, id]);
+		setPendingIds((s) => new Set(s).add(id));
 		const readAt = new Date().toISOString();
 		setItems((current) =>
-			current.map((notification) =>
-				notification.id === id
-					? { ...notification, read_at: readAt }
-					: notification,
-			),
+			current.map((n) => (n.id === id ? { ...n, read_at: readAt } : n)),
 		);
-		setUnreadCount((current) => Math.max(0, current - 1));
+		setUnreadCount((c) => Math.max(0, c - 1));
 
 		try {
 			const formData = new FormData();
@@ -118,56 +117,56 @@ export default function NotificationsPopover({
 				keepalive: true,
 			});
 
-			if (!response.ok) {
-				throw new Error(await response.text());
-			}
+			if (!response.ok) throw new Error(await response.text());
 
 			const result = (await response.json()) as {
 				ok?: boolean;
 				error?: string;
 			};
-
-			if (!result.ok) {
+			if (!result.ok)
 				throw new Error(
-					result.error ?? 'No se pudo actualizar la notificacion',
+					result.error ?? 'No se pudo actualizar la notificación',
 				);
-			}
 		} catch (error) {
-			console.error('[notifications] marcar como leida error:', error);
+			console.error('[notifications] marcar como leída error:', error);
 			setItems(previousItems);
 			setUnreadCount(previousCount);
 		} finally {
-			setPendingIds((current) =>
-				current.filter((pendingId) => pendingId !== id),
-			);
+			setPendingIds((s) => {
+				const next = new Set(s);
+				next.delete(id);
+				return next;
+			});
 		}
 	};
 
 	const markAllRead = async () => {
-		const unreadIds = unreadItems.map((notification) => notification.id);
-
+		const unreadIds = unreadItems.map((n) => n.id);
 		if (unreadIds.length === 0) return;
 
 		const previousItems = items;
 		const previousCount = unreadCount;
 
-		setPendingIds((current) => [...new Set([...current, ...unreadIds])]);
+		setPendingIds((s) => {
+			const next = new Set(s);
+			for (const id of unreadIds) next.add(id);
+			return next;
+		});
 		const readAt = new Date().toISOString();
 		setItems((current) =>
-			current.map((notification) => ({ ...notification, read_at: readAt })),
+			current.map((n) => ({ ...n, read_at: n.read_at ?? readAt })),
 		);
-		setUnreadCount((current) => Math.max(0, current - unreadIds.length));
+		setUnreadCount(0);
 
 		try {
-			await Promise.all(
+			const results = await Promise.allSettled(
 				unreadIds.map(async (id) => {
-					const formData = new FormData();
-					formData.append('id', id);
-					formData.append('estado_lectura', 'true');
-
-					const response = await fetch('/api/notifications/update', {
+					const fd = new FormData();
+					fd.append('id', id);
+					fd.append('estado_lectura', 'true');
+					const res = await fetch('/api/notifications/update', {
 						method: 'POST',
-						body: formData,
+						body: fd,
 						credentials: 'include',
 						headers: {
 							accept: 'application/json',
@@ -175,29 +174,18 @@ export default function NotificationsPopover({
 						},
 						keepalive: true,
 					});
-
-					if (!response.ok) {
-						throw new Error(await response.text());
-					}
-
-					const result = (await response.json()) as {
-						ok?: boolean;
-						error?: string;
-					};
-
-					if (!result.ok) {
-						throw new Error(
-							result.error ?? 'No se pudo actualizar la notificacion',
-						);
-					}
+					if (!res.ok) throw new Error(await res.text());
 				}),
 			);
+
+			const anyFailed = results.some((r) => r.status === 'rejected');
+			if (anyFailed) throw new Error('Some notifications failed to update');
 		} catch (error) {
-			console.error('[notifications] marcar todas como leidas error:', error);
+			console.error('[notifications] marcar todas como leídas error:', error);
 			setItems(previousItems);
 			setUnreadCount(previousCount);
 		} finally {
-			setPendingIds([]);
+			setPendingIds(new Set());
 		}
 	};
 
@@ -206,138 +194,61 @@ export default function NotificationsPopover({
 	}: {
 		notification: NotificationItem;
 	}) => {
-		const isPending = pendingIds.includes(notification.id);
+		const isUnread = !notification.read_at;
 
-		const handleOpenNotification = () => {
-			if (!notification.read_at) {
-				void markAsRead(notification.id);
-			}
+		const handleClick = () => {
+			if (isUnread) void markAsRead(notification.id);
 		};
 
 		return (
-			<div className="group/card hover:bg-white-50 flex gap-3 px-4 py-3 transition-colors dark:hover:bg-neutral-900">
-				<div className="relative h-fit shrink-0">
-					<Avatar className="h-10 w-10 border border-gray-200 dark:border-gray-700">
-						<AvatarImage
-							src={avatarSrc}
-							alt="Logo notificación Sotomayor Consulting"
-						/>
+			<a
+				href={notification.action_url ?? '/notifications'}
+				className="flex gap-3.5 px-5 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.03]"
+				onClick={handleClick}
+			>
+				<div className="relative h-fit shrink-0 pt-0.5">
+					<Avatar className="h-11 w-11 border border-gray-200 dark:border-gray-700">
+						<AvatarImage src={avatarSrc} alt="Sotomayor Consulting" />
 						<AvatarFallback>SC</AvatarFallback>
 					</Avatar>
-					{!notification.read_at && (
-						<>
-							<span className="absolute -right-0.5 bottom-7 h-3 w-3 animate-ping rounded-full bg-emerald-500 dark:border-gray-950" />
-							<span className="absolute -right-0.5 bottom-7 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 dark:border-gray-950" />
-						</>
+					{isUnread && (
+						<span className="absolute -bottom-0.5 left-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500 dark:border-black" />
 					)}
 				</div>
-				<a
-					className="min-w-0 flex-1 space-y-1"
-					href={notification.action_url ?? undefined}
-					title={notification.action_label ?? undefined}
-					target={notification.action_url ? '_blank' : undefined}
-					rel={notification.action_url ? 'noreferrer noopener' : undefined}
-					onClick={handleOpenNotification}
-				>
-					<div className="flex items-start justify-between gap-3">
-						{notification.title ? (
-							<p className="min-w-0 flex-1 text-xs leading-snug font-semibold text-gray-900 dark:text-white">
-								{notification.title}
-							</p>
-						) : (
-							<span className="flex-1" />
-						)}
-						<p className="shrink-0 pt-0.5 text-[11px] font-medium text-gray-400">
-							{formatDate(notification.created_at)}
-						</p>
-					</div>
+
+				<div className="min-w-0 flex-1">
 					{/* message viene sanitizado desde el servidor (shared/sanitize) */}
-					<div
-						className="[&_a]:text-primary-600 text-xs leading-snug text-gray-600 dark:text-gray-300 [&_a]:underline"
-						dangerouslySetInnerHTML={{ __html: notification.message }}
-					/>
-				</a>
-				<div className="relative flex flex-col justify-between">
-					{!notification.read_at && (
-						<Popover>
-							<PopoverTrigger
-								render={
-									<Button
-										variant="ghost"
-										size="sm"
-										className="mark-as-read text-primary-600 hover:bg-primary-50 hover:text-primary-700 dark:hover:text-primary-400 h-auto cursor-pointer px-2 py-1 text-xs font-medium dark:text-neutral-400"
-										disabled={isPending}
-										data-id={notification.id}
-										onClick={(event) => {
-											event.preventDefault();
-											event.stopPropagation();
-										}}
-									/>
-								}
-							>
-								<EllipsisVertical
-									className="h-3.5 w-3.5"
-									xlinkTitle="Marcar como leído"
-								/>
-							</PopoverTrigger>
-							<PopoverContent
-								align="end"
-								side="bottom"
-								sideOffset={8}
-								className="w-56 gap-3 rounded-xl border border-gray-200 bg-white text-xs shadow-lg dark:border-gray-700 dark:bg-black"
-								onClick={(event) => {
-									event.preventDefault();
-									event.stopPropagation();
-								}}
-							>
-								<Button
-									variant="ghost"
-									size="sm"
-									className="bg-primary-50 text-primary-700 hover:bg-primary-100 h-8 w-full cursor-pointer justify-center dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
-									onClick={(event) => {
-										event.preventDefault();
-										event.stopPropagation();
-										void markAsRead(notification.id);
-									}}
-									disabled={isPending}
-								>
-									{isPending ? 'Marcando...' : 'Marcar como leida'}{' '}
-									<CheckCheck
-										className="ml-3 h-3.5 w-3.5"
-										xlinkTitle="Marcar como leído"
-									/>
-								</Button>
-							</PopoverContent>
-						</Popover>
-					)}
-					<div className="invisible mt-3 flex flex-wrap items-center gap-2 transition-all delay-105 group-hover/card:visible group-hover/card:translate-x-2">
-						{notification.action_url && notification.action_label && (
-							<Button
-								variant="link"
-								size="sm"
-								className="h-auto gap-1.5 px-2 py-1 text-xs"
-								nativeButton={false}
-								render={
-									<a
-										href={notification.action_url}
-										target="_blank"
-										title={notification.action_label}
-										rel="noreferrer noopener"
-										onClick={handleOpenNotification}
-									/>
-								}
-							>
-								<ChevronRight className="h-3.5 w-3.5" />
-							</Button>
+					<p
+						className={`text-[13px] leading-relaxed ${
+							isUnread
+								? 'text-gray-900 dark:text-gray-100'
+								: 'text-gray-500 dark:text-gray-400'
+						}`}
+					>
+						{!isGenericTitle(notification.title) && (
+							<span className="font-semibold">
+								{notification.title}{' '}
+							</span>
 						)}
-					</div>
+						<span
+							className="[&_a]:underline"
+							dangerouslySetInnerHTML={{
+								__html: notification.message,
+							}}
+						/>
+					</p>
+					<p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
+						{formatCategory(notification.type)}
+						{' · '}
+						{formatRelative(notification.created_at)}
+					</p>
 				</div>
-			</div>
+			</a>
 		);
 	};
 
 	return (
-		<Popover>
+		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger
 				render={
 					<Button
@@ -350,7 +261,10 @@ export default function NotificationsPopover({
 			>
 				<BellIcon className="h-5 w-5" />
 				{unreadCount > 0 && (
-					<Badge className="text-2xs absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-red-500 p-0 font-bold text-white dark:border-[#223848]">
+					<Badge
+						aria-live="polite"
+						className="text-2xs absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-red-500 p-0 font-bold text-white dark:border-[#223848]"
+					>
 						{unreadCount}
 					</Badge>
 				)}
@@ -358,106 +272,75 @@ export default function NotificationsPopover({
 			</PopoverTrigger>
 
 			<PopoverContent
-				align="center"
-				sideOffset={15}
-				className="z-20 w-[24rem] max-w-xs gap-0 overflow-hidden rounded-xl border border-gray-200 bg-white p-0 shadow-xl ring-0 md:max-w-sm dark:border-gray-700 dark:bg-black"
+				align="end"
+				sideOffset={8}
+				className="dark:bg-primary-black z-[60] w-[22rem] max-w-[calc(100vw-1rem)] gap-0 overflow-hidden rounded-2xl border border-gray-200 bg-white p-0 shadow-xl ring-0 dark:border-gray-800"
 			>
-				<div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-transparent">
-					<div className="flex items-center gap-2">
-						<span className="text-sm font-semibold text-gray-900 dark:text-white">
-							Notificaciones
-						</span>
+				{/* Header */}
+				<div className="flex items-center justify-between px-5 py-4">
+					<span className="text-base font-semibold text-gray-900 dark:text-white">
+						Notificaciones
+					</span>
+					<div className="flex items-center gap-1">
 						{unreadCount > 0 && (
-							<Badge variant="secondary" className="px-1.5 py-0 text-[11px]">
-								{unreadCount} nuevas
-							</Badge>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={markAllRead}
+								className="text-muted-foreground hover:text-foreground h-auto cursor-pointer px-2 py-1 text-xs"
+								title="Marcar todas como leídas"
+							>
+								<CheckCheck className="h-4 w-4" />
+							</Button>
 						)}
-					</div>
-					{unreadCount > 0 && (
 						<Button
 							variant="ghost"
-							size="sm"
-							onClick={markAllRead}
-							className="text-muted-foreground hover:text-foreground h-auto cursor-pointer px-2 py-1 text-xs"
+							size="icon"
+							className="h-7 w-7 cursor-pointer text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+							onClick={() => setOpen(false)}
 						>
-							<CheckCheck className="h-3.5 w-3.5" />
-							Marcar todo
+							<X className="h-4 w-4" />
+							<span className="sr-only">Cerrar</span>
 						</Button>
+					</div>
+				</div>
+
+				{/* List */}
+				<div className="max-h-[26rem] overflow-y-auto">
+					{items.length > 0 ? (
+						<div className="divide-y divide-gray-100 dark:divide-gray-800/60">
+							{items.map((notification) => (
+								<NotificationRow
+									key={notification.id}
+									notification={notification}
+								/>
+							))}
+						</div>
+					) : (
+						<div className="flex flex-col items-center justify-center gap-3 px-4 py-12 text-center">
+							<div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-white/5">
+								<InboxIcon className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+							</div>
+							<div>
+								<p className="text-sm font-medium text-gray-900 dark:text-white">
+									Estás al día
+								</p>
+								<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+									No tienes notificaciones aún.
+								</p>
+							</div>
+						</div>
 					)}
 				</div>
 
-				<Tabs defaultValue="all" className="gap-0">
-					<div className="border-b border-gray-200 px-4 py-2 dark:border-gray-700">
-						<TabsList className="h-auto w-full rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium shadow-sm shadow-gray-200/70 dark:border-gray-700 dark:bg-neutral-950 dark:shadow-none">
-							<TabsTrigger
-								value="all"
-								className="inline-flex h-auto w-full flex-1 items-center justify-center gap-2 rounded-md border-none p-0 text-gray-600 shadow-none transition-colors after:hidden hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:outline-none data-active:bg-gray-100 data-active:text-gray-900 data-active:shadow-sm dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white dark:data-active:bg-neutral-900 dark:data-active:text-white"
-							>
-								Todas
-							</TabsTrigger>
-							<TabsTrigger
-								value="unread"
-								className="inline-flex h-auto flex-1 items-center justify-center gap-2 rounded-md border-none p-0 text-gray-600 shadow-none transition-colors after:hidden hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-0 focus-visible:outline-none data-active:bg-gray-100 data-active:text-gray-900 data-active:shadow-sm dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white dark:data-active:bg-neutral-900 dark:data-active:text-white"
-							>
-								Sin leer
-								{unreadCount > 0 && <span>({unreadCount})</span>}
-							</TabsTrigger>
-						</TabsList>
-					</div>
-
-					<TabsContent value="all" className="mt-0">
-						<div id="notifications-list" className="h-96 overflow-y-auto">
-							{items.length > 0 ? (
-								<div className="divide-y divide-gray-100 dark:divide-gray-700">
-									{items.map((notification) => (
-										<NotificationRow
-											key={notification.id}
-											notification={notification}
-										/>
-									))}
-								</div>
-							) : (
-								<div className="flex px-4 py-6 text-sm text-neutral-500 dark:text-neutral-500">
-									No hay notificaciones
-								</div>
-							)}
-						</div>
-					</TabsContent>
-
-					<TabsContent value="unread" className="mt-0">
-						<div className="h-96 overflow-y-auto">
-							{unreadItems.length > 0 ? (
-								<div className="divide-y divide-gray-100 dark:divide-gray-700">
-									{unreadItems.map((notification) => (
-										<NotificationRow
-											key={notification.id}
-											notification={notification}
-										/>
-									))}
-								</div>
-							) : (
-								<div className="flex h-96 flex-col items-center justify-center gap-2 px-4 text-center">
-									<BellIcon className="h-8 w-8 text-gray-300 dark:text-gray-600" />
-									<p className="text-sm text-gray-500 dark:text-gray-400">
-										Estas al dia con tus notificaciones.
-									</p>
-								</div>
-							)}
-						</div>
-					</TabsContent>
-				</Tabs>
-
-				<div className="border-t border-gray-200 px-4 py-3 dark:border-gray-700">
-					<Button
-						variant="ghost"
-						size="sm"
-						className="w-full cursor-pointer text-sm"
-						nativeButton={false}
-						render={<a href="/notifications" />}
+				{/* Footer */}
+				<div className="border-t border-gray-200 dark:border-gray-800">
+					<a
+						href="/notifications"
+						className="block py-3.5 text-center text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-white"
 					>
-						<Eye className="h-4 w-4" />
-						Ver todo
-					</Button>
+						Ver todas las notificaciones
+					</a>
 				</div>
 			</PopoverContent>
 		</Popover>
