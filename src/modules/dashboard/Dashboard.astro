@@ -255,9 +255,9 @@ const stats: {
 
 		<a
 			href={activeCompany
-				? activeCompany.incorporation_id
-					? `/incorporation/${activeCompany.incorporation_id}`
-					: `/company/${activeCompany.company_id}`
+				? activeCompany.company_id
+					? `/company/${activeCompany.company_id}`
+					: `/incorporation/${activeCompany.incorporation_id}`
 				: '/start/'}
 			class="bg-foreground text-background hover:bg-foreground/90 focus:ring-ring inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold shadow-sm transition focus:ring-4 focus:outline-none sm:w-auto"
 		>
