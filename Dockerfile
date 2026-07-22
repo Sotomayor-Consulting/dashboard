@@ -11,7 +11,7 @@ WORKDIR /app
 # 1) Etapa de dependencias (capa cacheable)
 # ============================================
 FROM base AS deps
-COPY package.json pnpm-lock.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # ============================================
@@ -45,7 +45,7 @@ RUN pnpm astro build --force
 # 3) Etapa de producción (deps prod only)
 # ============================================
 FROM base AS prod-deps
-COPY package.json pnpm-lock.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
 # ============================================
