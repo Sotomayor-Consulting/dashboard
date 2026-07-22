@@ -1,17 +1,23 @@
 # ============================================
-# 1) Etapa de dependencias (capa cacheable)
+# Base: node + pnpm via corepack
 # ============================================
-FROM node:22-alpine AS deps
+FROM node:22-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME/bin:$PATH"
+RUN corepack enable
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm ci
+# ============================================
+# 1) Etapa de dependencias (capa cacheable)
+# ============================================
+FROM base AS deps
+COPY package.json pnpm-lock.yaml .npmrc ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # ============================================
 # 2) Etapa de build
 # ============================================
-FROM node:22-alpine AS builder
-WORKDIR /app
+FROM base AS builder
 
 # Variables PUBLIC_* necesarias durante el build de Astro/Vite
 ARG PUBLIC_SUPABASE_URL
@@ -26,7 +32,6 @@ ENV PUBLIC_TURNSTILE_SITE_KEY=${PUBLIC_TURNSTILE_SITE_KEY}
 ENV PUBLIC_GOOGLE_CLIENT_ID=${PUBLIC_GOOGLE_CLIENT_ID}
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY package.json package-lock.json ./
 COPY . .
 
 # Cache-buster: fuerza rebuild por deploy
@@ -34,10 +39,17 @@ ARG GIT_SHA=dev
 RUN echo "Building commit: ${GIT_SHA}"
 
 # astro check se ejecuta localmente o en CI, no en Docker build
-RUN npx astro build --force
+RUN pnpm astro build --force
 
 # ============================================
-# 3) Etapa de runtime (producción)
+# 3) Etapa de producción (deps prod only)
+# ============================================
+FROM base AS prod-deps
+COPY package.json pnpm-lock.yaml .npmrc ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+
+# ============================================
+# 4) Etapa de runtime
 # ============================================
 FROM node:22-alpine AS runner
 WORKDIR /app
@@ -53,9 +65,9 @@ RUN apk add --no-cache dumb-init
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S astro -u 1001 -G nodejs
 
-# Dependencias de producción (determinísticas con npm ci)
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+# Dependencias de producción
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY package.json ./
 
 # Artefactos SSR
 COPY --from=builder --chown=astro:nodejs /app/dist ./dist
