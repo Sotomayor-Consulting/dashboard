@@ -345,7 +345,7 @@ Para los `<script>` con atributos (`define:vars`, `type="module"`, `src=`, etc.)
 - **Formato**: `useTabs: true`, `tabWidth: 2`, single quotes, trailing commas, printWidth 80. Config en `prettier.config.mjs`. Plugins: `prettier-plugin-astro` y `prettier-plugin-tailwindcss` (debe ir al final).
 - **Iconos**: `astro-icon` con el set `@iconify-json/ri` (Remix Icons). SVGs locales en `src/icons/` (default de astro-icon).
 - **HTTP methods**: Uppercase (`GET`, `POST`, `PUT`, `DELETE`) per Astro convention.
-- **Deployment**: Docker multi-stage (node:22-alpine). Usa `npm ci` (no pnpm) en Docker — `package-lock.json` está committed para reproducibilidad. El entrypoint de producción es `server.mjs` que carga `dist/server/entry.mjs`.
+- **Deployment**: Docker multi-stage (node:22-alpine). Usa `pnpm install --frozen-lockfile` vía `corepack enable` en Docker — `pnpm-lock.yaml` es el lockfile único. El entrypoint de producción es `server.mjs` que carga `dist/server/entry.mjs`.
 - **`.npmrc`**: tiene `node-linker=hoisted` (requerido para que pnpm coexista con paquetes que esperan `node_modules` plano).
 
 ## SQL & Database
