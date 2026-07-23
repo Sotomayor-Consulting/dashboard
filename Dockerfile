@@ -1,7 +1,8 @@
 # ============================================
 # Base: node + pnpm via corepack
 # ============================================
-FROM node:22-alpine AS base
+ARG NODE_VERSION=22-alpine
+FROM node:${NODE_VERSION} AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME/bin:$PATH"
 RUN corepack enable
@@ -11,8 +12,12 @@ WORKDIR /app
 # 1) Etapa de dependencias (capa cacheable)
 # ============================================
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
+    --mount=type=bind,source=pnpm-workspace.yaml,target=pnpm-workspace.yaml \
+    --mount=type=bind,source=.npmrc,target=.npmrc \
+    pnpm install --frozen-lockfile
 
 # ============================================
 # 2) Etapa de build
@@ -20,6 +25,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 FROM base AS builder
 
 # Variables PUBLIC_* necesarias durante el build de Astro/Vite
+# Vite las lee de process.env para reemplazar import.meta.env.PUBLIC_*
 ARG PUBLIC_SUPABASE_URL
 ARG PUBLIC_SUPABASE_ANON_KEY
 ARG PUBLIC_STRIPE_PUBLISHABLE_KEY
@@ -45,13 +51,18 @@ RUN pnpm astro build --force
 # 3) Etapa de producción (deps prod only)
 # ============================================
 FROM base AS prod-deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
+    --mount=type=bind,source=pnpm-workspace.yaml,target=pnpm-workspace.yaml \
+    --mount=type=bind,source=.npmrc,target=.npmrc \
+    pnpm install --prod --frozen-lockfile
 
 # ============================================
 # 4) Etapa de runtime
 # ============================================
-FROM node:22-alpine AS runner
+ARG NODE_VERSION=22-alpine
+FROM node:${NODE_VERSION} AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -59,15 +70,14 @@ ENV HOST=0.0.0.0
 ENV PORT=4321
 
 # Dependencias de sistema para módulos nativos (carbone, etc.)
-RUN apk add --no-cache dumb-init
-
-# Usuario no-root para seguridad
-RUN addgroup -g 1001 -S nodejs && \
+# Consolidar RUN para minimizar capas
+RUN apk add --no-cache dumb-init && \
+    addgroup -g 1001 -S nodejs && \
     adduser -S astro -u 1001 -G nodejs
 
-# Dependencias de producción
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY package.json ./
+# Dependencias de producción (read-only para el proceso)
+COPY --from=prod-deps --chown=astro:nodejs /app/node_modules ./node_modules
+COPY --chown=astro:nodejs package.json ./
 
 # Artefactos SSR
 COPY --from=builder --chown=astro:nodejs /app/dist ./dist
