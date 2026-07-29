@@ -17,7 +17,7 @@ const referidosSupabase = (rows ?? []).map((r) => ({
 		`${r.referido[0]?.nombre ?? ''} ${r.referido[0]?.apellido ?? ''}`.trim() ||
 		'—',
 	email: r.referido[0]?.correo ?? '—',
-	avatar: getAvatarUrl(r.referido[0]?.avatar_url, supabase),
+	avatar: getAvatarUrl(r.referido[0]?.avatar_url),
 	code: r.code,
 	fecha: r.created_at,
 	estado: r.referido[0]?.estado,

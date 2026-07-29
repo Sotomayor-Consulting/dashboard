@@ -3,6 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import sharp from 'sharp';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { BUCKETS, createScopedStorage } from '@infrastructure/storage';
 import { safeBack } from '@infrastructure/security/headers';
 
 const BACK_PATH = '/profile/';
@@ -28,7 +29,10 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 	try {
 		const back = safeBack(url.searchParams.get('back'), BACK_PATH);
 
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
 		const {
 			data: { user },
@@ -36,7 +40,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		} = await supabase.auth.getUser();
 		if (uerr || !user) {
 			if (wantsJson) return jsonError('No autenticado', 401);
-			return redirect(`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`);
+			return redirect(
+				`${back}?status=error&msg=${encodeURIComponent('No autenticado')}`,
+			);
 		}
 
 		const form = await request.formData();
@@ -44,29 +50,34 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 		if (!file || file.size === 0) {
 			if (wantsJson) return jsonError('Archivo obligatorio');
-			return redirect(`${back}?status=error&msg=${encodeURIComponent('Archivo obligatorio')}`);
+			return redirect(
+				`${back}?status=error&msg=${encodeURIComponent('Archivo obligatorio')}`,
+			);
 		}
 		if (!file.type.startsWith('image/')) {
 			if (wantsJson) return jsonError('El archivo debe ser una imagen');
-			return redirect(`${back}?status=error&msg=${encodeURIComponent('El archivo debe ser una imagen')}`);
+			return redirect(
+				`${back}?status=error&msg=${encodeURIComponent('El archivo debe ser una imagen')}`,
+			);
 		}
 		if (file.size > 5 * 1024 * 1024) {
 			if (wantsJson) return jsonError('La imagen no puede superar 5 MB');
-			return redirect(`${back}?status=error&msg=${encodeURIComponent('La imagen no puede superar 5 MB')}`);
+			return redirect(
+				`${back}?status=error&msg=${encodeURIComponent('La imagen no puede superar 5 MB')}`,
+			);
 		}
 
-		// Limpiar archivos previos
+		const storage = createScopedStorage(supabase);
+
+		// Limpiar archivos previos (best-effort: no bloquea la subida nueva)
 		const avatarPrefix = `avatars/${user.id}`;
-		const { data: existing, error: listErr } = await supabase.storage
-			.from('public-assets')
-			.list(avatarPrefix, { limit: 100 });
-
-		if (!listErr && existing && existing.length > 0) {
-			const toDelete = existing.map((f) => `${avatarPrefix}/${f.name}`);
-			try {
-				await supabase.storage.from('public-assets').remove(toDelete);
-			} catch {}
-		}
+		try {
+			const existing = await storage.list(BUCKETS.publicAssets, avatarPrefix);
+			await storage.remove(
+				BUCKETS.publicAssets,
+				existing.map((f) => f.path),
+			);
+		} catch {}
 
 		// Convertir a WebP 400×400
 		const inputBuffer = Buffer.from(await file.arrayBuffer());
@@ -77,29 +88,38 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 		const newPath = `${avatarPrefix}/avatar.webp`;
 
-		const { error: upErr } = await supabase.storage
-			.from('public-assets')
-			.upload(newPath, webpBuffer, { upsert: true, contentType: 'image/webp' });
-
-		if (upErr) {
-			if (wantsJson) return jsonError(upErr.message);
-			return redirect(`${back}?status=error&msg=${encodeURIComponent(upErr.message)}`);
+		try {
+			await storage.upload(BUCKETS.publicAssets, newPath, webpBuffer, {
+				upsert: true,
+				contentType: 'image/webp',
+			});
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : 'Error al subir el avatar';
+			if (wantsJson) return jsonError(msg);
+			return redirect(`${back}?status=error&msg=${encodeURIComponent(msg)}`);
 		}
 
 		const { error: upsertErr } = await supabase
 			.from('usuarios')
-			.upsert({ user_id: user.id, avatar_url: newPath }, { onConflict: 'user_id' });
+			.upsert(
+				{ user_id: user.id, avatar_url: newPath },
+				{ onConflict: 'user_id' },
+			);
 
 		if (upsertErr) {
 			if (wantsJson) return jsonError(upsertErr.message);
-			return redirect(`${back}?status=error&msg=${encodeURIComponent(upsertErr.message)}`);
+			return redirect(
+				`${back}?status=error&msg=${encodeURIComponent(upsertErr.message)}`,
+			);
 		}
 
 		// Construir URL pública para devolver al cliente
-		const { data: publicData } = supabase.storage.from('public-assets').getPublicUrl(newPath);
+		const avatarUrl = storage.getPublicUrl(BUCKETS.publicAssets, newPath);
 
-		if (wantsJson) return jsonOk({ ok: true, avatarUrl: publicData.publicUrl });
-		return redirect(`${back}?status=success&msg=${encodeURIComponent('Avatar actualizado')}`);
+		if (wantsJson) return jsonOk({ ok: true, avatarUrl });
+		return redirect(
+			`${back}?status=success&msg=${encodeURIComponent('Avatar actualizado')}`,
+		);
 	} catch (e: any) {
 		const msg = typeof e?.message === 'string' ? e.message : 'Error inesperado';
 		if (wantsJson) return jsonError(msg, 500);

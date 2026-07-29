@@ -9,7 +9,7 @@ import type {
 	MemberV2,
 	ManagerV2,
 } from '@modules/companies/stages/client-form/payload';
-import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { BUCKETS, storage } from '@infrastructure/storage';
 import type { FileRef } from '@modules/companies/stages/client-form/types';
 
 interface Props {
@@ -46,16 +46,15 @@ const countryName = (
 	return c.name || '—';
 };
 
-const BUCKET = 'incorporation_documents';
-
 async function getSignedUrl(
 	path: string | null | undefined,
 ): Promise<string | null> {
 	if (!path) return null;
-	const { data } = await supabaseAdmin.storage
-		.from(BUCKET)
-		.createSignedUrl(path, 3600);
-	return data?.signedUrl ?? null;
+	try {
+		return await storage.createSignedUrl(BUCKETS.incorporationDocuments, path);
+	} catch {
+		return null;
+	}
 }
 
 const signatureUrl = await getSignedUrl(payload.signature?.file?.path);

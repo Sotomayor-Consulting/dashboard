@@ -100,7 +100,7 @@ src/
 │   │   ├── email/            # mailer.ts (nodemailer config) + send-email.ts (high-level API)
 │   │   ├── notifications/    # service.ts, channels/{email,in-app}.ts, renderer, templates, types
 │   │   ├── logging/          # logger.ts (Winston) + createLogger(context) — solo servidor
-│   │   └── storage/          # user-folders.ts (lectura buckets Supabase)
+│   │   └── storage/          # adapter de storage (ver §Storage Adapter)
 │   ├── integrations/         # Servicios externos
 │   │   ├── odoo/             # client.ts, axios-odoo-instance.ts, partners.ts (referidos)
 │   │   └── carbone.ts        # Generación de documentos vía microservicio
@@ -121,6 +121,35 @@ src/
 ├── middleware.ts             # Auth + RBAC + CSP (ver §Authentication)
 └── env.d.ts                  # Astro env types
 ```
+
+### Storage Adapter (`@infrastructure/storage`)
+
+Toda lectura/escritura de archivos pasa por el adapter. **Ningún archivo debe
+llamar a `supabase.storage` directamente** — el driver de Supabase es el único
+que lo hace, para que cambiar de proveedor (p. ej. Cloudflare R2 vía S3 API)
+sea escribir un driver nuevo y cambiar dos líneas en `index.ts`.
+
+```ts
+import { BUCKETS, storage } from '@infrastructure/storage';
+
+await storage.upload(BUCKETS.documents, path, file, { contentType });
+const url = await storage.createSignedUrl(BUCKETS.documents, path, {
+	download: fileName,
+});
+```
+
+- `storage` usa **service-role** (ignora RLS): el route autoriza al caller.
+- `createScopedStorage(supabase)` ata las operaciones a la sesión para que las
+  políticas RLS de `storage.objects` sigan aplicando. Se usa en las escrituras
+  del usuario en su propia carpeta (avatares, contrato de partner, documentos
+  firmados). **Es específico de Supabase**: un backend S3/R2 no puede honrarlo.
+- Errores: el driver lanza `StorageError` con `code`
+  (`NOT_FOUND | ALREADY_EXISTS | UNAUTHORIZED | UNKNOWN`); nunca se filtran
+  errores propios del proveedor.
+- Los nombres de bucket viven en `BUCKETS`. La columna `bucket_storage` de
+  `documents.documents` guarda el nombre como string y se pasa tal cual.
+- `buckets.ts` y `public-url.ts` son **client-safe** (sin credenciales) y pueden
+  importarse desde islands; el barrel `index.ts` es **solo servidor**.
 
 ### Logging (`@infrastructure/logging`)
 
@@ -351,9 +380,39 @@ Para los `<script>` con atributos (`define:vars`, `type="module"`, `src=`, etc.)
 ## SQL & Database
 
 El schema se versiona con **migraciones del CLI de Supabase** en `supabase/migrations/`:
-- `20260715165654_remote_schema.sql` — baseline completo (public + documents, workflow, shared, catalogs, meetings, orders) generado con `db pull` desde APPSCI-DEVELOPMENT y aplicado a APPSCI-PRODUCTION.
-- Cambios nuevos: `npx supabase migration new <nombre>` → escribir SQL → `npx supabase db push` (el proyecto linkeado es development; para production usar `--db-url` con el pooler `aws-0-us-east-1`).
-- Los proyectos: `ceuofnjslxjoqtqxbfqt` (APPSCI-DEVELOPMENT, sa-east-1) y `yloxnmkuxlyspxwpizjf` (APPSCI-PRODUCTION, us-east-1). Passwords de DB en `.env` (`PASSWORD_DB` / `PASSWORD_PROD_DB`, no committeadas).
+- `20260715165654_remote_schema.sql` — baseline completo (public + documents, workflow, shared, catalogs, meetings, orders) generado con `db pull` desde APP-SCI.
+- Cambios nuevos: `npx supabase migration new <nombre>` → escribir SQL → `npx supabase db push` (el proyecto linkeado es APP-SCI; para producción usar `--db-url`).
+- **Toda migración debe pasar por un archivo en `supabase/migrations/`.** Aplicar DDL a mano desde el SQL Editor genera drift silencioso entre proyectos (ver §Drift conocido).
+
+### Proyectos
+
+| Proyecto | Ref | Región | Rol | Password en `.env` | Pooler |
+|---|---|---|---|---|---|
+| APP-SCI | `ceuofnjslxjoqtqxbfqt` | sa-east-1 | desarrollo | `PASSWORD_DB` | `aws-1-sa-east-1.pooler.supabase.com:5432` |
+| APP-SCI-PROD | `juftdhznquzwvfzrrjqy` | us-east-1 | **producción** (creado 2026-07-28) | `PASSWORD_NEW_PROD_DB` | `aws-0-us-east-1.pooler.supabase.com:5432` |
+
+El usuario de conexión es `postgres.<ref>`. Ojo con el prefijo del pooler: es `aws-1-` en sa-east-1 y `aws-0-` en us-east-1, no son intercambiables.
+
+El proyecto `yloxnmkuxlyspxwpizjf` (APPSCI-PRODUCTION) fue eliminado; cualquier referencia a él está obsoleta.
+
+### Drift conocido (APP-SCI vs APP-SCI-PROD)
+
+Dos columnas difieren porque en APP-SCI se aplicaron cambios fuera de migraciones:
+
+| Columna | APP-SCI | APP-SCI-PROD | Cuál coincide con el código |
+|---|---|---|---|
+| `public.companies.tax_classification` | enum `tax_classification_type` | `text` | APP-SCI (el zod acepta solo `corporation`/`disregarded_entity`) |
+| `public.members.marital_status` | enum `member_marital_status_type` (6 valores) | enum `members_marital_status` (7 valores) | **APP-SCI-PROD** (el zod y `MemberMaritalStatusType` usan los 7) |
+
+APP-SCI rechazaría `legally_separated`, `civil_union` y `annulled`, que el código sí envía. Sin resolver.
+
+### Bootstrap de un proyecto nuevo
+
+1. `npx supabase db push --db-url <pooler>` — schema completo.
+2. `supabase/sql/storage-setup.sql` — buckets + RLS de storage (no va en migraciones; los buckets no son schema versionado).
+3. Sembrar catálogos desde APP-SCI (`catalogs.*`, `documents.document_types`, `workflow.task_templates`/`workflow_stage_catalog`/`workflow_stage_plan_applicability`, y de `public`: `countries`, `states`, `category`, `sector`, `activity`, `roles`, `permissions`, `role_permissions`, `servicio_extra`).
+4. En el dashboard: **Settings → API → Exposed schemas** debe listar `public, graphql_public, documents, workflow, shared, catalogs, meetings, orders`, o todo lo que no sea `public` da `PGRST106`. Además: proveedor Google OAuth, redirect URLs y SMTP de Brevo.
+
 - Los puertos locales del CLI están en 55xxx (config.toml) porque Windows reserva el rango 54267–54366.
 
 Scripts históricos pre-migraciones en `supabase/sql/legacy/` (solo referencia, no aplicar).

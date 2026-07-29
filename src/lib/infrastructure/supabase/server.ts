@@ -62,13 +62,13 @@ function isAstroGlobal(ctx: SupabaseContext): ctx is AstroGlobalContext {
 export function createSupabaseServerClient(context: SupabaseContext) {
 	const supabaseUrl =
 		process.env.PUBLIC_SUPABASE_URL ?? import.meta.env.PUBLIC_SUPABASE_URL;
-	const supabaseAnonKey =
-		process.env.PUBLIC_SUPABASE_ANON_KEY ??
-		import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+	const supabaseKey =
+		process.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+		import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-	if (!supabaseUrl || !supabaseAnonKey) {
+	if (!supabaseUrl || !supabaseKey) {
 		throw new Error(
-			'Missing Supabase environment variables: PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY are required.',
+			'Missing Supabase environment variables: PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_PUBLISHABLE_KEY are required.',
 		);
 	}
 
@@ -79,7 +79,7 @@ export function createSupabaseServerClient(context: SupabaseContext) {
 	const { cookies } = context;
 	const sessionOnly = 'sessionOnly' in context && context.sessionOnly === true;
 
-	return createServerClient(supabaseUrl, supabaseAnonKey, {
+	return createServerClient(supabaseUrl, supabaseKey, {
 		cookies: {
 			getAll() {
 				const parsed = parseCookieHeader(headers.get('Cookie') ?? '');
