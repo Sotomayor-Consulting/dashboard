@@ -3,6 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import sharp from 'sharp';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { BUCKETS, createScopedStorage } from '@infrastructure/storage';
 
 const AVATAR_SIZE = 400;
 
@@ -21,10 +22,13 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 		// Helper de redirección
 		const back = () =>
-			(slug ? `/incorporations/${slug}/settings` : FALLBACK_BACK);
+			slug ? `/incorporations/${slug}/settings` : FALLBACK_BACK;
 
 		// 1) Sesión
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
 		// 2) Usuario
 		const {
@@ -56,18 +60,17 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			);
 		}
 
-		// 4) Limpiar archivos previos del usuario
-		const avatarPrefix = `avatars/${user.id}`;
-		const { data: existing, error: listErr } = await supabase.storage
-			.from('public-assets')
-			.list(avatarPrefix, { limit: 100 });
+		const storage = createScopedStorage(supabase);
 
-		if (!listErr && existing?.length) {
-			const toDelete = existing.map((f) => `${avatarPrefix}/${f.name}`);
-			try {
-				await supabase.storage.from('public-assets').remove(toDelete);
-			} catch {}
-		}
+		// 4) Limpiar archivos previos del usuario (best-effort)
+		const avatarPrefix = `avatars/${user.id}`;
+		try {
+			const existing = await storage.list(BUCKETS.publicAssets, avatarPrefix);
+			await storage.remove(
+				BUCKETS.publicAssets,
+				existing.map((f) => f.path),
+			);
+		} catch {}
 
 		// 5) Convertir a WebP 400×400 y subir
 		const inputBuffer = Buffer.from(await file.arrayBuffer());
@@ -78,16 +81,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 		const newPath = `${avatarPrefix}/avatar.webp`;
 
-		const { error: upErr } = await supabase.storage
-			.from('public-assets')
-			.upload(newPath, webpBuffer, {
+		try {
+			await storage.upload(BUCKETS.publicAssets, newPath, webpBuffer, {
 				upsert: true,
 				contentType: 'image/webp',
 			});
-
-		if (upErr) {
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : 'Error al subir el avatar';
 			return redirect(
-				`${back()}?status=error&msg=${encodeURIComponent(':' + upErr.message)}`,
+				`${back()}?status=error&msg=${encodeURIComponent(':' + msg)}`,
 			);
 		}
 

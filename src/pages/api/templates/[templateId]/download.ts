@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
-import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { storage } from '@infrastructure/storage';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 import { extractTokenRoleNames, isAdmin } from '@shared/roles';
 import { getTemplateById } from '@domains/templates/templates';
@@ -21,7 +21,10 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
 	const { templateId } = params;
 	if (!templateId) return json(400, { error: 'MISSING_ID' });
 
-	const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+	const supabase = createSupabaseServerClient({
+		headers: request.headers,
+		cookies,
+	});
 
 	const { data: claims } = await supabase.auth.getClaims();
 	if (!claims?.claims) return json(401, { error: 'NO_AUTH' });
@@ -33,22 +36,27 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
 	if (!template) return json(404, { error: 'TEMPLATE_NOT_FOUND' });
 
 	if (template.source_url) {
-		return json(200, { url: template.source_url, fileName: template.document?.file_name ?? null });
+		return json(200, {
+			url: template.source_url,
+			fileName: template.document?.file_name ?? null,
+		});
 	}
 
 	if (!template.document) {
 		return json(400, { error: 'NO_FILE' });
 	}
 
-	const { data, error } = await supabaseAdmin.storage
-		.from(template.document.bucket_storage)
-		.createSignedUrl(template.document.bucket_path, 3600, {
-			download: template.document.file_name,
+	try {
+		const url = await storage.createSignedUrl(
+			template.document.bucket_storage,
+			template.document.bucket_path,
+			{ download: template.document.file_name },
+		);
+		return json(200, { url, fileName: template.document.file_name });
+	} catch (error) {
+		return json(500, {
+			error: 'SIGNED_URL_FAILED',
+			detail: error instanceof Error ? error.message : undefined,
 		});
-
-	if (error || !data) {
-		return json(500, { error: 'SIGNED_URL_FAILED', detail: error?.message });
 	}
-
-	return json(200, { url: data.signedUrl, fileName: template.document.file_name });
 };

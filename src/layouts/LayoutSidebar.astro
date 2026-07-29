@@ -66,7 +66,7 @@ const selectedCompany = routeCompany ?? activeCompany;
 const missingPartnerFields: PartnerRequiredField[] = [];
 const showBannerPartner = false;
 
-const avatarUrl = getAvatarUrl(usuario?.avatar_url, supabase);
+const avatarUrl = getAvatarUrl(usuario?.avatar_url);
 ---
 
 <LayoutCommon>

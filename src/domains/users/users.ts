@@ -52,7 +52,7 @@ export const getUsuarioAvatar = async (
 	}
 
 	const row = data as unknown as { avatar_url: string | null } | null;
-	return { avatar_url: getAvatarUrl(row?.avatar_url, supabase) };
+	return { avatar_url: getAvatarUrl(row?.avatar_url) };
 };
 
 export const getUsuarioPerfilPartner = async (

@@ -7,10 +7,11 @@ import {
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { notifyByEvent } from '@infrastructure/notifications';
 import {
+	BUCKETS,
 	DEFAULT_SIGNED_URL_TTL_SECONDS,
-	MAX_FILE_SIZE_BYTES,
-	getDocumentsBucket,
-} from './config';
+	storage,
+} from '@infrastructure/storage';
+import { MAX_FILE_SIZE_BYTES } from './config';
 import {
 	jsonResponse,
 	resolveActorRole,
@@ -270,17 +271,15 @@ export async function uploadDocument(
 	}
 
 	const documentId = crypto.randomUUID();
-	const bucket = getDocumentsBucket();
+	const bucket = BUCKETS.documents;
 	const filePath = buildStoragePath(context.ownerUserId, input, documentId);
 
-	const { error: uploadError } = await supabaseAdmin.storage
-		.from(bucket)
-		.upload(filePath, input.file, {
+	try {
+		await storage.upload(bucket, filePath, input.file, {
 			upsert: false,
 			contentType: input.file.type || 'application/octet-stream',
 		});
-
-	if (uploadError) {
+	} catch {
 		throw new DocumentsError(500, 'Error al subir el archivo');
 	}
 
@@ -657,14 +656,17 @@ export async function createDocumentSignedUrl(
 		}
 	}
 
-	const bucket = getDocumentsBucket();
-	const { data, error } = await supabaseAdmin.storage
-		.from(bucket)
-		.createSignedUrl(doc.bucket_path, DEFAULT_SIGNED_URL_TTL_SECONDS, {
-			download: doc.file_name,
-		});
-
-	if (error) {
+	let signedUrl: string;
+	try {
+		signedUrl = await storage.createSignedUrl(
+			BUCKETS.documents,
+			doc.bucket_path,
+			{
+				expiresIn: DEFAULT_SIGNED_URL_TTL_SECONDS,
+				download: doc.file_name,
+			},
+		);
+	} catch {
 		throw new DocumentsError(500, 'Error generando enlace');
 	}
 
@@ -679,7 +681,7 @@ export async function createDocumentSignedUrl(
 		},
 	});
 
-	return data.signedUrl;
+	return signedUrl;
 }
 
 export async function shareDocumentWithUser(
@@ -701,7 +703,10 @@ export async function shareDocumentWithUser(
 		throw new DocumentsError(404, 'Documento no encontrado');
 	}
 
-	const resolvedCaseId = await resolveCaseIdForDocument(documentId, doc.case_id);
+	const resolvedCaseId = await resolveCaseIdForDocument(
+		documentId,
+		doc.case_id,
+	);
 	if (!resolvedCaseId) {
 		throw new DocumentsError(404, 'Caso no encontrado');
 	}
@@ -811,7 +816,10 @@ export async function revokeDocumentShare(
 		throw new DocumentsError(404, 'Documento no encontrado');
 	}
 
-	const resolvedCaseId = await resolveCaseIdForDocument(documentId, doc.case_id);
+	const resolvedCaseId = await resolveCaseIdForDocument(
+		documentId,
+		doc.case_id,
+	);
 	const now = new Date().toISOString();
 
 	// Autorreparación: mismo caso que en shareDocumentWithUser — documentos

@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { storage } from '@infrastructure/storage';
 import { SECURITY_HEADERS } from '@infrastructure/security/headers';
 import { createLogger } from '@infrastructure/logging';
 
@@ -18,9 +19,9 @@ const HEALTH_CHECK_TOKEN =
 	process.env.HEALTH_CHECK_TOKEN ?? import.meta.env.HEALTH_CHECK_TOKEN ?? '';
 const SUPABASE_URL =
 	process.env.PUBLIC_SUPABASE_URL ?? import.meta.env.PUBLIC_SUPABASE_URL ?? '';
-const SUPABASE_ANON_KEY =
-	process.env.PUBLIC_SUPABASE_ANON_KEY ??
-	import.meta.env.PUBLIC_SUPABASE_ANON_KEY ??
+const SUPABASE_PUBLISHABLE_KEY =
+	process.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+	import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
 	'';
 const RENDER_SERVER_URL =
 	process.env.RENDER_SERVER_URL ?? import.meta.env.RENDER_SERVER_URL ?? '';
@@ -35,7 +36,9 @@ interface CheckResult {
 
 function isAuthorized(request: Request): boolean {
 	if (!HEALTH_CHECK_TOKEN) {
-		log.warn('HEALTH_CHECK_TOKEN no configurado; /api/health/deep deshabilitado');
+		log.warn(
+			'HEALTH_CHECK_TOKEN no configurado; /api/health/deep deshabilitado',
+		);
 		return false;
 	}
 	const header = request.headers.get('authorization') ?? '';
@@ -86,17 +89,13 @@ const checkDatabase = () =>
 const checkAuth = () =>
 	runCheck(async () => {
 		const res = await fetch(`${SUPABASE_URL}/auth/v1/health`, {
-			headers: { apikey: SUPABASE_ANON_KEY },
+			headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
 			signal: AbortSignal.timeout(CHECK_TIMEOUT_MS),
 		});
 		if (!res.ok) throw new Error(`HTTP ${res.status}`);
 	});
 
-const checkStorage = () =>
-	runCheck(async () => {
-		const { error } = await supabaseAdmin.storage.listBuckets();
-		if (error) throw new Error(error.message);
-	});
+const checkStorage = () => runCheck(() => storage.healthCheck());
 
 const checkRenderServer = () =>
 	runCheck(async () => {

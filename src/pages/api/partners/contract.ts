@@ -2,6 +2,11 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import {
+	BUCKETS,
+	StorageError,
+	createScopedStorage,
+} from '@infrastructure/storage';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('partners.contract');
@@ -9,10 +14,16 @@ const log = createLogger('partners.contract');
 export const GET: APIRoute = async ({ request, cookies, url, redirect }) => {
 	try {
 		// 1) Cliente Supabase SSR
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
 		// 2) Obtener usuario actual
-		const { data: { user: actor }, error: userErr } = await supabase.auth.getUser();
+		const {
+			data: { user: actor },
+			error: userErr,
+		} = await supabase.auth.getUser();
 
 		if (userErr || !actor) {
 			return redirect('/login?error=Error de autenticación');
@@ -46,28 +57,28 @@ export const GET: APIRoute = async ({ request, cookies, url, redirect }) => {
 		const filePath = `${targetUserId}/contratos-partner/${filename}`;
 
 		// 6) Generar URL firmada (1 hora = 3600 segundos)
-		const { data, error } = await supabase.storage
-			.from('documents')
-			.createSignedUrl(filePath, 3600);
-
-		if (error) {
+		let signedUrl: string;
+		try {
+			signedUrl = await createScopedStorage(supabase).createSignedUrl(
+				BUCKETS.documents,
+				filePath,
+			);
+		} catch (error) {
 			log.error('Error generando URL firmada', { error });
-			if (
-				error.message?.includes('not found') ||
-				error.message?.includes('No such file')
-			) {
+			if (error instanceof StorageError && error.code === 'NOT_FOUND') {
 				return new Response(`Documento no encontrado: ${filename}`, {
 					status: 404,
 				});
 			}
-			return new Response(`Error al generar enlace: ${error.message}`, {
+			const detail = error instanceof Error ? error.message : 'desconocido';
+			return new Response(`Error al generar enlace: ${detail}`, {
 				status: 500,
 			});
 		}
 
 		// 7) Si el modo es 'view' hacemos redirect (abrir en nueva pestaña)
 		if (mode === 'view') {
-			return redirect(data.signedUrl);
+			return redirect(signedUrl);
 		}
 
 		// 8) Si el modo es 'download' usamos proxy para forzar Content-Disposition
@@ -82,13 +93,13 @@ export const GET: APIRoute = async ({ request, cookies, url, redirect }) => {
 				: safeFileName;
 
 		// Fetch al signed URL (stream)
-		const fetched = await fetch(data.signedUrl);
+		const fetched = await fetch(signedUrl);
 
 		if (!fetched.ok || !fetched.body) {
 			log.error('Error al obtener el archivo desde signedUrl', {
-					status: fetched.status,
-					statusText: fetched.statusText,
-				});
+				status: fetched.status,
+				statusText: fetched.statusText,
+			});
 			return new Response(`Error al obtener archivo: ${fetched.statusText}`, {
 				status: fetched.status || 500,
 			});

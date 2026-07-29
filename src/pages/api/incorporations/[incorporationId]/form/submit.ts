@@ -3,7 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { sendFormSubmittedEmail } from '@infrastructure/email/bussiness-events';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
-import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { BUCKETS, storage } from '@infrastructure/storage';
 import { json } from '@shared/api/company-data';
 import {
 	getIncorporationForm,
@@ -23,7 +23,7 @@ import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('incorporations.form.submit');
 
-const BUCKET = 'incorporation_documents';
+const BUCKET = BUCKETS.incorporationDocuments;
 const MAX_BODY_BYTES = 256 * 1024; // 256 KB
 const MAX_FIRMA_B64_BYTES = 2 * 1024 * 1024; // 2 MB de base64 (~1.5 MB imagen)
 
@@ -45,11 +45,12 @@ async function uploadFirma(
 	const path = `${ownerId}/incorporations/${incorporationId}/signature.${ext}`;
 	const bytes = Buffer.from(b64!, 'base64');
 
-	const { error } = await supabaseAdmin.storage
-		.from(BUCKET)
-		.upload(path, bytes, { contentType: mime ?? 'image/png', upsert: true });
-
-	if (error) {
+	try {
+		await storage.upload(BUCKET, path, bytes, {
+			contentType: mime ?? 'image/png',
+			upsert: true,
+		});
+	} catch (error) {
 		log.error('firma upload failed', { incorporationId, error });
 		return null;
 	}
@@ -74,16 +75,17 @@ interface LabeledPath {
  * Extrae todos los paths de FileRef presentes en el payload.
  * Devuelve pares `{ path, label }` para usar en ownership y existencia.
  */
-function collectFilePaths(
-	payload: IncorporationFormPayloadV2,
-): LabeledPath[] {
+function collectFilePaths(payload: IncorporationFormPayloadV2): LabeledPath[] {
 	const paths: LabeledPath[] = [];
 
 	const add = (ref: FileRef | null | undefined, label: string) => {
 		if (ref?.path) paths.push({ path: ref.path, label });
 	};
 
-	add(payload.general?.operatingAddress?.utilityBill, 'Dirección operativa: planilla');
+	add(
+		payload.general?.operatingAddress?.utilityBill,
+		'Dirección operativa: planilla',
+	);
 
 	(payload.members?.list ?? []).forEach((m, i) => {
 		const tag = `Socio ${String(i + 1).padStart(2, '0')}`;
@@ -119,37 +121,16 @@ function validatePathOwnership(
 		.map((fp) => `${fp.label}: ruta no pertenece a esta incorporación.`);
 }
 
-/**
- * Verifica que cada path exista en Storage listando el directorio padre y
- * buscando el nombre del archivo. Más ligero que generar signed URLs.
- */
+/** Devuelve las etiquetas de los archivos del payload que no están en Storage. */
 async function verifyFilesExist(filePaths: LabeledPath[]): Promise<string[]> {
 	if (filePaths.length === 0) return [];
 
-	const byFolder = new Map<string, LabeledPath[]>();
-	for (const fp of filePaths) {
-		const lastSlash = fp.path.lastIndexOf('/');
-		const folder = fp.path.slice(0, lastSlash);
-		const existing = byFolder.get(folder);
-		if (existing) existing.push(fp);
-		else byFolder.set(folder, [fp]);
-	}
-
-	const missing: string[] = [];
-	await Promise.all(
-		[...byFolder.entries()].map(async ([folder, paths]) => {
-			const { data: items } = await supabaseAdmin.storage
-				.from(BUCKET)
-				.list(folder, { limit: 500 });
-			const names = new Set((items ?? []).map((f) => f.name));
-			for (const fp of paths) {
-				const fileName = fp.path.slice(fp.path.lastIndexOf('/') + 1);
-				if (!names.has(fileName)) missing.push(fp.label);
-			}
-		}),
+	const found = await storage.existsMany(
+		BUCKET,
+		filePaths.map((fp) => fp.path),
 	);
 
-	return missing;
+	return filePaths.filter((fp) => !found.has(fp.path)).map((fp) => fp.label);
 }
 
 /**
@@ -166,47 +147,17 @@ async function cleanupOrphanedFiles(
 	const keepSet = new Set(keepPaths.map((fp) => fp.path));
 
 	try {
-		const { data: files, error } = await supabaseAdmin.storage
-			.from(BUCKET)
-			.list(prefix, { limit: 500 });
-
-		if (error || !files) return;
-
-		const toDelete: string[] = [];
-
-		const collectRecursive = async (folder: string) => {
-			const { data: items } = await supabaseAdmin.storage
-				.from(BUCKET)
-				.list(folder, { limit: 500 });
-			if (!items) return;
-			for (const item of items) {
-				const fullPath = `${folder}/${item.name}`;
-				if (item.metadata) {
-					if (!keepSet.has(fullPath)) toDelete.push(fullPath);
-				} else {
-					await collectRecursive(fullPath);
-				}
-			}
-		};
-
-		for (const item of files) {
-			const fullPath = `${prefix}/${item.name}`;
-			if (item.metadata) {
-				if (!keepSet.has(fullPath)) toDelete.push(fullPath);
-			} else {
-				await collectRecursive(fullPath);
-			}
-		}
+		const files = await storage.listRecursive(BUCKET, prefix);
+		const toDelete = files
+			.map((f) => f.path)
+			.filter((path) => !keepSet.has(path));
 
 		if (toDelete.length > 0) {
-			const { error: delError } = await supabaseAdmin.storage
-				.from(BUCKET)
-				.remove(toDelete);
-			if (delError) {
-				log.warn('orphan cleanup partial failure', { incorporationId, error: delError });
-			} else {
-				log.info('orphaned files cleaned', { incorporationId, count: toDelete.length });
-			}
+			await storage.remove(BUCKET, toDelete);
+			log.info('orphaned files cleaned', {
+				incorporationId,
+				count: toDelete.length,
+			});
 		}
 	} catch (err) {
 		log.warn('orphan cleanup error', { incorporationId, err });
@@ -316,7 +267,8 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 			ok: false,
 			error: 'FILES_NOT_FOUND',
 			details: missingFiles.map(
-				(label) => `${label}: el archivo no se encuentra en el servidor. Vuelve a subirlo.`,
+				(label) =>
+					`${label}: el archivo no se encuentra en el servidor. Vuelve a subirlo.`,
 			),
 		});
 	}

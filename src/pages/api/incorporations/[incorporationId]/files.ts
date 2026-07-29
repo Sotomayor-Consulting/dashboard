@@ -3,14 +3,14 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import crypto from 'node:crypto';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
-import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { BUCKETS, storage } from '@infrastructure/storage';
 import { json } from '@shared/api/company-data';
 import { getIncorporationOwner } from '@domains/workflow/incorporation-forms';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('incorporations.files');
 
-const BUCKET = 'incorporation_documents';
+const BUCKET = BUCKETS.incorporationDocuments;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ACCEPTED_TYPES = new Set([
 	'application/pdf',
@@ -136,14 +136,10 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 
 	try {
 		const bytes = Buffer.from(await file.arrayBuffer());
-		const { error: upErr } = await supabaseAdmin.storage
-			.from(BUCKET)
-			.upload(path, bytes, { contentType: file.type, upsert: false });
-
-		if (upErr) {
-			log.error('upload failed', { incorporationId, slotKey, error: upErr });
-			return json(500, { ok: false, error: 'UPLOAD_FAILED' });
-		}
+		await storage.upload(BUCKET, path, bytes, {
+			contentType: file.type,
+			upsert: false,
+		});
 
 		return json(200, { ok: true, path, name: file.name });
 	} catch (error) {
@@ -190,8 +186,9 @@ export const DELETE: APIRoute = async ({ request, cookies, params }) => {
 		return json(403, { ok: false, error: 'PATH_NOT_ALLOWED' });
 	}
 
-	const { error } = await supabaseAdmin.storage.from(BUCKET).remove([path]);
-	if (error) {
+	try {
+		await storage.remove(BUCKET, [path]);
+	} catch (error) {
 		log.error('delete failed', { incorporationId, path, error });
 		return json(500, { ok: false, error: 'DELETE_FAILED' });
 	}

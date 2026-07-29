@@ -4,13 +4,14 @@ import crypto from 'node:crypto';
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { BUCKETS, createScopedStorage } from '@infrastructure/storage';
 import { safeBack } from '@infrastructure/security/headers';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('partners.upload-contract');
 
 const DEFAULT_BACK_PATH = '/partners/settings/';
-const BUCKET_NAME = 'documents';
+const BUCKET_NAME = BUCKETS.documents;
 const RLS_SUB_FOLDER = 'contratos-partner';
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_MIME = 'application/pdf';
@@ -23,9 +24,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 
 	try {
 		// 1) Sesión
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
-		const { data: { user }, error: uerr } = await supabase.auth.getUser();
+		const {
+			data: { user },
+			error: uerr,
+		} = await supabase.auth.getUser();
 
 		if (uerr || !user) {
 			log.error('Error al obtener usuario', { error: uerr });
@@ -55,16 +62,14 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const fileName = 'contrato_firmado.pdf';
 		const filePath = `${user.id}/${RLS_SUB_FOLDER}/${fileName}`;
 
-		// 4) Subir el archivo al Storage
-		const { error: upErr } = await supabase.storage
-			.from(BUCKET_NAME)
-			.upload(filePath, file, {
+		// 4) Subir el archivo al Storage (RLS: carpeta del propio usuario)
+		try {
+			await createScopedStorage(supabase).upload(BUCKET_NAME, filePath, file, {
 				upsert: true,
 				contentType: ALLOWED_MIME,
 			});
-
-		if (upErr) {
-			log.error('Error al subir a Storage', { error: upErr });
+		} catch (error) {
+			log.error('Error al subir a Storage', { error });
 			return redirectWithStatus(
 				'error',
 				'Error al subir el archivo al servidor',
