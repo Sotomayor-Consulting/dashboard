@@ -34,10 +34,12 @@ const pickStateName = (
 	return row?.name ?? null;
 };
 
-function buildOwnerFromUsuario(
-	u: UsuarioRow,
-	supabase: SupabaseClient,
-): { id: string; name: string; email: string; avatarUrl: string | null } {
+function buildOwnerFromUsuario(u: UsuarioRow): {
+	id: string;
+	name: string;
+	email: string;
+	avatarUrl: string | null;
+} {
 	return {
 		id: u.user_id,
 		name:
@@ -45,7 +47,7 @@ function buildOwnerFromUsuario(
 			u.correo ||
 			'Sin nombre',
 		email: u.correo ?? '',
-		avatarUrl: getAvatarUrl(u.avatar_url, supabase),
+		avatarUrl: getAvatarUrl(u.avatar_url),
 	};
 }
 
@@ -342,7 +344,6 @@ export async function listAdminEmpresas(
 					correo: null,
 					avatar_url: null,
 				},
-				supabase,
 			);
 		}
 		return buildAdminEmpresa(

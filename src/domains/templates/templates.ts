@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { BUCKETS, storage } from '@infrastructure/storage';
 import { safeFilename } from '@domains/documents/helpers';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -64,22 +65,34 @@ function toTemplateWithDocument(
 	return {
 		id: String(template.id),
 		name: String(template.name),
-		description: template.description != null ? String(template.description) : null,
+		description:
+			template.description != null ? String(template.description) : null,
 		category: template.category != null ? String(template.category) : null,
-		template_type: String(template.template_type) as TemplateWithDocument['template_type'],
-		related_to_type: (template.related_to_type as TemplateWithDocument['related_to_type']) ?? null,
-		field_mapping: (template.field_mapping ?? {}) as TemplateWithDocument['field_mapping'],
-		transformer_id: template.transformer_id != null ? String(template.transformer_id) : null,
-		source_url: template.source_url != null ? String(template.source_url) : null,
-		field_definitions: (template.field_definitions ?? []) as TemplateWithDocument['field_definitions'],
+		template_type: String(
+			template.template_type,
+		) as TemplateWithDocument['template_type'],
+		related_to_type:
+			(template.related_to_type as TemplateWithDocument['related_to_type']) ??
+			null,
+		field_mapping: (template.field_mapping ??
+			{}) as TemplateWithDocument['field_mapping'],
+		transformer_id:
+			template.transformer_id != null ? String(template.transformer_id) : null,
+		source_url:
+			template.source_url != null ? String(template.source_url) : null,
+		field_definitions: (template.field_definitions ??
+			[]) as TemplateWithDocument['field_definitions'],
 		is_active: Boolean(template.is_active),
 		version: Number(template.version),
 		created_by: String(template.created_by),
-		updated_by: template.updated_by != null ? String(template.updated_by) : null,
+		updated_by:
+			template.updated_by != null ? String(template.updated_by) : null,
 		created_at: String(template.created_at),
 		updated_at: String(template.updated_at),
-		deleted_at: template.deleted_at != null ? String(template.deleted_at) : null,
-		deleted_by: template.deleted_by != null ? String(template.deleted_by) : null,
+		deleted_at:
+			template.deleted_at != null ? String(template.deleted_at) : null,
+		deleted_by:
+			template.deleted_by != null ? String(template.deleted_by) : null,
 		document,
 	};
 }
@@ -89,7 +102,8 @@ async function getDocumentLink(
 ): Promise<Record<string, unknown> | null> {
 	const { data } = await db
 		.from('document_links')
-		.select(`
+		.select(
+			`
 			document_id,
 			documents:document_id(
 				id,
@@ -99,7 +113,8 @@ async function getDocumentLink(
 				file_size_bytes,
 				mime_type
 			)
-		`)
+		`,
+		)
 		.eq('related_to_type', 'template')
 		.eq('related_to_id', templateId)
 		.eq('relation_purpose', 'owner')
@@ -115,7 +130,8 @@ async function getDocumentLinksForTemplates(
 
 	const { data } = await db
 		.from('document_links')
-		.select(`
+		.select(
+			`
 			related_to_id,
 			document_id,
 			documents:document_id(
@@ -126,7 +142,8 @@ async function getDocumentLinksForTemplates(
 				file_size_bytes,
 				mime_type
 			)
-		`)
+		`,
+		)
 		.eq('related_to_type', 'template')
 		.eq('relation_purpose', 'owner')
 		.in('related_to_id', templateIds);
@@ -320,18 +337,15 @@ export async function uploadTemplateFile(
 ): Promise<{ documentId: string }> {
 	const resolvedName = fileName || 'template';
 	const filePath = `templates/${safeFilename(`${templateId}-${resolvedName}`)}`;
-	const bucket = 'templates';
-	const bucketForFile = supabaseAdmin.storage.from(bucket);
+	const bucket = BUCKETS.templates;
 
 	const arrayBuf = await file.arrayBuffer();
 
 	// ── Subir/sobrescribir archivo en storage ──
-	const { error: uploadError } = await bucketForFile.upload(filePath, arrayBuf, {
+	await storage.upload(bucket, filePath, arrayBuf, {
 		upsert: true,
 		contentType: file.type || 'application/octet-stream',
 	});
-
-	if (uploadError) throw uploadError;
 
 	const timestamp = now();
 
@@ -413,9 +427,7 @@ export async function deleteTemplateFile(
 		.maybeSingle();
 
 	if (doc) {
-		await supabaseAdmin.storage
-			.from(String(doc.bucket_storage))
-			.remove([String(doc.bucket_path)]);
+		await storage.remove(String(doc.bucket_storage), [String(doc.bucket_path)]);
 	}
 
 	const timestamp = now();
@@ -442,13 +454,10 @@ export async function getTemplateFileUrl(
 		throw new Error('Template has no associated file or source URL');
 	}
 
-	const { data, error } = await supabaseAdmin.storage
-		.from(template.document.bucket_storage)
-		.createSignedUrl(template.document.bucket_path, 3600);
-
-	if (error || !data) throw new Error('Error creating signed URL for template');
-
-	return data.signedUrl;
+	return storage.createSignedUrl(
+		template.document.bucket_storage,
+		template.document.bucket_path,
+	);
 }
 
 export async function getTemplateFileContent(
@@ -471,20 +480,15 @@ export async function getTemplateFileContent(
 		throw new Error('Template has no associated file or source URL');
 	}
 
-	const { data, error } = await supabaseAdmin.storage
-		.from(template.document.bucket_storage)
-		.createSignedUrl(template.document.bucket_path, 3600);
+	// Descarga directa: antes se firmaba una URL y se hacía fetch contra ella,
+	// un round-trip de más para un archivo que el servidor ya puede leer.
+	const { body } = await storage.download(
+		template.document.bucket_storage,
+		template.document.bucket_path,
+	);
 
-	if (error || !data) throw new Error('Error creating signed URL for template');
-
-	const response = await fetch(data.signedUrl);
-	if (!response.ok) {
-		throw new Error(`Failed to fetch template from storage: ${response.status}`);
-	}
-
-	const content = await response.arrayBuffer();
 	return {
-		content,
+		content: body,
 		fileName: template.document.file_name,
 		mimeType: template.document.mime_type || 'application/octet-stream',
 	};

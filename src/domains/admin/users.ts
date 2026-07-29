@@ -67,7 +67,6 @@ function toAdminUser(
 	row: RawUserRow,
 	companiesCount: number,
 	lastSignInAt: string | null,
-	supabase: SupabaseClient,
 ): AdminUser {
 	const fullName = [row.nombre, row.apellido].filter(Boolean).join(' ').trim();
 	const roles = extractRoleNames(row);
@@ -80,7 +79,7 @@ function toAdminUser(
 		id: row.user_id,
 		name: fullName || row.correo || 'Sin nombre',
 		email: row.correo ?? '',
-		avatarUrl: getAvatarUrl(row.avatar_url, supabase),
+		avatarUrl: getAvatarUrl(row.avatar_url),
 		countryCode: extractCountryIso(row),
 		organization: null,
 		jobTitle: null,
@@ -133,7 +132,6 @@ export async function listAdminUsers(
 			u,
 			countByUser.get(u.user_id) ?? 0,
 			lastSignInMap.get(u.user_id) ?? null,
-			supabase,
 		),
 	);
 }
@@ -161,9 +159,7 @@ export async function getAdminUserDetail(
 
 	const { data: empresasRaw } = await supabase
 		.from('incorporations')
-		.select(
-			'id, principal_name, entity_type, porcentaje_de_incorporacion',
-		)
+		.select('id, principal_name, entity_type, porcentaje_de_incorporacion')
 		.eq('user_id', userId)
 		.limit(20);
 
@@ -200,7 +196,6 @@ export async function getAdminUserDetail(
 		user as unknown as RawUserRow,
 		companies.length,
 		lastSignInAt,
-		supabase,
 	);
 	return { ...base, companies };
 }

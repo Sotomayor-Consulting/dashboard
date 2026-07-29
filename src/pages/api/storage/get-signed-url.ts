@@ -2,15 +2,22 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
+import { BUCKETS, createScopedStorage } from '@infrastructure/storage';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('storage.get-signed-url');
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	try {
-		const supabase = createSupabaseServerClient({ headers: request.headers, cookies });
+		const supabase = createSupabaseServerClient({
+			headers: request.headers,
+			cookies,
+		});
 
-		const { data: { user }, error: userErr } = await supabase.auth.getUser();
+		const {
+			data: { user },
+			error: userErr,
+		} = await supabase.auth.getUser();
 
 		if (userErr || !user) {
 			log.error('Sin sesión', { message: userErr?.message });
@@ -29,20 +36,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 			);
 		}
 
-		const { data, error } = await supabase.storage
-			.from('documents')
-			.createSignedUrl(path, 3600);
+		// Sin verificación de ownership en el route: la autorización la hace RLS
+		// sobre `storage.objects` con la sesión del usuario.
+		const signedUrl = await createScopedStorage(supabase).createSignedUrl(
+			BUCKETS.documents,
+			path,
+		);
 
-		if (error) {
-			log.error('Error', { error });
-			return new Response(JSON.stringify({ error: error.message }), {
-				status: 500,
-			});
-		}
-
-		return new Response(JSON.stringify({ signedUrl: data.signedUrl }), {
-			status: 200,
-		});
+		return new Response(JSON.stringify({ signedUrl }), { status: 200 });
 	} catch (e: unknown) {
 		log.error('Excepción', { error: e });
 		return new Response(JSON.stringify({ error: 'Error inesperado' }), {

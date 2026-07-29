@@ -325,7 +325,7 @@ export async function listAdminCompanies(
 					usuarioRaw.correo ||
 					'Sin nombre',
 				email: usuarioRaw.correo ?? '',
-				avatarUrl: getAvatarUrl(usuarioRaw.avatar_url, supabase),
+				avatarUrl: getAvatarUrl(usuarioRaw.avatar_url),
 			}
 			: null;
 

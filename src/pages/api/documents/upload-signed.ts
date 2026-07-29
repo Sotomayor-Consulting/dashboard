@@ -4,12 +4,13 @@ import type { APIRoute } from 'astro';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { BUCKETS, createScopedStorage } from '@infrastructure/storage';
 import { checkRateLimit } from '@infrastructure/security/rate-limit';
 import { createLogger } from '@infrastructure/logging';
 
 const log = createLogger('documents.upload-signed');
 
-const BUCKET_NAME = 'documents';
+const BUCKET_NAME = BUCKETS.documents;
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB
 
 export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
@@ -71,15 +72,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		const safeFileName = file.name.replace(/\s+/g, '_');
 		const filePath = `${currentUserId}/companies/${empresaId}/documents/signed-${fileId}-${safeFileName}`;
 
-		const { error: upErr } = await supabase.storage
-			.from(BUCKET_NAME)
-			.upload(filePath, file, {
+		// Storage atado a la sesión: las políticas RLS del bucket `documents`
+		// siguen validando que el path caiga en la carpeta del propio usuario.
+		try {
+			await createScopedStorage(supabase).upload(BUCKET_NAME, filePath, file, {
 				upsert: true,
 				contentType: file.type || 'application/octet-stream',
 			});
-
-		if (upErr) {
-			log.error('Error al subir a Storage', { error: upErr });
+		} catch (error) {
+			log.error('Error al subir a Storage', { error });
 			return redirectWithStatus('error', 'Error al subir el archivo');
 		}
 
