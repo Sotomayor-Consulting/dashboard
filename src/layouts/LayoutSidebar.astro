@@ -18,6 +18,12 @@ import {
 } from '@domains/companies/companies';
 import { ACTIVE_COMPANY_COOKIE } from '@shared/cookies';
 
+interface Props {
+	hideSidebar?: boolean;
+}
+
+const { hideSidebar = false } = Astro.props;
+
 const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
@@ -75,18 +81,24 @@ const avatarUrl = getAvatarUrl(usuario?.avatar_url);
 		notificationsData={notificationsData}
 		empresas={empresasSwitcher}
 		avatarUrl={avatarUrl}
+		hideSidebar={hideSidebar}
 	/>
 
-	<SideBar
-		empresas={empresasSwitcher}
-		activeCompany={selectedCompany}
-		avatarUrl={avatarUrl}
-	/>
+	{!hideSidebar && (
+		<SideBar
+			empresas={empresasSwitcher}
+			activeCompany={selectedCompany}
+			avatarUrl={avatarUrl}
+		/>
+	)}
 
 	<div class="dark:bg-primary-black flex h-dvh overflow-hidden bg-white pt-14">
 		<div
 			id="main-content"
-			class="dark:bg-primary-black relative h-full w-full overflow-y-auto bg-white"
+			class:list={[
+				'dark:bg-primary-black relative h-full w-full overflow-y-auto bg-white',
+				hideSidebar && 'no-sidebar',
+			]}
 		>
 			<div transition:persist="global-toaster">
 				<Toaster client:load />

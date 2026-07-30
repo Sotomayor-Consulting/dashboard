@@ -2,9 +2,21 @@
 import Alerta from '@components/feedback/Alert.astro';
 import LayoutSidebar from '@layouts/LayoutSidebar.astro';
 import LandingReadme from '@modules/landing/LandingHome.astro';
+import { getEmpresasForSwitcher } from '@domains/companies/companies';
+
+const supabase = Astro.locals.supabase;
+const user = Astro.locals.user;
+const userRoles = Astro.locals.userRoles;
+
+const empresas = await getEmpresasForSwitcher(supabase, user?.id ?? '');
+const isNewClient =
+	userRoles.includes('cliente') &&
+	!userRoles.includes('admin') &&
+	!userRoles.includes('operaciones') &&
+	empresas.length === 0;
 ---
 
-<LayoutSidebar>
+<LayoutSidebar hideSidebar={isNewClient}>
 	<Alerta />
 	<LandingReadme />
 </LayoutSidebar>
