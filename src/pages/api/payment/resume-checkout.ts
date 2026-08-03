@@ -27,20 +27,23 @@ const STRIPE_SECRET_KEY =
 const PUBLIC_SITE_URL =
 	process.env.PUBLIC_SITE_URL ??
 	import.meta.env.PUBLIC_SITE_URL ??
-	'http://localhost:4321';
+	(import.meta.env.DEV ? 'http://localhost:4321' : '');
+
+const MISSING_SITE_URL =
+	!PUBLIC_SITE_URL || PUBLIC_SITE_URL.includes('localhost');
 
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
 
-if (import.meta.env.PROD && PUBLIC_SITE_URL.includes('localhost')) {
+if (import.meta.env.PROD && MISSING_SITE_URL) {
 	log.error(
-		'PUBLIC_SITE_URL no configurada en producción: los success_url de Stripe apuntarán a localhost.',
+		'PUBLIC_SITE_URL no configurada en producción: los success_url de Stripe apuntarían a localhost.',
 	);
 }
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-	if (!stripe) {
+	if (!stripe || (import.meta.env.PROD && MISSING_SITE_URL)) {
 		return new Response(
-			JSON.stringify({ error: 'Configuracion incompleta de pagos (Stripe).' }),
+			JSON.stringify({ error: 'Configuracion incompleta de pagos.' }),
 			{ status: 503, headers: SECURITY_HEADERS },
 		);
 	}
