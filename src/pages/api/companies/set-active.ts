@@ -38,14 +38,25 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 		});
 	}
 
-	const { data: empresa, error } = await supabase
-		.from('incorporations')
-		.select('id')
-		.eq('id', companyId)
-		.eq('user_id', user.id)
-		.maybeSingle();
+	// El id que envía el switcher puede ser el de una incorporación en proceso
+	// o el de una empresa dada de alta como ya existente. Ambos son válidos
+	// mientras pertenezcan al usuario.
+	const [incResult, compResult] = await Promise.all([
+		supabase
+			.from('incorporations')
+			.select('id')
+			.eq('id', companyId)
+			.eq('user_id', user.id)
+			.maybeSingle(),
+		supabase
+			.from('companies')
+			.select('id')
+			.eq('id', companyId)
+			.eq('user_id', user.id)
+			.maybeSingle(),
+	]);
 
-	if (error || !empresa) {
+	if (!incResult.data && !compResult.data) {
 		return new Response(
 			JSON.stringify({ error: 'Empresa no encontrada' }),
 			{ status: 404, headers: SECURITY_HEADERS },

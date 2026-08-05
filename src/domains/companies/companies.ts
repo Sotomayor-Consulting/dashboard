@@ -100,10 +100,111 @@ export interface EmpresaSwitcherItem {
 }
 
 /**
+ * Normaliza un nombre societario para poder compararlo: sin acentos, sin
+ * signos ni espacios y en mayúsculas.
+ * `Escuela de Programación` → `ESCUELADEPROGRAMACION`.
+ */
+const normalizeCompanyName = (value: string | null | undefined): string =>
+	(value ?? '')
+		// NFD separa la tilde de la letra; el filtro siguiente descarta la tilde
+		// y conserva la letra base.
+		.normalize('NFD')
+		.replace(/[^a-zA-Z0-9]/g, '')
+		.toUpperCase();
+
+/** Longitud mínima para aceptar una coincidencia por prefijo. */
+const MIN_PREFIX_MATCH_LENGTH = 4;
+
+/**
+ * Empareja cada incorporación con su empresa canónica.
+ *
+ * `companies.incorporation_id` es el enlace explícito, pero las empresas
+ * cargadas antes de que existiera ese flujo —y las que se dan de alta como
+ * empresa ya existente— lo tienen nulo. Sin reconciliarlas, el switcher
+ * muestra la misma empresa dos veces: una como incorporación y otra como
+ * empresa. El emparejamiento va de más fiable a menos:
+ *
+ * 1. El enlace explícito, que manda sobre cualquier heurística.
+ * 2. El nombre normalizado, exacto y luego por prefijo para absorber el
+ *    sufijo societario (`ADELE GLOBAL` ↔ `ADELE GLOBAL LLC`).
+ * 3. El descarte, cuando al usuario le queda una sola de cada.
+ */
+function pairIncorporationsWithCompanies(
+	incorporations: IncorporationWithState[],
+	companies: CompanySwitcherRow[],
+): Map<string, CompanySwitcherRow> {
+	const byIncorporation = new Map<string, CompanySwitcherRow>();
+	const claimed = new Set<string>();
+
+	// 1. Enlace explícito.
+	for (const company of companies) {
+		const linkedTo = company.incorporation_id;
+		if (!linkedTo || byIncorporation.has(linkedTo)) continue;
+		byIncorporation.set(linkedTo, company);
+		claimed.add(company.id);
+	}
+
+	// 2. Nombre normalizado.
+	for (const inc of incorporations) {
+		if (byIncorporation.has(inc.id)) continue;
+
+		const incKey = normalizeCompanyName(inc.principal_name);
+		if (!incKey) continue;
+
+		const candidates = companies
+			.filter((c) => !claimed.has(c.id))
+			.map((c) => ({ company: c, key: normalizeCompanyName(c.legal_name) }))
+			.filter((c) => c.key.length > 0);
+
+		const match =
+			candidates.find((c) => c.key === incKey) ??
+			candidates
+				.filter(
+					(c) =>
+						Math.min(c.key.length, incKey.length) >=
+							MIN_PREFIX_MATCH_LENGTH &&
+						(c.key.startsWith(incKey) || incKey.startsWith(c.key)),
+				)
+				// El candidato más corto es el más cercano; el id desempata para
+				// que el orden del switcher no dependa del orden de la query.
+				.sort(
+					(a, b) =>
+						a.key.length - b.key.length ||
+						a.company.id.localeCompare(b.company.id),
+				)[0];
+
+		if (!match) continue;
+		byIncorporation.set(inc.id, match.company);
+		claimed.add(match.company.id);
+	}
+
+	// 3. Descarte: una incorporación suelta y una empresa suelta son la misma
+	//    aunque el nombre haya cambiado durante el proceso.
+	const looseIncorporations = incorporations.filter(
+		(inc) => !byIncorporation.has(inc.id),
+	);
+	const looseCompanies = companies.filter((c) => !claimed.has(c.id));
+	const [onlyIncorporation] = looseIncorporations;
+	const [onlyCompany] = looseCompanies;
+
+	if (
+		looseIncorporations.length === 1 &&
+		looseCompanies.length === 1 &&
+		onlyIncorporation &&
+		onlyCompany
+	) {
+		byIncorporation.set(onlyIncorporation.id, onlyCompany);
+		claimed.add(onlyCompany.id);
+	}
+
+	return byIncorporation;
+}
+
+/**
  * Unión de incorporaciones (proceso) y companies (canónica) del usuario.
- * Si una empresa tiene incorporación, el switcher la representa a través
- * del `incorporation_id` (la navegación va al dashboard de la incorporación);
- * si no tiene, se enlaza directamente por `company_id`.
+ * Cada empresa aparece una sola vez: si tiene incorporación asociada el item
+ * lleva ambos ids y la navegación va a `/company/`; si solo existe el proceso,
+ * va a `/incorporation/`.
  */
 export const getEmpresasForSwitcher = async (
 	supabase: SupabaseClient,
@@ -118,16 +219,16 @@ export const getEmpresasForSwitcher = async (
 		supabase
 			.from('companies')
 			.select(COMPANY_COLUMNS.WITH_STATE)
-			.eq('user_id', userId),
+			.eq('user_id', userId)
+			.order('updated_at', { ascending: false }),
 	]);
 
 	const incorporations = (incResult.data ?? []) as IncorporationWithState[];
 	const companies = (compResult.data ?? []) as CompanySwitcherRow[];
 
-	const companyByIncorporation = new Map<string, CompanySwitcherRow>(
-		companies
-			.filter((c) => c.incorporation_id)
-			.map((c) => [c.incorporation_id!, c]),
+	const companyByIncorporation = pairIncorporationsWithCompanies(
+		incorporations,
+		companies,
 	);
 
 	const items: EmpresaSwitcherItem[] = [];
@@ -144,19 +245,21 @@ export const getEmpresasForSwitcher = async (
 				inc.possible_names?.find(Boolean) ??
 				'Empresa sin nombre',
 			tipo_de_negocio: company?.entity_type ?? inc.entity_type ?? null,
-			estado: inc.state ?? null,
+			// La empresa canónica manda: `incorporations.state` quedó sin
+			// mantener y el dashboard clasifica por `active` / `draft`.
+			estado: company?.legal_status ?? inc.state ?? null,
 			estado_de_incorporacion:
 				pickStateName(company?.formation_state) ??
 				pickStateName(inc.formation_state),
 		});
 	}
 
-	// Empresas canónicas sin incorporación ligada: aparecen por `company_id`.
-	const linkedCompanyIds = new Set(
-		items.map((i) => i.company_id).filter(Boolean),
+	// Empresas sin incorporación asociada: altas directas de empresa existente.
+	const pairedCompanyIds = new Set(
+		Array.from(companyByIncorporation.values(), (c) => c.id),
 	);
 	for (const c of companies) {
-		if (linkedCompanyIds.has(c.id)) continue;
+		if (pairedCompanyIds.has(c.id)) continue;
 		items.push({
 			id: c.id,
 			incorporation_id: null,
