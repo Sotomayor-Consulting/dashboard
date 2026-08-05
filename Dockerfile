@@ -37,6 +37,14 @@ ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${PUBLIC_STRIPE_PUBLISHABLE_KEY}
 ENV PUBLIC_TURNSTILE_SITE_KEY=${PUBLIC_TURNSTILE_SITE_KEY}
 ENV PUBLIC_GOOGLE_CLIENT_ID=${PUBLIC_GOOGLE_CLIENT_ID}
 
+# Sentry sube los source maps durante `astro build`, así que el token va como
+# build arg y no como variable de runtime. Sin él el build igual funciona, pero
+# los stack traces de producción llegan minificados.
+# Generarlo con scope mínimo (project:releases): los build args quedan en el
+# historial de capas de la imagen.
+ARG SENTRY_AUTH_TOKEN
+ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
