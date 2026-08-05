@@ -27,15 +27,23 @@ FROM base AS builder
 # Variables PUBLIC_* necesarias durante el build de Astro/Vite
 # Vite las lee de process.env para reemplazar import.meta.env.PUBLIC_*
 ARG PUBLIC_SUPABASE_URL
-ARG PUBLIC_SUPABASE_ANON_KEY
+ARG PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ARG PUBLIC_STRIPE_PUBLISHABLE_KEY
 ARG PUBLIC_TURNSTILE_SITE_KEY
 ARG PUBLIC_GOOGLE_CLIENT_ID
 ENV PUBLIC_SUPABASE_URL=${PUBLIC_SUPABASE_URL}
-ENV PUBLIC_SUPABASE_ANON_KEY=${PUBLIC_SUPABASE_ANON_KEY}
+ENV PUBLIC_SUPABASE_PUBLISHABLE_KEY=${PUBLIC_SUPABASE_PUBLISHABLE_KEY}
 ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${PUBLIC_STRIPE_PUBLISHABLE_KEY}
 ENV PUBLIC_TURNSTILE_SITE_KEY=${PUBLIC_TURNSTILE_SITE_KEY}
 ENV PUBLIC_GOOGLE_CLIENT_ID=${PUBLIC_GOOGLE_CLIENT_ID}
+
+# Sentry sube los source maps durante `astro build`, así que el token va como
+# build arg y no como variable de runtime. Sin él el build igual funciona, pero
+# los stack traces de producción llegan minificados.
+# Generarlo con scope mínimo (project:releases): los build args quedan en el
+# historial de capas de la imagen.
+ARG SENTRY_AUTH_TOKEN
+ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .

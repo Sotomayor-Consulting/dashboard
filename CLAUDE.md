@@ -352,8 +352,8 @@ Para los `<script>` con atributos (`define:vars`, `type="module"`, `src=`, etc.)
 
 ### Environment Variables
 
-- `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY` — Supabase client
-- `SUPABASE_SERVICE_ROLE_KEY` — admin client
+- `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_PUBLISHABLE_KEY` — Supabase client
+- `SUPABASE_SECRET_KEY` — admin client
 - `BREVO_SMTP_HOST`, `BREVO_SMTP_PORT`, `BREVO_SMTP_USER`, `BREVO_SMTP_PASSWORD`, `BREVO_SMTP_FROM_EMAIL`, `BREVO_SMTP_FROM_NAME` — SMTP de Brevo (recomendado)
 - `SMTP_SERVER`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM`, `EMAIL_FROM_NAME` — compatibilidad
 - `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS`, `MAIL_FROM` — compatibilidad legada
