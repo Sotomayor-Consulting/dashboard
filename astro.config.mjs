@@ -7,6 +7,8 @@ import icon from 'astro-icon';
 
 import react from '@astrojs/react';
 
+import sentry from '@sentry/astro';
+
 const logger = createLogger();
 const originalInfo = logger.info;
 const originalWarn = logger.warn;
@@ -94,6 +96,11 @@ export default defineConfig({
 			iconDir: 'src/assets/illustrations',
 		}),
 		react(),
+		sentry({
+			project: 'javascript-astro',
+			org: 'sotomayor-consulting-international',
+			authToken: process.env.SENTRY_AUTH_TOKEN,
+		}),
 	],
 	image: {
 		remotePatterns: [{ protocol: 'https' }],
