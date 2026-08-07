@@ -1,6 +1,7 @@
 ﻿import * as React from 'react';
 import { Badge } from '@components/ui/Badge';
 import { Button } from '@components/ui/Button';
+import { Checkbox } from '@components/ui/Checkbox';
 import { DropzoneField } from '@components/ui/DropzoneField';
 import { Field, FieldGroup, FieldLabel } from '@components/ui/Field';
 import {
@@ -35,8 +36,10 @@ import { DocumentTypeComboboxField } from './DocumentTypeComboboxField';
 import DocumentDetailDrawer from '@modules/companies/islands/DocumentDetailDrawer';
 import {
 	badgeForDocumentStatus,
+	badgeForSigned,
 	formatDate,
 	getMimeIcon,
+	signedLabel,
 	statusLabel,
 } from '../document-ui';
 
@@ -234,6 +237,11 @@ export default function CompanyDocumentsUploadManager({
 								</SelectContent>
 							</Select>
 						</Field>
+
+						<Field orientation="horizontal">
+							<Checkbox id="isSigned" name="isSigned" value="true" />
+							<FieldLabel htmlFor="isSigned">Está firmado</FieldLabel>
+						</Field>
 					</FieldGroup>
 
 					<div className="mt-4 flex items-center justify-end">
@@ -301,14 +309,17 @@ export default function CompanyDocumentsUploadManager({
 										{doc.file_title ?? doc.file_name}
 									</TableCell>
 									<TableCell className="max-w-36 truncate">
-										{doc.document_type
-											? `${doc.document_type.code} - ${doc.document_type.name}`
-											: 'Documento'}
+										{doc.document_type?.name ?? 'Documento'}
 									</TableCell>
 									<TableCell>
-										<Badge variant={badgeForDocumentStatus(doc.status)}>
-											{statusLabel(doc.status)}
-										</Badge>
+										<div className="flex flex-wrap items-center gap-1">
+											<Badge variant={badgeForDocumentStatus(doc.status)}>
+												{statusLabel(doc.status)}
+											</Badge>
+											<Badge variant={badgeForSigned(doc.is_signed)}>
+												{signedLabel(doc.is_signed)}
+											</Badge>
+										</div>
 									</TableCell>
 									<TableCell>
 										{doc.visibility === 'client_visible'

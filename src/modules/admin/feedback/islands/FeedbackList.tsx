@@ -130,7 +130,7 @@ export default function FeedbackList({ items }: Props) {
 	}, [items, search, category]);
 
 	return (
-		<div className="flex min-h-full flex-col">
+		<div className="flex -mx-5 min-h-full flex-col">
 			{/* Header */}
 			<header className="flex items-end justify-between gap-4 border-b border-gray-200 px-7 pt-6 pb-4 dark:border-gray-800">
 				<div>
