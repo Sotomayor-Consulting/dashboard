@@ -47,10 +47,12 @@ import type {
 import DocumentDetailDrawer from './DocumentDetailDrawer';
 import {
 	badgeForDocumentStatus,
+	badgeForSigned,
 	formatDate,
 	getMimeBg,
 	getMimeColor,
 	getMimeIcon,
+	signedLabel,
 	statusLabel,
 } from '@modules/documents/document-ui';
 
@@ -382,14 +384,17 @@ export default function DocumentsTab({
 										{doc.file_title ?? doc.file_name}
 									</TableCell>
 									<TableCell className="max-w-36 truncate">
-										{doc.document_type
-											? `${doc.document_type.code} - ${doc.document_type.name}`
-											: 'Documento'}
+										{doc.document_type?.name ?? 'Documento'}
 									</TableCell>
 									<TableCell>
-										<Badge variant={badgeForDocumentStatus(doc.status)}>
-											{statusLabel(doc.status)}
-										</Badge>
+										<div className="flex flex-wrap items-center gap-1">
+											<Badge variant={badgeForDocumentStatus(doc.status)}>
+												{statusLabel(doc.status)}
+											</Badge>
+											<Badge variant={badgeForSigned(doc.is_signed)}>
+												{signedLabel(doc.is_signed)}
+											</Badge>
+										</div>
 									</TableCell>
 									<TableCell>
 										{doc.visibility === 'client_visible'

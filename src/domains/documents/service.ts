@@ -17,6 +17,7 @@ import {
 	resolveActorRole,
 	safeFilename,
 	isStaffRole,
+	insertDocumentWithLink,
 } from './helpers';
 import type {
 	CaseOwnerRow,
@@ -285,46 +286,46 @@ export async function uploadDocument(
 
 	const now = new Date().toISOString();
 
-	const { error: insertErr } = await documentsDb.from('documents').insert({
-		id: documentId,
-		document_type_id: resolvedDocumentTypeId,
-		document_request_id: input.documentRequestId ?? null,
-		case_id: context.caseId,
-		file_name: input.file.name,
-		bucket_path: filePath,
-		bucket_storage: bucket,
-		file_size_bytes: input.file.size,
-		file_title: input.file.name,
-		mime_type: input.file.type || null,
-		status: 'uploaded',
-		visibility: input.visibility,
-		is_sensitive: true,
-		version: 1,
-		uploaded_by: actor.userId,
-		uploaded_at: now,
-		created_by: actor.userId,
-		created_at: now,
-		updated_by: actor.userId,
-		updated_at: now,
-	});
-
-	if (insertErr) {
+	try {
+		await insertDocumentWithLink(
+			documentsDb,
+			bucket,
+			filePath,
+			{
+				id: documentId,
+				document_type_id: resolvedDocumentTypeId,
+				document_request_id: input.documentRequestId ?? null,
+				case_id: context.caseId,
+				file_name: input.file.name,
+				bucket_path: filePath,
+				bucket_storage: bucket,
+				file_size_bytes: input.file.size,
+				file_title: input.file.name,
+				mime_type: input.file.type || null,
+				status: 'uploaded',
+				visibility: input.visibility,
+				is_signed: input.isSigned ?? false,
+				version: 1,
+				uploaded_by: actor.userId,
+				uploaded_at: now,
+				created_by: actor.userId,
+				created_at: now,
+				updated_by: actor.userId,
+				updated_at: now,
+			},
+			{
+				id: crypto.randomUUID(),
+				document_id: documentId,
+				related_to_type: input.relatedToType,
+				related_to_id: input.relatedToId,
+				relation_purpose: 'owner',
+				is_primary: true,
+				created_by: actor.userId,
+				created_at: now,
+			},
+		);
+	} catch {
 		throw new DocumentsError(500, 'Error guardando documento');
-	}
-
-	const { error: linkErr } = await documentsDb.from('document_links').insert({
-		id: crypto.randomUUID(),
-		document_id: documentId,
-		related_to_type: input.relatedToType,
-		related_to_id: input.relatedToId,
-		relation_purpose: 'owner',
-		is_primary: true,
-		created_by: actor.userId,
-		created_at: now,
-	});
-
-	if (linkErr) {
-		throw new DocumentsError(500, 'Error enlazando documento');
 	}
 
 	if (
@@ -536,7 +537,6 @@ export async function listDocumentsByContext(
 				document_request_id,
 				document_types:document_type_id (
 					id,
-					code,
 					name,
 					legal_category,
 					applies_to

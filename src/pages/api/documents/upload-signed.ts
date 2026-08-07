@@ -110,6 +110,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			.from('documents')
 			.update({
 				status: 'uploaded',
+				is_signed: true,
 				bucket_storage: BUCKET_NAME,
 				bucket_path: filePath,
 				file_name: safeFileName,

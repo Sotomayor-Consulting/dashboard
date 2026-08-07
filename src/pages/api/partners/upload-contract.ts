@@ -130,7 +130,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 				mime_type: ALLOWED_MIME,
 				status: 'uploaded',
 				visibility: 'client_visible',
-				is_sensitive: false,
 				version: 1,
 				uploaded_by: user.id,
 				uploaded_at: now,

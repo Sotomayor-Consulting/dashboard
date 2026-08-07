@@ -35,6 +35,7 @@ export interface UploadDocumentInput {
 	visibility: DocumentVisibility;
 	shareWithUserId?: string | null;
 	autoShare: boolean;
+	isSigned?: boolean;
 }
 
 export interface UploadDocumentResult {

@@ -17,6 +17,7 @@ import type { DocumentDashboardRow } from '@domains/documents/document_dashboard
 import {
 	actorRoleLabel,
 	badgeForDocumentStatus,
+	badgeForSigned,
 	eventTypeIcon,
 	eventTypeLabel,
 	formatDate,
@@ -26,6 +27,7 @@ import {
 	getMimeColor,
 	getMimeIcon,
 	legalCategoryLabel,
+	signedLabel,
 	statusLabel,
 } from '@modules/documents/document-ui';
 
@@ -280,12 +282,20 @@ export default function DocumentDetailDrawer({
 						{/* Badges */}
 						<div className="flex flex-wrap items-center gap-2">
 							{localDocument ? (
-								<Badge
-									variant={badgeForDocumentStatus(localDocument.status)}
-									className="w-fit"
-								>
-									{statusLabel(localDocument.status)}
-								</Badge>
+								<>
+									<Badge
+										variant={badgeForDocumentStatus(localDocument.status)}
+										className="w-fit"
+									>
+										{statusLabel(localDocument.status)}
+									</Badge>
+									<Badge
+										variant={badgeForSigned(localDocument.is_signed)}
+										className="w-fit"
+									>
+										{signedLabel(localDocument.is_signed)}
+									</Badge>
+								</>
 							) : (
 								<Skeleton className="h-5 w-20" />
 							)}

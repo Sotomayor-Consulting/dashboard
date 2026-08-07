@@ -124,6 +124,10 @@ export const POST: APIRoute = async ({
 		const shareWithUserId =
 			url.searchParams.get('shareWithUserId') ||
 			(form.get('shareWithUserId') as string | null);
+		const isSigned =
+			(url.searchParams.get('isSigned') ||
+				(form.get('isSigned') as string | null) ||
+				'') === 'true';
 
 		if (!actor.isStaff && !documentRequestId) {
 			return redirectWithStatus('error', 'Falta documentRequestId');
@@ -143,6 +147,7 @@ export const POST: APIRoute = async ({
 			visibility,
 			autoShare: shouldAutoShare,
 			shareWithUserId,
+			isSigned,
 		});
 
 		return redirectWithStatus('success', 'Documento subido correctamente');

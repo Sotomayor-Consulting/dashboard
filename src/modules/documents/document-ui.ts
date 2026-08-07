@@ -77,6 +77,14 @@ export function badgeForDocumentStatus(status: string): DocumentBadgeVariant {
 	return 'warning';
 }
 
+export function badgeForSigned(isSigned: boolean): DocumentBadgeVariant {
+	return isSigned ? 'susess' : 'standar';
+}
+
+export function signedLabel(isSigned: boolean): string {
+	return isSigned ? 'Firmado' : 'Sin firmar';
+}
+
 export function statusLabel(status: string): string {
 	const map: Record<string, string> = {
 		pending: 'Pendiente',

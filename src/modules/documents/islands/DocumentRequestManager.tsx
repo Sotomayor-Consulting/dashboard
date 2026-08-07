@@ -8,6 +8,7 @@ import {
 	SelectContent,
 	SelectGroup,
 	SelectItem,
+	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from '@components/ui/Select';
@@ -20,12 +21,15 @@ import {
 	TableRow,
 } from '@components/ui/Table';
 import { Textarea } from '@components/ui/Textarea';
+import { LEGAL_CATEGORY_LABELS } from '../document-ui';
 
 type DocumentTypeLite = {
 	id: number;
-	code: number;
 	name: string;
+	legal_category: string;
 };
+
+type DocumentTypeGroup = { category: string; items: DocumentTypeLite[] };
 
 type DocumentRequestItem = {
 	id: string;
@@ -60,6 +64,19 @@ export default function DocumentRequestManager({
 	documentTypes,
 	requests,
 }: Props) {
+	const documentTypeGroups = React.useMemo<DocumentTypeGroup[]>(() => {
+		const map = new Map<string, DocumentTypeLite[]>();
+		for (const docType of documentTypes) {
+			const category = docType.legal_category ?? 'other';
+			if (!map.has(category)) map.set(category, []);
+			map.get(category)!.push(docType);
+		}
+		return [...map.entries()].map(([category, items]) => ({
+			category,
+			items,
+		}));
+	}, [documentTypes]);
+
 	return (
 		<div className="space-y-4">
 			<div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-transparent">
@@ -95,13 +112,18 @@ export default function DocumentRequestManager({
 									<SelectValue placeholder="Selecciona un tipo" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectGroup>
-										{documentTypes.map((docType) => (
-											<SelectItem key={docType.id} value={String(docType.id)}>
-												{docType.code} - {docType.name}
-											</SelectItem>
-										))}
-									</SelectGroup>
+									{documentTypeGroups.map((group) => (
+										<SelectGroup key={group.category}>
+											<SelectLabel>
+												{LEGAL_CATEGORY_LABELS[group.category] ?? group.category}
+											</SelectLabel>
+											{group.items.map((docType) => (
+												<SelectItem key={docType.id} value={String(docType.id)}>
+													{docType.name}
+												</SelectItem>
+											))}
+										</SelectGroup>
+									))}
 								</SelectContent>
 							</Select>
 						</Field>
@@ -144,9 +166,7 @@ export default function DocumentRequestManager({
 							requests.map((request) => (
 								<TableRow key={request.id}>
 									<TableCell>
-										{request.document_type
-											? `${request.document_type.code} - ${request.document_type.name}`
-											: 'Documento requerido'}
+										{request.document_type?.name ?? 'Documento requerido'}
 									</TableCell>
 									<TableCell>
 										<Badge variant={badgeForRequestStatus(request.status)}>

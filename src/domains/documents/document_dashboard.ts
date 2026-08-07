@@ -5,7 +5,6 @@ const log = createLogger('domains.document_dashboard');
 
 export interface DocumentTypeLite {
 	id: number;
-	code: number;
 	name: string;
 	legal_category: string;
 	applies_to: string;
@@ -41,6 +40,7 @@ export interface DocumentDashboardRow {
 	expiry_date: string | null;
 	document_request_id: string | null;
 	visibility: 'internal_only' | 'client_visible' | string;
+	is_signed: boolean;
 	shares: Array<{
 		id: string;
 		shared_with_user_id: string;
@@ -59,7 +59,8 @@ export async function getDocumentTypesList(
 	const { data, error } = await documentsDb
 		.from('document_types')
 		.select('*')
-		.order('code', { ascending: true });
+		.order('legal_category', { ascending: true })
+		.order('name', { ascending: true });
 
 	if (error) {
 		log.error('Error fetching document_types', { error });
@@ -88,7 +89,6 @@ export async function getDocumentRequestsForIncorporationCase(
 				requested_at,
 				document_types:document_type_id (
 					id,
-					code,
 					name,
 					legal_category,
 					applies_to,
@@ -123,7 +123,6 @@ export async function getDocumentRequestsForIncorporationCase(
 			document_type: dr.document_types
 				? {
 						id: dr.document_types.id,
-						code: dr.document_types.code,
 						name: dr.document_types.name,
 						legal_category: dr.document_types.legal_category,
 						applies_to: dr.document_types.applies_to,
@@ -231,6 +230,7 @@ async function getDocumentsForRelated(
 				mime_type,
 				document_request_id,
 				visibility,
+				is_signed,
 				created_at,
 				uploaded_at,
 				uploaded_by,
@@ -245,7 +245,6 @@ async function getDocumentsForRelated(
 				),
 				document_types:document_type_id (
 					id,
-					code,
 					name,
 					legal_category,
 					applies_to,
@@ -286,6 +285,7 @@ async function getDocumentsForRelated(
 			expiry_date: d.expiry_date ?? null,
 			document_request_id: d.document_request_id ?? null,
 			visibility: d.visibility ?? 'internal_only',
+			is_signed: !!d.is_signed,
 			shares: (d.document_shares ?? []).map((share: any) => ({
 				id: share.id,
 				shared_with_user_id: share.shared_with_user_id,
@@ -295,7 +295,6 @@ async function getDocumentsForRelated(
 			document_type: d.document_types
 				? {
 						id: d.document_types.id,
-						code: d.document_types.code,
 						name: d.document_types.name,
 						legal_category: d.document_types.legal_category,
 						applies_to: d.document_types.applies_to,
