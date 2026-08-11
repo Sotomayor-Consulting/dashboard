@@ -15,6 +15,16 @@ export const ROLE_GROUPS = {
 	COMPANY_STAFF: [ROLES.ADMIN, ROLES.GERENCIA, ROLES.OPERACIONES],
 	AUDIT_READERS: [ROLES.ADMIN, ROLES.GERENCIA],
 	INCORPORATION_ROUTE: [ROLES.ADMIN, ROLES.GERENCIA, ROLES.OPERACIONES],
+	/**
+	 * Staff del módulo de documentos. Debe coincidir exactamente con
+	 * `STAFF_ROLES` de @domains/documents/config y con `documents.is_staff()`
+	 * en Postgres, que son quienes autorizan de verdad.
+	 *
+	 * No incluye `gerencia`: usar INCORPORATION_ROUTE para estos gates hacía
+	 * que un usuario de gerencia viera botones que el servidor rechaza con 403
+	 * y cuyas filas la RLS le niega.
+	 */
+	DOCUMENTS_STAFF: [ROLES.ADMIN, ROLES.OPERACIONES],
 } as const satisfies Record<string, readonly RoleName[]>;
 
 /** Configuración de acceso por rol para rutas protegidas */
@@ -69,7 +79,17 @@ export function canReadAuditEvents(userRoles: string[]): boolean {
 	return hasAnyRole(userRoles, ROLE_GROUPS.AUDIT_READERS);
 }
 
-export function extractTokenRoleNames(claims: Record<string, unknown>): RoleName[] {
+/**
+ * Staff del módulo de documentos: subir, compartir, revocar, archivar y
+ * revisar solicitudes. El borrado permanente exige además `isAdmin`.
+ */
+export function canManageDocuments(userRoles: string[]): boolean {
+	return hasAnyRole(userRoles, ROLE_GROUPS.DOCUMENTS_STAFF);
+}
+
+export function extractTokenRoleNames(
+	claims: Record<string, unknown>,
+): RoleName[] {
 	const fromClaim = claims['user_roles'];
 	if (!Array.isArray(fromClaim)) return [];
 
