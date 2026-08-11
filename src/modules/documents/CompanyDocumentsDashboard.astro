@@ -12,7 +12,10 @@ import {
 import { getDocumentosPorFirmar } from '@domains/documents/pending-signature';
 import SignedPanel from '@modules/companies/components/dashboard-companies/SignedPanel.astro';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
+import { canManageDocuments, isAdmin } from '@shared/roles';
 import { DocumentTypeComboboxField } from '@modules/documents/islands/DocumentTypeComboboxField';
+import { requestStatusLabel } from '@modules/documents/document-ui';
+import DocumentRequestList from '@modules/documents/islands/DocumentRequestList';
 import CompanyDocumentsList from '@modules/documents/islands/CompanyDocumentsList';
 
 interface Props {
@@ -32,10 +35,12 @@ const supabase = Astro.locals.supabase;
 const user = Astro.locals.user;
 const userId = user?.id;
 const userRoles = Astro.locals.userRoles || [];
-const hasStaffRole =
-	userRoles.includes('admin') || userRoles.includes('operaciones');
+// Mismo conjunto que STAFF_ROLES y que documents.is_staff() en Postgres.
+const hasStaffRole = canManageDocuments(userRoles);
 const isStaffDashboard = dashboardVariant === 'staff';
 const canUseStaffActions = isStaffDashboard && hasStaffRole;
+// El borrado permanente es exclusivo de admin (ver deleteDocument).
+const canDeleteDocuments = isStaffDashboard && isAdmin(userRoles);
 const dataClient = isStaffDashboard ? supabaseAdmin : supabase;
 
 let errorMessage = '';
@@ -65,6 +70,9 @@ if (!userId) {
 				incorporationCaseId,
 				userId,
 				userRoles,
+				// El staff recibe también los archivados; la tabla los oculta
+				// tras un filtro para poder restaurarlos o eliminarlos.
+				canUseStaffActions,
 			),
 			getDocumentTypesList(dataClient),
 			getDocumentosPorFirmar(supabase, userId, incorporationCaseId),
@@ -76,15 +84,17 @@ const uploadEndpointBase = `/api/documents/upload?incorporationCaseId=${encodeUR
 	incorporationCaseId ?? '',
 )}&back=${encodeURIComponent(Astro.url.pathname)}`;
 
-const BLOCKED_REQUEST_STATUSES = new Set([
-	'approved',
-	'closed',
-	'cancelled',
-	'rejected',
-]);
+// Estados terminales de document_request_status ('closed' no existe en el
+// enum; se retiró junto con el del servicio).
+const BLOCKED_REQUEST_STATUSES = new Set(['approved', 'cancelled', 'rejected']);
 
 const canUploadForRequest = (status: string) =>
 	!BLOCKED_REQUEST_STATUSES.has(status);
+
+/** Solicitudes que todavía admiten documentos, para el selector de subida. */
+const openRequests = requests.filter((request) =>
+	canUploadForRequest(request.status),
+);
 ---
 
 <div>
@@ -117,9 +127,7 @@ const canUploadForRequest = (status: string) =>
 									name="ri:file-list-3-line"
 									class="text-muted-foreground h-5 w-5 shrink-0"
 								/>
-								<h3 class="text-foreground text-sm font-medium">
-									Solicitudes
-								</h3>
+								<h3 class="text-foreground text-sm font-medium">Solicitudes</h3>
 							</div>
 							<p class="text-muted-foreground mt-1 text-sm">
 								Documentos solicitados por el equipo de operaciones.
@@ -148,13 +156,23 @@ const canUploadForRequest = (status: string) =>
 											client:visible
 											documentTypes={documentTypes}
 										/>
-										<select
-											name="visibility"
-											class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-2 text-sm"
-										>
-											<option value="internal_only">Interno</option>
-											<option value="client_visible">Visible</option>
-										</select>
+										{openRequests.length > 0 && (
+											<select
+												name="documentRequestId"
+												class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-2 text-sm md:col-span-2"
+											>
+												<option value="">
+													No responde a ninguna solicitud
+												</option>
+												{openRequests.map((request) => (
+													<option value={request.id}>
+														Responde a:{' '}
+														{request.document_type?.name ??
+															'Documento requerido'}
+													</option>
+												))}
+											</select>
+										)}
 										<select
 											name="shareWithClient"
 											class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-2 text-sm"
@@ -167,10 +185,7 @@ const canUploadForRequest = (status: string) =>
 												type="submit"
 												class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
 											>
-												<Icon
-													name="ri:upload-2-line"
-													class="text-base"
-												/>
+												<Icon name="ri:upload-2-line" class="text-base" />
 												Subir documento
 											</button>
 										</div>
@@ -178,7 +193,20 @@ const canUploadForRequest = (status: string) =>
 								</div>
 							) : null}
 
-							{requests.length === 0 ? (
+							{canUseStaffActions ? (
+								/*
+									Vista de staff: revisar. Usa el mismo componente que la
+									pestaña de documentos del detalle de incorporación, para no
+									mantener dos listas de solicitudes en paralelo. La carga
+									contra una solicitud se hace desde «Subida rápida», que
+									tiene su propio selector.
+								*/
+								<DocumentRequestList
+									client:load
+									requests={requests}
+									canReview={canUseStaffActions}
+								/>
+							) : requests.length === 0 ? (
 								<div class="border-border text-muted-foreground rounded-lg border border-dashed p-6 text-center text-sm">
 									No hay solicitudes de documentos para esta empresa.
 								</div>
@@ -188,15 +216,30 @@ const canUploadForRequest = (status: string) =>
 										{requests.map((request) => (
 											<li class="p-4">
 												<p class="text-foreground text-sm font-semibold">
-													{request.document_type?.name ??
-														'Documento requerido'}
+													{request.document_type?.name ?? 'Documento requerido'}
 												</p>
 												<p class="text-muted-foreground mt-1 text-xs">
-													Status: {request.status}
+													Estado: {requestStatusLabel(request.status)}
 													{request.due_date
 														? ` · Vence: ${request.due_date}`
 														: ''}
 												</p>
+
+												{request.documents.length > 0 && (
+													<ul class="mt-2 space-y-1">
+														{request.documents.map((file: any) => (
+															<li class="text-muted-foreground flex items-center gap-1.5 text-xs">
+																<Icon
+																	name="ri:file-text-line"
+																	class="h-3.5 w-3.5 shrink-0"
+																/>
+																<span class="truncate">
+																	{file.file_title ?? file.file_name}
+																</span>
+															</li>
+														))}
+													</ul>
+												)}
 
 												{canUploadForRequest(request.status) ? (
 													<form
@@ -214,14 +257,12 @@ const canUploadForRequest = (status: string) =>
 														/>
 														{canUseStaffActions ? (
 															<select
-																name="visibility"
+																name="shareWithClient"
 																class="border-border bg-card text-foreground block w-full rounded-lg border px-2 py-1 text-xs"
 															>
-																<option value="internal_only">
-																	Interno
-																</option>
-																<option value="client_visible">
-																	Visible cliente
+																<option value="false">No compartir</option>
+																<option value="true">
+																	Compartir con cliente
 																</option>
 															</select>
 														) : null}
@@ -229,17 +270,15 @@ const canUploadForRequest = (status: string) =>
 															type="submit"
 															class="inline-flex w-fit items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
 														>
-															<Icon
-																name="ri:upload-2-line"
-																class="text-base"
-															/>
+															<Icon name="ri:upload-2-line" class="text-base" />
 															Subir
 														</button>
 													</form>
 												) : (
 													<p class="mt-3 text-xs font-medium text-amber-700 dark:text-amber-300">
-														La solicitud está {request.status}. No se
-														permiten nuevas cargas.
+														La solicitud está{' '}
+														{requestStatusLabel(request.status).toLowerCase()}.
+														No se permiten nuevas cargas.
 													</p>
 												)}
 											</li>
@@ -258,9 +297,7 @@ const canUploadForRequest = (status: string) =>
 									name="ri:folder-open-line"
 									class="text-muted-foreground h-5 w-5 shrink-0"
 								/>
-								<h3 class="text-foreground text-sm font-medium">
-									Archivos
-								</h3>
+								<h3 class="text-foreground text-sm font-medium">Archivos</h3>
 							</div>
 							<p class="text-muted-foreground mt-1 text-sm">
 								Archivos subidos y compartidos de esta empresa.
@@ -270,6 +307,7 @@ const canUploadForRequest = (status: string) =>
 							<CompanyDocumentsList
 								documents={documents}
 								canUseStaffActions={canUseStaffActions}
+								canDelete={canDeleteDocuments}
 								incorporationCaseId={incorporationCaseId ?? ''}
 								companyUserId={company.user_id}
 								isStaffDashboard={isStaffDashboard}

@@ -42,6 +42,8 @@ interface Props {
 	companyOwnerUserId: string | null;
 	canEditDetails: boolean;
 	isStaff: boolean;
+	/** Solo admin puede borrar de forma permanente (ver deleteDocument). */
+	canDelete?: boolean;
 }
 
 export default function CompanyDocumentsPanel({
@@ -52,8 +54,16 @@ export default function CompanyDocumentsPanel({
 	companyOwnerUserId,
 	canEditDetails,
 	isStaff,
+	canDelete = false,
 }: Props) {
 	const [isUploadOpen, setIsUploadOpen] = React.useState(false);
+
+	// `documents` incluye los archivados cuando el usuario es staff, así que el
+	// contador de la cabecera cuenta solo los activos.
+	const activeCount = React.useMemo(
+		() => documents.filter((d) => d.status !== 'archived').length,
+		[documents],
+	);
 
 	const canUpload = canEditDetails;
 
@@ -71,7 +81,7 @@ export default function CompanyDocumentsPanel({
 			<PanelHeader
 				kicker="Documentos"
 				title="Documentos de la empresa"
-				meta={`${documents.length} documento${documents.length === 1 ? '' : 's'} · Incorporación y archivos compartidos`}
+				meta={`${activeCount} documento${activeCount === 1 ? '' : 's'} · Incorporación y archivos compartidos`}
 				action={
 					<Button
 						type="button"
@@ -104,6 +114,7 @@ export default function CompanyDocumentsPanel({
 					<CompanyDocumentsList
 						documents={documents}
 						canUseStaffActions={isStaff}
+						canDelete={canDelete}
 						incorporationCaseId={incorporationId ?? ''}
 						companyUserId={companyOwnerUserId ?? ''}
 						isStaffDashboard={isStaff}
@@ -154,33 +165,6 @@ export default function CompanyDocumentsPanel({
 
 								{isStaff && (
 									<>
-										<Field>
-											<FieldLabel htmlFor="company_doc_visibility">
-												Visibilidad
-											</FieldLabel>
-											<Select name="visibility" defaultValue="internal_only">
-												<SelectTrigger
-													id="company_doc_visibility"
-													className="w-full"
-												>
-													<SelectValue placeholder="Selecciona visibilidad" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectGroup>
-														<SelectItem value="internal_only" label="Interno">
-															Interno
-														</SelectItem>
-														<SelectItem
-															value="client_visible"
-															label="Visible para el cliente"
-														>
-															Visible para el cliente
-														</SelectItem>
-													</SelectGroup>
-												</SelectContent>
-											</Select>
-										</Field>
-
 										<Field>
 											<FieldLabel htmlFor="company_doc_share">
 												Compartir con el cliente

@@ -99,6 +99,41 @@ export function statusLabel(status: string): string {
 	return map[status] ?? status;
 }
 
+/**
+ * Estados de `documents.document_requests`. Son un enum distinto al de los
+ * documentos: incluye 'sent' y 'cancelled', y no tiene 'replaced'/'expired'.
+ */
+export function requestStatusLabel(status: string): string {
+	const map: Record<string, string> = {
+		pending: 'Borrador',
+		sent: 'Enviada',
+		uploaded: 'Documento recibido',
+		under_review: 'En revisión',
+		approved: 'Aprobada',
+		rejected: 'Rechazada',
+		cancelled: 'Cancelada',
+	};
+	return map[status] ?? status;
+}
+
+export function badgeForRequestStatus(status: string): DocumentBadgeVariant {
+	if (status === 'approved') return 'susess';
+	if (status === 'uploaded' || status === 'under_review') return 'standar';
+	if (status === 'rejected' || status === 'cancelled') return 'danger';
+	return 'warning';
+}
+
+/** Estados en los que la solicitud ya no espera acción del cliente. */
+export const TERMINAL_REQUEST_STATUSES = new Set([
+	'approved',
+	'rejected',
+	'cancelled',
+]);
+
+export function isRequestOpen(status: string): boolean {
+	return !TERMINAL_REQUEST_STATUSES.has(status);
+}
+
 export function eventTypeLabel(type: string): string {
 	const map: Record<string, string> = {
 		uploaded: 'Subido',

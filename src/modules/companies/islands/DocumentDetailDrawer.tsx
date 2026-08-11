@@ -259,6 +259,11 @@ export default function DocumentDetailDrawer({
 		}
 	};
 
+	// La aprobación no vive aquí: se decide sobre la SOLICITUD, no sobre cada
+	// archivo. Con varios documentos respondiendo a una misma solicitud,
+	// aprobar uno cerraba la solicitud entera. Ver reviewDocumentRequest y el
+	// gestor de solicitudes.
+
 	const mime = localDocument?.mime_type ?? null;
 
 	return (
@@ -482,9 +487,11 @@ export default function DocumentDetailDrawer({
 							value={formatFileSize(localDocument?.file_size_bytes)}
 						/>
 						<MiniStat
-							label="Visibilidad"
+							label="Compartido"
 							value={
-								localDocument?.visibility === 'client_visible'
+								localDocument?.shares?.some(
+									(share) => share.share_status === 'active',
+								)
 									? 'Cliente'
 									: 'Interno'
 							}

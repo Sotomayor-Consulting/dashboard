@@ -66,7 +66,7 @@ if (!userId) {
 				<div class="flat-card-padded p-5">
 					<div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 						<div>
-							<h1 class="text-xl font-semibold text-foreground">
+							<h1 class="text-foreground text-xl font-semibold">
 								{document.file_title ?? document.file_name}
 							</h1>
 							<p class="mt-1 text-sm text-gray-500 dark:text-gray-300">
@@ -91,12 +91,13 @@ if (!userId) {
 							</p>
 						</div>
 						<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
-							<p class="text-xs text-gray-500 dark:text-gray-400">
-								Visibilidad
-							</p>
+							<p class="text-xs text-gray-500 dark:text-gray-400">Compartido</p>
 							<p class="text-sm font-semibold text-gray-900 dark:text-white">
-								{document.visibility === 'client_visible'
-									? 'Visible cliente'
+								{document.shares.some(
+									(share: { share_status: string }) =>
+										share.share_status === 'active',
+								)
+									? 'Con el cliente'
 									: 'Interno'}
 							</p>
 						</div>

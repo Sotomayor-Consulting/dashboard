@@ -15,7 +15,13 @@ import {
 } from '@domains/documents/document_dashboard';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import DocumentsTab from './islands/DocumentsTab';
-import { canManageCompanyData, hasAnyRole, ROLE_GROUPS } from '@shared/roles';
+import {
+	canManageCompanyData,
+	canManageDocuments,
+	hasAnyRole,
+	isAdmin,
+	ROLE_GROUPS,
+} from '@shared/roles';
 import { getUsStates } from './services/get-us-states';
 import GenerateDocumentsTab from '@components/display/GenerateDocumentsTab';
 
@@ -25,6 +31,12 @@ const user = Astro.locals.user;
 const userId = user?.id;
 const userRoles = Astro.locals.userRoles || [];
 const isStaff = hasAnyRole(userRoles, ROLE_GROUPS.INCORPORATION_ROUTE);
+// Ojo: para el módulo de documentos NO vale INCORPORATION_ROUTE (incluye
+// `gerencia`, a quien el servidor y la RLS niegan). Debe coincidir con
+// STAFF_ROLES y con documents.is_staff().
+const canManageDocs = canManageDocuments(userRoles);
+// El borrado permanente es exclusivo de admin (ver deleteDocument).
+const canDeleteDocuments = isAdmin(userRoles);
 const canEditDetails = canManageCompanyData(userRoles);
 const backPath = Astro.url.pathname;
 const states_us = await getUsStates(supabaseAdmin);
@@ -48,6 +60,9 @@ if (empresaId) {
 			empresaId,
 			userId,
 			userRoles,
+			// El staff recibe también los archivados; la tabla los oculta tras
+			// un filtro para poder restaurarlos o eliminarlos.
+			isStaff,
 		),
 	]);
 	[documentRequests, documentTypes, documentsNew] = documentResults;
@@ -128,7 +143,8 @@ const operationsTabs = [
 						documentTypes={documentTypes}
 						documents={documentsNew}
 						requests={documentRequests}
-						isStaff={isStaff}
+						isStaff={canManageDocs}
+						canDelete={canDeleteDocuments}
 						sharedWithUserId={empresaSafe?.user_id ?? undefined}
 					/>
 				</div>
