@@ -103,6 +103,26 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			);
 		}
 
+		// Segunda mitad de la protección IDOR: el documento debe pertenecer al
+		// caso. Antes esto era `.eq('case_id', empresaId)` en el update; ahora la
+		// relación vive en document_links y la resuelve documents.resolve_case_id.
+		const { data: documentCaseId, error: resolveErr } = await supabaseAdmin
+			.schema('documents')
+			.rpc('resolve_case_id', { p_document_id: fileId });
+
+		if (resolveErr || documentCaseId !== empresaId) {
+			log.error('Documento ajeno al caso indicado', {
+				fileId,
+				empresaId,
+				documentCaseId,
+				error: resolveErr,
+			});
+			return redirectWithStatus(
+				'error',
+				'No autorizado para firmar este documento',
+			);
+		}
+
 		// El documento "por firmar" pasa de status 'pending' a 'uploaded'
 		// (firmado) y se actualiza al archivo subido.
 		const { data: updatedRows, error: updateErr } = await supabaseAdmin
@@ -121,7 +141,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 				updated_at: new Date().toISOString(),
 			})
 			.eq('id', fileId)
-			.eq('case_id', empresaId)
 			.select('id');
 
 		if (updateErr) {
