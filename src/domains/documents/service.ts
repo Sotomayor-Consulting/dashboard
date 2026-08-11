@@ -6,6 +6,7 @@ import {
 } from '@infrastructure/email/bussiness-events';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { notifyByEvent } from '@infrastructure/notifications';
+import { createLogger } from '@infrastructure/logging';
 import {
 	BUCKETS,
 	DEFAULT_SIGNED_URL_TTL_SECONDS,
@@ -13,6 +14,7 @@ import {
 } from '@infrastructure/storage';
 import { MAX_FILE_SIZE_BYTES } from './config';
 import {
+	clientDocumentsPath,
 	jsonResponse,
 	resolveActorRole,
 	safeFilename,
@@ -30,13 +32,11 @@ import type {
 } from './types';
 import { DocumentsError } from './types';
 
+const log = createLogger('domains.documents.service');
 const documentsDb = supabaseAdmin.schema('documents');
-const BLOCKED_REQUEST_STATUSES = new Set([
-	'approved',
-	'closed',
-	'cancelled',
-	'rejected',
-]);
+// Estados terminales de una solicitud: ya no admiten nuevas cargas.
+// ('closed' no existe en el enum document_request_status; se retiró.)
+const BLOCKED_REQUEST_STATUSES = new Set(['approved', 'cancelled', 'rejected']);
 
 function buildStoragePath(
 	ownerUserId: string,
@@ -55,39 +55,27 @@ function buildStoragePath(
 }
 
 /**
- * Resuelve el case_id (incorporación) de un documento cuando la columna
- * documents.documents.case_id vino nula — típico de documentos insertados
- * directamente vía REST API/PostgREST (importaciones externas, p. ej. n8n)
- * que no la poblaron. Cae a document_links: si hay un link
- * 'incorporation_case', ese related_to_id ES el case_id; si es 'company',
- * se resuelve companies.incorporation_id.
+ * Resuelve la incorporación de un documento a partir de document_links, que
+ * es la única fuente de verdad de esa relación desde que se eliminó la
+ * columna denormalizada documents.documents.case_id.
+ *
+ * Delega en la función SQL documents.resolve_case_id, que cubre las dos
+ * rutas posibles: link directo al 'incorporation_case', o link a una
+ * 'company' de la que se toma su incorporation_id.
  */
 async function resolveCaseIdForDocument(
 	documentId: string,
-	existingCaseId: string | null,
 ): Promise<string | null> {
-	if (existingCaseId) return existingCaseId;
+	const { data, error } = await documentsDb.rpc('resolve_case_id', {
+		p_document_id: documentId,
+	});
 
-	const { data: links } = await documentsDb
-		.from('document_links')
-		.select('related_to_type, related_to_id')
-		.eq('document_id', documentId);
-
-	for (const link of links ?? []) {
-		if (link.related_to_type === 'incorporation_case') {
-			return link.related_to_id;
-		}
-		if (link.related_to_type === 'company') {
-			const { data: company } = await supabaseAdmin
-				.from('companies')
-				.select('incorporation_id')
-				.eq('id', link.related_to_id)
-				.maybeSingle();
-			if (company?.incorporation_id) return company.incorporation_id;
-		}
+	if (error) {
+		log.error('resolve_case_id failed', { documentId, error });
+		return null;
 	}
 
-	return null;
+	return (data as string | null) ?? null;
 }
 
 async function getCaseOwner(caseId: string): Promise<CaseOwnerRow> {
@@ -194,7 +182,6 @@ async function getRequestRow(
 	id: string;
 	status: string;
 	document_type_id: number | null;
-	deleted_at: string | null;
 }> {
 	const { data: reqLink, error: linkErr } = await documentsDb
 		.from('document_request_links')
@@ -214,7 +201,7 @@ async function getRequestRow(
 
 	const { data: reqData, error: reqErr } = await documentsDb
 		.from('document_requests')
-		.select('id, status, document_type_id, deleted_at')
+		.select('id, status, document_type_id')
 		.eq('id', documentRequestId)
 		.maybeSingle();
 
@@ -222,7 +209,8 @@ async function getRequestRow(
 		throw new DocumentsError(500, 'Error cargando solicitud');
 	}
 
-	if (!reqData || reqData.deleted_at) {
+	// Las solicitudes archivadas se marcan 'cancelled' (ya no hay soft-delete).
+	if (!reqData || reqData.status === 'cancelled') {
 		throw new DocumentsError(404, 'Solicitud no encontrada');
 	}
 
@@ -295,7 +283,6 @@ export async function uploadDocument(
 				id: documentId,
 				document_type_id: resolvedDocumentTypeId,
 				document_request_id: input.documentRequestId ?? null,
-				case_id: context.caseId,
 				file_name: input.file.name,
 				bucket_path: filePath,
 				bucket_storage: bucket,
@@ -303,7 +290,6 @@ export async function uploadDocument(
 				file_title: input.file.name,
 				mime_type: input.file.type || null,
 				status: 'uploaded',
-				visibility: input.visibility,
 				is_signed: input.isSigned ?? false,
 				version: 1,
 				uploaded_by: actor.userId,
@@ -319,7 +305,6 @@ export async function uploadDocument(
 				related_to_type: input.relatedToType,
 				related_to_id: input.relatedToId,
 				relation_purpose: 'owner',
-				is_primary: true,
 				created_by: actor.userId,
 				created_at: now,
 			},
@@ -340,30 +325,25 @@ export async function uploadDocument(
 
 	await documentsDb.from('document_events').insert({
 		document_id: documentId,
-		case_id: context.caseId,
 		event_type: 'uploaded',
 		to_status: 'uploaded',
 		actor_user_id: actor.userId,
 		actor_role: actor.actorRole,
 		metadata: {
 			document_request_id: input.documentRequestId ?? null,
-			visibility: input.visibility,
+			shared_with_client: input.autoShare,
 			related_to_type: input.relatedToType,
 			related_to_id: input.relatedToId,
 		},
 	});
 
-	if (
-		actor.isStaff &&
-		input.visibility === 'client_visible' &&
-		input.autoShare
-	) {
+	// El share es ahora el único mecanismo de visibilidad para el cliente.
+	if (actor.isStaff && input.autoShare) {
 		const targetUserId = input.shareWithUserId ?? context.ownerUserId;
 
 		await documentsDb.from('document_shares').upsert(
 			{
 				document_id: documentId,
-				case_id: context.caseId,
 				shared_with_user_id: targetUserId,
 				shared_by_user_id: actor.userId,
 				share_status: 'active',
@@ -377,7 +357,6 @@ export async function uploadDocument(
 
 		await documentsDb.from('document_events').insert({
 			document_id: documentId,
-			case_id: context.caseId,
 			event_type: 'shared',
 			to_status: 'shared_active',
 			actor_user_id: actor.userId,
@@ -395,7 +374,7 @@ export async function uploadDocument(
 			context: {
 				case_name: context.caseName ?? 'tu empresa',
 				action_url: context.caseId
-					? `/documentos/${context.caseId}`
+					? clientDocumentsPath(context.caseId)
 					: `/admin/companies/${input.relatedToId}/documents`,
 			},
 		});
@@ -403,7 +382,7 @@ export async function uploadDocument(
 		if (context.caseId) {
 			await sendDocumentSharedEmail({
 				caseId: context.caseId,
-				actionUrl: `/documentos/${context.caseId}`,
+				actionUrl: clientDocumentsPath(context.caseId),
 			}).catch((error) => {
 				console.error('[business-email][documents.shared] auto-share failed', {
 					caseId: context.caseId,
@@ -466,7 +445,6 @@ export async function createDocumentRequest(
 			related_to_type: input.relatedToType,
 			related_to_id: input.relatedToId,
 			relation_purpose: 'owner',
-			is_primary: true,
 			created_by: actor.userId,
 			created_at: now,
 		});
@@ -478,7 +456,7 @@ export async function createDocumentRequest(
 	if (context.caseId) {
 		await sendDocumentRequestedEmail({
 			caseId: context.caseId,
-			actionUrl: `/documentos/${context.caseId}`,
+			actionUrl: clientDocumentsPath(context.caseId),
 			message: input.message ?? null,
 			dueDate: input.dueDate ?? null,
 		}).catch((error) => {
@@ -493,6 +471,57 @@ export async function createDocumentRequest(
 		requestId,
 		caseId: context.caseId,
 	};
+}
+
+/**
+ * Cancela una solicitud de documentos. `cancelled` es el estado de archivado
+ * de las solicitudes desde que se retiró el soft-delete, y hasta ahora era
+ * inalcanzable desde la aplicación: una solicitud mal creada se quedaba en el
+ * listado para siempre.
+ */
+export async function cancelDocumentRequest(
+	actor: DocumentActor,
+	documentRequestId: string,
+): Promise<{ requestId: string; status: string }> {
+	if (!actor.isStaff) {
+		throw new DocumentsError(403, 'No autorizado');
+	}
+
+	const { data: requestRow, error: readErr } = await documentsDb
+		.from('document_requests')
+		.select('id, status')
+		.eq('id', documentRequestId)
+		.maybeSingle();
+
+	if (readErr) {
+		throw new DocumentsError(500, 'Error cargando solicitud');
+	}
+
+	if (!requestRow) {
+		throw new DocumentsError(404, 'Solicitud no encontrada');
+	}
+
+	if (requestRow.status === 'cancelled') {
+		return { requestId: documentRequestId, status: 'cancelled' };
+	}
+
+	if (requestRow.status === 'approved') {
+		throw new DocumentsError(
+			409,
+			'No se puede cancelar una solicitud ya aprobada',
+		);
+	}
+
+	const { error: updateErr } = await documentsDb
+		.from('document_requests')
+		.update({ status: 'cancelled', updated_at: new Date().toISOString() })
+		.eq('id', documentRequestId);
+
+	if (updateErr) {
+		throw new DocumentsError(500, 'No se pudo cancelar la solicitud');
+	}
+
+	return { requestId: documentRequestId, status: 'cancelled' };
 }
 
 export async function resolveDocumentActor(
@@ -524,14 +553,12 @@ export async function listDocumentsByContext(
 			document_id,
 			documents:document_id (
 				id,
-				case_id,
 				file_name,
 				file_title,
 				bucket_path,
 				file_size_bytes,
 				mime_type,
 				status,
-				visibility,
 				uploaded_at,
 				created_at,
 				document_request_id,
@@ -596,11 +623,9 @@ export async function listDocumentsByContext(
 			const activeShares = shares.filter(
 				(share) => share.share_status === 'active',
 			);
-			const isVisibleForClient =
-				doc.visibility === 'client_visible' &&
-				activeShares.some(
-					(share) => share.shared_with_user_id === actor.userId,
-				);
+			const isVisibleForClient = activeShares.some(
+				(share) => share.shared_with_user_id === actor.userId,
+			);
 
 			return {
 				...doc,
@@ -626,7 +651,7 @@ export async function createDocumentSignedUrl(
 ): Promise<string> {
 	const { data: doc, error: docErr } = await documentsDb
 		.from('documents')
-		.select('id, bucket_path, file_name, deleted_at, visibility, case_id')
+		.select('id, bucket_path, file_name, status')
 		.eq('id', documentId)
 		.maybeSingle();
 
@@ -634,15 +659,12 @@ export async function createDocumentSignedUrl(
 		throw new DocumentsError(500, 'Error consultando documento');
 	}
 
-	if (!doc || doc.deleted_at) {
+	if (!doc || doc.status === 'archived') {
 		throw new DocumentsError(404, 'Documento no encontrado');
 	}
 
+	// El share activo es la única autorización de cliente.
 	if (!actor.isStaff) {
-		if (doc.visibility !== 'client_visible') {
-			throw new DocumentsError(403, 'No autorizado');
-		}
-
 		const { data: share, error: shareErr } = await documentsDb
 			.from('document_shares')
 			.select('id')
@@ -672,7 +694,6 @@ export async function createDocumentSignedUrl(
 
 	await documentsDb.from('document_events').insert({
 		document_id: documentId,
-		case_id: doc.case_id,
 		event_type: 'downloaded',
 		actor_user_id: actor.userId,
 		actor_role: actor.actorRole,
@@ -695,7 +716,7 @@ export async function shareDocumentWithUser(
 
 	const { data: doc, error: docErr } = await documentsDb
 		.from('documents')
-		.select('id, case_id')
+		.select('id')
 		.eq('id', documentId)
 		.maybeSingle();
 
@@ -703,10 +724,7 @@ export async function shareDocumentWithUser(
 		throw new DocumentsError(404, 'Documento no encontrado');
 	}
 
-	const resolvedCaseId = await resolveCaseIdForDocument(
-		documentId,
-		doc.case_id,
-	);
+	const resolvedCaseId = await resolveCaseIdForDocument(documentId);
 	if (!resolvedCaseId) {
 		throw new DocumentsError(404, 'Caso no encontrado');
 	}
@@ -724,27 +742,10 @@ export async function shareDocumentWithUser(
 	const targetUserId = sharedWithUserId || caseRow.user_id;
 	const now = new Date().toISOString();
 
-	// Además de actualizar visibilidad, autorreparamos documents.case_id si
-	// vino nulo (import externo) para que futuras consultas/shares no vuelvan
-	// a fallar.
-	const { error: updateDocErr } = await documentsDb
-		.from('documents')
-		.update({
-			visibility: 'client_visible',
-			case_id: resolvedCaseId,
-			updated_by: actor.userId,
-			updated_at: now,
-		})
-		.eq('id', documentId);
-
-	if (updateDocErr) {
-		throw new DocumentsError(500, 'No se pudo actualizar visibilidad');
-	}
-
+	// Ya no hay que tocar el documento: crear el share ES conceder el acceso.
 	const { error: shareErr } = await documentsDb.from('document_shares').upsert(
 		{
 			document_id: documentId,
-			case_id: resolvedCaseId,
 			shared_with_user_id: targetUserId,
 			shared_by_user_id: actor.userId,
 			share_status: 'active',
@@ -762,7 +763,6 @@ export async function shareDocumentWithUser(
 
 	await documentsDb.from('document_events').insert({
 		document_id: documentId,
-		case_id: resolvedCaseId,
 		event_type: 'shared',
 		actor_user_id: actor.userId,
 		actor_role: actor.actorRole,
@@ -777,13 +777,13 @@ export async function shareDocumentWithUser(
 		recipients: [{ userId: targetUserId }],
 		context: {
 			case_name: caseRow.principal_name ?? 'tu incorporacion',
-			action_url: `/documentos/${resolvedCaseId}`,
+			action_url: clientDocumentsPath(resolvedCaseId),
 		},
 	});
 
 	await sendDocumentSharedEmail({
 		caseId: resolvedCaseId,
-		actionUrl: `/documentos/${resolvedCaseId}`,
+		actionUrl: clientDocumentsPath(resolvedCaseId),
 	}).catch((error) => {
 		console.error('[business-email][documents.shared] manual-share failed', {
 			caseId: resolvedCaseId,
@@ -801,14 +801,14 @@ export async function revokeDocumentShare(
 	actor: DocumentActor,
 	documentId: string,
 	sharedWithUserId?: string,
-): Promise<{ caseId: string; revokedCount: number }> {
+): Promise<{ caseId: string | null; revokedCount: number }> {
 	if (!actor.isStaff) {
 		throw new DocumentsError(403, 'No autorizado');
 	}
 
 	const { data: doc, error: docErr } = await documentsDb
 		.from('documents')
-		.select('id, case_id')
+		.select('id')
 		.eq('id', documentId)
 		.maybeSingle();
 
@@ -816,20 +816,8 @@ export async function revokeDocumentShare(
 		throw new DocumentsError(404, 'Documento no encontrado');
 	}
 
-	const resolvedCaseId = await resolveCaseIdForDocument(
-		documentId,
-		doc.case_id,
-	);
+	const resolvedCaseId = await resolveCaseIdForDocument(documentId);
 	const now = new Date().toISOString();
-
-	// Autorreparación: mismo caso que en shareDocumentWithUser — documentos
-	// importados vía REST API pueden traer case_id nulo.
-	if (resolvedCaseId && !doc.case_id) {
-		await documentsDb
-			.from('documents')
-			.update({ case_id: resolvedCaseId })
-			.eq('id', documentId);
-	}
 
 	let updateQuery = documentsDb
 		.from('document_shares')
@@ -854,7 +842,6 @@ export async function revokeDocumentShare(
 
 	await documentsDb.from('document_events').insert({
 		document_id: documentId,
-		case_id: resolvedCaseId,
 		event_type: 'share_revoked',
 		actor_user_id: actor.userId,
 		actor_role: actor.actorRole,
@@ -874,13 +861,17 @@ export async function revokeDocumentShare(
 			})),
 			context: {
 				case_name: 'tu incorporacion',
-				action_url: `/documentos/${resolvedCaseId}`,
+				// El caso puede no ser resoluble (documento sin link a una
+				// incorporación); en ese caso se enlaza al listado.
+				action_url: resolvedCaseId
+					? clientDocumentsPath(resolvedCaseId)
+					: '/incorporation',
 			},
 		});
 	}
 
 	return {
-		caseId: resolvedCaseId ?? doc.case_id,
+		caseId: resolvedCaseId,
 		revokedCount: revokedRows?.length ?? 0,
 	};
 }
@@ -921,92 +912,234 @@ export async function listDocumentEvents(
 	return events ?? [];
 }
 
-export async function updateDocumentReviewStatus(
+/**
+ * Aprueba o rechaza una SOLICITUD de documentos.
+ *
+ * La revisión vive en la solicitud, no en el documento. Antes se aprobaba
+ * documento a documento y cada aprobación arrastraba la solicitud entera: con
+ * tres archivos respondiendo a una misma solicitud, el primero que se aprobaba
+ * la daba por cerrada. La unidad de decisión es "¿me sirve lo que entregó el
+ * cliente para esta solicitud?", y eso es una sola respuesta.
+ *
+ * La auditoría sigue siendo por documento —document_events cuelga de
+ * documents.documents— así que se registra un evento por cada archivo de la
+ * solicitud, con el id de la solicitud en `metadata`.
+ */
+export async function reviewDocumentRequest(
 	actor: DocumentActor,
-	documentId: string,
+	documentRequestId: string,
 	nextStatus: 'approved' | 'rejected',
 	comments?: string,
-): Promise<{ caseId: string; documentId: string; status: string }> {
+): Promise<{
+	documentRequestId: string;
+	status: string;
+	reviewedDocuments: number;
+}> {
 	if (!actor.isStaff) {
 		throw new DocumentsError(403, 'No autorizado');
 	}
 
-	const { data: doc, error: docErr } = await documentsDb
-		.from('documents')
-		.select('id, case_id, status, document_request_id, deleted_at')
-		.eq('id', documentId)
+	const { data: request, error: reqErr } = await documentsDb
+		.from('document_requests')
+		.select('id, status')
+		.eq('id', documentRequestId)
 		.maybeSingle();
 
-	if (docErr) {
-		throw new DocumentsError(500, 'Error consultando documento');
+	if (reqErr) {
+		throw new DocumentsError(500, 'Error consultando la solicitud');
 	}
 
-	if (!doc || doc.deleted_at) {
-		throw new DocumentsError(404, 'Documento no encontrado');
+	if (!request || request.status === 'cancelled') {
+		throw new DocumentsError(404, 'Solicitud no encontrada');
+	}
+
+	const { data: files, error: filesErr } = await documentsDb
+		.from('documents')
+		.select('id, status')
+		.eq('document_request_id', documentRequestId)
+		.neq('status', 'archived');
+
+	if (filesErr) {
+		throw new DocumentsError(500, 'Error consultando los documentos');
+	}
+
+	if (!files || files.length === 0) {
+		throw new DocumentsError(
+			409,
+			'La solicitud no tiene documentos que revisar',
+		);
 	}
 
 	const now = new Date().toISOString();
 
 	const { error: updateErr } = await documentsDb
+		.from('document_requests')
+		.update({ status: nextStatus, updated_at: now })
+		.eq('id', documentRequestId);
+
+	if (updateErr) {
+		throw new DocumentsError(500, 'No se pudo actualizar la solicitud');
+	}
+
+	const reviewComments = comments?.trim() || null;
+	await documentsDb.from('document_events').insert(
+		files.map((file) => ({
+			document_id: file.id,
+			event_type: nextStatus,
+			actor_user_id: actor.userId,
+			actor_role: actor.actorRole,
+			from_status: request.status,
+			to_status: nextStatus,
+			notes: reviewComments,
+			metadata: {
+				document_request_id: documentRequestId,
+				reviewed_at_request_level: true,
+			},
+		})),
+	);
+
+	return {
+		documentRequestId,
+		status: nextStatus,
+		reviewedDocuments: files.length,
+	};
+}
+
+/**
+ * Archiva o desarchiva un documento.
+ *
+ * `status = 'archived'` es el soft-delete del modelo desde que se retiraron
+ * `deleted_at`/`deleted_by`: el documento desaparece de los listados pero
+ * conserva su fila, su archivo, sus enlaces y su bitácora. Es reversible.
+ *
+ * Los event_type 'deleted' y 'restored' del enum se diseñaron para el antiguo
+ * soft-delete, así que son exactamente los que corresponden aquí.
+ */
+export async function setDocumentArchived(
+	actor: DocumentActor,
+	documentId: string,
+	archived: boolean,
+): Promise<{ documentId: string; status: string }> {
+	if (!actor.isStaff) {
+		throw new DocumentsError(403, 'No autorizado');
+	}
+
+	const { data: doc, error: readErr } = await documentsDb
 		.from('documents')
-		.update({
-			status: nextStatus,
-			updated_by: actor.userId,
-			updated_at: now,
-		})
+		.select('id, status')
+		.eq('id', documentId)
+		.maybeSingle();
+
+	if (readErr) {
+		throw new DocumentsError(500, 'Error consultando documento');
+	}
+
+	if (!doc) {
+		throw new DocumentsError(404, 'Documento no encontrado');
+	}
+
+	const isArchived = doc.status === 'archived';
+	if (isArchived === archived) {
+		return { documentId, status: doc.status };
+	}
+
+	// Al desarchivar se vuelve a 'uploaded': el estado previo no se conserva
+	// (archivar no lo guarda), y 'uploaded' es el punto neutro del ciclo.
+	const nextStatus = archived ? 'archived' : 'uploaded';
+	const now = new Date().toISOString();
+
+	const { error: updateErr } = await documentsDb
+		.from('documents')
+		.update({ status: nextStatus, updated_by: actor.userId, updated_at: now })
 		.eq('id', documentId);
 
 	if (updateErr) {
-		throw new DocumentsError(
-			500,
-			'No se pudo actualizar el estado del documento',
-		);
+		throw new DocumentsError(500, 'No se pudo actualizar el documento');
 	}
-
-	if (doc.document_request_id) {
-		const { error: reqErr } = await documentsDb
-			.from('document_requests')
-			.update({
-				status: nextStatus,
-				updated_at: now,
-			})
-			.eq('id', doc.document_request_id);
-
-		if (reqErr) {
-			throw new DocumentsError(500, 'No se pudo actualizar la solicitud');
-		}
-	}
-
-	const approvalComments = comments?.trim() || null;
-	await documentsDb.from('document_approvals').insert({
-		document_id: documentId,
-		approval_role: 'operations',
-		approval_status: nextStatus,
-		comments: approvalComments,
-		approved_by: actor.userId,
-		approved_at: now,
-		created_at: now,
-	});
 
 	await documentsDb.from('document_events').insert({
 		document_id: documentId,
-		case_id: doc.case_id,
-		event_type: nextStatus,
-		actor_user_id: actor.userId,
-		actor_role: actor.actorRole,
+		event_type: archived ? 'deleted' : 'restored',
 		from_status: doc.status,
 		to_status: nextStatus,
-		metadata: {
-			document_request_id: doc.document_request_id,
-			comments: approvalComments,
-		},
+		actor_user_id: actor.userId,
+		actor_role: actor.actorRole,
 	});
 
-	return {
-		caseId: doc.case_id,
+	return { documentId, status: nextStatus };
+}
+
+/**
+ * Elimina un documento de forma permanente: la fila y el archivo del bucket.
+ *
+ * Irreversible, y además destruye la auditoría: document_links,
+ * document_shares y document_events cuelgan con ON DELETE CASCADE. Por eso
+ * queda restringido a admin y se deja constancia en el log del servidor, que
+ * es el único rastro que sobrevive al borrado.
+ *
+ * Orden deliberado: primero la fila, después el archivo. Si fallara el
+ * segundo paso queda un objeto huérfano en el bucket —detectable y sin efecto
+ * en la aplicación—; al revés quedaría una fila apuntando a un archivo que ya
+ * no existe, que sí rompe la vista del usuario.
+ */
+export async function deleteDocument(
+	actor: DocumentActor,
+	documentId: string,
+): Promise<{ documentId: string }> {
+	if (actor.actorRole !== 'admin') {
+		throw new DocumentsError(
+			403,
+			'Solo un administrador puede eliminar documentos',
+		);
+	}
+
+	const { data: doc, error: readErr } = await documentsDb
+		.from('documents')
+		.select('id, file_name, bucket_storage, bucket_path, document_type_id')
+		.eq('id', documentId)
+		.maybeSingle();
+
+	if (readErr) {
+		throw new DocumentsError(500, 'Error consultando documento');
+	}
+
+	if (!doc) {
+		throw new DocumentsError(404, 'Documento no encontrado');
+	}
+
+	// Único rastro que sobrevive: la bitácora del documento se va con él.
+	log.warn('borrado permanente de documento', {
 		documentId,
-		status: nextStatus,
-	};
+		fileName: doc.file_name,
+		bucket: doc.bucket_storage,
+		bucketPath: doc.bucket_path,
+		documentTypeId: doc.document_type_id,
+		actorUserId: actor.userId,
+		actorRole: actor.actorRole,
+	});
+
+	const { error: deleteErr } = await documentsDb
+		.from('documents')
+		.delete()
+		.eq('id', documentId);
+
+	if (deleteErr) {
+		throw new DocumentsError(500, 'No se pudo eliminar el documento');
+	}
+
+	try {
+		await storage.remove(doc.bucket_storage, [doc.bucket_path]);
+	} catch (error) {
+		// La fila ya no existe; el archivo queda huérfano pero no rompe nada.
+		log.error('fila eliminada pero el archivo sigue en el bucket', {
+			documentId,
+			bucket: doc.bucket_storage,
+			bucketPath: doc.bucket_path,
+			error,
+		});
+	}
+
+	return { documentId };
 }
 
 export function toJsonErrorResponse(error: unknown): Response {

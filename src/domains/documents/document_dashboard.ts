@@ -14,6 +14,16 @@ export interface DocumentTypeLite {
 	requires_approval: boolean;
 }
 
+/** Documento subido en respuesta a una solicitud. */
+export interface DocumentRequestFile {
+	id: string;
+	file_name: string;
+	file_title: string | null;
+	mime_type: string | null;
+	status: string;
+	uploaded_at: string | null;
+}
+
 export interface DocumentRequestDashboardRow {
 	id: string;
 	status: string;
@@ -22,6 +32,12 @@ export interface DocumentRequestDashboardRow {
 	is_required: boolean;
 	requested_at: string | null;
 	document_type: DocumentTypeLite | null;
+	/**
+	 * Una solicitud admite N documentos: el FK vive en
+	 * documents.documents.document_request_id, así que la relación es
+	 * solicitud 1 → N documentos.
+	 */
+	documents: DocumentRequestFile[];
 }
 
 export interface DocumentDashboardRow {
@@ -39,7 +55,6 @@ export interface DocumentDashboardRow {
 	issue_date: string | null;
 	expiry_date: string | null;
 	document_request_id: string | null;
-	visibility: 'internal_only' | 'client_visible' | string;
 	is_signed: boolean;
 	shares: Array<{
 		id: string;
@@ -110,29 +125,77 @@ export async function getDocumentRequestsForIncorporationCase(
 	}
 
 	const rows = (data as any[]) ?? [];
-	return rows
+	const requests = rows
 		.map((r) => r?.document_requests)
-		.filter((dr) => dr && !dr.deleted_at)
-		.map((dr) => ({
-			id: dr.id,
-			status: dr.status,
-			due_date: dr.due_date ?? null,
-			message: dr.message ?? null,
-			is_required: !!dr.is_required,
-			requested_at: dr.requested_at ?? null,
-			document_type: dr.document_types
-				? {
-						id: dr.document_types.id,
-						name: dr.document_types.name,
-						legal_category: dr.document_types.legal_category,
-						applies_to: dr.document_types.applies_to,
-						description: dr.document_types.description ?? null,
-						is_active: !!dr.document_types.is_active,
-						is_expirable: !!dr.document_types.is_expirable,
-						requires_approval: !!dr.document_types.requires_approval,
-					}
-				: null,
-		}));
+		.filter((dr) => dr && dr.status !== 'cancelled');
+
+	// Los documentos que responden a cada solicitud se traen aparte y se
+	// agrupan en JS: es más claro que un embed y evita depender del alias que
+	// PostgREST derive del FK.
+	const filesByRequest = await getFilesByRequest(
+		documentsDb,
+		requests.map((dr) => dr.id as string),
+	);
+
+	return requests.map((dr) => ({
+		id: dr.id,
+		status: dr.status,
+		due_date: dr.due_date ?? null,
+		message: dr.message ?? null,
+		is_required: !!dr.is_required,
+		requested_at: dr.requested_at ?? null,
+		document_type: dr.document_types
+			? {
+					id: dr.document_types.id,
+					name: dr.document_types.name,
+					legal_category: dr.document_types.legal_category,
+					applies_to: dr.document_types.applies_to,
+					description: dr.document_types.description ?? null,
+					is_active: !!dr.document_types.is_active,
+					is_expirable: !!dr.document_types.is_expirable,
+					requires_approval: !!dr.document_types.requires_approval,
+				}
+			: null,
+		documents: filesByRequest.get(dr.id as string) ?? [],
+	}));
+}
+
+async function getFilesByRequest(
+	documentsDb: ReturnType<SupabaseClient['schema']>,
+	requestIds: string[],
+): Promise<Map<string, DocumentRequestFile[]>> {
+	const grouped = new Map<string, DocumentRequestFile[]>();
+	if (requestIds.length === 0) return grouped;
+
+	const { data, error } = await documentsDb
+		.from('documents')
+		.select(
+			'id, document_request_id, file_name, file_title, mime_type, status, uploaded_at',
+		)
+		.in('document_request_id', requestIds)
+		.neq('status', 'archived')
+		.order('uploaded_at', { ascending: false });
+
+	if (error) {
+		log.error('Error fetching documents for requests', { error });
+		return grouped;
+	}
+
+	for (const row of (data ?? []) as any[]) {
+		const requestId = row.document_request_id as string;
+		const list = grouped.get(requestId) ?? [];
+		list.push({
+			id: row.id,
+			file_name: row.file_name,
+			file_title: row.file_title ?? null,
+			mime_type: row.mime_type ?? null,
+			status: row.status,
+			uploaded_at: row.uploaded_at ?? null,
+		});
+		grouped.set(requestId, list);
+	}
+
+	return grouped;
 }
 
 export async function getDocumentsForIncorporationCase(
@@ -140,6 +203,7 @@ export async function getDocumentsForIncorporationCase(
 	incorporationCaseId: string,
 	currentUserId?: string | null,
 	userRoles: string[] = [],
+	includeArchived = false,
 ): Promise<DocumentDashboardRow[]> {
 	return getDocumentsForRelated(
 		supabase,
@@ -147,6 +211,7 @@ export async function getDocumentsForIncorporationCase(
 		incorporationCaseId,
 		currentUserId,
 		userRoles,
+		includeArchived,
 	);
 }
 
@@ -156,6 +221,7 @@ export async function getDocumentsForCompany(
 	companyId: string,
 	currentUserId?: string | null,
 	userRoles: string[] = [],
+	includeArchived = false,
 ): Promise<DocumentDashboardRow[]> {
 	return getDocumentsForRelated(
 		supabase,
@@ -163,6 +229,7 @@ export async function getDocumentsForCompany(
 		companyId,
 		currentUserId,
 		userRoles,
+		includeArchived,
 	);
 }
 
@@ -180,10 +247,17 @@ export async function getDocumentsForCompanyView(
 	incorporationCaseId?: string | null,
 	currentUserId?: string | null,
 	userRoles: string[] = [],
+	includeArchived = false,
 ): Promise<DocumentDashboardRow[]> {
 	const [companyDocs, incorporationDocs] = await Promise.all([
 		companyId
-			? getDocumentsForCompany(supabase, companyId, currentUserId, userRoles)
+			? getDocumentsForCompany(
+					supabase,
+					companyId,
+					currentUserId,
+					userRoles,
+					includeArchived,
+				)
 			: Promise.resolve([]),
 		incorporationCaseId
 			? getDocumentsForIncorporationCase(
@@ -191,6 +265,7 @@ export async function getDocumentsForCompanyView(
 					incorporationCaseId,
 					currentUserId,
 					userRoles,
+					includeArchived,
 				)
 			: Promise.resolve([]),
 	]);
@@ -213,6 +288,7 @@ async function getDocumentsForRelated(
 	relatedToId: string,
 	currentUserId?: string | null,
 	userRoles: string[] = [],
+	includeArchived = false,
 ): Promise<DocumentDashboardRow[]> {
 	const documentsDb = supabase.schema('documents');
 	const { data, error } = await documentsDb
@@ -229,7 +305,6 @@ async function getDocumentsForRelated(
 				file_title,
 				mime_type,
 				document_request_id,
-				visibility,
 				is_signed,
 				created_at,
 				uploaded_at,
@@ -266,60 +341,63 @@ async function getDocumentsForRelated(
 	}
 
 	const rows = (data as any[]) ?? [];
-	return rows
-		.map((r) => r?.documents)
-		.filter((d) => d && !d.deleted_at)
-		.map((d) => ({
-			id: d.id,
-			status: d.status,
-			file_name: d.file_name,
-			file_title: d.file_title ?? null,
-			mime_type: d.mime_type ?? null,
-			file_size_bytes: d.file_size_bytes ?? null,
-			bucket_path: d.bucket_path,
-			created_at: d.created_at ?? null,
-			uploaded_at: d.uploaded_at ?? null,
-			uploaded_by: d.uploaded_by ?? null,
-			notes: d.notes ?? null,
-			issue_date: d.issue_date ?? null,
-			expiry_date: d.expiry_date ?? null,
-			document_request_id: d.document_request_id ?? null,
-			visibility: d.visibility ?? 'internal_only',
-			is_signed: !!d.is_signed,
-			shares: (d.document_shares ?? []).map((share: any) => ({
-				id: share.id,
-				shared_with_user_id: share.shared_with_user_id,
-				share_status: share.share_status,
-				shared_at: share.shared_at ?? null,
-			})),
-			document_type: d.document_types
-				? {
-						id: d.document_types.id,
-						name: d.document_types.name,
-						legal_category: d.document_types.legal_category,
-						applies_to: d.document_types.applies_to,
-						description: d.document_types.description ?? null,
-						is_active: !!d.document_types.is_active,
-						is_expirable: !!d.document_types.is_expirable,
-						requires_approval: !!d.document_types.requires_approval,
-					}
-				: null,
-		}))
-		.filter((doc) => {
-			const isStaff = userRoles.some((role) => STAFF_ROLES.has(role));
-			if (isStaff) return true;
-			if (!currentUserId) return false;
-			// El usuario siempre ve lo que él mismo subió (p. ej. al responder una
-			// solicitud de documento), sin depender de un share explícito: el
-			// auto-share al subir solo lo dispara staff (ver uploadDocument en
-			// service.ts), así que sin esta excepción el cliente nunca vería sus
-			// propias cargas.
-			if (doc.uploaded_by === currentUserId) return true;
-			if (doc.visibility !== 'client_visible') return false;
-			return doc.shares.some(
-				(share: any) =>
-					share.shared_with_user_id === currentUserId &&
-					share.share_status === 'active',
-			);
-		});
+	return (
+		rows
+			.map((r) => r?.documents)
+			// Los archivados se excluyen salvo que el llamador los pida
+			// explícitamente: el cliente no debe verlos nunca, pero el staff
+			// necesita poder restaurarlos o eliminarlos definitivamente.
+			.filter((d) => d && (includeArchived || d.status !== 'archived'))
+			.map((d) => ({
+				id: d.id,
+				status: d.status,
+				file_name: d.file_name,
+				file_title: d.file_title ?? null,
+				mime_type: d.mime_type ?? null,
+				file_size_bytes: d.file_size_bytes ?? null,
+				bucket_path: d.bucket_path,
+				created_at: d.created_at ?? null,
+				uploaded_at: d.uploaded_at ?? null,
+				uploaded_by: d.uploaded_by ?? null,
+				notes: d.notes ?? null,
+				issue_date: d.issue_date ?? null,
+				expiry_date: d.expiry_date ?? null,
+				document_request_id: d.document_request_id ?? null,
+				is_signed: !!d.is_signed,
+				shares: (d.document_shares ?? []).map((share: any) => ({
+					id: share.id,
+					shared_with_user_id: share.shared_with_user_id,
+					share_status: share.share_status,
+					shared_at: share.shared_at ?? null,
+				})),
+				document_type: d.document_types
+					? {
+							id: d.document_types.id,
+							name: d.document_types.name,
+							legal_category: d.document_types.legal_category,
+							applies_to: d.document_types.applies_to,
+							description: d.document_types.description ?? null,
+							is_active: !!d.document_types.is_active,
+							is_expirable: !!d.document_types.is_expirable,
+							requires_approval: !!d.document_types.requires_approval,
+						}
+					: null,
+			}))
+			.filter((doc) => {
+				const isStaff = userRoles.some((role) => STAFF_ROLES.has(role));
+				if (isStaff) return true;
+				if (!currentUserId) return false;
+				// El usuario siempre ve lo que él mismo subió (p. ej. al responder una
+				// solicitud de documento), sin depender de un share explícito: el
+				// auto-share al subir solo lo dispara staff (ver uploadDocument en
+				// service.ts), así que sin esta excepción el cliente nunca vería sus
+				// propias cargas.
+				if (doc.uploaded_by === currentUserId) return true;
+				return doc.shares.some(
+					(share: any) =>
+						share.shared_with_user_id === currentUserId &&
+						share.share_status === 'active',
+				);
+			})
+	);
 }

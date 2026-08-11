@@ -1,11 +1,12 @@
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import {
+	DOCUMENT_TYPE_SLUGS,
 	DocumentsError,
+	getDocumentTypeIdBySlug,
 	uploadDocument,
 	type DocumentActor,
 	type UploadDocumentResult,
 } from '@domains/documents';
-import { PLANNING_DESIGN_DOC_TYPE_ID } from './planning-meeting';
 
 const documentsDb = supabaseAdmin.schema('documents');
 
@@ -18,12 +19,30 @@ interface PreviousPlanningDoc {
 const findLatestPlanningDoc = async (
 	caseId: string,
 ): Promise<PreviousPlanningDoc | null> => {
+	// La relación documento → caso vive en document_links desde que se eliminó
+	// documents.documents.case_id.
+	const { data: links, error: linksError } = await documentsDb
+		.from('document_links')
+		.select('document_id')
+		.eq('related_to_type', 'incorporation_case')
+		.eq('related_to_id', caseId);
+
+	if (linksError) {
+		throw new DocumentsError(500, 'Error consultando documentos previos');
+	}
+
+	const ids = (links ?? []).map((link) => link.document_id as string);
+	if (ids.length === 0) return null;
+
 	const { data, error } = await documentsDb
 		.from('documents')
 		.select('id, version, document_group_id')
-		.eq('case_id', caseId)
-		.eq('document_type_id', PLANNING_DESIGN_DOC_TYPE_ID)
-		.is('deleted_at', null)
+		.in('id', ids)
+		.eq(
+			'document_type_id',
+			await getDocumentTypeIdBySlug(DOCUMENT_TYPE_SLUGS.planningDesignReport),
+		)
+		.neq('status', 'archived')
 		.order('version', { ascending: false })
 		.limit(1)
 		.maybeSingle();
@@ -57,18 +76,22 @@ export const uploadPlanningDocument = async (
 	input: UploadPlanningDocumentInput,
 ): Promise<UploadPlanningDocumentResult> => {
 	if (!actor.isStaff) {
-		throw new DocumentsError(403, 'Solo operaciones puede subir este documento');
+		throw new DocumentsError(
+			403,
+			'Solo operaciones puede subir este documento',
+		);
 	}
 
 	const previous = await findLatestPlanningDoc(input.caseId);
 
 	const result = await uploadDocument(actor, {
 		file: input.file,
-		documentTypeId: PLANNING_DESIGN_DOC_TYPE_ID,
+		documentTypeId: await getDocumentTypeIdBySlug(
+			DOCUMENT_TYPE_SLUGS.planningDesignReport,
+		),
 		relatedToType: 'incorporation_case',
 		relatedToId: input.caseId,
 		caseId: input.caseId,
-		visibility: 'client_visible',
 		autoShare: true,
 	});
 
@@ -108,7 +131,6 @@ export const uploadPlanningDocument = async (
 
 		await documentsDb.from('document_events').insert({
 			document_id: previous.id,
-			case_id: input.caseId,
 			event_type: 'replaced',
 			from_status: 'uploaded',
 			to_status: 'replaced',

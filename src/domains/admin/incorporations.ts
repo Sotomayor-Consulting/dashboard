@@ -252,8 +252,7 @@ export async function listAdminCompanies(
 				'id',
 				sigLinks.map((l) => l.document_id),
 			)
-			.eq('status', 'pending')
-			.is('deleted_at', null);
+			.eq('status', 'pending');
 		const pendingIds = new Set((pendingDocs ?? []).map((d) => d.id as string));
 		for (const l of sigLinks) {
 			if (pendingIds.has(l.document_id)) {
@@ -518,7 +517,7 @@ export async function getAdminCompanyDetail(
 			.from('documents')
 			.select('id, file_name, file_title, status, created_at')
 			.in('id', sigDocIds)
-			.is('deleted_at', null)
+			.neq('status', 'archived')
 			.limit(50);
 		docRows = (data ?? []) as Array<Record<string, unknown>>;
 	}

@@ -3,6 +3,17 @@ import { storage } from '@infrastructure/storage';
 import { STAFF_ROLES } from './config';
 import type { DocumentActor } from './types';
 
+/**
+ * Ruta del panel de documentos del cliente para una incorporación.
+ *
+ * Antes se construía a mano como `/documentos/${caseId}`, una ruta que no
+ * existe: los enlaces de los correos y de las notificaciones llevaban a un
+ * 404. La real es `/incorporation/[incorporationId]/documents`.
+ */
+export function clientDocumentsPath(caseId: string): string {
+	return `/incorporation/${caseId}/documents`;
+}
+
 export function safeFilename(name: string): string {
 	return name
 		.replace(/[/\\]/g, '_')

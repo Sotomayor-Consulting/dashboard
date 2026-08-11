@@ -252,7 +252,7 @@ export const buildTemplateData = (
 
 /**
  * Genera el PDF del informe desde la plantilla con los datos guardados y lo
- * sube como documento `client_visible` (sin aprobación). Reutiliza el
+ * sube compartido con el cliente (sin aprobación). Reutiliza el
  * versionado de `uploadPlanningDocument`.
  */
 export const generateAndUploadReport = async (

@@ -1,7 +1,5 @@
 export type ActorRole = 'admin' | 'operaciones' | 'cliente';
 
-export type DocumentVisibility = 'internal_only' | 'client_visible';
-
 export type DocumentRelatedType =
 	| 'user'
 	| 'profile'
@@ -32,8 +30,12 @@ export interface UploadDocumentInput {
 	relatedToType: DocumentRelatedType;
 	relatedToId: string;
 	caseId?: string | null;
-	visibility: DocumentVisibility;
 	shareWithUserId?: string | null;
+	/**
+	 * Comparte el documento con el cliente al subirlo. Sustituye a la antigua
+	 * columna `visibility`: un documento es visible para el cliente si y solo
+	 * si existe un share activo.
+	 */
 	autoShare: boolean;
 	isSigned?: boolean;
 }

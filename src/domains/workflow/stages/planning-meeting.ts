@@ -1,13 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import {
+	DOCUMENT_TYPE_SLUGS,
+	getDocumentTypeIdBySlug,
+} from '@domains/documents/document-types';
 
-export const PLANNING_DESIGN_DOC_TYPE_ID = 5;
 export const PLANNING_MEETING_STAGE_SLUG = 'planning_meeting' as const;
 
 export type PlanningMeetingSubstate =
-	| 'schedule_pending'
-	| 'meeting_scheduled'
-	| 'awaiting_doc'
-	| 'delivered';
+	'schedule_pending' | 'meeting_scheduled' | 'awaiting_doc' | 'delivered';
 // NOTA: los substates 'awaiting_approval' | 'rejected' | 'approved' se
 // retiraron al eliminar la aprobación del cliente. El informe ahora solo
 // se entrega ('delivered'), no se aprueba.
@@ -59,6 +59,47 @@ const isMeetingPast = (m: PlanningMeetingMeetingMini): boolean => {
 };
 
 /**
+ * Última versión del informe de planificación del caso. La relación
+ * documento → caso vive en document_links desde que se eliminó
+ * documents.documents.case_id, así que se resuelve en dos pasos.
+ */
+const fetchLatestPlanningDocument = async (
+	supabase: SupabaseClient,
+	incorporationId: string,
+): Promise<PlanningDesignDocument | null> => {
+	const documentsDb = supabase.schema('documents' as never);
+
+	const { data: links } = await documentsDb
+		.from('document_links')
+		.select('document_id')
+		.eq('related_to_type', 'incorporation_case')
+		.eq('related_to_id', incorporationId);
+
+	const ids = (links ?? []).map(
+		(link: { document_id: string }) => link.document_id,
+	);
+	if (ids.length === 0) return null;
+
+	const { data } = await documentsDb
+		.from('documents')
+		.select(
+			`id, file_name, file_title, bucket_path, bucket_storage, version,
+			uploaded_at, uploaded_by, mime_type, file_size_bytes, notes`,
+		)
+		.in('id', ids)
+		.eq(
+			'document_type_id',
+			await getDocumentTypeIdBySlug(DOCUMENT_TYPE_SLUGS.planningDesignReport),
+		)
+		.neq('status', 'archived')
+		.order('version', { ascending: false })
+		.limit(1)
+		.maybeSingle();
+
+	return (data as PlanningDesignDocument | null) ?? null;
+};
+
+/**
  * Resolves the planning_meeting sub-state by reading meeting, document and
  * approval data. Used by both client and operations views to render the
  * stage with the correct UI affordances.
@@ -69,23 +110,11 @@ export const resolvePlanningMeetingContext = async (
 ): Promise<PlanningMeetingContext> => {
 	const { incorporationId, stageId, stageStatus } = params;
 
-	const [meetingResult, docResult, approvalsResult] = await Promise.all([
+	const [meetingResult, document, approvalsResult] = await Promise.all([
 		supabase.rpc('get_workflow_meeting', {
 			p_incorporation_id: incorporationId,
 		}),
-		supabase
-			.schema('documents' as never)
-			.from('documents')
-			.select(
-				`id, file_name, file_title, bucket_path, bucket_storage, version,
-				uploaded_at, uploaded_by, mime_type, file_size_bytes, notes`,
-			)
-			.eq('case_id', incorporationId)
-			.eq('document_type_id', PLANNING_DESIGN_DOC_TYPE_ID)
-			.is('deleted_at', null)
-			.order('version', { ascending: false })
-			.limit(1)
-			.maybeSingle(),
+		fetchLatestPlanningDocument(supabase, incorporationId),
 		supabase
 			.schema('workflow' as never)
 			.from('approval_records')
@@ -95,8 +124,7 @@ export const resolvePlanningMeetingContext = async (
 	]);
 
 	const meetingRaw = meetingResult.data as
-		| (PlanningMeetingMeetingMini & { found?: boolean })
-		| null;
+		(PlanningMeetingMeetingMini & { found?: boolean }) | null;
 	const meeting =
 		meetingRaw && meetingRaw.found !== false
 			? {
@@ -107,8 +135,8 @@ export const resolvePlanningMeetingContext = async (
 				}
 			: null;
 
-	const document = (docResult.data ?? null) as PlanningDesignDocument | null;
-	const approvalHistory = (approvalsResult.data ?? []) as PlanningMeetingApproval[];
+	const approvalHistory = (approvalsResult.data ??
+		[]) as PlanningMeetingApproval[];
 	const latestApproval = approvalHistory[0] ?? null;
 
 	const substate = deriveSubstate({
