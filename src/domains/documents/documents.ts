@@ -34,7 +34,7 @@ export const getDocumentosGenerales = async (
 		.from('documents')
 		.select('id, file_name, status, created_at')
 		.in('id', ids)
-		.is('deleted_at', null)
+		.neq('status', 'archived')
 		.order('created_at', { ascending: false });
 
 	if (error) {

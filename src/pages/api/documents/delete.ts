@@ -3,17 +3,19 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import {
 	DocumentsError,
+	deleteDocument,
 	resolveDocumentActor,
-	reviewDocumentRequest,
 	toJsonErrorResponse,
 } from '@domains/documents';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 
 /**
- * Aprueba o rechaza una solicitud de documentos.
+ * Borrado permanente: elimina la fila y el archivo del bucket.
  *
- * La revisión es a nivel de solicitud, no de documento: una solicitud puede
- * tener N archivos y la decisión sobre ellos es una sola.
+ * Irreversible y destruye la auditoría del documento (document_links,
+ * document_shares y document_events cuelgan con ON DELETE CASCADE). Solo
+ * admin; el servicio vuelve a comprobarlo. Para ocultar sin destruir, usar
+ * ./archive.
  */
 export const POST: APIRoute = async ({ request, cookies, locals }) => {
 	try {
@@ -24,24 +26,13 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 		const actor = await resolveDocumentActor(supabase, locals.userRoles || []);
 
 		const body = await request.json().catch(() => null);
-		const documentRequestId = body?.documentRequestId as string | undefined;
-		const status = body?.status as string | undefined;
-		const comments = body?.comments as string | undefined;
+		const documentId = body?.documentId as string | undefined;
 
-		if (!documentRequestId) {
-			throw new DocumentsError(400, 'Falta documentRequestId');
+		if (!documentId) {
+			throw new DocumentsError(400, 'Falta documentId');
 		}
 
-		if (status !== 'approved' && status !== 'rejected') {
-			throw new DocumentsError(400, 'status invalido');
-		}
-
-		const result = await reviewDocumentRequest(
-			actor,
-			documentRequestId,
-			status,
-			comments,
-		);
+		const result = await deleteDocument(actor, documentId);
 
 		return new Response(JSON.stringify({ ok: true, ...result }), {
 			status: 200,

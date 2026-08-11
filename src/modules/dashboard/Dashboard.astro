@@ -10,6 +10,7 @@ import {
 	getDocumentsForIncorporationCase,
 	getDocumentRequestsForIncorporationCase,
 } from '@domains/documents/document_dashboard';
+import { isRequestOpen } from '@modules/documents/document-ui';
 import { getNotifications } from '@domains/users/notifications';
 import { getOrdersByUser } from '@domains/payments/orders';
 import { ACTIVE_COMPANY_COOKIE } from '@shared/cookies';
@@ -93,9 +94,12 @@ if (activeCompany) {
 	}
 
 	if (requestsResult.status === 'fulfilled') {
-		pendingDocumentRequests = requestsResult.value.filter(
-			(request) =>
-				!['completed', 'approved', 'signed'].includes(request.status),
+		// Estados terminales reales de document_request_status. Antes se
+		// excluían 'completed' y 'signed', que no existen en el enum, y no se
+		// excluía 'rejected': una solicitud rechazada seguía contando como
+		// documento requerido.
+		pendingDocumentRequests = requestsResult.value.filter((request) =>
+			isRequestOpen(request.status),
 		).length;
 	}
 }

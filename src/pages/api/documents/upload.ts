@@ -60,7 +60,9 @@ export const POST: APIRoute = async ({
 		null;
 	const backParam =
 		url.searchParams.get('back') || (form.get('back') as string | null);
-	const back = backParam ?? `/documentos/${incorporationCaseId ?? relatedToId}`;
+	const back =
+		backParam ??
+		`/incorporation/${incorporationCaseId ?? relatedToId}/documents`;
 
 	const redirectWithStatus = (
 		status: 'success' | 'error',
@@ -90,17 +92,6 @@ export const POST: APIRoute = async ({
 		const actor = await resolveDocumentActor(supabase, userRoles);
 
 		const file = form.get('file') as File | null;
-		const visibilityRaw =
-			(
-				url.searchParams.get('visibility') ||
-				(form.get('visibility') as string | null) ||
-				''
-			).trim() || null;
-		const visibility = actor.isStaff
-			? visibilityRaw === 'client_visible'
-				? 'client_visible'
-				: 'internal_only'
-			: 'client_visible';
 		const documentTypeIdRaw =
 			(
 				url.searchParams.get('documentTypeId') ||
@@ -117,13 +108,20 @@ export const POST: APIRoute = async ({
 		const documentRequestId =
 			url.searchParams.get('documentRequestId') ||
 			(form.get('documentRequestId') as string | null);
+		// Único mando de visibilidad desde que se eliminó la columna
+		// `visibility`: sin share activo, el cliente no ve el documento.
+		// Por defecto NO se comparte — conceder acceso debe ser explícito.
 		const shouldAutoShare =
 			(url.searchParams.get('shareWithClient') ||
 				(form.get('shareWithClient') as string | null) ||
-				'true') !== 'false';
+				'false') === 'true';
 		const shareWithUserId =
 			url.searchParams.get('shareWithUserId') ||
 			(form.get('shareWithUserId') as string | null);
+		const isSigned =
+			(url.searchParams.get('isSigned') ||
+				(form.get('isSigned') as string | null) ||
+				'') === 'true';
 
 		if (!actor.isStaff && !documentRequestId) {
 			return redirectWithStatus('error', 'Falta documentRequestId');
@@ -140,9 +138,9 @@ export const POST: APIRoute = async ({
 			relatedToType,
 			relatedToId,
 			caseId: caseIdParam,
-			visibility,
 			autoShare: shouldAutoShare,
 			shareWithUserId,
+			isSigned,
 		});
 
 		return redirectWithStatus('success', 'Documento subido correctamente');

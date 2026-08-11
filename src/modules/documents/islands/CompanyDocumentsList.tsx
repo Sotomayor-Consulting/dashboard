@@ -34,6 +34,8 @@ import {
 interface Props {
 	documents: DocumentDashboardRow[];
 	canUseStaffActions: boolean;
+	/** Solo admin puede borrar de forma permanente (ver deleteDocument). */
+	canDelete?: boolean;
 	incorporationCaseId: string;
 	companyUserId: string;
 	isStaffDashboard: boolean;
@@ -42,6 +44,7 @@ interface Props {
 export default function CompanyDocumentsList({
 	documents,
 	canUseStaffActions,
+	canDelete = false,
 	incorporationCaseId,
 	companyUserId,
 	isStaffDashboard,
@@ -55,6 +58,76 @@ export default function CompanyDocumentsList({
 		{ id: 'uploaded_at', desc: true },
 	]);
 	const [globalFilter, setGlobalFilter] = React.useState('');
+
+	const onArchive = async (
+		documentId: string,
+		archived: boolean,
+		e: React.MouseEvent,
+	) => {
+		e.stopPropagation();
+		if (!canUseStaffActions) return;
+		const toastId = toast.loading(archived ? 'Archivando…' : 'Desarchivando…');
+		try {
+			const res = await fetch('/api/documents/archive', {
+				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ documentId, archived }),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data?.error || 'Error');
+
+			setDocs((prev) =>
+				prev.map((d) =>
+					d.id === documentId ? { ...d, status: data.status } : d,
+				),
+			);
+			toast.success(archived ? 'Documento archivado' : 'Documento restaurado', {
+				id: toastId,
+			});
+		} catch (error) {
+			toast.error(
+				error instanceof Error ? error.message : 'No se pudo archivar',
+				{ id: toastId },
+			);
+		}
+	};
+
+	const onDelete = async (
+		documentId: string,
+		fileName: string,
+		e: React.MouseEvent,
+	) => {
+		e.stopPropagation();
+		if (!canDelete) return;
+
+		// Irreversible: se lleva el archivo y toda la bitácora del documento.
+		const confirmed = globalThis.confirm(
+			`Se eliminará «${fileName}» de forma permanente, junto con su archivo y todo su historial. Esta acción no se puede deshacer.\n\n¿Continuar?`,
+		);
+		if (!confirmed) return;
+
+		const toastId = toast.loading('Eliminando…');
+		try {
+			const res = await fetch('/api/documents/delete', {
+				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ documentId }),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data?.error || 'Error');
+
+			setDocs((prev) => prev.filter((d) => d.id !== documentId));
+			setSelectedDocument((prev) => (prev?.id === documentId ? null : prev));
+			toast.success('Documento eliminado', { id: toastId });
+		} catch (error) {
+			toast.error(
+				error instanceof Error ? error.message : 'No se pudo eliminar',
+				{ id: toastId },
+			);
+		}
+	};
 
 	const onDownload = async (documentId: string, e: React.MouseEvent) => {
 		e.stopPropagation();
@@ -183,10 +256,7 @@ export default function CompanyDocumentsList({
 							>
 								<Icon
 									icon={getMimeIcon(doc.mime_type)}
-									className={cn(
-										'h-4.5 w-4.5',
-										getMimeColor(doc.mime_type),
-									)}
+									className={cn('h-4.5 w-4.5', getMimeColor(doc.mime_type))}
 								/>
 							</div>
 							<div className="min-w-0">
@@ -269,26 +339,73 @@ export default function CompanyDocumentsList({
 											onClick={(e) => onShare(doc.id, companyUserId, e)}
 											className="gap-2 text-emerald-700 dark:text-emerald-400"
 										>
-											<Icon
-												icon="ri:share-forward-line"
-												className="h-4 w-4"
-											/>
+											<Icon icon="ri:share-forward-line" className="h-4 w-4" />
 											Compartir
 										</DropdownMenuItem>
 									))}
+								{canUseStaffActions && (
+									<DropdownMenuItem
+										onClick={(e) =>
+											onArchive(doc.id, doc.status !== 'archived', e)
+										}
+										className="gap-2"
+									>
+										<Icon
+											icon={
+												doc.status === 'archived'
+													? 'ri:inbox-unarchive-line'
+													: 'ri:inbox-archive-line'
+											}
+											className="h-4 w-4"
+										/>
+										{doc.status === 'archived' ? 'Desarchivar' : 'Archivar'}
+									</DropdownMenuItem>
+								)}
+								{canDelete && (
+									<DropdownMenuItem
+										onClick={(e) =>
+											onDelete(doc.id, doc.file_title ?? doc.file_name, e)
+										}
+										className="gap-2 text-red-600 dark:text-red-400"
+									>
+										<Icon icon="ri:delete-bin-line" className="h-4 w-4" />
+										Eliminar
+									</DropdownMenuItem>
+								)}
 							</DropdownMenuContent>
 						</DropdownMenu>
 					);
 				},
 			},
 		],
-		[canUseStaffActions, companyUserId],
+		[canUseStaffActions, canDelete, companyUserId],
 	);
 
 	const [isTransitioning, setIsTransitioning] = React.useState(false);
 
+	/**
+	 * Vista de archivados. Se separa en lugar de mezclarse con los activos:
+	 * archivar sirve para sacar un documento de en medio, así que volver a
+	 * verlo debe ser un gesto deliberado. Es también el único sitio desde el
+	 * que se puede restaurar o eliminar definitivamente.
+	 */
+	const [showArchived, setShowArchived] = React.useState(false);
+
+	const archivedCount = React.useMemo(
+		() => docs.filter((d) => d.status === 'archived').length,
+		[docs],
+	);
+
+	const visibleDocs = React.useMemo(
+		() =>
+			docs.filter((d) =>
+				showArchived ? d.status === 'archived' : d.status !== 'archived',
+			),
+		[docs, showArchived],
+	);
+
 	const table = useReactTable({
-		data: docs,
+		data: visibleDocs,
 		columns,
 		initialState: { pagination: { pageSize: 5 } },
 		onSortingChange: setSorting,
@@ -325,17 +442,34 @@ export default function CompanyDocumentsList({
 	return (
 		<>
 			<div className="space-y-3">
-				<div className="relative w-full">
-					<SearchIcon
-						size={16}
-						className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
-					/>
-					<Input
-						placeholder="Buscar por nombre, tipo o estado..."
-						value={globalFilter}
-						onChange={(event) => setGlobalFilter(event.target.value)}
-						className="pl-9"
-					/>
+				<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+					<div className="relative w-full">
+						<SearchIcon
+							size={16}
+							className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+						/>
+						<Input
+							placeholder="Buscar por nombre, tipo o estado..."
+							value={globalFilter}
+							onChange={(event) => setGlobalFilter(event.target.value)}
+							className="pl-9"
+						/>
+					</div>
+
+					{canUseStaffActions && (
+						<Button
+							type="button"
+							variant={showArchived ? 'default' : 'outline'}
+							size="sm"
+							onClick={() => setShowArchived((v) => !v)}
+							className="shrink-0 gap-2"
+						>
+							<Icon icon="ri:archive-line" className="h-4 w-4" />
+							{showArchived
+								? 'Ver activos'
+								: `Archivados${archivedCount > 0 ? ` (${archivedCount})` : ''}`}
+						</Button>
+					)}
 				</div>
 
 				{table.getRowModel().rows.length === 0 ? (
@@ -347,7 +481,9 @@ export default function CompanyDocumentsList({
 						<p className="text-muted-foreground text-sm">
 							{globalFilter
 								? 'No se encontraron documentos con ese criterio.'
-								: 'Aún no hay documentos para esta empresa.'}
+								: showArchived
+									? 'No hay documentos archivados.'
+									: 'Aún no hay documentos para esta empresa.'}
 						</p>
 					</div>
 				) : (
@@ -382,10 +518,7 @@ export default function CompanyDocumentsList({
 									>
 										<Icon
 											icon={getMimeIcon(doc.mime_type)}
-											className={cn(
-												'h-5 w-5',
-												getMimeColor(doc.mime_type),
-											)}
+											className={cn('h-5 w-5', getMimeColor(doc.mime_type))}
 										/>
 									</div>
 
@@ -396,9 +529,7 @@ export default function CompanyDocumentsList({
 										</p>
 										<div className="text-muted-foreground mt-0.5 flex flex-wrap items-center gap-2 text-xs">
 											{typeName && <span>{typeName}</span>}
-											{typeName && (
-												<span className="text-border">·</span>
-											)}
+											{typeName && <span className="text-border">·</span>}
 											<span>{formatDate(doc.uploaded_at)}</span>
 										</div>
 									</div>
@@ -419,12 +550,9 @@ export default function CompanyDocumentsList({
 											className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors"
 											title="Descargar"
 										>
-											<Icon
-												icon="ri:download-2-line"
-												className="h-4 w-4"
-											/>
+											<Icon icon="ri:download-2-line" className="h-4 w-4" />
 										</button>
-										{canUseStaffActions && (
+										{(canUseStaffActions || canDelete) && (
 											<DropdownMenu>
 												<DropdownMenuTrigger
 													onClick={(e) => e.stopPropagation()}
@@ -433,43 +561,24 @@ export default function CompanyDocumentsList({
 															type="button"
 															className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors"
 														>
-															<Icon
-																icon="ri:more-2-line"
-																className="h-4 w-4"
-															/>
+															<Icon icon="ri:more-2-line" className="h-4 w-4" />
 														</button>
 													}
 												/>
-												<DropdownMenuContent
-													align="end"
-													className="w-44"
-												>
+												<DropdownMenuContent align="end" className="w-44">
 													{hasActiveShare ? (
 														<DropdownMenuItem
 															onClick={(e) =>
-																onRevoke(
-																	doc.id,
-																	companyUserId,
-																	e,
-																)
+																onRevoke(doc.id, companyUserId, e)
 															}
 															className="gap-2 text-red-600 dark:text-red-400"
 														>
-															<Icon
-																icon="ri:forbid-line"
-																className="h-4 w-4"
-															/>
+															<Icon icon="ri:forbid-line" className="h-4 w-4" />
 															Revocar acceso
 														</DropdownMenuItem>
 													) : (
 														<DropdownMenuItem
-															onClick={(e) =>
-																onShare(
-																	doc.id,
-																	companyUserId,
-																	e,
-																)
-															}
+															onClick={(e) => onShare(doc.id, companyUserId, e)}
 															className="gap-2 text-emerald-700 dark:text-emerald-400"
 														>
 															<Icon
@@ -477,6 +586,44 @@ export default function CompanyDocumentsList({
 																className="h-4 w-4"
 															/>
 															Compartir
+														</DropdownMenuItem>
+													)}
+													{canUseStaffActions && (
+														<DropdownMenuItem
+															onClick={(e) =>
+																onArchive(doc.id, doc.status !== 'archived', e)
+															}
+															className="gap-2"
+														>
+															<Icon
+																icon={
+																	doc.status === 'archived'
+																		? 'ri:inbox-unarchive-line'
+																		: 'ri:inbox-archive-line'
+																}
+																className="h-4 w-4"
+															/>
+															{doc.status === 'archived'
+																? 'Desarchivar'
+																: 'Archivar'}
+														</DropdownMenuItem>
+													)}
+													{canDelete && (
+														<DropdownMenuItem
+															onClick={(e) =>
+																onDelete(
+																	doc.id,
+																	doc.file_title ?? doc.file_name,
+																	e,
+																)
+															}
+															className="gap-2 text-red-600 dark:text-red-400"
+														>
+															<Icon
+																icon="ri:delete-bin-line"
+																className="h-4 w-4"
+															/>
+															Eliminar
 														</DropdownMenuItem>
 													)}
 												</DropdownMenuContent>
@@ -491,11 +638,11 @@ export default function CompanyDocumentsList({
 
 				{/* Pagination */}
 				{(table.getCanPreviousPage() || table.getCanNextPage()) && (
-					<div className="flex items-center justify-between border-t border-border pt-3">
+					<div className="border-border flex items-center justify-between border-t pt-3">
 						<p className="text-muted-foreground text-xs">
 							Página {table.getState().pagination.pageIndex + 1} de{' '}
-							{table.getPageCount()} ·{' '}
-							{table.getFilteredRowModel().rows.length} documento
+							{table.getPageCount()} · {table.getFilteredRowModel().rows.length}{' '}
+							documento
 							{table.getFilteredRowModel().rows.length === 1 ? '' : 's'}
 						</p>
 						<div className="flex items-center gap-2">

@@ -7,6 +7,10 @@ import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { BUCKETS, createScopedStorage } from '@infrastructure/storage';
 import { safeBack } from '@infrastructure/security/headers';
 import { createLogger } from '@infrastructure/logging';
+import {
+	DOCUMENT_TYPE_SLUGS,
+	getDocumentTypeIdBySlug,
+} from '@domains/documents/document-types';
 
 const log = createLogger('partners.upload-contract');
 
@@ -79,7 +83,9 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 		// 5) Registrar el documento en el schema `documents`
 		//    (reemplaza la tabla legacy documentos_usuarios).
 		const documentsDb = supabaseAdmin.schema('documents');
-		const PARTNER_CONTRACT_TYPE_ID = 3; // documents.document_types → "Partner Contract"
+		const partnerContractTypeId = await getDocumentTypeIdBySlug(
+			DOCUMENT_TYPE_SLUGS.partnerContract,
+		);
 		const now = new Date().toISOString();
 
 		// Un contrato por usuario: si ya existe, se reemplaza.
@@ -120,8 +126,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 			documentId = crypto.randomUUID();
 			const { error: insErr } = await documentsDb.from('documents').insert({
 				id: documentId,
-				document_type_id: PARTNER_CONTRACT_TYPE_ID,
-				case_id: null,
+				document_type_id: partnerContractTypeId,
 				file_name: fileName,
 				file_title: fileName,
 				bucket_storage: BUCKET_NAME,
@@ -129,8 +134,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 				file_size_bytes: file.size,
 				mime_type: ALLOWED_MIME,
 				status: 'uploaded',
-				visibility: 'client_visible',
-				is_sensitive: false,
 				version: 1,
 				uploaded_by: user.id,
 				uploaded_at: now,
@@ -154,7 +157,6 @@ export const POST: APIRoute = async ({ request, cookies, redirect, url }) => {
 					related_to_type: 'user',
 					related_to_id: user.id,
 					relation_purpose: 'owner',
-					is_primary: true,
 					created_by: user.id,
 					created_at: now,
 				});

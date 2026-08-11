@@ -39,6 +39,7 @@ import { Icon } from '@iconify/react';
 import { cn } from '@components/utils';
 import { toast } from 'sonner';
 import { DocumentTypeComboboxField } from '@modules/documents/islands/DocumentTypeComboboxField';
+import DocumentRequestList from '@modules/documents/islands/DocumentRequestList';
 import type {
 	DocumentDashboardRow,
 	DocumentRequestDashboardRow,
@@ -47,10 +48,13 @@ import type {
 import DocumentDetailDrawer from './DocumentDetailDrawer';
 import {
 	badgeForDocumentStatus,
+	badgeForSigned,
 	formatDate,
 	getMimeBg,
 	getMimeColor,
 	getMimeIcon,
+	isRequestOpen,
+	signedLabel,
 	statusLabel,
 } from '@modules/documents/document-ui';
 
@@ -64,6 +68,8 @@ interface Props {
 	documents: DocumentDashboardRow[];
 	requests: DocumentRequestDashboardRow[];
 	isStaff: boolean;
+	/** Solo admin puede borrar de forma permanente (ver deleteDocument). */
+	canDelete?: boolean;
 	sharedWithUserId?: string;
 }
 
@@ -106,12 +112,16 @@ export default function DocumentsTab({
 	documents,
 	requests,
 	isStaff = false,
+	canDelete = false,
 	sharedWithUserId,
 }: Props) {
 	const [sheetMode, setSheetMode] = React.useState<SheetMode>(null);
 	const lastMode = React.useRef<SheetMode>(null);
 	const isOpen = sheetMode !== null;
-	const closeSheet = () => setSheetMode(null);
+	const closeSheet = () => {
+		setSheetMode(null);
+		setFulfilledRequestId('');
+	};
 	const displayMode = sheetMode ?? lastMode.current;
 
 	const [docs, setDocs] = React.useState<DocumentDashboardRow[]>(
@@ -121,6 +131,16 @@ export default function DocumentsTab({
 		React.useState<DocumentDashboardRow | null>(null);
 	const [sortField, setSortField] = React.useState<SortField>('date');
 	const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
+
+	const todayIso = React.useMemo(
+		() => new Date().toISOString().slice(0, 10),
+		[],
+	);
+	const maxDueDate = React.useMemo(() => {
+		const d = new Date();
+		d.setFullYear(d.getFullYear() + 5);
+		return d.toISOString().slice(0, 10);
+	}, []);
 
 	React.useEffect(() => {
 		if (sheetMode !== null) lastMode.current = sheetMode;
@@ -135,30 +155,50 @@ export default function DocumentsTab({
 		}
 	};
 
+	/**
+	 * Vista de archivados, separada de la de activos. Es el único sitio desde
+	 * el que se puede restaurar un documento o eliminarlo definitivamente.
+	 */
+	const [showArchived, setShowArchived] = React.useState(false);
+
+	const archivedCount = React.useMemo(
+		() => docs.filter((d) => d.status === 'archived').length,
+		[docs],
+	);
+
 	const sortedDocs = React.useMemo(() => {
-		return [...docs].sort((a, b) => {
-			let va = '';
-			let vb = '';
-			if (sortField === 'name') {
-				va = a.file_title ?? a.file_name;
-				vb = b.file_title ?? b.file_name;
-			} else if (sortField === 'type') {
-				va = a.document_type?.name ?? '';
-				vb = b.document_type?.name ?? '';
-			} else if (sortField === 'status') {
-				va = a.status;
-				vb = b.status;
-			} else {
-				va = a.uploaded_at ?? '';
-				vb = b.uploaded_at ?? '';
-			}
-			return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
-		});
-	}, [docs, sortField, sortDir]);
+		return [...docs]
+			.filter((d) =>
+				showArchived ? d.status === 'archived' : d.status !== 'archived',
+			)
+			.sort((a, b) => {
+				let va = '';
+				let vb = '';
+				if (sortField === 'name') {
+					va = a.file_title ?? a.file_name;
+					vb = b.file_title ?? b.file_name;
+				} else if (sortField === 'type') {
+					va = a.document_type?.name ?? '';
+					vb = b.document_type?.name ?? '';
+				} else if (sortField === 'status') {
+					va = a.status;
+					vb = b.status;
+				} else {
+					va = a.uploaded_at ?? '';
+					vb = b.uploaded_at ?? '';
+				}
+				return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+			});
+	}, [docs, sortField, sortDir, showArchived]);
 
 	const uploadAction = `/api/documents/upload?incorporationCaseId=${encodeURIComponent(incorporationCaseId)}&back=${encodeURIComponent(backPath)}`;
 
 	const [uploading, setUploading] = React.useState(false);
+	const [creatingRequest, setCreatingRequest] = React.useState(false);
+	// Solicitud que este documento viene a cumplir. Sin esto, la subida se
+	// registraba con document_request_id nulo y la solicitud se quedaba
+	// abierta para siempre.
+	const [fulfilledRequestId, setFulfilledRequestId] = React.useState('');
 
 	const handleUpload = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -282,9 +322,124 @@ export default function DocumentsTab({
 		}
 	};
 
-	const pendingRequestsCount = requests.filter(
-		(r) => r.status === 'pending' || r.status === 'under_review',
-	).length;
+	const onArchive = async (
+		documentId: string,
+		archived: boolean,
+		e: React.MouseEvent,
+	) => {
+		e.stopPropagation();
+		if (!isStaff) return;
+		const toastId = toast.loading(archived ? 'Archivando…' : 'Desarchivando…');
+		try {
+			const res = await fetch('/api/documents/archive', {
+				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ documentId, archived }),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data?.error || 'Error');
+
+			setDocs((prev) =>
+				prev.map((d) =>
+					d.id === documentId ? { ...d, status: data.status } : d,
+				),
+			);
+			toast.success(archived ? 'Documento archivado' : 'Documento restaurado', {
+				id: toastId,
+			});
+		} catch (error) {
+			toast.error(
+				error instanceof Error ? error.message : 'No se pudo archivar',
+				{ id: toastId },
+			);
+		}
+	};
+
+	const onDelete = async (
+		documentId: string,
+		fileName: string,
+		e: React.MouseEvent,
+	) => {
+		e.stopPropagation();
+		if (!canDelete) return;
+
+		// Irreversible y se lleva la bitácora del documento por delante.
+		const confirmed = globalThis.confirm(
+			`Se eliminará «${fileName}» de forma permanente, junto con su archivo y todo su historial. Esta acción no se puede deshacer.\n\n¿Continuar?`,
+		);
+		if (!confirmed) return;
+
+		const toastId = toast.loading('Eliminando…');
+		try {
+			const res = await fetch('/api/documents/delete', {
+				method: 'POST',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ documentId }),
+			});
+			const data = await res.json();
+			if (!res.ok) throw new Error(data?.error || 'Error');
+
+			setDocs((prev) => prev.filter((d) => d.id !== documentId));
+			setSelectedDocument((prev) => (prev?.id === documentId ? null : prev));
+			toast.success('Documento eliminado', { id: toastId });
+		} catch (error) {
+			toast.error(
+				error instanceof Error ? error.message : 'No se pudo eliminar',
+				{ id: toastId },
+			);
+		}
+	};
+
+	// Las solicitudes nacen en 'sent', así que filtrar por 'pending'/'under_review'
+	// dejaba el contador siempre en cero. Cuenta las que siguen abiertas.
+	const openRequests = React.useMemo(
+		() => requests.filter((r) => isRequestOpen(r.status)),
+		[requests],
+	);
+	const pendingRequestsCount = openRequests.length;
+
+	/**
+	 * El formulario hacía un POST normal, con recarga y el aviso del
+	 * `Alert.astro` legacy. Se intercepta para responder con sonner, igual que
+	 * la subida de documentos de este mismo componente.
+	 */
+	const handleCreateRequest = async (
+		e: React.SyntheticEvent<HTMLFormElement>,
+	) => {
+		e.preventDefault();
+		const form = e.currentTarget;
+		setCreatingRequest(true);
+		const toastId = toast.loading('Creando solicitud…');
+		try {
+			const res = await fetch(
+				`/api/documents/request?back=${encodeURIComponent(backPath)}`,
+				{
+					method: 'POST',
+					body: new FormData(form),
+					credentials: 'include',
+					redirect: 'follow',
+				},
+			);
+			const finalUrl = new URL(res.url, window.location.origin);
+			const status = finalUrl.searchParams.get('status');
+			const msg = finalUrl.searchParams.get('msg');
+
+			if (status === 'error') {
+				toast.error(msg ?? 'No se pudo crear la solicitud', { id: toastId });
+				return;
+			}
+
+			toast.success(msg ?? 'Solicitud creada correctamente', { id: toastId });
+			closeSheet();
+			window.location.reload();
+		} catch {
+			toast.error('No se pudo crear la solicitud', { id: toastId });
+		} finally {
+			setCreatingRequest(false);
+		}
+	};
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -307,6 +462,16 @@ export default function DocumentsTab({
 							<Icon icon="ri:upload-2-line" className="h-4 w-4" />
 							Subir documento
 						</Button>
+						<Button
+							type="button"
+							variant={showArchived ? 'default' : 'outline'}
+							onClick={() => setShowArchived((v) => !v)}
+						>
+							<Icon icon="ri:archive-line" className="h-4 w-4" />
+							{showArchived
+								? 'Ver activos'
+								: `Archivados${archivedCount > 0 ? ` (${archivedCount})` : ''}`}
+						</Button>
 					</>
 				)}
 				{pendingRequestsCount > 0 && (
@@ -315,6 +480,18 @@ export default function DocumentsTab({
 					</span>
 				)}
 			</div>
+
+			{/*
+				Solicitudes. Antes esta pestaña solo mostraba el contador de
+				pendientes, así que no había forma de revisar una solicitud desde
+				el detalle de la incorporación.
+			*/}
+			{isStaff && requests.length > 0 && (
+				<div className="space-y-2">
+					<h3 className="text-foreground text-sm font-medium">Solicitudes</h3>
+					<DocumentRequestList requests={requests} canReview={isStaff} />
+				</div>
+			)}
 
 			<div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-transparent">
 				<Table>
@@ -382,18 +559,21 @@ export default function DocumentsTab({
 										{doc.file_title ?? doc.file_name}
 									</TableCell>
 									<TableCell className="max-w-36 truncate">
-										{doc.document_type
-											? `${doc.document_type.code} - ${doc.document_type.name}`
-											: 'Documento'}
+										{doc.document_type?.name ?? 'Documento'}
 									</TableCell>
 									<TableCell>
-										<Badge variant={badgeForDocumentStatus(doc.status)}>
-											{statusLabel(doc.status)}
-										</Badge>
+										<div className="flex flex-wrap items-center gap-1">
+											<Badge variant={badgeForDocumentStatus(doc.status)}>
+												{statusLabel(doc.status)}
+											</Badge>
+											<Badge variant={badgeForSigned(doc.is_signed)}>
+												{signedLabel(doc.is_signed)}
+											</Badge>
+										</div>
 									</TableCell>
 									<TableCell>
-										{doc.visibility === 'client_visible'
-											? 'Visible cliente'
+										{doc.shares.some((share) => share.share_status === 'active')
+											? 'Compartido'
 											: 'Interno'}
 									</TableCell>
 									<TableCell>{formatDate(doc.uploaded_at)}</TableCell>
@@ -454,6 +634,44 @@ export default function DocumentsTab({
 															</DropdownMenuItem>
 														) : null;
 													})()}
+												{isStaff && (
+													<DropdownMenuItem
+														onClick={(e) =>
+															onArchive(doc.id, doc.status !== 'archived', e)
+														}
+														className="gap-2"
+													>
+														<Icon
+															icon={
+																doc.status === 'archived'
+																	? 'ri:inbox-unarchive-line'
+																	: 'ri:inbox-archive-line'
+															}
+															className="h-4 w-4"
+														/>
+														{doc.status === 'archived'
+															? 'Desarchivar'
+															: 'Archivar'}
+													</DropdownMenuItem>
+												)}
+												{canDelete && (
+													<DropdownMenuItem
+														onClick={(e) =>
+															onDelete(
+																doc.id,
+																doc.file_title ?? doc.file_name,
+																e,
+															)
+														}
+														className="gap-2 text-red-600 dark:text-red-400"
+													>
+														<Icon
+															icon="ri:delete-bin-line"
+															className="h-4 w-4"
+														/>
+														Eliminar
+													</DropdownMenuItem>
+												)}
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</TableCell>
@@ -464,7 +682,11 @@ export default function DocumentsTab({
 								<TableCell colSpan={7} className="h-32 text-center">
 									<div className="flex flex-col items-center gap-2 text-gray-500 dark:text-gray-400">
 										<Icon icon="ri:file-text-line" className="h-8 w-8" />
-										<p className="text-sm">No hay documentos cargados aún.</p>
+										<p className="text-sm">
+											{showArchived
+												? 'No hay documentos archivados.'
+												: 'No hay documentos cargados aún.'}
+										</p>
 									</div>
 								</TableCell>
 							</TableRow>
@@ -499,6 +721,7 @@ export default function DocumentsTab({
 							<form
 								action={`/api/documents/request?back=${encodeURIComponent(backPath)}`}
 								method="post"
+								onSubmit={handleCreateRequest}
 								className="flex flex-1 flex-col gap-4"
 							>
 								<input
@@ -527,7 +750,13 @@ export default function DocumentsTab({
 										</Field>
 										<Field>
 											<FieldLabel htmlFor="dueDate">Fecha límite</FieldLabel>
-											<Input id="dueDate" name="dueDate" type="date" />
+											<Input
+												id="dueDate"
+												name="dueDate"
+												type="date"
+												min={todayIso}
+												max={maxDueDate}
+											/>
 										</Field>
 									</FieldGroup>
 
@@ -548,7 +777,9 @@ export default function DocumentsTab({
 									<Button variant="outline" type="button" onClick={closeSheet}>
 										Cancelar
 									</Button>
-									<Button type="submit">Crear solicitud</Button>
+									<Button type="submit" disabled={creatingRequest}>
+										{creatingRequest ? 'Creando…' : 'Crear solicitud'}
+									</Button>
 								</SheetFooter>
 							</form>
 						) : (
@@ -568,32 +799,69 @@ export default function DocumentsTab({
 										/>
 									</Field>
 
-									<Field>
-										<FieldLabel>Tipo de documento</FieldLabel>
-										<DocumentTypeComboboxField documentTypes={documentTypes} />
-									</Field>
+									{openRequests.length > 0 && (
+										<Field>
+											<FieldLabel htmlFor="fulfilledRequest">
+												¿Responde a una solicitud?
+											</FieldLabel>
+											<Select
+												value={fulfilledRequestId || 'none'}
+												onValueChange={(value) =>
+													setFulfilledRequestId(
+														!value || value === 'none' ? '' : String(value),
+													)
+												}
+											>
+												<SelectTrigger id="fulfilledRequest" className="w-full">
+													<SelectValue placeholder="Selecciona una solicitud" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectGroup>
+														<SelectItem value="none" label="No, subida suelta">
+															No, subida suelta
+														</SelectItem>
+														{openRequests.map((request) => {
+															const label = `${
+																request.document_type?.name ??
+																'Documento requerido'
+															}${request.due_date ? ` · vence ${request.due_date}` : ''}`;
+															return (
+																<SelectItem
+																	key={request.id}
+																	value={request.id}
+																	label={label}
+																>
+																	{label}
+																</SelectItem>
+															);
+														})}
+													</SelectGroup>
+												</SelectContent>
+											</Select>
+										</Field>
+									)}
 
-									<Field>
-										<FieldLabel htmlFor="visibility">Visibilidad</FieldLabel>
-										<Select name="visibility" defaultValue="internal_only">
-											<SelectTrigger id="visibility" className="w-full">
-												<SelectValue placeholder="Selecciona visibilidad" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectGroup>
-													<SelectItem value="internal_only" label="Interno">
-														Interno
-													</SelectItem>
-													<SelectItem
-														value="client_visible"
-														label="Visible para el cliente"
-													>
-														Visible para el cliente
-													</SelectItem>
-												</SelectGroup>
-											</SelectContent>
-										</Select>
-									</Field>
+									{fulfilledRequestId ? (
+										<input
+											type="hidden"
+											name="documentRequestId"
+											value={fulfilledRequestId}
+										/>
+									) : (
+										<Field>
+											<FieldLabel>Tipo de documento</FieldLabel>
+											<DocumentTypeComboboxField
+												documentTypes={documentTypes}
+											/>
+										</Field>
+									)}
+
+									{fulfilledRequestId && (
+										<p className="text-muted-foreground px-1 text-xs">
+											El tipo de documento lo define la solicitud. Al subirlo,
+											la solicitud pasará a «documento recibido».
+										</p>
+									)}
 
 									<Field>
 										<FieldLabel htmlFor="shareWithClient">Compartir</FieldLabel>

@@ -1,7 +1,10 @@
 import crypto from 'node:crypto';
 import { supabaseAdmin } from '@infrastructure/supabase/admin';
 import { BUCKETS, storage } from '@infrastructure/storage';
-import { safeFilename } from '@domains/documents/helpers';
+import {
+	safeFilename,
+	insertDocumentWithLink,
+} from '@domains/documents/helpers';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type {
@@ -16,10 +19,10 @@ import type {
 
 const db = supabaseAdmin.schema('documents');
 
-// Stable catalog code for the "Other" document type (see migration
-// document_types_seed_other_generic). Used as a placeholder for template
+// Stable catalog slug for the "Other" document type (see migration
+// document_types_drop_code_add_slug). Used as a placeholder for template
 // source files since they don't fit the main document_types catalog.
-const OTHER_DOCUMENT_TYPE_CODE = 9001;
+const OTHER_DOCUMENT_TYPE_SLUG = 'other_generic';
 let cachedOtherDocumentTypeId: number | null = null;
 
 async function getOtherDocumentTypeId(): Promise<number> {
@@ -27,11 +30,11 @@ async function getOtherDocumentTypeId(): Promise<number> {
 	const { data, error } = await db
 		.from('document_types')
 		.select('id')
-		.eq('code', OTHER_DOCUMENT_TYPE_CODE)
+		.eq('slug', OTHER_DOCUMENT_TYPE_SLUG)
 		.maybeSingle();
 	if (error || !data) {
 		throw new Error(
-			`Missing document_types row with code=${OTHER_DOCUMENT_TYPE_CODE}. Run migration document_types_seed_other_generic.`,
+			`Missing document_types row with slug=${OTHER_DOCUMENT_TYPE_SLUG}. Run migration document_types_drop_code_add_slug.`,
 		);
 	}
 	cachedOtherDocumentTypeId = Number((data as { id: number }).id);
@@ -371,41 +374,36 @@ export async function uploadTemplateFile(
 		if (updateError) throw updateError;
 	} else {
 		documentId = crypto.randomUUID();
-		const { error: insertError } = await db.from('documents').insert({
-			id: documentId,
-			document_type_id: documentTypeId,
-			case_id: null,
-			file_name: resolvedName,
-			bucket_storage: bucket,
-			bucket_path: filePath,
-			file_size_bytes: file.size,
-			mime_type: file.type || null,
-			status: 'uploaded',
-			visibility: 'internal_only',
-			is_sensitive: false,
-			version: 1,
-			uploaded_by: userId,
-			uploaded_at: timestamp,
-			created_by: userId,
-			created_at: timestamp,
-			updated_by: userId,
-			updated_at: timestamp,
-		});
-		if (insertError) throw insertError;
-	}
-
-	// ── Vincular documento a plantilla (solo si nuevo) ──
-	if (!oldLink) {
-		const { error: linkError } = await db.from('document_links').insert({
-			document_id: documentId,
-			related_to_type: 'template',
-			related_to_id: templateId,
-			relation_purpose: 'owner',
-			is_primary: true,
-			created_by: userId,
-			created_at: timestamp,
-		});
-		if (linkError) throw linkError;
+		await insertDocumentWithLink(
+			db,
+			bucket,
+			filePath,
+			{
+				id: documentId,
+				document_type_id: documentTypeId,
+				file_name: resolvedName,
+				bucket_storage: bucket,
+				bucket_path: filePath,
+				file_size_bytes: file.size,
+				mime_type: file.type || null,
+				status: 'uploaded',
+				version: 1,
+				uploaded_by: userId,
+				uploaded_at: timestamp,
+				created_by: userId,
+				created_at: timestamp,
+				updated_by: userId,
+				updated_at: timestamp,
+			},
+			{
+				document_id: documentId,
+				related_to_type: 'template',
+				related_to_id: templateId,
+				relation_purpose: 'owner',
+				created_by: userId,
+				created_at: timestamp,
+			},
+		);
 	}
 
 	return { documentId };

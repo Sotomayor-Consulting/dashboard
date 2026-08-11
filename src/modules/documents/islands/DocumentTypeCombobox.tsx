@@ -15,7 +15,6 @@ import { LEGAL_CATEGORY_LABELS } from '../document-ui';
 
 export type DocumentTypeLite = {
 	id: number;
-	code: number;
 	name: string;
 	legal_category: string;
 	applies_to: string;

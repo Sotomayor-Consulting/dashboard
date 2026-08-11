@@ -213,10 +213,7 @@ export async function getCompanyClientViewData(
 		}),
 	);
 
-	const clientDocs = allDocuments.filter(
-		(d) => d.visibility === 'client_visible',
-	);
-	const documents: ClientDocumentItem[] = clientDocs.slice(0, 5).map((d) => ({
+	const documents: ClientDocumentItem[] = allDocuments.slice(0, 5).map((d) => ({
 		id: d.id,
 		title: d.file_title || d.file_name,
 		typeName: d.document_type?.name ?? null,
@@ -247,6 +244,6 @@ export async function getCompanyClientViewData(
 		socios,
 		addresses,
 		documents,
-		documentsTotal: clientDocs.length,
+		documentsTotal: allDocuments.length,
 	};
 }

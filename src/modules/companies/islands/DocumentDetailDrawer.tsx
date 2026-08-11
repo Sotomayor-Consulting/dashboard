@@ -17,6 +17,7 @@ import type { DocumentDashboardRow } from '@domains/documents/document_dashboard
 import {
 	actorRoleLabel,
 	badgeForDocumentStatus,
+	badgeForSigned,
 	eventTypeIcon,
 	eventTypeLabel,
 	formatDate,
@@ -26,6 +27,7 @@ import {
 	getMimeColor,
 	getMimeIcon,
 	legalCategoryLabel,
+	signedLabel,
 	statusLabel,
 } from '@modules/documents/document-ui';
 
@@ -257,6 +259,11 @@ export default function DocumentDetailDrawer({
 		}
 	};
 
+	// La aprobación no vive aquí: se decide sobre la SOLICITUD, no sobre cada
+	// archivo. Con varios documentos respondiendo a una misma solicitud,
+	// aprobar uno cerraba la solicitud entera. Ver reviewDocumentRequest y el
+	// gestor de solicitudes.
+
 	const mime = localDocument?.mime_type ?? null;
 
 	return (
@@ -280,12 +287,20 @@ export default function DocumentDetailDrawer({
 						{/* Badges */}
 						<div className="flex flex-wrap items-center gap-2">
 							{localDocument ? (
-								<Badge
-									variant={badgeForDocumentStatus(localDocument.status)}
-									className="w-fit"
-								>
-									{statusLabel(localDocument.status)}
-								</Badge>
+								<>
+									<Badge
+										variant={badgeForDocumentStatus(localDocument.status)}
+										className="w-fit"
+									>
+										{statusLabel(localDocument.status)}
+									</Badge>
+									<Badge
+										variant={badgeForSigned(localDocument.is_signed)}
+										className="w-fit"
+									>
+										{signedLabel(localDocument.is_signed)}
+									</Badge>
+								</>
 							) : (
 								<Skeleton className="h-5 w-20" />
 							)}
@@ -472,9 +487,11 @@ export default function DocumentDetailDrawer({
 							value={formatFileSize(localDocument?.file_size_bytes)}
 						/>
 						<MiniStat
-							label="Visibilidad"
+							label="Compartido"
 							value={
-								localDocument?.visibility === 'client_visible'
+								localDocument?.shares?.some(
+									(share) => share.share_status === 'active',
+								)
 									? 'Cliente'
 									: 'Interno'
 							}

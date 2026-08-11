@@ -3,18 +3,12 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import {
 	DocumentsError,
+	cancelDocumentRequest,
 	resolveDocumentActor,
-	reviewDocumentRequest,
 	toJsonErrorResponse,
 } from '@domains/documents';
 import { createSupabaseServerClient } from '@infrastructure/supabase';
 
-/**
- * Aprueba o rechaza una solicitud de documentos.
- *
- * La revisión es a nivel de solicitud, no de documento: una solicitud puede
- * tener N archivos y la decisión sobre ellos es una sola.
- */
 export const POST: APIRoute = async ({ request, cookies, locals }) => {
 	try {
 		const supabase = createSupabaseServerClient({
@@ -25,23 +19,12 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 
 		const body = await request.json().catch(() => null);
 		const documentRequestId = body?.documentRequestId as string | undefined;
-		const status = body?.status as string | undefined;
-		const comments = body?.comments as string | undefined;
 
 		if (!documentRequestId) {
 			throw new DocumentsError(400, 'Falta documentRequestId');
 		}
 
-		if (status !== 'approved' && status !== 'rejected') {
-			throw new DocumentsError(400, 'status invalido');
-		}
-
-		const result = await reviewDocumentRequest(
-			actor,
-			documentRequestId,
-			status,
-			comments,
-		);
+		const result = await cancelDocumentRequest(actor, documentRequestId);
 
 		return new Response(JSON.stringify({ ok: true, ...result }), {
 			status: 200,
