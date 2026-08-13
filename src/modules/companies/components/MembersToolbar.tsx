@@ -12,15 +12,12 @@ import { cn } from '@components/utils';
 
 import type { CompanyMemberItem } from '../types';
 
-export const MEMBERS_FILTERS = [
-	'todos',
-	'managers',
-	'socios',
-	'ambos',
-] as const;
+export const MEMBERS_FILTERS = ['todos', 'managers', 'socios'] as const;
 export type MembersFilter = (typeof MEMBERS_FILTERS)[number];
 
 export const MEMBERS_COLUMN_IDS = [
+	'identification_type',
+	'identification_number',
 	'type',
 	'percentage',
 	'start_date',
@@ -30,6 +27,8 @@ export const MEMBERS_COLUMN_IDS = [
 export type MembersColumnId = (typeof MEMBERS_COLUMN_IDS)[number];
 
 export const MEMBERS_COLUMN_LABELS: Record<MembersColumnId, string> = {
+	identification_type: 'Tipo de ID',
+	identification_number: 'Nº de identificación',
 	type: 'Tipo',
 	percentage: 'Porcentaje',
 	start_date: 'Fecha inicio',
@@ -54,11 +53,6 @@ const FILTERS: FilterDef[] = [
 		id: 'socios',
 		label: 'Socios',
 		match: (row) => row.is_member,
-	},
-	{
-		id: 'ambos',
-		label: 'Socio + Manager',
-		match: (row) => row.is_member && row.is_manager,
 	},
 ];
 
@@ -86,7 +80,7 @@ export function MembersToolbar({
 	onToggleColumn,
 }: Props) {
 	return (
-		<div className="border-b border-border px-7 py-3">
+		<div className="border-border border-b px-7 py-3">
 			<div className="flex items-center gap-2">
 				<div className="relative w-64 shrink-0">
 					<Icon
@@ -101,7 +95,7 @@ export function MembersToolbar({
 					/>
 				</div>
 
-				<div className="scrollbar-thin flex flex-1 items-center gap-1.5 overflow-x-auto">
+				<div className="flex flex-1 scrollbar-thin items-center gap-1.5 overflow-x-auto">
 					{FILTERS.map((f) => {
 						const count = rows.filter(f.match).length;
 						const isActive = activeFilter === f.id;
@@ -111,7 +105,7 @@ export function MembersToolbar({
 								type="button"
 								onClick={() => onFilterChange(f.id)}
 								className={cn(
-									'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-xs font-medium transition-colors',
+									'inline-flex shrink-0 items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors',
 									isActive
 										? 'border-gray-900 bg-gray-900 text-white dark:border-white dark:bg-white dark:text-gray-900'
 										: 'border-gray-200 bg-transparent text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-neutral-800',

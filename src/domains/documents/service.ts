@@ -132,10 +132,16 @@ async function resolveCaseOwnerFromInput(
 		return getCompanyOwner(input.relatedToId);
 	}
 
+	// Contextos que no resuelven dueño por sí mismos (member, user, task…):
+	// se toma de la empresa o de la incorporación desde la que se sube.
+	if (input.companyId) {
+		return getCompanyOwner(input.companyId);
+	}
+
 	if (!input.caseId) {
 		throw new DocumentsError(
 			400,
-			'Falta caseId para el contexto de documento seleccionado',
+			'Falta companyId o caseId para el contexto de documento seleccionado',
 		);
 	}
 
@@ -564,6 +570,7 @@ export async function listDocumentsByContext(
 				document_request_id,
 				document_types:document_type_id (
 					id,
+					slug,
 					name,
 					legal_category,
 					applies_to
@@ -645,9 +652,17 @@ export async function listDocumentsByContext(
 	};
 }
 
+/**
+ * `preview` devuelve la URL sin `download`, para que el navegador muestre el
+ * archivo en lugar de bajarlo. Antes solo existía el modo descarga: abrir un
+ * pasaporte para mirarlo dejaba una copia en el disco de quien lo revisaba.
+ */
+export type SignedUrlMode = 'download' | 'preview';
+
 export async function createDocumentSignedUrl(
 	actor: DocumentActor,
 	documentId: string,
+	mode: SignedUrlMode = 'download',
 ): Promise<string> {
 	const { data: doc, error: docErr } = await documentsDb
 		.from('documents')
@@ -685,7 +700,7 @@ export async function createDocumentSignedUrl(
 			doc.bucket_path,
 			{
 				expiresIn: DEFAULT_SIGNED_URL_TTL_SECONDS,
-				download: doc.file_name,
+				...(mode === 'download' && { download: doc.file_name }),
 			},
 		);
 	} catch {
@@ -694,7 +709,7 @@ export async function createDocumentSignedUrl(
 
 	await documentsDb.from('document_events').insert({
 		document_id: documentId,
-		event_type: 'downloaded',
+		event_type: mode === 'download' ? 'downloaded' : 'previewed',
 		actor_user_id: actor.userId,
 		actor_role: actor.actorRole,
 		metadata: {

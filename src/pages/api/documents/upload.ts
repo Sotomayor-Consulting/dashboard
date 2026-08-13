@@ -58,17 +58,37 @@ export const POST: APIRoute = async ({
 		(form.get('caseId') as string | null) ||
 		incorporationCaseId ||
 		null;
+	const companyIdParam =
+		url.searchParams.get('companyId') ||
+		(form.get('companyId') as string | null) ||
+		null;
 	const backParam =
 		url.searchParams.get('back') || (form.get('back') as string | null);
 	const back =
 		backParam ??
 		`/incorporation/${incorporationCaseId ?? relatedToId}/documents`;
 
+	// Los paneles que suben por fetch (tarjetas de documentos) esperan JSON; el
+	// resto son <form> clásicos que necesitan el redirect con el mensaje.
+	const wantsJson =
+		(request.headers.get('accept') || '').includes('application/json') ||
+		url.searchParams.get('response') === 'json';
+
 	const redirectWithStatus = (
 		status: 'success' | 'error',
 		msg: string,
-	): Response =>
-		redirect(`${back}?status=${status}&msg=${encodeURIComponent(msg)}`);
+	): Response => {
+		if (wantsJson) {
+			return new Response(
+				JSON.stringify(status === 'success' ? { ok: true } : { error: msg }),
+				{
+					status: status === 'success' ? 200 : 400,
+					headers: { 'Content-Type': 'application/json' },
+				},
+			);
+		}
+		return redirect(`${back}?status=${status}&msg=${encodeURIComponent(msg)}`);
+	};
 
 	if (!relatedToId) {
 		return redirectWithStatus('error', 'Falta relatedToId');
@@ -138,6 +158,7 @@ export const POST: APIRoute = async ({
 			relatedToType,
 			relatedToId,
 			caseId: caseIdParam,
+			companyId: companyIdParam,
 			autoShare: shouldAutoShare,
 			shareWithUserId,
 			isSigned,

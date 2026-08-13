@@ -30,6 +30,13 @@ export interface UploadDocumentInput {
 	relatedToType: DocumentRelatedType;
 	relatedToId: string;
 	caseId?: string | null;
+	/**
+	 * Empresa desde la que se sube un documento de un contexto que no resuelve
+	 * dueño por sí mismo (p. ej. `member`). Alternativa a `caseId`: los
+	 * documentos de un miembro se gestionan desde la ficha de la empresa, que
+	 * puede no tener incorporación asociada.
+	 */
+	companyId?: string | null;
 	shareWithUserId?: string | null;
 	/**
 	 * Comparte el documento con el cliente al subirlo. Sustituye a la antigua

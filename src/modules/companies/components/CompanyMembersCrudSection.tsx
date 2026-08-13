@@ -11,6 +11,12 @@ import {
 	ComboboxList,
 } from '@components/ui/Combobox';
 import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@components/ui/DropdownMenu';
+import {
 	Dialog,
 	DialogContent,
 	DialogFooter,
@@ -20,7 +26,6 @@ import {
 import {
 	Sheet,
 	SheetContent,
-	SheetFooter,
 	SheetHeader,
 	SheetTitle,
 } from '@components/ui/Sheet';
@@ -40,8 +45,9 @@ import {
 	SelectValue,
 } from '@components/ui/Select';
 import { Switch } from '@components/ui/Switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/Tabs';
 import { cn } from '@components/utils';
-import { PencilIcon, PlusIcon, UserPlusIcon } from 'lucide-react';
+import { PencilIcon, PlusIcon, Trash2Icon, UserPlusIcon } from 'lucide-react';
 
 import type { CompanyMemberItem, MemberItem } from '../types';
 import {
@@ -51,8 +57,10 @@ import {
 	useCompanyMembersCrud,
 } from '../hooks/use-company-members-crud';
 import { useMembersSearch } from '../hooks/use-members-search';
-import CrudFormSheet from './shared/CrudFormSheet';
+import CrudFormSheet, { CrudSheetFooter } from './shared/CrudFormSheet';
 import MemberAddressesPanel from './MemberAddressesPanel';
+import MemberDocumentsPanel from './MemberDocumentsPanel';
+import MemberSummaryCard from './MemberSummaryCard';
 import { MemberCell } from './cells/MemberCell';
 import { MemberEmptyState } from './cells/MemberEmptyState';
 import { MemberRoleBadges } from './cells/MemberRoleBadges';
@@ -61,6 +69,8 @@ import { MemberTypeBadge } from './cells/MemberTypeBadge';
 import {
 	memberDisplayName,
 	memberIdentification,
+	memberIdentificationNumber,
+	memberIdentificationTypeLabel,
 } from './cells/member-display';
 import {
 	matchMembersFilter,
@@ -70,6 +80,8 @@ import {
 } from './MembersToolbar';
 
 const DEFAULT_VISIBLE_COLUMNS: Record<MembersColumnId, boolean> = {
+	identification_type: true,
+	identification_number: true,
 	type: true,
 	percentage: true,
 	start_date: true,
@@ -109,9 +121,12 @@ export default function CompanyMembersCrudSection({
 	const [sortKey, setSortKey] = React.useState<MembersSortKey>('name');
 	const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('asc');
 	const [filter, setFilter] = React.useState<MembersFilter>('todos');
+	// v2: la identificación pasó de ir apilada bajo el nombre a tener sus propias
+	// columnas. La clave cambia para no arrastrar preferencias guardadas sin esas
+	// claves nuevas (se leerían como columnas ocultas).
 	const [visibleColumns, setVisibleColumns] = useLocalStorageState<
 		Record<MembersColumnId, boolean>
-	>('company:members:columns', DEFAULT_VISIBLE_COLUMNS);
+	>('company:members:columns:v2', DEFAULT_VISIBLE_COLUMNS);
 	const toggleColumn = (id: MembersColumnId) =>
 		setVisibleColumns((prev) => ({ ...prev, [id]: !prev[id] }));
 
@@ -143,7 +158,7 @@ export default function CompanyMembersCrudSection({
 
 	return (
 		<section className="-mx-6 -my-5 flex flex-col">
-			<header className="flex items-end justify-between gap-4 border-b border-border px-7 pt-6 pb-4">
+			<header className="border-border flex items-end justify-between gap-4 border-b px-7 pt-6 pb-4">
 				<div>
 					<p className="text-[11.5px] font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
 						Miembros
@@ -214,6 +229,26 @@ export default function CompanyMembersCrudSection({
 									onClick={toggleSort}
 									className="px-7 py-3 text-left"
 								/>
+								{visibleColumns.identification_type && (
+									<SortableTh
+										label="Tipo de ID"
+										keyId="identification_type"
+										active={sortKey === 'identification_type'}
+										dir={sortDir}
+										onClick={toggleSort}
+										className="py-3 pr-4 text-left"
+									/>
+								)}
+								{visibleColumns.identification_number && (
+									<SortableTh
+										label="Nº de identificación"
+										keyId="identification_number"
+										active={sortKey === 'identification_number'}
+										dir={sortDir}
+										onClick={toggleSort}
+										className="py-3 pr-4 text-left"
+									/>
+								)}
 								{visibleColumns.type && (
 									<SortableTh
 										label="Tipo"
@@ -246,7 +281,7 @@ export default function CompanyMembersCrudSection({
 								)}
 								{visibleColumns.role && (
 									<th className="py-3 pr-4 text-left">
-										<span className="uppercase tracking-wider">Rol</span>
+										<span className="tracking-wider uppercase">Rol</span>
 									</th>
 								)}
 								{visibleColumns.actions && (
@@ -271,11 +306,23 @@ export default function CompanyMembersCrudSection({
 									<td className="px-7">
 										<MemberCell member={row.member} />
 									</td>
+									{visibleColumns.identification_type && (
+										<td className="pr-4">
+											<span className="text-[12.5px] text-gray-700 dark:text-gray-300">
+												{memberIdentificationTypeLabel(row.member)}
+											</span>
+										</td>
+									)}
+									{visibleColumns.identification_number && (
+										<td className="pr-4">
+											<span className="text-[12.5px] text-gray-700 tabular-nums dark:text-gray-300">
+												{memberIdentificationNumber(row.member)}
+											</span>
+										</td>
+									)}
 									{visibleColumns.type && (
 										<td className="pr-4">
-											<MemberTypeBadge
-												type={row.member?.person_type ?? null}
-											/>
+											<MemberTypeBadge type={row.member?.person_type ?? null} />
 										</td>
 									)}
 									{visibleColumns.percentage && (
@@ -330,7 +377,7 @@ export default function CompanyMembersCrudSection({
 					(!crud.relationDraft.is_member && !crud.relationDraft.is_manager)
 				}
 			>
-				<div className="space-y-6 px-4">
+				<div className="space-y-6 px-5">
 					<MemberPicker
 						selectedMember={crud.selectedMember}
 						isCreatingNewPerson={crud.isCreatingNewPerson}
@@ -359,88 +406,143 @@ export default function CompanyMembersCrudSection({
 				open={crud.isEditOpen}
 				onOpenChange={crud.setIsEditOpen}
 				title="Editar miembro"
-				description="Cambia el rol, porcentaje o fecha de inicio. Para editar los datos personales, usa el botón al pie."
 				submitLabel={crud.isSaving ? 'Guardando...' : 'Guardar cambios'}
 				onSubmit={crud.saveRelation}
+				headerMenu={
+					<DropdownMenu>
+						<DropdownMenuTrigger
+							render={<Button variant="ghost" size="icon-sm" />}
+							aria-label="Opciones del miembro"
+						>
+							<Icon icon="ri:more-2-fill" className="h-4 w-4" />
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" className="w-56">
+							<DropdownMenuItem
+								disabled={!canEditDetails}
+								onClick={crud.openEditPerson}
+							>
+								<PencilIcon className="size-4" />
+								Editar datos personales
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								variant="destructive"
+								disabled={!canEditDetails || crud.isSaving}
+								onClick={() => {
+									const row = crud.activeRow;
+									if (!row) return;
+									// El sheet se cierra antes de abrir el diálogo: dos capas
+									// modales superpuestas dejan el foco atrapado en la de abajo.
+									crud.setIsEditOpen(false);
+									crud.openDelete(row);
+								}}
+							>
+								<Trash2Icon className="size-4" />
+								Eliminar miembro
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				}
 				submitDisabled={
 					crud.isSaving ||
 					!canEditDetails ||
 					(!crud.relationDraft.is_member && !crud.relationDraft.is_manager)
 				}
+				headerContent={
+					crud.selectedMember ? (
+						<MemberSummaryCard
+							member={crud.selectedMember}
+							row={crud.activeRow}
+						/>
+					) : null
+				}
 			>
-				<div className="space-y-6 px-4">
-					{crud.selectedMember ? (
-						<div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
-							<div className="flex items-center justify-between gap-3">
-								<div>
-									<p className="text-sm font-semibold">
-										{displayName(crud.selectedMember)}
-									</p>
-									<p className="text-muted-foreground text-xs">
-										{formatIdentification(crud.selectedMember)}
-									</p>
-								</div>
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={crud.openEditPerson}
-								>
-									<PencilIcon className="size-4" />
-									Editar datos personales
-								</Button>
-							</div>
-						</div>
-					) : null}
+				<Tabs defaultValue="relation" className="min-w-0 px-5 pt-4">
+					<TabsList className="w-full">
+						<TabsTrigger value="relation" className="flex-1">
+							Relación
+						</TabsTrigger>
+						<TabsTrigger value="documents" className="flex-1">
+							Documentos
+						</TabsTrigger>
+					</TabsList>
 
-					<RelationForm
-						draft={crud.relationDraft}
-						updateDraft={crud.updateRelationDraft}
-					/>
-				</div>
+					<TabsContent value="relation" className="pt-4">
+						<RelationForm
+							draft={crud.relationDraft}
+							updateDraft={crud.updateRelationDraft}
+						/>
+					</TabsContent>
+
+					{/* Consulta: los documentos son de la persona, no de su relación
+					    con esta empresa. La carga vive en "Editar datos personales". */}
+					<TabsContent value="documents" className="pt-4">
+						<MemberDocumentsPanel
+							memberId={crud.selectedMember?.id ?? null}
+							owner={scope}
+							canUpload={false}
+							description="Documentos de la persona. Para cargar o reemplazar archivos, usa “Editar datos personales”."
+						/>
+					</TabsContent>
+				</Tabs>
 			</CrudFormSheet>
 
 			{/* Editar persona */}
-			<Sheet open={crud.isEditPersonOpen} onOpenChange={crud.setIsEditPersonOpen}>
+			<Sheet
+				open={crud.isEditPersonOpen}
+				onOpenChange={crud.setIsEditPersonOpen}
+			>
 				<SheetContent
 					side="right"
-					className="max-h-dvh w-full max-w-[600px] overflow-y-auto sm:max-w-3xl"
+					className="flex h-dvh w-full max-w-[600px] flex-col gap-0 overflow-hidden sm:max-w-3xl"
 				>
-					<SheetHeader className="pb-3">
+					<SheetHeader className="shrink-0 px-5 pt-5 pb-3">
 						<SheetTitle>Editar datos personales</SheetTitle>
 						<p className="text-muted-foreground text-sm">
-							Estos datos se comparten con todas las empresas a las que pertenezca
-							esta persona.
+							Estos datos se comparten con todas las empresas a las que
+							pertenezca esta persona.
 						</p>
 					</SheetHeader>
-					<div className="flex flex-col gap-6 px-4 pb-4">
-						<MemberPiiForm
-							draft={crud.memberDraft}
-							updateDraft={crud.updateMemberDraft}
-						/>
-						<div className="border-t border-gray-200 pt-5 dark:border-gray-700">
-							<MemberAddressesPanel
-								memberId={crud.selectedMember?.id ?? null}
-								canEdit={canEditDetails}
-							/>
-						</div>
+					<div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-4 pb-5">
+						<Tabs defaultValue="personal" className="min-w-0">
+							<TabsList className="w-full">
+								<TabsTrigger value="personal" className="flex-1">
+									Personales
+								</TabsTrigger>
+								<TabsTrigger value="addresses" className="flex-1">
+									Direcciones
+								</TabsTrigger>
+								<TabsTrigger value="documents" className="flex-1">
+									Documentos
+								</TabsTrigger>
+							</TabsList>
+
+							<TabsContent value="personal" className="pt-4">
+								<MemberPiiForm
+									draft={crud.memberDraft}
+									updateDraft={crud.updateMemberDraft}
+								/>
+							</TabsContent>
+							<TabsContent value="addresses" className="pt-4">
+								<MemberAddressesPanel
+									memberId={crud.selectedMember?.id ?? null}
+									canEdit={canEditDetails}
+								/>
+							</TabsContent>
+							<TabsContent value="documents" className="pt-4">
+								<MemberDocumentsPanel
+									memberId={crud.selectedMember?.id ?? null}
+									owner={scope}
+									canUpload={canEditDetails}
+								/>
+							</TabsContent>
+						</Tabs>
 					</div>
-					<SheetFooter>
-						<Button
-							type="button"
-							onClick={crud.savePerson}
-							disabled={crud.isSaving || !crud.hasMemberName}
-						>
-							{crud.isSaving ? 'Guardando...' : 'Guardar persona'}
-						</Button>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => crud.setIsEditPersonOpen(false)}
-						>
-							Cancelar
-						</Button>
-					</SheetFooter>
+					<CrudSheetFooter
+						submitLabel={crud.isSaving ? 'Guardando...' : 'Guardar persona'}
+						onSubmit={crud.savePerson}
+						submitDisabled={crud.isSaving || !crud.hasMemberName}
+						onCancel={() => crud.setIsEditPersonOpen(false)}
+					/>
 				</SheetContent>
 			</Sheet>
 
@@ -453,7 +555,14 @@ export default function CompanyMembersCrudSection({
 					<p className="text-muted-foreground text-sm">
 						Se marcará como eliminada la relación de{' '}
 						<strong>
-							{crud.activeRow?.member?.name ?? [crud.activeRow?.member?.first_name, crud.activeRow?.member?.last_name].filter(Boolean).join(' ') ?? 'esta persona'}
+							{crud.activeRow?.member?.name ??
+								[
+									crud.activeRow?.member?.first_name,
+									crud.activeRow?.member?.last_name,
+								]
+									.filter(Boolean)
+									.join(' ') ??
+								'esta persona'}
 						</strong>{' '}
 						con la empresa. La persona seguirá disponible en el registro
 						maestro.
@@ -467,21 +576,25 @@ export default function CompanyMembersCrudSection({
 							placeholder="Ej: ya no es socio"
 						/>
 					</Field>
-					<DialogFooter>
-						<Button
-							type="button"
-							variant="destructive"
-							onClick={() => crud.removeMember(deleteReason || null)}
-							disabled={crud.isSaving}
-						>
-							{crud.isSaving ? 'Eliminando...' : 'Eliminar'}
-						</Button>
+					<DialogFooter className="flex-row items-center justify-between gap-2">
 						<Button
 							type="button"
 							variant="outline"
+							size="sm"
 							onClick={() => crud.setIsDeleteOpen(false)}
 						>
 							Cancelar
+						</Button>
+						<Button
+							type="button"
+							variant="destructive"
+							size="sm"
+							className="gap-1.5"
+							onClick={() => crud.removeMember(deleteReason || null)}
+							disabled={crud.isSaving}
+						>
+							<Trash2Icon className="size-4" />
+							{crud.isSaving ? 'Eliminando...' : 'Eliminar'}
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -514,7 +627,9 @@ function MemberPicker({
 			{selectedMember && !isCreatingNewPerson ? (
 				<div className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
 					<div>
-						<p className="text-sm font-semibold">{displayName(selectedMember)}</p>
+						<p className="text-sm font-semibold">
+							{displayName(selectedMember)}
+						</p>
 						<p className="text-muted-foreground text-xs">
 							{formatIdentification(selectedMember)}
 						</p>
@@ -593,7 +708,7 @@ function MemberPiiForm({
 		field: K,
 	) => (value: MemberDraft[K]) => void;
 }) {
-	const isEntity = 	draft.person_type === 'entity';
+	const isEntity = draft.person_type === 'entity';
 	return (
 		<FieldGroup className="grid gap-4 md:grid-cols-2">
 			<Field className="md:col-span-2">
@@ -668,14 +783,18 @@ function MemberPiiForm({
 						<SelectGroup>
 							<SelectItem value="passport">Pasaporte</SelectItem>
 							<SelectItem value="id">Cédula / ID Nacional</SelectItem>
-							<SelectItem value="drivers_license">Licencia de conducir</SelectItem>
+							<SelectItem value="drivers_license">
+								Licencia de conducir
+							</SelectItem>
 							<SelectItem value="ein">EIN</SelectItem>
 						</SelectGroup>
 					</SelectContent>
 				</Select>
 			</Field>
 			<Field>
-				<FieldLabel htmlFor="member_id_number">Número de identificación</FieldLabel>
+				<FieldLabel htmlFor="member_id_number">
+					Número de identificación
+				</FieldLabel>
 				<Input
 					id="member_id_number"
 					value={draft.identification_number}
@@ -686,7 +805,9 @@ function MemberPiiForm({
 			{!isEntity && (
 				<>
 					<Field>
-						<FieldLabel htmlFor="member_birth_date">Fecha de nacimiento</FieldLabel>
+						<FieldLabel htmlFor="member_birth_date">
+							Fecha de nacimiento
+						</FieldLabel>
 						<Input
 							id="member_birth_date"
 							type="date"
@@ -699,7 +820,9 @@ function MemberPiiForm({
 						<Select
 							value={draft.marital_status || ''}
 							onValueChange={(value) =>
-								updateDraft('marital_status')(value as MemberDraft['marital_status'])
+								updateDraft('marital_status')(
+									value as MemberDraft['marital_status'],
+								)
 							}
 						>
 							<SelectTrigger id="member_marital" className="w-full">
@@ -711,7 +834,9 @@ function MemberPiiForm({
 									<SelectItem value="married">Casado/a</SelectItem>
 									<SelectItem value="widowed">Viudo/a</SelectItem>
 									<SelectItem value="divorced">Divorciado/a</SelectItem>
-									<SelectItem value="legally_separated">Separación legal</SelectItem>
+									<SelectItem value="legally_separated">
+										Separación legal
+									</SelectItem>
 									<SelectItem value="civil_union">Unión civil</SelectItem>
 									<SelectItem value="annulled">Anulado</SelectItem>
 								</SelectGroup>
@@ -790,13 +915,10 @@ function RelationForm({
 					value={draft.start_date}
 					onChange={(e) => updateDraft('start_date')(e.target.value)}
 				/>
-				<FieldDescription>
-					Cuando esta persona se sumó como miembro de la empresa.
-				</FieldDescription>
 			</Field>
 			<Field className="md:col-span-2">
 				<FieldLabel>Rol en la empresa *</FieldLabel>
-				<div className="flex flex-col gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+				<div className="flex flex-col gap-3">
 					<label className="flex items-center justify-between gap-3 text-sm">
 						<div>
 							<p className="font-medium">Socio</p>
@@ -836,7 +958,13 @@ function RelationForm({
 // Sort + helpers
 // ────────────────────────────────────────────────────────────────
 
-type MembersSortKey = 'name' | 'type' | 'percentage' | 'start_date';
+type MembersSortKey =
+	| 'name'
+	| 'identification_type'
+	| 'identification_number'
+	| 'type'
+	| 'percentage'
+	| 'start_date';
 
 function SortableTh({
 	label,
@@ -858,7 +986,7 @@ function SortableTh({
 			<button
 				type="button"
 				onClick={() => onClick(keyId)}
-				className="inline-flex items-center gap-1 uppercase tracking-wider hover:text-gray-900 dark:hover:text-gray-100"
+				className="inline-flex items-center gap-1 tracking-wider uppercase hover:text-gray-900 dark:hover:text-gray-100"
 			>
 				{label}
 				{active && (
@@ -881,6 +1009,14 @@ function compareMembers(
 		case 'name':
 			return memberDisplayName(a.member).localeCompare(
 				memberDisplayName(b.member),
+			);
+		case 'identification_type':
+			return memberIdentificationTypeLabel(a.member).localeCompare(
+				memberIdentificationTypeLabel(b.member),
+			);
+		case 'identification_number':
+			return memberIdentificationNumber(a.member).localeCompare(
+				memberIdentificationNumber(b.member),
 			);
 		case 'type': {
 			const av = a.member?.person_type ?? '';

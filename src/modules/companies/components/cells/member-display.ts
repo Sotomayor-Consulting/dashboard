@@ -25,6 +25,17 @@ export function memberIdentification(member: MemberItem | null) {
 	return `${label}: ${member.identification_number}`;
 }
 
+/** Etiqueta del tipo de identificación, para su propia columna. */
+export function memberIdentificationTypeLabel(member: MemberItem | null) {
+	if (!member?.identification_type) return '—';
+	return ID_TYPE_LABEL[member.identification_type] ?? 'ID';
+}
+
+/** Número de identificación, sin el prefijo del tipo. */
+export function memberIdentificationNumber(member: MemberItem | null) {
+	return member?.identification_number?.trim() || '—';
+}
+
 export function memberShortType(type?: MemberItem['person_type']) {
 	if (!type) return '—';
 	return type === 'entity' ? 'Jurídica' : 'Natural';
