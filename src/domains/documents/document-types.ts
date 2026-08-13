@@ -26,6 +26,55 @@ export type DocumentTypeSlug =
 	(typeof DOCUMENT_TYPE_SLUGS)[keyof typeof DOCUMENT_TYPE_SLUGS];
 
 /**
+ * Ámbitos del catálogo (`document_types.applies_to`).
+ */
+export const DOCUMENT_APPLIES_TO = [
+	'user',
+	'profile',
+	'member',
+	'company',
+	'incorporation_case',
+	'workflow',
+	'generic',
+] as const;
+
+export type DocumentAppliesTo = (typeof DOCUMENT_APPLIES_TO)[number];
+
+export interface DocumentTypeRow {
+	id: number;
+	slug: string;
+	name: string;
+	description: string | null;
+	applies_to: DocumentAppliesTo;
+	requires_approval: boolean;
+}
+
+/**
+ * Tipos activos del catálogo para uno o varios ámbitos. Las tarjetas de
+ * documentos se construyen a partir de esto (identidad estable = `slug`), no
+ * de una lista hardcodeada en el front: añadir un tipo al catálogo añade su
+ * tarjeta sin tocar código.
+ */
+export async function listDocumentTypes(
+	appliesTo: DocumentAppliesTo[],
+): Promise<DocumentTypeRow[]> {
+	const { data, error } = await supabaseAdmin
+		.schema('documents')
+		.from('document_types')
+		.select('id, slug, name, description, applies_to, requires_approval')
+		.eq('is_active', true)
+		.in('applies_to', appliesTo)
+		.order('id', { ascending: true });
+
+	if (error) {
+		log.error('No se pudo listar el catálogo de tipos', { appliesTo, error });
+		throw new DocumentsError(500, 'Error listando los tipos de documento');
+	}
+
+	return (data ?? []) as DocumentTypeRow[];
+}
+
+/**
  * El catálogo es estático (13 filas, solo cambia por migración), así que la
  * resolución slug → id se cachea en memoria del proceso.
  */
