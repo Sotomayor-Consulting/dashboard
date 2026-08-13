@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 import 'sonner/dist/styles.css';
+import { createPortal } from 'react-dom';
 
 type ThemeMode = NonNullable<ToasterProps['theme']>;
 
@@ -27,7 +28,8 @@ export default function Toaster(props: ToasterProps) {
 		return () => observer.disconnect();
 	}, []);
 
-	return (
+
+	const toasterContent = (
 		<Sonner
 			theme={theme}
 			position="top-center"
@@ -48,4 +50,7 @@ export default function Toaster(props: ToasterProps) {
 			{...props}
 		/>
 	);
+
+	if (typeof window === 'undefined') return null;
+	return createPortal(toasterContent, document.body);
 }

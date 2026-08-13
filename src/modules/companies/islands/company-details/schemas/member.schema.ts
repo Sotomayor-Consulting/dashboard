@@ -30,7 +30,7 @@ export const maritalStatusSchema = z.enum([
 	'legally_separated',
 	'civil_union',
 	'annulled',
-]);
+])
 
 export const memberSchema = z
 	.object({
@@ -50,7 +50,7 @@ export const memberSchema = z
 			numericPreprocess,
 			z.number().int().nullable(),
 		),
-		marital_status: maritalStatusSchema.nullable(),
+		marital_status: z.preprocess(emptyToNull, maritalStatusSchema.nullable()),
 		ssn: z.preprocess(emptyToNull, z.string().nullable()),
 		itin: z.preprocess(emptyToNull, z.string().nullable()),
 	})

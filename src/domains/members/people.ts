@@ -18,11 +18,10 @@ export interface MemberInput {
 	country_nationality_id?: number | null;
 	country_residence_id?: number | null;
 	country_id?: number | null;
-	marital_status?: MemberMaritalStatusType | null;
+	marital_status?: MemberMaritalStatusType;
 	ssn?: string | null;
 	itin?: string | null;
 }
-
 
 const cleanText = (value: unknown) => {
 	if (typeof value !== 'string') return null;
@@ -65,7 +64,7 @@ const memberPayload = (input: MemberInput) => {
 		country_nationality_id: cleanNumber(input.country_nationality_id),
 		country_residence_id: cleanNumber(input.country_residence_id),
 		country_id: cleanNumber(input.country_id),
-		marital_status: (input.marital_status as MemberMaritalStatusType) ?? null,
+		marital_status: cleanText(input.marital_status as MemberMaritalStatusType),
 		ssn: cleanText(input.ssn),
 		itin: cleanText(input.itin),
 	};
