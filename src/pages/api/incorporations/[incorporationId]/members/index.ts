@@ -7,6 +7,7 @@ import {
 	type CompanyMemberInput,
 } from '@domains/companies/company-members';
 import type { MemberInput } from '@domains/members/people';
+import { memberSchema } from '@modules/companies/islands/company-details/schemas/member.schema';
 import { BusinessRuleError } from '@domains/companies/rules/errors';
 import { createLogger } from '@infrastructure/logging';
 
@@ -60,6 +61,18 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 		return json(400, { ok: false, error: 'MEMBER_OR_NEW_PERSON_REQUIRED' });
 	}
 
+	// Mismo schema que el formulario: valida y normaliza las cadenas vacías a
+	// `null`, que es lo que aceptan los enums de la DB.
+	const parsedPerson = hasNewPerson
+		? memberSchema.safeParse(body.new_person)
+		: null;
+	if (parsedPerson && !parsedPerson.success) {
+		return json(400, {
+			ok: false,
+			error: parsedPerson.error.issues[0]?.message ?? 'INVALID_NEW_PERSON',
+		});
+	}
+
 	const relationInput: Omit<CompanyMemberInput, 'member_id'> = {
 		...(body.percentage !== undefined ? { percentage: body.percentage } : {}),
 		...(body.start_date !== undefined ? { start_date: body.start_date } : {}),
@@ -76,11 +89,11 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
 			return json(409, { ok: false, error: 'COMPANY_NOT_CREATED' });
 		}
 
-		const member = hasNewPerson
+		const member = parsedPerson?.success
 			? await createCompanyMemberWithNewPerson(
 					context.supabase,
 					companyId,
-					body.new_person as MemberInput,
+					parsedPerson.data as MemberInput,
 					relationInput,
 					context.user.id,
 				)

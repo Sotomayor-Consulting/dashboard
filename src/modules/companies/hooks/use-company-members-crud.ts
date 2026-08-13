@@ -57,7 +57,7 @@ const emptyRelationDraft: CompanyMemberRelationDraft = {
 };
 
 const memberToDraft = (member: MemberItem | null): MemberDraft => ({
-		person_type: member?.person_type ?? 'individual',
+	person_type: member?.person_type ?? 'individual',
 	first_name: member?.first_name ?? '',
 	last_name: member?.last_name ?? '',
 	name: member?.name ?? '',
@@ -82,10 +82,7 @@ const relationToDraft = (
 	is_manager: row.is_manager,
 });
 
-const requestJson = async <T>(
-	url: string,
-	init: RequestInit,
-): Promise<T> => {
+const requestJson = async <T>(url: string, init: RequestInit): Promise<T> => {
 	const response = await fetch(url, {
 		...init,
 		credentials: 'include',
@@ -102,8 +99,7 @@ const requestJson = async <T>(
 };
 
 export type MembersCrudScope =
-	| { kind: 'incorporation'; id: string }
-	| { kind: 'company'; id: string };
+	{ kind: 'incorporation'; id: string } | { kind: 'company'; id: string };
 
 interface UseCompanyMembersCrudParams {
 	initialRows: CompanyMemberItem[];
@@ -210,9 +206,7 @@ export function useCompanyMembersCrud({
 		setIsCreatingNewPerson(true);
 	};
 
-	const updateMemberRecord = async (
-		memberId: string,
-	): Promise<MemberItem> => {
+	const updateMemberRecord = async (memberId: string): Promise<MemberItem> => {
 		return requestJson<MemberItem>(`/api/members/${memberId}`, {
 			method: 'PATCH',
 			body: JSON.stringify(memberDraft),
@@ -227,10 +221,10 @@ export function useCompanyMembersCrud({
 			is_member: relationDraft.is_member,
 			is_manager: relationDraft.is_manager,
 		};
-		return requestJson<CompanyMemberItem>(
-			`${basePath}/${companyMemberId}`,
-			{ method: 'PATCH', body: JSON.stringify(body) },
-		);
+		return requestJson<CompanyMemberItem>(`${basePath}/${companyMemberId}`, {
+			method: 'PATCH',
+			body: JSON.stringify(body),
+		});
 	};
 
 	const createMember = async () => {
@@ -260,7 +254,8 @@ export function useCompanyMembersCrud({
 			setIsCreateOpen(false);
 			resetDrafts();
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error inesperado';
+			const message =
+				error instanceof Error ? error.message : 'Error inesperado';
 			toast.error(friendlyError(message), { id: toastId });
 		} finally {
 			setIsSaving(false);
@@ -280,7 +275,8 @@ export function useCompanyMembersCrud({
 			toast.success('Relación actualizada', { id: toastId });
 			setIsEditOpen(false);
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error inesperado';
+			const message =
+				error instanceof Error ? error.message : 'Error inesperado';
 			toast.error(friendlyError(message), { id: toastId });
 		} finally {
 			setIsSaving(false);
@@ -302,7 +298,8 @@ export function useCompanyMembersCrud({
 			toast.success('Datos de la persona actualizados', { id: toastId });
 			setIsEditPersonOpen(false);
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error inesperado';
+			const message =
+				error instanceof Error ? error.message : 'Error inesperado';
 			toast.error(friendlyError(message), { id: toastId });
 		} finally {
 			setIsSaving(false);
@@ -322,7 +319,8 @@ export function useCompanyMembersCrud({
 			toast.success('Miembro eliminado de la empresa', { id: toastId });
 			setIsDeleteOpen(false);
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error inesperado';
+			const message =
+				error instanceof Error ? error.message : 'Error inesperado';
 			toast.error(friendlyError(message), { id: toastId });
 		} finally {
 			setIsSaving(false);

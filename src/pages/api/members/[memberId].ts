@@ -5,6 +5,7 @@ import {
 	updateMember,
 	type MemberInput,
 } from '@domains/members/people';
+import { memberSchema } from '@modules/companies/islands/company-details/schemas/member.schema';
 
 import { createLogger } from '@infrastructure/logging';
 
@@ -52,16 +53,24 @@ export const PATCH: APIRoute = async ({ request, cookies, params }) => {
 	const context = await requireCompanyDataManager(request, cookies);
 	if ('error' in context) return context.error;
 
-	const body = (await request.json().catch(() => null)) as MemberInput | null;
+	const body = await request.json().catch(() => null);
 	if (!body) {
 		return json(400, { ok: false, error: 'INVALID_BODY' });
+	}
+
+	const parsed = memberSchema.safeParse(body);
+	if (!parsed.success) {
+		return json(400, {
+			ok: false,
+			error: parsed.error.issues[0]?.message ?? 'INVALID_BODY',
+		});
 	}
 
 	try {
 		const member = await updateMember(
 			context.supabase,
 			memberId,
-			body,
+			parsed.data as MemberInput,
 			context.user.id,
 		);
 		return json(200, { ok: true, data: member });
