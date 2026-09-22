@@ -19,11 +19,18 @@ services:
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: 4321
-      # Vault AppRole auth (secrets se cargan en runtime)
-      VAULT_ENDPOINT: ${VAULT_ENDPOINT}
+      # Vault AppRole auth (secrets se cargan en runtime).
+      # Vault corre en un contenedor propio sin puertos publicados al host:
+      # solo es alcanzable desde su red Docker (ver networks). El endpoint del
+      # CONTENEDOR debe apuntar al nombre DNS de la red (CONTAINER_VAULT_ENDPOINT
+      # o el default), distinto del VAULT_ENDPOINT que usa deploy.mjs desde el host.
+      VAULT_ENDPOINT: ${CONTAINER_VAULT_ENDPOINT:-http://vault-vaultapp-vm1vxd-vault-1:8200}
       VAULT_ROLE_ID: ${VAULT_ROLE_ID}
       VAULT_SECRET_ID: ${VAULT_SECRET_ID}
       VAULT_ENV: ${VAULT_ENV:-production}
+    networks:
+      - default
+      - vault-net
     ports:
       - '4321:4321'
     restart: unless-stopped
@@ -35,3 +42,8 @@ services:
       start_period: 20s
     security_opt:
       - no-new-privileges:true
+
+networks:
+  vault-net:
+    name: ${VAULT_NETWORK:-vault-vaultapp-vm1vxd_default}
+    external: true
